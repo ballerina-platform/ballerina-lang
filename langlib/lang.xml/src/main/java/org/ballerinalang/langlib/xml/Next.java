@@ -31,13 +31,15 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+
 /**
  * Native implementation of lang.xml.XMLIterator:next().
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", functionName = "next",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION, functionName = "next",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "XMLIterator", structPackage = "ballerina/lang.xml"),
         returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true

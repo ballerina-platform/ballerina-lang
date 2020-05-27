@@ -1,54 +1,54 @@
 {
-    "kind": "TYPE_TEST_EXPRESSION",
-    "children": [
+  "kind": "TYPE_TEST_EXPRESSION",
+  "children": [
+    {
+      "kind": "BINARY_EXPRESSION",
+      "children": [
         {
-            "kind": "BINARY_EXPRESSION",
-            "children": [
+          "kind": "TYPE_TEST_EXPRESSION",
+          "children": [
+            {
+              "kind": "BINARY_EXPRESSION",
+              "children": [
                 {
-                    "kind": "TYPE_TEST_EXPRESSION",
-                    "children": [
-                        {
-                            "kind": "BINARY_EXPRESSION",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "x"
-                                },
-                                {
-                                    "kind": "PLUS_TOKEN",
-                                    "isMissing": true
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "IS_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "b"
-                        }
-                    ]
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x"
                 },
                 {
-                    "kind": "PLUS_TOKEN",
-                    "isMissing": true
+                  "kind": "PLUS_TOKEN",
+                  "isMissing": true
                 },
                 {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "c"
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
                 }
-            ]
+              ]
+            },
+            {
+              "kind": "IS_KEYWORD"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "b"
+            }
+          ]
         },
         {
-            "kind": "IS_KEYWORD"
+          "kind": "PLUS_TOKEN",
+          "isMissing": true
         },
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "d"
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "c"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "IS_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "d"
+    }
+  ]
 }

@@ -27,13 +27,15 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
+
 /**
  * Extern function ballerina.model.strings:trim.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string",
+        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION,
         functionName = "trim",
         args = {@Argument(name = "s", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},

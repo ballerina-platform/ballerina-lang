@@ -79,6 +79,7 @@ import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
 import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.PanicStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterNode;
@@ -102,6 +103,7 @@ import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerinalang.compiler.syntax.tree.ServiceBodyNode;
 import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.SingletonTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerinalang.compiler.syntax.tree.SpreadFieldNode;
 import io.ballerinalang.compiler.syntax.tree.StatementNode;
@@ -273,12 +275,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private SymbolTable symTable;
     private BDiagnosticSource diagnosticSource;
 
+    private BLangCompilationUnit currentCompilationUnit;
     private static final Pattern UNICODE_PATTERN = Pattern.compile(Constants.UNICODE_REGEX);
     private BLangAnonymousModelHelper anonymousModelHelper;
     /* To keep track of additional top-level nodes produced from multi-BLangNode resultant transformations */
     private Stack<TopLevelNode> additionalTopLevelNodes = new Stack<>();
     /* To keep track of additional statements produced from multi-BLangNode resultant transformations */
     private Stack<BLangStatement> additionalStatements = new Stack<>();
+    /* To keep track if we are inside a block statment for the use of type definition creation */
+    private boolean isInLocalContext = false;
 
     public BLangNodeTransformer(CompilerContext context, BDiagnosticSource diagnosticSource) {
         this.dlog = BLangDiagnosticLogHelper.getInstance(context);
@@ -321,6 +326,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ModulePartNode modulePart) {
         BLangCompilationUnit compilationUnit = (BLangCompilationUnit) TreeBuilder.createCompilationUnit();
+        this.currentCompilationUnit = compilationUnit;
         compilationUnit.name = diagnosticSource.cUnitName;
         DiagnosticPos pos = getPosition(modulePart);
 
@@ -342,13 +348,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         compilationUnit.pos = pos;
+        this.currentCompilationUnit = null;
         return compilationUnit;
     }
 
     @Override
     public BLangNode transform(ModuleVariableDeclarationNode modVarDeclrNode) {
-        BLangSimpleVariable simpleVar = createSimpleVar(modVarDeclrNode.variableName(),
-                modVarDeclrNode.typeName(), modVarDeclrNode.initializer(),
+        TypedBindingPatternNode typedBindingPattern = modVarDeclrNode.typedBindingPattern();
+        CaptureBindingPatternNode bindingPattern = (CaptureBindingPatternNode) typedBindingPattern.bindingPattern();
+        BLangSimpleVariable simpleVar = createSimpleVar(bindingPattern.variableName(),
+                typedBindingPattern.typeDescriptor(), modVarDeclrNode.initializer(),
                 modVarDeclrNode.finalKeyword().isPresent(), false, null);
         simpleVar.pos = getPosition(modVarDeclrNode);
         return simpleVar;
@@ -466,10 +475,91 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(UnionTypeDescriptorNode unionTypeDescriptorNode) {
-        BLangType rhsTypeNode = createTypeNode(unionTypeDescriptorNode.rightTypeDesc());
-        BLangType lhsTypeNode = createTypeNode(unionTypeDescriptorNode.leftTypeDesc());
+        List<TypeDescriptorNode> nodes = flattenUnionType(unionTypeDescriptorNode);
 
-        return addUnionType(lhsTypeNode, rhsTypeNode, getPosition(unionTypeDescriptorNode));
+        List<TypeDescriptorNode> finiteTypeElements = new ArrayList<>();
+        List<List<TypeDescriptorNode>> unionTypeElementsCollection = new ArrayList<>();
+        for (TypeDescriptorNode type : nodes) {
+            if (type.kind() == SyntaxKind.SINGLETON_TYPE_DESC) {
+                finiteTypeElements.add(type);
+                unionTypeElementsCollection.add(new ArrayList<>());
+            } else {
+                List<TypeDescriptorNode> lastOfOthers;
+                if (unionTypeElementsCollection.isEmpty()) {
+                    lastOfOthers = new ArrayList<>();
+                    unionTypeElementsCollection.add(lastOfOthers);
+                } else {
+                    lastOfOthers = unionTypeElementsCollection.get(unionTypeElementsCollection.size() - 1);
+                }
+
+                lastOfOthers.add(type);
+            }
+        }
+
+        List<TypeDescriptorNode> unionElements = new ArrayList<>();
+        reverseFlatMap(unionTypeElementsCollection, unionElements);
+
+        BLangFiniteTypeNode bLangFiniteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
+        for (TypeDescriptorNode finiteTypeEl : finiteTypeElements) {
+            SingletonTypeDescriptorNode singletonTypeNode = (SingletonTypeDescriptorNode) finiteTypeEl;
+            BLangLiteral literal = createSimpleLiteral(singletonTypeNode.simpleContExprNode());
+            bLangFiniteTypeNode.addValue(literal);
+        }
+
+        if (unionElements.isEmpty()) {
+            return bLangFiniteTypeNode;
+        }
+
+        BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
+        for (TypeDescriptorNode unionElement : unionElements) {
+            unionTypeNode.memberTypeNodes.add(createTypeNode(unionElement));
+        }
+
+        if (!finiteTypeElements.isEmpty()) {
+            unionTypeNode.memberTypeNodes.add(deSugarFiniteTypeAsUserDefType(bLangFiniteTypeNode));
+        }
+        return unionTypeNode;
+    }
+
+    private List<TypeDescriptorNode> flattenUnionType(UnionTypeDescriptorNode unionTypeDescriptorNode) {
+        List<TypeDescriptorNode> list = new ArrayList<>();
+        list.add(unionTypeDescriptorNode.leftTypeDesc());
+        while (unionTypeDescriptorNode.rightTypeDesc().kind() == SyntaxKind.UNION_TYPE_DESC) {
+            unionTypeDescriptorNode = (UnionTypeDescriptorNode) unionTypeDescriptorNode.rightTypeDesc();
+            list.add(unionTypeDescriptorNode.leftTypeDesc());
+        }
+        list.add(unionTypeDescriptorNode.rightTypeDesc());
+        return list;
+    }
+
+    private <T> void reverseFlatMap(List<List<T>> listOfLists, List<T> result) {
+        for (int i = listOfLists.size() - 1; i >= 0; i--) {
+            result.addAll(listOfLists.get(i));
+        }
+    }
+
+    private BLangUserDefinedType deSugarFiniteTypeAsUserDefType(BLangFiniteTypeNode toIndirect) {
+        DiagnosticPos pos = toIndirect.pos;
+        BLangUserDefinedType bLUserDefinedType;
+        BLangTypeDefinition bLTypeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+
+        // Generate a name for the anonymous object
+        String genName = anonymousModelHelper.getNextAnonymousTypeKey(diagnosticSource.pkgID);
+        IdentifierNode anonTypeGenName = createIdentifier(pos, genName);
+        bLTypeDef.setName(anonTypeGenName);
+        bLTypeDef.flagSet.add(Flag.PUBLIC);
+        bLTypeDef.flagSet.add(Flag.ANONYMOUS);
+
+        bLTypeDef.typeNode = toIndirect;
+        bLTypeDef.pos = pos;
+        currentCompilationUnit.addTopLevelNode(bLTypeDef);
+
+        // Create UserDefinedType
+        bLUserDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+        bLUserDefinedType.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        bLUserDefinedType.typeName = bLTypeDef.name;
+        bLUserDefinedType.pos = pos;
+        return bLUserDefinedType;
     }
 
     @Override
@@ -672,6 +762,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(RecordTypeDescriptorNode recordTypeDescriptorNode) {
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) TreeBuilder.createRecordTypeNode();
         boolean hasRestField = false;
+        boolean isAnonymous = recordTypeDescritorIsAnonymous(recordTypeDescriptorNode);
+
         for (Node field : recordTypeDescriptorNode.fields()) {
             if (field.kind() == SyntaxKind.RECORD_FIELD || field.kind() == SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE) {
                 recordTypeNode.fields.add((BLangSimpleVariable) field.apply(this));
@@ -682,9 +774,31 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 recordTypeNode.addTypeReference((BLangType) field.apply(this));
             }
         }
-        recordTypeNode.sealed = !hasRestField;
+        boolean isOpen = recordTypeDescriptorNode.bodyStartDelimiter().kind() == SyntaxKind.OPEN_BRACE_TOKEN;
+        recordTypeNode.sealed = !(hasRestField || isOpen);
         recordTypeNode.pos = getPosition(recordTypeDescriptorNode);
-        return recordTypeNode;
+        recordTypeNode.isAnonymous = isAnonymous;
+        recordTypeNode.isLocal = this.isInLocalContext;
+
+        // If anonymous type, create a user defined type and return it.
+        if (!isAnonymous || this.isInLocalContext) {
+            return recordTypeNode;
+        }
+
+        return createAnonymousRecordType(recordTypeDescriptorNode, recordTypeNode);
+    }
+
+    @Override
+    public BLangNode transform(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
+        BLangFiniteTypeNode bLangFiniteTypeNode = new BLangFiniteTypeNode();
+        BLangLiteral simpleLiteral = createSimpleLiteral(singletonTypeDescriptorNode.simpleContExprNode());
+        bLangFiniteTypeNode.valueSpace.add(simpleLiteral);
+        return bLangFiniteTypeNode;
+    }
+
+    @Override
+    public BLangNode transform(BuiltinSimpleNameReferenceNode singletonTypeDescriptorNode) {
+        return createTypeNode(singletonTypeDescriptorNode);
     }
 
     @Override
@@ -801,6 +915,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(FunctionBodyBlockNode functionBodyBlockNode) {
         BLangBlockFunctionBody bLFuncBody = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
+        this.isInLocalContext = true;
         List<BLangStatement> statements = generateBLangStatements(functionBodyBlockNode.statements());
 
         if (functionBodyBlockNode.namedWorkerDeclarator().isPresent()) {
@@ -819,6 +934,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         bLFuncBody.stmts = statements;
         bLFuncBody.pos = getPosition(functionBodyBlockNode);
+        this.isInLocalContext = false;
         return bLFuncBody;
     }
 
@@ -1101,8 +1217,21 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLFieldBasedAccess.field.pos = getPosition(fieldAccessExprNode);
         bLFieldBasedAccess.expr = createExpression(fieldAccessExprNode.expression());
         bLFieldBasedAccess.fieldKind = FieldKind.SINGLE;
-        // TODO: Fix this when optional field access is available
         bLFieldBasedAccess.optionalFieldAccess = false;
+        return bLFieldBasedAccess;
+    }
+
+    @Override
+    public BLangNode transform(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+        BLangFieldBasedAccess bLFieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
+        Token fieldName = optionalFieldAccessExpressionNode.fieldName();
+        bLFieldBasedAccess.pos = getPosition(optionalFieldAccessExpressionNode);
+        BLangNameReference nameRef = createBLangNameReference(fieldName);
+        bLFieldBasedAccess.field = createIdentifier(getPosition(fieldName), nameRef.name.getValue());
+        bLFieldBasedAccess.field.pos = getPosition(optionalFieldAccessExpressionNode);
+        bLFieldBasedAccess.expr = createExpression(optionalFieldAccessExpressionNode.expression());
+        bLFieldBasedAccess.fieldKind = FieldKind.SINGLE;
+        bLFieldBasedAccess.optionalFieldAccess = true;
         return bLFieldBasedAccess;
     }
 
@@ -1406,7 +1535,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(BlockStatementNode blockStatement) {
         BLangBlockStmt bLBlockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
+        this.isInLocalContext = true;
         bLBlockStmt.stmts = generateBLangStatements(blockStatement.statements());
+        this.isInLocalContext = false;
         return bLBlockStmt;
     }
 
@@ -1415,9 +1546,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangSimpleVariableDef bLVarDef = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
         bLVarDef.pos = getPosition(varDeclaration);
 
+        TypedBindingPatternNode typedBindingPattern = varDeclaration.typedBindingPattern();
+        CaptureBindingPatternNode bindingPattern = (CaptureBindingPatternNode) typedBindingPattern.bindingPattern();
+
         BLangSimpleVariable simpleVar = new SimpleVarBuilder()
-                .with(varDeclaration.variableName().text(), getPosition(varDeclaration.variableName()))
-                .setTypeByNode(varDeclaration.typeName())
+                .with(bindingPattern.variableName().text(), getPosition(bindingPattern.variableName()))
+                .setTypeByNode(typedBindingPattern.typeDescriptor())
                 .setExpressionByNode(varDeclaration.initializer().orElse(null))
                 .setFinal(varDeclaration.finalKeyword().isPresent())
                 .build();
@@ -1528,6 +1662,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
         unionTypeNode.memberTypeNodes.add(createTypeNode(optTypeDescriptor.typeDescriptor()));
         unionTypeNode.memberTypeNodes.add(nilTypeNode);
+        unionTypeNode.nullable = true;
 
         unionTypeNode.pos = getPosition(optTypeDescriptor);
         return unionTypeNode;
@@ -1625,11 +1760,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(SimpleNameReferenceNode simpleNameRefNode) {
-        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-        varRef.pos = getPosition(simpleNameRefNode);
-        varRef.variableName = createIdentifier(getPosition(simpleNameRefNode.name()), simpleNameRefNode.name().text());
-        varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        return varRef;
+        BLangUserDefinedType bLUserDefinedType = new BLangUserDefinedType();
+
+        bLUserDefinedType.pos = getPosition(simpleNameRefNode);
+        bLUserDefinedType.typeName = createIdentifier(getPosition(simpleNameRefNode.name()),
+                                                      simpleNameRefNode.name().text());
+        bLUserDefinedType.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        return bLUserDefinedType;
     }
 
     @Override
@@ -1743,7 +1880,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         arrayTypeNode.sizes = sizes.stream().mapToInt(val -> val).toArray();
         return arrayTypeNode;
     }
-    
+
     @Override
     protected BLangNode transformSyntaxNode(Node node) {
         // TODO: Remove this RuntimeException once all nodes covered
@@ -2355,22 +2492,55 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return node.kind() != SyntaxKind.NONE;
     }
 
-    private BLangUnionTypeNode addUnionType(BLangType lhsTypeNode, BLangType rhsTypeNode, DiagnosticPos position) {
-        BLangUnionTypeNode unionTypeNode;
-        if (rhsTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
-            unionTypeNode = (BLangUnionTypeNode) rhsTypeNode;
-            unionTypeNode.memberTypeNodes.add(0, lhsTypeNode);
-        } else if (lhsTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
-            unionTypeNode = (BLangUnionTypeNode) lhsTypeNode;
-            unionTypeNode.memberTypeNodes.add(rhsTypeNode);
-        } else {
-            unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
-            unionTypeNode.memberTypeNodes.add(lhsTypeNode);
-            unionTypeNode.memberTypeNodes.add(rhsTypeNode);
-        }
 
-        unionTypeNode.pos = position;
-        return unionTypeNode;
+    private boolean recordTypeDescritorIsAnonymous(RecordTypeDescriptorNode recordTypeDescriptorNode) {
+        Node parent = recordTypeDescriptorNode.parent();
+        switch (parent.kind()) {
+            case UNION_TYPE_DESC:
+            case ARRAY_TYPE_DESC:
+            case OPTIONAL_TYPE_DESC:
+            case TYPE_TEST_EXPRESSION:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private boolean ifInLocalContext(Node parent) {
+        while (parent != null) {
+            if (parent instanceof StatementNode) {
+                return true;
+            }
+            parent = parent.parent();
+        }
+        return false;
+    }
+
+    private BLangType createAnonymousRecordType(RecordTypeDescriptorNode recordTypeDescriptorNode,
+            BLangRecordTypeNode recordTypeNode) {
+        BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+        DiagnosticPos pos = getPosition(recordTypeDescriptorNode);
+        // Generate a name for the anonymous object
+        String genName = anonymousModelHelper.getNextAnonymousTypeKey(this.diagnosticSource.pkgID);
+        IdentifierNode anonTypeGenName = createIdentifier(pos, genName, null);
+        typeDef.setName(anonTypeGenName);
+        typeDef.flagSet.add(Flag.PUBLIC);
+        typeDef.flagSet.add(Flag.ANONYMOUS);
+
+        typeDef.typeNode = recordTypeNode;
+        typeDef.pos = pos;
+        this.additionalTopLevelNodes.add(typeDef);
+        return createUserDefinedType(pos, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name);
+    }
+
+    private BLangUserDefinedType createUserDefinedType(DiagnosticPos pos,
+            BLangIdentifier pkgAlias,
+            BLangIdentifier name) {
+        BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+        userDefinedType.pos = pos;
+        userDefinedType.pkgAlias = pkgAlias;
+        userDefinedType.typeName = name;
+        return userDefinedType;
     }
 
     private class SimpleVarBuilder {

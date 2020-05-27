@@ -25,13 +25,15 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.DECIMAL_VERSION;
+
 /**
  * Native implementation of lang.decimal:abs(decimal).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.decimal", functionName = "abs",
+        orgName = "ballerina", packageName = "lang.decimal", version = DECIMAL_VERSION, functionName = "abs",
         args = {@Argument(name = "n", type = TypeKind.DECIMAL)},
         returnType = {@ReturnType(type = TypeKind.DECIMAL)},
         isPublic = true

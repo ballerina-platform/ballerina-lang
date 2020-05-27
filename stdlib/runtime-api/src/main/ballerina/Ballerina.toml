@@ -6,8 +6,8 @@ version = "0.5.0"
 target = "java8"
 
     [[platform.libraries]]
-    artifactId = "runtime-api"
-    version = "@project.version@"
-    path = "./lib/ballerina-runtime-api-@project.version@.jar"
+    artifactId = "runtime"
+    version = "0.5.0"
+    path = "./lib/ballerina-runtime-0.5.0-java.jar"
     groupId = "ballerina"
     modules = ["runtime-api"]

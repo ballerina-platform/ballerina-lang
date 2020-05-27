@@ -1,12 +1,12 @@
 {
-    "kind": "BREAK_STATEMENT",
-    "children": [
-        {
-            "kind": "BREAK_KEYWORD"
-        },
-        {
-            "kind": "SEMICOLON_TOKEN",
-            "isMissing": true
-        }
-    ]
+  "kind": "BREAK_STATEMENT",
+  "children": [
+    {
+      "kind": "BREAK_KEYWORD"
+    },
+    {
+      "kind": "SEMICOLON_TOKEN",
+      "isMissing": true
+    }
+  ]
 }

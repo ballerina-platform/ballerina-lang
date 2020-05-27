@@ -265,10 +265,10 @@ class JvmValueGen {
         String packageName;
         if (module instanceof BIRNode.BIRPackage) {
             BIRNode.BIRPackage birPackage = (BIRNode.BIRPackage) module;
-            packageName = getPackageName(birPackage.org.value, birPackage.name.value);
+            packageName = getPackageName(birPackage.org.value, birPackage.name.value, birPackage.version.value);
         } else if (module instanceof PackageID) {
             PackageID packageID = (PackageID) module;
-            packageName = getPackageName(packageID.orgName, packageID.name);
+            packageName = getPackageName(packageID.orgName, packageID.name, packageID.version);
         } else {
             throw new ClassCastException("module should be PackageID or BIRPackage but is : "
                     + (module == null ? "null" : module.getClass()));

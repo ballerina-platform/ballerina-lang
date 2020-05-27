@@ -88,36 +88,6 @@ public class ParserTestUtils {
         test(content, context, assertFilePath);
     }
 
-    @SuppressWarnings("unused")
-    private static void updateAssertFiles(Path sourceFilePath, Path assertFilePath, ParserRuleContext context) {
-        if (UPDATE_ASSERTS) {
-            try {
-                String jsonString = SyntaxTreeJSONGenerator.generateJSON(sourceFilePath, context);
-                try (BufferedWriter writer =
-                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
-                    writer.write(jsonString);
-                }
-            } catch (Exception e) {
-                // Ignore
-            }
-        }
-    }
-
-    @SuppressWarnings("unused")
-    private static void updateAssertFiles(String source, Path assertFilePath, ParserRuleContext context) {
-        if (UPDATE_ASSERTS) {
-            try {
-                String jsonString = SyntaxTreeJSONGenerator.generateJSON(source, context);
-                try (BufferedWriter writer =
-                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
-                    writer.write(jsonString);
-                }
-            } catch (Exception e) {
-                // Ignore
-            }
-        }
-    }
-
     /**
      * Test parsing a valid source.
      *
@@ -346,6 +316,36 @@ public class ParserTestUtils {
         return text.replace(System.lineSeparator(), "\n");
     }
 
+    @SuppressWarnings("unused")
+    private static void updateAssertFiles(Path sourceFilePath, Path assertFilePath, ParserRuleContext context) {
+        if (UPDATE_ASSERTS) {
+            try {
+                String jsonString = SyntaxTreeJSONGenerator.generateJSON(sourceFilePath, context);
+                try (BufferedWriter writer =
+                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
+                    writer.write(jsonString);
+                }
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private static void updateAssertFiles(String source, Path assertFilePath, ParserRuleContext context) {
+        if (UPDATE_ASSERTS) {
+            try {
+                String jsonString = SyntaxTreeJSONGenerator.generateJSON(source, context);
+                try (BufferedWriter writer =
+                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
+                    writer.write(jsonString);
+                }
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
+    }
+
     private static SyntaxKind getNodeKind(String kind) {
         switch (kind) {
             case "MODULE_PART":
@@ -561,7 +561,7 @@ public class ParserTestUtils {
             case "GT_TOKEN":
                 return SyntaxKind.GT_TOKEN;
             case "EQUAL_GT_TOKEN":
-                return SyntaxKind.RIGHT_DOUBLE_ARROW;
+                return SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN;
             case "QUESTION_MARK_TOKEN":
                 return SyntaxKind.QUESTION_MARK_TOKEN;
             case "LT_EQUAL_TOKEN":
@@ -639,7 +639,7 @@ public class ParserTestUtils {
             case "SINGLE_QUOTE_TOKEN":
                 return SyntaxKind.SINGLE_QUOTE_TOKEN;
             case "RIGHT_DOUBLE_ARROW":
-                return SyntaxKind.RIGHT_DOUBLE_ARROW;
+                return SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN;
             case "SYNC_SEND_TOKEN":
                 return SyntaxKind.SYNC_SEND_TOKEN;
             case "LEFT_ARROW_TOKEN":
@@ -726,6 +726,8 @@ public class ParserTestUtils {
                 return SyntaxKind.CONDITIONAL_EXPRESSION;
             case "TRANSACTIONAL_EXPRESSION":
                 return SyntaxKind.TRANSACTIONAL_EXPRESSION;
+            case "SERVICE_CONSTRUCTOR_EXPRESSION":
+                return SyntaxKind.SERVICE_CONSTRUCTOR_EXPRESSION;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":

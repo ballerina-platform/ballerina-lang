@@ -1,29 +1,39 @@
 {
-    "kind": "MODULE_VAR_DECL",
-    "children": [
+  "kind": "MODULE_VAR_DECL",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
         {
-            "kind": "METADATA",
-            "children": [
-                {
-                    "kind": "LIST",
-                    "children": []
-                }
-            ]
-        },
-        {
-            "kind": "SINGLETON_TYPE_DESC",
-            "children": [
-                {
-                    "kind": "TRUE_KEYWORD"
-                }
-            ]
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
+          "kind": "LIST",
+          "children": []
         }
-    ]
+      ]
+    },
+    {
+      "kind": "TYPED_BINDING_PATTERN",
+      "children": [
+        {
+          "kind": "SINGLETON_TYPE_DESC",
+          "children": [
+            {
+              "kind": "TRUE_KEYWORD"
+            }
+          ]
+        },
+        {
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

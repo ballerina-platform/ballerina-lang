@@ -1,64 +1,64 @@
 {
-    "kind": "BINARY_EXPRESSION",
-    "children": [
+  "kind": "BINARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "UNARY_EXPRESSION",
+      "children": [
         {
-            "kind": "UNARY_EXPRESSION",
-            "children": [
-                {
-                    "kind": "NEGATION_TOKEN"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "a"
-                }
-            ]
+          "kind": "NEGATION_TOKEN"
         },
         {
-            "kind": "PLUS_TOKEN"
-        },
-        {
-            "kind": "BINARY_EXPRESSION",
-            "children": [
-                {
-                    "kind": "BINARY_EXPRESSION",
-                    "children": [
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "b"
-                        },
-                        {
-                            "kind": "SLASH_TOKEN"
-                        },
-                        {
-                            "kind": "UNARY_EXPRESSION",
-                            "children": [
-                                {
-                                    "kind": "EXCLAMATION_MARK_TOKEN"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "c"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "kind": "PLUS_TOKEN"
-                },
-                {
-                    "kind": "UNARY_EXPRESSION",
-                    "children": [
-                        {
-                            "kind": "PLUS_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "d"
-                        }
-                    ]
-                }
-            ]
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "PLUS_TOKEN"
+    },
+    {
+      "kind": "BINARY_EXPRESSION",
+      "children": [
+        {
+          "kind": "BINARY_EXPRESSION",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "b"
+            },
+            {
+              "kind": "SLASH_TOKEN"
+            },
+            {
+              "kind": "UNARY_EXPRESSION",
+              "children": [
+                {
+                  "kind": "EXCLAMATION_MARK_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "c"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "PLUS_TOKEN"
+        },
+        {
+          "kind": "UNARY_EXPRESSION",
+          "children": [
+            {
+              "kind": "PLUS_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "d"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

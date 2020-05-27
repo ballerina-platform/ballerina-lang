@@ -26,12 +26,14 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
+
 /**
  * Extern function to check existence of key.
  * ballerina.model.map:hasKey(string)
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "hasKey",
+        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION, functionName = "hasKey",
         args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "k", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true

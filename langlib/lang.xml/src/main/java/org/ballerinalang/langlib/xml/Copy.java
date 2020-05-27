@@ -27,11 +27,13 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.HashMap;
 
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+
 /**
  * Make a deep copy of an XML.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
         functionName = "copy",
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true

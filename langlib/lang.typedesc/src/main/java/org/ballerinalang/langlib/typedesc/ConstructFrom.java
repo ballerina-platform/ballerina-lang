@@ -60,6 +60,7 @@ import static org.ballerinalang.jvm.BallerinaErrors.createError;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CONVERSION_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
+import static org.ballerinalang.util.BLangCompilerConstants.TYPEDESC_VERSION;
 
 /**
  * Extern function lang.typedesc:constructFrom.
@@ -67,7 +68,8 @@ import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_C
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.typedesc", functionName = "constructFrom",
+        orgName = "ballerina", packageName = "lang.typedesc", version = TYPEDESC_VERSION,
+        functionName = "constructFrom",
         args = {
                 @Argument(name = "t", type = TypeKind.TYPEDESC),
                 @Argument(name = "v", type = TypeKind.ANYDATA)
@@ -232,7 +234,13 @@ public class ConstructFrom {
                 return newMap;
             case TypeTags.RECORD_TYPE_TAG:
                 BRecordType recordType = (BRecordType) targetType;
-                MapValue newRecord = BallerinaValues.createRecordValue(recordType.getPackage(), recordType.getName());
+                MapValueImpl<BString, Object> newRecord;
+                if (t != null && t.getDescribingType() == targetType) {
+                    newRecord = (MapValueImpl<BString, Object>) t.instantiate(strand);
+                } else {
+                    newRecord = (MapValueImpl<BString, Object>) BallerinaValues
+                            .createRecordValue(recordType.getPackage(), recordType.getName());
+                }
 
                 BType restFieldType = recordType.restFieldType;
                 Map<String, BType> targetTypeField = new HashMap<>();
@@ -247,7 +255,7 @@ public class ConstructFrom {
                 return newRecord;
             case TypeTags.JSON_TAG:
                 BType matchingType = TypeConverter.resolveMatchingTypeForUnion(map, targetType);
-                return convert(map, matchingType, unresolvedValues);
+                return convert(map, matchingType, unresolvedValues, t, strand);
             default:
                 break;
         }
@@ -263,7 +271,7 @@ public class ConstructFrom {
                 BArrayType arrayType = (BArrayType) targetType;
                 ArrayValueImpl newArray = new ArrayValueImpl(arrayType);
                 for (int i = 0; i < array.size(); i++) {
-                    Object newValue = convert(array.get(i), arrayType.getElementType(), unresolvedValues);
+                    Object newValue = convert(array.get(i), arrayType.getElementType(), unresolvedValues, t, strand);
                     newArray.add(i, newValue);
                 }
                 return newArray;
@@ -273,7 +281,7 @@ public class ConstructFrom {
                 int minLen = tupleType.getTupleTypes().size();
                 for (int i = 0; i < array.size(); i++) {
                     BType elementType = (i < minLen) ? tupleType.getTupleTypes().get(i) : tupleType.getRestType();
-                    Object newValue = convert(array.get(i), elementType, unresolvedValues);
+                    Object newValue = convert(array.get(i), elementType, unresolvedValues, t, strand);
                     newTuple.add(i, newValue);
                 }
                 return newTuple;
@@ -299,15 +307,14 @@ public class ConstructFrom {
 
     private static ErrorValue createConversionError(Object inputValue, BType targetType) {
         return createError(StringUtils.fromString(CONSTRUCT_FROM_CONVERSION_ERROR), StringUtils.fromString(
-                BLangExceptionHelper.getErrorMessage(
-                        INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)));
+                BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
+                                                     TypeChecker.getType(inputValue), targetType)));
     }
 
     private static ErrorValue createConversionError(Object inputValue, BType targetType, String detailMessage) {
         return createError(StringUtils.fromString(CONSTRUCT_FROM_CONVERSION_ERROR),
-                           StringUtils.fromString(BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
-                                                                                       TypeChecker.getType(inputValue),
-                                                                                       targetType)
+                           StringUtils.fromString(BLangExceptionHelper.getErrorMessage(
+                                   INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
                                                           .concat(": ".concat(detailMessage))));
     }
 

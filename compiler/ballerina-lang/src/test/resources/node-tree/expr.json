@@ -160,7 +160,7 @@
                                                     "value": "lang.annotations"
                                                 },
                                                 "version": {
-                                                    "value": ""
+                                                    "value": "1.0.0"
                                                 },
                                                 "isUnnamed": false,
                                                 "sourceFileName": null,
@@ -179,7 +179,9 @@
                                             "markdownDocumentation": null,
                                             "scope": null
                                         },
-                                        "name": "<Duplicated>",
+                                        "name":{
+                                            "value":""
+                                        },
                                         "flags": 0
                                     },
                                     "desugared": false,
@@ -592,7 +594,7 @@
                         "receiverSymbol": null,
                         "bodyExist": true,
                         "enclForkName": null,
-                        "source": null,
+                        "source": "expr.bal",
                         "schedulerPolicy": "PARENT",
                         "dependentGlobalVars": [],
                         "defaultableParam": false,
@@ -3150,7 +3152,7 @@
                                         "receiverSymbol": null,
                                         "bodyExist": true,
                                         "enclForkName": null,
-                                        "source": null,
+                                        "source": "expr.bal",
                                         "schedulerPolicy": "PARENT",
                                         "dependentGlobalVars": [],
                                         "defaultableParam": false,

@@ -28,11 +28,13 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.math.BigDecimal;
 
+import static org.ballerinalang.util.BLangCompilerConstants.DECIMAL_VERSION;
+
 /**
  * Native implementation of lang.decimal:sum(decimal...).
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.decimal", functionName = "sum",
+        orgName = "ballerina", packageName = "lang.decimal", version = DECIMAL_VERSION, functionName = "sum",
         args = {@Argument(name = "ns", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.DECIMAL)},
         isPublic = true

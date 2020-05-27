@@ -36,7 +36,8 @@ public class LSExtensionTestUtil {
 
     private static final String GET_AST = "ballerinaDocument/ast";
     private static final String AST = "ballerinaDocument/syntaxTree";
-    private static final String AST_MODIFY = "ballerinaDocument/syntaxTreeModify";
+    private static final String SYNTAX_TREE_MODIFY = "ballerinaDocument/syntaxTreeModify";
+    private static final String AST_MODIFY = "ballerinaDocument/astModify";
     private static final Gson GSON = new Gson();
     private static final JsonParser parser = new JsonParser();
 
@@ -54,7 +55,7 @@ public class LSExtensionTestUtil {
     }
 
     /**
-     * Get the ballerinaDocument/ast modification response.
+     * Get the ballerinaDocument/syntaxTree modification response.
      *
      * @param filePath         Path of the Bal file
      * @param astModifications modification to the ast
@@ -66,9 +67,27 @@ public class LSExtensionTestUtil {
                                                                               Endpoint serviceEndpoint) {
         BallerinaSyntaxTreeModifyRequest astModifyRequest = new BallerinaSyntaxTreeModifyRequest(
                 TestUtil.getTextDocumentIdentifier(filePath), astModifications);
-        CompletableFuture result = serviceEndpoint.request(AST_MODIFY, astModifyRequest);
+        CompletableFuture result = serviceEndpoint.request(SYNTAX_TREE_MODIFY, astModifyRequest);
         return GSON.fromJson(getResult(result), BallerinaSyntaxTreeResponse.class);
     }
+
+    /**
+     * Get the ballerinaDocument/ast modification response.
+     *
+     * @param filePath         Path of the Bal file
+     * @param astModifications modification to the ast
+     * @param serviceEndpoint  Service Endpoint to Language Server
+     * @return {@link String}   Response as String
+     */
+    public static BallerinaASTResponse modifyAndGetBallerinaAST(String filePath,
+                                                                              ASTModification[] astModifications,
+                                                                              Endpoint serviceEndpoint) {
+        BallerinaSyntaxTreeModifyRequest astModifyRequest = new BallerinaSyntaxTreeModifyRequest(
+                TestUtil.getTextDocumentIdentifier(filePath), astModifications);
+        CompletableFuture result = serviceEndpoint.request(AST_MODIFY, astModifyRequest);
+        return GSON.fromJson(getResult(result), BallerinaASTResponse.class);
+    }
+
 
     /**
      * Get the ballerinaDocument/ast response.
