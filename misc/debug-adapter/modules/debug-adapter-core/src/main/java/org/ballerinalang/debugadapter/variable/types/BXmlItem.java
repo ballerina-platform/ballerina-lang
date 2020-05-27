@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,27 +25,28 @@ import org.eclipse.lsp4j.debug.Variable;
 import java.util.HashMap;
 
 /**
- * Ballerina object variable type.
- * // Todo - verify
+ * Ballerina xml variable type.
  */
-public class BObjectType extends BCompoundVariable {
+public class BXmlItem extends BCompoundVariable {
 
     private final ObjectReferenceImpl jvmValueRef;
 
-    public BObjectType(Value value, Variable dapVariable) {
+    public BXmlItem(Value value, Variable dapVariable) {
          this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
-        dapVariable.setType(BVariableType.OBJECT.getString());
+        dapVariable.setType(BVariableType.XML.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
+        this.computeChildVariables();
     }
 
     @Override
     public String getValue() {
-        Value typeName = jvmValueRef.getValue(jvmValueRef.referenceType().fieldByName("typeName"));
-        return typeName.toString();
+        return jvmValueRef.toString();
     }
+
     @Override
     public void computeChildVariables() {
+        // Todo
         this.setChildVariables(new HashMap<>());
     }
 }

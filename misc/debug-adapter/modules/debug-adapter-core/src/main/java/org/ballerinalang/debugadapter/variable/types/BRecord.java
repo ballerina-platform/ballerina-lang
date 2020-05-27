@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,18 +27,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Ballerina object variable type.
+ * Ballerina record variable type.
  */
-public class BObjectValue extends BCompoundVariable {
+public class BRecord extends BCompoundVariable {
 
     private final ObjectReferenceImpl jvmValueRef;
 
-    public BObjectValue(Value value, Variable dapVariable) {
+    public BRecord(Value value, Variable dapVariable) {
         this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
-        dapVariable.setType(BVariableType.OBJECT.getString());
+        dapVariable.setType(BVariableType.RECORD.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
-        computeChildVariables();
+        this.computeChildVariables();
     }
 
     @Override
@@ -65,9 +65,9 @@ public class BObjectValue extends BCompoundVariable {
             Map<Field, Value> fieldValueMap = jvmValueRef.getValues(jvmValueRef.referenceType().allFields());
             Map<String, Value> values = new HashMap<>();
             // Uses the ballerina record type name to extract ballerina record fields from the jvm reference.
-            String balObjectFiledIdentifier = this.getValue() + ".";
+            String balRecordFiledIdentifier = this.getValue() + ".";
             fieldValueMap.forEach((field, value) -> {
-                if (field.toString().contains(balObjectFiledIdentifier)) {
+                if (field.toString().contains(balRecordFiledIdentifier)) {
                     values.put(field.name(), value);
                 }
             });

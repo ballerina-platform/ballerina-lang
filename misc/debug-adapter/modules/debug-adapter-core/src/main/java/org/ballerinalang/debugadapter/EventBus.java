@@ -56,7 +56,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.ballerinalang.debugadapter.PackageUtils.findProjectRoot;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.findProjectRoot;
 
 /**
  * Listens and publishes events from JVM.
