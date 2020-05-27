@@ -8,6 +8,7 @@ function commitExpMissingInTransactionStmt(int i) returns (string) {
             a = a + " rollback";
             rollback;
         }
+        rollback;
         a = a + " endTrx";
     }
     return a;
@@ -15,17 +16,70 @@ function commitExpMissingInTransactionStmt(int i) returns (string) {
 
 transactional function txStmtWithinTransactionalScope(int i) returns (string) {
     string a = "start";
-
+    var o = testTransactionalInvo(a);
     transaction {
         a = a + " inTrx";
-        if (i == 0) {
+        if (i == -1) {
             a = a + " rollback";
             rollback;
         }
         var res = commit;
         a = a + " endTrx";
     }
+    var c = start testInvo(a);
     return a;
+}
+
+function invocationsWithinTx(int i) returns (string) {
+   string a = "start";
+
+   transaction {
+      a = a + " inTrx";
+      var b = start testInvo(a);
+      var c = commit;
+      var d = testTransactionalInvo(a);
+   }
+   return a;
+}
+
+function txWithMultiplePaths(int i)  {
+    string a = "start";
+
+    transaction {
+        a = a + " inTrx";
+        if(i == 3) {
+            a = a + " inIf3";
+            var b = testTransactionalInvo(a);
+            var o = commit;
+        } else {
+            a = a + " inElse";
+            var b = testTransactionalInvo(a);
+            rollback;
+        }
+        var o = commit;
+    }
+
+    transaction {
+        a = a + " inTrx";
+        if(i == 3) {
+            a = a + " inIf3";
+            var b = testTransactionalInvo(a);
+            var o = commit;
+        } else if (i == 5) {
+            a = a + " inIf5";
+            var b = testTransactionalInvo(a);
+            //var o = commit;
+        }
+        var o = commit;
+    }
+}
+
+function testInvo(string str) returns string {
+ return str + " non-transactional call";
+}
+
+transactional function testTransactionalInvo(string str) returns string {
+    return str + " transactional call";
 }
 
 //function txStmtWithInvalidRollbackExp(int i) returns (string) {

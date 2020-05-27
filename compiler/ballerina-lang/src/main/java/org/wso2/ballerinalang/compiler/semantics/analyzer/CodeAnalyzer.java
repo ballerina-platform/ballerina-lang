@@ -446,6 +446,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBlockFunctionBody body) {
+        withinTransactionScope = transactionalFuncCheckStack.peek();
         final SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(body, env);
         for (BLangStatement e : body.stmts) {
             analyzeNode(e, blockEnv);
@@ -486,9 +487,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         checkExperimentalFeatureValidity(ExperimentalFeatures.TRANSACTIONS, transactionNode.pos);
         this.checkStatementExecutionValidity(transactionNode);
         //Check whether transaction statement occurred in a transactional scope
-        BLangInvokableNode encInvokable = env.enclInvokable;
-        if ((encInvokable != null && encInvokable.flagSet.contains(Flag.TRANSACTIONAL)) && withinTransactionScope) {
+        if (transactionalFuncCheckStack.peek()) {
             this.dlog.error(transactionNode.pos, DiagnosticCode.TRANSACTION_CANNOT_BE_USED_WITHIN_TRANSACTIONAL_SCOPE);
+            return;
         }
         boolean previousWithinTxScope = this.withinTransactionScope;
         int previousCommitCount = this.commitCount;
@@ -535,7 +536,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(commitExpr.pos, DiagnosticCode.COMMIT_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
             return;
         }
-        if (withinTransactionScope && !commitRollbackAllowed) {
+        if (!withinTransactionScope || !commitRollbackAllowed) {
             this.dlog.error(commitExpr.pos, DiagnosticCode.COMMIT_NOT_ALLOWED);
             return;
         }
@@ -553,11 +554,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(rollbackNode.pos, DiagnosticCode.ROLLBACK_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
             return;
         }
-        if (withinTransactionScope && !commitRollbackAllowed) {
+        if (!withinTransactionScope || !commitRollbackAllowed) {
             this.dlog.error(rollbackNode.pos, DiagnosticCode.ROLLBACK_NOT_ALLOWED);
             return;
         }
-        this.lastStatement = true;
+//        this.lastStatement = true;
         this.withinTransactionScope = false;
         analyzeExpr(rollbackNode.expr);
     }
@@ -629,7 +630,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (ifStmt.expr.getKind() == NodeKind.TRANSACTIONAL_EXPRESSION) {
             this.withinTransactionScope = true;
         }
-        boolean prevWithinTxScope = this.withinTransactionScope;
+//        boolean prevWithinTxScope = this.withinTransactionScope;
         if (withinTransactionScope && ifStmt.elseStmt != null && ifStmt.elseStmt.getKind() != NodeKind.IF) {
                 independentBlocks = true;
                 commitRollbackAllowed = true;
@@ -648,7 +649,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
             this.statementReturns = ifStmtReturns && this.statementReturns;
         }
-        withinTransactionScope = prevWithinTxScope;
+//        withinTransactionScope = prevWithinTxScope;
         analyzeExpr(ifStmt.expr);
     }
 
