@@ -1428,6 +1428,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return workerSendExpr;
     }
 
+    @Override
+    public BLangNode transform(ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
+        BLangArrowFunction tupleTypeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
+    }
+
     // -----------------------------------------------Statements--------------------------------------------------------
     @Override
     public BLangNode transform(ReturnStatementNode returnStmtNode) {
