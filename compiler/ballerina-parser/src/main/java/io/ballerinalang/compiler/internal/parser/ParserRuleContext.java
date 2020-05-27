@@ -192,8 +192,14 @@ public enum ParserRuleContext {
     ROLLBACK_RHS("rollback-rhs"),
     LIST_BP_OR_TUPLE_TYPE_DESC("list-bp-or-tuple-type-desc"),
     LIST_BP_OR_TUPLE_TYPE_MEMBER("list-bp-or-tuple-type-member"),
-    LIST_BP_OR_TUPLE_TYPE_MEMBER_END("list-bp-or-tuple-type-member-end"),
     LIST_BP_OR_TUPLE_TYPE_DESC_RHS("list-bp-or-tuple-type-desc-rhs"),
+    BRACKETED_LIST("bracketed-list"),
+    BRACKETED_LIST_RHS("bracketed-list-rhs"),
+    BRACKETED_LIST_MEMBER("bracketed-list-member"),
+    BRACKETED_LIST_MEMBER_END("bracketed-list-member-end"),
+    LIST_BINDING_MEMBER_OR_ARRAY_LENGTH("list-binding-member-or-array-length"),
+    TYPED_BINDING_PATTERN_TYPE_RHS("type-binding-pattern-type-rhs"),
+    UNION_OR_INTERSECTION_TOKEN("union-or-intersection"),
 
     // Statements
     STATEMENT("statement"),
@@ -218,7 +224,7 @@ public enum ParserRuleContext {
     RETURN_STMT_RHS("return-stmt-rhs"),
     COMPOUND_ASSIGNMENT_STMT("compound-assignment-statement"),
     LOCAL_TYPE_DEFINITION_STMT("local-type-definition-statement"),
-    STMT_START_WITH_IDENTIFIER("stmt-start-with-identifier"),
+    STMT_START_IDENTIFIER_RHS("stmt-start-identifier-rhs"),
     STMT_START_WITH_EXPR_RHS("stmt-start-with-expr-rhs"),
     EXPRESSION_STATEMENT("expression-statement"),
     EXPRESSION_STATEMENT_START("expression-statement-start"),
@@ -229,6 +235,7 @@ public enum ParserRuleContext {
     TRANSACTION_STMT("transaction-stmt"),
     RETRY_STMT("retry-stmt"),
     ROLLBACK_STMT("rollback-stmt"),
+    AMBIGUOUS_STMT("ambiguous-stmt"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),

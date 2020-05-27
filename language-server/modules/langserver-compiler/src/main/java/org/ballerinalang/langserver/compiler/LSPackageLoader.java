@@ -104,8 +104,14 @@ public class LSPackageLoader {
                                     || name.contains(".balx")) {
                                 continue;
                             }
-                            BallerinaPackage ballerinaPackage = new BallerinaPackage(repo, name, null);
-                            ballerinaPackages.add(ballerinaPackage);
+                            File versionDir = Paths.get(packageDir.getAbsolutePath(), name).toFile();
+                            String[] versions = versionDir.list();
+                            if (versions != null) {
+                                for (String version : versions) {
+                                    BallerinaPackage ballerinaPackage = new BallerinaPackage(repo, name, version);
+                                    ballerinaPackages.add(ballerinaPackage);
+                                }
+                            }
                         }
                     }
                 }

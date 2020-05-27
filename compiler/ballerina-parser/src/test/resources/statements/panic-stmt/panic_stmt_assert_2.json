@@ -1,14 +1,14 @@
 {
-    "kind": "PANIC_STATEMENT",
-    "children": [
-        {
-            "kind": "PANIC_KEYWORD"
-        },
-        {
-            "kind": "TRUE_KEYWORD"
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
-        }
-    ]
+  "kind": "PANIC_STATEMENT",
+  "children": [
+    {
+      "kind": "PANIC_KEYWORD"
+    },
+    {
+      "kind": "TRUE_KEYWORD"
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

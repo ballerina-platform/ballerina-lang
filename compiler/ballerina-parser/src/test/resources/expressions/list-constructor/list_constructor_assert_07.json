@@ -1,34 +1,34 @@
 {
-    "kind": "LIST_CONSTRUCTOR",
-    "children": [
+  "kind": "LIST_CONSTRUCTOR",
+  "children": [
+    {
+      "kind": "OPEN_BRACKET_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "OPEN_BRACKET_TOKEN"
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true
         },
         {
-            "kind": "LIST",
-            "children": [
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "isMissing": true
-                },
-                {
-                    "kind": "COMMA_TOKEN"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "isMissing": true
-                },
-                {
-                    "kind": "COMMA_TOKEN"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "isMissing": true
-                }
-            ]
+          "kind": "COMMA_TOKEN"
         },
         {
-            "kind": "CLOSE_BRACKET_TOKEN"
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true
+        },
+        {
+          "kind": "COMMA_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true
         }
-    ]
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACKET_TOKEN"
+    }
+  ]
 }

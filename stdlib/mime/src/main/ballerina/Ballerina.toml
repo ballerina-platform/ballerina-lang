@@ -7,8 +7,8 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "mime"
-    version = "@project.version@"
-    path = "./lib/ballerina-mime-@project.version@.jar"
+    version = "1.0.0"
+    path = "./lib/ballerina-mime-1.0.0-java.jar"
     groupId = "ballerina"
     modules = ["mime"]
 

@@ -26,13 +26,15 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+
 /**
  * Get all the elements-type items in the given sequence, that matches a given qualified name.
  * 
  * @since 0.88
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
         functionName = "select",
         args = {@Argument(name = "qname", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.XML)},

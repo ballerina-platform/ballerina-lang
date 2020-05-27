@@ -1,64 +1,64 @@
 {
-    "kind": "BINARY_EXPRESSION",
-    "children": [
+  "kind": "BINARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a"
+    },
+    {
+      "kind": "PLUS_TOKEN"
+    },
+    {
+      "kind": "BINARY_EXPRESSION",
+      "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "PLUS_TOKEN"
-        },
-        {
-            "kind": "BINARY_EXPRESSION",
-            "children": [
+          "kind": "OPTIONAL_FIELD_ACCESS",
+          "children": [
+            {
+              "kind": "OPTIONAL_FIELD_ACCESS",
+              "children": [
                 {
-                    "kind": "OPTIONAL_FIELD_ACCESS",
-                    "children": [
-                        {
-                            "kind": "OPTIONAL_FIELD_ACCESS",
-                            "children": [
-                                {
-                                    "kind": "OPTIONAL_FIELD_ACCESS",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "b"
-                                        },
-                                        {
-                                            "kind": "OPTIONAL_CHAINING_TOKEN"
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "c"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "OPTIONAL_CHAINING_TOKEN"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "d"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "OPTIONAL_CHAINING_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "e"
-                        }
-                    ]
+                  "kind": "OPTIONAL_FIELD_ACCESS",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "b"
+                    },
+                    {
+                      "kind": "OPTIONAL_CHAINING_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "c"
+                    }
+                  ]
                 },
                 {
-                    "kind": "PLUS_TOKEN"
+                  "kind": "OPTIONAL_CHAINING_TOKEN"
                 },
                 {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "f"
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "d"
                 }
-            ]
+              ]
+            },
+            {
+              "kind": "OPTIONAL_CHAINING_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "e"
+            }
+          ]
+        },
+        {
+          "kind": "PLUS_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "f"
         }
-    ]
+      ]
+    }
+  ]
 }

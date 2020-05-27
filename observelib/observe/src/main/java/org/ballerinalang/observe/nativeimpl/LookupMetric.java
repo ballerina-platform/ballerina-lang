@@ -56,7 +56,7 @@ import static org.ballerinalang.observe.nativeimpl.ObserveNativeImplConstants.OB
  */
 @BallerinaFunction(
         orgName = "ballerina",
-        packageName = "observe",
+        packageName = "observe", version = "0.8.0",
         functionName = "lookupMetric",
         returnType = @ReturnType(type = TypeKind.ARRAY),
         isPublic = true

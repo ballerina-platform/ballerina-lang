@@ -25,6 +25,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
+
 /**
  * Extern function to get next key from the table.
  * ballerina.model.table:nextKey()
@@ -32,7 +34,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table",
+        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION,
         functionName = "nextKey",
         args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
         returnType = {@ReturnType(type = TypeKind.INT)},

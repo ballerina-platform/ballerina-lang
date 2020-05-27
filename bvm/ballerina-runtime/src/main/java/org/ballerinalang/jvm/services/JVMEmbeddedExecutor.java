@@ -48,11 +48,11 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
      * {@inheritDoc}
      */
     @Override
-    public Optional<RuntimeException> executeMainFunction(String moduleName, String[] args) {
+    public Optional<RuntimeException> executeMainFunction(String moduleName, String moduleVersion, String[] args) {
         try {
             final Scheduler scheduler = new Scheduler(false);
-            runInitOnSchedule(moduleName, scheduler);
-            runMainOnSchedule(moduleName, scheduler, args);
+            runInitOnSchedule(moduleName, moduleVersion, scheduler);
+            runMainOnSchedule(moduleName, moduleVersion, scheduler, args);
             scheduler.immortal = true;
             new Thread(scheduler::start).start();
             return Optional.empty();
@@ -65,11 +65,11 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
      * {@inheritDoc}
      */
     @Override
-    public Optional<RuntimeException> executeService(String moduleName) {
+    public Optional<RuntimeException> executeService(String moduleName, String moduleVersion) {
         try {
             final Scheduler scheduler = new Scheduler(false);
-            runInitOnSchedule(moduleName, scheduler);
-            runStartOnSchedule(moduleName, scheduler);
+            runInitOnSchedule(moduleName, moduleVersion, scheduler);
+            runStartOnSchedule(moduleName, moduleVersion, scheduler);
             scheduler.immortal = true;
             new Thread(scheduler::start).start();
             return Optional.empty();
@@ -82,12 +82,15 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
      * Executes the __start_ function of the module.
      *
      * @param moduleName The name of the module.
+     * @param moduleVersion Version of the module.
      * @param scheduler  The scheduler.
      * @throws RuntimeException When an error occurs invoking or within the function.
      */
-    private void runStartOnSchedule(String moduleName, Scheduler scheduler) throws RuntimeException {
+    private void runStartOnSchedule(String moduleName, String moduleVersion, Scheduler scheduler)
+            throws RuntimeException {
         try {
-            Class<?> initClazz = Class.forName("ballerina." + moduleName + ".___init");
+            Class<?> initClazz = Class.forName("ballerina." + moduleName + "." +
+                                                       moduleVersion.replace(".", "_") + ".___init");
             final Method initMethod = initClazz.getDeclaredMethod("$moduleStart", Strand.class);
             //TODO fix following method invoke to scheduler.schedule()
             Function<Object[], Object> func = objects -> {
@@ -126,14 +129,16 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
      * Executes the <module_name>.main function of a module.
      *
      * @param moduleName The name of the module.
+     * @param moduleVersion Version of the module.
      * @param scheduler  The scheduler which executes the function.
      * @param stringArgs The string arguments for the function.
      * @throws RuntimeException When an error occurs invoking or within the function.
      */
-    private static void runMainOnSchedule(String moduleName, Scheduler scheduler, String[] stringArgs)
-            throws RuntimeException {
+    private static void runMainOnSchedule(String moduleName, String moduleVersion, Scheduler scheduler,
+                                          String[] stringArgs) throws RuntimeException {
         try {
-            Class<?> mainClass = Class.forName("ballerina." + moduleName + "." + moduleName);
+            Class<?> mainClass = Class.forName("ballerina." + moduleName + "." +
+                                                       moduleVersion.replace(".", "_") + "." + moduleName);
             final Method mainMethod = mainClass.getDeclaredMethod("main", Strand.class, ArrayValue.class,
                     boolean.class);
             Object[] entryFuncArgs =
@@ -180,12 +185,15 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
      * Executes the __init_ function of the module.
      *
      * @param moduleName The name of the module.
+     * @param moduleVersion Version of the module.
      * @param scheduler  The scheduler which executes the function.
      * @throws RuntimeException When an error occurs invoking or within the function.
      */
-    private static void runInitOnSchedule(String moduleName, Scheduler scheduler) throws RuntimeException {
+    private static void runInitOnSchedule(String moduleName, String moduleVersion, Scheduler scheduler)
+            throws RuntimeException {
         try {
-            Class<?> initClazz = Class.forName("ballerina." + moduleName + ".___init");
+            Class<?> initClazz = Class.forName("ballerina." + moduleName + "." +
+                                                       moduleVersion.replace(".", "_") + ".___init");
             final Method initMethod = initClazz.getDeclaredMethod("$moduleInit", Strand.class);
             //TODO fix following method invoke to scheduler.schedule()
             Function<Object[], Object> func = objects -> {
