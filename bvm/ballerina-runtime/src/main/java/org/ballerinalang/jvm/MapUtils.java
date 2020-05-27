@@ -48,35 +48,18 @@ public class MapUtils {
         BType mapType = mapValue.getType();
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
-                handleInherentTypeViolatingMapUpdate(value, (BMapType) mapType, true);
+                handleInherentTypeViolatingMapUpdate(value, (BMapType) mapType);
                 mapValue.put(fieldName, value);
                 break;
             case TypeTags.RECORD_TYPE_TAG:
-                //TODO: bstring - remove getValue
-                handleInherentTypeViolatingRecordUpdate(mapValue, fieldName.getValue(), value, (BRecordType) mapType,
-                                                        true, false);
-                mapValue.put(fieldName, value);
-                break;
-        }
-    }
-
-    @Deprecated
-    public static void handleMapStore(MapValue<String, Object> mapValue, String fieldName, Object value) {
-        BType mapType = mapValue.getType();
-        switch (mapType.getTag()) {
-            case TypeTags.MAP_TAG:
-                handleInherentTypeViolatingMapUpdate(value, (BMapType) mapType, false);
-                mapValue.put(fieldName, value);
-                break;
-            case TypeTags.RECORD_TYPE_TAG:
-                handleInherentTypeViolatingRecordUpdate(mapValue, fieldName, value, (BRecordType) mapType, false,
+                handleInherentTypeViolatingRecordUpdate(mapValue, fieldName, value, (BRecordType) mapType,
                                                         false);
                 mapValue.put(fieldName, value);
                 break;
         }
     }
 
-    public static void handleInherentTypeViolatingMapUpdate(Object value, BMapType mapType, boolean bString) {
+    public static void handleInherentTypeViolatingMapUpdate(Object value, BMapType mapType) {
         if (TypeChecker.checkIsType(value, mapType.getConstrainedType())) {
             return;
         }
@@ -84,24 +67,15 @@ public class MapUtils {
         BType expType = mapType.getConstrainedType();
         BType valuesType = TypeChecker.getType(value);
 
-        if (bString) {
-            throw BallerinaErrors.createError(
-                    StringUtils.fromString(getModulePrefixedReason(MAP_LANG_LIB,
-                                                                   INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER)),
-                    StringUtils.fromString(
-                            BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION, expType,
-                                                                 valuesType)));
-        }
         throw BallerinaErrors.createError(getModulePrefixedReason(MAP_LANG_LIB,
                                                                   INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                                           BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
                                                                                expType, valuesType));
     }
 
-    public static void handleInherentTypeViolatingRecordUpdate(MapValue mapValue, String fieldName, Object value,
-                                                               BRecordType recType, boolean bString,
-                                                               boolean initialValue) {
-        BField recField = recType.getFields().get(fieldName);
+    public static void handleInherentTypeViolatingRecordUpdate(MapValue mapValue, BString fieldName, Object value,
+                                                               BRecordType recType, boolean initialValue) {
+        BField recField = recType.getFields().get(fieldName.getValue());
         BType recFieldType;
 
         if (recField != null) {
@@ -110,16 +84,7 @@ public class MapUtils {
             // i.e., it is not a `readonly` field or this is the first insertion of the field into the record.
             // `initialValue` is only true if this is an update for a field provided in the mapping constructor
             // expression.
-            if (!initialValue && mapValue.containsKey(bString ? StringUtils.fromString(fieldName) : fieldName) &&
-                    Flags.isFlagOn(recField.flags, Flags.READONLY)) {
-
-                if (bString) {
-                    throw BallerinaErrors.createError(
-                            StringUtils.fromString(getModulePrefixedReason(MAP_LANG_LIB,
-                                                                           INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER)),
-                            StringUtils.fromString(BLangExceptionHelper.getErrorMessage(
-                                    RuntimeErrors.RECORD_INVALID_READONLY_FIELD_UPDATE, fieldName, recType)));
-                }
+            if (!initialValue && mapValue.containsKey(fieldName) && Flags.isFlagOn(recField.flags, Flags.READONLY)) {
 
                 throw BallerinaErrors.createError(
                         getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
@@ -135,13 +100,6 @@ public class MapUtils {
         } else {
             // If both of the above conditions fail, the implication is that this is an attempt to insert a
             // value to a non-existent field in a closed record.
-            if (bString) {
-                throw BallerinaErrors.createError(
-                        StringUtils.fromString(MAP_KEY_NOT_FOUND_ERROR),
-                        StringUtils.fromString(
-                                BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RECORD_FIELD_ACCESS,
-                                                                     fieldName, recType)));
-            }
             throw BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR,
                                               BLangExceptionHelper.getErrorMessage(
                                                       RuntimeErrors.INVALID_RECORD_FIELD_ACCESS, fieldName, recType));
@@ -151,15 +109,6 @@ public class MapUtils {
             return;
         }
         BType valuesType = TypeChecker.getType(value);
-
-        if (bString) {
-            throw BallerinaErrors.createError(
-                    StringUtils.fromString(getModulePrefixedReason(MAP_LANG_LIB,
-                                                                   INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER)),
-                    StringUtils.fromString(
-                            BLangExceptionHelper.getErrorMessage(
-                                    RuntimeErrors.INVALID_RECORD_FIELD_ADDITION, fieldName, recFieldType, valuesType)));
-        }
 
         throw BallerinaErrors.createError(getModulePrefixedReason(MAP_LANG_LIB,
                                                                   INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),

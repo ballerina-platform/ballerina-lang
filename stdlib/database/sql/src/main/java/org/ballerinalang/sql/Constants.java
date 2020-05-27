@@ -15,9 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.sql;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.UUID;
 
@@ -29,7 +32,7 @@ import java.util.UUID;
 public final class Constants {
 
     public static final String CONNECTOR_NAME = "ClientConnector";
-    public static final BPackage SQL_PACKAGE_ID = new BPackage("ballerina", "sql");
+    public static final BPackage SQL_PACKAGE_ID = new BPackage("ballerina", "sql", "0.5.0");
     public static final String DATABASE_CLIENT = "Client";
     public static final String CONNECTOR_ID_KEY = UUID.randomUUID().toString();
 
@@ -48,7 +51,7 @@ public final class Constants {
     public static final String COLUMN_DEFINITIONS_DATA_FIELD = "ColumnDefinition";
     public static final String RECORD_TYPE_DATA_FIELD = "recordType";
 
-    public static final String TIMEZONE_UTC = "UTC";
+    public static final BString TIMEZONE_UTC = StringUtils.fromString("UTC");
 
     public static final String EXCUTE_RESULT_RECORD = "ExecuteResult";
     public static final String AFFECTED_ROW_COUNT_FIELD = "affectedRowCount";
@@ -61,16 +64,17 @@ public final class Constants {
      * Constants related connection pool.
      */
     public static final class ConnectionPool {
-        public static final String MAX_OPEN_CONNECTIONS = "maxOpenConnections";
-        public static final String MAX_CONNECTION_LIFE_TIME_SECONDS = "maxConnectionLifeTimeInSeconds";
-        public static final String MIN_IDLE_CONNECTIONS = "minIdleConnections";
+        public static final BString MAX_OPEN_CONNECTIONS = StringUtils.fromString("maxOpenConnections");
+        public static final BString MAX_CONNECTION_LIFE_TIME_SECONDS = StringUtils.fromString(
+                "maxConnectionLifeTimeInSeconds");
+        public static final BString MIN_IDLE_CONNECTIONS = StringUtils.fromString("minIdleConnections");
     }
 
     /**
      * Constants related to database options.
      */
     public static final class Options {
-        public static final String URL = "url";
+        public static final BString URL = StringUtils.fromString("url");
     }
 
     /**
@@ -87,15 +91,15 @@ public final class Constants {
      * Constants related to parameterized string fields.
      */
     public static final class ParameterizedStingFields {
-        public static final String PARTS = "parts";
-        public static final String INSERTIONS = "insertions";
+        public static final BString PARTS = StringUtils.fromString("parts");
+        public static final BString INSERTIONS = StringUtils.fromString("insertions");
     }
 
     /**
      * Constants related to TypedValue fields.
      */
     public static final class TypedValueFields {
-        public static final String VALUE = "value";
+        public static final BString VALUE = StringUtils.fromString("value");
     }
 
     /**
@@ -137,12 +141,12 @@ public final class Constants {
      * Constants for SQL Params.
      */
     public static final class SQLParamsFields {
-        public static final String URL = "url";
-        public static final String USER = "user";
-        public static final String PASSWORD = "password";
-        public static final String DATASOURCE_NAME = "datasourceName";
-        public static final String OPTIONS = "options";
-        public static final String CONNECTION_POOL = "connectionPool";
-        public static final String CONNECTION_POOL_OPTIONS = "connectionPoolOptions";
+        public static final BString URL = StringUtils.fromString("url");
+        public static final BString USER = StringUtils.fromString("user");
+        public static final BString PASSWORD = StringUtils.fromString("password");
+        public static final BString DATASOURCE_NAME = StringUtils.fromString("datasourceName");
+        public static final BString OPTIONS = StringUtils.fromString("options");
+        public static final BString CONNECTION_POOL = StringUtils.fromString("connectionPool");
+        public static final BString CONNECTION_POOL_OPTIONS = StringUtils.fromString("connectionPoolOptions");
     }
 }

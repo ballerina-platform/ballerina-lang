@@ -1,59 +1,59 @@
 {
-    "kind": "CONDITIONAL_EXPRESSION",
-    "children": [
+  "kind": "CONDITIONAL_EXPRESSION",
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a"
+    },
+    {
+      "kind": "QUESTION_MARK_TOKEN"
+    },
+    {
+      "kind": "BINARY_EXPRESSION",
+      "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
+          "kind": "QUALIFIED_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "b"
+            },
+            {
+              "kind": "COLON_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "c"
+            }
+          ]
         },
         {
-            "kind": "QUESTION_MARK_TOKEN"
+          "kind": "ELVIS_TOKEN"
         },
         {
-            "kind": "BINARY_EXPRESSION",
-            "children": [
-                {
-                    "kind": "QUALIFIED_NAME_REFERENCE",
-                    "children": [
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "b"
-                        },
-                        {
-                            "kind": "COLON_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "c"
-                        }
-                    ]
-                },
-                {
-                    "kind": "ELVIS_TOKEN"
-                },
-                {
-                    "kind": "QUALIFIED_NAME_REFERENCE",
-                    "children": [
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "d"
-                        },
-                        {
-                            "kind": "COLON_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "e"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "COLON_TOKEN"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "f"
+          "kind": "QUALIFIED_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "d"
+            },
+            {
+              "kind": "COLON_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "e"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "COLON_TOKEN"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "f"
+    }
+  ]
 }

@@ -67,11 +67,21 @@
                               "children": []
                             },
                             {
-                              "kind": "INT_KEYWORD"
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "age"
+                              "kind": "TYPED_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "INT_KEYWORD"
+                                },
+                                {
+                                  "kind": "CAPTURE_BINDING_PATTERN",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "age"
+                                    }
+                                  ]
+                                }
+                              ]
                             },
                             {
                               "kind": "EQUAL_TOKEN"
@@ -105,11 +115,21 @@
                               "children": []
                             },
                             {
-                              "kind": "STRING_KEYWORD"
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "name"
+                              "kind": "TYPED_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "STRING_KEYWORD"
+                                },
+                                {
+                                  "kind": "CAPTURE_BINDING_PATTERN",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "name"
+                                    }
+                                  ]
+                                }
+                              ]
                             },
                             {
                               "kind": "SEMICOLON_TOKEN"
@@ -124,11 +144,21 @@
                               "children": []
                             },
                             {
-                              "kind": "INT_KEYWORD"
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "status"
+                              "kind": "TYPED_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "INT_KEYWORD"
+                                },
+                                {
+                                  "kind": "CAPTURE_BINDING_PATTERN",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "status"
+                                    }
+                                  ]
+                                }
+                              ]
                             },
                             {
                               "kind": "EQUAL_TOKEN"
@@ -150,11 +180,21 @@
                               "children": []
                             },
                             {
-                              "kind": "FLOAT_KEYWORD"
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "score"
+                              "kind": "TYPED_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "FLOAT_KEYWORD"
+                                },
+                                {
+                                  "kind": "CAPTURE_BINDING_PATTERN",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "score"
+                                    }
+                                  ]
+                                }
+                              ]
                             },
                             {
                               "kind": "SEMICOLON_TOKEN"

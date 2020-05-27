@@ -32,6 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import static org.ballerinalang.jvm.util.BLangConstants.FLOAT_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static org.ballerinalang.util.BLangCompilerConstants.FLOAT_VERSION;
 
 /**
  * Native implementation of lang.float:fromString(string).
@@ -39,16 +40,16 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.float", functionName = "fromString",
+        orgName = "ballerina", packageName = "lang.float", version = FLOAT_VERSION, functionName = "fromString",
         args = {@Argument(name = "s", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.UNION)},
         isPublic = true
 )
 public class FromString {
 
-    public static Object fromString(Strand strand, String s) {
+    public static Object fromString(Strand strand, BString s) {
         try {
-            return Double.parseDouble(s);
+            return Double.parseDouble(s.getValue());
         } catch (NumberFormatException e) {
             return BallerinaErrors.createError(getModulePrefixedReason(FLOAT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER),
                                                BLangExceptionHelper.getErrorMessage(
@@ -56,9 +57,4 @@ public class FromString {
                                                        BTypes.typeString, s, BTypes.typeFloat));
         }
     }
-
-    public static Object fromString_bstring(Strand strand, BString s) {
-        return fromString(strand, s.getValue());
-    }
-
 }

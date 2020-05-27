@@ -22,10 +22,13 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
  * Create XML element from tag name and children sequence.
@@ -33,7 +36,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
         functionName = "createElement",
         args = {
                 @Argument(name = "name", type = TypeKind.STRING),
@@ -43,7 +46,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class CreateElement {
 
-    public static XMLValue createElement(Strand strand, String name, XMLValue children) {
+    public static XMLValue createElement(Strand strand, BString name, XMLValue children) {
         XMLQName xmlqName = new XMLQName(name);
         String temp = null;
         XMLValue xmlElement = XMLFactory.createXMLElement(xmlqName, temp);

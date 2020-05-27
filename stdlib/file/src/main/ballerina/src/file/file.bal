@@ -192,8 +192,7 @@ public function copy(@untainted string sourcePath, @untainted string destination
     return externCopy(java:fromString(sourcePath), java:fromString(destinationPath), replaceExisting);
 }
 
-function externCopy(handle path, handle destinationPath, boolean replaceExisting) returns Error? =
-@java:Method {
+function externCopy(handle path, handle destinationPath, boolean replaceExisting) returns Error? = @java:Method {
     class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
     name: "copy"
 } external;

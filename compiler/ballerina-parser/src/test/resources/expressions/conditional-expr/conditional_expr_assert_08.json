@@ -1,16 +1,16 @@
 {
-    "kind": "BINARY_EXPRESSION",
-    "children": [
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "isMissing": true
-        },
-        {
-            "kind": "ELVIS_TOKEN"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "b"
-        }
-    ]
+  "kind": "BINARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "isMissing": true
+    },
+    {
+      "kind": "ELVIS_TOKEN"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "b"
+    }
+  ]
 }

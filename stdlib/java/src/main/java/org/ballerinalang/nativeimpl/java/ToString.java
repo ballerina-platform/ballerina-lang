@@ -29,19 +29,12 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 1.0.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "java",
+        orgName = "ballerina", packageName = "java", version = "0.9.0",
         functionName = "toString"
 )
 public class ToString {
 
     public static Object toString(Strand strand, HandleValue value) {
-        Object referredValue = value.getValue();
-        if (referredValue == null) {
-            return null;
-        }
-        return referredValue.toString();
-    }
-    public static Object toString_bstring(Strand strand, HandleValue value) {
         Object referredValue = value.getValue();
         if (referredValue == null) {
             return null;

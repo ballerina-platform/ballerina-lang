@@ -53,7 +53,9 @@ public class IOConstants {
      */
     public static final int CHANNEL_BUFFER_SIZE = 16384;
 
-    public static final BPackage IO_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "io");
+    public static final String IO_PACKAGE_VERSION =  "0.5.0";
+
+    public static final BPackage IO_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "io", IO_PACKAGE_VERSION);
 
     /**
      * Represents the base number of proto-buf.

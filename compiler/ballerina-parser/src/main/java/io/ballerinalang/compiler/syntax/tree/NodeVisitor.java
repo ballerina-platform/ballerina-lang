@@ -627,8 +627,40 @@ public abstract class NodeVisitor {
         visitSyntaxNode(conditionalExpressionNode);
     }
 
-    public void visit(ByteArrayLiteralNode byteArrayLiteralNode) {
-        visitSyntaxNode(byteArrayLiteralNode);
+    public void visit(EnumDeclarationNode enumDeclarationNode) {
+        visitSyntaxNode(enumDeclarationNode);
+    }
+
+    public void visit(EnumMemberNode enumMemberNode) {
+        visitSyntaxNode(enumMemberNode);
+    }
+
+    public void visit(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+        visitSyntaxNode(arrayTypeDescriptorNode);
+    }
+
+    public void visit(TransactionStatementNode transactionStatementNode) {
+        visitSyntaxNode(transactionStatementNode);
+    }
+
+    public void visit(RollbackStatementNode rollbackStatementNode) {
+        visitSyntaxNode(rollbackStatementNode);
+    }
+
+    public void visit(RetryStatementNode retryStatementNode) {
+        visitSyntaxNode(retryStatementNode);
+    }
+
+    public void visit(CommitActionNode commitActionNode) {
+        visitSyntaxNode(commitActionNode);
+    }
+
+    public void visit(TransactionalExpressionNode transactionalExpressionNode) {
+        visitSyntaxNode(transactionalExpressionNode);
+    }
+
+    public void visit(ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
+        visitSyntaxNode(serviceConstructorExpressionNode);
     }
 
     // Tokens

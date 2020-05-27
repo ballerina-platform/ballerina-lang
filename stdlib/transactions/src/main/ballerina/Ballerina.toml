@@ -7,7 +7,7 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "transactions"
-    version = "@project.version@"
-    path = "./lib/ballerina-transactions-@project.version@.jar"
+    version = "0.5.0"
+    path = "./lib/ballerina-transactions-0.5.0-java.jar"
     groupId = "ballerina"
     modules = ["transactions"]

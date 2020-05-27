@@ -30,13 +30,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
+
 /**
  * Native implementation of lang.map:reduce(map&lt;Type&gt;, function, Type1).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "reduce",
+        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION, functionName = "reduce",
         args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "func", type = TypeKind.FUNCTION),
                 @Argument(name = "initial", type = TypeKind.ANY)},
         returnType = {@ReturnType(type = TypeKind.ANY)},
@@ -54,9 +56,5 @@ public class Reduce {
                                                                m.get(m.getKeys()[index.incrementAndGet()]), true},
                                                        accum::set, accum::get);
         return accum.get();
-    }
-
-    public static Object reduce_bstring(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func, Object initial) {
-        return reduce(strand, m, func, initial);
     }
 }

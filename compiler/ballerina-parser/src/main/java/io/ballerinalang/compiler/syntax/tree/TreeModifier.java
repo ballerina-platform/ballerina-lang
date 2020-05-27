@@ -218,10 +218,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNodeList(variableDeclarationNode.annotations());
         Token finalKeyword =
                 modifyToken(variableDeclarationNode.finalKeyword().orElse(null));
-        Node typeName =
-                modifyNode(variableDeclarationNode.typeName());
-        Token variableName =
-                modifyToken(variableDeclarationNode.variableName());
+        TypedBindingPatternNode typedBindingPattern =
+                modifyNode(variableDeclarationNode.typedBindingPattern());
         Token equalsToken =
                 modifyToken(variableDeclarationNode.equalsToken().orElse(null));
         ExpressionNode initializer =
@@ -231,8 +229,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return variableDeclarationNode.modify(
                 annotations,
                 finalKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 initializer,
                 semicolonToken);
@@ -579,8 +576,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(indexedExpressionNode.containerExpression());
         Token openBracket =
                 modifyToken(indexedExpressionNode.openBracket());
-        ExpressionNode keyExpression =
-                modifyNode(indexedExpressionNode.keyExpression());
+        SeparatedNodeList<ExpressionNode> keyExpression =
+                modifySeparatedNodeList(indexedExpressionNode.keyExpression());
         Token closeBracket =
                 modifyToken(indexedExpressionNode.closeBracket());
         return indexedExpressionNode.modify(
@@ -1104,10 +1101,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(moduleVariableDeclarationNode.metadata());
         Token finalKeyword =
                 modifyToken(moduleVariableDeclarationNode.finalKeyword().orElse(null));
-        Node typeName =
-                modifyNode(moduleVariableDeclarationNode.typeName());
-        Token variableName =
-                modifyToken(moduleVariableDeclarationNode.variableName());
+        TypedBindingPatternNode typedBindingPattern =
+                modifyNode(moduleVariableDeclarationNode.typedBindingPattern());
         Token equalsToken =
                 modifyToken(moduleVariableDeclarationNode.equalsToken());
         ExpressionNode initializer =
@@ -1117,8 +1112,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return moduleVariableDeclarationNode.modify(
                 metadata,
                 finalKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 initializer,
                 semicolonToken);
@@ -1561,18 +1555,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             LetVariableDeclarationNode letVariableDeclarationNode) {
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(letVariableDeclarationNode.annotations());
-        Node typeName =
-                modifyNode(letVariableDeclarationNode.typeName());
-        Token variableName =
-                modifyToken(letVariableDeclarationNode.variableName());
+        TypedBindingPatternNode typedBindingPattern =
+                modifyNode(letVariableDeclarationNode.typedBindingPattern());
         Token equalsToken =
                 modifyToken(letVariableDeclarationNode.equalsToken());
         ExpressionNode expression =
                 modifyNode(letVariableDeclarationNode.expression());
         return letVariableDeclarationNode.modify(
                 annotations,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 expression);
     }
@@ -2172,8 +2163,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public CaptureBindingPatternNode transform(
             CaptureBindingPatternNode captureBindingPatternNode) {
-        SimpleNameReferenceNode variableName =
-                modifyNode(captureBindingPatternNode.variableName().orElse(null));
+        Token variableName =
+                modifyToken(captureBindingPatternNode.variableName());
         return captureBindingPatternNode.modify(
                 variableName);
     }
@@ -2215,7 +2206,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(asyncSendActionNode.expression());
         Token rightArrowToken =
                 modifyToken(asyncSendActionNode.rightArrowToken());
-        NameReferenceNode peerWorker =
+        SimpleNameReferenceNode peerWorker =
                 modifyNode(asyncSendActionNode.peerWorker());
         return asyncSendActionNode.modify(
                 expression,
@@ -2230,7 +2221,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(syncSendActionNode.expression());
         Token syncSendToken =
                 modifyToken(syncSendActionNode.syncSendToken());
-        NameReferenceNode peerWorker =
+        SimpleNameReferenceNode peerWorker =
                 modifyNode(syncSendActionNode.peerWorker());
         return syncSendActionNode.modify(
                 expression,
@@ -2243,7 +2234,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ReceiveActionNode receiveActionNode) {
         Token leftArrow =
                 modifyToken(receiveActionNode.leftArrow());
-        Node receiveWorkers =
+        SimpleNameReferenceNode receiveWorkers =
                 modifyNode(receiveActionNode.receiveWorkers());
         return receiveActionNode.modify(
                 leftArrow,
@@ -2413,21 +2404,144 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public ByteArrayLiteralNode transform(
-            ByteArrayLiteralNode byteArrayLiteralNode) {
-        Token type =
-                modifyToken(byteArrayLiteralNode.type());
-        Token startBacktick =
-                modifyToken(byteArrayLiteralNode.startBacktick());
-        Token content =
-                modifyToken(byteArrayLiteralNode.content());
-        Token endBacktick =
-                modifyToken(byteArrayLiteralNode.endBacktick());
-        return byteArrayLiteralNode.modify(
-                type,
-                startBacktick,
-                content,
-                endBacktick);
+    public EnumDeclarationNode transform(
+            EnumDeclarationNode enumDeclarationNode) {
+        MetadataNode metadata =
+                modifyNode(enumDeclarationNode.metadata());
+        Token qualifier =
+                modifyToken(enumDeclarationNode.qualifier());
+        Token enumKeywordToken =
+                modifyToken(enumDeclarationNode.enumKeywordToken());
+        IdentifierToken identifier =
+                modifyNode(enumDeclarationNode.identifier());
+        Token openBraceToken =
+                modifyToken(enumDeclarationNode.openBraceToken());
+        SeparatedNodeList<Node> enumMemberList =
+                modifySeparatedNodeList(enumDeclarationNode.enumMemberList());
+        Token closeBraceToken =
+                modifyToken(enumDeclarationNode.closeBraceToken());
+        return enumDeclarationNode.modify(
+                metadata,
+                qualifier,
+                enumKeywordToken,
+                identifier,
+                openBraceToken,
+                enumMemberList,
+                closeBraceToken);
+    }
+
+    @Override
+    public EnumMemberNode transform(
+            EnumMemberNode enumMemberNode) {
+        MetadataNode metadata =
+                modifyNode(enumMemberNode.metadata());
+        IdentifierToken identifier =
+                modifyNode(enumMemberNode.identifier());
+        Token equalToken =
+                modifyToken(enumMemberNode.equalToken());
+        ExpressionNode constExprNode =
+                modifyNode(enumMemberNode.constExprNode());
+        return enumMemberNode.modify(
+                metadata,
+                identifier,
+                equalToken,
+                constExprNode);
+    }
+
+    @Override
+    public ArrayTypeDescriptorNode transform(
+            ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+        TypeDescriptorNode memberTypeDesc =
+                modifyNode(arrayTypeDescriptorNode.memberTypeDesc());
+        Token openBracket =
+                modifyToken(arrayTypeDescriptorNode.openBracket());
+        Node arrayLength =
+                modifyNode(arrayTypeDescriptorNode.arrayLength().orElse(null));
+        Token closeBracket =
+                modifyToken(arrayTypeDescriptorNode.closeBracket());
+        return arrayTypeDescriptorNode.modify(
+                memberTypeDesc,
+                openBracket,
+                arrayLength,
+                closeBracket);
+    }
+
+    @Override
+    public TransactionStatementNode transform(
+            TransactionStatementNode transactionStatementNode) {
+        Token transactionKeyword =
+                modifyToken(transactionStatementNode.transactionKeyword());
+        BlockStatementNode blockStatement =
+                modifyNode(transactionStatementNode.blockStatement());
+        return transactionStatementNode.modify(
+                transactionKeyword,
+                blockStatement);
+    }
+
+    @Override
+    public RollbackStatementNode transform(
+            RollbackStatementNode rollbackStatementNode) {
+        Token rollbackKeyword =
+                modifyToken(rollbackStatementNode.rollbackKeyword());
+        ExpressionNode expression =
+                modifyNode(rollbackStatementNode.expression().orElse(null));
+        Token semicolon =
+                modifyToken(rollbackStatementNode.semicolon());
+        return rollbackStatementNode.modify(
+                rollbackKeyword,
+                expression,
+                semicolon);
+    }
+
+    @Override
+    public RetryStatementNode transform(
+            RetryStatementNode retryStatementNode) {
+        Token retryKeyword =
+                modifyToken(retryStatementNode.retryKeyword());
+        TypeParameterNode typeParameter =
+                modifyNode(retryStatementNode.typeParameter().orElse(null));
+        ParenthesizedArgList arguments =
+                modifyNode(retryStatementNode.arguments().orElse(null));
+        StatementNode retryBody =
+                modifyNode(retryStatementNode.retryBody());
+        return retryStatementNode.modify(
+                retryKeyword,
+                typeParameter,
+                arguments,
+                retryBody);
+    }
+
+    @Override
+    public CommitActionNode transform(
+            CommitActionNode commitActionNode) {
+        Token commitKeyword =
+                modifyToken(commitActionNode.commitKeyword());
+        return commitActionNode.modify(
+                commitKeyword);
+    }
+
+    @Override
+    public TransactionalExpressionNode transform(
+            TransactionalExpressionNode transactionalExpressionNode) {
+        Token transactionalKeyword =
+                modifyToken(transactionalExpressionNode.transactionalKeyword());
+        return transactionalExpressionNode.modify(
+                transactionalKeyword);
+    }
+
+    @Override
+    public ServiceConstructorExpressionNode transform(
+            ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
+        NodeList<AnnotationNode> annotations =
+                modifyNodeList(serviceConstructorExpressionNode.annotations());
+        Token serviceKeyword =
+                modifyToken(serviceConstructorExpressionNode.serviceKeyword());
+        Node serviceBody =
+                modifyNode(serviceConstructorExpressionNode.serviceBody());
+        return serviceConstructorExpressionNode.modify(
+                annotations,
+                serviceKeyword,
+                serviceBody);
     }
 
     // Tokens

@@ -49,245 +49,255 @@
                   "children": []
                 },
                 {
-                  "kind": "RECORD_TYPE_DESC",
+                  "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "RECORD_KEYWORD"
-                    },
-                    {
-                      "kind": "OPEN_BRACE_PIPE_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
+                      "kind": "RECORD_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "RECORD_FIELD",
-                          "children": [
-                            {
-                              "kind": "METADATA",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "STRING_KEYWORD"
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "name"
-                            },
-                            {
-                              "kind": "SEMICOLON_TOKEN"
-                            }
-                          ]
+                          "kind": "RECORD_KEYWORD"
                         },
                         {
-                          "kind": "RECORD_FIELD_WITH_DEFAULT_VALUE",
-                          "children": [
-                            {
-                              "kind": "METADATA",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "FLOAT_KEYWORD"
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "gpa"
-                            },
-                            {
-                              "kind": "EQUAL_TOKEN"
-                            },
-                            {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
-                              "value": "0"
-                            },
-                            {
-                              "kind": "SEMICOLON_TOKEN"
-                            }
-                          ]
+                          "kind": "OPEN_BRACE_PIPE_TOKEN"
                         },
                         {
-                          "kind": "RECORD_FIELD",
+                          "kind": "LIST",
                           "children": [
                             {
-                              "kind": "METADATA",
+                              "kind": "RECORD_FIELD",
                               "children": [
                                 {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "INT_KEYWORD"
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "age"
-                            },
-                            {
-                              "kind": "SEMICOLON_TOKEN"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "RECORD_FIELD",
-                          "children": [
-                            {
-                              "kind": "METADATA",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "RECORD_TYPE_DESC",
-                              "children": [
-                                {
-                                  "kind": "RECORD_KEYWORD"
-                                },
-                                {
-                                  "kind": "OPEN_BRACE_TOKEN"
-                                },
-                                {
-                                  "kind": "LIST",
+                                  "kind": "METADATA",
                                   "children": [
                                     {
-                                      "kind": "RECORD_FIELD",
-                                      "children": [
-                                        {
-                                          "kind": "METADATA",
-                                          "children": [
-                                            {
-                                              "kind": "LIST",
-                                              "children": []
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "STRING_KEYWORD"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "name"
-                                        },
-                                        {
-                                          "kind": "SEMICOLON_TOKEN"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "RECORD_FIELD_WITH_DEFAULT_VALUE",
-                                      "children": [
-                                        {
-                                          "kind": "METADATA",
-                                          "children": [
-                                            {
-                                              "kind": "LIST",
-                                              "children": []
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "INT_KEYWORD"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "age"
-                                        },
-                                        {
-                                          "kind": "EQUAL_TOKEN"
-                                        },
-                                        {
-                                          "kind": "DECIMAL_INTEGER_LITERAL",
-                                          "value": "50"
-                                        },
-                                        {
-                                          "kind": "SEMICOLON_TOKEN"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "TYPE_REFERENCE",
-                                      "children": [
-                                        {
-                                          "kind": "ASTERISK_TOKEN"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "B"
-                                        },
-                                        {
-                                          "kind": "SEMICOLON_TOKEN"
-                                        }
-                                      ]
+                                      "kind": "LIST",
+                                      "children": []
                                     }
                                   ]
                                 },
                                 {
-                                  "kind": "CLOSE_BRACE_TOKEN"
+                                  "kind": "STRING_KEYWORD"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "name"
+                                },
+                                {
+                                  "kind": "SEMICOLON_TOKEN"
                                 }
                               ]
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "parent"
+                              "kind": "RECORD_FIELD_WITH_DEFAULT_VALUE",
+                              "children": [
+                                {
+                                  "kind": "METADATA",
+                                  "children": [
+                                    {
+                                      "kind": "LIST",
+                                      "children": []
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "FLOAT_KEYWORD"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "gpa"
+                                },
+                                {
+                                  "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "value": "0"
+                                },
+                                {
+                                  "kind": "SEMICOLON_TOKEN"
+                                }
+                              ]
                             },
                             {
-                              "kind": "SEMICOLON_TOKEN"
+                              "kind": "RECORD_FIELD",
+                              "children": [
+                                {
+                                  "kind": "METADATA",
+                                  "children": [
+                                    {
+                                      "kind": "LIST",
+                                      "children": []
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "INT_KEYWORD"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "age"
+                                },
+                                {
+                                  "kind": "SEMICOLON_TOKEN"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "RECORD_FIELD",
+                              "children": [
+                                {
+                                  "kind": "METADATA",
+                                  "children": [
+                                    {
+                                      "kind": "LIST",
+                                      "children": []
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RECORD_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "RECORD_KEYWORD"
+                                    },
+                                    {
+                                      "kind": "OPEN_BRACE_TOKEN"
+                                    },
+                                    {
+                                      "kind": "LIST",
+                                      "children": [
+                                        {
+                                          "kind": "RECORD_FIELD",
+                                          "children": [
+                                            {
+                                              "kind": "METADATA",
+                                              "children": [
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": []
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "STRING_KEYWORD"
+                                            },
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "name"
+                                            },
+                                            {
+                                              "kind": "SEMICOLON_TOKEN"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "RECORD_FIELD_WITH_DEFAULT_VALUE",
+                                          "children": [
+                                            {
+                                              "kind": "METADATA",
+                                              "children": [
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": []
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "INT_KEYWORD"
+                                            },
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "age"
+                                            },
+                                            {
+                                              "kind": "EQUAL_TOKEN"
+                                            },
+                                            {
+                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                              "value": "50"
+                                            },
+                                            {
+                                              "kind": "SEMICOLON_TOKEN"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "TYPE_REFERENCE",
+                                          "children": [
+                                            {
+                                              "kind": "ASTERISK_TOKEN"
+                                            },
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "B"
+                                            },
+                                            {
+                                              "kind": "SEMICOLON_TOKEN"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACE_TOKEN"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "parent"
+                                },
+                                {
+                                  "kind": "SEMICOLON_TOKEN"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "TYPE_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "ASTERISK_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "A"
+                                },
+                                {
+                                  "kind": "SEMICOLON_TOKEN"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "RECORD_REST_TYPE",
+                              "children": [
+                                {
+                                  "kind": "STRING_KEYWORD"
+                                },
+                                {
+                                  "kind": "ELLIPSIS_TOKEN"
+                                },
+                                {
+                                  "kind": "SEMICOLON_TOKEN"
+                                }
+                              ]
                             }
                           ]
                         },
                         {
-                          "kind": "TYPE_REFERENCE",
-                          "children": [
-                            {
-                              "kind": "ASTERISK_TOKEN"
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "A"
-                            },
-                            {
-                              "kind": "SEMICOLON_TOKEN"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "RECORD_REST_TYPE",
-                          "children": [
-                            {
-                              "kind": "STRING_KEYWORD"
-                            },
-                            {
-                              "kind": "ELLIPSIS_TOKEN"
-                            },
-                            {
-                              "kind": "SEMICOLON_TOKEN"
-                            }
-                          ]
+                          "kind": "CLOSE_BRACE_PIPE_TOKEN"
                         }
                       ]
                     },
                     {
-                      "kind": "CLOSE_BRACE_PIPE_TOKEN"
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "student"
+                        }
+                      ]
                     }
                   ]
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "student"
                 },
                 {
                   "kind": "SEMICOLON_TOKEN"
@@ -302,11 +312,21 @@
                   "children": []
                 },
                 {
-                  "kind": "INT_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "status"
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "INT_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "status"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "SEMICOLON_TOKEN"

@@ -17,6 +17,7 @@
 package org.ballerinalang.net.http.actions.httpclient;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -59,8 +60,11 @@ public class GetNextPromise extends AbstractHTTPAction {
 
         @Override
         public void onPushPromise(Http2PushPromise pushPromise) {
-            ObjectValue pushPromiseObj = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_HTTP_PKG_ID,
-                    HttpConstants.PUSH_PROMISE, pushPromise.getPath(), pushPromise.getMethod());
+            ObjectValue pushPromiseObj =
+                    BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_HTTP_PKG_ID,
+                                                      HttpConstants.PUSH_PROMISE,
+                                                      StringUtils.fromString(pushPromise.getPath()),
+                                                      StringUtils.fromString(pushPromise.getMethod()));
             HttpUtil.populatePushPromiseStruct(pushPromiseObj, pushPromise);
             dataContext.notifyInboundResponseStatus(pushPromiseObj, null);
         }

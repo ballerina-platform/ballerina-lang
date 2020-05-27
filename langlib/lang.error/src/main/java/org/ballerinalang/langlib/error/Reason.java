@@ -25,25 +25,21 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.ERROR_VERSION;
+
 /**
  * Get the reason phrase of an error value.
  *
  * @since 0.990.4
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.error",
+        orgName = "ballerina", packageName = "lang.error", version = ERROR_VERSION,
         functionName = "reason",
         args = {@Argument(name = "value", type = TypeKind.ERROR)},
         returnType = {@ReturnType(type = TypeKind.STRING)})
 public class Reason {
 
-
-    @Deprecated
-    public static String reason(Strand strand, ErrorValue value) {
+    public static BString reason(Strand strand, ErrorValue value) {
         return value.getReason();
-    }
-
-    public static BString reason_bstring(Strand strand, ErrorValue value) {
-        return value.getErrorReason();
     }
 }

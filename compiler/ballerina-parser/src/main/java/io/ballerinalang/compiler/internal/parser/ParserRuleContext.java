@@ -181,6 +181,25 @@ public enum ParserRuleContext {
     ALTERNATE_WAIT_EXPRS("alternate-wait-exprs"),
     ALTERNATE_WAIT_EXPR_LIST_END("alternate-wait-expr-lit-end"),
     DO_CLAUSE("do-clause"),
+    MODULE_ENUM_DECLARATION("module-enum-declaration"),
+    MODULE_ENUM_NAME("module-enum-name"),
+    ENUM_MEMBER_NAME("enum-member-name"),
+    MEMBER_ACCESS_KEY_EXPR_END("member-access-key-expr-end"),
+    MEMBER_ACCESS_KEY_EXPR("member-access-key-expr"),
+    RETRY_KEYWORD_RHS("retry-keyword-rhs"),
+    RETRY_TYPE_PARAM_RHS("retry-type-param-rhs"),
+    RETRY_BODY("retry-body"),
+    ROLLBACK_RHS("rollback-rhs"),
+    LIST_BP_OR_TUPLE_TYPE_DESC("list-bp-or-tuple-type-desc"),
+    LIST_BP_OR_TUPLE_TYPE_MEMBER("list-bp-or-tuple-type-member"),
+    LIST_BP_OR_TUPLE_TYPE_DESC_RHS("list-bp-or-tuple-type-desc-rhs"),
+    BRACKETED_LIST("bracketed-list"),
+    BRACKETED_LIST_RHS("bracketed-list-rhs"),
+    BRACKETED_LIST_MEMBER("bracketed-list-member"),
+    BRACKETED_LIST_MEMBER_END("bracketed-list-member-end"),
+    LIST_BINDING_MEMBER_OR_ARRAY_LENGTH("list-binding-member-or-array-length"),
+    TYPED_BINDING_PATTERN_TYPE_RHS("type-binding-pattern-type-rhs"),
+    UNION_OR_INTERSECTION_TOKEN("union-or-intersection"),
 
     // Statements
     STATEMENT("statement"),
@@ -205,7 +224,7 @@ public enum ParserRuleContext {
     RETURN_STMT_RHS("return-stmt-rhs"),
     COMPOUND_ASSIGNMENT_STMT("compound-assignment-statement"),
     LOCAL_TYPE_DEFINITION_STMT("local-type-definition-statement"),
-    STMT_START_WITH_IDENTIFIER("stmt-start-with-identifier"),
+    STMT_START_IDENTIFIER_RHS("stmt-start-identifier-rhs"),
     STMT_START_WITH_EXPR_RHS("stmt-start-with-expr-rhs"),
     EXPRESSION_STATEMENT("expression-statement"),
     EXPRESSION_STATEMENT_START("expression-statement-start"),
@@ -213,6 +232,10 @@ public enum ParserRuleContext {
     NAMED_WORKER_DECL("named-worker-decl"),
     FORK_STMT("fork-stmt"),
     FOREACH_STMT("foreach-stmt"),
+    TRANSACTION_STMT("transaction-stmt"),
+    RETRY_STMT("retry-stmt"),
+    ROLLBACK_STMT("rollback-stmt"),
+    AMBIGUOUS_STMT("ambiguous-stmt"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -273,6 +296,12 @@ public enum ParserRuleContext {
     DEFAULT_KEYWORD("default"),
     WAIT_KEYWORD("wait"),
     DO_KEYWORD("do"),
+    TRANSACTION_KEYWORD("transaction"),
+    COMMIT_KEYWORD("commit"),
+    RETRY_KEYWORD("retry"),
+    ROLLBACK_KEYWORD("rollback"),
+    TRANSACTIONAL_KEYWORD("transactional"),
+    ENUM_KEYWORD("enum"),
     BASE16_KEYWORD("base16"),
     BASE64_KEYWORD("base64"),
 
@@ -384,6 +413,7 @@ public enum ParserRuleContext {
     QUERY_PIPELINE_RHS("query-pipeline-rhs"),
     LET_CLAUSE_END("let-clause-end"),
     CONDITIONAL_EXPRESSION("conditional-expr"),
+    SERVICE_CONSTRUCTOR_EXPRESSION("service-constructor-expression"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),
@@ -439,6 +469,10 @@ public enum ParserRuleContext {
     ROW_TYPE_PARAM("row-type-param"),
     TABLE_TYPE_DESC_RHS("table-type-desc-rhs"),
     SIGNED_INT_OR_FLOAT_RHS("signed-int-or-float-rhs"),
+    ENUM_MEMBER_LIST("enum-member-list"),
+    ENUM_MEMBER_RHS("enum-member-rhs"),
+    ENUM_MEMBER_INTERNAL_RHS("enum-member-internal-rhs"),
+    ENUM_MEMBER_START("enum-member-start"),
     ;
 
     private String value;

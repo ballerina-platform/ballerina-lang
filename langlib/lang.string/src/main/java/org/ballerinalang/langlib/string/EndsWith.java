@@ -25,24 +25,22 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
+
 /**
  * Extern function lang.string:endsWith(string, string).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "endsWith",
+        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "endsWith",
         args = {@Argument(name = "str", type = TypeKind.STRING), @Argument(name = "substr", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
 public class EndsWith {
 
-    public static boolean endsWith(Strand strand, String str, String substr) {
-        return str.endsWith(substr);
-    }
-
-    public static boolean endsWith_bstring(Strand strand, BString str, BString substr) {
+    public static boolean endsWith(Strand strand, BString str, BString substr) {
         return str.getValue().endsWith(substr.getValue());
     }
 }

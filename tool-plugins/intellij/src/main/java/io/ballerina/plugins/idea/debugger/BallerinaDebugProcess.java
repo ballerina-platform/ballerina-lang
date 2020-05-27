@@ -331,8 +331,8 @@ public class BallerinaDebugProcess extends XDebugProcess {
     private Long getWorkerID(@Nullable XSuspendContext context) {
         if (context != null) {
             XExecutionStack activeExecutionStack = context.getActiveExecutionStack();
-            if (activeExecutionStack instanceof BallerinaSuspendContext.BallerinaExecutionStack) {
-                return ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack).getMyWorkerID();
+            if (activeExecutionStack instanceof BallerinaExecutionStack) {
+                return ((BallerinaExecutionStack) activeExecutionStack).getMyWorkerID();
             }
         }
         print("Error occurred while getting the thread ID.", true);
@@ -409,7 +409,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
                     print("Remote debugging finished.\n", false);
 
                 }
-        );
+                                                                 );
     }
 
     private void initBreakpointHandlersAndSetBreakpoints() {

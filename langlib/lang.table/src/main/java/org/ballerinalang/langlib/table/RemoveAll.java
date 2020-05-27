@@ -25,13 +25,15 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
+import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
+
 /**
  * Native implementation of lang.table:removeAll(table&lt;Type&gt;).
  *
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", functionName = "removeAll",
+        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION, functionName = "removeAll",
         args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
         isPublic = true
 )

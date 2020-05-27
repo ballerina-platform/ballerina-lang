@@ -54,9 +54,9 @@ public class ErrorHandler {
                 .anyMatch(resource -> resource.getName().equals(ON_ERROR_RESOURCE));
         if (onErrorResourcePresent) {
             CountDownLatch countDownLatch = new CountDownLatch(1);
-            runtime.invokeMethodAsync(serviceObject, ON_ERROR_RESOURCE,
-                                      new ResponseCallback(countDownLatch, msgObj.getStringValue(Constants.SUBJECT),
-                                                           natsMetricsReporter), msgObj, true, e, true);
+            runtime.invokeMethodAsync(serviceObject, ON_ERROR_RESOURCE, new ResponseCallback(
+                                              countDownLatch, msgObj.getStringValue(Constants.SUBJECT).getValue(),
+                                              natsMetricsReporter), msgObj, true, e, true);
             try {
                 countDownLatch.await();
             } catch (InterruptedException ex) {

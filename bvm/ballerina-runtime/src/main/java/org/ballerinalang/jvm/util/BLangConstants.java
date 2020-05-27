@@ -17,7 +17,9 @@
 */
 package org.ballerinalang.jvm.util;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -92,10 +94,11 @@ public class BLangConstants {
     public static final String BALLERINA_LANG_ERROR_PKG = BALLERINA_PACKAGE_PREFIX + "lang_error";
     public static final String BALLERINA_MAX_POOL_SIZE_ENV_VAR = "BALLERINA_MAX_POOL_SIZE";
 
-
     public static final BPackage BALLERINA_BUILTIN_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "builtin");
-    public static final BPackage BALLERINA_RUNTIME_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "runtime");
-    public static final BPackage BALLERINA_LANG_ERROR_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "lang.error");
+    public static final BPackage BALLERINA_RUNTIME_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX,
+                                                                         "runtime", "0.5.0");
+    public static final BPackage BALLERINA_LANG_ERROR_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX,
+                                                                            "lang.error", "1.0.0");
 
     public static final String STRING_LANG_LIB = "lang.string";
     public static final String MAP_LANG_LIB = "lang.map";
@@ -112,9 +115,10 @@ public class BLangConstants {
 
     // Zero value for string
     public static final String STRING_NULL_VALUE = null;
-    
+    public static final BString BSTRING_NULL_VALUE = null;
+
     // Empty value for string
-    public static final String STRING_EMPTY_VALUE = "";
+    public static final BString STRING_EMPTY_VALUE = StringUtils.fromString("");
 
     public static final Integer BBYTE_MIN_VALUE = 0;
     public static final Integer BBYTE_MAX_VALUE = 255;

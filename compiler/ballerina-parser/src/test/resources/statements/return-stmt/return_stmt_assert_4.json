@@ -1,16 +1,16 @@
 {
-    "kind": "RETURN_STATEMENT",
-    "children": [
-        {
-            "kind": "RETURN_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "isMissing": true
-        },
-        {
-            "kind": "SEMICOLON_TOKEN",
-            "isMissing": true
-        }
-    ]
+  "kind": "RETURN_STATEMENT",
+  "children": [
+    {
+      "kind": "RETURN_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "isMissing": true
+    },
+    {
+      "kind": "SEMICOLON_TOKEN",
+      "isMissing": true
+    }
+  ]
 }

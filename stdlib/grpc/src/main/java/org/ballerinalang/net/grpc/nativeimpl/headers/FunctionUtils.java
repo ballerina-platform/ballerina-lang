@@ -20,8 +20,10 @@ package org.ballerinalang.net.grpc.nativeimpl.headers;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 
 import java.util.List;
@@ -39,14 +41,15 @@ public class FunctionUtils {
      * Extern function to add new entries to headers.
      *
      * @param headerValues header instance.
-     * @param headerName header name.
-     * @param headerValue header value.
+     * @param headerName   header name.
+     * @param headerValue  header value.
      */
-    public static void externAddEntry(ObjectValue headerValues, String headerName, String headerValue) {
+    public static void externAddEntry(final ObjectValue headerValues, final BString headerName,
+            final BString headerValue) {
         HttpHeaders headers = (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS);
         // Only initialize headers if not yet initialized
         headers = headers != null ? headers : new DefaultHttpHeaders();
-        headers.add(headerName, headerValue);
+        headers.add(headerName.getValue(), headerValue.getValue());
         headerValues.addNativeData(MESSAGE_HEADERS, headers);
     }
 
@@ -54,45 +57,47 @@ public class FunctionUtils {
      * Extern function to check whether header key exists.
      *
      * @param headerValues header instance.
-     * @param headerName header name.
+     * @param headerName   header name.
      * @return True if header value exists for the given name, False otherwise.
      */
-    public static boolean externExists(ObjectValue headerValues, String headerName) {
-        HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
+    public static boolean externExists(final ObjectValue headerValues, final BString headerName) {
+        final HttpHeaders headers = headerValues != null ? 
+                (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
         boolean isExist = false;
         if (headers != null) {
-            isExist = headers.contains(headerName);
+            isExist = headers.contains(headerName.getValue());
         }
         return isExist;
     }
 
     /**
-     * Extern function to get header value with the specified name. If there are more than one values for the
-     * specified name, the first value is returned.
+     * Extern function to get header value with the specified name. If there are
+     * more than one values for the specified name, the first value is returned.
      *
      * @param headerValues header instance.
-     * @param headerName header name.
+     * @param headerName   header name.
      * @return Header value if it exists, else returns nil.
      */
-    public static Object externGet(ObjectValue headerValues, String headerName) {
-        HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
-        return headers != null ? headers.get(headerName) : null;
+    public static Object externGet(final ObjectValue headerValues, final BString headerName) {
+        final HttpHeaders headers = headerValues != null ? 
+                (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
+        return headers != null ? StringUtils.fromString(headers.get(headerName.getValue())) : null;
     }
 
     /**
      * Extern function to get the values of headers with the specified name.
      *
      * @param headerValues header instance.
-     * @param headerName header name.
+     * @param headerName   header name.
      * @return A array of header values. returns nil if no values are found
      */
-    public static ArrayValue externGetAll(ObjectValue headerValues, String headerName) {
-        HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
-        List<String> headersList =  headers != null ? headers.getAll(headerName) : null;
+    public static ArrayValue externGetAll(final ObjectValue headerValues, final BString headerName) {
+        final HttpHeaders headers = headerValues != null ? 
+                (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
+        final List<String> headersList = headers != null ? headers.getAll(headerName.getValue()) : null;
 
         if (headersList != null) {
-            String[] headerValue = new String[headersList.size()];
-            headerValue = headers.getAll(headerName).toArray(headerValue);
+            BString[] headerValue = headersList.stream().map(s -> StringUtils.fromString(s)).toArray(BString[]::new);
             return (ArrayValue) BValueCreator.createArrayValue(headerValue);
         } else {
             return null;
@@ -103,12 +108,13 @@ public class FunctionUtils {
      * Extern function to remove the header with the specified name.
      *
      * @param headerValues header instance.
-     * @param headerName header name.
+     * @param headerName   header name.
      */
-    public static void externRemove(ObjectValue headerValues, String headerName) {
-        HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
+    public static void externRemove(final ObjectValue headerValues, final BString headerName) {
+        final HttpHeaders headers = headerValues != null ? 
+                (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
         if (headers != null) {
-            headers.remove(headerName);
+            headers.remove(headerName.getValue());
         }
     }
 
@@ -117,26 +123,29 @@ public class FunctionUtils {
      *
      * @param headerValues header instance.
      */
-    public static void externRemoveAll(ObjectValue headerValues) {
-        HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
+    public static void externRemoveAll(final ObjectValue headerValues) {
+        final HttpHeaders headers = headerValues != null ? 
+                (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
         if (headers != null) {
             headers.clear();
         }
     }
 
     /**
-     * Sets a header with the specified name and value. If there is an existing header with the same name, it is
-     * removed.
+     * Sets a header with the specified name and value. If there is an existing
+     * header with the same name, it is removed.
+     * 
      * @param headerValues header instance.
-     * @param headerName header name.
-     * @param headerValue header value.
+     * @param headerName   header name.
+     * @param headerValue  header value.
      */
-    public static void externSetEntry(ObjectValue headerValues, String headerName, String headerValue) {
+    public static void externSetEntry(final ObjectValue headerValues, final BString headerName,
+            final BString headerValue) {
         HttpHeaders headers = (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS);
 
         // Only initialize headers if not yet initialized
         headers = headers != null ? headers : new DefaultHttpHeaders();
-        headers.set(headerName, headerValue);
+        headers.set(headerName.getValue(), headerValue.getValue());
         headerValues.addNativeData(MESSAGE_HEADERS, headers);
     }
 }
