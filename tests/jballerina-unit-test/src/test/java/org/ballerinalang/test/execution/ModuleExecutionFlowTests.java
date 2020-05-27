@@ -184,7 +184,7 @@ public class ModuleExecutionFlowTests {
         String expectedCrashLogString = " SEVERE {b7a.log.crash} " +
                 "- panicked while stopping module B \n" +
                 "error: panicked while stopping module B \n" +
-                "\tat unit-tests.a.ABC:__gracefulStop(main.bal:28) ";
+                "\tat unit-tests.a.0_1_0.ABC:__gracefulStop(main.bal:28) ";
 
         Assert.assertEquals(getCrashLogOutput(), expectedCrashLogString, "evaluated to invalid value");
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
@@ -207,7 +207,7 @@ public class ModuleExecutionFlowTests {
                 "a:ABC listener __gracefulStop called, service name - ModA";
 
         String expectedErrorString = "error: panicked while starting module B \n" +
-                "\tat unit-tests.a.ABC:__start(main.bal:24)";
+                "\tat unit-tests.a.0_1_0.ABC:__start(main.bal:24)";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }

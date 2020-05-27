@@ -1459,6 +1459,8 @@ public class JvmMethodGen {
 
         String currentPackageName = getPackageName(module.org.value, module.name.value, module.version.value);
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
+        String initClass = getModuleLevelClassName(module.org.value, module.name.value, module.version.value,
+                MODULE_INIT_CLASS_NAME);
         String funcName = cleanupFunctionName(func.name.value);
         int returnVarRefIndex = -1;
 
@@ -1491,9 +1493,7 @@ public class JvmMethodGen {
         mv.visitCode();
         if (func == module.functions.get(1)) {
             mv.visitInsn(ICONST_1);
-            mv.visitFieldInsn(PUTSTATIC,
-                    getModuleLevelClassName(module.org.value, module.name.value, MODULE_INIT_CLASS_NAME),
-                    "moduleStartAttempted", "Z");
+            mv.visitFieldInsn(PUTSTATIC, initClass, "moduleStartAttempted", "Z");
         }
 
         Label tryStart = null;
@@ -1705,8 +1705,7 @@ public class JvmMethodGen {
         mv.visitLabel(methodEndLabel);
         if (func == module.functions.get(1)) {
             mv.visitInsn(ICONST_1);
-            mv.visitFieldInsn(PUTSTATIC, getModuleLevelClassName(module.org.value, module.name.value,
-                    MODULE_INIT_CLASS_NAME), "moduleStartSuccess", "Z");
+            mv.visitFieldInsn(PUTSTATIC, initClass, "moduleStartSuccess", "Z");
         }
         termGen.genReturnTerm(new Return(null), returnVarRefIndex, func, false, -1);
 
@@ -1942,7 +1941,7 @@ public class JvmMethodGen {
                 if (func == module.functions.get(1) && terminator instanceof Return) {
                     mv.visitInsn(ICONST_1);
                     mv.visitFieldInsn(PUTSTATIC, getModuleLevelClassName(module.org.value, module.name.value,
-                            MODULE_INIT_CLASS_NAME), "moduleStartSuccess", "Z");
+                            module.version.value, MODULE_INIT_CLASS_NAME), "moduleStartSuccess", "Z");
                 }
             }
 
@@ -2801,21 +2800,22 @@ public class JvmMethodGen {
         String stopFuncName = "<stop>";
 
         PackageID currentModId = packageToModuleId(module);
-        String moduleClass =
-                getModuleLevelClassName(currentModId.orgName.value, currentModId.name.value, MODULE_INIT_CLASS_NAME);
+        String moduleInitClass = getModuleLevelClassName(currentModId.orgName.value, currentModId.name.value,
+                currentModId.version.value, MODULE_INIT_CLASS_NAME);
         String fullFuncName = calculateModuleSpecialFuncName(currentModId, stopFuncName);
 
-        scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), schedulerIndex,
-                futureIndex, moduleClass);
+        scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), schedulerIndex, futureIndex,
+                moduleInitClass);
 
         int i = imprtMods.size() - 1;
         while (i >= 0) {
             PackageID id = imprtMods.get(i);
             i -= 1;
             fullFuncName = calculateModuleSpecialFuncName(id, stopFuncName);
-            moduleClass = getModuleLevelClassName(id.orgName.value, id.name.value, MODULE_INIT_CLASS_NAME);
+            moduleInitClass = getModuleLevelClassName(id.orgName.value, id.name.value, id.version.value,
+                    MODULE_INIT_CLASS_NAME);
             scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), schedulerIndex,
-                    futureIndex, moduleClass);
+                    futureIndex, moduleInitClass);
         }
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
