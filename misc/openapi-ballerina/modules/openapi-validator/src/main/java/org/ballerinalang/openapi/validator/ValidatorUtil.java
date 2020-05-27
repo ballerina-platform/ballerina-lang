@@ -344,18 +344,18 @@ class ValidatorUtil {
                 if (tagFilteringEnabled || operationFilteringEnabled || excludeTagsFilteringEnabled
                         || excludeOperationFilterEnabled) {
                     if (operationFilteringEnabled) {
-                        OperationsFilter(serviceNode, openApiSummary, operations, kind, Diagnostic.Kind.ERROR,
+                        operationsFilter(serviceNode, openApiSummary, operations, kind, Diagnostic.Kind.ERROR,
                                 Diagnostic.Kind.WARNING, dLog);
-                    } else if (excludeOperationFilterEnabled){
-                        OperationsFilter(serviceNode, openApiSummary, excludeOperations, kind, Diagnostic.Kind.WARNING,
+                    } else if (excludeOperationFilterEnabled) {
+                        operationsFilter(serviceNode, openApiSummary, excludeOperations, kind, Diagnostic.Kind.WARNING,
                                 Diagnostic.Kind.ERROR, dLog);
                     }
 
                     if (tagFilteringEnabled) {
-                        TagsFilter(serviceNode, openApiSummary, tags, kind, Diagnostic.Kind.ERROR,
+                        tagsFilter(serviceNode, openApiSummary, tags, kind, Diagnostic.Kind.ERROR,
                                 Diagnostic.Kind.WARNING, dLog);
                     } else if (excludeTagsFilteringEnabled) {
-                        TagsFilter(serviceNode, openApiSummary, excludeTags, kind, Diagnostic.Kind.WARNING,
+                        tagsFilter(serviceNode, openApiSummary, excludeTags, kind, Diagnostic.Kind.WARNING,
                                 Diagnostic.Kind.ERROR, dLog);;
                     }
 
@@ -387,7 +387,7 @@ class ValidatorUtil {
                         }
 
                         if (unmatchedMethods.size() > 0) {
-                            validateUnmatchedMethods( unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
+                            validateUnmatchedMethods(unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
                         }
                     } else if (excludeTagsFilteringEnabled) {
                         for (String method : openApiSummary.getAvailableOperations()) {
@@ -400,7 +400,7 @@ class ValidatorUtil {
                         }
 
                         if (unmatchedMethods.size() > 0) {
-                            validateUnmatchedMethods( unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
+                            validateUnmatchedMethods(unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
                         }
                     } else {
                         for (String method : openApiSummary.getAvailableOperations()) {
@@ -412,7 +412,7 @@ class ValidatorUtil {
                         }
 
                         if (unmatchedMethods.size() > 0) {
-                            validateUnmatchedMethods( unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
+                            validateUnmatchedMethods(unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
                         }
                     }
                 } else if (excludeOperationFilterEnabled) {
@@ -433,7 +433,7 @@ class ValidatorUtil {
                         }
 
                         if (unmatchedMethods.size() > 0) {
-                            validateUnmatchedMethods( unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
+                            validateUnmatchedMethods(unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
                         }
                     } else if (tagFilteringEnabled) {
                         for (String method : openApiSummary.getAvailableOperations()) {
@@ -446,7 +446,7 @@ class ValidatorUtil {
                         }
 
                         if (unmatchedMethods.size() > 0) {
-                            validateUnmatchedMethods( unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
+                            validateUnmatchedMethods(unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
                         }
                     } else {
                         for (String method : openApiSummary.getAvailableOperations()) {
@@ -458,7 +458,7 @@ class ValidatorUtil {
                         }
 
                         if (unmatchedMethods.size() > 0) {
-                            validateUnmatchedMethods( unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
+                            validateUnmatchedMethods(unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
                         }
                     }
                     // If exclude tag filtering available proceed to validate all the operations grouped by tags which
@@ -476,7 +476,7 @@ class ValidatorUtil {
                         }
 
                         if (unmatchedMethods.size() > 0) {
-                            validateUnmatchedMethods( unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
+                            validateUnmatchedMethods(unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
                         }
                     }  else if (tagFilteringEnabled) {
                         // If tag filtering available proceed to validate all the operations grouped by given tags.
@@ -490,7 +490,7 @@ class ValidatorUtil {
                         }
 
                         if (unmatchedMethods.size() > 0) {
-                            validateUnmatchedMethods( unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
+                            validateUnmatchedMethods(unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
 
                         }
                         // If Exclude operation filtering available proceed.
@@ -796,19 +796,18 @@ class ValidatorUtil {
         return serviceNode.getName().getPosition();
     }
 
-    private static void TagsFilter (ServiceNode serviceNode,
+    private static void tagsFilter (ServiceNode serviceNode,
                                     OpenAPIPathSummary openApiSummary,
                                     List<String> tags,
                                     Diagnostic.Kind kind,
                                     Diagnostic.Kind kind1,
                                     Diagnostic.Kind kind2,
                                     DiagnosticLog dLog) {
-        for (String method : openApiSummary.getAvailableOperations()){
-            if (openApiSummary.hasTags(tags, method)){
+        for (String method : openApiSummary.getAvailableOperations()) {
+            if (openApiSummary.hasTags(tags, method)) {
                 kind = kind1;
                 break;
-            }
-            else {
+            } else {
                 kind = kind2;
             }
         }
@@ -816,7 +815,7 @@ class ValidatorUtil {
                 ErrorMessages.unimplementedOpenAPIPath(openApiSummary.getPath()));
     }
     //for Operation Filter
-    private static void OperationsFilter (ServiceNode serviceNode,
+    private static void operationsFilter (ServiceNode serviceNode,
                                           OpenAPIPathSummary openApiSummary,
                                           List<String> operations,
                                           Diagnostic.Kind kind,

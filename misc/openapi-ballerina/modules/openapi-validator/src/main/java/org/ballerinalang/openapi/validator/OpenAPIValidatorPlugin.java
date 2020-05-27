@@ -228,12 +228,12 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
             }
 
 //            Checking both tags and excludeTags include same tags and operations
-            if (!Collections.disjoint(tags,excludeTags)) {
+            if (!Collections.disjoint(tags, excludeTags)) {
                 dLog.logDiagnostic(Diagnostic.Kind.WARNING, annotation.getPosition(),
                         ErrorMessages.tagFilterEnable());
                 excludeTags.clear();
 
-            }else if (!Collections.disjoint(operations, excludeOperations)) {
+            } else if (!Collections.disjoint(operations, excludeOperations)) {
                 dLog.logDiagnostic(Diagnostic.Kind.WARNING, annotation.getPosition(),
                         ErrorMessages.operationFilterEnable());
                 excludeOperations.clear();
