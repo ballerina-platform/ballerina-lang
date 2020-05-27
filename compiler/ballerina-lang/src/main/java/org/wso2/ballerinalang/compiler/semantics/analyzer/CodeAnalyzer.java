@@ -558,7 +558,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(rollbackNode.pos, DiagnosticCode.ROLLBACK_NOT_ALLOWED);
             return;
         }
-//        this.lastStatement = true;
         this.withinTransactionScope = false;
         analyzeExpr(rollbackNode.expr);
     }
@@ -630,7 +629,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (ifStmt.expr.getKind() == NodeKind.TRANSACTIONAL_EXPRESSION) {
             this.withinTransactionScope = true;
         }
-//        boolean prevWithinTxScope = this.withinTransactionScope;
         if (withinTransactionScope && ifStmt.elseStmt != null && ifStmt.elseStmt.getKind() != NodeKind.IF) {
                 independentBlocks = true;
                 commitRollbackAllowed = true;
@@ -649,7 +647,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
             this.statementReturns = ifStmtReturns && this.statementReturns;
         }
-//        withinTransactionScope = prevWithinTxScope;
         analyzeExpr(ifStmt.expr);
     }
 
@@ -2073,9 +2070,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if ((invocationExpr.symbol != null) && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
             BSymbol funcSymbol = invocationExpr.symbol;
             if (Symbols.isFlagOn(funcSymbol.flags, Flags.TRANSACTIONAL) && !withinTransactionScope) {
-                dlog.error(invocationExpr.pos,
-                        DiagnosticCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED,
-                        invocationExpr);
+                dlog.error(invocationExpr.pos, DiagnosticCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED, invocationExpr);
                 return;
             }
             if (Symbols.isFlagOn(funcSymbol.flags, Flags.DEPRECATED)) {
@@ -2100,8 +2095,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (actionInvocation.flagSet.contains(Flag.TRANSACTIONAL) && !withinTransactionScope) {
-            dlog.error(actionInvocation.pos,
-                    DiagnosticCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED);
+            dlog.error(actionInvocation.pos, DiagnosticCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED);
             return;
         }
 
