@@ -211,7 +211,6 @@ public class BallerinaParser extends AbstractParser {
             case IMPORT_MODULE_NAME:
             case IMPORT_ORG_OR_MODULE_NAME:
             case VARIABLE_REF:
-            case FIELD_OR_FUNC_NAME:
             case SERVICE_NAME:
             case IMPLICIT_ANON_FUNC_PARAM:
                 return parseIdentifier(context);
@@ -435,8 +434,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseWaitFieldEnd();
             case ANNOT_CHAINING_TOKEN:
                 return parseAnnotChainingToken();
-            case ANNOT_TAG_REFERENCE:
-                return parseAnnotTagReference();
+            case QUALIFIED_IDENTIFIER_OR_IDENTIFIER:
+                return parseQualifiedIdentifierOrIdentifier();
             case DO_KEYWORD:
                 return parseDoKeyword();
             case MEMBER_ACCESS_KEY_EXPR_END:
@@ -4760,14 +4759,28 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse field access expression and method call expression.
+     * Parse field access, xml required attribute access expressions or method call expression.
+     * <p>
+     * <code>
+     * field-access-expr := expression . field-name
+     * <br/>
+     * xml-required-attribute-access-expr := expression . xml-attribute-name
+     * <br/>
+     * xml-attribute-name := xml-qualified-name | qualified-identifier | identifier
+     * <br/>
+     * method-call-expr := expression . method-name ( arg-list )
+     * </code>
      *
      * @param lhsExpr Preceding expression of the field access or method call
      * @return One of <code>field-access-expression</code> or <code>method-call-expression</code>.
      */
     private STNode parseFieldAccessOrMethodCall(STNode lhsExpr) {
         STNode dotToken = parseDotToken();
-        STNode fieldOrMethodName = parseIdentifier(ParserRuleContext.FIELD_OR_FUNC_NAME);
+        STNode fieldOrMethodName = parseQualifiedIdentifierOrIdentifier();
+
+        if (fieldOrMethodName.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            return STNodeFactory.createFieldAccessExpressionNode(lhsExpr, dotToken, fieldOrMethodName);
+        }
 
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN) {
@@ -11095,14 +11108,18 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse annot access expression.
      * <p>
-     * <code>annot-access-expr := expression .@ annot-tag-reference</code>
+     * <code>
+     * annot-access-expr := expression .@ annot-tag-reference
+     * <br/>
+     * annot-tag-reference := qualified-identifier | identifier
+     * </code>
      *
      * @param lhsExpr Preceding expression of the annot access access
      * @return Parsed node
      */
     private STNode parseAnnotAccessExpression(STNode lhsExpr) {
         STNode annotAccessToken = parseAnnotChainingToken();
-        STNode annotTagReference = parseAnnotTagReference();
+        STNode annotTagReference = parseQualifiedIdentifierOrIdentifier();
         return STNodeFactory.createAnnotAccessExpressionNode(lhsExpr, annotAccessToken, annotTagReference);
     }
 
@@ -11122,14 +11139,14 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse annot tag reference.
+     * Parse qualified identifier or identifier.
      * <p>
-     * <code>annot-tag-reference := qualified-identifier | identifier</code>
+     * <code>qualified-identifier-or-identifier := qualified-identifier | identifier</code>
      *
      * @return Parsed node
      */
-    private STNode parseAnnotTagReference() {
-        return parseQualifiedIdentifier(ParserRuleContext.ANNOT_TAG_REFERENCE);
+    private STNode parseQualifiedIdentifierOrIdentifier() {
+        return parseQualifiedIdentifier(ParserRuleContext.QUALIFIED_IDENTIFIER_OR_IDENTIFIER);
     }
 
     /**
@@ -11172,16 +11189,26 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse optional field access expression.
+     * Parse optional field access or xml optional attribute access expression.
      * <p>
-     * <code>optional-field-access-expr := expression ?. field-name</code>
+     * <code>
+     * optional-field-access-expr := expression ?. field-name
+     * <br/>
+     * xml-optional-attribute-access-expr := expression ?. xml-attribute-name
+     * <br/>
+     * xml-attribute-name := xml-qualified-name | qualified-identifier | identifier
+     * <br/>
+     * xml-qualified-name := xml-namespace-prefix : identifier
+     * <br/>
+     * xml-namespace-prefix := identifier
+     * </code>
      *
-     * @param lhsExpr Preceding expression of the optional field access
+     * @param lhsExpr Preceding expression of the optional access
      * @return Parsed node
      */
     private STNode parseOptionalFieldAccessExpression(STNode lhsExpr) {
         STNode optionalFieldAccessToken = parseOptionalChainingToken();
-        STNode fieldName = parseIdentifier(ParserRuleContext.FIELD_OR_FUNC_NAME);
+        STNode fieldName = parseQualifiedIdentifierOrIdentifier();
         return STNodeFactory.createOptionalFieldAccessExpressionNode(lhsExpr, optionalFieldAccessToken, fieldName);
     }
 

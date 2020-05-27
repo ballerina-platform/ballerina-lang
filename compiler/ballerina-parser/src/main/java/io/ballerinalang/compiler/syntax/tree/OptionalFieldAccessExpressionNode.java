@@ -40,7 +40,7 @@ public class OptionalFieldAccessExpressionNode extends ExpressionNode {
         return childInBucket(1);
     }
 
-    public Token fieldName() {
+    public Node fieldName() {
         return childInBucket(2);
     }
 
@@ -65,7 +65,7 @@ public class OptionalFieldAccessExpressionNode extends ExpressionNode {
     public OptionalFieldAccessExpressionNode modify(
             ExpressionNode expression,
             Token optionalChainingToken,
-            Token fieldName) {
+            Node fieldName) {
         if (checkForReferenceEquality(
                 expression,
                 optionalChainingToken,
@@ -92,7 +92,7 @@ public class OptionalFieldAccessExpressionNode extends ExpressionNode {
         private final OptionalFieldAccessExpressionNode oldNode;
         private ExpressionNode expression;
         private Token optionalChainingToken;
-        private Token fieldName;
+        private Node fieldName;
 
         public OptionalFieldAccessExpressionNodeModifier(OptionalFieldAccessExpressionNode oldNode) {
             this.oldNode = oldNode;
@@ -116,7 +116,7 @@ public class OptionalFieldAccessExpressionNode extends ExpressionNode {
         }
 
         public OptionalFieldAccessExpressionNodeModifier withFieldName(
-                Token fieldName) {
+                Node fieldName) {
             Objects.requireNonNull(fieldName, "fieldName must not be null");
             this.fieldName = fieldName;
             return this;

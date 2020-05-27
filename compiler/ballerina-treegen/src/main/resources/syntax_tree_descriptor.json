@@ -648,7 +648,7 @@
                 },
                 {
                     "name": "fieldName",
-                    "type": "Token"
+                    "type": "Node"
                 }
             ]
         },
@@ -3149,7 +3149,7 @@
                 },
                 {
                     "name": "fieldName",
-                    "type": "Token"
+                    "type": "Node"
                 }
             ]
         },

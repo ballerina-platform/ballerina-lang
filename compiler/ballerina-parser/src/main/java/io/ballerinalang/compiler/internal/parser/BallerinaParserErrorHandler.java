@@ -628,7 +628,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case FUNC_NAME:
                 case VARIABLE_NAME:
                 case TYPE_NAME:
-                case FIELD_OR_FUNC_NAME:
                 case IMPORT_ORG_OR_MODULE_NAME:
                 case IMPORT_MODULE_NAME:
                 case IMPORT_PREFIX:
@@ -1025,7 +1024,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case VARIABLE_REF:
                 case TYPE_REFERENCE:
                 case ANNOT_REFERENCE:
-                case ANNOT_TAG_REFERENCE:
+                case QUALIFIED_IDENTIFIER_OR_IDENTIFIER:
 
                     // Contexts that expect a type
                 case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -1939,8 +1938,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return getNextRuleForOpenBracket();
             case CLOSE_BRACKET:
                 return getNextRuleForCloseBracket();
-            case FIELD_OR_FUNC_NAME:
-                return ParserRuleContext.EXPRESSION_RHS;
             case DOT:
                 return getNextRuleForDot();
             case IF_KEYWORD:
@@ -2090,7 +2087,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case VARIABLE_REF:
             case TYPE_REFERENCE:
             case ANNOT_REFERENCE:
-            case ANNOT_TAG_REFERENCE:
+            case QUALIFIED_IDENTIFIER_OR_IDENTIFIER:
                 return ParserRuleContext.QUALIFIED_IDENTIFIER;
             case QUALIFIED_IDENTIFIER:
                 nextToken = this.tokenReader.peek(nextLookahead);
@@ -2115,7 +2112,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                         return ParserRuleContext.ANNOTATION_REF_RHS;
                     case ANNOTATION_DECL:
                         return ParserRuleContext.ANNOT_OPTIONAL_ATTACH_POINTS;
-                    case ANNOT_TAG_REFERENCE:
+                    case QUALIFIED_IDENTIFIER_OR_IDENTIFIER:
                         endContext();
                         return ParserRuleContext.EXPRESSION_RHS;
                     default:
@@ -2428,7 +2425,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ALTERNATE_WAIT_EXPRS:
                 return ParserRuleContext.EXPRESSION;
             case ANNOT_CHAINING_TOKEN:
-                return ParserRuleContext.ANNOT_TAG_REFERENCE;
+                return ParserRuleContext.QUALIFIED_IDENTIFIER_OR_IDENTIFIER;
             case DO_CLAUSE:
                 return ParserRuleContext.DO_KEYWORD;
             case DO_KEYWORD:
@@ -2439,7 +2436,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MEMBER_ACCESS_KEY_EXPR:
                 return ParserRuleContext.OPEN_BRACKET;
             case OPTIONAL_CHAINING_TOKEN:
-                return ParserRuleContext.FIELD_OR_FUNC_NAME;
+                return ParserRuleContext.QUALIFIED_IDENTIFIER_OR_IDENTIFIER;
             case CONDITIONAL_EXPRESSION:
                 return ParserRuleContext.QUESTION_MARK;
             case TRANSACTION_STMT:
@@ -2521,7 +2518,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case VARIABLE_REF:
             case TYPE_REFERENCE:
             case ANNOT_REFERENCE:
-            case ANNOT_TAG_REFERENCE:
+            case QUALIFIED_IDENTIFIER_OR_IDENTIFIER:
             case MAPPING_CONSTRUCTOR:
             case LOCAL_TYPE_DEFINITION_STMT:
             case EXPRESSION_STATEMENT:
@@ -3239,7 +3236,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         if (parentCtx == ParserRuleContext.IMPORT_DECL) {
             return ParserRuleContext.IMPORT_MODULE_NAME;
         }
-        return ParserRuleContext.FIELD_OR_FUNC_NAME;
+        return ParserRuleContext.QUALIFIED_IDENTIFIER_OR_IDENTIFIER;
     }
 
     /**
@@ -3616,7 +3613,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_NAME:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case TYPE_REFERENCE:
-            case ANNOT_TAG_REFERENCE:
+            case QUALIFIED_IDENTIFIER_OR_IDENTIFIER:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case RECORD_BODY_END:
                 return SyntaxKind.CLOSE_BRACE_TOKEN;
@@ -3640,8 +3637,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.CLOSE_BRACKET_TOKEN;
             case DOT:
                 return SyntaxKind.DOT_TOKEN;
-            case FIELD_OR_FUNC_NAME:
-                return SyntaxKind.IDENTIFIER_TOKEN;
             case OPEN_BRACKET:
             case TUPLE_TYPE_DESC_START:
                 return SyntaxKind.OPEN_BRACKET_TOKEN;
