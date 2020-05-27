@@ -28,14 +28,14 @@ import org.ballerinalang.logging.util.BLogLevel;
  */
 public class Utils extends AbstractLogFunction {
     public static void printDebug(Object msg) {
-        logMessage(Scheduler.getStrand(), msg, BLogLevel.DEBUG, getPackagePath(),
+        logMessage(Scheduler.getStrand(), msg, BLogLevel.DEBUG,
                 (pkg, message) -> {
             getLogger(pkg).debug(message);
         });
     }
 
     public static void printError(Object msg, Object err) {
-        logMessage(Scheduler.getStrand(), msg, BLogLevel.ERROR, getPackagePath(),
+        logMessage(Scheduler.getStrand(), msg, BLogLevel.ERROR,
                 (pkg, message) -> {
             String errorMsg = (err == null) ? "" : " : " + err.toString();
             getLogger(pkg).error(message + errorMsg);
@@ -43,21 +43,21 @@ public class Utils extends AbstractLogFunction {
     }
 
     public static void printInfo(Object msg) {
-        logMessage(Scheduler.getStrand(), msg, BLogLevel.INFO, getPackagePath(),
+        logMessage(Scheduler.getStrand(), msg, BLogLevel.INFO,
                 (pkg, message) -> {
             getLogger(pkg).info(message);
         });
     }
 
     public static void printTrace(Object msg) {
-        logMessage(Scheduler.getStrand(), msg, BLogLevel.TRACE, getPackagePath(),
+        logMessage(Scheduler.getStrand(), msg, BLogLevel.TRACE,
                 (pkg, message) -> {
             getLogger(pkg).trace(message);
         });
     }
 
     public static void printWarn(Object msg) {
-        logMessage(Scheduler.getStrand(), msg, BLogLevel.WARN, getPackagePath(),
+        logMessage(Scheduler.getStrand(), msg, BLogLevel.WARN,
                 (pkg, message) -> {
             getLogger(pkg).warn(message);
         });
