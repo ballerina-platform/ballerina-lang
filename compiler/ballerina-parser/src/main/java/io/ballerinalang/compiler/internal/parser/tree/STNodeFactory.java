@@ -1149,15 +1149,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createLetVariableDeclarationNode(
             STNode annotations,
-            STNode typeName,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode equalsToken,
             STNode expression) {
 
         return new STLetVariableDeclarationNode(
                 annotations,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 expression);
     }
@@ -1867,6 +1865,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STTransactionalExpressionNode(
                 transactionalKeyword);
+    }
+
+    public static STNode createServiceConstructorExpressionNode(
+            STNode annotations,
+            STNode serviceKeyword,
+            STNode serviceBody) {
+
+        return new STServiceConstructorExpressionNode(
+                annotations,
+                serviceKeyword,
+                serviceBody);
     }
 }
 

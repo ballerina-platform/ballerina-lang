@@ -24,7 +24,7 @@ import io.ballerinalang.compiler.internal.parser.CharReader;
  *
  * @since 2.0.0
  */
-public class StringTextDocument extends TextDocument {
+class StringTextDocument extends TextDocument {
     private final String text;
     private LineMap textLineMap;
 

@@ -1539,20 +1539,17 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static LetVariableDeclarationNode createLetVariableDeclarationNode(
             NodeList<AnnotationNode> annotations,
-            Node typeName,
-            Token variableName,
+            TypedBindingPatternNode typedBindingPattern,
             Token equalsToken,
             ExpressionNode expression) {
         Objects.requireNonNull(annotations, "annotations must not be null");
-        Objects.requireNonNull(typeName, "typeName must not be null");
-        Objects.requireNonNull(variableName, "variableName must not be null");
+        Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
         Objects.requireNonNull(equalsToken, "equalsToken must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
 
         STNode stLetVariableDeclarationNode = STNodeFactory.createLetVariableDeclarationNode(
                 annotations.underlyingListNode().internalNode(),
-                typeName.internalNode(),
-                variableName.internalNode(),
+                typedBindingPattern.internalNode(),
                 equalsToken.internalNode(),
                 expression.internalNode());
         return stLetVariableDeclarationNode.createUnlinkedFacade();
@@ -2509,6 +2506,21 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stTransactionalExpressionNode = STNodeFactory.createTransactionalExpressionNode(
                 transactionalKeyword.internalNode());
         return stTransactionalExpressionNode.createUnlinkedFacade();
+    }
+
+    public static ServiceConstructorExpressionNode createServiceConstructorExpressionNode(
+            NodeList<AnnotationNode> annotations,
+            Token serviceKeyword,
+            Node serviceBody) {
+        Objects.requireNonNull(annotations, "annotations must not be null");
+        Objects.requireNonNull(serviceKeyword, "serviceKeyword must not be null");
+        Objects.requireNonNull(serviceBody, "serviceBody must not be null");
+
+        STNode stServiceConstructorExpressionNode = STNodeFactory.createServiceConstructorExpressionNode(
+                annotations.underlyingListNode().internalNode(),
+                serviceKeyword.internalNode(),
+                serviceBody.internalNode());
+        return stServiceConstructorExpressionNode.createUnlinkedFacade();
     }
 }
 

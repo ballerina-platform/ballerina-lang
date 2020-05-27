@@ -115,7 +115,8 @@ public class RunExecutableTask implements Task {
     private void runGeneratedExecutable(BLangPackage executableModule, BuildContext buildContext) {
 
         String initClassName = BFileUtil.getQualifiedClassName(executableModule.packageID.orgName.value,
-                executableModule.packageID.name.value, MODULE_INIT_CLASS_NAME);
+                executableModule.packageID.name.value, executableModule.packageID.version.value,
+                                                               MODULE_INIT_CLASS_NAME);
         try {
             List<String> commands = new ArrayList<>();
             commands.add("java");

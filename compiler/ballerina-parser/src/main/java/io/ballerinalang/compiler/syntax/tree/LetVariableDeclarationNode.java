@@ -36,20 +36,16 @@ public class LetVariableDeclarationNode extends NonTerminalNode {
         return new NodeList<>(childInBucket(0));
     }
 
-    public Node typeName() {
+    public TypedBindingPatternNode typedBindingPattern() {
         return childInBucket(1);
     }
 
-    public Token variableName() {
+    public Token equalsToken() {
         return childInBucket(2);
     }
 
-    public Token equalsToken() {
-        return childInBucket(3);
-    }
-
     public ExpressionNode expression() {
-        return childInBucket(4);
+        return childInBucket(3);
     }
 
     @Override
@@ -66,22 +62,19 @@ public class LetVariableDeclarationNode extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "annotations",
-                "typeName",
-                "variableName",
+                "typedBindingPattern",
                 "equalsToken",
                 "expression"};
     }
 
     public LetVariableDeclarationNode modify(
             NodeList<AnnotationNode> annotations,
-            Node typeName,
-            Token variableName,
+            TypedBindingPatternNode typedBindingPattern,
             Token equalsToken,
             ExpressionNode expression) {
         if (checkForReferenceEquality(
                 annotations.underlyingListNode(),
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 expression)) {
             return this;
@@ -89,8 +82,7 @@ public class LetVariableDeclarationNode extends NonTerminalNode {
 
         return NodeFactory.createLetVariableDeclarationNode(
                 annotations,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 expression);
     }
@@ -107,16 +99,14 @@ public class LetVariableDeclarationNode extends NonTerminalNode {
     public static class LetVariableDeclarationNodeModifier {
         private final LetVariableDeclarationNode oldNode;
         private NodeList<AnnotationNode> annotations;
-        private Node typeName;
-        private Token variableName;
+        private TypedBindingPatternNode typedBindingPattern;
         private Token equalsToken;
         private ExpressionNode expression;
 
         public LetVariableDeclarationNodeModifier(LetVariableDeclarationNode oldNode) {
             this.oldNode = oldNode;
             this.annotations = oldNode.annotations();
-            this.typeName = oldNode.typeName();
-            this.variableName = oldNode.variableName();
+            this.typedBindingPattern = oldNode.typedBindingPattern();
             this.equalsToken = oldNode.equalsToken();
             this.expression = oldNode.expression();
         }
@@ -128,17 +118,10 @@ public class LetVariableDeclarationNode extends NonTerminalNode {
             return this;
         }
 
-        public LetVariableDeclarationNodeModifier withTypeName(
-                Node typeName) {
-            Objects.requireNonNull(typeName, "typeName must not be null");
-            this.typeName = typeName;
-            return this;
-        }
-
-        public LetVariableDeclarationNodeModifier withVariableName(
-                Token variableName) {
-            Objects.requireNonNull(variableName, "variableName must not be null");
-            this.variableName = variableName;
+        public LetVariableDeclarationNodeModifier withTypedBindingPattern(
+                TypedBindingPatternNode typedBindingPattern) {
+            Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
+            this.typedBindingPattern = typedBindingPattern;
             return this;
         }
 
@@ -159,8 +142,7 @@ public class LetVariableDeclarationNode extends NonTerminalNode {
         public LetVariableDeclarationNode apply() {
             return oldNode.modify(
                     annotations,
-                    typeName,
-                    variableName,
+                    typedBindingPattern,
                     equalsToken,
                     expression);
         }

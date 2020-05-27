@@ -145,7 +145,7 @@ public enum SyntaxKind {
     LT_TOKEN(558, "<"),
     LT_EQUAL_TOKEN(559, "<="),
     GT_TOKEN(560, ">"),
-    RIGHT_DOUBLE_ARROW(561, "=>"),
+    RIGHT_DOUBLE_ARROW_TOKEN(561, "=>"),
     QUESTION_MARK_TOKEN(562, "?"),
     PIPE_TOKEN(563, "|"),
     GT_EQUAL_TOKEN(564, ">="),
@@ -254,6 +254,7 @@ public enum SyntaxKind {
     OPTIONAL_FIELD_ACCESS(1329),
     CONDITIONAL_EXPRESSION(1330),
     TRANSACTIONAL_EXPRESSION(1331),
+    SERVICE_CONSTRUCTOR_EXPRESSION(1332),
 
     // Type descriptors
     TYPE_DESC(2000),

@@ -75,7 +75,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.TOPIC_ID_HE
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.TOPIC_ID_HEADER_AND_PAYLOAD;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.TOPIC_ID_PAYLOAD_KEY;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_HTTP_ENDPOINT;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE_FULL_QUALIFIED_NAME;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_NAME;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY;
 
@@ -311,7 +311,7 @@ public class SubscriberNativeOperationHandler {
             WebSubHttpService webSubHttpService = (WebSubHttpService) webSubHttpServices[index];
             MapValue<BString, Object> subscriptionDetails = new MapValueImpl<>();
             MapValue annotation = (MapValue) webSubHttpService.getBalService().getType()
-                    .getAnnotation(WEBSUB_PACKAGE, ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG);
+                    .getAnnotation(WEBSUB_PACKAGE_FULL_QUALIFIED_NAME, ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG);
 
             subscriptionDetails.put(WEBSUB_SERVICE_NAME,
                                     StringUtils.fromString(webSubHttpService.getBalService().getType().getName()));
