@@ -519,7 +519,7 @@ public class BallerinaLexer extends AbstractLexer {
             case LexerTerminals.GT:
                 // this is '=>'
                 reader.advance();
-                return getSyntaxToken(SyntaxKind.RIGHT_DOUBLE_ARROW);
+                return getSyntaxToken(SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN);
             default:
                 // this is '='
                 return getSyntaxToken(SyntaxKind.EQUAL_TOKEN);

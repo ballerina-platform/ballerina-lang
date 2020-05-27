@@ -37,6 +37,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.Collection;
 
 import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
+import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 
 /**
  * Function for returning the values of the map as an array. T[] vals = m.toArray();
@@ -44,7 +45,7 @@ import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map",
+        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION,
         functionName = "toArray",
         args = {@Argument(name = "m", type = TypeKind.MAP)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANY)},

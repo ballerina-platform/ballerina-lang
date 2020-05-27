@@ -29,13 +29,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.nio.charset.StandardCharsets;
 
+import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
+
 /**
  * Extern function lang.string:fromBytes(byte[]).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "fromBytes",
+        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "fromBytes",
         args = {@Argument(name = "bytes", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.UNION)},
         isPublic = true

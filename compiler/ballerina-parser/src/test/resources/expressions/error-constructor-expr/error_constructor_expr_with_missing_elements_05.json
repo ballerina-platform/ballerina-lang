@@ -1,20 +1,20 @@
 {
-    "kind": "FUNCTION_CALL",
-    "children": [
-        {
-            "kind": "ERROR_KEYWORD"
-        },
-        {
-            "kind": "OPEN_PAREN_TOKEN",
-            "isMissing": true
-        },
-        {
-            "kind": "LIST",
-            "children": []
-        },
-        {
-            "kind": "CLOSE_PAREN_TOKEN",
-            "isMissing": true
-        }
-    ]
+  "kind": "FUNCTION_CALL",
+  "children": [
+    {
+      "kind": "ERROR_KEYWORD"
+    },
+    {
+      "kind": "OPEN_PAREN_TOKEN",
+      "isMissing": true
+    },
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "CLOSE_PAREN_TOKEN",
+      "isMissing": true
+    }
+  ]
 }

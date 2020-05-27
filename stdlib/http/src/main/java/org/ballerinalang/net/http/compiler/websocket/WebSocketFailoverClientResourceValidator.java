@@ -39,7 +39,7 @@ class WebSocketFailoverClientResourceValidator extends WebSocketClientResourceVa
                 !WebSocketConstants.FULL_FAILOVER_WEBSOCKET_CLIENT_NAME.equals(paramDetails.get(0).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
                     + resource.getName().getValue() + RESOURCE_IN_SERVICE +
-                    ": The first parameter should be a " + WebSocketConstants.FAILOVER_WEBSOCKET_CLIENT);
+                    ": The first parameter should be a " + WebSocketConstants.FULL_FAILOVER_WEBSOCKET_CLIENT_NAME);
         }
     }
 }

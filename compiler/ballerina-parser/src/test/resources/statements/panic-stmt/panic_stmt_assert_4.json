@@ -1,15 +1,15 @@
 {
-    "kind": "PANIC_STATEMENT",
-    "children": [
-        {
-            "kind": "PANIC_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "isMissing": true
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
-        }
-    ]
+  "kind": "PANIC_STATEMENT",
+  "children": [
+    {
+      "kind": "PANIC_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "isMissing": true
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

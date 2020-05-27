@@ -1,41 +1,41 @@
 {
-    "kind": "BINARY_EXPRESSION",
-    "children": [
+  "kind": "BINARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "QUALIFIED_NAME_REFERENCE",
+      "children": [
         {
-            "kind": "QUALIFIED_NAME_REFERENCE",
-            "children": [
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "pkg"
-                },
-                {
-                    "kind": "COLON_TOKEN"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "foo"
-                }
-            ]
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "pkg"
         },
         {
-            "kind": "PLUS_TOKEN",
-            "isMissing": true
+          "kind": "COLON_TOKEN"
         },
         {
-            "kind": "QUALIFIED_NAME_REFERENCE",
-            "children": [
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "isMissing": true
-                },
-                {
-                    "kind": "COLON_TOKEN"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "bar"
-                }
-            ]
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "foo"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "PLUS_TOKEN",
+      "isMissing": true
+    },
+    {
+      "kind": "QUALIFIED_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true
+        },
+        {
+          "kind": "COLON_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "bar"
+        }
+      ]
+    }
+  ]
 }
