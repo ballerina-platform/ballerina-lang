@@ -1210,7 +1210,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(FieldAccessExpressionNode fieldAccessExprNode) {
         BLangFieldBasedAccess bLFieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
-        Token fieldName = fieldAccessExprNode.fieldName();
+        Node fieldName = fieldAccessExprNode.fieldName();
         bLFieldBasedAccess.pos = getPosition(fieldAccessExprNode);
         BLangNameReference nameRef = createBLangNameReference(fieldName);
         bLFieldBasedAccess.field = createIdentifier(getPosition(fieldName), nameRef.name.getValue());
@@ -1224,7 +1224,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
         BLangFieldBasedAccess bLFieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
-        Token fieldName = optionalFieldAccessExpressionNode.fieldName();
+        Node fieldName = optionalFieldAccessExpressionNode.fieldName();
         bLFieldBasedAccess.pos = getPosition(optionalFieldAccessExpressionNode);
         BLangNameReference nameRef = createBLangNameReference(fieldName);
         bLFieldBasedAccess.field = createIdentifier(getPosition(fieldName), nameRef.name.getValue());
