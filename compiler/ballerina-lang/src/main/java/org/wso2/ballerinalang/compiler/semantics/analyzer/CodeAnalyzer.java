@@ -493,7 +493,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         boolean previousWithinTxScope = this.withinTransactionScope;
         int previousCommitCount = this.commitCount;
         boolean prevCommitRollbackAllowed = this.commitRollbackAllowed;
-        this.commitRollbackAllowed= true;
+        this.commitRollbackAllowed = true;
         this.commitCount = 0;
         this.withinTransactionScope = true;
         this.loopWithintransactionCheckStack.push(false);

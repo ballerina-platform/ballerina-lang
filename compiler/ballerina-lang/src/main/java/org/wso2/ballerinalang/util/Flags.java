@@ -132,6 +132,7 @@ public class Flags {
                     break;
                 case FORKED:
                     mask |= FORKED;
+                    break;
                 case TRANSACTIONAL:
                     mask |= TRANSACTIONAL;
             }
