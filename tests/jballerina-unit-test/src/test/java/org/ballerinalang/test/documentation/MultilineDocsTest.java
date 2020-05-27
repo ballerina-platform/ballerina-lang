@@ -80,7 +80,7 @@ public class MultilineDocsTest {
         moduleDocList.sort(Comparator.comparing(pkg -> pkg.bLangPackage.packageID.toString()));
         Map<String, List<Path>> resources = new HashMap<>();
 
-        Project project = BallerinaDocGenerator.getDocsGenModel(moduleDocList, resources);
+        Project project = BallerinaDocGenerator.getDocsGenModel(moduleDocList);
         Module testModule = project.modules.get(0);
 
         for (Function function : testModule.functions) {
