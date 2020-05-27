@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.query;
 
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
@@ -155,18 +154,32 @@ public class QueryExprWithQueryConstructTypeTest {
         Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
 
+    @Test(description = "Test query expr with table having no duplicates and on conflict clause")
+    public void testKeyLessTableWithReturnTable() {
+        BRunUtil.invoke(result, "testKeyLessTableWithReturnTable");
+        BValue[] returnValues = BRunUtil.invoke(result, "testKeyLessTableWithReturnTable");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+    }
+
     @Test(description = "Test negative scenarios for query expr with query construct type")
     public void testNegativeScenarios() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 3);
+        Assert.assertEquals(negativeResult.getErrorCount(), 5);
         int index = 0;
 
         validateError(negativeResult, index++, "incompatible types: expected 'Person[]', found 'stream<Person>'",
-                36, 35);
+                38, 35);
         validateError(negativeResult, index++, "incompatible types: expected 'Customer[]', " +
                         "found '(table<Customer> key(id, name)|error)'",
-                53, 32);
-        validateError(negativeResult, index, "incompatible types: expected " +
+                55, 32);
+        validateError(negativeResult, index++, "incompatible types: expected " +
                         "'table<Customer> key(id, name)', found '(table<Customer> key(id, name)|error)'",
-                83, 35);
+                70, 35);
+        validateError(negativeResult, index++, "incompatible types: expected 'error', found 'boolean'",
+                91, 21);
+        validateError(negativeResult, index, "type 'error' not allowed here; expected " +
+                "an 'error' or a subtype of 'error'.", 91, 21);
     }
 }

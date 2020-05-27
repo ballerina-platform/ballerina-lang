@@ -12,6 +12,8 @@ type Customer record {
 
 type CustomerTable table<Customer> key(id, name);
 
+type CustomerKeyLessTable table<Customer>;
+
 type PersonValue record {|
     Person value;
 |};
@@ -71,4 +73,24 @@ function testMissingErrorTypeWithReturnTable() {
             name: customer.name,
             noOfItems: customer.noOfItems
         };
+}
+
+function testOnConflictClauseWithFunction() {
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+    Customer c3 = {id: 3, name: "Anne", noOfItems: 20};
+
+    Customer[] customerList = [c1, c2, c3];
+
+    CustomerTable|error customerTable = table key(id, name) from var customer in customerList
+        select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        }
+        on conflict condition(customer.name);
+}
+
+function condition(string name) returns boolean{
+    return name == "Anne";
 }
