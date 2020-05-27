@@ -389,7 +389,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                         LinePosition endLinePos = LinePosition.from(astModification.getEndLine() - 1,
                                 astModification.getEndColumn() - 1);
                         int startOffset = oldTextDocument.textPositionFrom(startLinePos);
-                        int endOffset = oldTextDocument.textPositionFrom(endLinePos);
+                        int endOffset = oldTextDocument.textPositionFrom(endLinePos) + 1;
                         edits.add(io.ballerinalang.compiler.text.TextEdit.from(
                                 io.ballerinalang.compiler.text.TextRange.from(startOffset,
                                         endOffset - startOffset), mapping));
