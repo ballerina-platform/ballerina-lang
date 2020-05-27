@@ -89,14 +89,4 @@ public abstract class AbstractLogFunction {
         }
         return ".";
     }
-
-    static boolean isLogLevelEnabled(BLogLevel logLevel, String pckg) {
-        BLogLevel enabledLogLevel;
-        if (!pckg.equals("")) {
-            enabledLogLevel = LOG_MANAGER.getPackageLogLevel(pckg);
-        } else {
-            enabledLogLevel = LOG_MANAGER.getGlobalLogLevel();
-        }
-        return enabledLogLevel.value() <= logLevel.value();
-    }
 }
