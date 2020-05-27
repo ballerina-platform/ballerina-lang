@@ -3,6 +3,7 @@ NAME
 
 SYNOPSIS
        ballerina bindgen [(-cp|--classpath) <classpath>...]
+                         [(-mvn|--maven) <groupId>:<artifactId>:<version>]
                          [(-o|--output) <output>]
                          (<class-name>...)
 
@@ -24,6 +25,10 @@ OPTIONS
            generating the Ballerina bindings. This is not needed if the Ballerina bridge code
            is to be generated for standard Java classes.
 
+       (-mvn|--maven) <groupId>:<artifactId>:<version>
+           A maven dependency with colon delimited groupId, artifactId and version. This would
+           resolve the transitive dependencies and update the Ballerina.toml file.
+
        (-o|--output) <output>
            Location of the generated Ballerina bridge code. If this path is not specified,
            the output will be written onto the same directory from where the command is run.
@@ -40,3 +45,6 @@ EXAMPLES
        Generating Ballerina bridge code for library Java classes.
            $ ballerina bindgen -cp ./libs/snakeyaml-1.25.jar,./libs/pdfbox-1.8.10.jar -o ./src/sample
            org.yaml.snakeyaml.Yaml org.apache.pdfbox.pdmodel.PDDocument java.io.File
+
+       Generating Ballerina bridge code using a Maven dependency.
+           $ ballerina bindgen -mvn org.yaml:snakeyaml:1.25 -o ./src/sample org.yaml.snakeyaml.Yaml
