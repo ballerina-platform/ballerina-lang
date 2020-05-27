@@ -27,39 +27,76 @@ import org.ballerinalang.logging.util.BLogLevel;
  * @since 1.1.0
  */
 public class Utils extends AbstractLogFunction {
+    private static boolean logLevelEnabled = false;
+
     public static void printDebug(Object msg) {
-        logMessage(Scheduler.getStrand(), msg, BLogLevel.DEBUG, getPackagePath(),
-                (pkg, message) -> {
-            getLogger(pkg).debug(message);
-        });
+        if (LOG_MANAGER.isModuleLogLevelEnabled()) {
+            logLevelEnabled = isLogLevelEnabled(BLogLevel.DEBUG, getPackagePath());
+        } else {
+            logLevelEnabled = isLogLevelEnabled(BLogLevel.DEBUG, "");
+        }
+        if (logLevelEnabled) {
+            logMessage(Scheduler.getStrand(), msg, BLogLevel.DEBUG, getPackagePath(),
+                    (pkg, message) -> {
+                        getLogger(pkg).debug(message);
+                    });
+        }
     }
 
     public static void printError(Object msg, Object err) {
-        logMessage(Scheduler.getStrand(), msg, BLogLevel.ERROR, getPackagePath(),
-                (pkg, message) -> {
-            String errorMsg = (err == null) ? "" : " : " + err.toString();
-            getLogger(pkg).error(message + errorMsg);
-        });
+        if (LOG_MANAGER.isModuleLogLevelEnabled()) {
+            logLevelEnabled = isLogLevelEnabled(BLogLevel.ERROR, getPackagePath());
+        } else {
+            logLevelEnabled = isLogLevelEnabled(BLogLevel.ERROR, "");
+        }
+        if (logLevelEnabled) {
+            logMessage(Scheduler.getStrand(), msg, BLogLevel.ERROR, getPackagePath(),
+                    (pkg, message) -> {
+                        String errorMsg = (err == null) ? "" : " : " + err.toString();
+                        getLogger(pkg).error(message + errorMsg);
+                    });
+        }
     }
 
     public static void printInfo(Object msg) {
-        logMessage(Scheduler.getStrand(), msg, BLogLevel.INFO, getPackagePath(),
-                (pkg, message) -> {
-            getLogger(pkg).info(message);
-        });
+        if (LOG_MANAGER.isModuleLogLevelEnabled()) {
+            logLevelEnabled = isLogLevelEnabled(BLogLevel.INFO, getPackagePath());
+        } else {
+            logLevelEnabled = isLogLevelEnabled(BLogLevel.INFO, "");
+        }
+        if (logLevelEnabled) {
+            logMessage(Scheduler.getStrand(), msg, BLogLevel.INFO, getPackagePath(),
+                    (pkg, message) -> {
+                        getLogger(pkg).info(message);
+                    });
+        }
     }
 
     public static void printTrace(Object msg) {
-        logMessage(Scheduler.getStrand(), msg, BLogLevel.TRACE, getPackagePath(),
-                (pkg, message) -> {
-            getLogger(pkg).trace(message);
-        });
+        if (LOG_MANAGER.isModuleLogLevelEnabled()) {
+            logLevelEnabled = isLogLevelEnabled(BLogLevel.TRACE, getPackagePath());
+        } else {
+            logLevelEnabled = isLogLevelEnabled(BLogLevel.TRACE, "");
+        }
+        if (logLevelEnabled) {
+            logMessage(Scheduler.getStrand(), msg, BLogLevel.TRACE, getPackagePath(),
+                    (pkg, message) -> {
+                        getLogger(pkg).trace(message);
+                    });
+        }
     }
 
     public static void printWarn(Object msg) {
-        logMessage(Scheduler.getStrand(), msg, BLogLevel.WARN, getPackagePath(),
-                (pkg, message) -> {
-            getLogger(pkg).warn(message);
-        });
+        if (LOG_MANAGER.isModuleLogLevelEnabled()) {
+            logLevelEnabled = isLogLevelEnabled(BLogLevel.WARN, getPackagePath());
+        } else {
+            logLevelEnabled = isLogLevelEnabled(BLogLevel.WARN, "");
+        }
+        if (logLevelEnabled) {
+            logMessage(Scheduler.getStrand(), msg, BLogLevel.WARN, getPackagePath(),
+                    (pkg, message) -> {
+                        getLogger(pkg).warn(message);
+                    });
+        }
     }
 }
