@@ -496,7 +496,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static FieldAccessExpressionNode createFieldAccessExpressionNode(
             ExpressionNode expression,
             Token dotToken,
-            Node fieldName) {
+            NameReferenceNode fieldName) {
         Objects.requireNonNull(expression, "expression must not be null");
         Objects.requireNonNull(dotToken, "dotToken must not be null");
         Objects.requireNonNull(fieldName, "fieldName must not be null");
@@ -529,7 +529,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static MethodCallExpressionNode createMethodCallExpressionNode(
             ExpressionNode expression,
             Token dotToken,
-            Token methodName,
+            NameReferenceNode methodName,
             Token openParenToken,
             NodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
@@ -2353,7 +2353,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static OptionalFieldAccessExpressionNode createOptionalFieldAccessExpressionNode(
             ExpressionNode expression,
             Token optionalChainingToken,
-            Node fieldName) {
+            NameReferenceNode fieldName) {
         Objects.requireNonNull(expression, "expression must not be null");
         Objects.requireNonNull(optionalChainingToken, "optionalChainingToken must not be null");
         Objects.requireNonNull(fieldName, "fieldName must not be null");

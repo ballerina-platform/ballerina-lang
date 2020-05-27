@@ -648,7 +648,7 @@
                 },
                 {
                     "name": "fieldName",
-                    "type": "Node"
+                    "type": "NameReferenceNode"
                 }
             ]
         },
@@ -691,7 +691,7 @@
                 },
                 {
                     "name": "methodName",
-                    "type": "Token"
+                    "type": "NameReferenceNode"
                 },
                 {
                     "name": "openParenToken",
@@ -3149,7 +3149,7 @@
                 },
                 {
                     "name": "fieldName",
-                    "type": "Node"
+                    "type": "NameReferenceNode"
                 }
             ]
         },

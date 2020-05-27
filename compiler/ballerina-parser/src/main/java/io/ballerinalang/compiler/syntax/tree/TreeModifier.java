@@ -504,7 +504,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(fieldAccessExpressionNode.expression());
         Token dotToken =
                 modifyToken(fieldAccessExpressionNode.dotToken());
-        Node fieldName =
+        NameReferenceNode fieldName =
                 modifyNode(fieldAccessExpressionNode.fieldName());
         return fieldAccessExpressionNode.modify(
                 expression,
@@ -537,8 +537,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(methodCallExpressionNode.expression());
         Token dotToken =
                 modifyToken(methodCallExpressionNode.dotToken());
-        Token methodName =
-                modifyToken(methodCallExpressionNode.methodName());
+        NameReferenceNode methodName =
+                modifyNode(methodCallExpressionNode.methodName());
         Token openParenToken =
                 modifyToken(methodCallExpressionNode.openParenToken());
         NodeList<FunctionArgumentNode> arguments =
@@ -2374,7 +2374,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(optionalFieldAccessExpressionNode.expression());
         Token optionalChainingToken =
                 modifyToken(optionalFieldAccessExpressionNode.optionalChainingToken());
-        Node fieldName =
+        NameReferenceNode fieldName =
                 modifyNode(optionalFieldAccessExpressionNode.fieldName());
         return optionalFieldAccessExpressionNode.modify(
                 expression,

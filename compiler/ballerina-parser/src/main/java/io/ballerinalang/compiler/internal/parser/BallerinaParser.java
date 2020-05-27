@@ -434,8 +434,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseWaitFieldEnd();
             case ANNOT_CHAINING_TOKEN:
                 return parseAnnotChainingToken();
-            case QUALIFIED_IDENTIFIER_OR_IDENTIFIER:
-                return parseQualifiedIdentifierOrIdentifier();
+            case FIELD_ACCESS_IDENTIFIER:
+                return parseFieldAccessIdentifier();
             case DO_KEYWORD:
                 return parseDoKeyword();
             case MEMBER_ACCESS_KEY_EXPR_END:
@@ -4284,11 +4284,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseServiceConstructorExpression(annots);
             case BASE16_KEYWORD:
             case BASE64_KEYWORD:
-                nextNextToken = getNextNextToken(kind);
-                if (nextNextToken.kind == SyntaxKind.BACKTICK_TOKEN) {
-                    return parseByteArrayLiteral(kind);
-                }
-                break;
+                return parseByteArrayLiteral(kind);
             default:
                 break;
         }
@@ -4776,7 +4772,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseFieldAccessOrMethodCall(STNode lhsExpr) {
         STNode dotToken = parseDotToken();
-        STNode fieldOrMethodName = parseQualifiedIdentifierOrIdentifier();
+        STNode fieldOrMethodName = parseFieldAccessIdentifier();
 
         if (fieldOrMethodName.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             return STNodeFactory.createFieldAccessExpressionNode(lhsExpr, dotToken, fieldOrMethodName);
@@ -11119,7 +11115,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseAnnotAccessExpression(STNode lhsExpr) {
         STNode annotAccessToken = parseAnnotChainingToken();
-        STNode annotTagReference = parseQualifiedIdentifierOrIdentifier();
+        STNode annotTagReference = parseFieldAccessIdentifier();
         return STNodeFactory.createAnnotAccessExpressionNode(lhsExpr, annotAccessToken, annotTagReference);
     }
 
@@ -11139,14 +11135,14 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse qualified identifier or identifier.
+     * Parse field access identifier.
      * <p>
-     * <code>qualified-identifier-or-identifier := qualified-identifier | identifier</code>
+     * <code>field-access-identifier := qualified-identifier | identifier</code>
      *
      * @return Parsed node
      */
-    private STNode parseQualifiedIdentifierOrIdentifier() {
-        return parseQualifiedIdentifier(ParserRuleContext.QUALIFIED_IDENTIFIER_OR_IDENTIFIER);
+    private STNode parseFieldAccessIdentifier() {
+        return parseQualifiedIdentifier(ParserRuleContext.FIELD_ACCESS_IDENTIFIER);
     }
 
     /**
@@ -11208,7 +11204,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseOptionalFieldAccessExpression(STNode lhsExpr) {
         STNode optionalFieldAccessToken = parseOptionalChainingToken();
-        STNode fieldName = parseQualifiedIdentifierOrIdentifier();
+        STNode fieldName = parseFieldAccessIdentifier();
         return STNodeFactory.createOptionalFieldAccessExpressionNode(lhsExpr, optionalFieldAccessToken, fieldName);
     }
 
@@ -12003,36 +11999,30 @@ public class BallerinaParser extends AbstractParser {
      * @return parsed node
      */
     private STNode parseByteArrayContent(SyntaxKind kind) {
-        STNode content = null;
-        boolean isValidContent = false;
+        STNode content = STNodeFactory.createEmptyNode();
         STToken nextToken = peek();
 
+        List<STNode> items = new ArrayList<>();
         while (!isEndOfBacktickContent(nextToken.kind)) {
-            STNode contentItem = parseTemplateItem();
-
-            if (content == null && contentItem.kind == SyntaxKind.TEMPLATE_STRING) {
-                if (kind == SyntaxKind.BASE16_KEYWORD &&
-                        BallerinaLexer.isValidBase16LiteralContent(contentItem.toString())) {
-                    content = contentItem;
-                    isValidContent = true;
-                } else if (kind == SyntaxKind.BASE64_KEYWORD &&
-                        BallerinaLexer.isValidBase64LiteralContent(contentItem.toString())) {
-                    content = contentItem;
-                    isValidContent = true;
-                } else {
-                    content = contentItem;
-                }
-            } else {
-                isValidContent = false;
-            }
-
+            content = parseTemplateItem();
+            items.add(content);
             nextToken = peek();
         }
 
-        if (content != null && !isValidContent) {
+        if (items.size() > 1) {
             this.errorHandler.reportInvalidNode(null, "invalid content within backticks");
+        } else if (items.size() == 1 && content.kind != SyntaxKind.TEMPLATE_STRING) {
+            this.errorHandler.reportInvalidNode(null, "invalid content within backticks");
+        } else if (items.size() == 1) {
+            if (kind == SyntaxKind.BASE16_KEYWORD &&
+                    !BallerinaLexer.isValidBase16LiteralContent(content.toString())) {
+                this.errorHandler.reportInvalidNode(null, "invalid content within backticks");
+            } else if (kind == SyntaxKind.BASE64_KEYWORD &&
+                    !BallerinaLexer.isValidBase64LiteralContent(content.toString())) {
+                this.errorHandler.reportInvalidNode(null, "invalid content within backticks");
+            }
         }
 
-        return content != null ? content : STNodeFactory.createEmptyNode();
+        return content;
     }
 }
