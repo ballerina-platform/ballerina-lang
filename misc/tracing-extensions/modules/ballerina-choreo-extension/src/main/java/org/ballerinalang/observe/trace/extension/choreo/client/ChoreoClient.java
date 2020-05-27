@@ -18,10 +18,10 @@ package org.ballerinalang.observe.trace.extension.choreo.client;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import org.ballerinalang.observe.trace.extension.choreo.gen.HandshakeGrpc;
-import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.HandshakeRequest;
-import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.HandshakeResponse;
 import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.PublishProgramRequest;
+import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.RegisterRequest;
+import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.RegisterResponse;
+import org.ballerinalang.observe.trace.extension.choreo.gen.RegistrationGrpc;
 import org.ballerinalang.observe.trace.extension.choreo.gen.TelemetryGrpc;
 import org.ballerinalang.observe.trace.extension.choreo.gen.TelemetryOuterClass;
 import org.ballerinalang.observe.trace.extension.choreo.logging.LogFactory;
@@ -42,10 +42,12 @@ public class ChoreoClient implements AutoCloseable {
     private static final int SERVER_MAX_FRAME_SIZE_BYTES = 4 * 1024 * 1024 - MESSAGE_SIZE_BUFFER_BYTES;
 
     private String id;      // ID received from the handshake
-    private String instanceId;
+    private String nodeId;
+
+    // TODO: Remove this field from the class.
     private String appId;
     private ManagedChannel channel;
-    private HandshakeGrpc.HandshakeBlockingStub handshakeClient;
+    private RegistrationGrpc.RegistrationBlockingStub registrationClient;
     private TelemetryGrpc.TelemetryBlockingStub telemetryClient;
     private Thread uploadingThread;
 
@@ -57,20 +59,20 @@ public class ChoreoClient implements AutoCloseable {
             channelBuilder.usePlaintext();
         }
         channel = channelBuilder.build();
-        handshakeClient = HandshakeGrpc.newBlockingStub(channel);
+        registrationClient = RegistrationGrpc.newBlockingStub(channel);
         telemetryClient = TelemetryGrpc.newBlockingStub(channel);
     }
 
-    public String register(final MetadataReader metadataReader, String instanceId, String appId) {
-        HandshakeRequest handshakeRequest = HandshakeRequest.newBuilder()
-                .setProgramHash(metadataReader.getAstHash())
-                .setUserId(instanceId)
-                .setApplicationId(appId)
+    public String register(final MetadataReader metadataReader, String nodeId, String appSecret) {
+        RegisterRequest handshakeRequest = RegisterRequest.newBuilder()
+                .setAstHash(metadataReader.getAstHash())
+                .setProjectSecret(nodeId)
+                .setNodeId(nodeId)
                 .build();
-        HandshakeResponse handshakeResponse = handshakeClient.handshake(handshakeRequest);
-        this.id = handshakeResponse.getObservabilityId();
-        this.appId = appId;
-        boolean sendProgramJson = handshakeResponse.getSendProgramJson();
+        RegisterResponse registerResponse = registrationClient.register(handshakeRequest);
+        this.id = registerResponse.getObsId();
+        this.appId = this.id;
+        boolean sendProgramJson = registerResponse.getSendAst();
 
         if (sendProgramJson) {
             uploadingThread = new Thread(() -> {
@@ -78,14 +80,14 @@ public class ChoreoClient implements AutoCloseable {
                         .setProgramJson(metadataReader.getAstData())
                         .setObservabilityId(id)
                         .build();
-                handshakeClient.withCompression("gzip").publishProgram(programRequest);
+                registrationClient.withCompression("gzip").publishProgram(programRequest);
                 // TODO add debug log to indicate success
             }, "AST Uploading Thread");
             uploadingThread.start();
         }
 
-        this.instanceId = instanceId;
-        return handshakeResponse.getUrl();
+        this.nodeId = nodeId;
+        return registerResponse.getObsUrl();
     }
 
     public void publishMetrics(ChoreoMetric[] metrics) {
@@ -117,7 +119,7 @@ public class ChoreoClient implements AutoCloseable {
                 }
             }
             telemetryClient.publishMetrics(requestBuilder.setObservabilityId(id)
-                    .setInstanceId(instanceId)
+                    .setNodeId(nodeId)
                     .setAppId(appId)
                     .build());
         }
@@ -163,7 +165,7 @@ public class ChoreoClient implements AutoCloseable {
                 }
             }
             telemetryClient.publishTraces(requestBuilder.setObservabilityId(id)
-                    .setInstanceId(instanceId)
+                    .setNodeId(nodeId)
                     .setAppId(appId)
                     .build());
         }

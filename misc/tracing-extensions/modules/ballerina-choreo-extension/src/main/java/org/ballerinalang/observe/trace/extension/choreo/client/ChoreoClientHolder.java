@@ -23,20 +23,23 @@ import org.ballerinalang.observe.trace.extension.choreo.logging.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.APPLICATION_ID_CONFIG;
-import static org.ballerinalang.observe.trace.extension.choreo.Constants.DEFAULT_APPLICATION_ID;
+import static org.ballerinalang.observe.trace.extension.choreo.Constants.CHOREO_EXTENSION_NAME;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.DEFAULT_REPORTER_HOSTNAME;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.DEFAULT_REPORTER_PORT;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.DEFAULT_REPORTER_USE_SSL;
-import static org.ballerinalang.observe.trace.extension.choreo.Constants.EXTENSION_NAME;
+import static org.ballerinalang.observe.trace.extension.choreo.Constants.EMPTY_APPLICATION_SECRET;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.REPORTER_HOST_NAME_CONFIG;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.REPORTER_PORT_CONFIG;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.REPORTER_USE_SSL_CONFIG;
@@ -46,6 +49,7 @@ import static org.ballerinalang.observe.trace.extension.choreo.Constants.REPORTE
  */
 public class ChoreoClientHolder {
     private static final Logger LOGGER = LogFactory.getLogger();
+    public static final String PROJECT_SECRET_CONFIG_KEY = "PROJECT_SECRET";
 
     private static ChoreoClient choreoClient;
     private static Set<AutoCloseable> choreoClientDependents = new HashSet<>();
@@ -73,11 +77,17 @@ public class ChoreoClientHolder {
                     String.valueOf(DEFAULT_REPORTER_PORT)));
             boolean useSSL = Boolean.parseBoolean(configRegistry.getConfigOrDefault(
                     getFullQualifiedConfig(REPORTER_USE_SSL_CONFIG), String.valueOf(DEFAULT_REPORTER_USE_SSL)));
-            String appId = configRegistry.getConfigOrDefault(getFullQualifiedConfig(APPLICATION_ID_CONFIG),
-                    DEFAULT_APPLICATION_ID);
 
-            String instanceId = getInstanceId();
-            initializeLinkWithChoreo(hostname, port, useSSL, metadataReader, instanceId, appId);
+            String appSecret;
+            try {
+                appSecret = getAppSecret(configRegistry);
+            } catch (IOException e) {
+                LOGGER.error("Failed to initialize Choreo client. " + e.getMessage());
+                return null;
+            }
+
+            String nodeId = getNodeId();
+            initializeLinkWithChoreo(hostname, port, useSSL, metadataReader, nodeId, appSecret);
             Thread shutdownHook = new Thread(() -> {
                 try {
                     choreoClientDependents.forEach(dependent -> {
@@ -97,6 +107,45 @@ public class ChoreoClientHolder {
         return choreoClient;
     }
 
+    private static String getAppSecret(ConfigRegistry configRegistry) throws IOException {
+        String appSecretFromConfig = configRegistry.getConfigOrDefault(getFullQualifiedConfig(APPLICATION_ID_CONFIG),
+                EMPTY_APPLICATION_SECRET);
+
+        if (EMPTY_APPLICATION_SECRET.equals(appSecretFromConfig)) {
+            return locallyStoredAppSecret();
+        } else {
+            return appSecretFromConfig;
+        }
+    }
+
+    private static String locallyStoredAppSecret() throws IOException {
+        final String workingDir = System.getProperty("user.dir");
+        Path projectPropertiesFileLocation = Paths.get(workingDir + File.separator + ".choreoProject");
+        if (Files.exists(projectPropertiesFileLocation)) {
+            return readStoreSecret(projectPropertiesFileLocation);
+        } else {
+            return generateAndStoreSecret(projectPropertiesFileLocation);
+        }
+    }
+
+    private static String readStoreSecret(Path projectPropertiesFileLocation) throws IOException {
+        try (InputStream inputStream = Files.newInputStream(projectPropertiesFileLocation)) {
+            Properties props = new Properties();
+            props.load(inputStream);
+            return props.getProperty(PROJECT_SECRET_CONFIG_KEY);
+        }
+    }
+
+    private static String generateAndStoreSecret(Path projectPropertiesFileLocation) throws IOException {
+        final String generatedProjectSecret = UUID.randomUUID().toString();
+        try (OutputStream outputStream = Files.newOutputStream(projectPropertiesFileLocation)) {
+            Properties props = new Properties();
+            props.setProperty(PROJECT_SECRET_CONFIG_KEY, generatedProjectSecret);
+            props.store(outputStream, null);
+        }
+        return generatedProjectSecret;
+    }
+
     /**
      * Get the client that can be used to communicate with Choreo cloud. When the Choreo client is
      * closed the passed dependent object will also be closed.
@@ -109,10 +158,13 @@ public class ChoreoClientHolder {
         return getChoreoClient();
     }
 
-    private static String getInstanceId() {
+    private static Path getGlobalChoreoConfigDir() {
         final String userHome = System.getProperty("user.home");
-        Path instanceIdConfigFilePath = Paths.get(userHome + File.separator + ".config" + File.separator + "choreo"
-                + File.separator + "instanceId");
+        return Paths.get(userHome + File.separator + ".config" + File.separator + "choreo");
+    }
+
+    private static String getNodeId() {
+        Path instanceIdConfigFilePath = getGlobalChoreoConfigDir().resolve("instanceId");
 
         String instanceId;
         if (!Files.exists(instanceIdConfigFilePath)) {
@@ -136,13 +188,13 @@ public class ChoreoClientHolder {
     }
 
     private static void initializeLinkWithChoreo(String hostname, int port, boolean useSSL,
-                                                 MetadataReader metadataReader, String instanceId, String appId) {
+                                                 MetadataReader metadataReader, String nodeId, String appSecret) {
         choreoClient = new ChoreoClient(hostname, port, useSSL);
-        String observabilityUrl = choreoClient.register(metadataReader, instanceId, appId);
+        String observabilityUrl = choreoClient.register(metadataReader, nodeId, appSecret);
         LOGGER.info("visit " + observabilityUrl.replaceAll("%", "%%") + " to access observability data");
     }
 
     public static String getFullQualifiedConfig(String configName) {
-        return ObservabilityConstants.CONFIG_TABLE_TRACING + "." + EXTENSION_NAME + "." + configName;
+        return ObservabilityConstants.CONFIG_TABLE_OBSERVABILITY + "." + CHOREO_EXTENSION_NAME + "." + configName;
     }
 }

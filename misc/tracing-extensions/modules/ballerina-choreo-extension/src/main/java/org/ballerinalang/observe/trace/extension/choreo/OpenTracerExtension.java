@@ -27,7 +27,7 @@ import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoClientHolde
 
 import java.util.Objects;
 
-import static org.ballerinalang.observe.trace.extension.choreo.Constants.EXTENSION_NAME;
+import static org.ballerinalang.observe.trace.extension.choreo.Constants.CHOREO_EXTENSION_NAME;
 
 /**
  * This is the open tracing extension class for {@link OpenTracer}.
@@ -69,7 +69,7 @@ public class OpenTracerExtension implements OpenTracer {
 
     @Override
     public String getName() {
-        return EXTENSION_NAME;
+        return CHOREO_EXTENSION_NAME;
     }
 
 }
