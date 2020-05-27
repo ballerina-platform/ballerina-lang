@@ -371,7 +371,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(true);
         } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
+//            logger.error(e.getMessage(), e);
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/ast' failed!";
             logError(msg, e, request.getDocumentIdentifier(), (Position) null);
