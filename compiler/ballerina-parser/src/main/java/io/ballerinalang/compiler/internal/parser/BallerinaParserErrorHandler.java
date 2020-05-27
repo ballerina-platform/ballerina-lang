@@ -229,7 +229,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.STRING_KEYWORD, ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD,
             ParserRuleContext.NEW_KEYWORD, ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD,
             ParserRuleContext.LEFT_ARROW_TOKEN, ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD,
-            ParserRuleContext.TRANSACTIONAL_KEYWORD };
+            ParserRuleContext.TRANSACTIONAL_KEYWORD, ParserRuleContext.SERVICE_CONSTRUCTOR_EXPRESSION};
 
     private static final ParserRuleContext[] FIRST_MAPPING_FIELD_START =
             { ParserRuleContext.MAPPING_FIELD, ParserRuleContext.CLOSE_BRACE };
@@ -2036,6 +2036,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case SERVICE_DECL:
                 return ParserRuleContext.SERVICE_KEYWORD;
             case SERVICE_KEYWORD:
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.SERVICE_CONSTRUCTOR_EXPRESSION) {
+                    return ParserRuleContext.LISTENERS_LIST;
+                }
                 return ParserRuleContext.OPTIONAL_SERVICE_NAME;
             case SERVICE_NAME:
                 return ParserRuleContext.ON_KEYWORD;
@@ -2174,6 +2178,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.WORKER_NAME_RHS;
             case FORK_STMT:
                 return ParserRuleContext.FORK_KEYWORD;
+            case SERVICE_CONSTRUCTOR_EXPRESSION:
+                return ParserRuleContext.SERVICE_KEYWORD;
             default:
                 return getNextRuleInternal(currentCtx, nextLookahead);
 
@@ -2542,6 +2548,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ROLLBACK_STMT:
             case MODULE_ENUM_DECLARATION:
             case ENUM_MEMBER_LIST:
+            case SERVICE_CONSTRUCTOR_EXPRESSION:
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -2671,6 +2678,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TABLE_CONSTRUCTOR:
             case QUERY_EXPRESSION:
             case TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION:
+            case SERVICE_CONSTRUCTOR_EXPRESSION:
                 return true;
             default:
                 return false;
@@ -3030,6 +3038,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TEMPLATE_MEMBER;
             case MULTI_RECEIVE_WORKERS:
             case MULTI_WAIT_FIELDS:
+            case SERVICE_CONSTRUCTOR_EXPRESSION:
             case DO_CLAUSE:
                 endContext();
                 return ParserRuleContext.EXPRESSION_RHS;
