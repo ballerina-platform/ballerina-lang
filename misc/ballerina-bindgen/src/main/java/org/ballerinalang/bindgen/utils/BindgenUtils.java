@@ -259,16 +259,17 @@ public class BindgenUtils {
 
     private static String getParamsHelper(JParameter param) {
         StringBuilder returnString = new StringBuilder();
+        String checkToHandle = "check toHandle(";
         if (param.getIsObjArray()) {
-            returnString.append("check getHandleFromArray(").append(param.getFieldName())
+            returnString.append(checkToHandle).append(param.getFieldName())
                     .append(", \"").append(param.getComponentType()).append("\")");
         } else if (param.getIsPrimitiveArray()) {
-            returnString.append("check getHandleFromArray(").append(param.getFieldName())
+            returnString.append(checkToHandle).append(param.getFieldName())
                     .append(", \"").append(param.getComponentType()).append("\")");
         } else if (param.getIsString()) {
             returnString.append("java:fromString(").append(param.getFieldName()).append(")");
         } else if (param.getIsStringArray()) {
-            returnString.append("check getHandleFromArray(").append(param.getFieldName())
+            returnString.append(checkToHandle).append(param.getFieldName())
                     .append(", \"java.lang.String\")");
         } else {
             returnString.append(param.getFieldName());
