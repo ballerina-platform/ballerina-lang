@@ -338,7 +338,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
         Optional<Lock> lock = documentManager.lockFile(compilationPath);
         try {
-            LSContext astContext = modifyTree(request, fileUri, compilationPath);
+            LSContext astContext = modifyTree(request.getAstModifications(), fileUri, compilationPath);
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator();
             reply.setSyntaxTree(mapGenerator.transform(astContext.get(UPDATED_SYNTAX_TREE).modulePart()));
             reply.setParseSuccess(true);
@@ -353,7 +353,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     }
 
     @Override
-    public CompletableFuture<BallerinaASTResponse> astModify(BallerinaSyntaxTreeModifyRequest request) {
+    public CompletableFuture<BallerinaASTResponse> astModify(BallerinaASTModifyRequest request) {
         BallerinaASTResponse reply = new BallerinaASTResponse();
         String fileUri = request.getDocumentIdentifier().getUri();
 
@@ -364,7 +364,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
         Optional<Lock> lock = documentManager.lockFile(compilationPath);
         try {
-            LSContext astContext = modifyTree(request, fileUri, compilationPath);
+            LSContext astContext = modifyTree(request.getAstModifications(), fileUri, compilationPath);
             LSModuleCompiler.getBLangPackage(astContext, this.documentManager,
                     LSCustomErrorStrategy.class, false,
                     false);
@@ -380,7 +380,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         return CompletableFuture.supplyAsync(() -> reply);
     }
 
-    private LSContext modifyTree(BallerinaSyntaxTreeModifyRequest request, String fileUri, Path compilationPath)
+    private LSContext modifyTree(ASTModification[] astModifications, String fileUri, Path compilationPath)
             throws CompilationFailedException, WorkspaceDocumentException, IOException {
         LSContext astContext = new DocumentOperationContext
                 .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
@@ -394,8 +394,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
         Map<Diagnostic.DiagnosticPosition, ASTModification> deleteRange = new HashMap<>();
 
-        for (int i = 0; i < request.getAstModifications().length; i++) {
-            ASTModification astModification = request.getAstModifications()[i];
+        for (int i = 0; i < astModifications.length; i++) {
+            ASTModification astModification = astModifications[i];
             if (DELETE.equalsIgnoreCase(astModification.getType())) {
                 deleteRange.put(new DeleteRange(
                         astModification.getStartLine(),
@@ -423,8 +423,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     io.ballerinalang.compiler.text.TextRange.from(startOffset,
                             endOffset - startOffset), ""));
         }
-        for (int i = 0; i < request.getAstModifications().length; i++) {
-            ASTModification astModification = request.getAstModifications()[i];
+        for (int i = 0; i < astModifications.length; i++) {
+            ASTModification astModification = astModifications[i];
             String mapping = BallerinaSyntaxTreeModifyUtil.resolveMapping(astModification.getType(),
                     astModification.getConfig() == null ? new JsonObject() : astModification.getConfig());
             if (mapping != null) {

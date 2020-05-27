@@ -144,6 +144,7 @@ public class ASTModifyTest {
         BallerinaASTResponse astResponse = LSExtensionTestUtil.getBallerinaDocumentAST(
                 mainEmptyFile.toString(), this.serviceEndpoint);
         assertTree(astModifyResponse.getAst(), astResponse.getAst());
+        Assert.assertEquals(astResponse.getSource(), mainEmptyFile.toString());
         TestUtil.closeDocument(this.serviceEndpoint, tempFile);
     }
 //

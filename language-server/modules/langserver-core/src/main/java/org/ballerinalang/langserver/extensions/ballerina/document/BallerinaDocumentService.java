@@ -38,7 +38,7 @@ public interface BallerinaDocumentService {
     CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTreeModify(BallerinaSyntaxTreeModifyRequest request);
 
     @JsonRequest
-    CompletableFuture<BallerinaASTResponse> astModify(BallerinaSyntaxTreeModifyRequest request);
+    CompletableFuture<BallerinaASTResponse> astModify(BallerinaASTModifyRequest request);
 
     @JsonRequest
     CompletableFuture<BallerinaASTDidChangeResponse> astDidChange(BallerinaASTDidChange notification);
