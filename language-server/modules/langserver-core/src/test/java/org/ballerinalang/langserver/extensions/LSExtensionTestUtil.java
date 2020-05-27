@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.extensions.ballerina.document.ASTModification;
+import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaASTModifyRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaASTRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaASTResponse;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeModifyRequest;
@@ -82,7 +83,7 @@ public class LSExtensionTestUtil {
     public static BallerinaASTResponse modifyAndGetBallerinaAST(String filePath,
                                                                               ASTModification[] astModifications,
                                                                               Endpoint serviceEndpoint) {
-        BallerinaSyntaxTreeModifyRequest astModifyRequest = new BallerinaSyntaxTreeModifyRequest(
+        BallerinaASTModifyRequest astModifyRequest = new BallerinaASTModifyRequest(
                 TestUtil.getTextDocumentIdentifier(filePath), astModifications);
         CompletableFuture result = serviceEndpoint.request(AST_MODIFY, astModifyRequest);
         return GSON.fromJson(getResult(result), BallerinaASTResponse.class);

@@ -368,6 +368,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             LSModuleCompiler.getBLangPackage(astContext, this.documentManager,
                     LSCustomErrorStrategy.class, false,
                     false);
+            reply.setSource(astContext.get(UPDATED_SYNTAX_TREE).toString());
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(true);
         } catch (Throwable e) {

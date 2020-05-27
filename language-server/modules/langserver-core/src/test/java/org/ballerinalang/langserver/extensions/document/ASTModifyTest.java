@@ -131,6 +131,11 @@ public class ASTModifyTest {
         return tempFilePath;
     }
 
+    private void assertSource(String actualSource, String expectedSource) {
+        Assert.assertEquals(actualSource.replaceAll("([\\s]*)", " "),
+                expectedSource.replaceAll("([\\s]*)", " "));
+    }
+
     @Test(description = "Remove content.")
     public void testDelete() throws IOException {
         skipOnWindows();
@@ -144,9 +149,29 @@ public class ASTModifyTest {
         BallerinaASTResponse astResponse = LSExtensionTestUtil.getBallerinaDocumentAST(
                 mainEmptyFile.toString(), this.serviceEndpoint);
         assertTree(astModifyResponse.getAst(), astResponse.getAst());
-        Assert.assertEquals(astResponse.getSource(), mainEmptyFile.toString());
+        String expectedFileContent = new String(Files.readAllBytes(mainEmptyFile));
+        assertSource(astModifyResponse.getSource(), expectedFileContent);
         TestUtil.closeDocument(this.serviceEndpoint, tempFile);
     }
+
+//
+//    @Test(description = "Remove content.")
+//    public void testDelete1() throws IOException {
+//        skipOnWindows();
+////        Path tempFile = createTempFile(mainFile);
+////        TestUtil.openDocument(serviceEndpoint, tempFile);
+////        ASTModification modification = new ASTModification(4, 5, 4, 33, "delete", null);
+////        BallerinaASTResponse astModifyResponse = LSExtensionTestUtil
+////                .modifyAndGetBallerinaAST(tempFile.toString(),
+////                        new ASTModification[]{modification}, this.serviceEndpoint);
+////        Assert.assertTrue(astModifyResponse.isParseSuccess());
+//        BallerinaASTResponse astResponse = LSExtensionTestUtil.getBallerinaDocumentAST(
+//                mainAccuweatherFile1.toString(), this.serviceEndpoint);
+////        assertTree(astModifyResponse.getAst(), astResponse.getAst());
+////        Assert.assertEquals(astResponse.getSource(), mainEmptyFile.toString());
+////        TestUtil.closeDocument(this.serviceEndpoint, tempFile);
+//    }
+
 //
 //    @Test(description = "Insert content.")
 //    public void testInsert() throws IOException {
