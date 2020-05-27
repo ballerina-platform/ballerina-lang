@@ -1,7 +1,3 @@
-public function foo() {
-    int a =
-        service {
-            function foo() {
-            }
-        ;
+function foo() {
+    io:println("hello");
 }
