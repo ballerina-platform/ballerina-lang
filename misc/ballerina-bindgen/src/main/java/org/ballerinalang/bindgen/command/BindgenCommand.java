@@ -19,7 +19,6 @@ package org.ballerinalang.bindgen.command;
 
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.bindgen.utils.BindgenUtils;
-import org.ballerinalang.bindgen.utils.MvnResolverUtils;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import picocli.CommandLine;
@@ -56,7 +55,6 @@ public class BindgenCommand implements BLauncherCmd {
         this.outError = err;
         BindgenUtils.setOutStream(out);
         BindgenUtils.setErrStream(err);
-        MvnResolverUtils.setOutStream(out);
     }
 
     @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
