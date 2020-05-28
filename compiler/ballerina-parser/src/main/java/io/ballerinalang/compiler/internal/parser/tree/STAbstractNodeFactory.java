@@ -38,6 +38,13 @@ public abstract class STAbstractNodeFactory {
         return new STIdentifierToken(text, leadingTrivia, trailingTrivia);
     }
 
+    public static STToken createIdentifierToken(String text,
+                                                STNode leadingTrivia,
+                                                STNode trailingTrivia,
+                                                Collection<STNodeDiagnostic> diagnostics) {
+        return new STIdentifierToken(text, leadingTrivia, trailingTrivia, diagnostics);
+    }
+
     public static STNode createNodeList(Collection<STNode> children) {
         return new STNodeList(children);
     }
@@ -75,6 +82,14 @@ public abstract class STAbstractNodeFactory {
         return new STLiteralValueToken(kind, text, leadingTrivia, trailingTrivia);
     }
 
+    public static STToken createLiteralValueToken(SyntaxKind kind,
+                                                  String text,
+                                                  STNode leadingTrivia,
+                                                  STNode trailingTrivia,
+                                                  Collection<STNodeDiagnostic> diagnostics) {
+        return new STLiteralValueToken(kind, text, leadingTrivia, trailingTrivia, diagnostics);
+    }
+
     public static STNode createMinutiae(SyntaxKind kind, String text) {
         return new STMinutiae(kind, text);
     }
@@ -95,5 +110,12 @@ public abstract class STAbstractNodeFactory {
 
     public static STToken createDocumentationLineToken(String text, STNode leadingTrivia, STNode trailingTrivia) {
         return new STDocumentationLineToken(text, leadingTrivia, trailingTrivia);
+    }
+
+    public static STToken createDocumentationLineToken(String text,
+                                                       STNode leadingTrivia,
+                                                       STNode trailingTrivia,
+                                                       Collection<STNodeDiagnostic> diagnostics) {
+        return new STDocumentationLineToken(text, leadingTrivia, trailingTrivia, diagnostics);
     }
 }
