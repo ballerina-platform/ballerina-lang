@@ -636,14 +636,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         int prevCommitCount = commitCount;
         int prevRollbackCount = rollbackCount;
         this.checkStatementExecutionValidity(ifStmt);
-        if (ifStmt.expr.getKind() == NodeKind.TRANSACTIONAL_EXPRESSION) {
-            this.withinTransactionScope = true;
-        }
         if (withinTransactionScope && ifStmt.elseStmt != null && ifStmt.elseStmt.getKind() != NodeKind.IF) {
                 independentBlocks = true;
                 commitRollbackAllowed = true;
         }
+        if (ifStmt.expr.getKind() == NodeKind.TRANSACTIONAL_EXPRESSION) {
+            this.withinTransactionScope = true;
+        }
         analyzeNode(ifStmt.body, env);
+        if (ifStmt.expr.getKind() == NodeKind.TRANSACTIONAL_EXPRESSION) {
+            this.withinTransactionScope = false;
+        }
         boolean ifStmtReturns = this.statementReturns;
         this.resetStatementReturns();
         if (ifStmt.elseStmt != null) {
@@ -658,9 +661,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.statementReturns = ifStmtReturns && this.statementReturns;
         }
         analyzeExpr(ifStmt.expr);
-        if (ifStmt.expr.getKind() == NodeKind.TRANSACTIONAL_EXPRESSION) {
-            this.withinTransactionScope = false;
-        }
     }
 
     @Override
