@@ -67,6 +67,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -752,34 +753,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.name = names.fromIdNode(typeDefinition.getName());
         typeDefSymbol.pkgID = env.enclPkg.packageID;
 
-        boolean distinctFlagPresent = false;
-        if (typeDefinition.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
-            distinctFlagPresent = ((BLangUserDefinedType) typeDefinition.typeNode).flagSet.contains(Flag.DISTINCT);
-        } else if (typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE) {
-            distinctFlagPresent = ((BLangErrorType) typeDefinition.typeNode).flagSet.contains(Flag.DISTINCT);
-        }
+        boolean distinctFlagPresent = isDistinctFlagPresent(typeDefinition);
 
-        // todo: need to handle union and intersections
-        if (definedType.getKind() == TypeKind.ERROR) {
-            BErrorType definedErrorType = (BErrorType) definedType;
-            if (distinctFlagPresent) {
-                // Create a new type for distinct type definition such as `type FooErr distinct BarErr;`
-                if (definedErrorType.tsymbol != typeDefSymbol) {
-                    BErrorType bErrorType = new BErrorType(typeDefSymbol);
-                    bErrorType.detailType = definedErrorType.detailType;
-                    typeDefSymbol.type = bErrorType;
-                    definedErrorType = bErrorType;
-                }
-                boolean isPublicType = typeDefinition.flagSet.contains(Flag.PUBLIC);
-                definedErrorType.typeIdSet = BTypeIdSet.from(
-                        env.enclPkg.packageID,
-                        typeDefinition.flagSet.contains(Flag.ANONYMOUS)
-                                ? anonymousModelHelper.getNextDistinctErrorId(env.enclPkg.packageID)
-                                : typeDefinition.getName().value,
-                        isPublicType,
-                        ((BErrorType) definedType).typeIdSet);
-
-                typeDefinition.typeNode.type = definedType = definedErrorType;
+        // todo: need to handle intersections
+        if (distinctFlagPresent) {
+            if (definedType.getKind() == TypeKind.ERROR) {
+                BErrorType distinctType = getDistinctErrorType(typeDefinition, (BErrorType) definedType, typeDefSymbol);
+                typeDefinition.typeNode.type = distinctType;
+                definedType = distinctType;
+            } else if (definedType.getKind() == TypeKind.UNION) {
+                validateUnionForDistinctType((BUnionType) definedType, typeDefinition.pos);
             }
         }
 
@@ -819,6 +802,57 @@ public class SymbolEnter extends BLangNodeVisitor {
             // constructors are only defined for named types.
             defineErrorConstructorSymbol(typeDefinition.name.pos, typeDefSymbol);
         }
+    }
+
+    private void validateUnionForDistinctType(BUnionType definedType, DiagnosticPos pos) {
+        Set<BType> memberTypes = definedType.getMemberTypes();
+        TypeKind firstTypeKind = null;
+        for (BType type : memberTypes) {
+            TypeKind typeKind = type.getKind();
+            if (firstTypeKind == null && (typeKind == TypeKind.ERROR || typeKind == TypeKind.OBJECT)) {
+                firstTypeKind = typeKind;
+
+            }
+            if (typeKind != firstTypeKind) {
+                dlog.error(pos, DiagnosticCode.DISTINCT_TYPING_ONLY_SUPPORT_OBJECTS_AND_ERRORS);
+            }
+        }
+    }
+
+    private BErrorType getDistinctErrorType(BLangTypeDefinition typeDefinition, BErrorType definedType,
+                                            BTypeSymbol typeDefSymbol) {
+        BErrorType definedErrorType = definedType;
+        // Create a new type for distinct type definition such as `type FooErr distinct BarErr;`
+        // `typeDefSymbol` is different to `definedErrorType.tsymbol` in a type definition statement that use
+        // already defined type as the base type.
+        if (definedErrorType.tsymbol != typeDefSymbol) {
+            BErrorType bErrorType = new BErrorType(typeDefSymbol);
+            bErrorType.detailType = definedErrorType.detailType;
+            typeDefSymbol.type = bErrorType;
+            definedErrorType = bErrorType;
+        }
+        boolean isPublicType = typeDefinition.flagSet.contains(Flag.PUBLIC);
+        definedErrorType.typeIdSet = calculateTypeIdSet(typeDefinition, isPublicType, definedType.typeIdSet);
+        return definedErrorType;
+    }
+
+    private BTypeIdSet calculateTypeIdSet(BLangTypeDefinition typeDefinition, boolean isPublicType,
+                                          BTypeIdSet secondary) {
+        String name = typeDefinition.flagSet.contains(Flag.ANONYMOUS)
+                ? anonymousModelHelper.getNextDistinctErrorId(env.enclPkg.packageID)
+                : typeDefinition.getName().value;
+
+        return BTypeIdSet.from(env.enclPkg.packageID, name, isPublicType, secondary);
+    }
+
+    private boolean isDistinctFlagPresent(BLangTypeDefinition typeDefinition) {
+        boolean distinctFlagPresent = false;
+        if (typeDefinition.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
+            distinctFlagPresent = ((BLangUserDefinedType) typeDefinition.typeNode).flagSet.contains(Flag.DISTINCT);
+        } else if (typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE) {
+            distinctFlagPresent = ((BLangErrorType) typeDefinition.typeNode).flagSet.contains(Flag.DISTINCT);
+        }
+        return distinctFlagPresent;
     }
 
     private void handleLangLibTypes(BLangTypeDefinition typeDefinition) {

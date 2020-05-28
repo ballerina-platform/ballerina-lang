@@ -2227,7 +2227,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 break;
             case ERROR_VARIABLE:
                 BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
-                markVariableAsFinal(errorVariable.reason);
+                markVariableAsFinal(errorVariable.message);
                 errorVariable.detail.forEach(entry -> markVariableAsFinal(entry.valueBindingPattern));
                 if (errorVariable.restDetail != null) {
                     markVariableAsFinal(errorVariable.restDetail);

@@ -514,7 +514,7 @@ function testInvalidPushOnUnionOfSameBasicType() {
 
     error err = <error> res;
     assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err.message());
-    assertValueEquality("incompatible types: expected 'int', found 'string'", err.detail()["message"]);
+    assertValueEquality("incompatible types: expected 'int', found 'string'", err.detail()["message"].toString());
 
     fn = function () {
         arr.unshift("foo");
@@ -525,7 +525,7 @@ function testInvalidPushOnUnionOfSameBasicType() {
 
     err = <error> res;
     assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err.message());
-    assertValueEquality("incompatible types: expected 'int', found 'string'", err.detail()["message"]);
+    assertValueEquality("incompatible types: expected 'int', found 'string'", err.detail()["message"].toString());
 }
 
 function testShiftOperation() {
@@ -544,7 +544,7 @@ function testShiftOnTupleWithoutValuesForRestParameter() {
 
     error err = <error> res;
     assertValueEquality("{ballerina/lang.array}OperationNotSupported", err.message());
-    assertValueEquality("shift() not supported on type 'null'", err.detail()["message"]);
+    assertValueEquality("shift() not supported on type 'null'", err.detail()["message"].toString());
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
@@ -567,7 +567,8 @@ function assertFalse(any|error actual) {
                 message = "expected 'false', found '" + actual.toString () + "'");
 }
 
-function assertValueEquality(anydata|error expected, anydata|error actual) {
+
+function assertValueEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;
     }

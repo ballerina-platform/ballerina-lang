@@ -120,12 +120,7 @@ public class BTypes {
             .createIteratorNextReturnType(new BUnionType(Arrays.asList(BTypes.typeString, BTypes.typeXML)));
 
     static {
-        HashMap<String, BField> fields = new HashMap<>();
-        fields.put(TypeConstants.DETAIL_MESSAGE.getValue(), new BField(
-                typeString, TypeConstants.DETAIL_MESSAGE.getValue(), Flags.OPTIONAL + Flags.PUBLIC));
-        fields.put(TypeConstants.DETAIL_CAUSE.getValue(), new BField(typeError, TypeConstants.DETAIL_CAUSE.getValue(),
-                                                                     Flags.OPTIONAL + Flags.PUBLIC));
-        typeErrorDetail.setFields(fields);
+        typeErrorDetail.setFields(new HashMap<String, BField>());
         BType[] restFieldType = new BType[2];
         restFieldType[0] = BTypes.typeAnydata;
         restFieldType[1] = BTypes.typeError;

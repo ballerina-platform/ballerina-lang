@@ -36,6 +36,7 @@ import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypeIdSet;
 import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
@@ -1892,11 +1893,17 @@ public class TypeChecker {
         }
         unresolvedTypes.add(pair);
         BErrorType bErrorType = (BErrorType) sourceType;
-        if (!((BErrorType) sourceType).typeIdSet.containsAll(targetType.typeIdSet)) {
+
+        if (targetType.typeIdSet == null) {
+            return checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes);
+        }
+
+        BTypeIdSet sourceTypeIdSet = bErrorType.typeIdSet;
+        if (sourceTypeIdSet == null) {
             return false;
         }
 
-        return  checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes);
+        return sourceTypeIdSet.containsAll(targetType.typeIdSet);
     }
 
     private static boolean checkIsLikeErrorType(Object sourceValue, BErrorType targetType,
@@ -1905,11 +1912,18 @@ public class TypeChecker {
         if (sourceValue == null || sourceType.getTag() != TypeTags.ERROR_TAG) {
             return false;
         }
-        if (!((BErrorType) sourceType).typeIdSet.containsAll(targetType.typeIdSet)) {
+
+        if (targetType.typeIdSet == null) {
+            return checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues,
+                    allowNumericConversion);
+        }
+
+        BTypeIdSet sourceIdSet = ((BErrorType) sourceType).typeIdSet;
+        if (sourceIdSet == null) {
             return false;
         }
-        return checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues,
-                                allowNumericConversion);
+
+        return sourceIdSet.containsAll(targetType.typeIdSet);
     }
 
     private static boolean isSimpleBasicType(BType type) {

@@ -19,28 +19,28 @@ import ballerina/lang.'error as errorLib;
 type Detail record {|
     string message?;
     error cause?;
-    (anydata|error)...;
+    (anydata|readonly)...;
 |};
 
 public const CONNECTION_TIMED_OUT = "ConnectionTimedOut";
-public type TimeOutError error<CONNECTION_TIMED_OUT, Detail>;
+public type TimeOutError distinct error<Detail>;
 
 public const GENERIC_ERROR = "GenericError";
-public type GenericError error<GENERIC_ERROR, Detail>;
+public type GenericError distinct error<Detail>;
 
 public type Error GenericError|TimeOutError;
 
-function testTypeTestingErrorUnion() returns [string, Detail]? {
+function testTypeTestingErrorUnion() returns [string, map<anydata|readonly>]? {
     Error? err = getError();
 
     if (err is Error) {
-        Detail dt = err.detail();
-        return [err.reason(), dt];
+        map<anydata|readonly> dt = err.detail();
+        return [err.message(), dt];
     }
 }
 
 function getError() returns Error? {
-    GenericError err = error(GENERIC_ERROR, message = "Test union of errors with type test");
+    GenericError err = GenericError(GENERIC_ERROR, message = "Test union of errors with type test");
     return err;
 }
 
@@ -51,10 +51,10 @@ public type AnotherDetail record {
 };
 
 public const REASON_1 = "Reason1";
-public type FirstError error<REASON_1, AnotherDetail>;
+public type FirstError distinct error<AnotherDetail>;
 
 public const REASON_2 = "Reason2";
-public type SecondError error<REASON_2, AnotherDetail>;
+public type SecondError distinct error<AnotherDetail>;
 
 public type ErrorUnion FirstError|SecondError;
 
@@ -66,7 +66,7 @@ public function testPassingErrorUnionToFunction() returns AnotherDetail? {
 }
 
 public function funcFoo() returns int|ErrorUnion {
-    FirstError e = error(REASON_1, message = "Test passing error union to a function");
+    FirstError e = FirstError(REASON_1, message = "Test passing error union to a function");
     return e;
 }
 

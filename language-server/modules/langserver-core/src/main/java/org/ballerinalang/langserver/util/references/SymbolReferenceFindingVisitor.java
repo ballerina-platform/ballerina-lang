@@ -410,7 +410,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
         this.acceptNode(bLangErrorVariable.typeNode);
-        this.acceptNode(bLangErrorVariable.reason);
+        this.acceptNode(bLangErrorVariable.message);
         for (BLangErrorVariable.BLangErrorDetailEntry bLangErrorDetailEntry : bLangErrorVariable.detail) {
             this.acceptNode(bLangErrorDetailEntry.valueBindingPattern);
         }
