@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -31,13 +32,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+
 /**
  * Get all the elements-type items of a xml.
  * 
  * @since 0.88
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
         functionName = "elements",
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
@@ -48,8 +51,8 @@ public class Elements {
 
     public static XMLValue elements(Strand strand, XMLValue xml, Object name) {
         try {
-            if (name instanceof  String) {
-                return (XMLValue) xml.elements((String) name);
+            if (name instanceof BString) {
+                return (XMLValue) xml.elements(((BString) name).getValue());
             }
             return (XMLValue) xml.elements();
         } catch (Throwable e) {
@@ -66,8 +69,5 @@ public class Elements {
             list.add((XMLValue) bIterator.next());
         }
         return new XMLSequence(list);
-    }
-    public static XMLValue elements_bstring(Strand strand, XMLValue xml, Object name) {
-        return elements(strand, xml, name);
     }
 }

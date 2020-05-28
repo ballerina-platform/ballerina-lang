@@ -167,8 +167,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createVariableDeclarationNode(
             STNode annotations,
             STNode finalKeyword,
-            STNode typeName,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode equalsToken,
             STNode initializer,
             STNode semicolonToken) {
@@ -176,8 +175,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STVariableDeclarationNode(
                 annotations,
                 finalKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 initializer,
                 semicolonToken);
@@ -816,8 +814,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createModuleVariableDeclarationNode(
             STNode metadata,
             STNode finalKeyword,
-            STNode typeName,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode equalsToken,
             STNode initializer,
             STNode semicolonToken) {
@@ -825,8 +822,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STModuleVariableDeclarationNode(
                 metadata,
                 finalKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 initializer,
                 semicolonToken);
@@ -1153,15 +1149,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createLetVariableDeclarationNode(
             STNode annotations,
-            STNode typeName,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode equalsToken,
             STNode expression) {
 
         return new STLetVariableDeclarationNode(
                 annotations,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 expression);
     }
@@ -1395,13 +1389,11 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createTupleTypeDescriptorNode(
             STNode openBracketToken,
             STNode memberTypeDesc,
-            STNode restTypeDesc,
             STNode closeBracketToken) {
 
         return new STTupleTypeDescriptorNode(
                 openBracketToken,
                 memberTypeDesc,
-                restTypeDesc,
                 closeBracketToken);
     }
 
@@ -1552,10 +1544,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createStartActionNode(
+            STNode annotations,
             STNode startKeyword,
             STNode expression) {
 
         return new STStartActionNode(
+                annotations,
                 startKeyword,
                 expression);
     }
@@ -1664,13 +1658,22 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createReceiveFieldsNode(
             STNode openBrace,
-            STNode receiveField,
+            STNode receiveFields,
             STNode closeBrace) {
 
         return new STReceiveFieldsNode(
                 openBrace,
-                receiveField,
+                receiveFields,
                 closeBrace);
+    }
+
+    public static STNode createRestDescriptorNode(
+            STNode typeDescriptor,
+            STNode ellipsisToken) {
+
+        return new STRestDescriptorNode(
+                typeDescriptor,
+                ellipsisToken);
     }
 
     public static STNode createDoubleGTTokenNode(
@@ -1691,6 +1694,201 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 openGTToken,
                 middleGTToken,
                 endGTToken);
+    }
+
+    public static STNode createWaitActionNode(
+            STNode waitKeyword,
+            STNode waitFutureExpr) {
+
+        return new STWaitActionNode(
+                waitKeyword,
+                waitFutureExpr);
+    }
+
+    public static STNode createWaitFieldsListNode(
+            STNode openBrace,
+            STNode waitFields,
+            STNode closeBrace) {
+
+        return new STWaitFieldsListNode(
+                openBrace,
+                waitFields,
+                closeBrace);
+    }
+
+    public static STNode createWaitFieldNode(
+            STNode fieldName,
+            STNode colon,
+            STNode waitFutureExpr) {
+
+        return new STWaitFieldNode(
+                fieldName,
+                colon,
+                waitFutureExpr);
+    }
+
+    public static STNode createAnnotAccessExpressionNode(
+            STNode expression,
+            STNode annotChainingToken,
+            STNode annotTagReference) {
+
+        return new STAnnotAccessExpressionNode(
+                expression,
+                annotChainingToken,
+                annotTagReference);
+    }
+
+    public static STNode createQueryActionNode(
+            STNode queryPipeline,
+            STNode doKeyword,
+            STNode blockStatement) {
+
+        return new STQueryActionNode(
+                queryPipeline,
+                doKeyword,
+                blockStatement);
+    }
+
+    public static STNode createOptionalFieldAccessExpressionNode(
+            STNode expression,
+            STNode optionalChainingToken,
+            STNode fieldName) {
+
+        return new STOptionalFieldAccessExpressionNode(
+                expression,
+                optionalChainingToken,
+                fieldName);
+    }
+
+    public static STNode createConditionalExpressionNode(
+            STNode lhsExpression,
+            STNode questionMarkToken,
+            STNode middleExpression,
+            STNode colonToken,
+            STNode endExpression) {
+
+        return new STConditionalExpressionNode(
+                lhsExpression,
+                questionMarkToken,
+                middleExpression,
+                colonToken,
+                endExpression);
+    }
+
+    public static STNode createEnumDeclarationNode(
+            STNode metadata,
+            STNode qualifier,
+            STNode enumKeywordToken,
+            STNode identifier,
+            STNode openBraceToken,
+            STNode enumMemberList,
+            STNode closeBraceToken) {
+
+        return new STEnumDeclarationNode(
+                metadata,
+                qualifier,
+                enumKeywordToken,
+                identifier,
+                openBraceToken,
+                enumMemberList,
+                closeBraceToken);
+    }
+
+    public static STNode createEnumMemberNode(
+            STNode metadata,
+            STNode identifier,
+            STNode equalToken,
+            STNode constExprNode) {
+
+        return new STEnumMemberNode(
+                metadata,
+                identifier,
+                equalToken,
+                constExprNode);
+    }
+
+    public static STNode createArrayTypeDescriptorNode(
+            STNode memberTypeDesc,
+            STNode openBracket,
+            STNode arrayLength,
+            STNode closeBracket) {
+
+        return new STArrayTypeDescriptorNode(
+                memberTypeDesc,
+                openBracket,
+                arrayLength,
+                closeBracket);
+    }
+
+    public static STNode createTransactionStatementNode(
+            STNode transactionKeyword,
+            STNode blockStatement) {
+
+        return new STTransactionStatementNode(
+                transactionKeyword,
+                blockStatement);
+    }
+
+    public static STNode createRollbackStatementNode(
+            STNode rollbackKeyword,
+            STNode expression,
+            STNode semicolon) {
+
+        return new STRollbackStatementNode(
+                rollbackKeyword,
+                expression,
+                semicolon);
+    }
+
+    public static STNode createRetryStatementNode(
+            STNode retryKeyword,
+            STNode typeParameter,
+            STNode arguments,
+            STNode retryBody) {
+
+        return new STRetryStatementNode(
+                retryKeyword,
+                typeParameter,
+                arguments,
+                retryBody);
+    }
+
+    public static STNode createCommitActionNode(
+            STNode commitKeyword) {
+
+        return new STCommitActionNode(
+                commitKeyword);
+    }
+
+    public static STNode createTransactionalExpressionNode(
+            STNode transactionalKeyword) {
+
+        return new STTransactionalExpressionNode(
+                transactionalKeyword);
+    }
+
+    public static STNode createServiceConstructorExpressionNode(
+            STNode annotations,
+            STNode serviceKeyword,
+            STNode serviceBody) {
+
+        return new STServiceConstructorExpressionNode(
+                annotations,
+                serviceKeyword,
+                serviceBody);
+    }
+
+    public static STNode createByteArrayLiteralNode(
+            STNode type,
+            STNode startBacktick,
+            STNode content,
+            STNode endBacktick) {
+
+        return new STByteArrayLiteralNode(
+                type,
+                startBacktick,
+                content,
+                endBacktick);
     }
 }
 

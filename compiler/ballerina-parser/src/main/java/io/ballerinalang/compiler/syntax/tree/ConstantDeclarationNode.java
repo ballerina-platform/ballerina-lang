@@ -44,7 +44,7 @@ public class ConstantDeclarationNode extends ModuleMemberDeclarationNode {
         return childInBucket(2);
     }
 
-    public Node typeDescriptor() {
+    public TypeDescriptorNode typeDescriptor() {
         return childInBucket(3);
     }
 
@@ -91,7 +91,7 @@ public class ConstantDeclarationNode extends ModuleMemberDeclarationNode {
             MetadataNode metadata,
             Token visibilityQualifier,
             Token constKeyword,
-            Node typeDescriptor,
+            TypeDescriptorNode typeDescriptor,
             Token variableName,
             Token equalsToken,
             Node initializer,
@@ -133,7 +133,7 @@ public class ConstantDeclarationNode extends ModuleMemberDeclarationNode {
         private MetadataNode metadata;
         private Token visibilityQualifier;
         private Token constKeyword;
-        private Node typeDescriptor;
+        private TypeDescriptorNode typeDescriptor;
         private Token variableName;
         private Token equalsToken;
         private Node initializer;
@@ -173,7 +173,7 @@ public class ConstantDeclarationNode extends ModuleMemberDeclarationNode {
         }
 
         public ConstantDeclarationNodeModifier withTypeDescriptor(
-                Node typeDescriptor) {
+                TypeDescriptorNode typeDescriptor) {
             Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
             this.typeDescriptor = typeDescriptor;
             return this;

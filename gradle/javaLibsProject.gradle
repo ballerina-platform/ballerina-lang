@@ -118,7 +118,6 @@ dependencies {
     dist project(':ballerina-observability')
     dist project(':ballerina-reflect')
     dist project(':ballerina-runtime-api')
-    dist project(':ballerina-socket')
     dist project(':ballerina-system')
     dist project(':ballerina-task')
     dist project(':ballerina-time')

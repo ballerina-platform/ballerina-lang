@@ -76,7 +76,5 @@ public class TypeCastExpressionTest extends AbstractExpressionsTest {
     @Test
     public void testTypeCastWithMissingLTToken() {
         test("int> b", "type-cast-expr/type_cast_expr_assert_16.json");
-        test("@foo{}> b", "type-cast-expr/type_cast_expr_assert_17.json");
-        test("@foo{} int> b", "type-cast-expr/type_cast_expr_assert_18.json");
     }
 }

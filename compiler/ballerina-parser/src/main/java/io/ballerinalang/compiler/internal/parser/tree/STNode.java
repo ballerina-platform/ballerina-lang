@@ -17,9 +17,14 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
 
 /**
  * {@code STNode} is the base class for all tree nodes in the internal syntax tree.
@@ -28,10 +33,13 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  */
 public abstract class STNode {
     public final SyntaxKind kind;
+    protected final Collection<STNodeDiagnostic> diagnostics;
     protected int width;
     protected int widthWithLeadingMinutiae;
     protected int widthWithTrailingMinutiae;
     protected int widthWithMinutiae;
+
+    protected EnumSet<STNodeFlags> flags = EnumSet.noneOf(STNodeFlags.class);
 
     protected static final STNode[] EMPTY_BUCKET = new STNode[0];
     // The following fields allow us to navigate the tree without the knowledge of the particular tree nodes
@@ -40,6 +48,15 @@ public abstract class STNode {
 
     STNode(SyntaxKind kind) {
         this.kind = kind;
+        this.diagnostics = Collections.emptyList();
+    }
+
+    STNode(SyntaxKind kind, Collection<STNodeDiagnostic> diagnostics) {
+        this.kind = kind;
+        this.diagnostics = diagnostics;
+        if (diagnostics.size() > 0) {
+            flags.add(STNodeFlags.HAS_DIAGNOSTICS);
+        }
     }
 
     public STNode childInBucket(int bucket) {
@@ -72,10 +89,19 @@ public abstract class STNode {
                 "The trailingMinutiae() method is only supported for STToken instances");
     }
 
+    public boolean hasDiagnostics() {
+        return flags.contains(STNodeFlags.HAS_DIAGNOSTICS);
+    }
+
+    public Collection<STNodeDiagnostic> diagnostics() {
+        return Collections.unmodifiableCollection(this.diagnostics);
+    }
+
     public int bucketCount() {
         return bucketCount;
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends Node> T createUnlinkedFacade() {
         return (T) createFacade(0, null);
     }
@@ -96,6 +122,7 @@ public abstract class STNode {
         if (bucketCount == 0) {
             return;
         }
+        updateDiagnostics(children);
         updateWidth(children);
     }
 
@@ -170,5 +197,18 @@ public abstract class STNode {
             }
         }
         return -1;
+    }
+
+    private void updateDiagnostics(STNode[] children) {
+        // Return from the function if at lest one child has diagnostics.
+        for (STNode child : children) {
+            if (!SyntaxUtils.isSTNodePresent(child)) {
+                continue;
+            }
+            if (child.flags.contains(STNodeFlags.HAS_DIAGNOSTICS)) {
+                this.flags.add(STNodeFlags.HAS_DIAGNOSTICS);
+                return;
+            }
+        }
     }
 }

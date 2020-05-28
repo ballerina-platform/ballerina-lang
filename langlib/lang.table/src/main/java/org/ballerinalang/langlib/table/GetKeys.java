@@ -23,12 +23,15 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+
+import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 
 /**
  * Extern function to get key arrays from the table.
@@ -37,7 +40,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table",
+        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION,
         functionName = "keys",
         args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANYDATA)},
@@ -78,10 +81,10 @@ public class GetKeys {
                 }
                 return (ArrayValue) BValueCreator.createArrayValue(floatArr);
             case TypeTags.STRING:
-                String[] stringArr  = new String[keys.length];
+                BString[] stringArr  = new BString[keys.length];
                 for (int i = 0; i < keys.length; i++) {
                     Object key = keys[i];
-                    stringArr[i] = (String) key;
+                    stringArr[i] = (BString) key;
                 }
                 return (ArrayValue) BValueCreator.createArrayValue(stringArr);
             default:

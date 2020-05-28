@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -31,13 +32,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+
 /**
  * Return lift getChildren over sequences.
  *
  * @since 1.2
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
         functionName = "elementChildren",
         args = {@Argument(name = "xmlValue", type = TypeKind.XML), @Argument(name = "nm", type = TypeKind.UNION)},
         returnType = {@ReturnType(type = TypeKind.XML)},
@@ -45,11 +48,12 @@ import java.util.List;
 )
 public class ElementChildren {
 
-    public static XMLValue elementChildren(Strand strand, XMLValue xmlVal, Object name) {
-        boolean namedQuery = name != null;
+    public static XMLValue elementChildren(Strand strand, XMLValue xmlVal, Object nameObj) {
+        boolean namedQuery = nameObj != null;
+        String name = namedQuery ? ((BString) nameObj).getValue() : null;
         if (xmlVal.getNodeType() == XMLNodeType.ELEMENT) {
             if (namedQuery) {
-                return (XMLValue) ((XMLItem) xmlVal).children().elements((String) name);
+                return (XMLValue) ((XMLItem) xmlVal).children().elements(name);
             }
             return (XMLValue) ((XMLItem) xmlVal).children().elements();
         } else if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE) {
@@ -74,9 +78,5 @@ public class ElementChildren {
             return new XMLSequence(items);
         }
         return new XMLSequence();
-    }
-
-    public static XMLValue elementChildren_bstring(Strand strand, XMLValue xmlVal, Object name) {
-        return elementChildren(strand, xmlVal, name);
     }
 }

@@ -20,10 +20,13 @@ package org.ballerinalang.langlib.xml;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
  * Create XML processing instruction.
@@ -31,7 +34,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
         functionName = "createProcessingInstruction",
         args = {
                 @Argument(name = "target", type = TypeKind.STRING),
@@ -41,7 +44,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class CreateProcessingInstruction {
 
-    public static XMLValue createProcessingInstruction(Strand strand, String target, String content) {
+    public static XMLValue createProcessingInstruction(Strand strand, BString target, BString content) {
         return XMLFactory.createXMLProcessingInstruction(target, content);
     }
 }

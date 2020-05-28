@@ -49,8 +49,8 @@ public class RequiredParameterNode extends ParameterNode {
         return childInBucket(3);
     }
 
-    public Token paramName() {
-        return childInBucket(4);
+    public Optional<Token> paramName() {
+        return optionalChildInBucket(4);
     }
 
     @Override
@@ -119,7 +119,7 @@ public class RequiredParameterNode extends ParameterNode {
             this.annotations = oldNode.annotations();
             this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
             this.typeName = oldNode.typeName();
-            this.paramName = oldNode.paramName();
+            this.paramName = oldNode.paramName().orElse(null);
         }
 
         public RequiredParameterNodeModifier withLeadingComma(

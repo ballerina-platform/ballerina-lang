@@ -17,11 +17,13 @@
 */
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.URITemplate;
 import org.ballerinalang.net.uri.URITemplateException;
@@ -44,8 +46,8 @@ import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_INTERRUPTIBLE;
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_BASE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
 import static org.ballerinalang.net.http.HttpConstants.DOLLAR;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpUtil.checkConfigAnnotationAvailability;
 
 /**
@@ -57,11 +59,11 @@ public class HttpService implements Cloneable {
 
     private static final Logger log = LoggerFactory.getLogger(HttpService.class);
 
-    protected static final String BASE_PATH_FIELD = "basePath";
+    protected static final BString BASE_PATH_FIELD = StringUtils.fromString("basePath");
     private static final String COMPRESSION_FIELD = "compression";
-    private static final String CORS_FIELD = "cors";
-    private static final String VERSIONING_FIELD = "versioning";
-    private static final String HOST_FIELD = "host";
+    private static final BString CORS_FIELD = StringUtils.fromString("cors");
+    private static final BString VERSIONING_FIELD = StringUtils.fromString("versioning");
+    private static final BString HOST_FIELD = StringUtils.fromString("host");
 
     private ObjectValue balService;
     private List<HttpResource> resources;
@@ -71,7 +73,7 @@ public class HttpService implements Cloneable {
     private CorsHeaders corsHeaders;
     private URITemplate<HttpResource, HttpCarbonMessage> uriTemplate;
     private boolean keepAlive = true; //default behavior
-    private MapValue<String, Object> compression;
+    private MapValue<BString, Object> compression;
     private String hostName;
     private boolean interruptible;
     private String chunkingConfig;
@@ -92,11 +94,11 @@ public class HttpService implements Cloneable {
         this.keepAlive = keepAlive;
     }
 
-    private void setCompressionConfig(MapValue<String, Object> compression) {
+    private void setCompressionConfig(MapValue<BString, Object> compression) {
         this.compression = compression;
     }
 
-    public MapValue<String, Object> getCompressionConfig() {
+    public MapValue<BString, Object> getCompressionConfig() {
         return this.compression;
     }
 
@@ -201,21 +203,22 @@ public class HttpService implements Cloneable {
         List<HttpService> serviceList = new ArrayList<>();
         List<String> basePathList = new ArrayList<>();
         HttpService httpService = new HttpService(service);
-        MapValue<String, Object> serviceConfig = getHttpServiceConfigAnnotation(service);
+        MapValue<BString, Object> serviceConfig = getHttpServiceConfigAnnotation(service);
         httpService.setInterruptible(hasInterruptibleAnnotation(service));
 
         if (checkConfigAnnotationAvailability(serviceConfig)) {
 
-            httpService.setCompressionConfig((MapValue<String, Object>) serviceConfig.get(ANN_CONFIG_ATTR_COMPRESSION));
+            httpService.setCompressionConfig(
+                    (MapValue<BString, Object>) serviceConfig.get(ANN_CONFIG_ATTR_COMPRESSION));
             httpService.setChunkingConfig(serviceConfig.get(ANN_CONFIG_ATTR_CHUNKING).toString());
             httpService.setCorsHeaders(CorsHeaders.buildCorsHeaders(serviceConfig.getMapValue(CORS_FIELD)));
-            httpService.setHostName(serviceConfig.getStringValue(HOST_FIELD).trim());
+            httpService.setHostName(serviceConfig.getStringValue(HOST_FIELD).getValue().trim());
 
-            String basePath = serviceConfig.getStringValue(BASE_PATH_FIELD).replaceAll(
+            String basePath = serviceConfig.getStringValue(BASE_PATH_FIELD).getValue().replaceAll(
                     HttpConstants.REGEX, HttpConstants.SINGLE_SLASH);
             if (basePath.contains(HttpConstants.VERSION)) {
                 prepareBasePathList(serviceConfig.getMapValue(VERSIONING_FIELD),
-                                    serviceConfig.getStringValue(BASE_PATH_FIELD), basePathList,
+                                    serviceConfig.getStringValue(BASE_PATH_FIELD).getValue(), basePathList,
                                     httpService.getBalService().getType().getPackage().getVersion());
             } else {
                 basePathList.add(basePath);
@@ -289,7 +292,7 @@ public class HttpService implements Cloneable {
         Boolean allowNoVersionAnnotValue = false;
         Boolean matchMajorVersionAnnotValue = false;
         if (versioningConfig != null) {
-            patternAnnotValue = versioningConfig.getStringValue(HttpConstants.ANN_CONFIG_ATTR_PATTERN);
+            patternAnnotValue = versioningConfig.getStringValue(HttpConstants.ANN_CONFIG_ATTR_PATTERN).getValue();
             allowNoVersionAnnotValue = versioningConfig.getBooleanValue(HttpConstants.ANN_CONFIG_ATTR_ALLOW_NO_VERSION);
             matchMajorVersionAnnotValue = versioningConfig.getBooleanValue(
                     HttpConstants.ANN_CONFIG_ATTR_MATCH_MAJOR_VERSION);
@@ -325,7 +328,7 @@ public class HttpService implements Cloneable {
     }
 
     private static MapValue getHttpServiceConfigAnnotation(ObjectValue service) {
-        return getServiceConfigAnnotation(service, HTTP_PACKAGE_PATH, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
+        return getServiceConfigAnnotation(service, PROTOCOL_PACKAGE_HTTP, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
     }
 
     protected static MapValue getServiceConfigAnnotation(ObjectValue service, String packagePath,

@@ -22,10 +22,13 @@ import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
  * Returns the attribute map of xml element.
@@ -33,7 +36,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
         functionName = "getAttributes",
         args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
         returnType = {@ReturnType(type = TypeKind.MAP)},
@@ -42,12 +45,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class GetAttributes {
 
     @SuppressWarnings("unchecked")
-    public static MapValue<String, String> getAttributes(Strand strand, XMLValue xmlVal) {
+    public static MapValue<BString, BString> getAttributes(Strand strand, XMLValue xmlVal) {
         if (!IsElement.isElement(strand, xmlVal)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR,
                     "getAttributes", "element");
         }
 
-        return (MapValue<String, String>) xmlVal.getAttributesMap();
+        return (MapValue<BString, BString>) xmlVal.getAttributesMap();
     }
 }

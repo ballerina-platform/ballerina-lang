@@ -1,88 +1,88 @@
 {
-    "kind": "BINARY_EXPRESSION",
-    "children": [
+  "kind": "BINARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "BINARY_EXPRESSION",
+      "children": [
         {
-            "kind": "BINARY_EXPRESSION",
-            "children": [
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "a"
-                },
-                {
-                    "kind": "MINUS_TOKEN"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "b"
-                }
-            ]
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a"
         },
         {
-            "kind": "NOT_EQUAL_TOKEN"
+          "kind": "MINUS_TOKEN"
         },
         {
-            "kind": "BINARY_EXPRESSION",
-            "children": [
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "c"
-                },
-                {
-                    "kind": "TRIPPLE_EQUAL_TOKEN"
-                },
-                {
-                    "kind": "BINARY_EXPRESSION",
-                    "children": [
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "d"
-                        },
-                        {
-                            "kind": "GT_EQUAL_TOKEN"
-                        },
-                        {
-                            "kind": "BINARY_EXPRESSION",
-                            "children": [
-                                {
-                                    "kind": "BINARY_EXPRESSION",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "e"
-                                        },
-                                        {
-                                            "kind": "PLUS_TOKEN"
-                                        },
-                                        {
-                                            "kind": "BINARY_EXPRESSION",
-                                            "children": [
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "f"
-                                                },
-                                                {
-                                                    "kind": "ASTERISK_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "g"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "LT_TOKEN"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "h"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "b"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "NOT_EQUAL_TOKEN"
+    },
+    {
+      "kind": "BINARY_EXPRESSION",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "c"
+        },
+        {
+          "kind": "TRIPPLE_EQUAL_TOKEN"
+        },
+        {
+          "kind": "BINARY_EXPRESSION",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "d"
+            },
+            {
+              "kind": "GT_EQUAL_TOKEN"
+            },
+            {
+              "kind": "BINARY_EXPRESSION",
+              "children": [
+                {
+                  "kind": "BINARY_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "e"
+                    },
+                    {
+                      "kind": "PLUS_TOKEN"
+                    },
+                    {
+                      "kind": "BINARY_EXPRESSION",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "f"
+                        },
+                        {
+                          "kind": "ASTERISK_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "g"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "LT_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "h"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

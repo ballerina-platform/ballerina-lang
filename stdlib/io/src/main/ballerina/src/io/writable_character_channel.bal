@@ -29,7 +29,7 @@ public type WritableCharacterChannel object {
     public function __init(WritableByteChannel bChannel, string charset) {
         self.bChannel = bChannel;
         self.charset = charset;
-        initWritableCharacterChannel(self, bChannel, java:fromString(charset));
+        initWritableCharacterChannel(self, bChannel, charset);
     }
 
 # Writes a given sequence of characters (string).
@@ -41,7 +41,7 @@ public type WritableCharacterChannel object {
 # + startOffset - Number of characters, which should be offset when writing the content
 # + return - Content length that written or else `io:Error`
     public function write(string content, int startOffset) returns int|Error {
-        return writeExtern(self, java:fromString(content), startOffset);
+        return writeExtern(self, content, startOffset);
     }
 
 # Writes a given JSON to the given channel.
@@ -78,13 +78,13 @@ public type WritableCharacterChannel object {
 };
 
 function initWritableCharacterChannel(WritableCharacterChannel characterChannel, WritableByteChannel byteChannel,
-            handle charset) = @java:Method {
+                                      string charset) = @java:Method {
     name: "initCharacterChannel",
     class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
 } external;
 
-function writeExtern(WritableCharacterChannel characterChannel, handle content, int startOffset) returns
-            int|Error = @java:Method {
+function writeExtern(WritableCharacterChannel characterChannel, string content, int startOffset)
+                     returns int|Error = @java:Method {
     name: "write",
     class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
 } external;

@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.service.grpc.sample;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -65,7 +66,7 @@ public class ByteArrayTestCase extends GrpcBaseTest {
         final String serverMsg = "30KB file content transmitted successfully";
 
         BValue[] responses = BRunUtil.invoke(result, "testLargeByteArray",
-                new Object[]{sampleDataFile.toAbsolutePath().toString()});
+                new Object[]{StringUtils.fromString(sampleDataFile.toAbsolutePath().toString())});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         BString responseValues = (BString) responses[0];

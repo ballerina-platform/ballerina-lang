@@ -23,13 +23,15 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
+import static org.ballerinalang.util.BLangCompilerConstants.QUERY_VERSION;
+
 /**
  * Print utility for debugging purposes.
  *
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.query", functionName = "print",
+        orgName = "ballerina", packageName = "lang.query", version = QUERY_VERSION, functionName = "print",
         args = {@Argument(name = "data", type = TypeKind.ANY)}
 )
 public class Print {

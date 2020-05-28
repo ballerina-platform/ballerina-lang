@@ -19,7 +19,9 @@
 package org.ballerinalang.stdlib.xmlutils;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * This class work as a bridge with ballerina and a Java implementation of ballerina/xmlutils modules.
@@ -41,10 +43,10 @@ public class ConvertUtils {
      * @param options option details
      * @return XML object that construct from JSON
      */
-    public static Object fromJSON(Object json, MapValue<?, ?> options) {
+    public static Object fromJSON(Object json, MapValue<BString, BString> options) {
         try {
-            String attributePrefix = (String) options.get(OPTIONS_ATTRIBUTE_PREFIX);
-            String arrayEntryTag = (String) options.get(OPTIONS_ARRAY_ENTRY_TAG);
+            String attributePrefix = (options.get(StringUtils.fromString(OPTIONS_ATTRIBUTE_PREFIX))).getValue();
+            String arrayEntryTag = (options.get(StringUtils.fromString(OPTIONS_ARRAY_ENTRY_TAG))).getValue();
             return JSONToXMLConverter.convertToXML(json, attributePrefix, arrayEntryTag);
         } catch (Exception e) {
             return BallerinaErrors.createError("{ballerina/xmlutils}Error", e.getMessage());

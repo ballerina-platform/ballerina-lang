@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -30,13 +31,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.io.Reader;
 import java.io.StringReader;
 
+import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
+
 /**
  * Parse a string in JSON format and return the the value that it represents.
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.value",
+        orgName = "ballerina", packageName = "lang.value", version = VALUE_VERSION,
         functionName = "fromJsonString",
         args = {@Argument(name = "str", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.JSON), @ReturnType(type = TypeKind.ERROR)},
@@ -44,12 +47,13 @@ import java.io.StringReader;
 )
 public class FromJsonString {
 
-    public static Object fromJsonString(Strand strand, String value) {
+    public static Object fromJsonString(Strand strand, BString value) {
 
-        if (value.equals("null")) {
+        String str = value.getValue();
+        if (str.equals("null")) {
             return null;
         }
-        Reader reader = new StringReader(value);
+        Reader reader = new StringReader(str);
         try {
             return JSONParser.parse(reader);
         } catch (BallerinaException e) {

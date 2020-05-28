@@ -29,21 +29,21 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  */
 public class STReceiveFieldsNode extends STNode {
     public final STNode openBrace;
-    public final STNode receiveField;
+    public final STNode receiveFields;
     public final STNode closeBrace;
 
     STReceiveFieldsNode(
             STNode openBrace,
-            STNode receiveField,
+            STNode receiveFields,
             STNode closeBrace) {
         super(SyntaxKind.RECEIVE_FIELDS);
         this.openBrace = openBrace;
-        this.receiveField = receiveField;
+        this.receiveFields = receiveFields;
         this.closeBrace = closeBrace;
 
         addChildren(
                 openBrace,
-                receiveField,
+                receiveFields,
                 closeBrace);
     }
 
