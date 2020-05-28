@@ -789,7 +789,8 @@
             "attributes": [
                 {
                     "name": "leadingComma",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "openBracket",
@@ -864,7 +865,8 @@
             "attributes": [
                 {
                     "name": "leadingComma",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "annotations",
@@ -902,7 +904,8 @@
             "attributes": [
                 {
                     "name": "leadingComma",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "annotations",
@@ -932,7 +935,8 @@
             "attributes": [
                 {
                     "name": "leadingComma",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "annotations",
@@ -961,7 +965,8 @@
             "attributes": [
                 {
                     "name": "leadingComma",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "expression",
@@ -1006,7 +1011,8 @@
             "attributes": [
                 {
                     "name": "leadingDot",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "versionNumber",
@@ -1041,7 +1047,8 @@
             "attributes": [
                 {
                     "name": "leadingComma",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "fieldName",
@@ -1064,7 +1071,8 @@
             "attributes": [
                 {
                     "name": "leadingComma",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "ellipsis",
@@ -1088,7 +1096,8 @@
             "attributes": [
                 {
                     "name": "leadingComma",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "argumentName",
@@ -1111,7 +1120,8 @@
             "attributes": [
                 {
                     "name": "leadingComma",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "expression",
@@ -1126,7 +1136,8 @@
             "attributes": [
                 {
                     "name": "leadingComma",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "ellipsis",
