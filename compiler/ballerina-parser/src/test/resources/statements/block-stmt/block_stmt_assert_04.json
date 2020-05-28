@@ -57,8 +57,13 @@
                       "kind": "INVALID",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "A"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "A"
+                            }
+                          ]
                         },
                         {
                           "kind": "SEMICOLON_TOKEN"

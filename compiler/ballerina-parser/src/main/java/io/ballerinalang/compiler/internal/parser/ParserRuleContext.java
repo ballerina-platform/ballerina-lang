@@ -196,9 +196,9 @@ public enum ParserRuleContext {
     RETRY_TYPE_PARAM_RHS("retry-type-param-rhs"),
     RETRY_BODY("retry-body"),
     ROLLBACK_RHS("rollback-rhs"),
-    LIST_BP_OR_TUPLE_TYPE_DESC("list-bp-or-tuple-type-desc"),
-    LIST_BP_OR_TUPLE_TYPE_MEMBER("list-bp-or-tuple-type-member"),
-    LIST_BP_OR_TUPLE_TYPE_DESC_RHS("list-bp-or-tuple-type-desc-rhs"),
+    STMT_START_BRACKETED_LIST("stmt-start-bracketed-list"),
+    STMT_START_BRACKETED_LIST_MEMBER("stmt-start-bracketed-list-member"),
+    STMT_START_BRACKETED_LIST_RHS("stmt-start-bracketed-list-rhs"),
     BRACKETED_LIST("bracketed-list"),
     BRACKETED_LIST_RHS("bracketed-list-rhs"),
     BRACKETED_LIST_MEMBER("bracketed-list-member"),
@@ -206,6 +206,9 @@ public enum ParserRuleContext {
     LIST_BINDING_MEMBER_OR_ARRAY_LENGTH("list-binding-member-or-array-length"),
     TYPED_BINDING_PATTERN_TYPE_RHS("type-binding-pattern-type-rhs"),
     UNION_OR_INTERSECTION_TOKEN("union-or-intersection"),
+
+    MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER("mapping-bp-or-mapping-cons-member"),
+    LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER("list-bp-or-list-cons-member"),
 
     // Statements
     STATEMENT("statement"),
@@ -414,6 +417,7 @@ public enum ParserRuleContext {
     TABLE_CONSTRUCTOR_OR_QUERY_START("table-constructor-or-query-start"),
     TABLE_CONSTRUCTOR_OR_QUERY_RHS("table-constructor-or-query-rhs"),
     QUERY_EXPRESSION("query-expr"),
+    QUERY_EXPRESSION_END("query-expr-end"),
     FIELD_ACCESS_IDENTIFIER("field-access-identifier"),
     QUERY_PIPELINE_RHS("query-pipeline-rhs"),
     LET_CLAUSE_END("let-clause-end"),
