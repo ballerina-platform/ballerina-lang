@@ -75,7 +75,7 @@ public class FormattingTreeModifier extends TreeModifier {
                     .apply();
         }
         return functionDefinitionNode.modify()
-                .withFunctionKeyword(formatToken(functionKeyword, 0, 0, 0))
+                .withFunctionKeyword(formatToken(functionKeyword, 1, 0, 0))
                 .withFunctionName((IdentifierToken) formatToken(functionName, 1, 0, 0))
                 .withFunctionSignature(functionSignatureNode
                         .modify(functionSignatureOpenPara, functionSignatureNode.parameters(),
