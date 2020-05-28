@@ -255,6 +255,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean isJSONContext;
     private boolean enableExperimentalFeatures;
     private int commitCount;
+    private int rollbackCount;
     private boolean withinTransactionScope;
     private boolean commitRollbackAllowed;
     private int commitCountWithinBlock;
@@ -495,9 +496,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         boolean previousWithinTxScope = this.withinTransactionScope;
         int previousCommitCount = this.commitCount;
+        int previousRollbackCount = this.rollbackCount;
         boolean prevCommitRollbackAllowed = this.commitRollbackAllowed;
         this.commitRollbackAllowed = true;
         this.commitCount = 0;
+        this.rollbackCount = 0;
         this.withinTransactionScope = true;
         this.loopWithintransactionCheckStack.push(false);
         this.returnWithintransactionCheckStack.push(false);
@@ -513,6 +516,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.transactionCount--;
         this.withinTransactionScope = previousWithinTxScope;
         this.commitCount = previousCommitCount;
+        this.rollbackCount = previousRollbackCount;
         this.commitRollbackAllowed = prevCommitRollbackAllowed;
         this.resetLastStatement();
 
@@ -547,8 +551,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRollback rollbackNode) {
+        rollbackCount++;
         this.rollbackCountWithinBlock++;
-        if (this.transactionCount == 0) {
+        if (this.transactionCount == 0 && !withinTransactionScope) {
             this.dlog.error(rollbackNode.pos, DiagnosticCode.ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
             return;
         }
@@ -601,7 +606,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.commitCountWithinBlock = 0;
         this.rollbackCountWithinBlock = 0;
         final SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, env);
-        blockNode.stmts.forEach(e -> analyzeNode(e, blockEnv));
+        blockNode.stmts.forEach(e -> {
+            analyzeNode(e, blockEnv);
+        });
         if (commitCountWithinBlock > 1 || rollbackCountWithinBlock > 1) {
             this.dlog.error(blockNode.pos, DiagnosticCode.MAX_ONE_COMMIT_ROLLBACK_ALLOWED_WITHIN_A_BRANCH);
         }
@@ -627,6 +634,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangIf ifStmt) {
         boolean independentBlocks = false;
         int prevCommitCount = commitCount;
+        int prevRollbackCount = rollbackCount;
         this.checkStatementExecutionValidity(ifStmt);
         if (ifStmt.expr.getKind() == NodeKind.TRANSACTIONAL_EXPRESSION) {
             this.withinTransactionScope = true;
@@ -644,12 +652,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 withinTransactionScope = true;
             }
             analyzeNode(ifStmt.elseStmt, env);
-            if (prevCommitCount != commitCount) {
+            if ((prevCommitCount != commitCount) || prevRollbackCount != rollbackCount) {
                 commitRollbackAllowed = false;
             }
             this.statementReturns = ifStmtReturns && this.statementReturns;
         }
         analyzeExpr(ifStmt.expr);
+        if (ifStmt.expr.getKind() == NodeKind.TRANSACTIONAL_EXPRESSION) {
+            this.withinTransactionScope = false;
+        }
     }
 
     @Override

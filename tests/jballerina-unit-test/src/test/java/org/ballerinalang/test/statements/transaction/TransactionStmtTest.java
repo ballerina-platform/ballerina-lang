@@ -48,7 +48,7 @@ public class TransactionStmtTest {
     public void testTransactionNegativeCases() {
         CompileResult resultNegative =
                 BCompileUtil.compile("test-src/statements/transaction/transaction_stmt_negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 20);
+        Assert.assertEquals(resultNegative.getErrorCount(), 21);
         BAssertUtil.validateError(resultNegative, 0, "invalid transaction commit count",
                 5, 5);
         BAssertUtil.validateError(resultNegative, 1, "rollback not allowed here",
@@ -90,5 +90,7 @@ public class TransactionStmtTest {
                 "from a transaction without a commit or a rollback statement", 184, 21);
         BAssertUtil.validateError(resultNegative, 19, "return statement cannot be used to exit " +
                 "from a transaction without a commit or a rollback statement", 188, 21);
+        BAssertUtil.validateError(resultNegative, 20, "invoking transactional function outside " +
+                "transactional scope is prohibited", 207, 16);
     }
 }

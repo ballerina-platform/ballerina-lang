@@ -196,25 +196,14 @@ function testReturnWithinMatchWithinTransaction() returns (string) {
     return "done";
 }
 
-//todo testing for transaction mode
-//function isTransactionalBlockFunc(string str) returns string {
-//    if transactional {
-//        if (str == "test") {
-//            rollback;
-//        } else {
-//            var rslt = testTransactionalInvo(str);
-//        }
-//    }
-//    return str + " non-transactional call";
-//}
-//
-//function testIsTransactionalExp() {
-//    int i = 0;
-//    string|int unionVar = "test";
-//    transaction {
-//        if (unionVar is string) {
-//           var rslt = isTransactionalBlockFunc(unionVar);
-//        }
-//        var o = commit;
-//    }
-//}
+function isTransactionalBlockFunc(string str) returns string {
+    if transactional {
+        if (str == "test") {
+            rollback;
+        } else {
+            var rslt = testTransactionalInvo(str);
+        }
+    }
+    var rslt = testTransactionalInvo(str);
+    return str + " non-transactional call";
+}
