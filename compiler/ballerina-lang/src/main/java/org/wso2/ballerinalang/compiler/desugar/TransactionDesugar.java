@@ -152,10 +152,10 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangLambdaFunction transactionLambdaFunction = desugar.createLambdaFunction(pos, "$anonTransactionFunc$",
                 new ArrayList<>(), transactionLambdaReturnType, body);
 
-        transactionLambdaFunction.function.closureVarSymbols.add(new ClosureVarSymbol(transactionIDVariable.symbol,
-                pos));
-        transactionLambdaFunction.function.closureVarSymbols.add(new ClosureVarSymbol(transactionBlockIDVariable.symbol,
-                pos));
+//        transactionLambdaFunction.function.closureVarSymbols.add(new ClosureVarSymbol(transactionIDVariable.symbol,
+//                pos));
+//        transactionLambdaFunction.function.closureVarSymbols.add(new ClosureVarSymbol(transactionBlockIDVariable.symbol,
+//                pos));
 
 //        BVarSymbol transactionLambdaVarSymbol = new BVarSymbol(0, new Name("trxFunc"),
 //                env.scope.owner.pkgID, transactionLambdaFunction.type, env.scope.owner);
@@ -182,6 +182,8 @@ public class TransactionDesugar extends BLangNodeVisitor {
         transactionFunctionTrapExpression.type = BUnionType.create(null, symTable.errorType, symTable.nilType);
         transactionFunctionTrapExpression.expr = transactionLambdaInvocation;
 
+        transactionLambdaFunction.capturedClosureEnv = env;
+
         BVarSymbol transactionFunctionVarSymbol = new BVarSymbol(0, new Name("result"),
                 env.scope.owner.pkgID, symTable.errorOrNilType, env.scope.owner);
         BLangSimpleVariable transactionFunctionVariable = ASTBuilderUtil.createVariable(pos, "result",
@@ -190,8 +192,8 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 transactionFunctionVariable);
         transactionBlockStmt.stmts.add(transactionFunctionVariableDef);
 
-        ClosureExpressionVisitor closureExpressionVisitor = new ClosureExpressionVisitor(context, env, true);
-        transactionLambdaFunction.accept(closureExpressionVisitor);
+//        ClosureExpressionVisitor closureExpressionVisitor = new ClosureExpressionVisitor(context, env, true);
+//        transactionLambdaFunction.accept(closureExpressionVisitor);
 
         BLangStatementExpression transactionBlockStmtExpr = ASTBuilderUtil.createStatementExpression(transactionBlockStmt,
                 ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE));
