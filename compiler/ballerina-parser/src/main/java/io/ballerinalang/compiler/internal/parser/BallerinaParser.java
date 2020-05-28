@@ -405,6 +405,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseListBindingpatternRhs();
             case MAPPING_BINDING_PATTERN_END:
                 return parseMappingBindingpatternEnd();
+            case FIELD_BINDING_PATTERN_NAME:
             case FIELD_BINDING_PATTERN:
                 return parseFieldBindingPattern();
             case CONSTANT_EXPRESSION_START:
@@ -10646,13 +10647,11 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseFieldBindingPattern(SyntaxKind nextTokenKind) {
         switch (nextTokenKind) {
             case IDENTIFIER_TOKEN:
-                startContext(ParserRuleContext.FIELD_BINDING_PATTERN);
-                STNode identifier = parseIdentifier(ParserRuleContext.FIELD_BINDING_PATTERN);
+                STNode identifier = parseIdentifier(ParserRuleContext.FIELD_BINDING_PATTERN_NAME);
                 STNode fieldBindingPattern = parseFieldBindingPattern(identifier);
-                endContext();
                 return fieldBindingPattern;
             default:
-                Solution solution = recover(peek(), ParserRuleContext.FIELD_BINDING_PATTERN);
+                Solution solution = recover(peek(), ParserRuleContext.FIELD_BINDING_PATTERN_NAME);
 
                 if (solution.action == Action.REMOVE) {
                     return solution.recoveredNode;

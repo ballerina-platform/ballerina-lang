@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.internal.parser;
 
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import sun.nio.cs.Surrogate;
 
 import java.util.ArrayDeque;
 
@@ -655,6 +656,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case WORKER_NAME_OR_METHOD_NAME:
                 case RECEIVE_FIELD_NAME:
                 case WAIT_FIELD_NAME:
+                case FIELD_BINDING_PATTERN_NAME:
                     hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
                     break;
                 case OPEN_PARENTHESIS:
@@ -2296,7 +2298,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MAPPING_BINDING_PATTERN:
                 return ParserRuleContext.OPEN_BRACE;
             case FIELD_BINDING_PATTERN:
-                return ParserRuleContext.VARIABLE_NAME;
+                return ParserRuleContext.FIELD_BINDING_PATTERN_NAME;
+            case FIELD_BINDING_PATTERN_NAME:
+                return ParserRuleContext.FIELD_BINDING_PATTERN_END;
             case PARAMETERIZED_TYPE:
                 return ParserRuleContext.LT;
             case NEW_KEYWORD:
@@ -2570,7 +2574,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LIST_BINDING_PATTERN:
             case MAPPING_BINDING_PATTERN:
             case REST_BINDING_PATTERN:
-            case FIELD_BINDING_PATTERN:
             case TYPED_BINDING_PATTERN:
             case CAPTURE_BINDING_PATTERN:
             case MULTI_RECEIVE_WORKERS:
@@ -2778,9 +2781,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TYPE_DESCRIPTOR;
             case LIST_BINDING_PATTERN:
                 return ParserRuleContext.LIST_BINDING_PATTERN_CONTENTS;
-            case FIELD_BINDING_PATTERN:
-                endContext(); // end field binding pattern
-                // fall through
             case MAPPING_BINDING_PATTERN:
                 return ParserRuleContext.MAPPING_BINDING_PATTERN_MEMBER;
             case MULTI_RECEIVE_WORKERS:
@@ -3075,7 +3075,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return getNextRuleForExpr();
             case LIST_BP_OR_TUPLE_TYPE_DESC:
                 return ParserRuleContext.BRACKETED_LIST_MEMBER_END;
-            case FIELD_BINDING_PATTERN:
             case MAPPING_BINDING_PATTERN:
                 endContext();
                 return getNextRuleForTypedBindingPattern();
@@ -3460,9 +3459,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LIST_BP_OR_TUPLE_TYPE_DESC:
             case BRACKETED_LIST:
                 return ParserRuleContext.LIST_BINDING_PATTERN_END_OR_CONTINUE;
-            case FIELD_BINDING_PATTERN:
-                endContext(); // next round if we have : b-p follow it will go to maping-bp
-                return ParserRuleContext.FIELD_BINDING_PATTERN_END;
             case MAPPING_BINDING_PATTERN:
                 return ParserRuleContext.MAPPING_BINDING_PATTERN_END;
             case REST_BINDING_PATTERN:
@@ -3726,6 +3722,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case PEER_WORKER_NAME:
             case RECEIVE_FIELD_NAME:
             case WAIT_FIELD_NAME:
+            case FIELD_BINDING_PATTERN_NAME:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case VERSION_NUMBER:
             case MAJOR_VERSION:

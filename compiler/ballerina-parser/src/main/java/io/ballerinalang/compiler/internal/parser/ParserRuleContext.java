@@ -173,6 +173,7 @@ public enum ParserRuleContext {
     LIST_BINDING_PATTERN_CONTENTS("list-binding-pattern-content"),
     LIST_BINDING_PATTERN_END_OR_CONTINUE("list-binding-pattern-end-or-continue"),
     FIELD_BINDING_PATTERN("field-binding-pattern"),
+    FIELD_BINDING_PATTERN_NAME("field-binding-pattern-name"),
     MAPPING_BINDING_PATTERN("mapping-binding-pattern"),
     MAPPING_BINDING_PATTERN_MEMBER("mapping-binding-pattern-member"),
     MAPPING_BINDING_PATTERN_END("mapping-binding-pattern-end"),
