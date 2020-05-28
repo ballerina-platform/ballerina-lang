@@ -35,7 +35,7 @@ import java.util.Map;
  * @since 0.982.1
  */
 @Test(groups = "auth-test")
-public class AuthnWithoutHTTPAnnotationsTest extends AuthBaseTest {
+public class AuthnWithoutHttpAnnotationsTest extends AuthBaseTest {
 
     private final int servicePort = 20006;
 

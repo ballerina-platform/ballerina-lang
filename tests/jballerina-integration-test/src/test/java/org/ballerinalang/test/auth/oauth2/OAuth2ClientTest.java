@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
  * Testing OAuth2 client authentication configurations.
  */
 @Test(groups = "auth-test")
-public class OAuth2ConfigTest extends AuthBaseTest {
+public class OAuth2ClientTest extends AuthBaseTest {
 
     private final int servicePort = 20028;
 

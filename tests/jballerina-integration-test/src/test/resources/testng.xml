@@ -123,7 +123,7 @@
             <class name="org.ballerinalang.test.auth.basic.AuthzConfigInheritanceTest"/>
             <class name="org.ballerinalang.test.auth.basic.ResourceLevelAuthTest"/>
             <class name="org.ballerinalang.test.auth.basic.ServiceLevelAuthnTest"/>
-            <class name="org.ballerinalang.test.auth.basic.AuthnWithoutHTTPAnnotationsTest"/>
+            <class name="org.ballerinalang.test.auth.basic.AuthnWithoutHttpAnnotationsTest"/>
             <class name="org.ballerinalang.test.auth.basic.AuthnConfigPatternTest"/>
             <class name="org.ballerinalang.test.auth.basic.AuthzConfigPatternTest"/>
             <class name="org.ballerinalang.test.auth.basic.AuthWithCustomProvidersHandlersTest"/>
@@ -132,8 +132,8 @@
             <class name="org.ballerinalang.test.auth.jwt.AuthnWithExpiredCertificateTest"/>
             <class name="org.ballerinalang.test.auth.jwt.TokenPropagationTest"/>
             <class name="org.ballerinalang.test.auth.jwt.JwkSignatureValidationTest"/>
-            <class name="org.ballerinalang.test.auth.oauth2.AuthnWithOAuth2Test"/>
-            <class name="org.ballerinalang.test.auth.oauth2.OAuth2ConfigTest"/>
+            <class name="org.ballerinalang.test.auth.oauth2.OAuth2ServiceTest"/>
+            <class name="org.ballerinalang.test.auth.oauth2.OAuth2ClientTest"/>
             <class name="org.ballerinalang.test.auth.ldap.LdapAuthStoreTest"/>
         </classes>
     </test>

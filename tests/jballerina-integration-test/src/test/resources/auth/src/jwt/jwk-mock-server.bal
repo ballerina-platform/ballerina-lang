@@ -14,12 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/crypto;
 import ballerina/config;
 import ballerina/http;
-import ballerina/stringutils;
 
-// The mock JWK server, which is to expose the JWK components according to
+// The mock JWK server, which is to expose the JWK components according to the
 // https://tools.ietf.org/html/rfc7517#section-5
 listener http:Listener oauth2Server = new(20103, {
         secureSocket: {
