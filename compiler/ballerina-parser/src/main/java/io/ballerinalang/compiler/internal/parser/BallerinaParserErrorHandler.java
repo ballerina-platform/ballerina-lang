@@ -19,7 +19,6 @@ package io.ballerinalang.compiler.internal.parser;
 
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import sun.nio.cs.Surrogate;
 
 import java.util.ArrayDeque;
 

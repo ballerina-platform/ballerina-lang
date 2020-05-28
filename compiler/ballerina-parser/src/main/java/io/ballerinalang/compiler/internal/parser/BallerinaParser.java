@@ -10682,7 +10682,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseFieldBindingPattern(STNode identifier) {
-        if (peek().kind!=SyntaxKind.COLON_TOKEN) {
+        if (peek().kind != SyntaxKind.COLON_TOKEN) {
             return STNodeFactory.createFieldBindingPatternVarnameNode(identifier);
         }
 
@@ -10701,14 +10701,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 return false;
         }
-    }
-
-    private boolean isEndOfFieldBindingPattern(SyntaxKind nextTokenKind) {
-        if (isEndOfMappingBindingPattern(nextTokenKind) ||
-                nextTokenKind == SyntaxKind.COMMA_TOKEN) {
-            return true;
-        }
-        return false;
     }
 
     /**
