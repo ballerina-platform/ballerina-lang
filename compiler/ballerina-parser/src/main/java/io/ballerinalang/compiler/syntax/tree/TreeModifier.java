@@ -2562,6 +2562,39 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 endBacktick);
     }
 
+    @Override
+    public XMLAtomicNamePatternNode transform(
+            XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
+        Token xmlNamespacePrefix =
+                modifyToken(xMLAtomicNamePatternNode.xmlNamespacePrefix());
+        Token colon =
+                modifyToken(xMLAtomicNamePatternNode.colon());
+        Token endToken =
+                modifyToken(xMLAtomicNamePatternNode.endToken());
+        return xMLAtomicNamePatternNode.modify(
+                xmlNamespacePrefix,
+                colon,
+                endToken);
+    }
+
+    @Override
+    public XMLNavigateExpressionNode transform(
+            XMLNavigateExpressionNode xMLNavigateExpressionNode) {
+        ExpressionNode expression =
+                modifyNode(xMLNavigateExpressionNode.expression());
+        Token dotLtToken =
+                modifyToken(xMLNavigateExpressionNode.dotLtToken());
+        SeparatedNodeList<Node> xmlNamePattern =
+                modifySeparatedNodeList(xMLNavigateExpressionNode.xmlNamePattern());
+        Token gtToken =
+                modifyToken(xMLNavigateExpressionNode.gtToken());
+        return xMLNavigateExpressionNode.modify(
+                expression,
+                dotLtToken,
+                xmlNamePattern,
+                gtToken);
+    }
+
     // Tokens
 
     @Override

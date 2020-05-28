@@ -480,6 +480,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseBase16Keyword();
             case BASE64_KEYWORD:
                 return parseBase64Keyword();
+            case DOT_LT_TOKEN:
+                return parseDotLTToken();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -2691,6 +2693,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_PAREN_TOKEN:
             case ANNOT_CHAINING_TOKEN:
             case OPTIONAL_CHAINING_TOKEN:
+            case DOT_LT_TOKEN:
                 return OperatorPrecedence.MEMBER_ACCESS;
             case DOUBLE_EQUAL_TOKEN:
             case TRIPPLE_EQUAL_TOKEN:
@@ -4605,6 +4608,9 @@ public class BallerinaParser extends AbstractParser {
             case QUESTION_MARK_TOKEN:
                 newLhsExpr = parseConditionalExpression(lhsExpr);
                 break;
+            case DOT_LT_TOKEN:
+                newLhsExpr = parseXMLNavigateExpression(lhsExpr);
+                break;
             default:
                 if (tokenKind == SyntaxKind.DOUBLE_GT_TOKEN) {
                     operator = parseSignedRightShiftToken();
@@ -4644,6 +4650,7 @@ public class BallerinaParser extends AbstractParser {
             case OPTIONAL_CHAINING_TOKEN:
             case QUESTION_MARK_TOKEN:
             case COLON_TOKEN:
+            case DOT_LT_TOKEN:
                 return true;
             default:
                 return isBinaryOperator(tokenKind);
@@ -12024,5 +12031,118 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return content;
+    }
+
+    /**
+     * Parse xml navigate expression.
+     * <p>
+     * <code>conditional-expr := expression ? expression : expression</code>
+     *
+     * @param lhsExpr Preceding expression of the question mark
+     * @return Parsed node
+     */
+    private STNode parseXMLNavigateExpression(STNode lhsExpr) {
+        STNode dotLTToken = parseDotLTToken();
+        STNode xmlNamePattern = parseXMLNamePattern();
+        STNode gtToken = parseGTToken();
+        return STNodeFactory.createXMLNavigateExpressionNode(lhsExpr, dotLTToken, xmlNamePattern, gtToken);
+    }
+
+    /**
+     * Parse <code> .< </code> token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseDotLTToken() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.DOT_LT_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(nextToken, ParserRuleContext.DOT_LT_TOKEN);
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseXMLNamePattern() {
+        List<STNode> xmlAtomicNamePatternList = new ArrayList<>();
+        STToken nextToken = peek();
+
+        // Return an empty list
+        if (isEndOfXMLNamePattern(nextToken.kind)) {
+            this.errorHandler.reportMissingTokenError("missing xml atomic name pattern");
+            return STNodeFactory.createNodeList(xmlAtomicNamePatternList);
+        }
+
+        // Parse first xml atomic name pattern, that has no leading pipe token
+        STNode xmlAtomicNamePattern = parseXMLAtomicNamePattern();
+        xmlAtomicNamePatternList.add(xmlAtomicNamePattern);
+
+        // Parse the remaining xml atomic name patterns
+        nextToken = peek();
+        STNode leadingPipe;
+        while (!isEndOfXMLNamePattern(nextToken.kind)) {
+            leadingPipe = parsePipeToken();
+            xmlAtomicNamePatternList.add(leadingPipe);
+            xmlAtomicNamePattern = parseXMLAtomicNamePattern();
+            xmlAtomicNamePatternList.add(xmlAtomicNamePattern);
+            nextToken = peek();
+        }
+
+        return STNodeFactory.createNodeList(xmlAtomicNamePatternList);
+    }
+
+    private boolean isEndOfXMLNamePattern(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case IDENTIFIER_TOKEN:
+            case ASTERISK_TOKEN:
+            case COLON_TOKEN:
+                return false;
+            case GT_TOKEN:
+            case EOF_TOKEN:
+            case AT_TOKEN:
+            case DOCUMENTATION_LINE:
+            case CLOSE_BRACE_TOKEN:
+            case SEMICOLON_TOKEN:
+            case PUBLIC_KEYWORD:
+            case PRIVATE_KEYWORD:
+            case FUNCTION_KEYWORD:
+            case RETURNS_KEYWORD:
+            case SERVICE_KEYWORD:
+            case TYPE_KEYWORD:
+            case LISTENER_KEYWORD:
+            case CONST_KEYWORD:
+            case FINAL_KEYWORD:
+            case RESOURCE_KEYWORD:
+                return true;
+            default:
+                return isSimpleType(tokenKind);
+        }
+    }
+
+    private STNode parseXMLAtomicNamePattern() {
+        STToken token = peek();
+
+        if (token.kind == SyntaxKind.ASTERISK_TOKEN) {
+            return consume();
+        } else if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+            STNode identifier = consume();
+
+            STToken nextToken = peek();
+            if (nextToken.kind != SyntaxKind.COLON_TOKEN) {
+                return STNodeFactory.createSimpleNameReferenceNode(identifier);
+            } else {
+                STNode colon = consume();
+
+                STToken nextNextToken = peek();
+                if (nextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+                    STNode endIdentifier = consume();
+                    return STNodeFactory.createXMLAtomicNamePatternNode(identifier, colon, endIdentifier);
+                } else if (nextNextToken.kind == SyntaxKind.ASTERISK_TOKEN) {
+                    STNode asterisk = consume();
+                    return STNodeFactory.createXMLAtomicNamePatternNode(identifier, colon, asterisk);
+                }
+            }
+        }
+        return STNodeFactory.createEmptyNode();
     }
 }

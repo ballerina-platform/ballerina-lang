@@ -2540,5 +2540,38 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 endBacktick.internalNode());
         return stByteArrayLiteralNode.createUnlinkedFacade();
     }
+
+    public static XMLAtomicNamePatternNode createXMLAtomicNamePatternNode(
+            Token xmlNamespacePrefix,
+            Token colon,
+            Token endToken) {
+        Objects.requireNonNull(xmlNamespacePrefix, "xmlNamespacePrefix must not be null");
+        Objects.requireNonNull(colon, "colon must not be null");
+        Objects.requireNonNull(endToken, "endToken must not be null");
+
+        STNode stXMLAtomicNamePatternNode = STNodeFactory.createXMLAtomicNamePatternNode(
+                xmlNamespacePrefix.internalNode(),
+                colon.internalNode(),
+                endToken.internalNode());
+        return stXMLAtomicNamePatternNode.createUnlinkedFacade();
+    }
+
+    public static XMLNavigateExpressionNode createXMLNavigateExpressionNode(
+            ExpressionNode expression,
+            Token dotLtToken,
+            SeparatedNodeList<Node> xmlNamePattern,
+            Token gtToken) {
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(dotLtToken, "dotLtToken must not be null");
+        Objects.requireNonNull(xmlNamePattern, "xmlNamePattern must not be null");
+        Objects.requireNonNull(gtToken, "gtToken must not be null");
+
+        STNode stXMLNavigateExpressionNode = STNodeFactory.createXMLNavigateExpressionNode(
+                expression.internalNode(),
+                dotLtToken.internalNode(),
+                xmlNamePattern.underlyingListNode().internalNode(),
+                gtToken.internalNode());
+        return stXMLNavigateExpressionNode.createUnlinkedFacade();
+    }
 }
 

@@ -667,6 +667,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(byteArrayLiteralNode);
     }
 
+    public void visit(XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
+        visitSyntaxNode(xMLAtomicNamePatternNode);
+    }
+
+    public void visit(XMLNavigateExpressionNode xMLNavigateExpressionNode) {
+        visitSyntaxNode(xMLNavigateExpressionNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

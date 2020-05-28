@@ -668,6 +668,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(byteArrayLiteralNode);
     }
 
+    public T transform(XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
+        return transformSyntaxNode(xMLAtomicNamePatternNode);
+    }
+
+    public T transform(XMLNavigateExpressionNode xMLNavigateExpressionNode) {
+        return transformSyntaxNode(xMLNavigateExpressionNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

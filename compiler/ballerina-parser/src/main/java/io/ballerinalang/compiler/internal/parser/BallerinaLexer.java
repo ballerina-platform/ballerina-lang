@@ -464,6 +464,9 @@ public class BallerinaLexer extends AbstractLexer {
         } else if (nexChar == LexerTerminals.AT) {
             reader.advance();
             return getSyntaxToken(SyntaxKind.ANNOT_CHAINING_TOKEN);
+        } else if (nexChar == LexerTerminals.LT) {
+            reader.advance();
+            return getSyntaxToken(SyntaxKind.DOT_LT_TOKEN);
         }
 
         if (this.mode != ParserMode.IMPORT && isDigit(nexChar)) {

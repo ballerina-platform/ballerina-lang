@@ -1890,5 +1890,29 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 content,
                 endBacktick);
     }
+
+    public static STNode createXMLAtomicNamePatternNode(
+            STNode xmlNamespacePrefix,
+            STNode colon,
+            STNode endToken) {
+
+        return new STXMLAtomicNamePatternNode(
+                xmlNamespacePrefix,
+                colon,
+                endToken);
+    }
+
+    public static STNode createXMLNavigateExpressionNode(
+            STNode expression,
+            STNode dotLtToken,
+            STNode xmlNamePattern,
+            STNode gtToken) {
+
+        return new STXMLNavigateExpressionNode(
+                expression,
+                dotLtToken,
+                xmlNamePattern,
+                gtToken);
+    }
 }
 

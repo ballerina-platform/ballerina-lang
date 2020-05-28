@@ -343,6 +343,7 @@ public enum ParserRuleContext {
     LEFT_ARROW_TOKEN("<-"),
     ANNOT_CHAINING_TOKEN(".@"),
     OPTIONAL_CHAINING_TOKEN("?."),
+    DOT_LT_TOKEN(".<"),
 
     // Other terminals
     FUNC_NAME("function-name"),

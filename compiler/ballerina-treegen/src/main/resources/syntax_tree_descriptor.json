@@ -3387,6 +3387,49 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "XMLAtomicNamePatternNode",
+            "base": "Node",
+            "kind": "XML_ATOMIC_NAME_PATTERN",
+            "attributes": [
+                {
+                    "name": "xmlNamespacePrefix",
+                    "type": "Token"
+                },
+                {
+                    "name": "colon",
+                    "type": "Token"
+                },
+                {
+                    "name": "endToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "XMLNavigateExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "XML_NAVIGATE_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "dotLtToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "xmlNamePattern",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "gtToken",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }
