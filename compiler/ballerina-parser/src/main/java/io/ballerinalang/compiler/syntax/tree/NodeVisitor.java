@@ -663,6 +663,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(serviceConstructorExpressionNode);
     }
 
+    public void visit(ByteArrayLiteralNode byteArrayLiteralNode) {
+        visitSyntaxNode(byteArrayLiteralNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

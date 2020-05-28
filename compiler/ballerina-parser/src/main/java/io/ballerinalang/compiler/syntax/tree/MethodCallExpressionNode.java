@@ -40,7 +40,7 @@ public class MethodCallExpressionNode extends ExpressionNode {
         return childInBucket(1);
     }
 
-    public Token methodName() {
+    public NameReferenceNode methodName() {
         return childInBucket(2);
     }
 
@@ -80,7 +80,7 @@ public class MethodCallExpressionNode extends ExpressionNode {
     public MethodCallExpressionNode modify(
             ExpressionNode expression,
             Token dotToken,
-            Token methodName,
+            NameReferenceNode methodName,
             Token openParenToken,
             NodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
@@ -116,7 +116,7 @@ public class MethodCallExpressionNode extends ExpressionNode {
         private final MethodCallExpressionNode oldNode;
         private ExpressionNode expression;
         private Token dotToken;
-        private Token methodName;
+        private NameReferenceNode methodName;
         private Token openParenToken;
         private NodeList<FunctionArgumentNode> arguments;
         private Token closeParenToken;
@@ -146,7 +146,7 @@ public class MethodCallExpressionNode extends ExpressionNode {
         }
 
         public MethodCallExpressionNodeModifier withMethodName(
-                Token methodName) {
+                NameReferenceNode methodName) {
             Objects.requireNonNull(methodName, "methodName must not be null");
             this.methodName = methodName;
             return this;

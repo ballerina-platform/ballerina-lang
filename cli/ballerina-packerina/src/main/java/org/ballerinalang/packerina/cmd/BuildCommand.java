@@ -399,13 +399,13 @@ public class BuildCommand implements BLauncherCmd {
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
                 .addTask(new CreateTargetDirTask()) // create target directory
-                .addTask(new CompileTask()) // compile the modules
+                .addTask(new CompileTask(skipCopyLibsFromDist)) // compile the modules
                 .addTask(new CreateLockFileTask(), this.skipLock || isSingleFileBuild)  // create a lock file if
                                                             // the given skipLock flag does not exist(projects only)
                 .addTask(new ResolveMavenDependenciesTask(), this.compile)
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the BALOs for modules (projects only)
                 .addTask(new CreateBirTask())   // create the bir
-                .addTask(new CopyNativeLibTask(skipCopyLibsFromDist))    // copy the native libs(projects only)
+                .addTask(new CopyNativeLibTask())    // copy the native libs(projects only)
                 // create the jar.
                 .addTask(new CreateJarTask(this.dumpBIR, skipCopyLibsFromDist))
                 .addTask(new CopyResourcesTask(), isSingleFileBuild)

@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -32,8 +33,8 @@ public class ImportSubVersionNode extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public Token leadingDot() {
-        return childInBucket(0);
+    public Optional<Token> leadingDot() {
+        return optionalChildInBucket(0);
     }
 
     public Token versionNumber() {
@@ -87,7 +88,7 @@ public class ImportSubVersionNode extends NonTerminalNode {
 
         public ImportSubVersionNodeModifier(ImportSubVersionNode oldNode) {
             this.oldNode = oldNode;
-            this.leadingDot = oldNode.leadingDot();
+            this.leadingDot = oldNode.leadingDot().orElse(null);
             this.versionNumber = oldNode.versionNumber();
         }
 

@@ -104,7 +104,7 @@ public class SmtpComplexEmailSendTest {
         compileResult = BCompileUtil.compileOffline(true, sourceFilePath.toAbsolutePath().toString());
     }
 
-    @Test(description = "Test for sending an email with all the parameters", enabled = false)
+    @Test(description = "Test for sending an email with all the parameters")
     public void testSendComplexEmail() throws MessagingException, IOException {
         BValue[] args = { new BString(HOST_NAME), new BString(USER_NAME), new BString(USER_PASSWORD),
                 new BString(EMAIL_SUBJECT), new BString(EMAIL_TEXT), new BString(EMAIL_CONTENT_TYPE),
@@ -160,7 +160,7 @@ public class SmtpComplexEmailSendTest {
     private static void testAttachment3(MimeBodyPart bodyPart) throws IOException, MessagingException {
         InputStream input = bodyPart.getInputStream();
         assertEquals("<name>Ballerina xml file part</name>", convertInputStreamToString(input));
-        assertEquals("text/xml", bodyPart.getContentType());
+        assertTrue(bodyPart.getContentType().startsWith("text/xml"));
     }
 
     private static void testAttachment4(MimeBodyPart bodyPart) throws MessagingException, IOException {
