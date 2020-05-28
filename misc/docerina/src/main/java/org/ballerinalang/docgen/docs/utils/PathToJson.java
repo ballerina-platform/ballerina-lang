@@ -32,6 +32,8 @@ import java.nio.file.Paths;
 
 /**
  * Used to convert Path objects to JSON.
+ *
+ * @since 2.0.0
  */
 public class PathToJson implements JsonDeserializer<Path>, JsonSerializer<Path> {
     @Override

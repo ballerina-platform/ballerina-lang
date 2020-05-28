@@ -82,7 +82,6 @@ public class CreateDocsTask implements Task {
                 throw createLauncherException("Unable to generate API Documentation.");
             }
         }
-
     }
 
     static class EmptyPrintStream extends PrintStream {

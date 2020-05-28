@@ -57,7 +57,6 @@ public class Module {
     public List<FiniteType> finiteTypes = new ArrayList<>();
     @Expose
     public List<UnionType> unionTypes = new ArrayList<>();
-
     @Expose
     public List<Path> resources = new ArrayList<>();
 }
