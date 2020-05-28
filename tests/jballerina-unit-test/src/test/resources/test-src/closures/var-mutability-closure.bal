@@ -319,7 +319,7 @@ function test13() returns AccountNotFoundError {
 
    var addFunc1 = function () returns AccountNotFoundError{
         var addFunc2 = function () returns AccountNotFoundError {
-              accountNotFoundError = error(accountNotFoundError.reason(), accountID = 222);
+              accountNotFoundError = error(accountNotFoundError.message(), accountID = 222);
               return accountNotFoundError;
         };
         return addFunc2();

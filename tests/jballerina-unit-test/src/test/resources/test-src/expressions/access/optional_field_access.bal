@@ -281,14 +281,14 @@ function testOptionalFieldAccessErrorLiftingOnLaxUnion() returns boolean {
 
 function assertNonMappingJsonError(json|error je) returns boolean {
     if (je is error) {
-        return je.reason() == "{ballerina}JSONOperationError" && je.detail()?.message == "JSON value is not a mapping";
+        return je.message() == "{ballerina}JSONOperationError" && je.detail()?.message == "JSON value is not a mapping";
     }
     return false;
 }
 
 function assertKeyNotFoundError(json|error je, string key) returns boolean {
     if (je is error) {
-        return je.reason() == "{ballerina}KeyNotFound" &&
+        return je.message() == "{ballerina}KeyNotFound" &&
                                 je.detail()?.message == "Key '" + key + "' not found in JSON mapping";
     }
     return false;

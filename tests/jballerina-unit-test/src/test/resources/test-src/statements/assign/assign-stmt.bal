@@ -93,7 +93,7 @@ function testAssignErrorArrayToAny() {
     error[] errorArray = [testError];
     any anyVal = errorArray;
     error[] errorArrayBack = <error[]>anyVal;
-    assertEquality(errorReason, errorArrayBack[0].reason());
+    assertEquality(errorReason, errorArrayBack[0].message());
 }
 
 function testAssignIntArrayToJson() {

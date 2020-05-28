@@ -121,7 +121,7 @@ function testErrorInTuple() returns [int, string, string, anydata|error, boolean
 
     [intVar, stringVar, errorVar, [errorVar2, fooVar]] = t1;
 
-    return [intVar, stringVar, errorVar.reason(), errorVar2.detail()["message"], fooVar.fatal];
+    return [intVar, stringVar, errorVar.message(), errorVar2.detail()["message"], fooVar.fatal];
 }
 
 function testErrorInTupleWithDestructure() returns [int, string, string, map<anydata|error>, boolean] {

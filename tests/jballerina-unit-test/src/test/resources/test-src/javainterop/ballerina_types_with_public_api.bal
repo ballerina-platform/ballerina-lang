@@ -37,7 +37,7 @@ public function acceptRefTypesAndReturnMap(Person a, [int, string, Person] b, in
 
 public function interopWithErrorReturn() returns string {
     error e = acceptStringErrorReturn("example error with given reason");
-    return e.reason();
+    return e.message();
 }
 
 public function acceptStringErrorReturn(string s) returns error = @java:Method {

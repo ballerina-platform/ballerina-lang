@@ -375,8 +375,8 @@ public function testCloneArrayWithError() returns boolean {
 
     foreach int i in 0 ... 3 {
         cloneSuccessful = cloneSuccessful &&
-                            errArray[i].reason() == clonedErrArray[i].reason() &&
-                            errArray[i].reason() == reasonArray[i] &&
+                            errArray[i].message() == clonedErrArray[i].message() &&
+                            errArray[i].message() == reasonArray[i] &&
                             errArray[i].detail() === clonedErrArray[i].detail();
     }
     return cloneSuccessful;

@@ -77,14 +77,14 @@ function testSimpleAssignmentForInherentlyImmutableBasicTypes() {
     readonly h = err;
     assertTrue(h is error);
     error errorVal = <error> h;
-    assertEquality("Reason", errorVal.reason());
+    assertEquality("Reason", errorVal.message());
     assertEquality("error message", errorVal.detail()?.message);
 
     error myError = AssertionError(message = "second error message");
     readonly i = myError;
     assertTrue(i is error);
     errorVal = <error> i;
-    assertEquality(ASSERTION_ERROR_REASON, errorVal.reason());
+    assertEquality(ASSERTION_ERROR_REASON, errorVal.message());
     assertEquality("second error message", errorVal.detail()?.message);
 
     readonly j = assertTrue;
