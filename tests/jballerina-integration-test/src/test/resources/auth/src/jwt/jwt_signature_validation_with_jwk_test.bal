@@ -22,7 +22,15 @@ jwt:InboundJwtAuthProvider jwtAuthProvider22 = new({
     issuer: "https://localhost:9443/oauth2/token",
     audience: "vEwzbcasJVQm1jVYHUHCjhxZ4tYa",
     signatureConfig: {
-        url: "https://localhost:20103/oauth2/jwks"
+        url: "https://localhost:20103/oauth2/jwks",
+        clientConfig: {
+            secureSocket: {
+                trustStore: {
+                    path: config:getAsString("truststore"),
+                    password: "ballerina"
+                }
+            }
+        }
     }
 });
 
