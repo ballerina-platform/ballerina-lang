@@ -16,6 +16,9 @@
 package org.ballerinalang.langserver.compiler.format;
 
 import io.ballerinalang.compiler.syntax.tree.AbstractNodeFactory;
+import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
+import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionListItemNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
@@ -33,13 +36,20 @@ import io.ballerinalang.compiler.syntax.tree.MinutiaeList;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeFactory;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
+import io.ballerinalang.compiler.syntax.tree.ParameterNode;
+import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ServiceBodyNode;
 import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.StatementNode;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.syntax.tree.TreeModifier;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
+import io.ballerinalang.compiler.text.LinePosition;
+import io.ballerinalang.compiler.text.LineRange;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * Modifies the given tree to format the nodes.
@@ -53,21 +63,15 @@ public class FormattingTreeModifier extends TreeModifier {
         Token functionKeyword = getToken(functionDefinitionNode.functionKeyword());
         Token functionName = getToken(functionDefinitionNode.functionName());
 
-        FunctionSignatureNode functionSignatureNode = functionDefinitionNode.functionSignature();
+        FunctionSignatureNode functionSignatureNode = this.modifyNode(functionDefinitionNode.functionSignature());
         Token functionSignatureOpenPara = getToken(functionSignatureNode.openParenToken());
         Token functionSignatureClosePara = getToken(functionSignatureNode.closeParenToken());
 
         FunctionBodyNode functionBodyNode = this.modifyNode(functionDefinitionNode.functionBody());
 
         if (visibilityQualifier != null) {
-            return functionDefinitionNode.modify()
+            functionDefinitionNode = functionDefinitionNode.modify()
                     .withVisibilityQualifier(formatToken(visibilityQualifier, 0, 0, 0))
-                    .withFunctionKeyword(formatToken(functionKeyword, 1, 0, 0))
-                    .withFunctionName((IdentifierToken) formatToken(functionName, 1, 0, 0))
-                    .withFunctionSignature(functionSignatureNode
-                            .modify(functionSignatureOpenPara, functionSignatureNode.parameters(),
-                                    functionSignatureClosePara, null))
-                    .withFunctionBody(functionBodyNode)
                     .apply();
         }
         return functionDefinitionNode.modify()
@@ -77,6 +81,67 @@ public class FormattingTreeModifier extends TreeModifier {
                         .modify(functionSignatureOpenPara, functionSignatureNode.parameters(),
                                 functionSignatureClosePara, null))
                 .withFunctionBody(functionBodyNode)
+                .apply();
+    }
+
+    @Override
+    public FunctionSignatureNode transform(FunctionSignatureNode functionSignatureNode) {
+        Token openPara = getToken(functionSignatureNode.openParenToken());
+        Token closePara = getToken(functionSignatureNode.closeParenToken());
+
+        NodeList<ParameterNode> parameters = this.modifyNodeList(functionSignatureNode.parameters());
+        ReturnTypeDescriptorNode returnTypeDescriptorNode = functionSignatureNode.returnTypeDesc().orElse(null);
+
+        if (returnTypeDescriptorNode != null) {
+            returnTypeDescriptorNode = this.modifyNode(returnTypeDescriptorNode);
+            functionSignatureNode = functionSignatureNode.modify()
+                    .withReturnTypeDesc(returnTypeDescriptorNode)
+                    .apply();
+        }
+
+        return functionSignatureNode.modify()
+                .withOpenParenToken(formatToken(openPara, 0, 0, 0))
+                .withCloseParenToken(formatToken(closePara, 0, 0, 0))
+                .withParameters(parameters)
+                .apply();
+    }
+
+    @Override
+    public RequiredParameterNode transform(RequiredParameterNode requiredParameterNode) {
+        Token paramName = getToken(requiredParameterNode.paramName().orElse(null));
+        Token leadingComma = getToken(requiredParameterNode.leadingComma().orElse(null));
+        Token visibilityQualifier = getToken(requiredParameterNode.visibilityQualifier().orElse(null));
+
+        NodeList<AnnotationNode> annotations = this.modifyNodeList(requiredParameterNode.annotations());
+        Node typeName = this.modifyNode(requiredParameterNode.typeName());
+
+        if (leadingComma != null) {
+            requiredParameterNode = requiredParameterNode.modify()
+                    .withLeadingComma(formatToken(leadingComma, 0, 1, 0))
+                    .apply();
+        }
+        if (paramName != null) {
+            requiredParameterNode = requiredParameterNode.modify()
+                    .withParamName(formatToken(paramName, 1, 0, 0))
+                    .apply();
+        }
+        if (visibilityQualifier != null) {
+            requiredParameterNode = requiredParameterNode.modify()
+                    .withVisibilityQualifier(formatToken(visibilityQualifier, 0, 0, 0))
+                    .apply();
+        }
+        return requiredParameterNode.modify()
+                .withAnnotations(annotations)
+                .withTypeName(typeName)
+                .apply();
+    }
+
+    @Override
+    public BuiltinSimpleNameReferenceNode transform(BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
+        Token name = getToken(builtinSimpleNameReferenceNode.name());
+
+        return builtinSimpleNameReferenceNode.modify()
+                .withName(formatToken(name, 0, 0, 0))
                 .apply();
     }
 
@@ -133,34 +198,95 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
-//    @Override
-//    public PositionalArgumentNode transform(PositionalArgumentNode positionalArgumentNode) {
-//        ExpressionNode expression = this.modifyNode(positionalArgumentNode.expression());
-//        Token leadingComma = positionalArgumentNode.leadingComma();
-//        if (leadingComma != null) {
-//            leadingComma = getToken(leadingComma);
-//        }
-//
-//        if (leadingComma != null) {
-//            return positionalArgumentNode.modify()
-//                    .withExpression(expression)
-//                    .withLeadingComma(formatToken(leadingComma, 0, 0, 0))
-//                    .apply();
-//        }
-//        return positionalArgumentNode.modify()
-//                .withExpression(expression)
-//                .withLeadingComma(positionalArgumentNode.leadingComma())
-//                .apply();
-//    }
-//
-//    @Override
-//    public BasicLiteralNode transform(BasicLiteralNode basicLiteralNode) {
-//        Token literalToken = getToken(basicLiteralNode.literalToken());
-//
-//        return basicLiteralNode.modify()
-//                .withLiteralToken(formatToken(literalToken, 0, 0, 0))
-//                .apply();
-//    }
+    @Override
+    public PositionalArgumentNode transform(PositionalArgumentNode positionalArgumentNode) {
+        ExpressionNode expression = this.modifyNode(positionalArgumentNode.expression());
+
+        Token leadingComma = getToken(positionalArgumentNode.leadingComma().orElse(null));
+
+        if (leadingComma != null) {
+            return positionalArgumentNode.modify()
+                    .withExpression(expression)
+                    .withLeadingComma(formatToken(leadingComma, 0, 0, 0))
+                    .apply();
+        }
+
+        return positionalArgumentNode.modify()
+                .withExpression(expression)
+                .apply();
+    }
+
+    @Override
+    public BasicLiteralNode transform(BasicLiteralNode basicLiteralNode) {
+        Token literalToken = getToken(basicLiteralNode.literalToken());
+
+        return basicLiteralNode.modify()
+                .withLiteralToken(formatToken(literalToken, 0, 0, 0))
+                .apply();
+    }
+
+
+    @Override
+    public ServiceDeclarationNode transform(ServiceDeclarationNode serviceDeclarationNode) {
+        Token serviceKeyword = getToken(serviceDeclarationNode.serviceKeyword());
+        IdentifierToken serviceName = (IdentifierToken) getToken(serviceDeclarationNode.serviceName());
+        Token onKeyword = getToken(serviceDeclarationNode.onKeyword());
+
+        MetadataNode metadata = this.modifyNode(serviceDeclarationNode.metadata());
+//        NodeList<ExpressionNode> expressions = this.modifyNodeList(serviceDeclarationNode.expressions());
+        Node serviceBody = this.modifyNode(serviceDeclarationNode.serviceBody());
+
+        return serviceDeclarationNode.modify()
+                .withServiceKeyword(formatToken(serviceKeyword, 0, 0, 1))
+                .withServiceName((IdentifierToken) formatToken(serviceName, 1, 0, 0))
+                .withOnKeyword(formatToken(onKeyword, 1, 0, 0))
+//                .withExpressions(expressions)
+                .withMetadata(metadata)
+                .withServiceBody(serviceBody)
+                .apply();
+    }
+
+    @Override
+    public ServiceBodyNode transform(ServiceBodyNode serviceBodyNode) {
+        Token openBraceToken = getToken(serviceBodyNode.openBraceToken());
+        Token closeBraceToken = getToken(serviceBodyNode.closeBraceToken());
+        NodeList<Node> resources = this.modifyNodeList(serviceBodyNode.resources());
+
+        return serviceBodyNode.modify()
+                .withOpenBraceToken(formatToken(openBraceToken, 0, 0, 0))
+                .withCloseBraceToken(formatToken(closeBraceToken, 0, 0, 0))
+                .withResources(resources)
+                .apply();
+    }
+
+    @Override
+    public ExpressionListItemNode transform(ExpressionListItemNode expressionListItemNode) {
+        ExpressionNode expression = expressionListItemNode.expression();
+        Token commaToken = getToken(expressionListItemNode.leadingComma().orElse(null));
+
+        if (commaToken != null) {
+            return expressionListItemNode.modify()
+                    .withExpression(expression)
+                    .withLeadingComma(formatToken(commaToken, 0, 0, 0))
+                    .apply();
+        }
+        return expressionListItemNode.modify()
+                .withExpression(expression)
+                .apply();
+    }
+
+    @Override
+    public ExplicitNewExpressionNode transform(ExplicitNewExpressionNode explicitNewExpressionNode) {
+        Token newKeywordToken = getToken(explicitNewExpressionNode.newKeyword());
+        Node parenthesizedArgList = explicitNewExpressionNode.parenthesizedArgList();
+        TypeDescriptorNode typeDescriptorNode = explicitNewExpressionNode.typeDescriptor();
+
+        return explicitNewExpressionNode.modify()
+                .withNewKeyword(formatToken(newKeywordToken, 1, 0, 0))
+                .withParenthesizedArgList(parenthesizedArgList)
+                .withTypeDescriptor(typeDescriptorNode)
+                .apply();
+    }
 
     private Token formatToken(Token token, int leadingSpaces, int trailingSpaces, int newLines) {
         MinutiaeList leadingMinutiaeList = token.leadingMinutiae();
@@ -193,5 +319,16 @@ public class FormattingTreeModifier extends TreeModifier {
         if (node == null) return node;
         return node.modify(AbstractNodeFactory.createEmptyMinutiaeList(),
                 AbstractNodeFactory.createEmptyMinutiaeList());
+    }
+
+    private DiagnosticPos getPosition(Node node) {
+        if (node == null) {
+            return null;
+        }
+        LineRange lineRange = node.lineRange();
+        LinePosition startPos = lineRange.startLine();
+        LinePosition endPos = lineRange.endLine();
+        return new DiagnosticPos(null, startPos.line() + 1, endPos.line() + 1,
+                startPos.offset() + 1, endPos.offset() + 1);
     }
 }
