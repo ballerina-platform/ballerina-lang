@@ -49,6 +49,8 @@ import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION;
@@ -60,7 +62,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DIST_BIR_
  * @since 2.0.0
  */
 public class NativeDependencyResolverImpl implements NativeDependencyResolver {
-    private static final CompilerContext.Key<NativeDependencyResolver> JAR_RESOLVER_KEY = new CompilerContext.Key<>();
+
     private List<String> supportedPlatforms = Arrays.stream(ProgramFileConstants.SUPPORTED_PLATFORMS)
             .collect(Collectors.toList());
     private final BuildContext buildContext;
@@ -121,6 +123,7 @@ public class NativeDependencyResolverImpl implements NativeDependencyResolver {
         } else {
             addLibsFromHomeBaloCache(packageID, modulePlatformLibs);
         }
+        modulePlatformLibs.add(getRuntimeAllJarPath());
         return modulePlatformLibs;
     }
 
@@ -142,6 +145,7 @@ public class NativeDependencyResolverImpl implements NativeDependencyResolver {
                 }
             }
         }
+        testPlatformLibs.add(getRuntimeAllJarPath());
         return testPlatformLibs;
     }
 
@@ -324,5 +328,12 @@ public class NativeDependencyResolverImpl implements NativeDependencyResolver {
             }
         }
         return jarPath;
+    }
+
+    private Path getRuntimeAllJarPath() {
+
+        String ballerinaVersion = RepoUtils.getBallerinaVersion();
+        String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
+        return Paths.get(balHomePath, BALLERINA_HOME_BRE, BALLERINA_HOME_LIB, runtimeJarName);
     }
 }
