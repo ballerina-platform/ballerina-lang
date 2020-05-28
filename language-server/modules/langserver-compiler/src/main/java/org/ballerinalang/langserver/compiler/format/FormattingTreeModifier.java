@@ -30,6 +30,11 @@ import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
+import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.ImportOrgNameNode;
+import io.ballerinalang.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerinalang.compiler.syntax.tree.ImportSubVersionNode;
+import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
 import io.ballerinalang.compiler.syntax.tree.MetadataNode;
 import io.ballerinalang.compiler.syntax.tree.Minutiae;
 import io.ballerinalang.compiler.syntax.tree.MinutiaeList;
@@ -41,6 +46,7 @@ import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerinalang.compiler.syntax.tree.ServiceBodyNode;
 import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.StatementNode;
@@ -58,6 +64,89 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
  */
 public class FormattingTreeModifier extends TreeModifier {
     @Override
+    public ImportDeclarationNode transform(ImportDeclarationNode importDeclarationNode) {
+        Token importKeyword = getToken(importDeclarationNode.importKeyword());
+        Token semicolon = getToken(importDeclarationNode.semicolon());
+
+        SeparatedNodeList<IdentifierToken> moduleNames = this.modifySeparatedNodeList(
+                importDeclarationNode.moduleName());
+        Node orgName = importDeclarationNode.orgName().orElse(null);
+        Node prefix = importDeclarationNode.prefix().orElse(null);
+        Node version = importDeclarationNode.version().orElse(null);
+
+        if (orgName != null) {
+            importDeclarationNode = importDeclarationNode.modify().withOrgName(this.modifyNode(orgName)).apply();
+        }
+        if (prefix != null) {
+            importDeclarationNode = importDeclarationNode.modify().withPrefix(this.modifyNode(prefix)).apply();
+        }
+        if (version != null) {
+            importDeclarationNode = importDeclarationNode.modify().withVersion(this.modifyNode(version)).apply();
+        }
+
+        return importDeclarationNode.modify()
+                .withImportKeyword(formatToken(importKeyword, 0, 0, 0, 0))
+                .withModuleName(moduleNames)
+                .withSemicolon(formatToken(semicolon, 0, 0, 0, 1))
+                .apply();
+    }
+
+    @Override
+    public ImportOrgNameNode transform(ImportOrgNameNode importOrgNameNode) {
+        Token orgName = getToken(importOrgNameNode.orgName());
+        Token slashToken = getToken(importOrgNameNode.slashToken());
+
+        return importOrgNameNode.modify()
+                .withOrgName(formatToken(orgName, 1, 0, 0, 0))
+                .withSlashToken(formatToken(slashToken, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public ImportPrefixNode transform(ImportPrefixNode importPrefixNode) {
+        Token asKeyword = getToken(importPrefixNode.asKeyword());
+        Token prefix = getToken(importPrefixNode.prefix());
+
+        return importPrefixNode.modify()
+                .withAsKeyword(formatToken(asKeyword, 1, 0, 0, 0))
+                .withPrefix(formatToken(prefix, 1, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public ImportVersionNode transform(ImportVersionNode importVersionNode) {
+        Token versionKeyword = getToken(importVersionNode.versionKeyword());
+        Node versionNumber = this.modifyNode(importVersionNode.versionNumber());
+
+        return importVersionNode.modify()
+                .withVersionKeyword(formatToken(versionKeyword, 1, 0, 0, 0))
+                .withVersionNumber(versionNumber)
+                .apply();
+    }
+
+    @Override
+    public ImportSubVersionNode transform(ImportSubVersionNode importSubVersionNode) {
+        Token leadingDot = getToken(importSubVersionNode.leadingDot().orElse(null));
+        Token versionNumber = getToken(importSubVersionNode.versionNumber());
+
+        if (leadingDot != null) {
+            importSubVersionNode = importSubVersionNode.modify().withLeadingDot(formatToken(leadingDot, 0, 0, 0, 0))
+                    .apply();
+        }
+
+        return importSubVersionNode.modify()
+                .withVersionNumber(formatToken(versionNumber, 1, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public IdentifierToken transform(IdentifierToken identifier) {
+        Token identifierToken = getToken(identifier);
+
+        return (IdentifierToken) formatToken(identifierToken, 0, 0, 0, 0);
+    }
+
+    @Override
     public FunctionDefinitionNode transform(FunctionDefinitionNode functionDefinitionNode) {
         Token visibilityQualifier = getToken(functionDefinitionNode.visibilityQualifier().orElse(null));
         Token functionKeyword = getToken(functionDefinitionNode.functionKeyword());
@@ -71,12 +160,12 @@ public class FormattingTreeModifier extends TreeModifier {
 
         if (visibilityQualifier != null) {
             functionDefinitionNode = functionDefinitionNode.modify()
-                    .withVisibilityQualifier(formatToken(visibilityQualifier, 0, 0, 0))
+                    .withVisibilityQualifier(formatToken(visibilityQualifier, 0, 0, 0, 0))
                     .apply();
         }
         return functionDefinitionNode.modify()
-                .withFunctionKeyword(formatToken(functionKeyword, 1, 0, 0))
-                .withFunctionName((IdentifierToken) formatToken(functionName, 1, 0, 0))
+                .withFunctionKeyword(formatToken(functionKeyword, 1, 0, 0, 0))
+                .withFunctionName((IdentifierToken) formatToken(functionName, 1, 0, 0, 0))
                 .withFunctionSignature(functionSignatureNode
                         .modify(functionSignatureOpenPara, functionSignatureNode.parameters(),
                                 functionSignatureClosePara, null))
@@ -100,8 +189,8 @@ public class FormattingTreeModifier extends TreeModifier {
         }
 
         return functionSignatureNode.modify()
-                .withOpenParenToken(formatToken(openPara, 0, 0, 0))
-                .withCloseParenToken(formatToken(closePara, 0, 0, 0))
+                .withOpenParenToken(formatToken(openPara, 0, 0, 0, 0))
+                .withCloseParenToken(formatToken(closePara, 0, 0, 0, 0))
                 .withParameters(parameters)
                 .apply();
     }
@@ -117,17 +206,17 @@ public class FormattingTreeModifier extends TreeModifier {
 
         if (leadingComma != null) {
             requiredParameterNode = requiredParameterNode.modify()
-                    .withLeadingComma(formatToken(leadingComma, 0, 1, 0))
+                    .withLeadingComma(formatToken(leadingComma, 0, 1, 0, 0))
                     .apply();
         }
         if (paramName != null) {
             requiredParameterNode = requiredParameterNode.modify()
-                    .withParamName(formatToken(paramName, 1, 0, 0))
+                    .withParamName(formatToken(paramName, 1, 0, 0, 0))
                     .apply();
         }
         if (visibilityQualifier != null) {
             requiredParameterNode = requiredParameterNode.modify()
-                    .withVisibilityQualifier(formatToken(visibilityQualifier, 0, 0, 0))
+                    .withVisibilityQualifier(formatToken(visibilityQualifier, 0, 0, 0, 0))
                     .apply();
         }
         return requiredParameterNode.modify()
@@ -141,7 +230,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token name = getToken(builtinSimpleNameReferenceNode.name());
 
         return builtinSimpleNameReferenceNode.modify()
-                .withName(formatToken(name, 0, 0, 0))
+                .withName(formatToken(name, 0, 0, 0, 0))
                 .apply();
     }
 
@@ -153,8 +242,8 @@ public class FormattingTreeModifier extends TreeModifier {
         NodeList<StatementNode> statements = this.modifyNodeList(functionBodyBlockNode.statements());
 
         return functionBodyBlockNode.modify()
-                .withOpenBraceToken(formatToken(functionBodyOpenBrace, 1, 0, 0))
-                .withCloseBraceToken(formatToken(functionBodyCloseBrace, 0, 0, 0))
+                .withOpenBraceToken(formatToken(functionBodyOpenBrace, 1, 0, 0, 0))
+                .withCloseBraceToken(formatToken(functionBodyCloseBrace, 0, 0, 0, 0))
                 .withStatements(statements)
                 .apply();
     }
@@ -166,7 +255,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
         return expressionStatementNode.modify()
                 .withExpression(expression)
-                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
                 .apply();
     }
 
@@ -179,8 +268,8 @@ public class FormattingTreeModifier extends TreeModifier {
 
         return functionCallExpressionNode.modify()
                 .withFunctionName(functionName)
-                .withOpenParenToken(formatToken(functionCallOpenPara, 0, 0, 0))
-                .withCloseParenToken(formatToken(functionCallClosePara, 0, 0, 0))
+                .withOpenParenToken(formatToken(functionCallOpenPara, 0, 0, 0, 0))
+                .withCloseParenToken(formatToken(functionCallClosePara, 0, 0, 0, 0))
                 .withArguments(arguments)
                 .apply();
     }
@@ -192,9 +281,9 @@ public class FormattingTreeModifier extends TreeModifier {
         Token colon = getToken((Token) qualifiedNameReferenceNode.colon());
 
         return qualifiedNameReferenceNode.modify()
-                .withModulePrefix(formatToken(modulePrefix, 4, 0, 1))
-                .withIdentifier((IdentifierToken) formatToken(identifier, 0, 0, 0))
-                .withColon(formatToken(colon, 0, 0, 0))
+                .withModulePrefix(formatToken(modulePrefix, 4, 0, 1, 0))
+                .withIdentifier((IdentifierToken) formatToken(identifier, 0, 0, 0, 0))
+                .withColon(formatToken(colon, 0, 0, 0, 0))
                 .apply();
     }
 
@@ -207,7 +296,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (leadingComma != null) {
             return positionalArgumentNode.modify()
                     .withExpression(expression)
-                    .withLeadingComma(formatToken(leadingComma, 0, 0, 0))
+                    .withLeadingComma(formatToken(leadingComma, 0, 0, 0, 0))
                     .apply();
         }
 
@@ -221,7 +310,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token literalToken = getToken(basicLiteralNode.literalToken());
 
         return basicLiteralNode.modify()
-                .withLiteralToken(formatToken(literalToken, 0, 0, 0))
+                .withLiteralToken(formatToken(literalToken, 0, 0, 0, 0))
                 .apply();
     }
 
@@ -237,9 +326,9 @@ public class FormattingTreeModifier extends TreeModifier {
         Node serviceBody = this.modifyNode(serviceDeclarationNode.serviceBody());
 
         return serviceDeclarationNode.modify()
-                .withServiceKeyword(formatToken(serviceKeyword, 0, 0, 1))
-                .withServiceName((IdentifierToken) formatToken(serviceName, 1, 0, 0))
-                .withOnKeyword(formatToken(onKeyword, 1, 0, 0))
+                .withServiceKeyword(formatToken(serviceKeyword, 0, 0, 1, 0))
+                .withServiceName((IdentifierToken) formatToken(serviceName, 1, 0, 0, 0))
+                .withOnKeyword(formatToken(onKeyword, 1, 0, 0, 0))
 //                .withExpressions(expressions)
                 .withMetadata(metadata)
                 .withServiceBody(serviceBody)
@@ -253,8 +342,8 @@ public class FormattingTreeModifier extends TreeModifier {
         NodeList<Node> resources = this.modifyNodeList(serviceBodyNode.resources());
 
         return serviceBodyNode.modify()
-                .withOpenBraceToken(formatToken(openBraceToken, 0, 0, 0))
-                .withCloseBraceToken(formatToken(closeBraceToken, 0, 0, 0))
+                .withOpenBraceToken(formatToken(openBraceToken, 0, 0, 0, 0))
+                .withCloseBraceToken(formatToken(closeBraceToken, 0, 0, 0, 0))
                 .withResources(resources)
                 .apply();
     }
@@ -267,7 +356,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (commaToken != null) {
             return expressionListItemNode.modify()
                     .withExpression(expression)
-                    .withLeadingComma(formatToken(commaToken, 0, 0, 0))
+                    .withLeadingComma(formatToken(commaToken, 0, 0, 0, 0))
                     .apply();
         }
         return expressionListItemNode.modify()
@@ -282,18 +371,20 @@ public class FormattingTreeModifier extends TreeModifier {
         TypeDescriptorNode typeDescriptorNode = explicitNewExpressionNode.typeDescriptor();
 
         return explicitNewExpressionNode.modify()
-                .withNewKeyword(formatToken(newKeywordToken, 1, 0, 0))
+                .withNewKeyword(formatToken(newKeywordToken, 1, 0, 0, 0))
                 .withParenthesizedArgList(parenthesizedArgList)
                 .withTypeDescriptor(typeDescriptorNode)
                 .apply();
     }
 
-    private Token formatToken(Token token, int leadingSpaces, int trailingSpaces, int newLines) {
+    private Token formatToken(Token token, int leadingSpaces, int trailingSpaces, int leadingNewLines,
+                              int trailingNewLines) {
         MinutiaeList leadingMinutiaeList = token.leadingMinutiae();
         MinutiaeList trailingMinutiaeList = token.trailingMinutiae();
 
-        MinutiaeList newLeadingMinutiaeList = modifyMinutiaeList(leadingMinutiaeList, leadingSpaces, newLines);
-        MinutiaeList newTrailingMinutiaeList = modifyMinutiaeList(trailingMinutiaeList, trailingSpaces, 0);
+        MinutiaeList newLeadingMinutiaeList = modifyMinutiaeList(leadingMinutiaeList, leadingSpaces, leadingNewLines);
+        MinutiaeList newTrailingMinutiaeList = modifyMinutiaeList(trailingMinutiaeList, trailingSpaces,
+                trailingNewLines);
 
         return token.modify(newLeadingMinutiaeList, newTrailingMinutiaeList);
     }
