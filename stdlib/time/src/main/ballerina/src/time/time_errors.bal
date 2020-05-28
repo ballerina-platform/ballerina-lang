@@ -26,4 +26,4 @@ public type Detail record {
 # Specifies the time error, which occurs in the module.
 public const TIME_ERROR_REASON = "{ballerina/time}TimeError";
 # Represents the Time module related error.
-public type Error error<TIME_ERROR_REASON, Detail>;
+public type Error distinct error<Detail>;

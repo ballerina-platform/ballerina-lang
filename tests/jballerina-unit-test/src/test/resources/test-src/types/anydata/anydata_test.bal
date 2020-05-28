@@ -874,7 +874,7 @@ function testTypeCheckingOnAny() returns anydata {
     return ad;
 }
 
-type MyError error<string, MyErrorDetail>;
+type MyError error<MyErrorDetail>;
 
 type MyErrorDetail record {|
     error e1;
@@ -885,7 +885,7 @@ type MyErrorDetail record {|
 
 error e1 = error("err reason");
 error e2 = error("err reason 2", str = "string value", e1=e1);
-MyError e3 = error("err reason 3", e1 = e1, e2 = e2);
+MyError e3 = MyError("err reason 3", e1 = e1, e2 = e2);
 
 function testArraysWithErrorsAsAnydata() returns boolean {
     error?[] a1 = [e1, e2];

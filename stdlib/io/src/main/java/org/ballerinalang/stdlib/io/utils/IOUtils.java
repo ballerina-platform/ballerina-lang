@@ -64,7 +64,9 @@ public class IOUtils {
      * @return an error which will be propagated to ballerina user
      */
     public static ErrorValue createError(String errorMsg) {
-        return BallerinaErrors.createError(GenericError.errorCode(), createDetailRecord(errorMsg, null));
+        return BallerinaErrors.createDistinctError(GenericError.errorCode(), GenericError.errorCode(),
+                IO_PACKAGE_ID,
+                createDetailRecord(errorMsg, null));
     }
 
     /**
@@ -88,13 +90,18 @@ public class IOUtils {
         return BallerinaErrors.createError(code.errorCode(), createDetailRecord(errorMsg, null));
     }
 
+    public static ErrorValue createDistinctError(IOConstants.ErrorCode code, String errorMsg) {
+        return BallerinaErrors.createDistinctError(code.errorCode(), code.errorCode(), IO_PACKAGE_ID,
+                createDetailRecord(errorMsg, null));
+    }
+
     /**
      * Create an EoF error instance.
      *
      * @return EoF Error
      */
     public static ErrorValue createEoFError() {
-        return IOUtils.createError(EoF, "EoF when reading from the channel");
+        return IOUtils.createDistinctError(EoF, "EoF when reading from the channel");
     }
 
     private static MapValue<BString, Object> createDetailRecord(Object... values) {
@@ -236,7 +243,7 @@ public class IOUtils {
         if (accessLC.contains("r")) {
             if (!path.toFile().exists()) {
                 String msg = "no such file or directory: " + path.toFile().getAbsolutePath();
-                throw createError(FileNotFoundError, msg);
+                throw createDistinctError(FileNotFoundError, msg);
             }
             if (!Files.isReadable(path)) {
                 throw new BallerinaIOException("file is not readable: " + path);
@@ -261,7 +268,7 @@ public class IOUtils {
             return FileChannel.open(path, opts);
         } catch (AccessDeniedException e) {
             String msg = "do not have necessary permissions to access: " + e.getMessage();
-            throw createError(AccessDeniedError, msg);
+            throw createDistinctError(AccessDeniedError, msg);
         } catch (IOException | UnsupportedOperationException e) {
             throw new BallerinaIOException("fail to open file: " + e.getMessage(), e);
         }
