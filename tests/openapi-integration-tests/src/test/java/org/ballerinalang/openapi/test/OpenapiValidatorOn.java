@@ -37,7 +37,7 @@ public class OpenapiValidatorOn extends BaseTestCase {
         projectPath = basicTestsProjectPath.toString();
     }
     @Test
-    public void testOpenapiValidatorOff() throws BallerinaTestException {
+    public void testOpenapiValidatorOn() throws BallerinaTestException {
 
         String msg = "error: openapi-test/openapi-validator-on:";
 
