@@ -25,7 +25,7 @@ configurations.all {
 dependencies {
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
@@ -48,7 +48,7 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-test-utils')
     implementation project(':ballerina-time')
-    implementation project(':ballerina-java')
+
     implementation project(':ballerina-core')
     
     implementation 'com.zaxxer:HikariCP'

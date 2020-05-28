@@ -86,6 +86,6 @@ public function createNull() returns handle = @Method {
 # + return - The Java Class object for the class with the given name
 public function getClass(string name) returns handle | error = @Method {
     class: "org.ballerinalang.nativeimpl.java.JavaUtils",
-    name: "getClass"
+    name: "getClass_bstring"
 } external;
 

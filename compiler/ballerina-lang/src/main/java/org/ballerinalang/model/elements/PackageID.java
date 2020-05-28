@@ -44,6 +44,8 @@ public class PackageID {
     // Visible Lang modules.
     public static final PackageID ANNOTATIONS = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.ANNOTATIONS), Names.EMPTY);
+    public static final PackageID JAVA = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.JAVA), Names.EMPTY);
     public static final PackageID ARRAY = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.ARRAY), Names.EMPTY);
     public static final PackageID DECIMAL = new PackageID(Names.BALLERINA_ORG,
@@ -209,6 +211,7 @@ public class PackageID {
         if (!packageID.getOrgName().equals(Names.BALLERINA_ORG)) {
             return false;
         }
-        return packageID.nameComps.size() > 1 && packageID.nameComps.get(0).equals(Names.LANG);
+        return packageID.nameComps.size() > 1 && packageID.nameComps.get(0).equals(Names.LANG) ||
+                packageID.name.equals(Names.JAVA);
     }
 }

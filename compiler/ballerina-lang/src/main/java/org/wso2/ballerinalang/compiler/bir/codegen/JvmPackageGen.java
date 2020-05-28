@@ -199,6 +199,14 @@ public class JvmPackageGen {
 
         dependentModuleArray.add(annotationsModule);
 
+        PackageID javaInteropModule = new PackageID(ballerinaOrgName, Names.JAVA, builtInVersion);
+
+        if (isSameModule(currentModule, javaInteropModule)) {
+            return;
+        }
+
+        dependentModuleArray.add(javaInteropModule);
+
         if (isLangModule(currentModule)) {
             return;
         }
@@ -260,7 +268,7 @@ public class JvmPackageGen {
         if (!"ballerina".equals(moduleId.org.value)) {
             return false;
         }
-        return moduleId.name.value.indexOf("lang.") == 0;
+        return moduleId.name.value.indexOf("lang.") == 0 || moduleId.name.equals(Names.JAVA);
     }
 
     private static void generatePackageVariable(BIRGlobalVariableDcl globalVar, ClassWriter cw) {

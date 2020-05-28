@@ -69,7 +69,7 @@ dependencies {
     implementation project(':ballerina-oauth2')
     implementation project(':ballerina-task')
     implementation project(':ballerina-stringutils')
-    implementation project(':ballerina-java')
+
     implementation project(':ballerina-jsonutils')
     implementation project(':ballerina-xmlutils')
     implementation project(':observability-test-utils')
