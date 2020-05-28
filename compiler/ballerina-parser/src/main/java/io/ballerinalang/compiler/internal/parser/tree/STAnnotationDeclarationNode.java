@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -48,7 +51,31 @@ public class STAnnotationDeclarationNode extends STModuleMemberDeclarationNode {
             STNode onKeyword,
             STNode attachPoints,
             STNode semicolonToken) {
-        super(SyntaxKind.ANNOTATION_DECLARATION);
+        this(
+                metadata,
+                visibilityQualifier,
+                constKeyword,
+                annotationKeyword,
+                typeDescriptor,
+                annotationTag,
+                onKeyword,
+                attachPoints,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STAnnotationDeclarationNode(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode constKeyword,
+            STNode annotationKeyword,
+            STNode typeDescriptor,
+            STNode annotationTag,
+            STNode onKeyword,
+            STNode attachPoints,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.ANNOTATION_DECLARATION, diagnostics);
         this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
         this.constKeyword = constKeyword;
@@ -69,6 +96,20 @@ public class STAnnotationDeclarationNode extends STModuleMemberDeclarationNode {
                 onKeyword,
                 attachPoints,
                 semicolonToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STAnnotationDeclarationNode(
+                this.metadata,
+                this.visibilityQualifier,
+                this.constKeyword,
+                this.annotationKeyword,
+                this.typeDescriptor,
+                this.annotationTag,
+                this.onKeyword,
+                this.attachPoints,
+                this.semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

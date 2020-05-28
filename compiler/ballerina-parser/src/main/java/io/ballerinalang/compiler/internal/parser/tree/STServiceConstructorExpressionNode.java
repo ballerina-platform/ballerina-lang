@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.ServiceConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STServiceConstructorExpressionNode extends STExpressionNode {
             STNode annotations,
             STNode serviceKeyword,
             STNode serviceBody) {
-        super(SyntaxKind.SERVICE_CONSTRUCTOR_EXPRESSION);
+        this(
+                annotations,
+                serviceKeyword,
+                serviceBody,
+                Collections.emptyList());
+    }
+
+    STServiceConstructorExpressionNode(
+            STNode annotations,
+            STNode serviceKeyword,
+            STNode serviceBody,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.SERVICE_CONSTRUCTOR_EXPRESSION, diagnostics);
         this.annotations = annotations;
         this.serviceKeyword = serviceKeyword;
         this.serviceBody = serviceBody;
@@ -45,6 +60,14 @@ public class STServiceConstructorExpressionNode extends STExpressionNode {
                 annotations,
                 serviceKeyword,
                 serviceBody);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STServiceConstructorExpressionNode(
+                this.annotations,
+                this.serviceKeyword,
+                this.serviceBody,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

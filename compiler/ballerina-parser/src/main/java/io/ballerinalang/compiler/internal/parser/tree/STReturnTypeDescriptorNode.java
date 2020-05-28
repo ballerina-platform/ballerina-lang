@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STReturnTypeDescriptorNode extends STNode {
             STNode returnsKeyword,
             STNode annotations,
             STNode type) {
-        super(SyntaxKind.RETURN_TYPE_DESCRIPTOR);
+        this(
+                returnsKeyword,
+                annotations,
+                type,
+                Collections.emptyList());
+    }
+
+    STReturnTypeDescriptorNode(
+            STNode returnsKeyword,
+            STNode annotations,
+            STNode type,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.RETURN_TYPE_DESCRIPTOR, diagnostics);
         this.returnsKeyword = returnsKeyword;
         this.annotations = annotations;
         this.type = type;
@@ -45,6 +60,14 @@ public class STReturnTypeDescriptorNode extends STNode {
                 returnsKeyword,
                 annotations,
                 type);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STReturnTypeDescriptorNode(
+                this.returnsKeyword,
+                this.annotations,
+                this.type,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
