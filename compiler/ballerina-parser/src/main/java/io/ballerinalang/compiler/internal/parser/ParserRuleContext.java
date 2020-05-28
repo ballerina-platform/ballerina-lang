@@ -366,6 +366,7 @@ public enum ParserRuleContext {
     IDENTIFIER("identifier"),
     NAMESPACE_PREFIX("namespace-prefix"),
     WORKER_NAME("worker-name"),
+    FIELD_OR_FUNC_NAME("field-or-func-name"),
 
     // Expressions
     EXPRESSION("expression"),

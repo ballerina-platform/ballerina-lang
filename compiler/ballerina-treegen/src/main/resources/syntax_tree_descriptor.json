@@ -3408,16 +3408,47 @@
             ]
         },
         {
-            "name": "XMLNavigateExpressionNode",
+            "name": "XMLFilterExpressionNode",
             "base": "ExpressionNode",
-            "kind": "XML_NAVIGATE_EXPRESSION",
+            "kind": "XML_FILTER_EXPRESSION",
             "attributes": [
                 {
                     "name": "expression",
                     "type": "ExpressionNode"
                 },
                 {
-                    "name": "dotLtToken",
+                    "name": "xmlPatternChain",
+                    "type": "XMLNamePatternChainingNode"
+                }
+            ]
+        },
+        {
+            "name": "XMLStepExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "XML_STEP_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "xmlStepStart",
+                    "type": "Node"
+                },
+                {
+                    "name": "xmlStepExtend",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                }
+            ]
+        },
+        {
+            "name": "XMLNamePatternChainingNode",
+            "base": "Node",
+            "kind": "XML_NAME_PATTERN_CHAIN",
+            "attributes": [
+                {
+                    "name": "startToken",
                     "type": "Token"
                 },
                 {
@@ -3427,6 +3458,53 @@
                 },
                 {
                     "name": "gtToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "OpenBracketExpressionChainingNode",
+            "base": "Node",
+            "kind": "OPEN_BRACKET_EXPRESSION_CHAIN",
+            "attributes": [
+                {
+                    "name": "openBracket",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "closeBracket",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "MethodCallChainingNode",
+            "base": "Node",
+            "kind": "METHOD_CALL_CHAIN",
+            "attributes": [
+                {
+                    "name": "dotToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "methodName",
+                    "type": "NameReferenceNode"
+                },
+                {
+                    "name": "openParenToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "arguments",
+                    "type": "FunctionArgumentNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeParenToken",
                     "type": "Token"
                 }
             ]

@@ -2578,21 +2578,81 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public XMLNavigateExpressionNode transform(
-            XMLNavigateExpressionNode xMLNavigateExpressionNode) {
+    public XMLFilterExpressionNode transform(
+            XMLFilterExpressionNode xMLFilterExpressionNode) {
         ExpressionNode expression =
-                modifyNode(xMLNavigateExpressionNode.expression());
-        Token dotLtToken =
-                modifyToken(xMLNavigateExpressionNode.dotLtToken());
-        SeparatedNodeList<Node> xmlNamePattern =
-                modifySeparatedNodeList(xMLNavigateExpressionNode.xmlNamePattern());
-        Token gtToken =
-                modifyToken(xMLNavigateExpressionNode.gtToken());
-        return xMLNavigateExpressionNode.modify(
+                modifyNode(xMLFilterExpressionNode.expression());
+        XMLNamePatternChainingNode xmlPatternChain =
+                modifyNode(xMLFilterExpressionNode.xmlPatternChain());
+        return xMLFilterExpressionNode.modify(
                 expression,
-                dotLtToken,
+                xmlPatternChain);
+    }
+
+    @Override
+    public XMLStepExpressionNode transform(
+            XMLStepExpressionNode xMLStepExpressionNode) {
+        ExpressionNode expression =
+                modifyNode(xMLStepExpressionNode.expression());
+        Node xmlStepStart =
+                modifyNode(xMLStepExpressionNode.xmlStepStart());
+        NodeList<Node> xmlStepExtend =
+                modifyNodeList(xMLStepExpressionNode.xmlStepExtend());
+        return xMLStepExpressionNode.modify(
+                expression,
+                xmlStepStart,
+                xmlStepExtend);
+    }
+
+    @Override
+    public XMLNamePatternChainingNode transform(
+            XMLNamePatternChainingNode xMLNamePatternChainingNode) {
+        Token startToken =
+                modifyToken(xMLNamePatternChainingNode.startToken());
+        SeparatedNodeList<Node> xmlNamePattern =
+                modifySeparatedNodeList(xMLNamePatternChainingNode.xmlNamePattern());
+        Token gtToken =
+                modifyToken(xMLNamePatternChainingNode.gtToken());
+        return xMLNamePatternChainingNode.modify(
+                startToken,
                 xmlNamePattern,
                 gtToken);
+    }
+
+    @Override
+    public OpenBracketExpressionChainingNode transform(
+            OpenBracketExpressionChainingNode openBracketExpressionChainingNode) {
+        Token openBracket =
+                modifyToken(openBracketExpressionChainingNode.openBracket());
+        ExpressionNode expression =
+                modifyNode(openBracketExpressionChainingNode.expression());
+        Token closeBracket =
+                modifyToken(openBracketExpressionChainingNode.closeBracket());
+        return openBracketExpressionChainingNode.modify(
+                openBracket,
+                expression,
+                closeBracket);
+    }
+
+    @Override
+    public MethodCallChainingNode transform(
+            MethodCallChainingNode methodCallChainingNode) {
+        Token dotToken =
+                modifyToken(methodCallChainingNode.dotToken());
+        NameReferenceNode methodName =
+                modifyNode(methodCallChainingNode.methodName());
+        Token openParenToken =
+                modifyToken(methodCallChainingNode.openParenToken());
+        NodeList<FunctionArgumentNode> arguments =
+                modifyNodeList(methodCallChainingNode.arguments());
+        Token closeParenToken =
+                modifyToken(methodCallChainingNode.closeParenToken());
+        return methodCallChainingNode.modify(
+                dotToken,
+                methodName,
+                openParenToken,
+                arguments,
+                closeParenToken);
     }
 
     // Tokens

@@ -20,38 +20,30 @@ package io.ballerinalang.compiler.internal.parser.tree;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.XMLNavigateExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.XMLFilterExpressionNode;
 
 /**
  * This is a generated internal syntax tree node.
  *
  * @since 2.0.0
  */
-public class STXMLNavigateExpressionNode extends STExpressionNode {
+public class STXMLFilterExpressionNode extends STExpressionNode {
     public final STNode expression;
-    public final STNode dotLtToken;
-    public final STNode xmlNamePattern;
-    public final STNode gtToken;
+    public final STNode xmlPatternChain;
 
-    STXMLNavigateExpressionNode(
+    STXMLFilterExpressionNode(
             STNode expression,
-            STNode dotLtToken,
-            STNode xmlNamePattern,
-            STNode gtToken) {
-        super(SyntaxKind.XML_NAVIGATE_EXPRESSION);
+            STNode xmlPatternChain) {
+        super(SyntaxKind.XML_FILTER_EXPRESSION);
         this.expression = expression;
-        this.dotLtToken = dotLtToken;
-        this.xmlNamePattern = xmlNamePattern;
-        this.gtToken = gtToken;
+        this.xmlPatternChain = xmlPatternChain;
 
         addChildren(
                 expression,
-                dotLtToken,
-                xmlNamePattern,
-                gtToken);
+                xmlPatternChain);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new XMLNavigateExpressionNode(this, position, parent);
+        return new XMLFilterExpressionNode(this, position, parent);
     }
 }

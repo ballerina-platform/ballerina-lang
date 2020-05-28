@@ -26,26 +26,22 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class XMLNavigateExpressionNode extends ExpressionNode {
+public class XMLNamePatternChainingNode extends NonTerminalNode {
 
-    public XMLNavigateExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public XMLNamePatternChainingNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public ExpressionNode expression() {
+    public Token startToken() {
         return childInBucket(0);
     }
 
-    public Token dotLtToken() {
-        return childInBucket(1);
-    }
-
     public SeparatedNodeList<Node> xmlNamePattern() {
-        return new SeparatedNodeList<>(childInBucket(2));
+        return new SeparatedNodeList<>(childInBucket(1));
     }
 
     public Token gtToken() {
-        return childInBucket(3);
+        return childInBucket(2);
     }
 
     @Override
@@ -61,34 +57,30 @@ public class XMLNavigateExpressionNode extends ExpressionNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "expression",
-                "dotLtToken",
+                "startToken",
                 "xmlNamePattern",
                 "gtToken"};
     }
 
-    public XMLNavigateExpressionNode modify(
-            ExpressionNode expression,
-            Token dotLtToken,
+    public XMLNamePatternChainingNode modify(
+            Token startToken,
             SeparatedNodeList<Node> xmlNamePattern,
             Token gtToken) {
         if (checkForReferenceEquality(
-                expression,
-                dotLtToken,
+                startToken,
                 xmlNamePattern.underlyingListNode(),
                 gtToken)) {
             return this;
         }
 
-        return NodeFactory.createXMLNavigateExpressionNode(
-                expression,
-                dotLtToken,
+        return NodeFactory.createXMLNamePatternChainingNode(
+                startToken,
                 xmlNamePattern,
                 gtToken);
     }
 
-    public XMLNavigateExpressionNodeModifier modify() {
-        return new XMLNavigateExpressionNodeModifier(this);
+    public XMLNamePatternChainingNodeModifier modify() {
+        return new XMLNamePatternChainingNodeModifier(this);
     }
 
     /**
@@ -96,53 +88,43 @@ public class XMLNavigateExpressionNode extends ExpressionNode {
      *
      * @since 2.0.0
      */
-    public static class XMLNavigateExpressionNodeModifier {
-        private final XMLNavigateExpressionNode oldNode;
-        private ExpressionNode expression;
-        private Token dotLtToken;
+    public static class XMLNamePatternChainingNodeModifier {
+        private final XMLNamePatternChainingNode oldNode;
+        private Token startToken;
         private SeparatedNodeList<Node> xmlNamePattern;
         private Token gtToken;
 
-        public XMLNavigateExpressionNodeModifier(XMLNavigateExpressionNode oldNode) {
+        public XMLNamePatternChainingNodeModifier(XMLNamePatternChainingNode oldNode) {
             this.oldNode = oldNode;
-            this.expression = oldNode.expression();
-            this.dotLtToken = oldNode.dotLtToken();
+            this.startToken = oldNode.startToken();
             this.xmlNamePattern = oldNode.xmlNamePattern();
             this.gtToken = oldNode.gtToken();
         }
 
-        public XMLNavigateExpressionNodeModifier withExpression(
-                ExpressionNode expression) {
-            Objects.requireNonNull(expression, "expression must not be null");
-            this.expression = expression;
+        public XMLNamePatternChainingNodeModifier withStartToken(
+                Token startToken) {
+            Objects.requireNonNull(startToken, "startToken must not be null");
+            this.startToken = startToken;
             return this;
         }
 
-        public XMLNavigateExpressionNodeModifier withDotLtToken(
-                Token dotLtToken) {
-            Objects.requireNonNull(dotLtToken, "dotLtToken must not be null");
-            this.dotLtToken = dotLtToken;
-            return this;
-        }
-
-        public XMLNavigateExpressionNodeModifier withXmlNamePattern(
+        public XMLNamePatternChainingNodeModifier withXmlNamePattern(
                 SeparatedNodeList<Node> xmlNamePattern) {
             Objects.requireNonNull(xmlNamePattern, "xmlNamePattern must not be null");
             this.xmlNamePattern = xmlNamePattern;
             return this;
         }
 
-        public XMLNavigateExpressionNodeModifier withGtToken(
+        public XMLNamePatternChainingNodeModifier withGtToken(
                 Token gtToken) {
             Objects.requireNonNull(gtToken, "gtToken must not be null");
             this.gtToken = gtToken;
             return this;
         }
 
-        public XMLNavigateExpressionNode apply() {
+        public XMLNamePatternChainingNode apply() {
             return oldNode.modify(
-                    expression,
-                    dotLtToken,
+                    startToken,
                     xmlNamePattern,
                     gtToken);
         }

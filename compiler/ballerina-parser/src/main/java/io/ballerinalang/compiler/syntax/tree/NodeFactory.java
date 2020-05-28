@@ -2556,22 +2556,82 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stXMLAtomicNamePatternNode.createUnlinkedFacade();
     }
 
-    public static XMLNavigateExpressionNode createXMLNavigateExpressionNode(
+    public static XMLFilterExpressionNode createXMLFilterExpressionNode(
             ExpressionNode expression,
-            Token dotLtToken,
+            XMLNamePatternChainingNode xmlPatternChain) {
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(xmlPatternChain, "xmlPatternChain must not be null");
+
+        STNode stXMLFilterExpressionNode = STNodeFactory.createXMLFilterExpressionNode(
+                expression.internalNode(),
+                xmlPatternChain.internalNode());
+        return stXMLFilterExpressionNode.createUnlinkedFacade();
+    }
+
+    public static XMLStepExpressionNode createXMLStepExpressionNode(
+            ExpressionNode expression,
+            Node xmlStepStart,
+            NodeList<Node> xmlStepExtend) {
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(xmlStepStart, "xmlStepStart must not be null");
+        Objects.requireNonNull(xmlStepExtend, "xmlStepExtend must not be null");
+
+        STNode stXMLStepExpressionNode = STNodeFactory.createXMLStepExpressionNode(
+                expression.internalNode(),
+                xmlStepStart.internalNode(),
+                xmlStepExtend.underlyingListNode().internalNode());
+        return stXMLStepExpressionNode.createUnlinkedFacade();
+    }
+
+    public static XMLNamePatternChainingNode createXMLNamePatternChainingNode(
+            Token startToken,
             SeparatedNodeList<Node> xmlNamePattern,
             Token gtToken) {
-        Objects.requireNonNull(expression, "expression must not be null");
-        Objects.requireNonNull(dotLtToken, "dotLtToken must not be null");
+        Objects.requireNonNull(startToken, "startToken must not be null");
         Objects.requireNonNull(xmlNamePattern, "xmlNamePattern must not be null");
         Objects.requireNonNull(gtToken, "gtToken must not be null");
 
-        STNode stXMLNavigateExpressionNode = STNodeFactory.createXMLNavigateExpressionNode(
-                expression.internalNode(),
-                dotLtToken.internalNode(),
+        STNode stXMLNamePatternChainingNode = STNodeFactory.createXMLNamePatternChainingNode(
+                startToken.internalNode(),
                 xmlNamePattern.underlyingListNode().internalNode(),
                 gtToken.internalNode());
-        return stXMLNavigateExpressionNode.createUnlinkedFacade();
+        return stXMLNamePatternChainingNode.createUnlinkedFacade();
+    }
+
+    public static OpenBracketExpressionChainingNode createOpenBracketExpressionChainingNode(
+            Token openBracket,
+            ExpressionNode expression,
+            Token closeBracket) {
+        Objects.requireNonNull(openBracket, "openBracket must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+
+        STNode stOpenBracketExpressionChainingNode = STNodeFactory.createOpenBracketExpressionChainingNode(
+                openBracket.internalNode(),
+                expression.internalNode(),
+                closeBracket.internalNode());
+        return stOpenBracketExpressionChainingNode.createUnlinkedFacade();
+    }
+
+    public static MethodCallChainingNode createMethodCallChainingNode(
+            Token dotToken,
+            NameReferenceNode methodName,
+            Token openParenToken,
+            NodeList<FunctionArgumentNode> arguments,
+            Token closeParenToken) {
+        Objects.requireNonNull(dotToken, "dotToken must not be null");
+        Objects.requireNonNull(methodName, "methodName must not be null");
+        Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+        Objects.requireNonNull(arguments, "arguments must not be null");
+        Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+
+        STNode stMethodCallChainingNode = STNodeFactory.createMethodCallChainingNode(
+                dotToken.internalNode(),
+                methodName.internalNode(),
+                openParenToken.internalNode(),
+                arguments.underlyingListNode().internalNode(),
+                closeParenToken.internalNode());
+        return stMethodCallChainingNode.createUnlinkedFacade();
     }
 }
 

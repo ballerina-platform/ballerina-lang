@@ -1902,17 +1902,61 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 endToken);
     }
 
-    public static STNode createXMLNavigateExpressionNode(
+    public static STNode createXMLFilterExpressionNode(
             STNode expression,
-            STNode dotLtToken,
+            STNode xmlPatternChain) {
+
+        return new STXMLFilterExpressionNode(
+                expression,
+                xmlPatternChain);
+    }
+
+    public static STNode createXMLStepExpressionNode(
+            STNode expression,
+            STNode xmlStepStart,
+            STNode xmlStepExtend) {
+
+        return new STXMLStepExpressionNode(
+                expression,
+                xmlStepStart,
+                xmlStepExtend);
+    }
+
+    public static STNode createXMLNamePatternChainingNode(
+            STNode startToken,
             STNode xmlNamePattern,
             STNode gtToken) {
 
-        return new STXMLNavigateExpressionNode(
-                expression,
-                dotLtToken,
+        return new STXMLNamePatternChainingNode(
+                startToken,
                 xmlNamePattern,
                 gtToken);
+    }
+
+    public static STNode createOpenBracketExpressionChainingNode(
+            STNode openBracket,
+            STNode expression,
+            STNode closeBracket) {
+
+        return new STOpenBracketExpressionChainingNode(
+                openBracket,
+                expression,
+                closeBracket);
+    }
+
+    public static STNode createMethodCallChainingNode(
+            STNode dotToken,
+            STNode methodName,
+            STNode openParenToken,
+            STNode arguments,
+            STNode closeParenToken) {
+
+        return new STMethodCallChainingNode(
+                dotToken,
+                methodName,
+                openParenToken,
+                arguments,
+                closeParenToken);
     }
 }
 

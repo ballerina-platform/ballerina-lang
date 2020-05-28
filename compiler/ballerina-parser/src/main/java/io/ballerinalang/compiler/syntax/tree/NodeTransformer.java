@@ -672,8 +672,24 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(xMLAtomicNamePatternNode);
     }
 
-    public T transform(XMLNavigateExpressionNode xMLNavigateExpressionNode) {
-        return transformSyntaxNode(xMLNavigateExpressionNode);
+    public T transform(XMLFilterExpressionNode xMLFilterExpressionNode) {
+        return transformSyntaxNode(xMLFilterExpressionNode);
+    }
+
+    public T transform(XMLStepExpressionNode xMLStepExpressionNode) {
+        return transformSyntaxNode(xMLStepExpressionNode);
+    }
+
+    public T transform(XMLNamePatternChainingNode xMLNamePatternChainingNode) {
+        return transformSyntaxNode(xMLNamePatternChainingNode);
+    }
+
+    public T transform(OpenBracketExpressionChainingNode openBracketExpressionChainingNode) {
+        return transformSyntaxNode(openBracketExpressionChainingNode);
+    }
+
+    public T transform(MethodCallChainingNode methodCallChainingNode) {
+        return transformSyntaxNode(methodCallChainingNode);
     }
 
     // Tokens
