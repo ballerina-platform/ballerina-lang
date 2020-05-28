@@ -3389,27 +3389,13 @@
             ]
         },
         {
-            "name": "XMLAtomicNamePatternNode",
-            "base": "Node",
-            "kind": "XML_ATOMIC_NAME_PATTERN",
-            "attributes": [
-                {
-                    "name": "xmlNamespacePrefix",
-                    "type": "Token"
-                },
-                {
-                    "name": "colon",
-                    "type": "Token"
-                },
-                {
-                    "name": "endToken",
-                    "type": "Token"
-                }
-            ]
+            "name": "XMLNavigateExpressionNode",
+            "base": "ExpressionNode",
+            "isAbstract": true
         },
         {
             "name": "XMLFilterExpressionNode",
-            "base": "ExpressionNode",
+            "base": "XMLNavigateExpressionNode",
             "kind": "XML_FILTER_EXPRESSION",
             "attributes": [
                 {
@@ -3424,7 +3410,7 @@
         },
         {
             "name": "XMLStepExpressionNode",
-            "base": "ExpressionNode",
+            "base": "XMLNavigateExpressionNode",
             "kind": "XML_STEP_EXPRESSION",
             "attributes": [
                 {
@@ -3458,6 +3444,25 @@
                 },
                 {
                     "name": "gtToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "XMLAtomicNamePatternNode",
+            "base": "Node",
+            "kind": "XML_ATOMIC_NAME_PATTERN",
+            "attributes": [
+                {
+                    "name": "xmlNamespacePrefix",
+                    "type": "Token"
+                },
+                {
+                    "name": "colon",
+                    "type": "Token"
+                },
+                {
+                    "name": "endToken",
                     "type": "Token"
                 }
             ]

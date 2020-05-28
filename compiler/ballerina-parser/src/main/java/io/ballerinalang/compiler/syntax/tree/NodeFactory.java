@@ -2541,21 +2541,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stByteArrayLiteralNode.createUnlinkedFacade();
     }
 
-    public static XMLAtomicNamePatternNode createXMLAtomicNamePatternNode(
-            Token xmlNamespacePrefix,
-            Token colon,
-            Token endToken) {
-        Objects.requireNonNull(xmlNamespacePrefix, "xmlNamespacePrefix must not be null");
-        Objects.requireNonNull(colon, "colon must not be null");
-        Objects.requireNonNull(endToken, "endToken must not be null");
-
-        STNode stXMLAtomicNamePatternNode = STNodeFactory.createXMLAtomicNamePatternNode(
-                xmlNamespacePrefix.internalNode(),
-                colon.internalNode(),
-                endToken.internalNode());
-        return stXMLAtomicNamePatternNode.createUnlinkedFacade();
-    }
-
     public static XMLFilterExpressionNode createXMLFilterExpressionNode(
             ExpressionNode expression,
             XMLNamePatternChainingNode xmlPatternChain) {
@@ -2596,6 +2581,21 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 xmlNamePattern.underlyingListNode().internalNode(),
                 gtToken.internalNode());
         return stXMLNamePatternChainingNode.createUnlinkedFacade();
+    }
+
+    public static XMLAtomicNamePatternNode createXMLAtomicNamePatternNode(
+            Token xmlNamespacePrefix,
+            Token colon,
+            Token endToken) {
+        Objects.requireNonNull(xmlNamespacePrefix, "xmlNamespacePrefix must not be null");
+        Objects.requireNonNull(colon, "colon must not be null");
+        Objects.requireNonNull(endToken, "endToken must not be null");
+
+        STNode stXMLAtomicNamePatternNode = STNodeFactory.createXMLAtomicNamePatternNode(
+                xmlNamespacePrefix.internalNode(),
+                colon.internalNode(),
+                endToken.internalNode());
+        return stXMLAtomicNamePatternNode.createUnlinkedFacade();
     }
 
     public static OpenBracketExpressionChainingNode createOpenBracketExpressionChainingNode(

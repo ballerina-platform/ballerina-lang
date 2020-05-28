@@ -1891,17 +1891,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 endBacktick);
     }
 
-    public static STNode createXMLAtomicNamePatternNode(
-            STNode xmlNamespacePrefix,
-            STNode colon,
-            STNode endToken) {
-
-        return new STXMLAtomicNamePatternNode(
-                xmlNamespacePrefix,
-                colon,
-                endToken);
-    }
-
     public static STNode createXMLFilterExpressionNode(
             STNode expression,
             STNode xmlPatternChain) {
@@ -1931,6 +1920,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 startToken,
                 xmlNamePattern,
                 gtToken);
+    }
+
+    public static STNode createXMLAtomicNamePatternNode(
+            STNode xmlNamespacePrefix,
+            STNode colon,
+            STNode endToken) {
+
+        return new STXMLAtomicNamePatternNode(
+                xmlNamespacePrefix,
+                colon,
+                endToken);
     }
 
     public static STNode createOpenBracketExpressionChainingNode(

@@ -17,33 +17,16 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.XMLFilterExpressionNode;
 
 /**
  * This is a generated internal syntax tree node.
  *
  * @since 2.0.0
  */
-public class STXMLFilterExpressionNode extends STXMLNavigateExpressionNode {
-    public final STNode expression;
-    public final STNode xmlPatternChain;
+public abstract class STXMLNavigateExpressionNode extends STExpressionNode {
 
-    STXMLFilterExpressionNode(
-            STNode expression,
-            STNode xmlPatternChain) {
-        super(SyntaxKind.XML_FILTER_EXPRESSION);
-        this.expression = expression;
-        this.xmlPatternChain = xmlPatternChain;
-
-        addChildren(
-                expression,
-                xmlPatternChain);
-    }
-
-    public Node createFacade(int position, NonTerminalNode parent) {
-        return new XMLFilterExpressionNode(this, position, parent);
+    STXMLNavigateExpressionNode(SyntaxKind kind) {
+        super(kind);
     }
 }

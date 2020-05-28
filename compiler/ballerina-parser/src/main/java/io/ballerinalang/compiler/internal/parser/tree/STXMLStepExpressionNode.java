@@ -27,7 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.XMLStepExpressionNode;
  *
  * @since 2.0.0
  */
-public class STXMLStepExpressionNode extends STExpressionNode {
+public class STXMLStepExpressionNode extends STXMLNavigateExpressionNode {
     public final STNode expression;
     public final STNode xmlStepStart;
     public final STNode xmlStepExtend;

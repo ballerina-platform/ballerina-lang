@@ -12045,16 +12045,50 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse xml navigate expression.
+     * Parse xml filter expression.
      * <p>
-     * <code>conditional-expr := expression ? expression : expression</code>
+     * <code>xml-filter-expr := expression .< xml-name-pattern ></code>
      *
-     * @param lhsExpr Preceding expression of the question mark
+     * @param lhsExpr Preceding expression of .< token
      * @return Parsed node
      */
     private STNode parseXMLFilterExpression(STNode lhsExpr) {
-        STNode xmlNamePatternChain = parseXMLNamePatternChain();
+        STNode xmlNamePatternChain = parseXMLFilterExpressionRhs();
         return STNodeFactory.createXMLFilterExpressionNode(lhsExpr, xmlNamePatternChain);
+    }
+
+    /**
+     * Parse xml filter expression rhs.
+     * <p>
+     * <code>filer-expression-rhs := .< xml-name-pattern ></code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseXMLFilterExpressionRhs() {
+        STNode dotLTToken = parseDotLTToken();
+        return parseXMLNamePatternChain(dotLTToken);
+    }
+
+    /**
+     * Parse xml name pattern chain.
+     * <p>
+     * <code>
+     * xml-name-pattern-chain := filer-expression-rhs | xml-element-children-step | xml-element-descendants-step
+     * <br/>
+     * filer-expression-rhs := .< xml-name-pattern >
+     * <br/>
+     * xml-element-children-step := /< xml-name-pattern >
+     * <br/>
+     * xml-element-descendants-step := /**\/<xml-name-pattern >
+     * </code>
+     *
+     * @param startToken Preceding token of xml name pattern
+     * @return Parsed node
+     */
+    private STNode parseXMLNamePatternChain(STNode startToken) {
+        STNode xmlNamePattern = parseXMLNamePattern();
+        STNode gtToken = parseGTToken();
+        return STNodeFactory.createXMLNamePatternChainingNode(startToken, xmlNamePattern, gtToken);
     }
 
     /**
@@ -12072,6 +12106,13 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    /**
+     * Parse xml name pattern.
+     * <p>
+     * <code>xml-name-pattern := xml-atomic-name-pattern [| xml-atomic-name-pattern]*</code>
+     *
+     * @return Parsed node
+     */
     private STNode parseXMLNamePattern() {
         List<STNode> xmlAtomicNamePatternList = new ArrayList<>();
         STToken nextToken = peek();
@@ -12128,67 +12169,126 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    /**
+     * Parse xml atomic name pattern.
+     * <p>
+     * <code>
+     * xml-atomic-name-pattern :=
+     *   *
+     *   | identifier
+     *   | xml-namespace-prefix : identifier
+     *   | xml-namespace-prefix : *
+     * </code>
+     *
+     * @return Parsed node
+     */
     private STNode parseXMLAtomicNamePattern() {
         STToken token = peek();
-
         if (token.kind == SyntaxKind.ASTERISK_TOKEN) {
             return consume();
         } else if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             STNode identifier = consume();
-
-            STToken nextToken = peek();
-            if (nextToken.kind != SyntaxKind.COLON_TOKEN) {
-                return STNodeFactory.createSimpleNameReferenceNode(identifier);
-            } else {
-                STNode colon = consume();
-
-                STToken nextNextToken = peek();
-                if (nextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
-                    STNode endIdentifier = consume();
-                    return STNodeFactory.createXMLAtomicNamePatternNode(identifier, colon, endIdentifier);
-                } else if (nextNextToken.kind == SyntaxKind.ASTERISK_TOKEN) {
-                    STNode asterisk = consume();
-                    return STNodeFactory.createXMLAtomicNamePatternNode(identifier, colon, asterisk);
-                }
-            }
+            return parseXMLAtomicNameIdentifier(identifier);
         }
         return STNodeFactory.createEmptyNode();
     }
 
-    private STNode parseXMLStepExpression(STNode lhsExpr) {
+    private STNode parseXMLAtomicNameIdentifier(STNode identifier) {
         STToken token = peek();
-        STNode xmlStepStart;
-
-        if (token.kind == SyntaxKind.SLASH_ASTERISK_TOKEN) {
-            xmlStepStart = consume();
-        } else {
-            xmlStepStart = parseXMLNamePatternChain();
+        if (token.kind == SyntaxKind.COLON_TOKEN) {
+            STNode colon = consume();
+            STToken nextToken = peek();
+            if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN || nextToken.kind == SyntaxKind.ASTERISK_TOKEN) {
+                STToken endToken = consume();
+                return STNodeFactory.createXMLAtomicNamePatternNode(identifier, colon, endToken);
+            }
         }
+        return STNodeFactory.createSimpleNameReferenceNode(identifier);
+    }
 
+    /**
+     * Parse xml step expression.
+     * <p>
+     * <code>xml-step-expr := expression xml-step-start xml-step-extend*</code>
+     *
+     * @param lhsExpr Preceding expression of /*, /<, or /**\/< token
+     * @return Parsed node
+     */
+    private STNode parseXMLStepExpression(STNode lhsExpr) {
+        STNode xmlStepStart = parseXMLStepStart();
         STNode xmlStepExtendList = parseXMLStepExtendList();
         return STNodeFactory.createXMLStepExpressionNode(lhsExpr, xmlStepStart, xmlStepExtendList);
     }
 
-    private STNode parseXMLNamePatternChain() {
+    /**
+     * Parse xml filter expression rhs.
+     * <p>
+     * <code>
+     *  xml-step-start :=
+     *      xml-all-children-step
+     *      | xml-element-children-step
+     *      | xml-element-descendants-step
+     * <br/>
+     * xml-all-children-step := /*
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseXMLStepStart() {
         STToken token = peek();
         STNode startToken;
 
         switch (token.kind) {
-            case SLASH_LT_TOKEN:
+            case SLASH_ASTERISK_TOKEN:
+                return consume();
             case DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN:
-                startToken = consume();
+                startToken = parseDoubleSlashDoubleAsteriskLTToken();
                 break;
-            case DOT_LT_TOKEN:
+            case SLASH_LT_TOKEN:
             default:
-                startToken = parseDotLTToken();
+                startToken = parseSlashLTToken();
                 break;
         }
-
-        STNode xmlNamePattern = parseXMLNamePattern();
-        STNode gtToken = parseGTToken();
-        return STNodeFactory.createXMLNamePatternChainingNode(startToken, xmlNamePattern, gtToken);
+        return parseXMLNamePatternChain(startToken);
     }
 
+    /**
+     * Parse <code> /< </code> token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseSlashLTToken() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.SLASH_LT_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(nextToken, ParserRuleContext.SLASH_LT_TOKEN);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse <code> /< </code> token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseDoubleSlashDoubleAsteriskLTToken() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(nextToken, ParserRuleContext.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse xml step extend list.
+     * <p>
+     * <code>xml-step-extend-list := xml-step-extend*</code>
+     *
+     * @return Parsed node
+     */
     private STNode parseXMLStepExtendList() {
         List<STNode> xmlStepExtendList = new ArrayList<>();
         STToken nextToken = peek();
@@ -12220,19 +12320,41 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    /**
+     * Parse xml step extend list.
+     * <p>
+     * <code>
+     * xml-step-extend :=
+     *    .< xml-name-pattern >
+     *    | [ expression ]
+     *    | . method-name ( arg-list )
+     * </code>
+     *
+     * @return Parsed node
+     */
     private STNode parseXMLStepExtend() {
         STToken token = peek();
-        switch (token.kind){
+        switch (token.kind) {
             case DOT_LT_TOKEN:
-                return parseXMLNamePatternChain();
-            case OPEN_BRACKET_TOKEN:
-                return parseOpenBracketExpressionChain();
+                return parseXMLFilterExpressionRhs();
             case DOT_TOKEN:
-            default:
                 return parseMethodCallChain();
+            // token kind is already validated in isEndOfXMLStepExtend and reach here.
+            // therefore, a recover solution is not required for the default case.
+            case OPEN_BRACKET_TOKEN:
+            default:
+                return parseOpenBracketExpressionChain();
+
         }
     }
 
+    /**
+     * Parse open bracket expression chain.
+     * <p>
+     * <code>open-bracket-expression-chain := `[` expression `]`</code>
+     *
+     * @return Parsed node
+     */
     private STNode parseOpenBracketExpressionChain() {
         STNode openBracketToken = parseOpenBracket();
         STNode expression = parseExpression();
@@ -12240,6 +12362,13 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createOpenBracketExpressionChainingNode(openBracketToken, expression, closeBracketToken);
     }
 
+    /**
+     * Parse method call chain.
+     * <p>
+     * <code>method-call-chain := `.` method-name `(` arg-list `)`</code>
+     *
+     * @return Parsed node
+     */
     private STNode parseMethodCallChain() {
         STNode dotToken = parseDotToken();
         STNode methodName = parseIdentifier(ParserRuleContext.FIELD_OR_FUNC_NAME);

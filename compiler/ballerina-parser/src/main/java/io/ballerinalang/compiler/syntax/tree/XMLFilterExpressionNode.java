@@ -26,7 +26,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class XMLFilterExpressionNode extends ExpressionNode {
+public class XMLFilterExpressionNode extends XMLNavigateExpressionNode {
 
     public XMLFilterExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

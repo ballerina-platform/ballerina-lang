@@ -742,14 +742,14 @@ public class ParserTestUtils {
                 return SyntaxKind.SERVICE_CONSTRUCTOR_EXPRESSION;
             case "BYTE_ARRAY_LITERAL":
                 return SyntaxKind.BYTE_ARRAY_LITERAL;
-            case "XML_ATOMIC_NAME_PATTERN":
-                return SyntaxKind.XML_ATOMIC_NAME_PATTERN;
             case "XML_FILTER_EXPRESSION":
                 return SyntaxKind.XML_FILTER_EXPRESSION;
             case "XML_STEP_EXPRESSION":
                 return SyntaxKind.XML_STEP_EXPRESSION;
             case "XML_NAME_PATTERN_CHAIN":
                 return SyntaxKind.XML_NAME_PATTERN_CHAIN;
+            case "XML_ATOMIC_NAME_PATTERN":
+                return SyntaxKind.XML_ATOMIC_NAME_PATTERN;
             case "OPEN_BRACKET_EXPRESSION_CHAIN":
                 return SyntaxKind.OPEN_BRACKET_EXPRESSION_CHAIN;
             case "METHOD_CALL_CHAIN":

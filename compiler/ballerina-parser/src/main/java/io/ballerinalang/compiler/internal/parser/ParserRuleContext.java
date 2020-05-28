@@ -344,6 +344,8 @@ public enum ParserRuleContext {
     ANNOT_CHAINING_TOKEN(".@"),
     OPTIONAL_CHAINING_TOKEN("?."),
     DOT_LT_TOKEN(".<"),
+    SLASH_LT_TOKEN("/<"),
+    DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN("/**/<"),
 
     // Other terminals
     FUNC_NAME("function-name"),

@@ -668,10 +668,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(byteArrayLiteralNode);
     }
 
-    public T transform(XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
-        return transformSyntaxNode(xMLAtomicNamePatternNode);
-    }
-
     public T transform(XMLFilterExpressionNode xMLFilterExpressionNode) {
         return transformSyntaxNode(xMLFilterExpressionNode);
     }
@@ -682,6 +678,10 @@ public abstract class NodeTransformer<T> {
 
     public T transform(XMLNamePatternChainingNode xMLNamePatternChainingNode) {
         return transformSyntaxNode(xMLNamePatternChainingNode);
+    }
+
+    public T transform(XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
+        return transformSyntaxNode(xMLAtomicNamePatternNode);
     }
 
     public T transform(OpenBracketExpressionChainingNode openBracketExpressionChainingNode) {

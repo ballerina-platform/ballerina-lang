@@ -68,6 +68,7 @@ public class XMLNavigateExpressionTest extends AbstractExpressionsTest {
     public void testSimpleXMLStepWithMoreThanOneStepExtend() {
         test("a /* .<b:c|*|d:*> [e] .b(5, a, age = 18, ...subjects)", "xml-navigate-expr/xml_step_expr_assert_13.json");
         test("a /<b:c> [d>e] [f] .<*>", "xml-navigate-expr/xml_step_expr_assert_14.json");
-        test("a /**/<*> .foo(5, a, age = 18, ...subjects) .<b:c> .<d:*>", "xml-navigate-expr/xml_step_expr_assert_15.json");
+        test("a /**/<*> .foo(5, a, age = 18, ...subjects) .<b:c> .<d:*>",
+                "xml-navigate-expr/xml_step_expr_assert_15.json");
     }
 }

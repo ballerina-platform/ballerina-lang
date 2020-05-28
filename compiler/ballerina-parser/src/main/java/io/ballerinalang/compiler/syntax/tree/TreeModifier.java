@@ -2563,21 +2563,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public XMLAtomicNamePatternNode transform(
-            XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
-        Token xmlNamespacePrefix =
-                modifyToken(xMLAtomicNamePatternNode.xmlNamespacePrefix());
-        Token colon =
-                modifyToken(xMLAtomicNamePatternNode.colon());
-        Token endToken =
-                modifyToken(xMLAtomicNamePatternNode.endToken());
-        return xMLAtomicNamePatternNode.modify(
-                xmlNamespacePrefix,
-                colon,
-                endToken);
-    }
-
-    @Override
     public XMLFilterExpressionNode transform(
             XMLFilterExpressionNode xMLFilterExpressionNode) {
         ExpressionNode expression =
@@ -2617,6 +2602,21 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 startToken,
                 xmlNamePattern,
                 gtToken);
+    }
+
+    @Override
+    public XMLAtomicNamePatternNode transform(
+            XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
+        Token xmlNamespacePrefix =
+                modifyToken(xMLAtomicNamePatternNode.xmlNamespacePrefix());
+        Token colon =
+                modifyToken(xMLAtomicNamePatternNode.colon());
+        Token endToken =
+                modifyToken(xMLAtomicNamePatternNode.endToken());
+        return xMLAtomicNamePatternNode.modify(
+                xmlNamespacePrefix,
+                colon,
+                endToken);
     }
 
     @Override
