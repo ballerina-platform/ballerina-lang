@@ -28,24 +28,20 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  * @since 2.0.0
  */
 public class STSpecificFieldNode extends STMappingFieldNode {
-    public final STNode leadingComma;
     public final STNode fieldName;
     public final STNode colon;
     public final STNode valueExpr;
 
     STSpecificFieldNode(
-            STNode leadingComma,
             STNode fieldName,
             STNode colon,
             STNode valueExpr) {
         super(SyntaxKind.SPECIFIC_FIELD);
-        this.leadingComma = leadingComma;
         this.fieldName = fieldName;
         this.colon = colon;
         this.valueExpr = valueExpr;
 
         addChildren(
-                leadingComma,
                 fieldName,
                 colon,
                 valueExpr);

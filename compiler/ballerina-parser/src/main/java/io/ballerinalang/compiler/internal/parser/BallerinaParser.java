@@ -243,9 +243,9 @@ public class BallerinaParser extends AbstractParser {
                 return parseReturnKeyword();
             case MAPPING_FIELD:
             case FIRST_MAPPING_FIELD:
-                return parseMappingField((ParserRuleContext) args[0], (STNode) args[1]);
+                return parseMappingField((ParserRuleContext) args[0]);
             case SPECIFIC_FIELD_RHS:
-                return parseSpecificFieldRhs((STNode) args[0], (STNode) args[1]);
+                return parseSpecificFieldRhs((STNode) args[0]);
             case STRING_LITERAL:
                 return parseStringLiteral();
             case COLON:
@@ -5901,20 +5901,21 @@ public class BallerinaParser extends AbstractParser {
         }
 
         // Parse first field mapping, that has no leading comma
-        STNode mappingFieldEnd = STNodeFactory.createEmptyNode();
-        STNode field = parseMappingField(ParserRuleContext.FIRST_MAPPING_FIELD, mappingFieldEnd);
+        STNode field = parseMappingField(ParserRuleContext.FIRST_MAPPING_FIELD);
         fields.add(field);
 
         // Parse the remaining field mappings
+        STNode mappingFieldEnd;
         nextToken = peek();
         while (!isEndOfMappingConstructor(nextToken.kind)) {
             mappingFieldEnd = parseMappingFieldEnd(nextToken.kind);
             if (mappingFieldEnd == null) {
                 break;
             }
+            fields.add(mappingFieldEnd);
 
             // Parse field
-            field = parseMappingField(ParserRuleContext.MAPPING_FIELD, mappingFieldEnd);
+            field = parseMappingField(ParserRuleContext.MAPPING_FIELD);
             fields.add(field);
             nextToken = peek();
         }
@@ -5982,26 +5983,26 @@ public class BallerinaParser extends AbstractParser {
      * @param leadingComma Leading comma
      * @return Parsed node
      */
-    private STNode parseMappingField(ParserRuleContext fieldContext, STNode leadingComma) {
+    private STNode parseMappingField(ParserRuleContext fieldContext) {
         STToken nextToken = peek();
-        return parseMappingField(nextToken.kind, fieldContext, leadingComma);
+        return parseMappingField(nextToken.kind, fieldContext);
     }
 
-    private STNode parseMappingField(SyntaxKind tokenKind, ParserRuleContext fieldContext, STNode leadingComma) {
+    private STNode parseMappingField(SyntaxKind tokenKind, ParserRuleContext fieldContext) {
         switch (tokenKind) {
             case IDENTIFIER_TOKEN:
-                return parseSpecificFieldWithOptionValue(leadingComma);
+                return parseSpecificFieldWithOptionValue();
             case STRING_LITERAL:
                 STNode key = parseStringLiteral();
                 STNode colon = parseColon();
                 STNode valueExpr = parseExpression();
-                return STNodeFactory.createSpecificFieldNode(leadingComma, key, colon, valueExpr);
+                return STNodeFactory.createSpecificFieldNode(key, colon, valueExpr);
             case OPEN_BRACKET_TOKEN:
-                return parseComputedField(leadingComma);
+                return parseComputedField();
             case ELLIPSIS_TOKEN:
                 STNode ellipsis = parseEllipsis();
                 STNode expr = parseExpression();
-                return STNodeFactory.createSpreadFieldNode(leadingComma, ellipsis, expr);
+                return STNodeFactory.createSpreadFieldNode(ellipsis, expr);
             case CLOSE_BRACE_TOKEN:
                 if (fieldContext == ParserRuleContext.FIRST_MAPPING_FIELD) {
                     return null;
@@ -6009,7 +6010,7 @@ public class BallerinaParser extends AbstractParser {
                 // else fall through
             default:
                 STToken token = peek();
-                Solution solution = recover(token, fieldContext, fieldContext, leadingComma);
+                Solution solution = recover(token, fieldContext, fieldContext);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -6018,7 +6019,7 @@ public class BallerinaParser extends AbstractParser {
                     return solution.recoveredNode;
                 }
 
-                return parseMappingField(solution.tokenKind, fieldContext, leadingComma);
+                return parseMappingField(solution.tokenKind, fieldContext);
         }
     }
 
@@ -6028,17 +6029,17 @@ public class BallerinaParser extends AbstractParser {
      * @param leadingComma
      * @return Parsed node
      */
-    private STNode parseSpecificFieldWithOptionValue(STNode leadingComma) {
+    private STNode parseSpecificFieldWithOptionValue() {
         STNode key = parseIdentifier(ParserRuleContext.MAPPING_FIELD_NAME);
-        return parseSpecificFieldRhs(leadingComma, key);
+        return parseSpecificFieldRhs(key);
     }
 
-    private STNode parseSpecificFieldRhs(STNode leadingComma, STNode key) {
+    private STNode parseSpecificFieldRhs(STNode key) {
         STToken nextToken = peek();
-        return parseSpecificFieldRhs(nextToken.kind, leadingComma, key);
+        return parseSpecificFieldRhs(nextToken.kind, key);
     }
 
-    private STNode parseSpecificFieldRhs(SyntaxKind tokenKind, STNode leadingComma, STNode key) {
+    private STNode parseSpecificFieldRhs(SyntaxKind tokenKind, STNode key) {
         STNode colon;
         STNode valueExpr;
 
@@ -6059,7 +6060,7 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.SPECIFIC_FIELD_RHS, leadingComma, key);
+                Solution solution = recover(token, ParserRuleContext.SPECIFIC_FIELD_RHS, key);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -6068,10 +6069,10 @@ public class BallerinaParser extends AbstractParser {
                     return solution.recoveredNode;
                 }
 
-                return parseSpecificFieldRhs(solution.tokenKind, leadingComma, key);
+                return parseSpecificFieldRhs(solution.tokenKind, key);
 
         }
-        return STNodeFactory.createSpecificFieldNode(leadingComma, key, colon, valueExpr);
+        return STNodeFactory.createSpecificFieldNode(key, colon, valueExpr);
     }
 
     /**
@@ -6112,7 +6113,7 @@ public class BallerinaParser extends AbstractParser {
      * @param leadingComma Leading comma
      * @return Parsed node
      */
-    private STNode parseComputedField(STNode leadingComma) {
+    private STNode parseComputedField() {
         // Parse computed field name
         startContext(ParserRuleContext.COMPUTED_FIELD_NAME);
         STNode openBracket = parseOpenBracket();
@@ -6123,8 +6124,7 @@ public class BallerinaParser extends AbstractParser {
         // Parse rhs
         STNode colon = parseColon();
         STNode valueExpr = parseExpression();
-        return STNodeFactory.createComputedNameFieldNode(leadingComma, openBracket, fieldNameExpr, closeBracket, colon,
-                valueExpr);
+        return STNodeFactory.createComputedNameFieldNode(openBracket, fieldNameExpr, closeBracket, colon, valueExpr);
     }
 
     /**

@@ -552,7 +552,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static MappingConstructorExpressionNode createMappingConstructorExpressionNode(
             Token openBrace,
-            NodeList<MappingFieldNode> fields,
+            SeparatedNodeList<MappingFieldNode> fields,
             Token closeBrace) {
         Objects.requireNonNull(openBrace, "openBrace must not be null");
         Objects.requireNonNull(fields, "fields must not be null");
@@ -608,13 +608,11 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static ComputedNameFieldNode createComputedNameFieldNode(
-            Token leadingComma,
             Token openBracket,
             ExpressionNode fieldNameExpr,
             Token closeBracket,
             Token colonToken,
             ExpressionNode valueExpr) {
-        Objects.requireNonNull(leadingComma, "leadingComma must not be null");
         Objects.requireNonNull(openBracket, "openBracket must not be null");
         Objects.requireNonNull(fieldNameExpr, "fieldNameExpr must not be null");
         Objects.requireNonNull(closeBracket, "closeBracket must not be null");
@@ -622,7 +620,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(valueExpr, "valueExpr must not be null");
 
         STNode stComputedNameFieldNode = STNodeFactory.createComputedNameFieldNode(
-                leadingComma.internalNode(),
                 openBracket.internalNode(),
                 fieldNameExpr.internalNode(),
                 closeBracket.internalNode(),
@@ -786,17 +783,14 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static SpecificFieldNode createSpecificFieldNode(
-            Token leadingComma,
             Token fieldName,
             Token colon,
             ExpressionNode valueExpr) {
-        Objects.requireNonNull(leadingComma, "leadingComma must not be null");
         Objects.requireNonNull(fieldName, "fieldName must not be null");
         Objects.requireNonNull(colon, "colon must not be null");
         Objects.requireNonNull(valueExpr, "valueExpr must not be null");
 
         STNode stSpecificFieldNode = STNodeFactory.createSpecificFieldNode(
-                leadingComma.internalNode(),
                 fieldName.internalNode(),
                 colon.internalNode(),
                 valueExpr.internalNode());
@@ -804,15 +798,12 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static SpreadFieldNode createSpreadFieldNode(
-            Token leadingComma,
             Token ellipsis,
             ExpressionNode valueExpr) {
-        Objects.requireNonNull(leadingComma, "leadingComma must not be null");
         Objects.requireNonNull(ellipsis, "ellipsis must not be null");
         Objects.requireNonNull(valueExpr, "valueExpr must not be null");
 
         STNode stSpreadFieldNode = STNodeFactory.createSpreadFieldNode(
-                leadingComma.internalNode(),
                 ellipsis.internalNode(),
                 valueExpr.internalNode());
         return stSpreadFieldNode.createUnlinkedFacade();

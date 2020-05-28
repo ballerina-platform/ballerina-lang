@@ -83,7 +83,7 @@
                       ]
                     },
                     {
-                      "kind": "RIGHT_DOUBLE_ARROW"
+                      "kind": "RIGHT_DOUBLE_ARROW_TOKEN"
                     },
                     {
                       "kind": "IDENTIFIER_TOKEN",
@@ -144,7 +144,7 @@
                       ]
                     },
                     {
-                      "kind": "RIGHT_DOUBLE_ARROW"
+                      "kind": "RIGHT_DOUBLE_ARROW_TOKEN"
                     },
                     {
                       "kind": "IDENTIFIER_TOKEN",
@@ -214,7 +214,7 @@
                       ]
                     },
                     {
-                      "kind": "RIGHT_DOUBLE_ARROW"
+                      "kind": "RIGHT_DOUBLE_ARROW_TOKEN"
                     },
                     {
                       "kind": "IDENTIFIER_TOKEN",
@@ -268,7 +268,7 @@
                       ]
                     },
                     {
-                      "kind": "RIGHT_DOUBLE_ARROW",
+                      "kind": "RIGHT_DOUBLE_ARROW_TOKEN",
                       "isMissing": true
                     },
                     {
@@ -324,7 +324,7 @@
                       ]
                     },
                     {
-                      "kind": "RIGHT_DOUBLE_ARROW",
+                      "kind": "RIGHT_DOUBLE_ARROW_TOKEN",
                       "isMissing": true
                     },
                     {

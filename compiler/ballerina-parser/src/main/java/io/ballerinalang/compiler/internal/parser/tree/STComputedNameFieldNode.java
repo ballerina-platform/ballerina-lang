@@ -27,8 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 2.0.0
  */
-public class STComputedNameFieldNode extends STNode {
-    public final STNode leadingComma;
+public class STComputedNameFieldNode extends STMappingFieldNode {
     public final STNode openBracket;
     public final STNode fieldNameExpr;
     public final STNode closeBracket;
@@ -36,14 +35,12 @@ public class STComputedNameFieldNode extends STNode {
     public final STNode valueExpr;
 
     STComputedNameFieldNode(
-            STNode leadingComma,
             STNode openBracket,
             STNode fieldNameExpr,
             STNode closeBracket,
             STNode colonToken,
             STNode valueExpr) {
         super(SyntaxKind.COMPUTED_NAME_FIELD);
-        this.leadingComma = leadingComma;
         this.openBracket = openBracket;
         this.fieldNameExpr = fieldNameExpr;
         this.closeBracket = closeBracket;
@@ -51,7 +48,6 @@ public class STComputedNameFieldNode extends STNode {
         this.valueExpr = valueExpr;
 
         addChildren(
-                leadingComma,
                 openBracket,
                 fieldNameExpr,
                 closeBracket,

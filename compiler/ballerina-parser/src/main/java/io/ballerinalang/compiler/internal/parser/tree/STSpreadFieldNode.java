@@ -28,21 +28,17 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  * @since 2.0.0
  */
 public class STSpreadFieldNode extends STMappingFieldNode {
-    public final STNode leadingComma;
     public final STNode ellipsis;
     public final STNode valueExpr;
 
     STSpreadFieldNode(
-            STNode leadingComma,
             STNode ellipsis,
             STNode valueExpr) {
         super(SyntaxKind.SPREAD_FIELD);
-        this.leadingComma = leadingComma;
         this.ellipsis = ellipsis;
         this.valueExpr = valueExpr;
 
         addChildren(
-                leadingComma,
                 ellipsis,
                 valueExpr);
     }

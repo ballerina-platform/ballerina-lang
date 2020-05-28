@@ -36,11 +36,11 @@
                   ]
                 },
                 {
+                  "kind": "COMMA_TOKEN"
+                },
+                {
                   "kind": "SPECIFIC_FIELD",
                   "children": [
-                    {
-                      "kind": "COMMA_TOKEN"
-                    },
                     {
                       "kind": "IDENTIFIER_TOKEN",
                       "value": "age"
@@ -90,11 +90,11 @@
                   ]
                 },
                 {
+                  "kind": "COMMA_TOKEN"
+                },
+                {
                   "kind": "SPECIFIC_FIELD",
                   "children": [
-                    {
-                      "kind": "COMMA_TOKEN"
-                    },
                     {
                       "kind": "IDENTIFIER_TOKEN",
                       "value": "age"

@@ -638,7 +638,7 @@ public class ParserTestUtils {
                 return SyntaxKind.DOUBLE_QUOTE_TOKEN;
             case "SINGLE_QUOTE_TOKEN":
                 return SyntaxKind.SINGLE_QUOTE_TOKEN;
-            case "RIGHT_DOUBLE_ARROW":
+            case "RIGHT_DOUBLE_ARROW_TOKEN":
                 return SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN;
             case "SYNC_SEND_TOKEN":
                 return SyntaxKind.SYNC_SEND_TOKEN;
