@@ -20,7 +20,6 @@ package org.ballerinalang.test.auth.jwt;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.test.auth.AuthBaseTest;
-import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.ballerinalang.test.util.TestConstant;
@@ -38,7 +37,6 @@ import java.util.Map;
 public class AuthnWithMultipleHandlersTest extends AuthBaseTest {
 
     private final int servicePort = 20007;
-    private final BServerInstance serverInstance = jwtAuthServerInstance;
 
     @Test(description = "Authn success test case with example1 issuer")
     public void testAuthSuccessWithExample1Issuer() throws Exception {
@@ -66,8 +64,9 @@ public class AuthnWithMultipleHandlersTest extends AuthBaseTest {
                 "PiSX1FR-nIUTcJ9anaoQVEKo3OpkIPzd_4_95CpHXF1MaW18ww5h_NShQnUrN7myrBfc-UbHsqC1YEBAM2M-3NMs8jjgcZHfZ1J" +
                 "jomZCjd5eUXz8R5Vl46uAlSbFAmxAfY1T-31qUB93eCL2iJfDc70OK2txohryntw9h-OePwQULJN0EiwpoI60HQFFlgC1g_crPI" +
                 "DakBTiEITrbO3OzrNeCQFBN-Ji4BTXq97TulCIRNneDLCUBSRE1A");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                jwtAuthServerInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headers, jwtAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -97,8 +96,9 @@ public class AuthnWithMultipleHandlersTest extends AuthBaseTest {
                 "m8qovBmVzzd7vDdgvpvRuNhmFmcv63Jc9KjyoBiA_BDjFy9oTTzP35-PRuekQ0xy3gGjcgqhPcQtmLOyeTUbMhcrpGLB-fYp4x" +
                 "9OqRo5ZNtMrm0aOuMj-VbKACc2vBdju5gu_nEtxBGeFWVHd_9l7OqNUTibmFzEV34GXP8rvVl73JZnp5tJesH-GXArsCjvSj1Q" +
                 "pvcLBUiAaXFeXPb9t4iHFugJzHY68eQQZcxyIxWVyj2eNV4HmBjvqVLQuA");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                jwtAuthServerInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headers, jwtAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -128,8 +128,9 @@ public class AuthnWithMultipleHandlersTest extends AuthBaseTest {
                 "yph3T7JzHGEXGCEXDmACywj58pnVKISsSb5tR8pDaidh-XRrCwE2hXB4X2_3fi9-Mn2U3ZFVb2q8-W9V9bmI1KJK-ALdKFuYu" +
                 "Z9BzIq3YfZNyqAyFaQo9TFYhqNRvDbBsfdmjAfcj_SlYfSmbmTMG2FCahr9Tq_S3pMbh3S_6ii1-OqTGUukFdz1c08F5SvIZ9" +
                 "t1xdW40dCnDrSR6urqVGys0Zg_Ru0mnPg4dU2JPuwDLuKzj4KzWXShZ2Il5Ol-IA");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                jwtAuthServerInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headers, jwtAuthServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 
@@ -157,8 +158,9 @@ public class AuthnWithMultipleHandlersTest extends AuthBaseTest {
                 "BAF35RJVepnoCq5ctdrgzcpYI3B8MSa07Sn00oEpSelzRK3SHPEglzGzOaG2GDWN2N2-TGF2IVSH1Bn3ovjFXsirh_uJZ9kbn" +
                 "QhqrnZ2NIIjKaRa8y9RKtvwq3XnEvej2Ki7ddnx5AGSPXkiJ5AZBNtA5sRwEvJiffsff9tmJvI909Atf66WVylaFyP4e6E_Us" +
                 "roxJPVxncPTRuewApF-RpXPKdheVEqQ4w");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                jwtAuthServerInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headers, jwtAuthServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 }

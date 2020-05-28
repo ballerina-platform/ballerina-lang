@@ -19,7 +19,6 @@
 package org.ballerinalang.test.auth.basic;
 
 import org.ballerinalang.test.auth.AuthBaseTest;
-import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.testng.annotations.Test;
@@ -34,14 +33,14 @@ import java.util.Map;
 public class ServiceLevelAuthnTest extends AuthBaseTest {
 
     private final int servicePort = 20005;
-    private final BServerInstance serverInstance = basicAuthServerInstance;
 
     @Test(description = "Authn and authz success test case")
     public void testAuthSuccessWithServiceLevelConfigs() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headers, basicAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -49,8 +48,9 @@ public class ServiceLevelAuthnTest extends AuthBaseTest {
     public void testAuthzFailureWithServiceLevelConfigs() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headers, basicAuthServerInstance.getServerHome());
         assertForbidden(response);
     }
 
@@ -58,8 +58,9 @@ public class ServiceLevelAuthnTest extends AuthBaseTest {
     public void testAuthFailureWithServiceLevelConfigs() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headers, basicAuthServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 }

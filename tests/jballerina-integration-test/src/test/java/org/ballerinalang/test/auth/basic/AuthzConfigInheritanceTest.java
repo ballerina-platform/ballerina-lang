@@ -19,7 +19,6 @@
 package org.ballerinalang.test.auth.basic;
 
 import org.ballerinalang.test.auth.AuthBaseTest;
-import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.testng.annotations.Test;
@@ -36,14 +35,14 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     private final int servicePort1 = 20001;
     private final int servicePort2 = 20002;
     private final int servicePort3 = 20003;
-    private final BServerInstance serverInstance = basicAuthServerInstance;
 
     @Test(description = "Listener - valid scopes, service - valid scopes and resource - valid scopes")
     public void testValidScopesAtListener1() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo1/test1"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort1, "echo1/test1"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -51,8 +50,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testValidScopesAtListener2() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo1/test2"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort1, "echo1/test2"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertForbidden(response);
     }
 
@@ -60,8 +60,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testValidScopesAtListener3() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo1/test3"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort1, "echo1/test3"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -69,8 +70,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testValidScopesAtListener4() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo2/test1"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort1, "echo2/test1"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -78,8 +80,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testValidScopesAtListener5() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo2/test2"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort1, "echo2/test2"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertForbidden(response);
     }
 
@@ -87,8 +90,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testValidScopesAtListener6() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo2/test3"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort1, "echo2/test3"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertForbidden(response);
     }
 
@@ -96,8 +100,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testValidScopesAtListener7() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo3/test1"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort1, "echo3/test1"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -105,8 +110,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testValidScopesAtListener8() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo3/test2"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort1, "echo3/test2"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertForbidden(response);
     }
 
@@ -114,8 +120,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testValidScopesAtListener9() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort1, "echo3/test3"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort1, "echo3/test3"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -123,8 +130,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testInValidScopesAtListener1() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo1/test1"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort2, "echo1/test1"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -132,8 +140,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testInValidScopesAtListener2() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo1/test2"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort2, "echo1/test2"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertForbidden(response);
     }
 
@@ -141,8 +150,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testInValidScopesAtListener3() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo1/test3"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort2, "echo1/test3"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -150,8 +160,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testInValidScopesAtListener4() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo2/test1"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort2, "echo2/test1"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -159,8 +170,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testInValidScopesAtListener5() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo2/test2"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort2, "echo2/test2"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertForbidden(response);
     }
 
@@ -168,8 +180,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testInValidScopesAtListener6() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo2/test3"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort2, "echo2/test3"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertForbidden(response);
     }
 
@@ -177,8 +190,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testInValidScopesAtListener7() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo3/test1"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort2, "echo3/test1"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -186,8 +200,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testInValidScopesAtListener8() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo3/test2"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort2, "echo3/test2"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertForbidden(response);
     }
 
@@ -195,8 +210,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testInValidScopesAtListener9() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo3/test3"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort2, "echo3/test3"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertForbidden(response);
     }
 
@@ -204,8 +220,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testNotGivenScopesAtListener1() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo1/test1"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort3, "echo1/test1"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -213,8 +230,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testNotGivenScopesAtListener2() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo1/test2"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort3, "echo1/test2"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertForbidden(response);
     }
 
@@ -222,8 +240,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testNotGivenScopesAtListener3() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo1/test3"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort3, "echo1/test3"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -231,8 +250,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testNotGivenScopesAtListener4() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo2/test1"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort3, "echo2/test1"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -240,8 +260,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testNotGivenScopesAtListener5() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo2/test2"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort3, "echo2/test2"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertForbidden(response);
     }
 
@@ -249,8 +270,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testNotGivenScopesAtListener6() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo2/test3"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort3, "echo2/test3"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertForbidden(response);
     }
 
@@ -258,8 +280,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testNotGivenScopesAtListener7() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo3/test1"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort3, "echo3/test1"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -267,8 +290,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testNotGivenScopesAtListener8() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo3/test2"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort3, "echo3/test2"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertForbidden(response);
     }
 
@@ -276,8 +300,9 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     public void testNotGivenScopesAtListener9() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort3, "echo3/test3"),
-                headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort3, "echo3/test3"),
+                headersMap, basicAuthServerInstance.getServerHome());
         assertOK(response);
     }
 }

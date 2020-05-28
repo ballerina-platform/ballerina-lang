@@ -19,7 +19,6 @@
 package org.ballerinalang.test.auth.oauth2;
 
 import org.ballerinalang.test.auth.AuthBaseTest;
-import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.testng.annotations.Test;
@@ -34,14 +33,14 @@ import java.util.Map;
 public class AuthnWithOAuth2Test extends AuthBaseTest {
 
     private final int servicePort = 20027;
-    private final BServerInstance serverInstance = oauth2ServerInstance;
 
     @Test(description = "Test inbound OAuth2 success with valid token")
     public void testOAuth2SuccessTest() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Bearer 2YotnFZFEjr1zCsicMWpAA");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                oauth2ServerInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headers, oauth2ServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -49,8 +48,9 @@ public class AuthnWithOAuth2Test extends AuthBaseTest {
     public void testOAuth2FailureTest() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Bearer invalid_token");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                oauth2ServerInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headers, oauth2ServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 }

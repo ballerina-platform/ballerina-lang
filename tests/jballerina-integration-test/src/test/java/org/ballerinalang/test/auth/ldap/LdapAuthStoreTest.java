@@ -19,7 +19,6 @@
 package org.ballerinalang.test.auth.ldap;
 
 import org.ballerinalang.test.auth.AuthBaseTest;
-import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.testng.annotations.Test;
@@ -36,14 +35,13 @@ import java.util.Map;
 public class LdapAuthStoreTest extends AuthBaseTest {
 
     private final int servicePort = 20021;
-    private final BServerInstance serverInstance = ldapAuthServerInstance;
 
     @Test(description = "Test authentication failure request against ldap auth store")
     public void testAuthenticationFailure() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dmlqaXRoYTp2aWppdGhhQDEyMw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
-                "ldapAuth/disableAuthz"), headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(ldapAuthServerInstance.getServiceURLHttps(servicePort,
+                "ldapAuth/disableAuthz"), headersMap, ldapAuthServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 
@@ -51,8 +49,8 @@ public class LdapAuthStoreTest extends AuthBaseTest {
     public void testAuthenticationSuccess() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dmlqaXRoYTpiYWxsZXJpbmE=");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
-                "ldapAuth/disableAuthz"), headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(ldapAuthServerInstance.getServiceURLHttps(servicePort,
+                "ldapAuth/disableAuthz"), headersMap, ldapAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -60,8 +58,8 @@ public class LdapAuthStoreTest extends AuthBaseTest {
     public void testAuthenticationSuccessAndAuthorizationSuccess() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dmlqaXRoYTpiYWxsZXJpbmE=");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
-                "ldapAuth/enableAuthz"), headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(ldapAuthServerInstance.getServiceURLHttps(servicePort,
+                "ldapAuth/enableAuthz"), headersMap, ldapAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -69,8 +67,8 @@ public class LdapAuthStoreTest extends AuthBaseTest {
     public void testAuthenticationSuccessAndAuthorizationFailure() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dmlqaXRoYTpiYWxsZXJpbmE=");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
-                "ldapAuth/failAuthz"), headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(ldapAuthServerInstance.getServiceURLHttps(servicePort,
+                "ldapAuth/failAuthz"), headersMap, ldapAuthServerInstance.getServerHome());
         assertForbidden(response);
     }
 }

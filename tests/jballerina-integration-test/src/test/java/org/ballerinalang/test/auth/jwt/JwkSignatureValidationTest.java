@@ -20,7 +20,6 @@ package org.ballerinalang.test.auth.jwt;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.test.auth.AuthBaseTest;
-import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.ballerinalang.test.util.TestConstant;
@@ -38,7 +37,6 @@ import java.util.Map;
 public class JwkSignatureValidationTest extends AuthBaseTest {
 
     private final int servicePort = 20029;
-    private final BServerInstance serverInstance = jwtAuthServerInstance;
 
     @Test(description = "Test authentication success request by validating JWT signature with JWK")
     public void testAuthenticationSuccess() throws Exception {
@@ -54,8 +52,9 @@ public class JwkSignatureValidationTest extends AuthBaseTest {
                 "wkgaWR0VvFCfsvl88UQXyXA0rEmNYT4p_jFjKovgPsPePl6Qf0uwO--xEhGEM4cUuBog2bgY54vaLg9iHnNb6ZZ_EZvjwIONZs" +
                 "eBOiB5IXDzffUXnPfwUsGaygHqw71byV61VQhDLFDsm7Jrqe3cpd8hThAUHhVkgsz3irwXPolOdlMheslOIMunVcnQLT6yvGls" +
                 "rHxS0g");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
-                                                         headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                jwtAuthServerInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headers, jwtAuthServerInstance.getServerHome());
         assertOK(response);
     }
 }

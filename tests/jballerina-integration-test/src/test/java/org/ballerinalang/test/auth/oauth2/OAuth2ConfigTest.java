@@ -20,7 +20,6 @@
 package org.ballerinalang.test.auth.oauth2;
 
 import org.ballerinalang.test.auth.AuthBaseTest;
-import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.testng.annotations.Test;
@@ -32,104 +31,103 @@ import org.testng.annotations.Test;
 public class OAuth2ConfigTest extends AuthBaseTest {
 
     private final int servicePort = 20028;
-    private final BServerInstance serverInstance = oauth2ServerInstance;
 
     @Test(description = "Test client credentials grant type with valid credentials")
     public void testClientCredentialsGrantType1() throws Exception {
         final String serverResponse = "access_granted";
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
+        HttpResponse response = HttpsClientRequest.doGet(oauth2ServerInstance.getServiceURLHttps(servicePort,
                 "echo/oauth2/CLIENT_CREDENTIALS_GRANT_TYPE_WITH_VALID_CREDENTIALS"),
-                serverInstance.getServerHome());
+                oauth2ServerInstance.getServerHome());
         assertContains(response, serverResponse);
     }
 
     @Test(description = "Test client credentials grant type with invalid client credentials")
     public void testClientCredentialsGrantType2() throws Exception {
         final String serverResponse = "invalid_client";
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
+        HttpResponse response = HttpsClientRequest.doGet(oauth2ServerInstance.getServiceURLHttps(servicePort,
                 "echo/oauth2/CLIENT_CREDENTIALS_GRANT_TYPE_WITH_INVALID_CREDENTIALS"),
-                serverInstance.getServerHome());
+                oauth2ServerInstance.getServerHome());
         assertContains(response, serverResponse);
     }
 
     @Test(description = "Test client credentials grant type with post body bearer and valid credentials")
     public void testClientCredentialsGrantType3() throws Exception {
         final String serverResponse = "access_granted";
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
+        HttpResponse response = HttpsClientRequest.doGet(oauth2ServerInstance.getServiceURLHttps(servicePort,
                 "echo/oauth2/CLIENT_CREDENTIALS_GRANT_TYPE_WITH_POST_BODY_BEARER_AND_VALID_CREDENTIALS"),
-                serverInstance.getServerHome());
+                oauth2ServerInstance.getServerHome());
         assertContains(response, serverResponse);
     }
 
     @Test(description = "Test client credentials grant type with post body bearer and invalid credentials")
     public void testClientCredentialsGrantType4() throws Exception {
         final String serverResponse = "invalid_client";
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
+        HttpResponse response = HttpsClientRequest.doGet(oauth2ServerInstance.getServiceURLHttps(servicePort,
                 "echo/oauth2/CLIENT_CREDENTIALS_GRANT_TYPE_WITH_POST_BODY_BEARER_AND_INVALID_CREDENTIALS"),
-                serverInstance.getServerHome());
+                oauth2ServerInstance.getServerHome());
         assertContains(response, serverResponse);
     }
 
     @Test(description = "Test password grant type with valid credentials")
     public void testPasswordGrantType1() throws Exception {
         final String serverResponse = "access_granted";
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
+        HttpResponse response = HttpsClientRequest.doGet(oauth2ServerInstance.getServiceURLHttps(servicePort,
                 "echo/oauth2/PASSWORD_GRANT_TYPE_WITH_VALID_CREDENTIALS"),
-                serverInstance.getServerHome());
+                oauth2ServerInstance.getServerHome());
         assertContains(response, serverResponse);
     }
 
     @Test(description = "Test password grant type with valid credentials and valid refresh config")
     public void testPasswordGrantType2() throws Exception {
         final String serverResponse = "access_granted";
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
+        HttpResponse response = HttpsClientRequest.doGet(oauth2ServerInstance.getServiceURLHttps(servicePort,
                 "echo/oauth2/PASSWORD_GRANT_TYPE_WITH_VALID_CREDENTIALS_AND_VALID_REFRESH_CONFIG"),
-                serverInstance.getServerHome());
+                oauth2ServerInstance.getServerHome());
         assertContains(response, serverResponse);
     }
 
     @Test(description = "Test password grant type with invalid username password and valid refresh config")
     public void testPasswordGrantType3() throws Exception {
         final String serverResponse = "unauthorized_client";
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
+        HttpResponse response = HttpsClientRequest.doGet(oauth2ServerInstance.getServiceURLHttps(servicePort,
                 "echo/oauth2/PASSWORD_GRANT_TYPE_WITH_INVALID_CREDENTIALS_AND_VALID_REFRESH_CONFIG"),
-                serverInstance.getServerHome());
+                oauth2ServerInstance.getServerHome());
         assertContains(response, serverResponse);
     }
 
     @Test(description = "Test password grant type with no credentials bearer and valid username, password")
     public void testPasswordGrantType4() throws Exception {
         final String serverResponse = "access_granted";
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
+        HttpResponse response = HttpsClientRequest.doGet(oauth2ServerInstance.getServiceURLHttps(servicePort,
                 "echo/oauth2/PASSWORD_GRANT_TYPE_WITH_NO_BEARER_AND_VALID_CREDENTIALS"),
-                serverInstance.getServerHome());
+                oauth2ServerInstance.getServerHome());
         assertContains(response, serverResponse);
     }
 
     @Test(description = "Test direct token mode with valid credentials and no refresh config")
     public void testDirectToken1() throws Exception {
         final String serverResponse = "access_granted";
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
+        HttpResponse response = HttpsClientRequest.doGet(oauth2ServerInstance.getServiceURLHttps(servicePort,
                 "echo/oauth2/DIRECT_TOKEN_WITH_VALID_CREDENTIALS_AND_NO_REFRESH_CONFIG"),
-                serverInstance.getServerHome());
+                oauth2ServerInstance.getServerHome());
         assertContains(response, serverResponse);
     }
 
     @Test(description = "Test direct token mode with invalid access token and no refresh config")
     public void testDirectToken2() throws Exception {
         final String serverResponse = "Failed to refresh access token since DirectRefreshTokenConfig is not provided.";
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
+        HttpResponse response = HttpsClientRequest.doGet(oauth2ServerInstance.getServiceURLHttps(servicePort,
                 "echo/oauth2/DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_NO_REFRESH_CONFIG"),
-                serverInstance.getServerHome());
+                oauth2ServerInstance.getServerHome());
         assertContains(response, serverResponse);
     }
 
     @Test(description = "Test direct token mode with invalid access token and valid refresh config")
     public void testDirectToken3() throws Exception {
         final String serverResponse = "access_granted";
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
+        HttpResponse response = HttpsClientRequest.doGet(oauth2ServerInstance.getServiceURLHttps(servicePort,
                 "echo/oauth2/DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_VALID_REFRESH_CONFIG"),
-                serverInstance.getServerHome());
+                oauth2ServerInstance.getServerHome());
         assertContains(response, serverResponse);
     }
 
@@ -137,9 +135,9 @@ public class OAuth2ConfigTest extends AuthBaseTest {
             "but retry request is set as false")
     public void testDirectToken4() throws Exception {
         final String serverResponse = "Failed to get the access token since retry request is set as false.";
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
+        HttpResponse response = HttpsClientRequest.doGet(oauth2ServerInstance.getServiceURLHttps(servicePort,
                 "echo/oauth2/DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_NO_REFRESH_CONFIG_BUT_RETRY_REQUEST_FALSE"),
-                serverInstance.getServerHome());
+                oauth2ServerInstance.getServerHome());
         assertContains(response, serverResponse);
     }
 
@@ -147,18 +145,18 @@ public class OAuth2ConfigTest extends AuthBaseTest {
             "but retry request is set as false")
     public void testDirectToken5() throws Exception {
         final String serverResponse = "Failed to get the access token since retry request is set as false.";
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
+        HttpResponse response = HttpsClientRequest.doGet(oauth2ServerInstance.getServiceURLHttps(servicePort,
                 "echo/oauth2/DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_VALID_REFRESH_CONFIG_BUT_RETRY_REQUEST_FALSE"),
-                serverInstance.getServerHome());
+                oauth2ServerInstance.getServerHome());
         assertContains(response, serverResponse);
     }
 
     @Test(description = "Test direct token mode with invalid access token and invalid refresh config")
     public void testDirectToken6() throws Exception {
         final String serverResponse = "invalid_grant";
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
+        HttpResponse response = HttpsClientRequest.doGet(oauth2ServerInstance.getServiceURLHttps(servicePort,
                 "echo/oauth2/DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_INVALID_REFRESH_CONFIG"),
-                serverInstance.getServerHome());
+                oauth2ServerInstance.getServerHome());
         assertContains(response, serverResponse);
     }
 
@@ -166,9 +164,9 @@ public class OAuth2ConfigTest extends AuthBaseTest {
             "but retry request is set as false")
     public void testDirectToken7() throws Exception {
         final String serverResponse = "access_granted";
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
+        HttpResponse response = HttpsClientRequest.doGet(oauth2ServerInstance.getServiceURLHttps(servicePort,
                 "echo/oauth2/DIRECT_TOKEN_WITH_VALID_CREDENTIALS_AND_NO_REFRESH_CONFIG_BUT_RETRY_REQUEST_FALSE"),
-                serverInstance.getServerHome());
+                oauth2ServerInstance.getServerHome());
         assertContains(response, serverResponse);
     }
 }

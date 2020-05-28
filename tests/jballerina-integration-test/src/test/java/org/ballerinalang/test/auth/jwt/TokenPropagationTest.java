@@ -19,7 +19,6 @@
 package org.ballerinalang.test.auth.jwt;
 
 import org.ballerinalang.test.auth.AuthBaseTest;
-import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.testng.annotations.Test;
@@ -33,14 +32,14 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class TokenPropagationTest extends AuthBaseTest {
 
-    private final BServerInstance serverInstance = jwtAuthServerInstance;
 
     @Test(description = "Test JWT propagation with basic auth as the inbound authentication mechanism")
     public void testTokenPropagationWithBasicAuthInbound() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(20013, "passthrough"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                jwtAuthServerInstance.getServiceURLHttps(20013, "passthrough"),
+                headers, jwtAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -48,8 +47,9 @@ public class TokenPropagationTest extends AuthBaseTest {
     public void testWithoutTokenPropagation() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(20011, "passthrough"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                jwtAuthServerInstance.getServiceURLHttps(20011, "passthrough"),
+                headers, jwtAuthServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 
@@ -64,8 +64,9 @@ public class TokenPropagationTest extends AuthBaseTest {
                 "ksSeIT9McZxjPiSX1FR-nIUTcJ9anaoQVEKo3OpkIPzd_4_95CpHXF1MaW18ww5h_NShQnUrN7myrBfc-UbHsqC1YEBAM2M-" +
                 "3NMs8jjgcZHfZ1JjomZCjd5eUXz8R5Vl46uAlSbFAmxAfY1T-31qUB93eCL2iJfDc70OK2txohryntw9h-OePwQULJN0Eiwp" +
                 "oI60HQFFlgC1g_crPIDakBTiEITrbO3OzrNeCQFBN-Ji4BTXq97TulCIRNneDLCUBSRE1A");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(20015, "passthrough"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                jwtAuthServerInstance.getServiceURLHttps(20015, "passthrough"),
+                headers, jwtAuthServerInstance.getServerHome());
 
         assertOK(response);
     }
@@ -81,8 +82,9 @@ public class TokenPropagationTest extends AuthBaseTest {
                 "ksSeIT9McZxjPiSX1FR-nIUTcJ9anaoQVEKo3OpkIPzd_4_95CpHXF1MaW18ww5h_NShQnUrN7myrBfc-UbHsqC1YEBAM2M-" +
                 "3NMs8jjgcZHfZ1JjomZCjd5eUXz8R5Vl46uAlSbFAmxAfY1T-31qUB93eCL2iJfDc70OK2txohryntw9h-OePwQULJN0Eiwp" +
                 "oI60HQFFlgC1g_crPIDakBTiEITrbO3OzrNeCQFBN-Ji4BTXq97TulCIRNneDLCUBSRE1A");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(20017, "passthrough"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                jwtAuthServerInstance.getServiceURLHttps(20017, "passthrough"),
+                headers, jwtAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -97,8 +99,9 @@ public class TokenPropagationTest extends AuthBaseTest {
                 "ksSeIT9McZxjPiSX1FR-nIUTcJ9anaoQVEKo3OpkIPzd_4_95CpHXF1MaW18ww5h_NShQnUrN7myrBfc-UbHsqC1YEBAM2M-" +
                 "3NMs8jjgcZHfZ1JjomZCjd5eUXz8R5Vl46uAlSbFAmxAfY1T-31qUB93eCL2iJfDc70OK2txohryntw9h-OePwQULJN0Eiwp" +
                 "oI60HQFFlgC1g_crPIDakBTiEITrbO3OzrNeCQFBN-Ji4BTXq97TulCIRNneDLCUBSRE1A");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(20019, "passthrough"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                jwtAuthServerInstance.getServiceURLHttps(20019, "passthrough"),
+                headers, jwtAuthServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 }

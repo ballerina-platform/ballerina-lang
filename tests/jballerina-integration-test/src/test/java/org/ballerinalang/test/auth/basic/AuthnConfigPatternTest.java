@@ -19,7 +19,6 @@
 package org.ballerinalang.test.auth.basic;
 
 import org.ballerinalang.test.auth.AuthBaseTest;
-import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.testng.annotations.Test;
@@ -40,14 +39,14 @@ import java.util.Map;
 public class AuthnConfigPatternTest extends AuthBaseTest {
 
     private final int servicePort = 20025;
-    private final BServerInstance serverInstance = basicAuthServerInstance;
 
     @Test(description = "Test pattern 1 with user group1")
     public void testUserGroup1ForPattern1() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic Y2hhbmFrYToxMjM=");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test1"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test1"),
+                headers, basicAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -55,8 +54,9 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
     public void testUserGroup1ForPattern2() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic Y2hhbmFrYToxMjM=");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test2"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test2"),
+                headers, basicAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -64,8 +64,9 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
     public void testUserGroup1ForPattern3() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic Y2hhbmFrYToxMjM=");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test3"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test3"),
+                headers, basicAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -73,8 +74,9 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
     public void testUserGroup1ForPattern4() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic Y2hhbmFrYToxMjM=");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test4"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test4"),
+                headers, basicAuthServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 
@@ -82,8 +84,9 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
     public void testUserGroup1ForPattern5() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic Y2hhbmFrYToxMjM=");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test5"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test5"),
+                headers, basicAuthServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 
@@ -91,8 +94,9 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
     public void testUserGroup2ForPattern1() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic bGFrbWFsOjQ1Ng==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test1"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test1"),
+                headers, basicAuthServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 
@@ -100,8 +104,9 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
     public void testUserGroup2ForPattern2() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic bGFrbWFsOjQ1Ng==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test2"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test2"),
+                headers, basicAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -109,8 +114,9 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
     public void testUserGroup2ForPattern3() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic bGFrbWFsOjQ1Ng==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test3"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test3"),
+                headers, basicAuthServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 
@@ -118,8 +124,9 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
     public void testUserGroup2ForPattern4() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic bGFrbWFsOjQ1Ng==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test4"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test4"),
+                headers, basicAuthServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 
@@ -127,8 +134,9 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
     public void testUserGroup2ForPattern5() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic bGFrbWFsOjQ1Ng==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test5"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test5"),
+                headers, basicAuthServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 
@@ -136,8 +144,9 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
     public void testUserGroup3ForPattern1() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic YWxpY2U6Nzg5");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test1"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test1"),
+                headers, basicAuthServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 
@@ -145,8 +154,9 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
     public void testUserGroup3ForPattern2() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic YWxpY2U6Nzg5");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test2"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test2"),
+                headers, basicAuthServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 
@@ -154,8 +164,9 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
     public void testUserGroup3ForPattern3() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic YWxpY2U6Nzg5");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test3"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test3"),
+                headers, basicAuthServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 
@@ -163,8 +174,9 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
     public void testUserGroup3ForPattern4() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic YWxpY2U6Nzg5");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test4"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test4"),
+                headers, basicAuthServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 
@@ -172,8 +184,9 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
     public void testUserGroup3ForPattern5() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic YWxpY2U6Nzg5");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test5"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test5"),
+                headers, basicAuthServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 
@@ -181,8 +194,9 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
     public void testUserGroup4ForPattern1() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic Ym9iOjE1MA==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test1"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test1"),
+                headers, basicAuthServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 
@@ -190,8 +204,9 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
     public void testUserGroup4ForPattern2() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic Ym9iOjE1MA==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test2"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test2"),
+                headers, basicAuthServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 
@@ -199,8 +214,9 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
     public void testUserGroup4ForPattern3() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic Ym9iOjE1MA==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test3"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test3"),
+                headers, basicAuthServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 
@@ -208,8 +224,9 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
     public void testUserGroup4ForPattern4() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic Ym9iOjE1MA==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test4"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test4"),
+                headers, basicAuthServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 
@@ -217,8 +234,9 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
     public void testUserGroup4ForPattern5() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic Ym9iOjE1MA==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test5"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test5"),
+                headers, basicAuthServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 }

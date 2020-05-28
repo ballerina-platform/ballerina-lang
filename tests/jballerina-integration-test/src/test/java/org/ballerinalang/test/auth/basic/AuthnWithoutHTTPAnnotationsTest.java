@@ -20,7 +20,6 @@ package org.ballerinalang.test.auth.basic;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.test.auth.AuthBaseTest;
-import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.ballerinalang.test.util.TestConstant;
@@ -39,15 +38,15 @@ import java.util.Map;
 public class AuthnWithoutHTTPAnnotationsTest extends AuthBaseTest {
 
     private final int servicePort = 20006;
-    private final BServerInstance serverInstance = basicAuthServerInstance;
 
     @Test(description = "Authn and authz success test case")
     public void testAuthSuccess() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headers, basicAuthServerInstance.getServerHome());
         assertOK(response);
     }
 
@@ -56,8 +55,9 @@ public class AuthnWithoutHTTPAnnotationsTest extends AuthBaseTest {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
         headers.put("Authorization", "Basic aW52YWxpZFVzZXI6YWJj");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
-                headers, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(
+                basicAuthServerInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headers, basicAuthServerInstance.getServerHome());
         assertUnauthorized(response);
     }
 }
