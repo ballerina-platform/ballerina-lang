@@ -47,7 +47,7 @@ function testPanic() returns string|error {
 //    return a;
 //}
 
-function desugaredCode(int failureCutOff, boolean requestRollBack) returns (string) {
+function desugaredCode(int failureCutOff, boolean requestRollBack, int retryCount = 1) returns (string) {
     string a = "";
     a = a + "start";
     a = a + " fc-" + failureCutOff.toString();
@@ -110,9 +110,19 @@ function desugaredCode(int failureCutOff, boolean requestRollBack) returns (stri
         a = a + " endTrx";
         a = (a + " end");
     };
-    var result = trap trxFunc();
-    if (result is error) {
-    	 // may be we can try retry logic here;
+
+    while (count <= retryCount) {
+        var result = trap trxFunc();
+        if (result is error) {
+            error? rollbackResult = trap trx:rollbackTransaction(transactionBlockId);
+            if (rollbackResult is error) {
+                io:println("rollback failed ",rollbackResult.reason());
+            } else {
+                io:println("Rollback success");
+            }
+        } else {
+            break;
+        }
     }
     return a;
 }
