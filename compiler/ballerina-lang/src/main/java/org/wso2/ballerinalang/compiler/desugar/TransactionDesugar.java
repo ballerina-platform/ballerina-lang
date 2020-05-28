@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -49,10 +50,12 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
+import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,7 +97,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         return desugar;
     }
 
-    BLangBlockStmt desugar(BLangTransaction transactionNode, SymbolEnv env) {
+    BLangStatementExpression desugar(BLangTransaction transactionNode, SymbolEnv env) {
         // Transaction statement desugar implementation code.
 
         DiagnosticPos pos = transactionNode.pos;
@@ -111,7 +114,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangSimpleVariableDef transactionBlockIDVariableDef = ASTBuilderUtil.createVariableDef(pos,
                 transactionBlockIDVariable);
         transactionBlockStmt.stmts.add(transactionBlockIDVariableDef);
-        this.transactionBlockID = transactionBlockIDVariable.expr;
+        this.transactionBlockID = ASTBuilderUtil.createVariableRef(pos, transactionBlockIDVariable.symbol);
         transactionBlockIDVariable.symbol.closure = true;
 
         // Invoke startTransaction method and get a transaction id
@@ -131,7 +134,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangSimpleVariableDef transactionIDVariableDef = ASTBuilderUtil.createVariableDef(pos,
                 transactionIDVariable);
         transactionBlockStmt.stmts.add(transactionIDVariableDef);
-        this.transactionID = transactionIDVariable.expr;
+        this.transactionID = ASTBuilderUtil.createVariableRef(pos, transactionIDVariable.symbol);
         transactionIDVariable.symbol.closure = true;
 
         // Create transaction lambda function
@@ -148,18 +151,32 @@ public class TransactionDesugar extends BLangNodeVisitor {
 //        }
         BLangLambdaFunction transactionLambdaFunction = desugar.createLambdaFunction(pos, "$anonTransactionFunc$",
                 new ArrayList<>(), transactionLambdaReturnType, body);
-        BVarSymbol transactionLambdaVarSymbol = new BVarSymbol(0, new Name("trxFunc"),
+
+        transactionLambdaFunction.function.closureVarSymbols.add(new ClosureVarSymbol(transactionIDVariable.symbol,
+                pos));
+        transactionLambdaFunction.function.closureVarSymbols.add(new ClosureVarSymbol(transactionBlockIDVariable.symbol,
+                pos));
+
+//        BVarSymbol transactionLambdaVarSymbol = new BVarSymbol(0, new Name("trxFunc"),
+//                env.scope.owner.pkgID, transactionLambdaFunction.type, env.scope.owner);
+        BInvokableSymbol transactionLambdaVarSymbol = new BInvokableSymbol(SymTag.VARIABLE,
+                Flags.asMask(transactionLambdaFunction.function.flagSet), names.fromString("trxFunc"),
                 env.scope.owner.pkgID, transactionLambdaFunction.type, env.scope.owner);
+        transactionLambdaVarSymbol.retType = symTable.errorOrNilType;
         BLangSimpleVariable transactionLambdaVariable = ASTBuilderUtil.createVariable(pos, "trxFunc",
                 transactionLambdaFunction.type, transactionLambdaFunction, transactionLambdaVarSymbol);
         BLangSimpleVariableDef transactionLambdaVariableDef = ASTBuilderUtil.createVariableDef(pos,
                 transactionLambdaVariable);
+        BLangSimpleVarRef transactionLambdaVarRef = new BLangSimpleVarRef.
+                BLangLocalVarRef(transactionLambdaVariable.symbol);
         transactionBlockStmt.stmts.add(transactionLambdaVariableDef);
 
         // Add lambda function call
-        BLangInvocation transactionLambdaInvocation = ASTBuilderUtil.
-                createInvocationExprForMethod(pos, transactionLambdaFunction.function.symbol,
-                        new ArrayList<>(), symResolver);
+        BLangInvocation transactionLambdaInvocation = new BLangInvocation.BFunctionPointerInvocation(pos,
+                transactionLambdaVarRef, transactionLambdaVariable.symbol, symTable.errorOrNilType);
+//                ASTBuilderUtil.
+//                createInvocationExprForMethod(pos, (BInvokableSymbol) transactionLambdaVariable.symbol,
+//                        new ArrayList<>(), symResolver);
         transactionLambdaInvocation.argExprs = new ArrayList<>();
         BLangTrapExpr transactionFunctionTrapExpression = (BLangTrapExpr) TreeBuilder.createTrapExpressionNode();
         transactionFunctionTrapExpression.type = BUnionType.create(null, symTable.errorType, symTable.nilType);
@@ -176,7 +193,10 @@ public class TransactionDesugar extends BLangNodeVisitor {
         ClosureExpressionVisitor closureExpressionVisitor = new ClosureExpressionVisitor(context, env, true);
         transactionLambdaFunction.accept(closureExpressionVisitor);
 
-        return transactionBlockStmt;
+        BLangStatementExpression transactionBlockStmtExpr = ASTBuilderUtil.createStatementExpression(transactionBlockStmt,
+                ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE));
+
+        return transactionBlockStmtExpr;
     }
 
     BLangStatement desugar(BLangRollback rollbackNode, SymbolEnv env) {
@@ -259,6 +279,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 commitReturnType, commitTrapExpression, commitTransactionVarSymbol);
         BLangSimpleVariableDef commitResultVariableDef = ASTBuilderUtil.createVariableDef(pos,
                 commitResultVariable);
+        BLangSimpleVarRef commitResultVarRef = ASTBuilderUtil.createVariableRef(pos, commitResultVariable.symbol);
         failureHandlerBlockStatement.addStatement(commitResultVariableDef);
 
         // Successful commit operation
@@ -268,7 +289,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangValueType stringType = (BLangValueType) TreeBuilder.createValueTypeNode();
         stringType.type = symTable.stringType;
         stringType.typeKind = TypeKind.STRING;
-        commitResultValidationGroupExpr.expression = ASTBuilderUtil.createTypeTestExpr(pos, commitResultVariable.expr,
+        commitResultValidationGroupExpr.expression = ASTBuilderUtil.createTypeTestExpr(pos, commitResultVarRef,
                 stringType);
         commitResultValidationIf.expr = commitResultValidationGroupExpr;
         commitResultValidationIf.body = ASTBuilderUtil.createBlockStmt(pos);

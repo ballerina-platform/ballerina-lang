@@ -3032,13 +3032,18 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        BLangBlockStmt transactionBlockStmt = transactionDesugar.desugar(transactionNode, env);
-        result = rewrite(transactionBlockStmt, env);
+        BLangStatementExpression transactionStmtExpr = transactionDesugar.desugar(transactionNode, env);
+        BLangExpressionStmt transactionExprStmt  = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
+        transactionExprStmt.pos = transactionNode.pos;
+        transactionExprStmt.expr = transactionStmtExpr;
+        transactionExprStmt.type = symTable.nilType;
+
+        result = rewrite(transactionExprStmt, env);
         // The result will be a block statement. All variable definitions in the block statement are defined in its
         // scope.
-        ((BLangBlockStmt) result).stmts.stream().filter(stmt -> stmt.getKind() == NodeKind.VARIABLE_DEF)
-                .map(stmt -> (BLangSimpleVariableDef) stmt).forEach(varDef ->
-                ((BLangBlockStmt) result).scope.define(varDef.var.symbol.name, varDef.var.symbol));
+//        ((BLangBlockStmt) result).stmts.stream().filter(stmt -> stmt.getKind() == NodeKind.VARIABLE_DEF)
+//                .map(stmt -> (BLangSimpleVariableDef) stmt).forEach(varDef ->
+//                ((BLangBlockStmt) result).scope.define(varDef.var.symbol.name, varDef.var.symbol));
     }
 
     @Override

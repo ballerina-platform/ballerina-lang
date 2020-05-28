@@ -29,7 +29,7 @@ function actualCode(int failureCutOff, boolean requestRollback) returns (string)
     int count = 0;
 
     transaction {
-        a = a + " inTrx";
+        //a = a + " inTrx";
         var i = commit;
         //count = count + 1;
         //if (count <= failureCutOff) {
@@ -60,51 +60,53 @@ function desugaredCode(int failureCutOff, boolean requestRollBack) returns (stri
     string transactionId = transactions:startTransaction(transactionBlockId);
 
     var trxFunc = function () returns error? {
-        var zz = function(transactions:Info? info, error? cause, boolean willTry) {
-            io:println("######----RollbackedZZ-----#####");
-        };
-        transactions:onRollback(zz);
+        //var zz = function(transactions:Info? info, error? cause, boolean willTry) {
+        //    io:println("######----RollbackedZZ-----#####");
+        //};
+        //transactions:onRollback(zz);
+        //
+        //var xx = function (transactions:Info? info) {
+        //    io:println("#########----CommitedXX----###########");
+        //};
+        //var yy = function (transactions:Info? info) {
+        //    io:println("#########----CommitedYY----###########");
+        //};
+        //transactions:onCommit(xx);
+        //transactions:onCommit(xx);
+        //transactions:onCommit(yy);
 
-        var xx = function (transactions:Info? info) {
-            io:println("#########----CommitedXX----###########");
-        };
-        var yy = function (transactions:Info? info) {
-            io:println("#########----CommitedYY----###########");
-        };
-        transactions:onCommit(xx);
-        transactions:onCommit(xx);
-        transactions:onCommit(yy);
+        //a = a + " inTrx";
+        var endSuccess = trap transactions:endTransaction(transactionId, transactionBlockId);
 
-        a = a + " inTrx";
-        count = count + 1;
-        if (count <= failureCutOff) {
-            a = a + " blowUp";
-            int bV = blowUp();
-            io:println("Transaction block Panic");
-        }
-
-        if (requestRollBack) {
-            a = a + " Rollback";
-            error? rollbackResult = trap transactions:rollbackTransaction(transactionBlockId);
-            if (rollbackResult is error) {
-                io:println("rollback failed ",rollbackResult.reason());
-            } else {
-                io:println("Rollback success");
-            }
-        } else {
-            a = a + " Commit";
-            boolean isFailed = transactions:getAndClearFailure();
-            if (!isFailed) {
-                var endSuccess = trap transactions:endTransaction(transactionId, transactionBlockId);
-                if (endSuccess is string) {
-                    if (endSuccess == transactions:OUTCOME_COMMITTED) {
-                        io:println("Commit success");
-                    }
-                }
-            }
-        }
-        a = a + " endTrx";
-        a = (a + " end");
+        //count = count + 1;
+        //if (count <= failureCutOff) {
+        //    a = a + " blowUp";
+        //    int bV = blowUp();
+        //    io:println("Transaction block Panic");
+        //}
+        //
+        //if (requestRollBack) {
+        //    a = a + " Rollback";
+        //    error? rollbackResult = trap transactions:rollbackTransaction(transactionBlockId);
+        //    if (rollbackResult is error) {
+        //        io:println("rollback failed ",rollbackResult.reason());
+        //    } else {
+        //        io:println("Rollback success");
+        //    }
+        //} else {
+        //    a = a + " Commit";
+        //    boolean isFailed = transactions:getAndClearFailure();
+        //    if (!isFailed) {
+        //        var endSuccess = trap transactions:endTransaction(transactionId, transactionBlockId);
+        //        if (endSuccess is string) {
+        //            if (endSuccess == transactions:OUTCOME_COMMITTED) {
+        //                io:println("Commit success");
+        //            }
+        //        }
+        //    }
+        //}
+        //a = a + " endTrx";
+        //a = (a + " end");
     };
     var result = trap trxFunc();
     if (result is error) {
