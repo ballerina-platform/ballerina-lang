@@ -280,6 +280,8 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
     @Override
     public void visit(BLangSimpleVariable varNode) {
         addVariableNode(varNode);
+        varNode.getTypeNode().accept(this);
+        varNode.getInitialExpression().accept(this);
     }
 
     @Override
@@ -733,7 +735,7 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
-        // No implementation
+        removeImportNode(userDefinedType.getPackageAlias());
     }
 
     @Override
