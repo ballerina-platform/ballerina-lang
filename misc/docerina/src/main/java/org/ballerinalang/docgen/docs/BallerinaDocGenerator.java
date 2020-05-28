@@ -344,8 +344,6 @@ public class BallerinaDocGenerator {
                 if (BallerinaDocUtils.isDebugEnabled()) {
                     out.println("docerina: generated docs for module: " + module.id);
                 }
-
-
             } catch (IOException e) {
                 out.println(String.format("docerina: API documentation generation failed for module %s: %s",
                         module.id, e.getMessage()));
