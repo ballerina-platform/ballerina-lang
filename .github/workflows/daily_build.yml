@@ -10,6 +10,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+
     - name: Use Node.js
       uses: actions/setup-node@v1
       with:
@@ -39,9 +40,4 @@ jobs:
       run: |
         export DISPLAY=':99.0'
         /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-        ./gradlew build --scan --info
-
-        rm -rf ~/.gradle/caches/5.4/
-        find ~/.gradle/caches/ -name "*.lock" -type f -delete
-
-
+        ./gradlew build --scan --max-workers=2
