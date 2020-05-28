@@ -72,7 +72,7 @@ public class MavenSupportTest extends CommandTest {
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
-        String output = readOutput(false);
+        String output = readOutput(true);
         Assert.assertTrue(output.contains("Ballerina project detected at:"));
         Assert.assertTrue(output.contains("Resolving maven dependencies..."));
         Assert.assertTrue(output.contains("Following jars were added to the classpath"));

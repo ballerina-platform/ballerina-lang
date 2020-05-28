@@ -49,15 +49,16 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirs.isModuleExist;
  *
  * @since 1.2.5
  */
-public class MvnResolverUtils {
+public class BindgenMvnResolver {
 
-    private static PrintStream outStream;
+    private PrintStream outStream;
 
-    private MvnResolverUtils() {
+    public BindgenMvnResolver(PrintStream outStream) {
+        this.outStream = outStream;
     }
 
-    public static void mavenResolver(String groupId, String artifactId, String version, Path projectRoot,
-                                     boolean resolve) throws BindgenException {
+    public void mavenResolver(String groupId, String artifactId, String version, Path projectRoot,
+                              boolean resolve) throws BindgenException {
         Path mvnRepository;
         if (projectRoot == null) {
             if (getOutputPath() != null) {
@@ -172,9 +173,5 @@ public class MvnResolverUtils {
             return moduleName;
         }
         return null;
-    }
-
-    public static void setOutStream(PrintStream outStream) {
-        MvnResolverUtils.outStream = outStream;
     }
 }

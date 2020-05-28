@@ -32,7 +32,6 @@ import org.ballerinalang.bindgen.model.JMethod;
 import org.ballerinalang.bindgen.model.JParameter;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -52,12 +51,9 @@ import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
 
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
@@ -406,30 +402,6 @@ public class BindgenUtils {
         }
     }
 
-    public static Set<String> getClassNamesInJar(String jarPath) throws IOException {
-        JarInputStream jarInputStream = new JarInputStream(new FileInputStream(jarPath));
-        JarEntry jarEntry;
-        Set<String> classes = new HashSet<>();
-        try {
-            while (true) {
-                jarEntry = jarInputStream.getNextJarEntry();
-                if (jarEntry == null) {
-                    break;
-                }
-                if ((jarEntry.getName().endsWith(".class"))) {
-                    String className = jarEntry.getName().replace("/", ".");
-                    classes.add(className.substring(0, className.length() - ".class".length()));
-                }
-            }
-            jarInputStream.close();
-        } catch (IOException e) {
-            throw new IOException("error while accessing the jar: ", e);
-        } finally {
-            jarInputStream.close();
-        }
-        return classes;
-    }
-
     public static boolean isPublicField(Field field) {
         int modifiers = field.getModifiers();
         return Modifier.isPublic(modifiers);
@@ -463,19 +435,6 @@ public class BindgenUtils {
     public static boolean isAbstractClass(Class javaClass) {
         int modifiers = javaClass.getModifiers();
         return Modifier.isAbstract(modifiers) && !javaClass.isInterface();
-    }
-
-    public static String getModuleName(String jarPath) {
-        String name = null;
-        if (jarPath != null) {
-            Path jarName = Paths.get(jarPath).getFileName();
-            if (jarName != null) {
-                name = jarName.toString().substring(0, jarName.toString()
-                        .lastIndexOf('.'));
-                name = name.replace('-', '_');
-            }
-        }
-        return name;
     }
 
     public static void handleOverloadedMethods(List<JMethod> methodList) {
