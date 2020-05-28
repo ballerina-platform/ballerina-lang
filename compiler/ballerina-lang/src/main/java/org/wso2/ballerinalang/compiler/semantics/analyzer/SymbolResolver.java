@@ -1184,11 +1184,11 @@ public class SymbolResolver extends BLangNodeVisitor {
 
             if ((tempSymbol.tag & SymTag.TYPE) == SymTag.TYPE) {
                 symbol = tempSymbol;
-            } else if (((tempSymbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE)
-                    && env.node.getKind() == NodeKind.FUNCTION) {
-                //  TODO: Check what happens when the same param is used in multiple places in the same return type
+            } else if (Symbols.isSymTagOn(tempSymbol, SymTag.VARIABLE) && env.node.getKind() == NodeKind.FUNCTION) {
                 BLangFunction func = (BLangFunction) env.node;
-                if (func.hasBody() && func.body.getKind() == NodeKind.EXTERN_FUNCTION_BODY) {
+
+                if (func.returnTypeNode != null && func.hasBody() &&
+                        func.body.getKind() == NodeKind.EXTERN_FUNCTION_BODY) {
                     BType paramValType = getTypedescParamValueType(func.requiredParams, tempSymbol,
                                                                    func.returnTypeNode.pos);
 
@@ -1199,12 +1199,16 @@ public class SymbolResolver extends BLangNodeVisitor {
 
                     BTypeSymbol tSymbol = new BTypeSymbol(SymTag.TYPE, Flags.PARAMETERIZED | tempSymbol.flags,
                                                           tempSymbol.name, tempSymbol.pkgID, null, func.symbol);
-                    this.resultType = tSymbol.type = new BParameterizedType(paramValType, (BVarSymbol) tempSymbol,
-                                                                            tSymbol, tempSymbol.name);
+                    tSymbol.type = new BParameterizedType(paramValType, (BVarSymbol) tempSymbol,
+                                                          tSymbol, tempSymbol.name);
+
+                    this.resultType = tSymbol.type;
                     this.resultType.flags |= Flags.PARAMETERIZED;
                     return;
                 } else {
-                    dlog.error(func.pos, DiagnosticCode.INVALID_RETURN_TYPE_PARAMETERIZATION);
+                    dlog.error(userDefinedTypeNode.pos, DiagnosticCode.INVALID_USE_OF_TYPEDESC_PARAM);
+                    resultType = symTable.semanticError;
+                    return;
                 }
             }
         }
