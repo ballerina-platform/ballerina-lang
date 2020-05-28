@@ -504,8 +504,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(fieldAccessExpressionNode.expression());
         Token dotToken =
                 modifyToken(fieldAccessExpressionNode.dotToken());
-        Token fieldName =
-                modifyToken(fieldAccessExpressionNode.fieldName());
+        NameReferenceNode fieldName =
+                modifyNode(fieldAccessExpressionNode.fieldName());
         return fieldAccessExpressionNode.modify(
                 expression,
                 dotToken,
@@ -537,8 +537,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(methodCallExpressionNode.expression());
         Token dotToken =
                 modifyToken(methodCallExpressionNode.dotToken());
-        Token methodName =
-                modifyToken(methodCallExpressionNode.methodName());
+        NameReferenceNode methodName =
+                modifyNode(methodCallExpressionNode.methodName());
         Token openParenToken =
                 modifyToken(methodCallExpressionNode.openParenToken());
         NodeList<FunctionArgumentNode> arguments =
@@ -2179,6 +2179,48 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public MappingBindingPatternNode transform(
+            MappingBindingPatternNode mappingBindingPatternNode) {
+        Token openBrace =
+                modifyToken(mappingBindingPatternNode.openBrace());
+        SeparatedNodeList<FieldBindingPatternNode> fieldBindingPatterns =
+                modifySeparatedNodeList(mappingBindingPatternNode.fieldBindingPatterns());
+        RestBindingPatternNode restBindingPattern =
+                modifyNode(mappingBindingPatternNode.restBindingPattern().orElse(null));
+        Token closeBrace =
+                modifyToken(mappingBindingPatternNode.closeBrace());
+        return mappingBindingPatternNode.modify(
+                openBrace,
+                fieldBindingPatterns,
+                restBindingPattern,
+                closeBrace);
+    }
+
+    @Override
+    public FieldBindingPatternFullNode transform(
+            FieldBindingPatternFullNode fieldBindingPatternFullNode) {
+        SimpleNameReferenceNode variableName =
+                modifyNode(fieldBindingPatternFullNode.variableName());
+        Token colon =
+                modifyToken(fieldBindingPatternFullNode.colon());
+        BindingPatternNode bindingPattern =
+                modifyNode(fieldBindingPatternFullNode.bindingPattern());
+        return fieldBindingPatternFullNode.modify(
+                variableName,
+                colon,
+                bindingPattern);
+    }
+
+    @Override
+    public FieldBindingPatternVarnameNode transform(
+            FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
+        SimpleNameReferenceNode variableName =
+                modifyNode(fieldBindingPatternVarnameNode.variableName());
+        return fieldBindingPatternVarnameNode.modify(
+                variableName);
+    }
+
+    @Override
     public RestBindingPatternNode transform(
             RestBindingPatternNode restBindingPatternNode) {
         Token ellipsisToken =
@@ -2365,8 +2407,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(optionalFieldAccessExpressionNode.expression());
         Token optionalChainingToken =
                 modifyToken(optionalFieldAccessExpressionNode.optionalChainingToken());
-        Token fieldName =
-                modifyToken(optionalFieldAccessExpressionNode.fieldName());
+        NameReferenceNode fieldName =
+                modifyNode(optionalFieldAccessExpressionNode.fieldName());
         return optionalFieldAccessExpressionNode.modify(
                 expression,
                 optionalChainingToken,
@@ -2533,6 +2575,24 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 annotations,
                 serviceKeyword,
                 serviceBody);
+    }
+
+    @Override
+    public ByteArrayLiteralNode transform(
+            ByteArrayLiteralNode byteArrayLiteralNode) {
+        Token type =
+                modifyToken(byteArrayLiteralNode.type());
+        Token startBacktick =
+                modifyToken(byteArrayLiteralNode.startBacktick());
+        Token content =
+                modifyToken(byteArrayLiteralNode.content());
+        Token endBacktick =
+                modifyToken(byteArrayLiteralNode.endBacktick());
+        return byteArrayLiteralNode.modify(
+                type,
+                startBacktick,
+                content,
+                endBacktick);
     }
 
     // Tokens

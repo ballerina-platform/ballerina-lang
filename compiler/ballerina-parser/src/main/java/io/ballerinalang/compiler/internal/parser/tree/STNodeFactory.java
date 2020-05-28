@@ -1610,6 +1610,37 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeBracket);
     }
 
+    public static STNode createMappingBindingPatternNode(
+            STNode openBrace,
+            STNode fieldBindingPatterns,
+            STNode restBindingPattern,
+            STNode closeBrace) {
+
+        return new STMappingBindingPatternNode(
+                openBrace,
+                fieldBindingPatterns,
+                restBindingPattern,
+                closeBrace);
+    }
+
+    public static STNode createFieldBindingPatternFullNode(
+            STNode variableName,
+            STNode colon,
+            STNode bindingPattern) {
+
+        return new STFieldBindingPatternFullNode(
+                variableName,
+                colon,
+                bindingPattern);
+    }
+
+    public static STNode createFieldBindingPatternVarnameNode(
+            STNode variableName) {
+
+        return new STFieldBindingPatternVarnameNode(
+                variableName);
+    }
+
     public static STNode createRestBindingPatternNode(
             STNode ellipsisToken,
             STNode variableName) {
@@ -1870,6 +1901,19 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 annotations,
                 serviceKeyword,
                 serviceBody);
+    }
+
+    public static STNode createByteArrayLiteralNode(
+            STNode type,
+            STNode startBacktick,
+            STNode content,
+            STNode endBacktick) {
+
+        return new STByteArrayLiteralNode(
+                type,
+                startBacktick,
+                content,
+                endBacktick);
     }
 }
 

@@ -37,6 +37,8 @@ public enum BuildContextField {
     TARGET_DIR("targetDir"),
     
     COMPILER_CONTEXT("compilerContext"),
+
+    JAR_RESOLVER("jarResolver"),
     
     BIR_CACHE_DIR("birCacheDir");
     

@@ -322,7 +322,7 @@ public class ParserTestUtils {
             try {
                 String jsonString = SyntaxTreeJSONGenerator.generateJSON(sourceFilePath, context);
                 try (BufferedWriter writer =
-                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
+                             new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
                     writer.write(jsonString);
                 }
             } catch (Exception e) {
@@ -337,7 +337,7 @@ public class ParserTestUtils {
             try {
                 String jsonString = SyntaxTreeJSONGenerator.generateJSON(source, context);
                 try (BufferedWriter writer =
-                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
+                             new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
                     writer.write(jsonString);
                 }
             } catch (Exception e) {
@@ -538,6 +538,10 @@ public class ParserTestUtils {
                 return SyntaxKind.TRANSACTIONAL_KEYWORD;
             case "ENUM_KEYWORD":
                 return SyntaxKind.ENUM_KEYWORD;
+            case "BASE16_KEYWORD":
+                return SyntaxKind.BASE16_KEYWORD;
+            case "BASE64_KEYWORD":
+                return SyntaxKind.BASE64_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -728,6 +732,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TRANSACTIONAL_EXPRESSION;
             case "SERVICE_CONSTRUCTOR_EXPRESSION":
                 return SyntaxKind.SERVICE_CONSTRUCTOR_EXPRESSION;
+            case "BYTE_ARRAY_LITERAL":
+                return SyntaxKind.BYTE_ARRAY_LITERAL;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
@@ -966,6 +972,10 @@ public class ParserTestUtils {
                 return SyntaxKind.LIST_BINDING_PATTERN;
             case "REST_BINDING_PATTERN":
                 return SyntaxKind.REST_BINDING_PATTERN;
+            case "FIELD_BINDING_PATTERN":
+                return SyntaxKind.FIELD_BINDING_PATTERN;
+            case "MAPPING_BINDING_PATTERN":
+                return SyntaxKind.MAPPING_BINDING_PATTERN;
             case "TYPE_PARAMETER":
                 return SyntaxKind.TYPE_PARAMETER;
             case "KEY_TYPE_CONSTRAINT":
