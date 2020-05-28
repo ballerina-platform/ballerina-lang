@@ -89,3 +89,17 @@ function getError(typedesc<string> reason, typedesc<record {}> detail,
     paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc", "org.ballerinalang.jvm.values.api.BTypedesc",
                     "org.ballerinalang.jvm.values.api.BError"]
 } external;
+
+function foo(typedesc<anydata> td = string, td s = "foo") returns td {
+    return "foo";
+}
+
+function getNonTypedescExpr(typedesc<anydata> aTypeVar = getTypedesc()) returns aTypeVar = @java:Method {
+    class: "xyz.pubudu.Hello",
+    name: "getValue",
+    paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
+} external;
+
+function getTypedesc() returns typedesc<anydata> {
+    return float;
+}
