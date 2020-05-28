@@ -1,48 +1,48 @@
 {
-    "kind": "METHOD_CALL",
-    "children": [
+  "kind": "METHOD_CALL",
+  "children": [
+    {
+      "kind": "FIELD_ACCESS",
+      "children": [
         {
-            "kind": "FIELD_ACCESS",
-            "children": [
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "foo"
-                },
-                {
-                    "kind": "DOT_TOKEN"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "bar"
-                }
-            ]
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "foo"
         },
         {
-            "kind": "DOT_TOKEN"
+          "kind": "DOT_TOKEN"
         },
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "isMissing": true
-        },
-        {
-            "kind": "OPEN_PAREN_TOKEN"
-        },
-        {
-            "kind": "LIST",
-            "children": [
-                {
-                    "kind": "POSITIONAL_ARG",
-                    "children": [
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "baz"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "CLOSE_PAREN_TOKEN"
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "bar"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "DOT_TOKEN"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "isMissing": true
+    },
+    {
+      "kind": "OPEN_PAREN_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "POSITIONAL_ARG",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "baz"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "CLOSE_PAREN_TOKEN"
+    }
+  ]
 }

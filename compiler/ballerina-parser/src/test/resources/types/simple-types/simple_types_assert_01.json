@@ -52,30 +52,21 @@
                   "children": []
                 },
                 {
-                  "kind": "INT_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "a"
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "LOCAL_VAR_DECL",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "STRING_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "b"
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "INT_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "SEMICOLON_TOKEN"
@@ -90,30 +81,21 @@
                   "children": []
                 },
                 {
-                  "kind": "FLOAT_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "f"
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "LOCAL_VAR_DECL",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "BOOLEAN_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "d"
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "STRING_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "b"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "SEMICOLON_TOKEN"
@@ -128,30 +110,21 @@
                   "children": []
                 },
                 {
-                  "kind": "DECIMAL_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "e"
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "LOCAL_VAR_DECL",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "XML_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "f"
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "FLOAT_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "f"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "SEMICOLON_TOKEN"
@@ -166,30 +139,21 @@
                   "children": []
                 },
                 {
-                  "kind": "JSON_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "g"
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "LOCAL_VAR_DECL",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "HANDLE_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "h"
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "BOOLEAN_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "d"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "SEMICOLON_TOKEN"
@@ -204,30 +168,21 @@
                   "children": []
                 },
                 {
-                  "kind": "ANY_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "i"
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "LOCAL_VAR_DECL",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "ANYDATA_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "j"
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "DECIMAL_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "e"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "SEMICOLON_TOKEN"
@@ -242,30 +197,21 @@
                   "children": []
                 },
                 {
-                  "kind": "SERVICE_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "k"
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "LOCAL_VAR_DECL",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "VAR_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "l"
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "XML_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "f"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "SEMICOLON_TOKEN"
@@ -280,30 +226,21 @@
                   "children": []
                 },
                 {
-                  "kind": "NEVER_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "m"
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "LOCAL_VAR_DECL",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "READONLY_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "n"
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "JSON_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "g"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "SEMICOLON_TOKEN"
@@ -318,11 +255,224 @@
                   "children": []
                 },
                 {
-                  "kind": "DISTINCT_KEYWORD"
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "HANDLE_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "h"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "o"
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "ANY_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "i"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "ANYDATA_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "j"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "SERVICE_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "k"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "VAR_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "l"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "NEVER_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "m"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "READONLY_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "n"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "DISTINCT_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "o"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "SEMICOLON_TOKEN"

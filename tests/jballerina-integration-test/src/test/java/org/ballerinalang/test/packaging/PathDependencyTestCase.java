@@ -39,7 +39,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.given;
 import static org.ballerinalang.test.packaging.ModulePushTestCase.REPO_TO_CENTRAL_SUCCESS_MSG;
@@ -66,7 +65,7 @@ public class PathDependencyTestCase extends BaseTest {
         
         // copy resources to a temp
         Path testResources = Paths.get("src", "test", "resources", "packaging", "balopath").toAbsolutePath();
-        copyFolder(testResources, this.tempTestResources);
+        PackerinaTestUtils.copyFolder(testResources, this.tempTestResources);
         
         PackerinaTestUtils.createSettingToml(tempHomeDirectory);
         envVariables = addEnvVariables(PackerinaTestUtils.getEnvVariables());
@@ -206,7 +205,8 @@ public class PathDependencyTestCase extends BaseTest {
         //// change module name
         Path testProjBeeModulePath = caseResources.resolve("TestProject1").resolve("src").resolve(beeModuleName);
         Files.createDirectories(caseResources.resolve("TestProject1").resolve("src").resolve(beeModuleName));
-        copyFolder(caseResources.resolve("TestProject1").resolve("src").resolve("bee"), testProjBeeModulePath);
+        PackerinaTestUtils.copyFolder(caseResources.resolve("TestProject1").resolve("src").resolve("bee"),
+                                      testProjBeeModulePath);
         deleteFiles(caseResources.resolve("TestProject1").resolve("src").resolve("bee"));
         
         String beeModuleBaloFileName = beeModuleName + "-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-1" +
@@ -238,7 +238,8 @@ public class PathDependencyTestCase extends BaseTest {
         //// change module name
         Path testProjFeeModulePath = caseResources.resolve("TestProject2").resolve("src").resolve(feeModuleName);
         Files.createDirectories(caseResources.resolve("TestProject2").resolve("src").resolve(feeModuleName));
-        copyFolder(caseResources.resolve("TestProject2").resolve("src").resolve("fee"), testProjFeeModulePath);
+        PackerinaTestUtils.copyFolder(caseResources.resolve("TestProject2").resolve("src").resolve("fee"),
+                                      testProjFeeModulePath);
         deleteFiles(caseResources.resolve("TestProject2").resolve("src").resolve("fee"));
     
         String feeModuleBaloFileName = feeModuleName + "-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-2.0.0"
@@ -611,18 +612,6 @@ public class PathDependencyTestCase extends BaseTest {
         envVariables.put(ProjectDirConstants.HOME_REPO_ENV_KEY, tempHomeDirectory.toString());
         envVariables.put("BALLERINA_DEV_STAGE_CENTRAL", "true");
         return envVariables;
-    }
-    
-    public  void copyFolder(Path src, Path dest) throws IOException {
-        Files.walk(src).forEach(source -> copy(source, dest.resolve(src.relativize(source))));
-    }
-    
-    private void copy(Path source, Path dest) {
-        try {
-            Files.copy(source, dest, REPLACE_EXISTING);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
     }
     
     @AfterClass

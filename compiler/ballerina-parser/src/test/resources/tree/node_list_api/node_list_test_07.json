@@ -15,30 +15,21 @@
               "children": []
             },
             {
-              "kind": "INT_KEYWORD"
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "a"
-            },
-            {
-              "kind": "SEMICOLON_TOKEN"
-            }
-          ]
-        },
-        {
-          "kind": "LOCAL_VAR_DECL",
-          "children": [
-            {
-              "kind": "LIST",
-              "children": []
-            },
-            {
-              "kind": "INT_KEYWORD"
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "b"
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "INT_KEYWORD"
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN"
@@ -53,11 +44,50 @@
               "children": []
             },
             {
-              "kind": "INT_KEYWORD"
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "INT_KEYWORD"
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "b"
+                    }
+                  ]
+                }
+              ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "c"
+              "kind": "SEMICOLON_TOKEN"
+            }
+          ]
+        },
+        {
+          "kind": "LOCAL_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "INT_KEYWORD"
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "c"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN"
@@ -156,11 +186,21 @@
               "children": []
             },
             {
-              "kind": "STRING_KEYWORD"
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "var1"
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "STRING_KEYWORD"
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "var1"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN"

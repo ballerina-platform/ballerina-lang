@@ -18,6 +18,7 @@
 
 package org.ballerinalang.stdlib.email.util;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -212,7 +213,8 @@ public class SmtpUtil {
 
     private static void addHeadersToJavaMailBodyPart(ObjectValue mimeEntity, MimeBodyPart attachmentBodyPart)
             throws MessagingException {
-        ArrayValue headerNamesArrayValue = EntityHeaders.getHeaderNames(mimeEntity, MimeConstants.LEADING_HEADER);
+        ArrayValue headerNamesArrayValue = EntityHeaders.getHeaderNames(mimeEntity,
+                StringUtils.fromString(MimeConstants.LEADING_HEADER));
         HandleValue[] handleValues = (HandleValue[]) headerNamesArrayValue.getValues();
         String[] headerNames = new String[handleValues.length];
         for (int j = 0; j < handleValues.length; j++) {
@@ -220,7 +222,8 @@ public class SmtpUtil {
         }
         if (headerNames.length > 0) {
             for (String headerName : headerNames) {
-                String headerValue = EntityHeaders.getHeader(mimeEntity, headerName, MimeConstants.LEADING_HEADER);
+                String headerValue = EntityHeaders.getHeader(mimeEntity, headerName,
+                        StringUtils.fromString(MimeConstants.LEADING_HEADER));
                 if (isNotEmpty(headerValue)) {
                     log.debug("Added a MIME body part header " + headerName + " with value " + headerValue);
                     attachmentBodyPart.setHeader(headerName, headerValue);

@@ -167,8 +167,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createVariableDeclarationNode(
             STNode annotations,
             STNode finalKeyword,
-            STNode typeName,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode equalsToken,
             STNode initializer,
             STNode semicolonToken) {
@@ -176,8 +175,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STVariableDeclarationNode(
                 annotations,
                 finalKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 initializer,
                 semicolonToken);
@@ -816,8 +814,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createModuleVariableDeclarationNode(
             STNode metadata,
             STNode finalKeyword,
-            STNode typeName,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode equalsToken,
             STNode initializer,
             STNode semicolonToken) {
@@ -825,8 +822,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STModuleVariableDeclarationNode(
                 metadata,
                 finalKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 initializer,
                 semicolonToken);
@@ -1153,15 +1149,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createLetVariableDeclarationNode(
             STNode annotations,
-            STNode typeName,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode equalsToken,
             STNode expression) {
 
         return new STLetVariableDeclarationNode(
                 annotations,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 expression);
     }
@@ -1871,6 +1865,30 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STTransactionalExpressionNode(
                 transactionalKeyword);
+    }
+
+    public static STNode createServiceConstructorExpressionNode(
+            STNode annotations,
+            STNode serviceKeyword,
+            STNode serviceBody) {
+
+        return new STServiceConstructorExpressionNode(
+                annotations,
+                serviceKeyword,
+                serviceBody);
+    }
+
+    public static STNode createByteArrayLiteralNode(
+            STNode type,
+            STNode startBacktick,
+            STNode content,
+            STNode endBacktick) {
+
+        return new STByteArrayLiteralNode(
+                type,
+                startBacktick,
+                content,
+                endBacktick);
     }
 }
 

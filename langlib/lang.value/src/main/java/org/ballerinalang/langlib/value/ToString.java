@@ -26,13 +26,15 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
+
 /**
  * Returns a simple, human-readable representation of the given value as a String.
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.value",
+        orgName = "ballerina", packageName = "lang.value", version = VALUE_VERSION,
         functionName = "toString",
         args = {@Argument(name = "value", type = TypeKind.ANY)},
         returnType = {@ReturnType(type = TypeKind.STRING)},

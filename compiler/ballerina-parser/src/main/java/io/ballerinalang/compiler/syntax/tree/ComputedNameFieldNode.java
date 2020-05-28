@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -32,8 +33,8 @@ public class ComputedNameFieldNode extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public Token leadingComma() {
-        return childInBucket(0);
+    public Optional<Token> leadingComma() {
+        return optionalChildInBucket(0);
     }
 
     public Token openBracket() {
@@ -123,7 +124,7 @@ public class ComputedNameFieldNode extends NonTerminalNode {
 
         public ComputedNameFieldNodeModifier(ComputedNameFieldNode oldNode) {
             this.oldNode = oldNode;
-            this.leadingComma = oldNode.leadingComma();
+            this.leadingComma = oldNode.leadingComma().orElse(null);
             this.openBracket = oldNode.openBracket();
             this.fieldNameExpr = oldNode.fieldNameExpr();
             this.closeBracket = oldNode.closeBracket();

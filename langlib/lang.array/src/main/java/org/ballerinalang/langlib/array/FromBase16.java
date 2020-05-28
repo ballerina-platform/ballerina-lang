@@ -30,13 +30,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
+
 /**
  * Native implementation of lang.array:fromBase16(string).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "fromBase16",
+        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "fromBase16",
         args = {@Argument(name = "str", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.UNION)},
         isPublic = true

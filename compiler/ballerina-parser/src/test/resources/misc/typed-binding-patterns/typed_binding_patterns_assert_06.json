@@ -1,0 +1,637 @@
+{
+  "kind": "MODULE_PART",
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "FUNCTION_DEFINITION",
+          "children": [
+            {
+              "kind": "METADATA",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "FUNCTION_KEYWORD"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "foo"
+            },
+            {
+              "kind": "FUNCTION_SIGNATURE",
+              "children": [
+                {
+                  "kind": "OPEN_PAREN_TOKEN"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "CLOSE_PAREN_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "FUNCTION_BODY_BLOCK",
+              "children": [
+                {
+                  "kind": "OPEN_BRACE_TOKEN"
+                },
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "LOCAL_VAR_DECL",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "TYPED_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "INTERSECTION_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "ARRAY_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "INT_KEYWORD"
+                                    },
+                                    {
+                                      "kind": "OPEN_BRACKET_TOKEN"
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "BITWISE_AND_TOKEN"
+                                },
+                                {
+                                  "kind": "ARRAY_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "STRING_KEYWORD"
+                                    },
+                                    {
+                                      "kind": "OPEN_BRACKET_TOKEN"
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "a"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "SEMICOLON_TOKEN"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "LOCAL_VAR_DECL",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "TYPED_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "UNION_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "ARRAY_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "T1"
+                                    },
+                                    {
+                                      "kind": "OPEN_BRACKET_TOKEN"
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "PIPE_TOKEN"
+                                },
+                                {
+                                  "kind": "ARRAY_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "T2"
+                                    },
+                                    {
+                                      "kind": "OPEN_BRACKET_TOKEN"
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "a"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "SEMICOLON_TOKEN"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "LOCAL_VAR_DECL",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "TYPED_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "INTERSECTION_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "ARRAY_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "T1"
+                                    },
+                                    {
+                                      "kind": "OPEN_BRACKET_TOKEN"
+                                    },
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "a"
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "BITWISE_AND_TOKEN"
+                                },
+                                {
+                                  "kind": "ARRAY_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "T2"
+                                    },
+                                    {
+                                      "kind": "OPEN_BRACKET_TOKEN"
+                                    },
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "b"
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "c"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "EQUAL_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "y"
+                        },
+                        {
+                          "kind": "SEMICOLON_TOKEN"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "LOCAL_VAR_DECL",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "TYPED_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "INTERSECTION_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "ARRAY_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "T1"
+                                    },
+                                    {
+                                      "kind": "OPEN_BRACKET_TOKEN"
+                                    },
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "a"
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "BITWISE_AND_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "T2"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "OPEN_BRACKET_TOKEN"
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": [
+                                    {
+                                      "kind": "CAPTURE_BINDING_PATTERN",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "b"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "EQUAL_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "y"
+                        },
+                        {
+                          "kind": "SEMICOLON_TOKEN"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "LOCAL_VAR_DECL",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "TYPED_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "INTERSECTION_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "ARRAY_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "T1"
+                                    },
+                                    {
+                                      "kind": "OPEN_BRACKET_TOKEN"
+                                    },
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "a"
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "BITWISE_AND_TOKEN"
+                                },
+                                {
+                                  "kind": "UNION_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "ARRAY_TYPE_DESC",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "T2"
+                                        },
+                                        {
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "b"
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "PIPE_TOKEN"
+                                    },
+                                    {
+                                      "kind": "UNION_TYPE_DESC",
+                                      "children": [
+                                        {
+                                          "kind": "ARRAY_TYPE_DESC",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "T3"
+                                            },
+                                            {
+                                              "kind": "OPEN_BRACKET_TOKEN"
+                                            },
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "c"
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACKET_TOKEN"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "PIPE_TOKEN"
+                                        },
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "T4"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "OPEN_BRACKET_TOKEN"
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": [
+                                    {
+                                      "kind": "CAPTURE_BINDING_PATTERN",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "d"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "EQUAL_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "y"
+                        },
+                        {
+                          "kind": "SEMICOLON_TOKEN"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "LOCAL_VAR_DECL",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "TYPED_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "INTERSECTION_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "ARRAY_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "T1"
+                                    },
+                                    {
+                                      "kind": "OPEN_BRACKET_TOKEN"
+                                    },
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "a"
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "BITWISE_AND_TOKEN"
+                                },
+                                {
+                                  "kind": "UNION_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "ARRAY_TYPE_DESC",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "T2"
+                                        },
+                                        {
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "b"
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "PIPE_TOKEN"
+                                    },
+                                    {
+                                      "kind": "UNION_TYPE_DESC",
+                                      "children": [
+                                        {
+                                          "kind": "ARRAY_TYPE_DESC",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "T3"
+                                            },
+                                            {
+                                              "kind": "OPEN_BRACKET_TOKEN"
+                                            },
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "c"
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACKET_TOKEN"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "PIPE_TOKEN"
+                                        },
+                                        {
+                                          "kind": "ARRAY_TYPE_DESC",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "T4"
+                                            },
+                                            {
+                                              "kind": "OPEN_BRACKET_TOKEN"
+                                            },
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "d"
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACKET_TOKEN"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "OPEN_BRACKET_TOKEN"
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": [
+                                    {
+                                      "kind": "CAPTURE_BINDING_PATTERN",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "e"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "EQUAL_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "y"
+                        },
+                        {
+                          "kind": "SEMICOLON_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CLOSE_BRACE_TOKEN"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "EOF_TOKEN"
+    }
+  ]
+}

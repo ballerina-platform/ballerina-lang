@@ -17,7 +17,10 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
+import io.ballerinalang.compiler.internal.diagnostics.DiagnosticCode;
+import io.ballerinalang.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -134,11 +137,11 @@ public abstract class AbstractParserErrorHandler {
         // If the original issues was at a production where there are alternatives,
         // then do not report any errors. Parser will try to re-parse the best-matching
         // alternative again. Errors will be reported at the next try.
-        if (!isProductionWithAlternatives(currentCtx)) {
-            reportMissingTokenError("missing " + fix.ctx);
+        if (isProductionWithAlternatives(currentCtx)) {
+            return createMissingToken(fix.tokenKind);
+        } else {
+            return createMissingTokenWithDiagnostics(fix.tokenKind);
         }
-
-        return STNodeFactory.createMissingToken(fix.tokenKind);
     }
 
     /**
@@ -205,9 +208,126 @@ public abstract class AbstractParserErrorHandler {
         this.errorListener.reportInvalidNodeError(startingToken, message);
     }
 
-    public void reportMissingTokenError(String message) {
+    public void reportMissingTokenError(String diagnosticCode) {
+        // TODO Following way of getting the token is suboptimal
+        // TODO Try this code and see; function (int s) return error? {}
         STToken currentToken = this.tokenReader.head();
-        this.errorListener.reportMissingTokenError(currentToken, message);
+        this.errorListener.reportMissingTokenError(currentToken, diagnosticCode);
+    }
+
+    public STToken createMissingToken(SyntaxKind expectedKind) {
+        return STNodeFactory.createMissingToken(expectedKind);
+    }
+
+    public STToken createMissingTokenWithDiagnostics(SyntaxKind expectedKind) {
+        return createMissingTokenWithDiagnostics(expectedKind, getErrorCode(expectedKind));
+    }
+
+    public STToken createMissingTokenWithDiagnostics(SyntaxKind expectedKind, DiagnosticCode diagnosticCode) {
+        STNodeDiagnostic diagnostic = new STNodeDiagnostic(diagnosticCode);
+        List<STNodeDiagnostic> diagnosticList = new ArrayList<>();
+        diagnosticList.add(diagnostic);
+        return STNodeFactory.createMissingToken(expectedKind, diagnosticList);
+    }
+
+    private DiagnosticCode getErrorCode(SyntaxKind expectedKind) {
+        switch (expectedKind) {
+            case SEMICOLON_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
+            case COLON_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_COLON_TOKEN;
+            case OPEN_PAREN_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_OPEN_PAREN_TOKEN;
+            case CLOSE_PAREN_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_PAREN_TOKEN;
+            case OPEN_BRACE_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_TOKEN;
+            case CLOSE_BRACE_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_TOKEN;
+            case OPEN_BRACKET_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACKET_TOKEN;
+            case CLOSE_BRACKET_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACKET_TOKEN;
+            case EQUAL_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_EQUAL_TOKEN;
+            case COMMA_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_COMMA_TOKEN;
+            case PLUS_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_PLUS_TOKEN;
+            case SLASH_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_SLASH_TOKEN;
+            case AT_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_AT_TOKEN;
+            case QUESTION_MARK_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_QUESTION_MARK_TOKEN;
+            case GT_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_GT_TOKEN;
+            case GT_EQUAL_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_GT_EQUAL_TOKEN;
+            case LT_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_LT_TOKEN;
+            case LT_EQUAL_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_LT_EQUAL_TOKEN;
+            case RIGHT_DOUBLE_ARROW_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_RIGHT_DOUBLE_ARROW_TOKEN;
+            case XML_COMMENT_END_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_XML_COMMENT_END_TOKEN;
+            case XML_PI_END_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_XML_PI_END_TOKEN;
+            case DOUBLE_QUOTE_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_DOUBLE_QUOTE_TOKEN;
+            case BACKTICK_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_BACKTICK_TOKEN;
+
+
+            case DEFAULT_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_DEFAULT_KEYWORD;
+            case TYPE_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_TYPE_KEYWORD;
+            case ON_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_ON_KEYWORD;
+            case ANNOTATION_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_ANNOTATION_KEYWORD;
+            case FUNCTION_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_FUNCTION_KEYWORD;
+            case SOURCE_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_SOURCE_KEYWORD;
+            case ENUM_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_ENUM_KEYWORD;
+            case FIELD_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_FIELD_KEYWORD;
+            case VERSION_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_VERSION_KEYWORD;
+            case OBJECT_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_OBJECT_KEYWORD;
+            case RECORD_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_RECORD_KEYWORD;
+            case SERVICE_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_SERVICE_KEYWORD;
+            case AS_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_AS_KEYWORD;
+            case LET_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_LET_KEYWORD;
+            case TABLE_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_TABLE_KEYWORD;
+            case KEY_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_KEY_KEYWORD;
+            case FROM_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_FROM_KEYWORD;
+            case IN_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_IN_KEYWORD;
+            case IF_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_IF_KEYWORD;
+
+            case IDENTIFIER_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
+            case DECIMAL_INTEGER_LITERAL:
+                return DiagnosticErrorCode.ERROR_MISSING_DECIMAL_INTEGER_LITERAL;
+            case TYPE_DESC:
+                return DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC;
+            default:
+                throw new UnsupportedOperationException("Unsupported SyntaxKind: " + expectedKind);
+        }
     }
 
     protected ParserRuleContext getParentContext() {
