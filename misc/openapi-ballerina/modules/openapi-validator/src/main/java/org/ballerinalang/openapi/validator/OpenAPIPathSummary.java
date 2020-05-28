@@ -68,7 +68,6 @@ class OpenAPIPathSummary {
         if (operation == null) {
             return false;
         }
-//        return tags.containsAll(operation.getTags());
         return !Collections.disjoint(tags, operation.getTags());
     }
 
