@@ -83,6 +83,19 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
         test("a + b ?.c ?.d ?.e + f", "access-expr/optional_field_access_expr_assert_02.json");
     }
 
+    @Test
+    public void testXMLOptionalAttributeAccess() {
+        test("a ?. b:c", "access-expr/xml_optional_attribute_access_expr_assert_01.json");
+        test("a + b ?.c:d ?.e:f ?.g .h + k", "access-expr/xml_optional_attribute_access_expr_assert_02.json");
+
+    }
+
+    @Test
+    public void testXMLRequiredAttributeAccess() {
+        test("a . b:c", "access-expr/xml_required_attribute_access_expr_assert_01.json");
+        test("a + b .c:d .e:f .g .h + k", "access-expr/xml_required_attribute_access_expr_assert_02.json");
+    }
+
     // Recovery tests
 
     @Test

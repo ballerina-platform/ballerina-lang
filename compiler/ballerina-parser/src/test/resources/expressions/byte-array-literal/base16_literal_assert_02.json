@@ -1,0 +1,129 @@
+{
+    "kind": "FUNCTION_DEFINITION",
+    "children": [
+        {
+            "kind": "METADATA",
+            "children": [
+                {
+                    "kind": "LIST",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "kind": "PUBLIC_KEYWORD"
+        },
+        {
+            "kind": "FUNCTION_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "foo"
+        },
+        {
+            "kind": "FUNCTION_SIGNATURE",
+            "children": [
+                {
+                    "kind": "OPEN_PAREN_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": []
+                },
+                {
+                    "kind": "CLOSE_PAREN_TOKEN"
+                }
+            ]
+        },
+        {
+            "kind": "FUNCTION_BODY_BLOCK",
+            "children": [
+                {
+                    "kind": "OPEN_BRACE_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                        {
+                            "kind": "LOCAL_VAR_DECL",
+                            "children": [
+                                {
+                                    "kind": "LIST",
+                                    "children": []
+                                },
+                                {
+                                    "kind": "TYPED_BINDING_PATTERN",
+                                    "children": [
+                                        {
+                                            "kind": "ARRAY_TYPE_DESC",
+                                            "children": [
+                                                {
+                                                    "kind": "BYTE_KEYWORD"
+                                                },
+                                                {
+                                                    "kind": "OPEN_BRACKET_TOKEN"
+                                                },
+                                                {
+                                                    "kind": "CLOSE_BRACKET_TOKEN"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "kind": "CAPTURE_BINDING_PATTERN",
+                                            "children": [
+                                                {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "arr1"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                    "kind": "BINARY_EXPRESSION",
+                                    "children": [
+                                        {
+                                            "kind": "BYTE_ARRAY_LITERAL",
+                                            "children": [
+                                                {
+                                                    "kind": "BASE16_KEYWORD"
+                                                },
+                                                {
+                                                    "kind": "BACKTICK_TOKEN"
+                                                },
+                                                {
+                                                    "kind": "TEMPLATE_STRING",
+                                                    "value": "b3 c e;\n    byte[] arr2 \u003d base16 "
+                                                },
+                                                {
+                                                    "kind": "BACKTICK_TOKEN"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "kind": "PLUS_TOKEN",
+                                            "isMissing": true
+                                        },
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "aeeecdefabcd12345567888822"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "kind": "CLOSE_BRACE_TOKEN"
+                }
+            ]
+        }
+    ]
+}
