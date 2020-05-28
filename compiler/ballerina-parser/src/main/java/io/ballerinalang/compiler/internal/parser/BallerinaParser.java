@@ -9942,20 +9942,31 @@ public class BallerinaParser extends AbstractParser {
             }
         }
 
-        STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
-        STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
-
         if (peek().kind == SyntaxKind.DO_KEYWORD) {
+            STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
+            STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
             return parseQueryAction(queryPipeline, selectClause);
         }
 
         if (selectClause == null) {
-            this.errorHandler.reportMissingTokenError("missing select clause");
-            STNode selectKeyword = STNodeFactory.createMissingToken(SyntaxKind.SELECT_KEYWORD);
-            STNode expr = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            STNode selectKeyword = errorHandler.createMissingToken(SyntaxKind.SELECT_KEYWORD);
+            STNode expr = errorHandler.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
             selectClause = STNodeFactory.createSelectClauseNode(selectKeyword, expr);
+
+            // Now we need to attach the diagnostic to the last intermediate clause.
+            // If there are no intermediate clauses, then attach to the from clause.
+            if (clauses.isEmpty()) {
+                fromClause = errorHandler.addDiagnostics(fromClause, DiagnosticErrorCode.ERROR_MISSING_SELECT_CLAUSE);
+            } else {
+                int lastIndex = clauses.size() - 1;
+                STNode intClauseWithDiagnostic = errorHandler.addDiagnostics(clauses.get(lastIndex),
+                        DiagnosticErrorCode.ERROR_MISSING_SELECT_CLAUSE);
+                clauses.set(lastIndex, intClauseWithDiagnostic);
+            }
         }
 
+        STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
+        STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
         return STNodeFactory.createQueryExpressionNode(queryConstructType, queryPipeline, selectClause);
     }
 
