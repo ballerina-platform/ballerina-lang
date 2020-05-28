@@ -35,4 +35,9 @@ under the License.
             <package name="org.wso2.ballerinalang.compiler.util"/>
         </packages>
     </test>
+    <test name="ballerina-compiler-module-resolver-test-suite" parallel="false">
+        <packages>
+            <package name="org.wso2.ballerinalang.compiler.module.resolver.*"/>
+        </packages>
+    </test>
 </suite>

@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler;
 
+import org.ballerinalang.cli.module.util.ErrorUtil;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
@@ -27,13 +28,16 @@ import org.ballerinalang.repository.PackageBinary;
 import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.repository.PackageEntity.Kind;
 import org.ballerinalang.repository.PackageSource;
-import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.LockFile;
 import org.ballerinalang.toml.model.LockFileImport;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.LockFileProcessor;
 import org.ballerinalang.toml.parser.ManifestProcessor;
+import org.wso2.ballerinalang.compiler.packaging.module.resolver.ModuleResolver;
+import org.wso2.ballerinalang.compiler.packaging.module.resolver.ModuleResolverImpl;
+import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.Module;
+import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.Project;
 import org.wso2.ballerinalang.compiler.packaging.GenericPackageSource;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
@@ -64,6 +68,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URI;
 import java.nio.file.Files;
@@ -74,12 +79,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
@@ -121,7 +123,14 @@ public class PackageLoader {
     private final BLangDiagnosticLogHelper dlog;
     private static final boolean shouldReadBalo = true;
     private final CompilerPhase compilerPhase;
-    
+
+    /**
+     * Module loader implementation.
+     */
+    private Project project;
+    private org.wso2.ballerinalang.compiler.packaging.module.resolver.RepoHierarchy repoHierarchy;
+    private ModuleResolver moduleLoader;
+
     /**
      * Holds the manifests of modules resolved by dependency paths.
      */
@@ -159,6 +168,11 @@ public class PackageLoader {
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
         this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
         this.lockFile = LockFileProcessor.getInstance(context, this.lockEnabled).getLockFile();
+
+        this.project = new Project(this.manifest, this.lockFile);
+        this.repoHierarchy = new org.wso2.ballerinalang.compiler.packaging.module.resolver.RepoHierarchy(
+                this.project.getProject().getOrgName(), this.project.getProject().getVersion());
+        this.moduleLoader = new ModuleResolverImpl(this.project, this.repoHierarchy, this.lockEnabled);
     }
     
     /**
@@ -236,25 +250,24 @@ public class PackageLoader {
 
     }
 
-    private RepoNode[] loadSystemRepos() {
-        List<RepoNode> systemList;
-        ServiceLoader<SystemPackageRepositoryProvider> loader
-                = ServiceLoader.load(SystemPackageRepositoryProvider.class);
-        systemList = StreamSupport.stream(loader.spliterator(), false)
-                                  .map(SystemPackageRepositoryProvider::loadRepository)
-                                  .filter(Objects::nonNull)
-                                  .map(r -> node(r))
-                                  .collect(Collectors.toList());
-        return systemList.toArray(new RepoNode[systemList.size()]);
-    }
-    
     private PackageEntity loadPackageEntity(PackageID pkgId) {
         return loadPackageEntity(pkgId, null, null);
     }
     
     private PackageEntity loadPackageEntity(PackageID pkgId, PackageID enclPackageId,
                                             RepoHierarchy encPkgRepoHierarchy) {
-        updateModuleIDVersion(pkgId, enclPackageId);
+        try {
+            pkgId = moduleLoader.resolveVersion(pkgId, enclPackageId);
+        } catch (IOException e) {
+            throw ErrorUtil.createCommandException(e.getMessage());
+        }
+        Module resolvedPackage = moduleLoader.resolveModule(pkgId);
+
+        if (resolvedPackage != null) {
+//            paths = patten.convertToSources(converter, pkg).collect(Collectors.toList());
+        }
+
+//        updateModuleIDVersion(pkgId, enclPackageId);
         Resolution resolution = resolveModuleByPath(pkgId);
         // if a resolution is found by dependency path
         if (resolution != Resolution.NOT_FOUND) {
@@ -387,7 +400,7 @@ public class PackageLoader {
         return packageNode;
     }
 
-    public BLangPackage loadPackage(PackageID pkgId) {
+    private BLangPackage loadPackage(PackageID pkgId) {
         // TODO Remove this method()
         BLangPackage bLangPackage = packageCache.get(pkgId);
         if (bLangPackage != null) {
@@ -399,12 +412,6 @@ public class PackageLoader {
             throw ProjectDirs.getPackageNotFoundError(pkgId);
         }
         return packageNode;
-    }
-
-    public BLangPackage loadAndDefinePackage(String orgName, String pkgName, String version) {
-        // TODO This is used only to load the builtin package.
-        PackageID pkgId = getPackageID(orgName, pkgName, version);
-        return loadAndDefinePackage(pkgId);
     }
 
     public BLangPackage loadAndDefinePackage(PackageID pkgId) {
@@ -555,7 +562,7 @@ public class PackageLoader {
      * @param sourceRoot The sourceroot of the project.
      * @return True if lock file is valid, else false.
      */
-    public boolean hasLockFile(Path sourceRoot) {
+    private boolean hasLockFile(Path sourceRoot) {
         return RepoUtils.isBallerinaProject(sourceRoot) &&
                null != this.lockFile &&
                null != this.lockFile.getImports() &&

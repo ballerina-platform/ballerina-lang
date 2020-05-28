@@ -104,7 +104,6 @@ dependencies {
     dist project(':ballerina-cli-module')
     dist project(':ballerina-encoding')
     dist project(':ballerina-rt')
-    dist project(':module-loader')
 
     dist project(':testerina:testerina-core')
     dist project(':ballerina-formatter')

@@ -29,6 +29,9 @@ dependencies {
     implementation 'org.ow2.asm:asm-util'
     implementation 'org.ow2.asm:asm-tree'
     testCompile 'org.testng:testng'
+    testCompile 'org.mockito:mockito-all'
+    testCompile 'org.powermock:powermock-mockito-release-full'
+    testCompile 'org.powermock:powermock-module-testng-common'
 }
 
 description = 'Ballerina - Lang'
