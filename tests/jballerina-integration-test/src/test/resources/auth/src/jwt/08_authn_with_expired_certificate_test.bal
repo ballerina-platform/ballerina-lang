@@ -24,7 +24,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider08 = new({
     signatureConfig: {
         certificateAlias: "cert",
         trustStore: {
-            path: "../../../src/test/resources/auth/jwt/expired_truststore.p12",
+            path: "../../../src/test/resources/auth/src/jwt/expired_truststore.p12",
             password: "ballerina"
         }
     }
