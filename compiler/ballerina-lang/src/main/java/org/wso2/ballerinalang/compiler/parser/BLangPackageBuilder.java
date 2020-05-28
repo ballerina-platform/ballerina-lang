@@ -893,8 +893,9 @@ public class BLangPackageBuilder {
         this.restMatchPatternWS.push(ws);
     }
 
-    void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, String reason, String restIdentifier,
-                          boolean reasonVar, boolean constReasonMatchPattern, DiagnosticPos restParamPos) {
+    void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, String reason, String cause, DiagnosticPos causePos,
+                          String restIdentifier, boolean reasonVar, boolean constReasonMatchPattern,
+                          DiagnosticPos restParamPos) {
         BLangErrorVariable errorVariable = (BLangErrorVariable) varStack.peek();
         errorVariable.pos = pos;
         errorVariable.addWS(ws);
@@ -914,6 +915,11 @@ public class BLangPackageBuilder {
             errorVariable.message.addWS(this.simpleMatchPatternWS.pop());
         }
 
+        if (cause != null) {
+            errorVariable.cause = (BLangSimpleVariable)
+                    generateBasicVarNodeWithoutType(causePos, null, cause, causePos, false);
+        }
+
         errorVariable.reasonVarPrefixAvailable = reasonVar;
         if (restIdentifier != null) {
             errorVariable.restDetail = (BLangSimpleVariable)
@@ -924,27 +930,6 @@ public class BLangPackageBuilder {
 
             if (!this.restMatchPatternWS.isEmpty()) {
                 errorVariable.restDetail.addWS(this.restMatchPatternWS.pop());
-            }
-        }
-    }
-
-    public void addErrorVariable(DiagnosticPos currentPos, Set<Whitespace> ws, String restIdName,
-                                 DiagnosticPos restPos) {
-        BLangErrorVariable errorVariable = (BLangErrorVariable) varStack.peek();
-        errorVariable.pos = currentPos;
-        errorVariable.addWS(ws);
-
-        BLangType typeNode = (BLangType) this.typeNodeStack.pop();
-        errorVariable.typeNode = typeNode;
-
-        errorVariable.message = (BLangSimpleVariable)
-                generateBasicVarNodeWithoutType(currentPos, null, "$reason$", currentPos, false);
-
-        if (restIdName != null) {
-            errorVariable.restDetail = (BLangSimpleVariable)
-                    generateBasicVarNodeWithoutType(currentPos, null, restIdName, restPos, false);
-            if (!this.errorRestBindingPatternWS.isEmpty()) {
-                errorVariable.restDetail.addWS(this.errorRestBindingPatternWS.pop());
             }
         }
     }
@@ -971,13 +956,13 @@ public class BLangPackageBuilder {
 
         if (reasonRefAvailable) {
             ExpressionNode reasonRef = this.exprNodeStack.pop();
-            errorVarRef.reason = (BLangVariableReference) reasonRef;
+            errorVarRef.message = (BLangVariableReference) reasonRef;
         } else if (indirectErrorRefPattern) {
             // Indirect error ref pattern does not allow reason var ref, hence ignore it.
-            errorVarRef.reason = createIgnoreVarRef();
+            errorVarRef.message = createIgnoreVarRef();
             errorVarRef.typeNode = (BLangType) this.typeNodeStack.pop();
         } else {
-            errorVarRef.reason = createIgnoreVarRef();
+            errorVarRef.message = createIgnoreVarRef();
         }
         Collections.reverse(namedArgs);
         errorVarRef.detail.addAll(namedArgs);

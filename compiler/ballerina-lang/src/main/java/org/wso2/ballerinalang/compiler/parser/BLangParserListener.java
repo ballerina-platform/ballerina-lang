@@ -1141,19 +1141,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        // Error binding pattern using indirect error constructor.
-        if (ctx.typeName() != null) {
-            if (ctx.errorFieldBindingPatterns().errorRestBindingPattern() != null) {
-                String restIdName = ctx.errorFieldBindingPatterns().errorRestBindingPattern().Identifier().getText();
-                DiagnosticPos restPos = getCurrentPos(ctx.errorFieldBindingPatterns().errorRestBindingPattern());
-                this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), restIdName, restPos);
-            } else {
-                this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), null, null);
-            }
-            return;
-        }
-        String reasonIdentifier = ctx.Identifier().getText();
+        TerminalNode messageNode = ctx.Identifier(0);
+        String reasonIdentifier = messageNode.getText(); // Mandatory first arg
         DiagnosticPos currentPos = getCurrentPos(ctx);
+
+        TerminalNode causeNode = ctx.Identifier().size() > 1 ? ctx.Identifier(1) : null;
+        String causeIdentifier = causeNode != null ? causeNode.getText() : null;
+        DiagnosticPos causePos = causeNode != null ? getCurrentPos(causeNode) : null;
 
         String restIdentifier = null;
         DiagnosticPos restParamPos = null;
@@ -1162,8 +1156,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             restParamPos = getCurrentPos(ctx.errorRestBindingPattern());
         }
 
-        this.pkgBuilder.addErrorVariable(currentPos, getWS(ctx), reasonIdentifier, restIdentifier, false, false,
-                restParamPos);
+        this.pkgBuilder.addErrorVariable(currentPos, getWS(ctx), reasonIdentifier,
+                causeIdentifier, causePos, restIdentifier, false, false, restParamPos);
     }
 
     @Override
@@ -1292,7 +1286,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             }
         }
 
-        this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), reasonIdentifier,
+        this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), reasonIdentifier, null, null,
                 restIdentifier, reasonVar, constReasonMatchPattern, restParamPos);
     }
 

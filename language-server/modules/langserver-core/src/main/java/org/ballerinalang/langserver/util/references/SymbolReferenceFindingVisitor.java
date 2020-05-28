@@ -895,7 +895,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
         this.acceptNode(varRefExpr.typeNode);
-        this.acceptNode(varRefExpr.reason);
+        this.acceptNode(varRefExpr.message);
         varRefExpr.detail.forEach(bLangNamedArgsExpression -> this.acceptNode(bLangNamedArgsExpression.expr));
         this.acceptNode(varRefExpr.restVar);
     }

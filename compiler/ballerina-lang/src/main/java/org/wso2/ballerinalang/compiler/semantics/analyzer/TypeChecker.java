@@ -1891,9 +1891,9 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        if (varRefExpr.reason != null) {
-            varRefExpr.reason.lhsVar = true;
-            checkExpr(varRefExpr.reason, env);
+        if (varRefExpr.message != null) {
+            varRefExpr.message.lhsVar = true;
+            checkExpr(varRefExpr.message, env);
         }
 
         boolean unresolvedReference = false;
@@ -1973,7 +1973,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Indirect error binding pattern does not have an error reason binding fragment
-        varRefExpr.reason.type = symTable.noType;
+        varRefExpr.message.type = symTable.noType;
     }
 
     private BRecordType getCompatibleDetailType(BType errorRefRestFieldType) {
