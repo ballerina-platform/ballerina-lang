@@ -1490,7 +1490,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand keyRegIndex = this.env.targetOperand;
         if (variableStore) {
             emit(new BIRNonTerminator.FieldAccess(astMapAccessExpr.pos, InstructionKind.MAP_STORE, varRefRegIndex,
-                                                  keyRegIndex, rhsOp));
+                                                  keyRegIndex, rhsOp, astMapAccessExpr.isStoreOnCreation));
             return;
         }
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(astMapAccessExpr.type, this.env.nextLocalVarId(names),
@@ -2286,7 +2286,6 @@ public class BIRGen extends BLangNodeVisitor {
             astIndexBasedAccessExpr.indexExpr.accept(this);
             BIROperand keyRegIndex = this.env.targetOperand;
 
-            boolean onInitialization = false;
             if (astIndexBasedAccessExpr.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
                 insKind = InstructionKind.XML_ATTRIBUTE_STORE;
                 keyRegIndex = getQNameOP(astIndexBasedAccessExpr.indexExpr, keyRegIndex);
@@ -2295,12 +2294,11 @@ public class BIRGen extends BLangNodeVisitor {
                              ((BUnionType) astAccessExprExprType).getMemberTypes().iterator()
                                      .next().tag == TypeTags.OBJECT)) {
                 insKind = InstructionKind.OBJECT_STORE;
-                onInitialization = astIndexBasedAccessExpr.isStoreOnCreation;
             } else {
                 insKind = InstructionKind.MAP_STORE;
             }
             emit(new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos, insKind, varRefRegIndex, keyRegIndex,
-                                                  rhsOp, onInitialization));
+                                                  rhsOp, astIndexBasedAccessExpr.isStoreOnCreation));
         } else {
             BIRVariableDcl tempVarDcl = new BIRVariableDcl(astIndexBasedAccessExpr.type, this.env.nextLocalVarId(names),
                     VarScope.FUNCTION, VarKind.TEMP);

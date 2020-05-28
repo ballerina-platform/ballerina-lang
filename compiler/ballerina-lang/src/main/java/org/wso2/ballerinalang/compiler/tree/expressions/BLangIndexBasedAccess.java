@@ -89,6 +89,14 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
             this.indexExpr = keyExpr;
         }
 
+        public BLangMapAccessExpr(DiagnosticPos pos, BLangExpression varExpr, BLangExpression keyExpr,
+                                  boolean isStoreOnCreation) {
+            this.pos = pos;
+            this.expr = varExpr;
+            this.indexExpr = keyExpr;
+            this.isStoreOnCreation = isStoreOnCreation;
+        }
+
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);

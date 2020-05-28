@@ -689,6 +689,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
         this.createRecordRemoveMethod(cw);
         this.createRecordClearMethod(cw, fields, className);
         this.createRecordGetKeysMethod(cw, fields, className);
+        this.createRecordPopulateInitialValueMethod(cw);
         this.createRecordPopulateInitialValuesMethod(cw);
 
         this.createRecordConstructor(cw, TYPEDESC_VALUE);
@@ -1310,6 +1311,23 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
         mv.visitMethodInsn(INVOKEINTERFACE, SET, "toArray", String.format("([L%s;)[L%s;", OBJECT, OBJECT), true);
 
         mv.visitInsn(ARETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void createRecordPopulateInitialValueMethod(ClassWriter cw) {
+
+        MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, "populateInitialValue",
+                                          String.format("(L%s;L%s;)V", OBJECT, OBJECT), "(TK;TV;)V", null);
+        mv.visitCode();
+
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "populateInitialValue",
+                           String.format("(L%s;L%s;)V", OBJECT, OBJECT), false);
+
+        mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }

@@ -720,8 +720,8 @@ public class Desugar extends BLangNodeVisitor {
             // skip if the field is already have an value set by the constructor.
             if (!initFuncStmts.containsKey(field.symbol) && field.expr != null) {
                 initFuncStmts.put(field.symbol,
-                                  createStructFieldUpdate(objectTypeNode.generatedInitFunction, field,
-                                                          objectTypeNode.generatedInitFunction.receiver.symbol));
+                                  createStructFieldUpdateOnInit(objectTypeNode.generatedInitFunction, field,
+                                                                objectTypeNode.generatedInitFunction.receiver.symbol));
             }
         }
 
@@ -798,8 +798,8 @@ public class Desugar extends BLangNodeVisitor {
             if (!recordTypeNode.initFunction.initFunctionStmts.containsKey(field.symbol) &&
                     !Symbols.isOptional(field.symbol) && field.expr != null) {
                 recordTypeNode.initFunction.initFunctionStmts
-                        .put(field.symbol, createStructFieldUpdate(recordTypeNode.initFunction, field,
-                                                                   recordTypeNode.initFunction.receiver.symbol));
+                        .put(field.symbol, createStructFieldUpdateOnInit(recordTypeNode.initFunction, field,
+                                                                         recordTypeNode.initFunction.receiver.symbol));
             }
         }
 
@@ -3411,9 +3411,9 @@ public class Desugar extends BLangNodeVisitor {
                     ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
                 targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr, (BVarSymbol) fieldAccessExpr.symbol);
             } else {
-                boolean isStoreOnCreation = false;
+                boolean isStoreOnCreation = fieldAccessExpr.isStoreOnCreation;
 
-                if (varRefTypeTag == TypeTags.OBJECT && env.enclInvokable != null) {
+                if (!isStoreOnCreation && varRefTypeTag == TypeTags.OBJECT && env.enclInvokable != null) {
                     BInvokableSymbol originalFuncSymbol = ((BLangFunction) env.enclInvokable).originalFuncSymbol;
                     BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) varRefType.tsymbol;
                     BAttachedFunction initializerFunc = objectTypeSymbol.initializerFunc;
@@ -3438,7 +3438,7 @@ public class Desugar extends BLangNodeVisitor {
                 targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr, (BVarSymbol) fieldAccessExpr.symbol);
             } else {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
-                        (BVarSymbol) fieldAccessExpr.symbol, false);
+                        (BVarSymbol) fieldAccessExpr.symbol, false, fieldAccessExpr.isStoreOnCreation);
             }
         } else if (types.isLax(varRefType)) {
             if (!(varRefType.tag == TypeTags.XML || varRefType.tag == TypeTags.XML_ELEMENT)) {
@@ -3455,7 +3455,8 @@ public class Desugar extends BLangNodeVisitor {
             }
         } else if (varRefTypeTag == TypeTags.MAP) {
             // TODO: 7/1/19 remove once foreach field access usage is removed.
-            targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
+            targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
+                                                  fieldAccessExpr.isStoreOnCreation);
         } else if (TypeTags.isXMLTypeTag(varRefTypeTag)) {
             targetVarRef = new BLangXMLAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                     fieldAccessExpr.fieldKind);
@@ -3591,7 +3592,8 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (varRefType.tag == TypeTags.MAP) {
-            targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr, indexAccessExpr.indexExpr);
+            targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
+                                                  indexAccessExpr.indexExpr, indexAccessExpr.isStoreOnCreation);
         } else if (types.isSubTypeOfMapping(types.getSafeType(varRefType, true, false))) {
             targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                                                           indexAccessExpr.indexExpr,
@@ -5978,12 +5980,13 @@ public class Desugar extends BLangNodeVisitor {
         return assignmentStmt;
     }
 
-    private BLangAssignment createStructFieldUpdate(BLangFunction function, BLangSimpleVariable variable,
-                                                    BVarSymbol symbol) {
+    private BLangAssignment createStructFieldUpdateOnInit(BLangFunction function, BLangSimpleVariable variable,
+                                                          BVarSymbol symbol) {
         BLangSimpleVarRef selfVarRef = ASTBuilderUtil.createVariableRef(variable.pos, symbol);
         BLangFieldBasedAccess fieldAccess = ASTBuilderUtil.createFieldAccessExpr(selfVarRef, variable.name);
         fieldAccess.symbol = variable.symbol;
         fieldAccess.type = variable.type;
+        fieldAccess.isStoreOnCreation = true;
 
         BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignmentStmt.expr = variable.expr;
