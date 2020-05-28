@@ -155,3 +155,32 @@ function testSubtypingAnAbsObjectInSameModule() returns string {
 //    jdbc:Client dbClient = subtyping:getClient();
 //    return dbClient;
 //}
+
+type Email client object {
+    public remote function send(string message) returns error? {
+    }
+};
+
+type FakeEmail object {
+    public function send(string message) returns error? {
+    }
+};
+
+type Message record {|
+    Email f;
+|};
+
+function testSubtypingBetweenNonClientAndClientObject1() {
+    FakeEmail p = new();
+    any e = p;
+    Email email = <Email> e;
+}
+
+function testSubtypingBetweenNonClientAndClientObject2() {
+    Message b = {f: new};
+    record {|
+        object {}...;
+    |} r = b;
+
+    r["f"] = new FakeEmail();
+}
