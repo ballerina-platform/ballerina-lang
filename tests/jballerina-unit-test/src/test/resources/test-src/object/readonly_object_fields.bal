@@ -185,20 +185,29 @@ type Identifier object {
     readonly string id = "Identifier";
     string code;
 
-    function __init(string code) {
+    function __init(string code, string? id = ()) {
         self.code = code;
+
+        if id is string {
+            self.id = id;
+        }
     }
 };
 
 function testReadOnlyFieldWithDefaultValue() {
     string k = "id";
 
-    Identifier i1 = new ("QWE");
-    assertEquality("Identifier", i1.id);
-    assertEquality("QWE", i1.code);
+    Identifier i1 = new ("ABC", "new id");
+
+    assertEquality("new id", i1.id);
+    assertEquality("ABC", i1.code);
+
+    Identifier i2 = new ("QWE");
+    assertEquality("Identifier", i2.id);
+    assertEquality("QWE", i2.code);
 
     var fn1 = function () {
-        object { string id = "default"; } obj = i1;
+        object { string id = "default"; } obj = i2;
         obj.id = "new identifier";
     };
     error? res = trap fn1();

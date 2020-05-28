@@ -250,7 +250,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         }
     }
 
-    protected void populateInitialValue(K key, V value) {
+    public void populateInitialValue(K key, V value) {
         if (type.getTag() == TypeTags.MAP_TAG) {
             MapUtils.handleInherentTypeViolatingMapUpdate(value, (BMapType) type);
         } else {

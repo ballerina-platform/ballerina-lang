@@ -48,6 +48,7 @@ function testReadonlyType() {
     testImmutabilityOfNestedXmlWithAttributes();
     testImmutableTypedRecordFields();
     testImmutabilityForSelfReferencingType();
+    testImmutableRecordWithDefaultValues();
 }
 
 function testSimpleInitializationForSelectivelyImmutableTypes() {
@@ -620,6 +621,33 @@ function testImmutabilityForSelfReferencingType() {
     assertFalse(qVal["e"] is Qux & readonly);
     Qux eQux =  <Qux> qVal["e"];
     assertFalse(eQux.isReadOnly());
+}
+
+type Quux record {|
+    string name = "xyz";
+    int id;
+|};
+
+function testImmutableRecordWithDefaultValues() {
+    Quux & readonly q1 = {id: 1};
+    any a1 = q1;
+    anydata ad1 = q1;
+
+    assertTrue(a1 is Quux);
+    assertTrue(a1 is Quux & readonly);
+    assertTrue(ad1.isReadOnly());
+    assertEquality(q1.name, "xyz");
+    assertEquality(q1.id, 1);
+
+    Quux & readonly q2 = {id: 2, name: "abc"};
+    any a2 = q2;
+    anydata ad2 = q2;
+
+    assertTrue(a2 is Quux);
+    assertTrue(a2 is Quux & readonly);
+    assertTrue(ad2.isReadOnly());
+    assertEquality(q2.name, "abc");
+    assertEquality(q2.id, 2);
 }
 
 type AssertionError error<ASSERTION_ERROR_REASON>;

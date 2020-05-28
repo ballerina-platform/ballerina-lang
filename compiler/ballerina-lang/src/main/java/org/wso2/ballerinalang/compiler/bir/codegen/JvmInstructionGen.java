@@ -41,7 +41,6 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -1245,13 +1244,6 @@ public class JvmInstructionGen {
         this.loadVar(mapStoreIns.lhsOp.variableDcl);
         BType varRefType = mapStoreIns.lhsOp.variableDcl.type;
 
-        String valueClassName = "";
-        if (mapStoreIns.onInitialization) {
-            BRecordType recordType = (BRecordType) varRefType;
-            valueClassName = getTypeValueClassName(recordType.tsymbol.pkgID, toNameString(recordType));
-            this.mv.visitTypeInsn(CHECKCAST, valueClassName);
-        }
-
         // visit key_expr
         this.loadVar(mapStoreIns.keyOp.variableDcl);
 
@@ -1265,8 +1257,8 @@ public class JvmInstructionGen {
                                         String.format("(L%s;L%s;L%s;)V", OBJECT, JvmConstants.B_STRING_VALUE), false);
         } else if (mapStoreIns.onInitialization) {
             // We only reach here for stores in a record init function.
-            this.mv.visitMethodInsn(INVOKEVIRTUAL, valueClassName, "populateInitialValue",
-                                    String.format("(L%s;L%s;)V", OBJECT, OBJECT), false);
+            this.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "populateInitialValue",
+                                    String.format("(L%s;L%s;)V", OBJECT, OBJECT), true);
         } else {
             String signature = String.format("(L%s;L%s;L%s;)V",
                     MAP_VALUE, JvmConstants.B_STRING_VALUE, OBJECT);

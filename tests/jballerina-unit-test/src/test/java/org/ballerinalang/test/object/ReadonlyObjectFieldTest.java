@@ -27,7 +27,7 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
- * Tests for `readonly` record fields.
+ * Tests for `readonly` object fields.
  *
  * @since 2.0.0
  */
