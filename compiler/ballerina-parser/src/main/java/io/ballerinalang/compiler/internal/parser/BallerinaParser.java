@@ -4209,11 +4209,6 @@ public class BallerinaParser extends AbstractParser {
             case IDENTIFIER_TOKEN:
                 return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
             case OPEN_PAREN_TOKEN:
-                STToken nextNextToken = getNextNextToken(kind);
-                // parse nil literal '()'
-                if (nextNextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
-                    return parseNilLiteral();
-                }
                 return parseBracedExpression(isRhsExpr, allowActions);
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
@@ -4246,7 +4241,7 @@ public class BallerinaParser extends AbstractParser {
             case BACKTICK_TOKEN:
                 return parseTemplateExpression();
             case XML_KEYWORD:
-                nextNextToken = getNextNextToken(kind);
+                STToken nextNextToken = getNextNextToken(kind);
                 if (nextNextToken.kind == SyntaxKind.BACKTICK_TOKEN) {
                     return parseXMLTemplateExpression();
                 }
@@ -4785,7 +4780,12 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseBracedExpression(boolean isRhsExpr, boolean allowActions) {
         STNode openParen = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
         startContext(ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAMS);
-        STNode expr;
+        STToken nextToken = peek();
+        STNode expr = STNodeFactory.createEmptyNode();
+        // Could be nill literal or empty param-list of an implicit-anon-func-expr'
+        if (nextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
+            return parseNilLiteralOrEmptyAnonFuncParamRhs(openParen, expr);
+        }
         if (allowActions) {
             expr = parseExpression(DEFAULT_OP_PRECEDENCE, isRhsExpr, true);
         } else {
@@ -4803,6 +4803,20 @@ public class BallerinaParser extends AbstractParser {
             return STNodeFactory.createBracedExpressionNode(SyntaxKind.BRACED_ACTION, openParen, expr, closeParen);
         }
         return STNodeFactory.createBracedExpressionNode(SyntaxKind.BRACED_EXPRESSION, openParen, expr, closeParen);
+    }
+
+    private STNode parseNilLiteralOrEmptyAnonFuncParamRhs(STNode openParen, STNode expr) {
+        STNode closeParen = parseCloseParenthesis();
+        STToken nextToken = peek();
+        if (nextToken.kind != SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN) {
+            endContext();
+            return createNilLiteral(openParen, closeParen);
+        } else {
+            STNode anonFuncParam = STNodeFactory.createBracedExpressionNode(SyntaxKind.BRACED_EXPRESSION,
+                    openParen, expr, closeParen);
+            endContext();
+            return anonFuncParam;
+        }
     }
 
     private STNode parseBracedExprOrAnonFuncParamRhs(SyntaxKind nextTokenKind, STNode openParen, STNode expr) {
@@ -7505,6 +7519,10 @@ public class BallerinaParser extends AbstractParser {
         STNode openParenthesisToken = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
         STNode closeParenthesisToken = parseCloseParenthesis();
         endContext();
+        return STNodeFactory.createNilLiteralNode(openParenthesisToken, closeParenthesisToken);
+    }
+
+    private STNode createNilLiteral(STNode openParenthesisToken, STNode closeParenthesisToken) {
         return STNodeFactory.createNilLiteralNode(openParenthesisToken, closeParenthesisToken);
     }
 

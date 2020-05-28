@@ -76,6 +76,7 @@ import io.ballerinalang.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.NamedWorkerDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.NamedWorkerDeclarator;
 import io.ballerinalang.compiler.syntax.tree.NewExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.NilLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
@@ -157,7 +158,25 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.tree.*;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
+import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
+import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -267,8 +286,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private Stack<TopLevelNode> additionalTopLevelNodes = new Stack<>();
     /* To keep track of additional statements produced from multi-BLangNode resultant transformations */
     private Stack<BLangStatement> additionalStatements = new Stack<>();
-    /* To keep track if we are inside a block statment for the use of type definition creation */
-    private boolean isInLocalContext = false;
 
     public BLangNodeTransformer(CompilerContext context, BDiagnosticSource diagnosticSource) {
         this.dlog = BLangDiagnosticLogHelper.getInstance(context);
@@ -342,8 +359,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         TypedBindingPatternNode typedBindingPattern = modVarDeclrNode.typedBindingPattern();
         CaptureBindingPatternNode bindingPattern = (CaptureBindingPatternNode) typedBindingPattern.bindingPattern();
         BLangSimpleVariable simpleVar = createSimpleVar(bindingPattern.variableName(),
-                    typedBindingPattern.typeDescriptor(), modVarDeclrNode.initializer(),
-                    modVarDeclrNode.finalKeyword().isPresent(), false, null, modVarDeclrNode.metadata().annotations());
+                typedBindingPattern.typeDescriptor(), modVarDeclrNode.initializer(),
+                modVarDeclrNode.finalKeyword().isPresent(), false, null);
         simpleVar.pos = getPosition(modVarDeclrNode);
         return simpleVar;
     }
@@ -396,8 +413,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             constantNode.typeNode = createTypeNode(constantDeclarationNode.typeDescriptor());
         }
 
-        constantNode.annAttachments = applyAll(constantDeclarationNode.metadata().annotations());
-
+        // TODO: Add annotationAttachments
         // TODO: Add markdownDocumentations
         constantNode.flagSet.add(Flag.CONSTANT);
         if (constantDeclarationNode.visibilityQualifier() != null &&
@@ -456,7 +472,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
         });
         typeDef.pos = getPosition(typeDefNode);
-        typeDef.annAttachments = applyAll(typeDefNode.metadata().annotations());
         return typeDef;
     }
 
@@ -641,9 +656,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ObjectFieldNode objFieldNode) {
         BLangSimpleVariable simpleVar = createSimpleVar(objFieldNode.fieldName(), objFieldNode.typeName(),
-                                                        objFieldNode.expression(),
-                                                        false, false, objFieldNode.visibilityQualifier(),
-                                                        objFieldNode.metadata().annotations());
+                objFieldNode.expression(),
+                false, false, objFieldNode.visibilityQualifier());
         simpleVar.pos = getPosition(objFieldNode);
         return simpleVar;
     }
@@ -750,8 +764,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(RecordTypeDescriptorNode recordTypeDescriptorNode) {
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) TreeBuilder.createRecordTypeNode();
         boolean hasRestField = false;
-        boolean isAnonymous = recordTypeDescritorIsAnonymous(recordTypeDescriptorNode);
-
         for (Node field : recordTypeDescriptorNode.fields()) {
             if (field.kind() == SyntaxKind.RECORD_FIELD || field.kind() == SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE) {
                 recordTypeNode.fields.add((BLangSimpleVariable) field.apply(this));
@@ -762,18 +774,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 recordTypeNode.addTypeReference((BLangType) field.apply(this));
             }
         }
-        boolean isOpen = recordTypeDescriptorNode.bodyStartDelimiter().kind() == SyntaxKind.OPEN_BRACE_TOKEN;
-        recordTypeNode.sealed = !(hasRestField || isOpen);
+        recordTypeNode.sealed = !hasRestField;
         recordTypeNode.pos = getPosition(recordTypeDescriptorNode);
-        recordTypeNode.isAnonymous = isAnonymous;
-        recordTypeNode.isLocal = this.isInLocalContext;
-
-        // If anonymous type, create a user defined type and return it.
-        if (!isAnonymous || this.isInLocalContext) {
-            return recordTypeNode;
-        }
-
-        return createAnonymousRecordType(recordTypeDescriptorNode, recordTypeNode);
+        return recordTypeNode;
     }
 
     @Override
@@ -796,8 +799,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(RecordFieldNode recordFieldNode) {
-        BLangSimpleVariable simpleVar = createSimpleVar(recordFieldNode.fieldName(), recordFieldNode.typeName(),
-                                                        recordFieldNode.metadata().annotations());
+        BLangSimpleVariable simpleVar = createSimpleVar(recordFieldNode.fieldName(), recordFieldNode.typeName());
         simpleVar.flagSet.add(Flag.PUBLIC);
         if (recordFieldNode.questionMarkToken().isPresent()) {
             simpleVar.flagSet.add(Flag.OPTIONAL);
@@ -810,8 +812,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(RecordFieldWithDefaultValueNode recordFieldNode) {
-        BLangSimpleVariable simpleVar = createSimpleVar(recordFieldNode.fieldName(), recordFieldNode.typeName(),
-                                                        recordFieldNode.metadata().annotations());
+        BLangSimpleVariable simpleVar = createSimpleVar(recordFieldNode.fieldName(), recordFieldNode.typeName());
         simpleVar.flagSet.add(Flag.PUBLIC);
         if (isPresent(recordFieldNode.expression())) {
             simpleVar.setInitialExpression(createExpression(recordFieldNode.expression()));
@@ -861,7 +862,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
         }
 
-        bLFunction.annAttachments = applyAll(funcDefNode.metadata().annotations());
+//        attachAnnotations(function, annCount, false);
         bLFunction.pos = getPosition(funcDefNode);
         return bLFunction;
     }
@@ -905,7 +906,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(FunctionBodyBlockNode functionBodyBlockNode) {
         BLangBlockFunctionBody bLFuncBody = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
-        this.isInLocalContext = true;
         List<BLangStatement> statements = generateBLangStatements(functionBodyBlockNode.statements());
 
         if (functionBodyBlockNode.namedWorkerDeclarator().isPresent()) {
@@ -924,7 +924,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         bLFuncBody.stmts = statements;
         bLFuncBody.pos = getPosition(functionBodyBlockNode);
-        this.isInLocalContext = false;
         return bLFuncBody;
     }
 
@@ -1336,7 +1335,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             typeConversionNode.typeNode = createTypeNode(typeCastExpressionNode.typeCastParam().type());
         }
         typeConversionNode.expr = createExpression(typeCastExpressionNode.expression());
-        typeConversionNode.annAttachments = applyAll(typeCastExpressionNode.typeCastParam().annotations());
         return typeConversionNode;
     }
 
@@ -1419,17 +1417,31 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         arrowFunction.pos = getPosition(implicitAnonymousFunctionExpressionNode);
 
         // Set Parameters
-        ImplicitAnonymousFunctionParameters paramsNode =
-                (ImplicitAnonymousFunctionParameters) implicitAnonymousFunctionExpressionNode.params();
+        Node param = implicitAnonymousFunctionExpressionNode.params();
+        if (param.kind() == SyntaxKind.INFER_PARAM_LIST) {
+            ImplicitAnonymousFunctionParameters paramsNode = (ImplicitAnonymousFunctionParameters) param;
+            SeparatedNodeList<SimpleNameReferenceNode> paramList = paramsNode.parameters();
 
-        SeparatedNodeList<SimpleNameReferenceNode> paramList = paramsNode.parameters();
-
-        for (SimpleNameReferenceNode child : paramList) {
-            SimpleVariableNode param = (SimpleVariableNode) child.apply(this);
-            arrowFunction.params.add((BLangSimpleVariable) param);
+            for (SimpleNameReferenceNode child : paramList) {
+                SimpleVariableNode parameter = (SimpleVariableNode) child.apply(this);
+                arrowFunction.params.add((BLangSimpleVariable) parameter);
+            }
+        } else {
+            SimpleVariableNode simpleParam = (SimpleVariableNode) param.apply(this);
+            arrowFunction.params.add((BLangSimpleVariable) simpleParam);
         }
-        arrowFunction.body.expr =  createExpression(implicitAnonymousFunctionExpressionNode.expression());
+
+        arrowFunction.body.expr = createExpression(implicitAnonymousFunctionExpressionNode.expression());
         return arrowFunction;
+    }
+
+    @Override
+    public BLangNode transform(NilLiteralNode nilLiteralNode) {
+        BLangLiteral nilLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        nilLiteral.pos = getPosition(nilLiteralNode);
+        nilLiteral.value = Names.NIL_VALUE;
+        nilLiteral.type = symTable.nilType;
+        return nilLiteral;
     }
 
     // -----------------------------------------------Statements--------------------------------------------------------
@@ -1466,14 +1478,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(ListenerDeclarationNode listenerDeclarationNode) {
-        BLangSimpleVariable var = new SimpleVarBuilder()
+        return new SimpleVarBuilder()
                 .with(listenerDeclarationNode.variableName().text())
                 .setTypeByNode(listenerDeclarationNode.typeDescriptor())
                 .setExpressionByNode(listenerDeclarationNode.initializer())
                 .isListenerVar()
                 .build();
-        var.annAttachments = applyAll(listenerDeclarationNode.metadata().annotations());
-        return var;
     }
 
     @Override
@@ -1547,9 +1557,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(BlockStatementNode blockStatement) {
         BLangBlockStmt bLBlockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
-        this.isInLocalContext = true;
         bLBlockStmt.stmts = generateBLangStatements(blockStatement.statements());
-        this.isInLocalContext = false;
         return bLBlockStmt;
     }
 
@@ -1622,7 +1630,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(RequiredParameterNode requiredParameter) {
         BLangSimpleVariable simpleVar = createSimpleVar(requiredParameter.paramName(),
-                                                        requiredParameter.typeName(), requiredParameter.annotations());
+                requiredParameter.typeName());
 
         Optional<Token> visibilityQual = requiredParameter.visibilityQualifier();
         //TODO: Check and Fix flags OPTIONAL, REQUIRED
@@ -1633,11 +1641,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         simpleVar.pos = getPosition(requiredParameter);
         return simpleVar;
     }
+
     @Override
     public BLangNode transform(DefaultableParameterNode defaultableParameter) {
         BLangSimpleVariable simpleVar = createSimpleVar(defaultableParameter.paramName(),
-                                                        defaultableParameter.typeName(),
-                                                        defaultableParameter.annotations());
+                defaultableParameter.typeName());
 
         Optional<Token> visibilityQual = defaultableParameter.visibilityQualifier();
         //TODO: Check and Fix flags OPTIONAL, REQUIRED
@@ -1653,8 +1661,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(RestParameterNode restParameter) {
-        BLangSimpleVariable bLSimpleVar = createSimpleVar(restParameter.paramName(), restParameter.typeName(),
-                                                          restParameter.annotations());
+        BLangSimpleVariable bLSimpleVar = createSimpleVar(restParameter.paramName(), restParameter.typeName());
 
         BLangArrayType bLArrayType = (BLangArrayType) TreeBuilder.createArrayTypeNode();
         bLArrayType.elemtype = bLSimpleVar.typeNode;
@@ -1675,7 +1682,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
         unionTypeNode.memberTypeNodes.add(createTypeNode(optTypeDescriptor.typeDescriptor()));
         unionTypeNode.memberTypeNodes.add(nilTypeNode);
-        unionTypeNode.nullable = true;
 
         unionTypeNode.pos = getPosition(optTypeDescriptor);
         return unionTypeNode;
@@ -1893,7 +1899,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         arrayTypeNode.sizes = sizes.stream().mapToInt(val -> val).toArray();
         return arrayTypeNode;
     }
-
+    
     @Override
     protected BLangNode transformSyntaxNode(Node node) {
         // TODO: Remove this RuntimeException once all nodes covered
@@ -2029,7 +2035,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (retNode.isPresent()) {
             ReturnTypeDescriptorNode returnType = retNode.get();
             bLFunction.setReturnTypeNode(createTypeNode(returnType.type()));
-            bLFunction.returnTypeAnnAttachments = applyAll(returnType.annotations());
         } else {
             BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
             bLValueType.pos = getPosition(funcSignature);
@@ -2101,30 +2106,30 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return stringTemplateLiteral;
     }
 
-    private BLangSimpleVariable createSimpleVar(Optional<Token> name, Node type, NodeList<AnnotationNode> annotations) {
+    private BLangSimpleVariable createSimpleVar(Optional<Token> name, Node type) {
         if (name.isPresent()) {
             Token nameToken = name.get();
-            return createSimpleVar(nameToken, type, null, false, false, null, annotations);
+            return createSimpleVar(nameToken, type, null, false, false, null);
         }
 
-        return createSimpleVar(null, null, type, null, false, false, null, annotations);
+        return createSimpleVar(null, null, type, null, false, false, null);
     }
 
-    private BLangSimpleVariable createSimpleVar(Token name, Node type, NodeList<AnnotationNode> annotations) {
-        return createSimpleVar(name, type, null, false, false, null, annotations);
+    private BLangSimpleVariable createSimpleVar(Token name, Node type) {
+        return createSimpleVar(name, type, null, false, false, null);
     }
 
     private BLangSimpleVariable createSimpleVar(Token name, Node typeName, Node initializer, boolean isFinal,
                                                 boolean isListenerVar,
-                                                Token visibilityQualifier, NodeList<AnnotationNode> annotations) {
+                                                Token visibilityQualifier) {
         return createSimpleVar(name.text(), getPosition(name), typeName, initializer, isFinal, isListenerVar,
-                               visibilityQualifier, annotations);
+                               visibilityQualifier);
     }
 
     private BLangSimpleVariable createSimpleVar(String name, DiagnosticPos pos, Node typeName, Node initializer,
                                                 boolean isFinal,
                                                 boolean isListenerVar,
-                                                Token visibilityQualifier, NodeList<AnnotationNode> annotations) {
+                                                Token visibilityQualifier) {
         BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         bLSimpleVar.setName(this.createIdentifier(pos, name));
 
@@ -2152,11 +2157,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             bLSimpleVar.flagSet.add(Flag.LISTENER);
             bLSimpleVar.flagSet.add(Flag.FINAL);
         }
-
-        if (annotations != null) {
-            bLSimpleVar.annAttachments = applyAll(annotations);
-        }
-
         return bLSimpleVar;
     }
 
@@ -2511,56 +2511,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return node.kind() != SyntaxKind.NONE;
     }
 
-
-    private boolean recordTypeDescritorIsAnonymous(RecordTypeDescriptorNode recordTypeDescriptorNode) {
-        Node parent = recordTypeDescriptorNode.parent();
-        switch (parent.kind()) {
-            case UNION_TYPE_DESC:
-            case ARRAY_TYPE_DESC:
-            case OPTIONAL_TYPE_DESC:
-            case TYPE_TEST_EXPRESSION:
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    private boolean ifInLocalContext(Node parent) {
-        while (parent != null) {
-            if (parent instanceof StatementNode) {
-                return true;
-            }
-            parent = parent.parent();
-        }
-        return false;
-    }
-
-    private BLangType createAnonymousRecordType(RecordTypeDescriptorNode recordTypeDescriptorNode,
-            BLangRecordTypeNode recordTypeNode) {
-        BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
-        DiagnosticPos pos = getPosition(recordTypeDescriptorNode);
-        // Generate a name for the anonymous object
-        String genName = anonymousModelHelper.getNextAnonymousTypeKey(this.diagnosticSource.pkgID);
-        IdentifierNode anonTypeGenName = createIdentifier(pos, genName, null);
-        typeDef.setName(anonTypeGenName);
-        typeDef.flagSet.add(Flag.PUBLIC);
-        typeDef.flagSet.add(Flag.ANONYMOUS);
-
-        typeDef.typeNode = recordTypeNode;
-        typeDef.pos = pos;
-        this.additionalTopLevelNodes.add(typeDef);
-        return createUserDefinedType(pos, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name);
-    }
-
-    private BLangUserDefinedType createUserDefinedType(DiagnosticPos pos,
-            BLangIdentifier pkgAlias,
-            BLangIdentifier name) {
-        BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-        userDefinedType.pos = pos;
-        userDefinedType.pkgAlias = pkgAlias;
-        userDefinedType.typeName = name;
-        return userDefinedType;
-    }
 
     private class SimpleVarBuilder {
         private BLangIdentifier name;
