@@ -18,6 +18,7 @@
 package org.ballerinalang.openapi.validator;
 
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
@@ -93,43 +94,35 @@ class ValidatorUtil {
 
                 PathItem operations = (PathItem) pathItem.getValue();
                 if (operations.getGet() != null) {
-                    openAPISummary.addAvailableOperation(Constants.GET);
-                    openAPISummary.addOperation(Constants.GET, operations.getGet());
+                    addOpenapiSummary(openAPISummary, Constants.GET, operations.getGet());
                 }
 
                 if (operations.getPost() != null) {
-                    openAPISummary.addAvailableOperation(Constants.POST);
-                    openAPISummary.addOperation(Constants.POST, operations.getPost());
+                    addOpenapiSummary(openAPISummary, Constants.POST, operations.getPost());
                 }
 
                 if (operations.getPut() != null) {
-                    openAPISummary.addAvailableOperation(Constants.PUT);
-                    openAPISummary.addOperation(Constants.PUT, operations.getPut());
+                    addOpenapiSummary(openAPISummary, Constants.PUT, operations.getPut());
                 }
 
                 if (operations.getDelete() != null) {
-                    openAPISummary.addAvailableOperation(Constants.DELETE);
-                    openAPISummary.addOperation(Constants.DELETE, operations.getDelete());
+                    addOpenapiSummary(openAPISummary, Constants.DELETE, operations.getDelete());
                 }
 
                 if (operations.getHead() != null) {
-                    openAPISummary.addAvailableOperation(Constants.HEAD);
-                    openAPISummary.addOperation(Constants.HEAD, operations.getHead());
+                    addOpenapiSummary(openAPISummary, Constants.HEAD, operations.getHead());
                 }
 
                 if (operations.getPatch() != null) {
-                    openAPISummary.addAvailableOperation(Constants.PATCH);
-                    openAPISummary.addOperation(Constants.PATCH, operations.getPatch());
+                    addOpenapiSummary(openAPISummary, Constants.PATCH, operations.getPatch());
                 }
 
                 if (operations.getOptions() != null) {
-                    openAPISummary.addAvailableOperation(Constants.OPTIONS);
-                    openAPISummary.addOperation(Constants.OPTIONS, operations.getOptions());
+                    addOpenapiSummary(openAPISummary, Constants.OPTIONS, operations.getOptions());
                 }
 
                 if (operations.getTrace() != null) {
-                    openAPISummary.addAvailableOperation(Constants.TRACE);
-                    openAPISummary.addOperation(Constants.TRACE, operations.getTrace());
+                    addOpenapiSummary(openAPISummary, Constants.TRACE, operations.getTrace());
                 }
             }
 
@@ -137,6 +130,11 @@ class ValidatorUtil {
         }
 
         openAPIComponentSummary.setComponents(contract.getComponents());
+    }
+
+    private static void addOpenapiSummary(OpenAPIPathSummary openAPISummary, String get, Operation get2) {
+        openAPISummary.addAvailableOperation(get);
+        openAPISummary.addOperation(get, get2);
     }
 
     /**

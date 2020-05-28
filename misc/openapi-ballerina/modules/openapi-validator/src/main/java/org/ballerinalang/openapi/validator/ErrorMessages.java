@@ -80,11 +80,12 @@ class ErrorMessages {
 
     static String tagFilterEnable() {
         return String.format("Both Tags and excludeTags fields include the same tag(s). Make sure to use one" +
-                " field when using the openapi annotation. ");
+                " field of tag filtering when using the openapi annotation. ");
     }
 
     static String operationFilterEnable() {
         return String.format("Both Operations and excludeOperations fields include" +
-                " the same operation(s). Make sure to use one field when using the openapi annotation.");
+                " the same operation(s). Make sure to use one field of operation filtering" +
+                " when using the openapi annotation.");
     }
 }

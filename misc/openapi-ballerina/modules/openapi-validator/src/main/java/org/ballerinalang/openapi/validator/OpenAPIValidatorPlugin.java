@@ -143,37 +143,10 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                 }
                             }
                         } else if (key.equals(Constants.TAGS)) {
-                            if (valueExpr instanceof BLangListConstructorExpr) {
-                                BLangListConstructorExpr bLangListConstructorExpr =
-                                        (BLangListConstructorExpr) valueExpr;
-                                for (BLangExpression bLangExpression : bLangListConstructorExpr.getExpressions()) {
-                                    if (bLangExpression instanceof BLangLiteral) {
-                                        BLangLiteral expression = (BLangLiteral) bLangExpression;
-                                        if (expression.getValue() instanceof String) {
-                                            tags.add((String) expression.getValue());
-                                        } else {
-                                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
-                                                    "Tags should be applied as string values");
-                                        }
-                                    }
-                                }
-                            }
+                            extractValues(annotation, tags, valueExpr, "Tags should be applied as string values");
                         } else if (key.equals(Constants.OPERATIONS)) {
-                            if (valueExpr instanceof BLangListConstructorExpr) {
-                                BLangListConstructorExpr bLangListConstructorExpr =
-                                        (BLangListConstructorExpr) valueExpr;
-                                for (BLangExpression bLangExpression : bLangListConstructorExpr.getExpressions()) {
-                                    if (bLangExpression instanceof BLangLiteral) {
-                                        BLangLiteral expression = (BLangLiteral) bLangExpression;
-                                        if (expression.getValue() instanceof String) {
-                                            operations.add((String) expression.getValue());
-                                        } else {
-                                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
-                                                    "Operations should be applied as string values");
-                                        }
-                                    }
-                                }
-                            }
+                            extractValues(annotation, operations, valueExpr,
+                                    "Operations should be applied as string values");
                         }  else if (key.equals(Constants.FAILONERRORS)) {
                             if (valueExpr instanceof BLangLiteral) {
                                 BLangLiteral value = (BLangLiteral) valueExpr;
@@ -185,37 +158,11 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                 }
                             }
                         } else if (key.equals(Constants.EXCLUDETAGS)) {
-                            if (valueExpr instanceof  BLangListConstructorExpr) {
-                                BLangListConstructorExpr bLangListConstructorExpr =
-                                        (BLangListConstructorExpr) valueExpr;
-                                for (BLangExpression bLangExpression: bLangListConstructorExpr.getExpressions()) {
-                                    if (bLangExpression instanceof BLangLiteral) {
-                                        BLangLiteral expression = (BLangLiteral) bLangExpression;
-                                        if (expression.getValue() instanceof String) {
-                                            excludeTags.add((String) expression.getValue());
-                                        } else {
-                                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
-                                                    "ExcludeTags should be applied as string values");
-                                        }
-                                    }
-                                }
-                            }
+                            extractValues(annotation, excludeTags, valueExpr,
+                                    "ExcludeTags should be applied as string values");
                         } else if (key.equals(Constants.EXCLUDEOPERATIONS)) {
-                            if (valueExpr instanceof  BLangListConstructorExpr) {
-                                BLangListConstructorExpr bLangListConstructorExpr =
-                                        (BLangListConstructorExpr) valueExpr;
-                                for (BLangExpression bLangExpression: bLangListConstructorExpr.getExpressions()) {
-                                    if (bLangExpression instanceof BLangLiteral) {
-                                        BLangLiteral expression = (BLangLiteral) bLangExpression;
-                                        if (expression.getValue() instanceof String) {
-                                            excludeOperations.add((String) expression.getValue());
-                                        } else {
-                                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
-                                                    "ExcludeOperations should be applied as string values");
-                                        }
-                                    }
-                                }
-                            }
+                            extractValues(annotation, excludeOperations, valueExpr,
+                                    "ExcludeOperations should be applied as string values");
                         }
                     }
                 }
@@ -256,6 +203,24 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                 } catch (OpenApiValidatorException e) {
                     dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
                             e.getMessage());
+                }
+            }
+        }
+    }
+
+    private void extractValues(AnnotationAttachmentNode annotation, List<String> operations,
+                               BLangExpression valueExpr, String s) {
+        if (valueExpr instanceof BLangListConstructorExpr) {
+            BLangListConstructorExpr bLangListConstructorExpr =
+                    (BLangListConstructorExpr) valueExpr;
+            for (BLangExpression bLangExpression : bLangListConstructorExpr.getExpressions()) {
+                if (bLangExpression instanceof BLangLiteral) {
+                    BLangLiteral expression = (BLangLiteral) bLangExpression;
+                    if (expression.getValue() instanceof String) {
+                        operations.add((String) expression.getValue());
+                    } else {
+                        dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(), s);
+                    }
                 }
             }
         }
