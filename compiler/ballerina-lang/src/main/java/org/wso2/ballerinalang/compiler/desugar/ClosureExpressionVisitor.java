@@ -576,7 +576,8 @@ public class ClosureExpressionVisitor extends BLangNodeVisitor {
         bLangMatchStmtStaticBindingPatternClause.literal.accept(this);
     }
 
-    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause bLangMatchStmtStructuredBindingPatternClause) {
+    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause
+                              bLangMatchStmtStructuredBindingPatternClause) {
         if (bLangMatchStmtStructuredBindingPatternClause.bindingPatternVariable != null) {
             bLangMatchStmtStructuredBindingPatternClause.bindingPatternVariable.accept(this);
         }
@@ -771,7 +772,7 @@ public class ClosureExpressionVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRollback rollbackNode) {
-        if(rollbackNode.expr != null) {
+        if (rollbackNode.expr != null) {
             rollbackNode.expr.accept(this);
         }
     }
