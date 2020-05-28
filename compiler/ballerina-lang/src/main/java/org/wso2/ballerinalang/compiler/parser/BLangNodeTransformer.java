@@ -1463,10 +1463,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(ListenerDeclarationNode listenerDeclarationNode) {
+        Token visibilityQualifier = null;
+        if (listenerDeclarationNode.visibilityQualifier().isPresent()) {
+            visibilityQualifier = listenerDeclarationNode.visibilityQualifier().get();
+        }
+
         BLangSimpleVariable var = new SimpleVarBuilder()
                 .with(listenerDeclarationNode.variableName().text())
                 .setTypeByNode(listenerDeclarationNode.typeDescriptor())
                 .setExpressionByNode(listenerDeclarationNode.initializer())
+                .setVisibility(visibilityQualifier)
                 .isListenerVar()
                 .build();
         var.annAttachments = applyAll(listenerDeclarationNode.metadata().annotations());
