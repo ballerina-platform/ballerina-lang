@@ -604,6 +604,12 @@ public class ParserTestUtils {
                 return SyntaxKind.ELVIS_TOKEN;
             case "DOT_LT_TOKEN":
                 return SyntaxKind.DOT_LT_TOKEN;
+            case "SLASH_LT_TOKEN":
+                return SyntaxKind.SLASH_LT_TOKEN;
+            case "DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN":
+                return SyntaxKind.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN;
+            case "SLASH_ASTERISK_TOKEN":
+                return SyntaxKind.SLASH_ASTERISK_TOKEN;
 
             // Separators
             case "OPEN_BRACE_TOKEN":
@@ -738,8 +744,16 @@ public class ParserTestUtils {
                 return SyntaxKind.BYTE_ARRAY_LITERAL;
             case "XML_ATOMIC_NAME_PATTERN":
                 return SyntaxKind.XML_ATOMIC_NAME_PATTERN;
-            case "XML_NAVIGATE_EXPRESSION":
-                return SyntaxKind.XML_NAVIGATE_EXPRESSION;
+            case "XML_FILTER_EXPRESSION":
+                return SyntaxKind.XML_FILTER_EXPRESSION;
+            case "XML_STEP_EXPRESSION":
+                return SyntaxKind.XML_STEP_EXPRESSION;
+            case "XML_NAME_PATTERN_CHAIN":
+                return SyntaxKind.XML_NAME_PATTERN_CHAIN;
+            case "OPEN_BRACKET_EXPRESSION_CHAIN":
+                return SyntaxKind.OPEN_BRACKET_EXPRESSION_CHAIN;
+            case "METHOD_CALL_CHAIN":
+                return SyntaxKind.METHOD_CALL_CHAIN;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":

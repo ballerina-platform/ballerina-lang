@@ -1,5 +1,5 @@
 {
-    "kind": "XML_FILTER_EXPRESSION",
+    "kind": "XML_STEP_EXPRESSION",
     "children": [
         {
             "kind": "IDENTIFIER_TOKEN",
@@ -9,7 +9,7 @@
             "kind": "XML_NAME_PATTERN_CHAIN",
             "children": [
                 {
-                    "kind": "DOT_LT_TOKEN"
+                    "kind": "SLASH_LT_TOKEN"
                 },
                 {
                     "kind": "LIST",
@@ -60,6 +60,10 @@
                     "kind": "GT_TOKEN"
                 }
             ]
+        },
+        {
+            "kind": "LIST",
+            "children": []
         }
     ]
 }

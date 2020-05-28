@@ -1,0 +1,32 @@
+{
+    "kind": "XML_STEP_EXPRESSION",
+    "children": [
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "a"
+        },
+        {
+            "kind": "SLASH_ASTERISK_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "OPEN_BRACKET_EXPRESSION_CHAIN",
+                    "children": [
+                        {
+                            "kind": "OPEN_BRACKET_TOKEN"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "b"
+                        },
+                        {
+                            "kind": "CLOSE_BRACKET_TOKEN"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

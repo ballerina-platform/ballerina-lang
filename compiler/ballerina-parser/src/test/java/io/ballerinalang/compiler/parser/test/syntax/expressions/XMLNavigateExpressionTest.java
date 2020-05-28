@@ -24,6 +24,8 @@ import org.testng.annotations.Test;
  */
 public class XMLNavigateExpressionTest extends AbstractExpressionsTest {
 
+    // Valid syntax
+
     @Test
     public void testSimpleXMLFilter() {
         test("a.<*>", "xml-navigate-expr/xml_filter_expr_assert_01.json");
@@ -40,5 +42,32 @@ public class XMLNavigateExpressionTest extends AbstractExpressionsTest {
     @Test
     public void testXMLFilter() {
         test("x + a.<*|*>.<b:c|*|d:*>.<*> + y", "xml-navigate-expr/xml_filter_expr_assert_06.json");
+    }
+
+    @Test
+    public void testSimpleXMLStep() {
+        test("a/*", "xml-navigate-expr/xml_step_expr_assert_01.json");
+        test("a/<b:c|d:*|*>", "xml-navigate-expr/xml_step_expr_assert_02.json");
+        test("a/**/<b:c|d:*|*>", "xml-navigate-expr/xml_step_expr_assert_03.json");
+    }
+
+    @Test
+    public void testXMLStepWithOneStepExtend() {
+        test("a /* .<b:c|*|d:*>", "xml-navigate-expr/xml_step_expr_assert_04.json");
+        test("a /* [b]", "xml-navigate-expr/xml_step_expr_assert_05.json");
+        test("a /* .b(5, a, age = 18, ...subjects)", "xml-navigate-expr/xml_step_expr_assert_06.json");
+        test("a /<*> .<b:c|*|d:*>", "xml-navigate-expr/xml_step_expr_assert_07.json");
+        test("a /<*> [b]", "xml-navigate-expr/xml_step_expr_assert_08.json");
+        test("a /<*> .b(5, a, age = 18, ...subjects)", "xml-navigate-expr/xml_step_expr_assert_09.json");
+        test("a /**/<*> .<b:c|*|d:*>", "xml-navigate-expr/xml_step_expr_assert_10.json");
+        test("a /**/<*> [b]", "xml-navigate-expr/xml_step_expr_assert_11.json");
+        test("a /**/<*> .b(5, a, age = 18, ...subjects)", "xml-navigate-expr/xml_step_expr_assert_12.json");
+    }
+
+    @Test
+    public void testSimpleXMLStepWithMoreThanOneStepExtend() {
+        test("a /* .<b:c|*|d:*> [e] .b(5, a, age = 18, ...subjects)", "xml-navigate-expr/xml_step_expr_assert_13.json");
+        test("a /<b:c> [d>e] [f] .<*>", "xml-navigate-expr/xml_step_expr_assert_14.json");
+        test("a /**/<*> .foo(5, a, age = 18, ...subjects) .<b:c> .<d:*>", "xml-navigate-expr/xml_step_expr_assert_15.json");
     }
 }

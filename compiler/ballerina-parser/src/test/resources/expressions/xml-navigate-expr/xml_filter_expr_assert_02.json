@@ -1,36 +1,41 @@
 {
-    "kind": "XML_NAVIGATE_EXPRESSION",
+    "kind": "XML_FILTER_EXPRESSION",
     "children": [
         {
             "kind": "IDENTIFIER_TOKEN",
             "value": "a"
         },
         {
-            "kind": "DOT_LT_TOKEN"
-        },
-        {
-            "kind": "LIST",
+            "kind": "XML_NAME_PATTERN_CHAIN",
             "children": [
                 {
-                    "kind": "XML_ATOMIC_NAME_PATTERN",
+                    "kind": "DOT_LT_TOKEN"
+                },
+                {
+                    "kind": "LIST",
                     "children": [
                         {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "b"
-                        },
-                        {
-                            "kind": "COLON_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "c"
+                            "kind": "XML_ATOMIC_NAME_PATTERN",
+                            "children": [
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "b"
+                                },
+                                {
+                                    "kind": "COLON_TOKEN"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "c"
+                                }
+                            ]
                         }
                     ]
+                },
+                {
+                    "kind": "GT_TOKEN"
                 }
             ]
-        },
-        {
-            "kind": "GT_TOKEN"
         }
     ]
 }
