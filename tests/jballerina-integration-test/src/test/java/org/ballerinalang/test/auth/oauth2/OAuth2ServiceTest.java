@@ -32,7 +32,7 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class OAuth2ServiceTest extends AuthBaseTest {
 
-    private final int servicePort = 20027;
+    private final int servicePort = 20200;
 
     @Test(description = "Test inbound OAuth2 success with valid token")
     public void testOAuth2SuccessTest() throws Exception {

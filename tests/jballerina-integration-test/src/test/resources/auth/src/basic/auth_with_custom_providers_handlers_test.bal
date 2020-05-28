@@ -22,7 +22,7 @@ import ballerina/http;
 OutboundCustomAuthProvider outboundCustomAuthProvider = new;
 OutboundCustomAuthHandler outboundCustomAuthHandler = new(outboundCustomAuthProvider);
 
-http:Client client17 = new("https://localhost:20024", {
+http:Client client17 = new("https://localhost:20008", {
     auth: {
         authHandler: outboundCustomAuthHandler
     },
@@ -34,7 +34,7 @@ http:Client client17 = new("https://localhost:20024", {
     }
 });
 
-listener http:Listener listener17_1 = new(20023, {
+listener http:Listener listener17_1 = new(20007, {
     secureSocket: {
         keyStore: {
             path: config:getAsString("keystore"),
@@ -68,7 +68,7 @@ service passthrough on listener17_1 {
 InboundCustomAuthProvider inboundCustomAuthProvider = new;
 InboundCustomAuthHandler inboundCustomAuthHandler = new(inboundCustomAuthProvider);
 
-listener http:Listener listener17_2 = new(20024, {
+listener http:Listener listener17_2 = new(20008, {
     auth: {
         authHandlers: [inboundCustomAuthHandler]
     },

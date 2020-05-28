@@ -36,7 +36,7 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class AuthzCacheTest extends AuthBaseTest {
 
-    private final int servicePort = 20008;
+    private final int servicePort = 20101;
 
     @Test(description = "Authz cache test")
     public void testAuthCache() throws Exception {

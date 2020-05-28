@@ -23,7 +23,7 @@ import ballerina/jwt;
 auth:InboundBasicAuthProvider basicAuthProvider10 = new;
 http:BasicAuthHandler basicAuthHandler10 = new(basicAuthProvider10);
 
-listener http:Listener listener10_1 = new(20011, {
+listener http:Listener listener10_1 = new(20104, {
     auth: {
         authHandlers: [basicAuthHandler10]
     },
@@ -36,7 +36,7 @@ listener http:Listener listener10_1 = new(20011, {
 });
 
 // client will not propagate JWT
-http:Client nyseEP = new("https://localhost:20012", {
+http:Client nyseEP = new("https://localhost:20105", {
                             secureSocket: {
                                trustStore: {
                                    path: config:getAsString("truststore"),
@@ -79,7 +79,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider10 = new({
 
 http:BearerAuthHandler jwtAuthHandler10 = new(jwtAuthProvider10);
 
-listener http:Listener listener10_2 = new(20012, {
+listener http:Listener listener10_2 = new(20105, {
     auth: {
         authHandlers: [jwtAuthHandler10]
     },

@@ -22,7 +22,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider22 = new({
     issuer: "https://localhost:9443/oauth2/token",
     audience: "vEwzbcasJVQm1jVYHUHCjhxZ4tYa",
     signatureConfig: {
-        url: "https://localhost:20103/oauth2/jwks",
+        url: "https://localhost:20199/oauth2/jwks",
         clientConfig: {
             secureSocket: {
                 trustStore: {
@@ -36,7 +36,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider22 = new({
 
 http:BearerAuthHandler jwtAuthHandler22 = new(jwtAuthProvider22);
 
-listener http:Listener listener22 = new(20029, {
+listener http:Listener listener22 = new(20114, {
     auth: {
         authHandlers: [jwtAuthHandler22]
     },

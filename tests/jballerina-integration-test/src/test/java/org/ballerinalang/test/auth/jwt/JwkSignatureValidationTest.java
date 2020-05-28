@@ -36,7 +36,7 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class JwkSignatureValidationTest extends AuthBaseTest {
 
-    private final int servicePort = 20029;
+    private final int servicePort = 20114;
 
     @Test(description = "Test authentication success request by validating JWT signature with JWK")
     public void testAuthenticationSuccess() throws Exception {

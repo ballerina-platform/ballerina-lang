@@ -26,7 +26,7 @@ auth:OutboundBasicAuthProvider basicAuthProvider = new({
 http:BasicAuthHandler basicAuthHandler = new(basicAuthProvider);
 
 oauth2:IntrospectionServerConfig introspectionServerConfig = {
-    url: "https://localhost:20102/oauth2/token/introspect",
+    url: "https://localhost:20299/oauth2/token/introspect",
     clientConfig: {
         auth: {
             authHandler: basicAuthHandler
@@ -42,7 +42,7 @@ oauth2:IntrospectionServerConfig introspectionServerConfig = {
 oauth2:InboundOAuth2Provider oauth2Provider21 = new(introspectionServerConfig);
 http:BearerAuthHandler oauth2Handler21 = new(oauth2Provider21);
 
-listener http:Listener listener21 = new(20027, {
+listener http:Listener listener21 = new(20200, {
     auth: {
         authHandlers: [oauth2Handler21]
     },

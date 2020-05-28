@@ -50,7 +50,7 @@ string[] accessTokenStore = ["2YotnFZFEjr1zCsicMWpAA"];
 
 // The mock OAuth2 server, which is capable of issuing access tokens with related to the grant type and also of refreshing the
 // already-issued access tokens. This keeps the set of issued access tokens for the validation purpose of the API  endpoint.
-listener http:Listener oauth2Server = new(20102, {
+listener http:Listener oauth2Server = new(20299, {
         secureSocket: {
             keyStore: {
                 path: config:getAsString("keystore"),
@@ -410,7 +410,7 @@ function addToAccessTokenStore(string accessToken) {
 
 //The API endpoint, which is responsible for processing the request after validating the access token in the authorization header.
 // The token should be listed in the accessTokenStore, which keeps the tokens issued by the mock OAuth2 server.
-listener http:Listener apiEndpoint = new(20101, {
+listener http:Listener apiEndpoint = new(20298, {
         secureSocket: {
             keyStore: {
                 path: config:getAsString("keystore"),

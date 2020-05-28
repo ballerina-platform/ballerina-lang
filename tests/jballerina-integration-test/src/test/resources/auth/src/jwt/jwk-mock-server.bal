@@ -19,7 +19,7 @@ import ballerina/http;
 
 // The mock JWK server, which is to expose the JWK components according to the
 // https://tools.ietf.org/html/rfc7517#section-5
-listener http:Listener oauth2Server = new(20103, {
+listener http:Listener oauth2Server = new(20199, {
         secureSocket: {
             keyStore: {
                 path: config:getAsString("keystore"),

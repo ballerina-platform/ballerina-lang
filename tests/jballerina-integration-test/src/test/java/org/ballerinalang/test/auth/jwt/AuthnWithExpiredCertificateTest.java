@@ -32,8 +32,8 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class AuthnWithExpiredCertificateTest extends AuthBaseTest {
 
-    private final int servicePort1 = 20009;
-    private final int servicePort2 = 20010;
+    private final int servicePort1 = 20102;
+    private final int servicePort2 = 20103;
 
     @Test(description = "Auth with JWT signed with expired trusted certificate")
     public void testAuthnWithJWTSignedWithExpiredTrustedCertificate() throws Exception {

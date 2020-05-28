@@ -34,7 +34,7 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class LdapAuthStoreTest extends AuthBaseTest {
 
-    private final int servicePort = 20021;
+    private final int servicePort = 20300;
 
     @Test(description = "Test authentication failure request against ldap auth store")
     public void testAuthenticationFailure() throws Exception {

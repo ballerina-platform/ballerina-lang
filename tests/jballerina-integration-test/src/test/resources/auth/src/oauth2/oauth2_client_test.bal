@@ -20,7 +20,7 @@ import ballerina/oauth2;
 
 // Test the client credentials grant type with valid credentials
 oauth2:OutboundOAuth2Provider oauth2Provider1 = new({
-    tokenUrl: "https://localhost:20102/oauth2/token/authorize/header",
+    tokenUrl: "https://localhost:20299/oauth2/token/authorize/header",
     clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
     clientSecret: "9205371918321623741",
     scopes: ["token-scope1", "token-scope2"],
@@ -34,7 +34,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider1 = new({
     }
 });
 http:BearerAuthHandler oauth2Handler1 = new(oauth2Provider1);
-http:Client clientEP1 = new("https://localhost:20101", {
+http:Client clientEP1 = new("https://localhost:20298", {
     auth: {
         authHandler: oauth2Handler1
     },
@@ -48,7 +48,7 @@ http:Client clientEP1 = new("https://localhost:20101", {
 
 // Test the client credentials grant type with invalid client credentials
 oauth2:OutboundOAuth2Provider oauth2Provider2 = new({
-    tokenUrl: "https://localhost:20102/oauth2/token/authorize/header",
+    tokenUrl: "https://localhost:20299/oauth2/token/authorize/header",
     clientId: "invalid_client_id",
     clientSecret: "invalid_client_secret",
     scopes: ["token-scope1", "token-scope2"],
@@ -62,7 +62,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider2 = new({
     }
 });
 http:BearerAuthHandler oauth2Handler2 = new(oauth2Provider2);
-http:Client clientEP2 = new("https://localhost:20101", {
+http:Client clientEP2 = new("https://localhost:20298", {
     auth: {
         authHandler: oauth2Handler2
     },
@@ -77,7 +77,7 @@ http:Client clientEP2 = new("https://localhost:20101", {
 // Test the client credentials grant type with a post-body bearer and valid credentials
 oauth2:OutboundOAuth2Provider oauth2Provider3 = new({
     credentialBearer: http:POST_BODY_BEARER,
-    tokenUrl: "https://localhost:20102/oauth2/token/authorize/body",
+    tokenUrl: "https://localhost:20299/oauth2/token/authorize/body",
     clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
     clientSecret: "9205371918321623741",
     scopes: ["token-scope1", "token-scope2"],
@@ -91,7 +91,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider3 = new({
     }
 });
 http:BearerAuthHandler oauth2Handler3 = new(oauth2Provider3);
-http:Client clientEP3 = new("https://localhost:20101", {
+http:Client clientEP3 = new("https://localhost:20298", {
     auth: {
         authHandler: oauth2Handler3
     },
@@ -106,7 +106,7 @@ http:Client clientEP3 = new("https://localhost:20101", {
 // Test the client credentials grant type with a post-body bearer and invalid credentials
 oauth2:OutboundOAuth2Provider oauth2Provider4 = new({
     credentialBearer: http:POST_BODY_BEARER,
-    tokenUrl: "https://localhost:20102/oauth2/token/authorize/body",
+    tokenUrl: "https://localhost:20299/oauth2/token/authorize/body",
     clientId: "invalid_client_id",
     clientSecret: "invalid_client_secret",
     scopes: ["token-scope1", "token-scope2"],
@@ -120,7 +120,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider4 = new({
     }
 });
 http:BearerAuthHandler oauth2Handler4 = new(oauth2Provider4);
-http:Client clientEP4 = new("https://localhost:20101", {
+http:Client clientEP4 = new("https://localhost:20298", {
     auth: {
         authHandler: oauth2Handler4
     },
@@ -134,7 +134,7 @@ http:Client clientEP4 = new("https://localhost:20101", {
 
 // Test the password grant type with valid credentials
 oauth2:OutboundOAuth2Provider oauth2Provider5 = new({
-    tokenUrl: "https://localhost:20102/oauth2/token/authorize/header",
+    tokenUrl: "https://localhost:20299/oauth2/token/authorize/header",
     username: "johndoe",
     password: "A3ddj3w",
     clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
@@ -150,7 +150,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider5 = new({
     }
 });
 http:BearerAuthHandler oauth2Handler5 = new(oauth2Provider5);
-http:Client clientEP5 = new("https://localhost:20101", {
+http:Client clientEP5 = new("https://localhost:20298", {
     auth: {
         authHandler: oauth2Handler5
     },
@@ -164,14 +164,14 @@ http:Client clientEP5 = new("https://localhost:20101", {
 
 // Test the password grant type with valid credentials and a valid refresh config
 oauth2:OutboundOAuth2Provider oauth2Provider6 = new({
-    tokenUrl: "https://localhost:20102/oauth2/token/authorize/header",
+    tokenUrl: "https://localhost:20299/oauth2/token/authorize/header",
     username: "johndoe",
     password: "A3ddj3w",
     clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
     clientSecret: "9205371918321623741",
     scopes: ["token-scope1", "token-scope2"],
     refreshConfig: {
-        refreshUrl: "https://localhost:20102/oauth2/token/refresh",
+        refreshUrl: "https://localhost:20299/oauth2/token/refresh",
         scopes: ["token-scope1", "token-scope2"],
         clientConfig: {
             secureSocket: {
@@ -192,7 +192,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider6 = new({
     }
 });
 http:BearerAuthHandler oauth2Handler6 = new(oauth2Provider6);
-http:Client clientEP6 = new("https://localhost:20101", {
+http:Client clientEP6 = new("https://localhost:20298", {
     auth: {
         authHandler: oauth2Handler6
     },
@@ -206,14 +206,14 @@ http:Client clientEP6 = new("https://localhost:20101", {
 
 // Test the password grant type with an invalid username, password, and a valid refresh config
 oauth2:OutboundOAuth2Provider oauth2Provider7 = new({
-    tokenUrl: "https://localhost:20102/oauth2/token/authorize/header",
+    tokenUrl: "https://localhost:20299/oauth2/token/authorize/header",
     username: "invalid_username",
     password: "invalid_password",
     clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
     clientSecret: "9205371918321623741",
     scopes: ["token-scope1", "token-scope2"],
     refreshConfig: {
-        refreshUrl: "https://localhost:20102/oauth2/token/refresh",
+        refreshUrl: "https://localhost:20299/oauth2/token/refresh",
         scopes: ["token-scope1", "token-scope2"],
         clientConfig: {
             secureSocket: {
@@ -234,7 +234,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider7 = new({
     }
 });
 http:BearerAuthHandler oauth2Handler7 = new(oauth2Provider7);
-http:Client clientEP7 = new("https://localhost:20101", {
+http:Client clientEP7 = new("https://localhost:20298", {
     auth: {
         authHandler: oauth2Handler7
     },
@@ -249,7 +249,7 @@ http:Client clientEP7 = new("https://localhost:20101", {
 // Test the password grant type with a bearer without credentials and a valid username and password
 oauth2:OutboundOAuth2Provider oauth2Provider8 = new({
     credentialBearer: http:NO_BEARER,
-    tokenUrl: "https://localhost:20102/oauth2/token/authorize/none",
+    tokenUrl: "https://localhost:20299/oauth2/token/authorize/none",
     username: "johndoe",
     password: "A3ddj3w",
     scopes: ["token-scope1", "token-scope2"],
@@ -263,7 +263,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider8 = new({
     }
 });
 http:BearerAuthHandler oauth2Handler8 = new(oauth2Provider8);
-http:Client clientEP8 = new("https://localhost:20101", {
+http:Client clientEP8 = new("https://localhost:20298", {
     auth: {
         authHandler: oauth2Handler8
     },
@@ -280,7 +280,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider9 = new({
     accessToken: "2YotnFZFEjr1zCsicMWpAA"
 });
 http:BearerAuthHandler oauth2Handler9 = new(oauth2Provider9);
-http:Client clientEP9 = new("https://localhost:20101", {
+http:Client clientEP9 = new("https://localhost:20298", {
     auth: {
         authHandler: oauth2Handler9
     },
@@ -297,7 +297,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider10 = new({
     accessToken: "invalid_access_token"
 });
 http:BearerAuthHandler oauth2Handler10 = new(oauth2Provider10);
-http:Client clientEP10 = new("https://localhost:20101", {
+http:Client clientEP10 = new("https://localhost:20298", {
     auth: {
         authHandler: oauth2Handler10
     },
@@ -313,7 +313,7 @@ http:Client clientEP10 = new("https://localhost:20101", {
 oauth2:OutboundOAuth2Provider oauth2Provider11 = new({
     accessToken: "invalid_access_token",
     refreshConfig: {
-        refreshUrl: "https://localhost:20102/oauth2/token/refresh",
+        refreshUrl: "https://localhost:20299/oauth2/token/refresh",
         refreshToken: "XlfBs91yquexJqDaKEMzVg==",
         clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
         clientSecret: "9205371918321623741",
@@ -329,7 +329,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider11 = new({
     }
 });
 http:BearerAuthHandler oauth2Handler11 = new(oauth2Provider11);
-http:Client clientEP11 = new("https://localhost:20101", {
+http:Client clientEP11 = new("https://localhost:20298", {
     auth: {
         authHandler: oauth2Handler11
     },
@@ -347,7 +347,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider12 = new({
     retryRequest: false
 });
 http:BearerAuthHandler oauth2Handler12 = new(oauth2Provider12);
-http:Client clientEP12 = new("https://localhost:20101", {
+http:Client clientEP12 = new("https://localhost:20298", {
     auth: {
         authHandler: oauth2Handler12
     },
@@ -364,7 +364,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider13 = new({
     accessToken: "invalid_access_token",
     retryRequest: false,
     refreshConfig: {
-        refreshUrl: "https://localhost:20102/oauth2/token/refresh",
+        refreshUrl: "https://localhost:20299/oauth2/token/refresh",
         refreshToken: "XlfBs91yquexJqDaKEMzVg==",
         clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
         clientSecret: "9205371918321623741",
@@ -380,7 +380,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider13 = new({
     }
 });
 http:BearerAuthHandler oauth2Handler13 = new(oauth2Provider13);
-http:Client clientEP13 = new("https://localhost:20101", {
+http:Client clientEP13 = new("https://localhost:20298", {
     auth: {
         authHandler: oauth2Handler13
     },
@@ -396,7 +396,7 @@ http:Client clientEP13 = new("https://localhost:20101", {
 oauth2:OutboundOAuth2Provider oauth2Provider14 = new({
     accessToken: "invalid_access_token",
     refreshConfig: {
-        refreshUrl: "https://localhost:20102/oauth2/token/refresh",
+        refreshUrl: "https://localhost:20299/oauth2/token/refresh",
         refreshToken: "invalid_refresh_token",
         clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
         clientSecret: "9205371918321623741",
@@ -412,7 +412,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider14 = new({
     }
 });
 http:BearerAuthHandler oauth2Handler14 = new(oauth2Provider14);
-http:Client clientEP14 = new("https://localhost:20101", {
+http:Client clientEP14 = new("https://localhost:20298", {
     auth: {
         authHandler: oauth2Handler14
     },
@@ -430,7 +430,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider15 = new({
     retryRequest: false
 });
 http:BearerAuthHandler oauth2Handler15 = new(oauth2Provider15);
-http:Client clientEP15 = new("https://localhost:20101", {
+http:Client clientEP15 = new("https://localhost:20298", {
     auth: {
         authHandler: oauth2Handler15
     },
@@ -442,7 +442,7 @@ http:Client clientEP15 = new("https://localhost:20101", {
     }
 });
 
-listener http:Listener listener18 = new(20028, {
+listener http:Listener listener18 = new(20201, {
     secureSocket: {
         keyStore: {
             path: config:getAsString("keystore"),
