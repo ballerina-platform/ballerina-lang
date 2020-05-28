@@ -10119,7 +10119,7 @@ public class BallerinaParser extends AbstractParser {
         STNode startKeyword = parseStartKeyword();
         STNode expr = parseActionOrExpression();
         validateExprInStartAction(expr);
-        return STNodeFactory.createStartActionNode(annots, startKeyword, expr);
+        return STNodeFactory.createStartActionNode(getAnnotations(annots), startKeyword, expr);
     }
 
     /**
