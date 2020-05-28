@@ -1552,7 +1552,6 @@ public class JvmMethodGen {
 
         BIRVariableDcl varDcl = getVariableDcl(localVars.get(0));
         returnVarRefIndex = indexMap.getIndex(varDcl);
-//        BType returnType = func.type.retType;
         genDefaultValue(mv, retType, returnVarRefIndex);
 
         BIRVariableDcl stateVar = new BIRVariableDcl(symbolTable.stringType, //should  be javaInt

@@ -257,7 +257,6 @@ public class InteropMethodGen {
         }
 
         // Handle return type
-//        BType retType = birFunc.type.retType;
         BIRVariableDcl retVarDcl = new BIRVariableDcl(retType, new Name("$_ret_var_$"), null, VarKind.LOCAL);
         int returnVarRefIndex = indexMap.getIndex(retVarDcl);
 
