@@ -504,8 +504,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(fieldAccessExpressionNode.expression());
         Token dotToken =
                 modifyToken(fieldAccessExpressionNode.dotToken());
-        Token fieldName =
-                modifyToken(fieldAccessExpressionNode.fieldName());
+        NameReferenceNode fieldName =
+                modifyNode(fieldAccessExpressionNode.fieldName());
         return fieldAccessExpressionNode.modify(
                 expression,
                 dotToken,
@@ -537,8 +537,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(methodCallExpressionNode.expression());
         Token dotToken =
                 modifyToken(methodCallExpressionNode.dotToken());
-        Token methodName =
-                modifyToken(methodCallExpressionNode.methodName());
+        NameReferenceNode methodName =
+                modifyNode(methodCallExpressionNode.methodName());
         Token openParenToken =
                 modifyToken(methodCallExpressionNode.openParenToken());
         NodeList<FunctionArgumentNode> arguments =
@@ -2374,8 +2374,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(optionalFieldAccessExpressionNode.expression());
         Token optionalChainingToken =
                 modifyToken(optionalFieldAccessExpressionNode.optionalChainingToken());
-        Token fieldName =
-                modifyToken(optionalFieldAccessExpressionNode.fieldName());
+        NameReferenceNode fieldName =
+                modifyNode(optionalFieldAccessExpressionNode.fieldName());
         return optionalFieldAccessExpressionNode.modify(
                 expression,
                 optionalChainingToken,
@@ -2542,6 +2542,24 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 annotations,
                 serviceKeyword,
                 serviceBody);
+    }
+
+    @Override
+    public ByteArrayLiteralNode transform(
+            ByteArrayLiteralNode byteArrayLiteralNode) {
+        Token type =
+                modifyToken(byteArrayLiteralNode.type());
+        Token startBacktick =
+                modifyToken(byteArrayLiteralNode.startBacktick());
+        Token content =
+                modifyToken(byteArrayLiteralNode.content());
+        Token endBacktick =
+                modifyToken(byteArrayLiteralNode.endBacktick());
+        return byteArrayLiteralNode.modify(
+                type,
+                startBacktick,
+                content,
+                endBacktick);
     }
 
     // Tokens
