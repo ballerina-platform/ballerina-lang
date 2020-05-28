@@ -19,20 +19,17 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerOptionName;
-import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.toml.model.Library;
-import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.toml.parser.ManifestProcessor;
+import org.wso2.ballerinalang.compiler.NativeDependencyResolver;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -51,10 +48,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
+import static org.wso2.ballerinalang.compiler.NativeDependencyResolver.JAR_RESOLVER_KEY;
 
 /**
  * JVM byte code generator from BIR model.
@@ -64,31 +58,29 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COM
 public class CodeGenerator {
 
     private static final CompilerContext.Key<CodeGenerator> CODE_GEN = new CompilerContext.Key<>();
-    private final Set<Path> projectDependencies = new HashSet<>();
     private SymbolTable symbolTable;
     private PackageCache packageCache;
     private BLangDiagnosticLogHelper dlog;
     private BIREmitter birEmitter;
-    private Path projectRoot;
     private boolean isBaloGen;
-    private Manifest manifest;
-    private String sourceType;
-    private CompilerOptions compilerOptions;
+    private NativeDependencyResolver nativeDependencyResolver;
     private boolean skipTests;
     private boolean dumbBIR;
     private boolean skipAddDependencies;
-    private Path ballerinaHome = Paths.get(System.getProperty(BALLERINA_HOME));
 
-    private CodeGenerator(CompilerContext context) {
+    private CodeGenerator(CompilerContext compilerContext) {
 
-        context.put(CODE_GEN, this);
-        this.symbolTable = SymbolTable.getInstance(context);
-        this.packageCache = PackageCache.getInstance(context);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
-        this.birEmitter = BIREmitter.getInstance(context);
-        this.manifest = ManifestProcessor.getInstance(context).getManifest();
-        this.compilerOptions = CompilerOptions.getInstance(context);
-        init();
+        compilerContext.put(CODE_GEN, this);
+        this.symbolTable = SymbolTable.getInstance(compilerContext);
+        this.packageCache = PackageCache.getInstance(compilerContext);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(compilerContext);
+        this.birEmitter = BIREmitter.getInstance(compilerContext);
+        this.nativeDependencyResolver = compilerContext.get(JAR_RESOLVER_KEY);
+        CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
+        this.skipTests = getBooleanValueIfSet(compilerOptions, CompilerOptionName.SKIP_TESTS);
+        this.isBaloGen = getBooleanValueIfSet(compilerOptions, CompilerOptionName.BALO_GENERATION);
+        this.dumbBIR = getBooleanValueIfSet(compilerOptions, CompilerOptionName.DUMP_BIR);
+        this.skipAddDependencies = getBooleanValueIfSet(compilerOptions, CompilerOptionName.SKIP_ADD_DEPENDENCIES);
     }
 
     public static CodeGenerator getInstance(CompilerContext context) {
@@ -99,22 +91,6 @@ public class CodeGenerator {
         }
 
         return codeGenerator;
-    }
-
-    private void init() {
-
-        // skip initialization of this instance if the phase is not codegen
-        if (this.compilerOptions.getCompilerPhase().compareTo(CompilerPhase.CODE_GEN) < 0) {
-            return;
-        }
-
-        this.projectRoot = Paths.get(this.compilerOptions.get(CompilerOptionName.PROJECT_DIR));
-        this.sourceType = this.compilerOptions.get(CompilerOptionName.SOURCE_TYPE);
-        this.skipTests = getBooleanValueIfSet(this.compilerOptions, CompilerOptionName.SKIP_TESTS);
-        this.isBaloGen = getBooleanValueIfSet(this.compilerOptions, CompilerOptionName.BALO_GENERATION);
-        this.dumbBIR = getBooleanValueIfSet(this.compilerOptions, CompilerOptionName.DUMP_BIR);
-        this.skipAddDependencies = getBooleanValueIfSet(this.compilerOptions, CompilerOptionName.SKIP_ADD_DEPENDENCIES);
-        findProjectDependenciesInManifest();
     }
 
     private boolean getBooleanValueIfSet(CompilerOptions compilerOptions, CompilerOptionName optionName) {
@@ -141,7 +117,7 @@ public class CodeGenerator {
         bLangPackage.getTestablePkgs().forEach(testablePackage -> {
 
             // find module dependencies path
-            Set<Path> testDependencies = findDependencies(testablePackage);
+            Set<Path> testDependencies = findTestDependencies(testablePackage);
 
             // generate test module jar
             generate(testablePackage.symbol, testDependencies);
@@ -163,62 +139,32 @@ public class CodeGenerator {
 
     private Set<Path> findDependencies(BLangPackage bLangPackage) {
 
-        //TODO : this is not the correct way and we need to use the project API to resolve dependencies
-
         Set<Path> moduleDependencies = new HashSet<>();
 
         if (skipAddDependencies) {
             return moduleDependencies;
         }
 
-        if (projectDependencies.size() > 0) {
-            moduleDependencies.addAll(projectDependencies);
+        if (isBaloGen) {
+            return readInteropDependencies();
         }
 
-        if (isBaloGen) {
-            moduleDependencies.addAll(readInteropDependencies());
+        if (nativeDependencyResolver != null) {
+            moduleDependencies.addAll(nativeDependencyResolver.nativeDependencies(bLangPackage.packageID));
         }
 
         return moduleDependencies;
     }
 
-    private void findProjectDependenciesInManifest() {
+    private Set<Path> findTestDependencies(BLangTestablePackage testablePackage) {
 
-        //TODO : this is not the correct way and we need to use the project API to resolve dependencies
+        Set<Path> testDependencies = new HashSet<>();
 
-        // add runtime all jar to the classpath
-        projectDependencies.add(getRuntimeAllJarPath());
-
-        if (!"SINGLE_MODULE".equals(sourceType) && !"ALL_MODULES".equals(sourceType)) {
-            return;
+        if (nativeDependencyResolver != null) {
+            testDependencies.addAll(nativeDependencyResolver.nativeDependenciesForTests(testablePackage.packageID));
         }
 
-        // add platform libs, if they are defined
-        List<Library> libraries = manifest.getPlatform().libraries;
-        if (libraries != null && libraries.size() > 0) {
-            for (Library library : libraries) {
-
-                if (library.getPath() == null) {
-                    continue;
-                }
-
-                Path libFilePath = Paths.get(library.getPath());
-                Path libFile = projectRoot.resolve(libFilePath);
-
-                if (!libFile.toFile().exists()) {
-                    continue;
-                }
-                Path path = Paths.get(libFile.toUri());
-                projectDependencies.add(path);
-            }
-        }
-    }
-
-    private Path getRuntimeAllJarPath() {
-
-        String ballerinaVersion = RepoUtils.getBallerinaVersion();
-        String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
-        return Paths.get(ballerinaHome.toString(), BALLERINA_HOME_BRE, BALLERINA_HOME_LIB, runtimeJarName);
+        return testDependencies;
     }
 
     private HashSet<Path> readInteropDependencies() {
