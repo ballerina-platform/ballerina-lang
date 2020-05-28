@@ -48,8 +48,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -75,7 +78,16 @@ public class ImmutableTypeCloner {
                                                                  SymbolEnv env, SymbolTable symTable,
                                                                  BLangAnonymousModelHelper anonymousModelHelper,
                                                                  Names names) {
-        return getImmutableIntersectionType(pos, types, type, env, symTable, anonymousModelHelper, names,
+        return getImmutableIntersectionType(null, pos, types, type, env, symTable, anonymousModelHelper, names,
+                                            new HashSet<>());
+    }
+
+    public static BIntersectionType getImmutableIntersectionType(BLangType origTypeNode, DiagnosticPos pos, Types types,
+                                                                 SelectivelyImmutableReferenceType type,
+                                                                 SymbolEnv env, SymbolTable symTable,
+                                                                 BLangAnonymousModelHelper anonymousModelHelper,
+                                                                 Names names) {
+        return getImmutableIntersectionType(origTypeNode, pos, types, type, env, symTable, anonymousModelHelper, names,
                                             new HashSet<>());
     }
 
@@ -90,15 +102,15 @@ public class ImmutableTypeCloner {
             return symTable.semanticError;
         }
 
-        return getImmutableIntersectionType(pos, types, (SelectivelyImmutableReferenceType) type, env, symTable,
+        return getImmutableIntersectionType(null, pos, types, (SelectivelyImmutableReferenceType) type, env, symTable,
                                             anonymousModelHelper, names, unresolvedTypes);
     }
 
-    private static BIntersectionType getImmutableIntersectionType(DiagnosticPos pos, Types types,
-                                                                 SelectivelyImmutableReferenceType type,
-                                                                 SymbolEnv env, SymbolTable symTable,
-                                                                 BLangAnonymousModelHelper anonymousModelHelper,
-                                                                 Names names, Set<BType> unresolvedTypes) {
+    private static BIntersectionType getImmutableIntersectionType(BLangType origTypeNode, DiagnosticPos pos,
+                                                                  Types types, SelectivelyImmutableReferenceType type,
+                                                                  SymbolEnv env, SymbolTable symTable,
+                                                                  BLangAnonymousModelHelper anonymousModelHelper,
+                                                                  Names names, Set<BType> unresolvedTypes) {
         BType origBType =  (BType) type;
         if (origBType.tag == TypeTags.INTERSECTION && Symbols.isFlagOn(origBType.flags, Flags.READONLY)) {
             return (BIntersectionType) origBType;
@@ -109,11 +121,11 @@ public class ImmutableTypeCloner {
             return immutableType;
         }
 
-        return ImmutableTypeCloner.setImmutableType(pos, types, type, env, symTable, anonymousModelHelper, names,
-                                                    unresolvedTypes);
+        return ImmutableTypeCloner.setImmutableType(origTypeNode, pos, types, type, env, symTable, anonymousModelHelper,
+                                                    names, unresolvedTypes);
     }
 
-    private static BIntersectionType setImmutableType(DiagnosticPos pos, Types types,
+    private static BIntersectionType setImmutableType(BLangType origTypeNode, DiagnosticPos pos, Types types,
                                                       SelectivelyImmutableReferenceType selectivelyImmutableRefType,
                                                       SymbolEnv env, SymbolTable symTable,
                                                       BLangAnonymousModelHelper anonymousModelHelper,
@@ -212,8 +224,8 @@ public class ImmutableTypeCloner {
             case TypeTags.RECORD:
                 BRecordType origRecordType = (BRecordType) type;
 
-                return defineImmutableRecordType(pos, origRecordType, env, symTable, anonymousModelHelper, names,
-                                                 types, unresolvedTypes);
+                return defineImmutableRecordType(origTypeNode, pos, origRecordType, env, symTable,
+                                                 anonymousModelHelper, names, types, unresolvedTypes);
             case TypeTags.TABLE:
                 BTableType origTableType = (BTableType) type;
 
@@ -325,20 +337,24 @@ public class ImmutableTypeCloner {
         }
     }
 
-    public static void defineUndefinedImmutableRecordFields(BLangTypeDefinition typeDefinition, Types types,
+    public static void defineUndefinedImmutableRecordFields(BLangTypeDefinition immutableTypeDefinition,
+                                                            Types types,
                                                             SymbolEnv pkgEnv, SymbolTable symTable,
                                                             BLangAnonymousModelHelper anonymousModelHelper,
                                                             Names names) {
-        BRecordType immutableRecordType = (BRecordType) typeDefinition.type;
+        BRecordType immutableRecordType = (BRecordType) immutableTypeDefinition.type;
         BRecordType origRecordType = immutableRecordType.mutableType;
-        DiagnosticPos pos = typeDefinition.pos;
-        SymbolEnv env = SymbolEnv.createTypeEnv(typeDefinition.typeNode, typeDefinition.symbol.scope, pkgEnv);
+        DiagnosticPos pos = immutableTypeDefinition.pos;
+        SymbolEnv env = SymbolEnv.createTypeEnv(immutableTypeDefinition.typeNode, immutableTypeDefinition.symbol.scope,
+                                                pkgEnv);
         PackageID pkgID = env.enclPkg.symbol.pkgID;
 
         if (origRecordType.fields.size() != immutableRecordType.fields.size()) {
-            immutableRecordType.fields = getImmutableFields(types, symTable, anonymousModelHelper, names,
-                                                            immutableRecordType.tsymbol, origRecordType, pos, env,
-                                                            pkgID, new HashSet<>());
+
+            populateImmutableRecordFields(null, types, symTable, anonymousModelHelper, names,
+                                          (BLangRecordTypeNode) immutableTypeDefinition.typeNode, immutableRecordType,
+                                          origRecordType,
+                                          pos, env, pkgID, new HashSet<>());
         }
 
         BType currentRestFieldType = immutableRecordType.restFieldType;
@@ -350,14 +366,16 @@ public class ImmutableTypeCloner {
                     new HashSet<>());
     }
 
-    private static LinkedHashMap<String, BField> getImmutableFields(Types types, SymbolTable symTable,
-                                                                    BLangAnonymousModelHelper anonymousModelHelper,
-                                                                    Names names, BTypeSymbol immutableRecordSymbol,
-                                                                    BRecordType origRecordType, DiagnosticPos pos,
-                                                                    SymbolEnv env, PackageID pkgID,
-                                                                    Set<BType> unresolvedTypes) {
+    private static void populateImmutableRecordFields(BLangType origBLangType, Types types,
+                                                      SymbolTable symTable,
+                                                      BLangAnonymousModelHelper anonymousModelHelper,
+                                                      Names names,
+                                                      BLangRecordTypeNode immutableRecordTypeNode,
+                                                      BRecordType immutableRecordType,
+                                                      BRecordType origRecordType, DiagnosticPos pos, SymbolEnv env,
+                                                      PackageID pkgID, Set<BType> unresolvedTypes) {
+        BTypeSymbol immutableRecordSymbol = immutableRecordType.tsymbol;
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
-
         for (BField origField : origRecordType.fields.values()) {
             BType immutableFieldType = getImmutableType(pos, types, origField.type, env, symTable,
                                                         anonymousModelHelper, names, unresolvedTypes);
@@ -374,10 +392,15 @@ public class ImmutableTypeCloner {
                 invokableSymbol.retType = tsymbol.returnType;
                 invokableSymbol.flags = tsymbol.flags;
             }
-            fields.put(origFieldName.value, new BField(origFieldName, null, immutableFieldSymbol));
+            String nameString = origFieldName.value;
+            fields.put(nameString, new BField(origFieldName, null, immutableFieldSymbol));
             immutableRecordSymbol.scope.define(origFieldName, immutableFieldSymbol);
         }
-        return fields;
+        immutableRecordType.fields = fields;
+
+        if (origBLangType != null) {
+            immutableRecordTypeNode.typeRefs.add(origBLangType);
+        }
     }
 
     private static void setRestType(Types types, SymbolTable symTable, BLangAnonymousModelHelper anonymousModelHelper,
@@ -395,8 +418,9 @@ public class ImmutableTypeCloner {
                                                              anonymousModelHelper, names, unresolvedTypes);
     }
 
-    private static BIntersectionType defineImmutableRecordType(DiagnosticPos pos, BRecordType origRecordType,
-                                                               SymbolEnv env, SymbolTable symTable,
+    private static BIntersectionType defineImmutableRecordType(BLangType origTypeNode, DiagnosticPos pos,
+                                                               BRecordType origRecordType, SymbolEnv env,
+                                                               SymbolTable symTable,
                                                                BLangAnonymousModelHelper anonymousModelHelper,
                                                                Names names, Types types, Set<BType> unresolvedTypes) {
         PackageID pkgID = env.enclPkg.symbol.pkgID;
@@ -426,18 +450,19 @@ public class ImmutableTypeCloner {
         origRecordType.immutableType = immutableRecordIntersectionType;
         immutableRecordType.mutableType = origRecordType;
 
-        immutableRecordType.fields = getImmutableFields(types, symTable, anonymousModelHelper, names,
-                                                        immutableRecordType.tsymbol, origRecordType, pos, env,
-                                                        pkgID, unresolvedTypes);
+        recordSymbol.type = immutableRecordType;
+        immutableRecordType.tsymbol = recordSymbol;
+
+        BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(),
+                                                                                       immutableRecordType, pos);
+
+        populateImmutableRecordFields(origTypeNode, types, symTable, anonymousModelHelper, names,
+                                      recordTypeNode, immutableRecordType, origRecordType, pos, env,
+                                      pkgID, unresolvedTypes);
 
         setRestType(types, symTable, anonymousModelHelper, names, immutableRecordType, origRecordType, pos, env,
                     unresolvedTypes);
 
-        recordSymbol.type = immutableRecordType;
-        immutableRecordType.tsymbol = recordSymbol;
-
-        BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(immutableRecordType, pkgID,
-                                                                                       symTable, pos);
         recordTypeNode.initFunction = TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names,
                                                                                            symTable);
         TypeDefBuilderHelper.addTypeDefinition(immutableRecordType, recordSymbol, recordTypeNode, env);

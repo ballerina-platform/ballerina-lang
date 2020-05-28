@@ -1409,8 +1409,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         int newSize = typeDefNodes.size();
 
         for (int i = originalSize; i < newSize; i++) {
-            BLangTypeDefinition typeDefinition = typeDefNodes.get(i);
-            ImmutableTypeCloner.defineUndefinedImmutableRecordFields(typeDefinition, types, pkgEnv, symTable,
+            ImmutableTypeCloner.defineUndefinedImmutableRecordFields(typeDefNodes.get(i), types, pkgEnv, symTable,
                                                                      anonymousModelHelper, names);
         }
     }

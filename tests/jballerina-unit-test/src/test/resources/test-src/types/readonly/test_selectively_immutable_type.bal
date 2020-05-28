@@ -582,26 +582,26 @@ function testImmutableTypedRecordFields() {
 
 type Qux record {|
     Qux a?;
-    Qux? b = ();
+    Qux? b;
     int c;
     Qux|boolean...;
 |};
 
 function testImmutabilityForSelfReferencingType() {
-    Qux & readonly q1 = {b: {c: 2, "f": true}, c: 1, "d": true, "e": {c: 3}};
+    Qux & readonly q1 = {b: {c: 2, "f": true, b: ()}, c: 1, "d": true, "e": {c: 3, b: ()}};
     any a1 = q1;
     anydata ad1 = q1;
 
     assertTrue(a1 is Qux & readonly);
     assertTrue(ad1.isReadOnly());
     Qux qVal = <Qux & readonly> a1;
-    assertEquality(<Qux> {b: {c: 2, "f": true}, c: 1, "d": true, "e": {c: 3}}, qVal);
+    assertEquality(<Qux> {b: {c: 2, "f": true, b: ()}, c: 1, "d": true, "e": {c: 3, b: ()}}, qVal);
     assertTrue(qVal?.a is ());
     assertTrue(qVal.b is Qux & readonly);
     assertTrue(qVal["d"] is boolean & readonly);
     assertTrue(qVal["e"] is Qux & readonly);
 
-    Qux q2 = {a: q1, b: (), c: 23, "d": true, "e": {c: 4}};
+    Qux q2 = {a: q1, b: (), c: 23, "d": true, "e": {c: 4, b: ()}};
     any a2 = q2;
     anydata ad2 = q2;
 
@@ -609,7 +609,7 @@ function testImmutabilityForSelfReferencingType() {
     assertFalse(a2 is Qux & readonly);
     assertFalse(ad2.isReadOnly());
     qVal = <Qux> a2;
-    assertEquality(<Qux> {a: q1, b: (), c: 23, "d": true, "e": {c: 4}}, qVal);
+    assertEquality(<Qux> {a: q1, b: (), c: 23, "d": true, "e": {c: 4, b: ()}}, qVal);
     assertTrue(qVal?.a is Qux & readonly);
 
     Qux aQux =  <Qux> qVal?.a;

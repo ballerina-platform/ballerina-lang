@@ -22,6 +22,7 @@ function testReadonlyRecordFields() {
     testValidUpdateOfPossiblyReadonlyFieldInUnion();
     testInvalidUpdateOfPossiblyReadonlyFieldInUnion();
     testRecordWithStructuredReadonlyFields();
+    //testReadOnlyFieldWithDefaultValue(); https://github.com/ballerina-platform/ballerina-lang/issues/23557
 }
 
 type Student record {
@@ -176,6 +177,39 @@ function testRecordWithStructuredReadonlyFields() {
     error err = <error> res;
     assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.reason());
     assertEquality("cannot update 'readonly' field 'details' in record of type 'Employee'", err.detail()?.message);
+}
+
+type Identifier record {|
+    readonly string id = "Identifier";
+    string code;
+|};
+
+function testReadOnlyFieldWithDefaultValue() {
+    string k = "id";
+
+    Identifier i1 = {code: "QWE"};
+    assertEquality("Identifier", i1.id);
+    assertEquality("QWE", i1.code);
+
+    var fn1 = function () {
+        i1[k] = "new identifier";
+    };
+    error? res = trap fn1();
+    assertTrue(res is error);
+
+    error err = <error> res;
+    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.reason());
+    assertEquality("cannot update 'readonly' field 'id' in record of type 'Identifier'", err.detail()?.message);
+
+    var fn2 = function () {
+        Identifier i2 = {code: "QWE", [k]: "new id"};
+    };
+    res = trap fn2();
+    assertTrue(res is error);
+
+    err = <error> res;
+    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.reason());
+    assertEquality("cannot update 'readonly' field 'id' in record of type 'Identifier'", err.detail()?.message);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

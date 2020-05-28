@@ -1416,12 +1416,18 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private BType computeIntersectionType(BLangIntersectionTypeNode intersectionTypeNode) {
         List<BLangType> constituentTypeNodes = intersectionTypeNode.constituentTypeNodes;
+        Map<BType, BLangType> typeBLangTypeMap = new HashMap<>();
 
         boolean validIntersection = true;
 
-        BType typeOne = resolveTypeNode(constituentTypeNodes.get(0), env);
-        BType typeTwo = resolveTypeNode(constituentTypeNodes.get(1), env);
+        BLangType bLangTypeOne = constituentTypeNodes.get(0);
+        BType typeOne = resolveTypeNode(bLangTypeOne, env);
+        typeBLangTypeMap.put(typeOne, bLangTypeOne);
 
+
+        BLangType bLangTypeTwo = constituentTypeNodes.get(1);
+        BType typeTwo = resolveTypeNode(bLangTypeTwo, env);
+        typeBLangTypeMap.put(typeTwo, bLangTypeTwo);
 
         boolean hasReadOnlyType = typeOne == symTable.readonlyType || typeTwo == symTable.readonlyType;
 
@@ -1431,7 +1437,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             validIntersection = false;
         } else {
             for (int i = 2; i < constituentTypeNodes.size(); i++) {
-                BType type = resolveTypeNode(constituentTypeNodes.get(i), env);
+                BLangType bLangType = constituentTypeNodes.get(i);
+                BType type = resolveTypeNode(bLangType, env);
+                typeBLangTypeMap.put(type, bLangType);
 
                 if (!hasReadOnlyType) {
                     hasReadOnlyType = type == symTable.readonlyType;
@@ -1466,7 +1474,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             return symTable.semanticError;
         }
 
-        return ImmutableTypeCloner.getImmutableIntersectionType(intersectionTypeNode.pos, types,
+        return ImmutableTypeCloner.getImmutableIntersectionType(typeBLangTypeMap.get(potentialIntersectionType),
+                                                                intersectionTypeNode.pos, types,
                                                                 (SelectivelyImmutableReferenceType)
                                                                         potentialIntersectionType,
                                                                 env, symTable, anonymousModelHelper, names);
