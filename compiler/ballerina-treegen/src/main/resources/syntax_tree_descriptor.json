@@ -648,7 +648,7 @@
                 },
                 {
                     "name": "fieldName",
-                    "type": "Token"
+                    "type": "NameReferenceNode"
                 }
             ]
         },
@@ -691,7 +691,7 @@
                 },
                 {
                     "name": "methodName",
-                    "type": "Token"
+                    "type": "NameReferenceNode"
                 },
                 {
                     "name": "openParenToken",
@@ -3209,7 +3209,7 @@
                 },
                 {
                     "name": "fieldName",
-                    "type": "Token"
+                    "type": "NameReferenceNode"
                 }
             ]
         },
@@ -3422,6 +3422,29 @@
                 {
                     "name": "serviceBody",
                     "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ByteArrayLiteralNode",
+            "base": "ExpressionNode",
+            "kind": "BYTE_ARRAY_LITERAL",
+            "attributes": [
+                {
+                    "name": "type",
+                    "type": "Token"
+                },
+                {
+                    "name": "startBacktick",
+                    "type": "Token"
+                },
+                {
+                    "name": "content",
+                    "type": "Token"
+                },
+                {
+                    "name": "endBacktick",
+                    "type": "Token"
                 }
             ]
         }

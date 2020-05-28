@@ -1908,5 +1908,18 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 serviceKeyword,
                 serviceBody);
     }
+
+    public static STNode createByteArrayLiteralNode(
+            STNode type,
+            STNode startBacktick,
+            STNode content,
+            STNode endBacktick) {
+
+        return new STByteArrayLiteralNode(
+                type,
+                startBacktick,
+                content,
+                endBacktick);
+    }
 }
 

@@ -75,5 +75,4 @@ public abstract class AbstractLexer {
         this.modeStack.pop();
         this.mode = this.modeStack.peek();
     }
-
 }

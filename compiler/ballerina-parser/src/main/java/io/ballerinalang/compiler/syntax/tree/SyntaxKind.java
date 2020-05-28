@@ -90,6 +90,8 @@ public enum SyntaxKind {
     ROLLBACK_KEYWORD(236, "rollback"),
     RETRY_KEYWORD(237, "retry"),
     ENUM_KEYWORD(238, "enum"),
+    BASE16_KEYWORD(239, "base16"),
+    BASE64_KEYWORD(240, "base64"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -368,8 +370,9 @@ public enum SyntaxKind {
     WAIT_FIELD(3059),
     ENUM_MEMBER(3060),
     LIST_BP_OR_TUPLE_TYPE_DESC(3061),
-    MAPPING_BINDING_PATTERN(3062),
-    FIELD_BINDING_PATTERN(3063),
+    BYTE_ARRAY_LITERAL(3062),
+    MAPPING_BINDING_PATTERN(3063),
+    FIELD_BINDING_PATTERN(3064),
 
     // XML
     XML_ELEMENT(4000),
