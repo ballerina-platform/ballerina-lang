@@ -24,6 +24,9 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Test class to test openapi annotation disable validating.
+ */
 public class OpenapiValidatorOff extends BaseTestCase {
 
     private BMainInstance balClient;
