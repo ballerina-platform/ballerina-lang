@@ -124,7 +124,7 @@ public class DocCommand implements BLauncherCmd {
         this.sourceRootPath = null != this.sourceRoot ?
                 Paths.get(this.sourceRoot).toAbsolutePath() : this.sourceRootPath;
         // Generating API Docs through a JSON file
-        if (null != this.jsonLoc) {
+        if (this.jsonLoc != null) {
             this.jsonPath = Paths.get(this.jsonLoc).toAbsolutePath();
             if (Files.notExists(jsonPath)) {
                 CommandUtil.printError(this.errStream,
@@ -161,7 +161,6 @@ public class DocCommand implements BLauncherCmd {
             CommandUtil.exitError(true);
             return;
         }
-
         // when -a or --all flag is provided. check if the command is executed within a ballerina project. update source
         // root path if command executed inside a project.
         if (this.buildAll) {

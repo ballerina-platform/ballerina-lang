@@ -84,10 +84,6 @@ public class CreateDocsTask implements Task {
         }
     }
 
-    public void execute(){
-
-    }
-
     static class EmptyPrintStream extends PrintStream {
         EmptyPrintStream() throws UnsupportedEncodingException {
             super(new OutputStream() {

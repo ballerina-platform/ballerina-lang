@@ -84,11 +84,11 @@ public class BallerinaDocGenerator {
     private static final String HTML = ".html";
     private static final String DOC_JSON = "api-doc-data.json";
     private static final String JSON = ".json";
-    private static Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Path.class, new PathToJson())
-            .excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
     private static final String MODULE_SEARCH = "search";
     private static final String SEARCH_DATA = "search-data.js";
     private static final String SEARCH_DIR = "doc-search";
+    private static Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Path.class, new PathToJson())
+            .excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
 
     /**
      * API to merge multiple api docs.
@@ -179,10 +179,9 @@ public class BallerinaDocGenerator {
 
         // Generate project model
         Project project = getDocsGenModel(moduleDocList);
-
         writeAPIDocs(project, output, excludeIndex);
-
     }
+
     public static void writeAPIDocs(Project project, String output, boolean excludeIndex) {
         String moduleTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "module");
         String recordTemplateName = System.getProperty(BallerinaDocConstants.RECORD_TEMPLATE_NAME_KEY, "record");
@@ -351,7 +350,6 @@ public class BallerinaDocGenerator {
                     out.println("docerina: successfully copied project resources into " + resourcesDir);
                 }
             }
-
         }
 
         if (!excludeIndex) {
