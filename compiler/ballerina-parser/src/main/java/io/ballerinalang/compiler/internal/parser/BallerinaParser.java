@@ -17,6 +17,8 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
+import io.ballerinalang.compiler.internal.diagnostics.DiagnosticCode;
+import io.ballerinalang.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Action;
 import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Solution;
 import io.ballerinalang.compiler.internal.parser.tree.STAmbiguousListNode;
@@ -35,6 +37,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STRestParameterNode;
 import io.ballerinalang.compiler.internal.parser.tree.STSimpleNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.STTypedBindingPatternNode;
+import io.ballerinalang.compiler.internal.syntax.NodeListUtils;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocuments;
@@ -42,8 +45,6 @@ import io.ballerinalang.compiler.text.TextDocuments;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
-
-import static io.ballerinalang.compiler.internal.diagnostics.DiagnosticErrorCode.ERROR_MISSING_FUNCTION_NAME;
 
 /**
  * A LL(k) recursive-descent parser for ballerina.
@@ -1428,7 +1429,7 @@ public class BallerinaParser extends AbstractParser {
 
         // We reach this method only if the func-name is not present.
         STNode name = errorHandler.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
-                ERROR_MISSING_FUNCTION_NAME);
+                DiagnosticErrorCode.ERROR_MISSING_FUNCTION_NAME);
 
         // Function definition cannot have missing param-names. So validate it.
         funcSignature = validateAndGetFuncParams((STFunctionSignatureNode) funcSignature);
@@ -4304,7 +4305,6 @@ public class BallerinaParser extends AbstractParser {
 
         switch (solution.tokenKind) {
             case IDENTIFIER_TOKEN:
-                this.errorHandler.reportMissingTokenError("missing " + solution.ctx);
                 return parseQualifiedIdentifier(solution.recoveredNode);
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
@@ -4314,7 +4314,6 @@ public class BallerinaParser extends AbstractParser {
             case FALSE_KEYWORD:
             case DECIMAL_FLOATING_POINT_LITERAL:
             case HEX_FLOATING_POINT_LITERAL:
-                this.errorHandler.reportMissingTokenError("missing " + solution.ctx);
                 return solution.recoveredNode;
             default:
                 return parseTerminalExpression(solution.tokenKind, annots, isRhsExpr, allowActions);
@@ -6249,9 +6248,10 @@ public class BallerinaParser extends AbstractParser {
         STNode onKeyword = parseOnKeyword();
         STNode expressionList = parseListeners();
         STNode serviceBody = parseServiceBody();
-        STNode service = STNodeFactory.createServiceDeclarationNode(metadata, serviceKeyword, serviceName, onKeyword,
+
+        onKeyword = addDiagnosticIfListEmpty(expressionList, onKeyword, DiagnosticErrorCode.ERROR_MISSING_EXPRESSION);
+        return STNodeFactory.createServiceDeclarationNode(metadata, serviceKeyword, serviceName, onKeyword,
                 expressionList, serviceBody);
-        return service;
     }
 
     private STNode parseServiceName() {
@@ -6348,8 +6348,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         if (isEndOfExpressionsList(nextToken.kind)) {
             endContext();
-            this.errorHandler.reportMissingTokenError("missing expression");
-            return STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            return STNodeFactory.createEmptyNodeList();
         }
 
         // Parse first expression, that has no leading comma
@@ -7706,6 +7705,8 @@ public class BallerinaParser extends AbstractParser {
             case ON_KEYWORD:
                 onKeyword = parseOnKeyword();
                 attachPoints = parseAnnotationAttachPoints();
+                onKeyword = addDiagnosticIfListEmpty(attachPoints, onKeyword,
+                        DiagnosticErrorCode.ERROR_MISSING_ANNOTATION_ATTACH_POINT);
                 break;
             default:
                 STToken token = peek();
@@ -7766,8 +7767,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         if (isEndAnnotAttachPointList(nextToken.kind)) {
             endContext();
-            this.errorHandler.reportMissingTokenError("missing attach point");
-            return STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            return STNodeFactory.createEmptyNodeList();
         }
 
         // Parse first attach-point, that has no leading comma
@@ -7787,8 +7787,8 @@ public class BallerinaParser extends AbstractParser {
             // Parse attach point. Null represents the end of attach-points.
             attachPoint = parseAnnotationAttachPoint();
             if (attachPoint == null) {
-                this.errorHandler.reportMissingTokenError("missing attach point");
-                attachPoint = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+                attachPoint = errorHandler.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                        DiagnosticErrorCode.ERROR_MISSING_ANNOTATION_ATTACH_POINT);
                 attachPoints.add(attachPoint);
                 break;
             }
@@ -9052,6 +9052,10 @@ public class BallerinaParser extends AbstractParser {
         STNode letVarDeclarations = parseLetVarDeclarations(ParserRuleContext.LET_EXPR_LET_VAR_DECL, isRhsExpr);
         STNode inKeyword = parseInKeyword();
 
+        // Clone the letKeyword token with the given diagnostic, if the variable declaration list is empty.
+        letKeyword = addDiagnosticIfListEmpty(letVarDeclarations, letKeyword,
+                DiagnosticErrorCode.ERROR_MISSING_LET_VARIABLE_DECLARATION);
+
         // allow-actions flag is always false, since there will not be any actions
         // within the let-expr, due to the precedence.
         STNode expression = parseExpression(OperatorPrecedence.UNARY, isRhsExpr, false);
@@ -9088,8 +9092,7 @@ public class BallerinaParser extends AbstractParser {
         // Make sure at least one let variable declaration is present
         if (isEndOfLetVarDeclarations(nextToken.kind)) {
             endContext();
-            this.errorHandler.reportMissingTokenError("missing let variable declaration");
-            return STNodeFactory.createNodeList(varDecls);
+            return STNodeFactory.createEmptyNodeList();
         }
 
         // Parse first variable declaration, that has no leading comma
@@ -9692,6 +9695,11 @@ public class BallerinaParser extends AbstractParser {
         STNode memberTypeDesc = parseTupleMemberTypeDescList();
         STNode closeBracket = parseCloseBracket();
         endContext();
+
+        // Clone the openBracket token with the given diagnostic, if the tuple member type-desc list is empty.
+        openBracket = addDiagnosticIfListEmpty(memberTypeDesc, openBracket,
+                DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC);
+
         return STNodeFactory.createTupleTypeDescriptorNode(openBracket, memberTypeDesc, closeBracket);
     }
 
@@ -9706,8 +9714,7 @@ public class BallerinaParser extends AbstractParser {
 
         // Return an empty list
         if (isEndOfTypeList(nextToken.kind)) {
-            this.errorHandler.reportMissingTokenError("missing type-desc");
-            return STNodeFactory.createNodeList(new ArrayList<>());
+            return STNodeFactory.createEmptyNodeList();
         }
 
         // Parse first typedesc, that has no leading comma
@@ -9935,20 +9942,31 @@ public class BallerinaParser extends AbstractParser {
             }
         }
 
-        STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
-        STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
-
         if (peek().kind == SyntaxKind.DO_KEYWORD) {
+            STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
+            STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
             return parseQueryAction(queryPipeline, selectClause);
         }
 
         if (selectClause == null) {
-            this.errorHandler.reportMissingTokenError("missing select clause");
-            STNode selectKeyword = STNodeFactory.createMissingToken(SyntaxKind.SELECT_KEYWORD);
-            STNode expr = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            STNode selectKeyword = errorHandler.createMissingToken(SyntaxKind.SELECT_KEYWORD);
+            STNode expr = errorHandler.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
             selectClause = STNodeFactory.createSelectClauseNode(selectKeyword, expr);
+
+            // Now we need to attach the diagnostic to the last intermediate clause.
+            // If there are no intermediate clauses, then attach to the from clause.
+            if (clauses.isEmpty()) {
+                fromClause = errorHandler.addDiagnostics(fromClause, DiagnosticErrorCode.ERROR_MISSING_SELECT_CLAUSE);
+            } else {
+                int lastIndex = clauses.size() - 1;
+                STNode intClauseWithDiagnostic = errorHandler.addDiagnostics(clauses.get(lastIndex),
+                        DiagnosticErrorCode.ERROR_MISSING_SELECT_CLAUSE);
+                clauses.set(lastIndex, intClauseWithDiagnostic);
+            }
         }
 
+        STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
+        STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
         return STNodeFactory.createQueryExpressionNode(queryConstructType, queryPipeline, selectClause);
     }
 
@@ -10094,6 +10112,10 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseLetClause(boolean isRhsExpr) {
         STNode letKeyword = parseLetKeyword();
         STNode letVarDeclarations = parseLetVarDeclarations(ParserRuleContext.LET_CLAUSE_LET_VAR_DECL, isRhsExpr);
+
+        // Clone the letKeyword token with the given diagnostic, if the variable declaration list is empty.
+        letKeyword = addDiagnosticIfListEmpty(letVarDeclarations, letKeyword,
+                DiagnosticErrorCode.ERROR_MISSING_LET_VARIABLE_DECLARATION);
         return STNodeFactory.createLetClauseNode(letKeyword, letVarDeclarations);
     }
 
@@ -11933,7 +11955,42 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse base16 literal.
+     * Returns 'true' if the list is empty.
+     * <p>
+     * First check whether this node is an instance of STNodeList.
+     *
+     * @param node the nodelist instance
+     * @return returns 'true' if the list is empty
+     */
+    private boolean isNodeListEmpty(STNode node) {
+        if (!NodeListUtils.isSTNodeList(node)) {
+            throw new IllegalArgumentException("The 'node' should be an instance of STNodeList");
+        }
+
+        STNodeList nodeList = (STNodeList) node;
+        return nodeList.isEmpty();
+    }
+
+    /**
+     * Returns a clone of the given STNode with the given diagnostic if the nodeList is empty,
+     * otherwise returns the original STNode.
+     *
+     * @param nodeList       the node list instance
+     * @param target         the STNode instance
+     * @param diagnosticCode the DiagnosticCode to be added to the node
+     * @return a clone of the given STNode
+     */
+    private STNode addDiagnosticIfListEmpty(STNode nodeList,
+                                            STNode target,
+                                            DiagnosticCode diagnosticCode) {
+        if (isNodeListEmpty(nodeList)) {
+            return errorHandler.addDiagnostics(target, diagnosticCode);
+        }
+        return target;
+    }
+
+    /**
+     * * Parse base16 literal.
      * <p>
      * <code>
      * byte-array-literal := Base16Literal | Base64Literal

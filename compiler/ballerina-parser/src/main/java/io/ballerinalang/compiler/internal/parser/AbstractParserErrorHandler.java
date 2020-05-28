@@ -27,6 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -134,14 +135,7 @@ public abstract class AbstractParserErrorHandler {
      * @param fix Solution to recover from the missing token
      */
     private STNode handleMissingToken(ParserRuleContext currentCtx, Solution fix) {
-        // If the original issues was at a production where there are alternatives,
-        // then do not report any errors. Parser will try to re-parse the best-matching
-        // alternative again. Errors will be reported at the next try.
-        if (isProductionWithAlternatives(currentCtx)) {
-            return createMissingToken(fix.tokenKind);
-        } else {
-            return createMissingTokenWithDiagnostics(fix.tokenKind);
-        }
+        return createMissingTokenWithDiagnostics(fix.tokenKind);
     }
 
     /**
@@ -215,6 +209,31 @@ public abstract class AbstractParserErrorHandler {
         this.errorListener.reportMissingTokenError(currentToken, diagnosticCode);
     }
 
+    public STNode addDiagnostics(STNode node, DiagnosticCode... diagnosticCodes) {
+        Collection<STNodeDiagnostic> diagnosticsToAdd = new ArrayList<>();
+        for (DiagnosticCode diagnosticCode : diagnosticCodes) {
+            diagnosticsToAdd.add(new STNodeDiagnostic(diagnosticCode));
+        }
+        return addDiagnostics(node, diagnosticsToAdd);
+    }
+
+    private STNode addDiagnostics(STNode node, Collection<STNodeDiagnostic> diagnosticsToAdd) {
+        if (diagnosticsToAdd.isEmpty()) {
+            return node;
+        }
+
+        Collection<STNodeDiagnostic> newDiagnostics;
+        Collection<STNodeDiagnostic> oldDiagnostics = node.diagnostics();
+        if (oldDiagnostics.isEmpty()) {
+            newDiagnostics = new ArrayList<>(diagnosticsToAdd);
+        } else {
+            // Merge all diagnostics
+            newDiagnostics = new ArrayList<>(oldDiagnostics);
+            newDiagnostics.addAll(diagnosticsToAdd);
+        }
+        return node.modifyWith(newDiagnostics);
+    }
+
     public STToken createMissingToken(SyntaxKind expectedKind) {
         return STNodeFactory.createMissingToken(expectedKind);
     }
@@ -278,7 +297,10 @@ public abstract class AbstractParserErrorHandler {
                 return DiagnosticErrorCode.ERROR_MISSING_DOUBLE_QUOTE_TOKEN;
             case BACKTICK_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_BACKTICK_TOKEN;
-
+            case OPEN_BRACE_PIPE_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_PIPE_TOKEN;
+            case CLOSE_BRACE_PIPE_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_PIPE_TOKEN;
 
             case DEFAULT_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_DEFAULT_KEYWORD;

@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SpreadFieldNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STSpreadFieldNode extends STMappingFieldNode {
             STNode leadingComma,
             STNode ellipsis,
             STNode valueExpr) {
-        super(SyntaxKind.SPREAD_FIELD);
+        this(
+                leadingComma,
+                ellipsis,
+                valueExpr,
+                Collections.emptyList());
+    }
+
+    STSpreadFieldNode(
+            STNode leadingComma,
+            STNode ellipsis,
+            STNode valueExpr,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.SPREAD_FIELD, diagnostics);
         this.leadingComma = leadingComma;
         this.ellipsis = ellipsis;
         this.valueExpr = valueExpr;
@@ -45,6 +60,14 @@ public class STSpreadFieldNode extends STMappingFieldNode {
                 leadingComma,
                 ellipsis,
                 valueExpr);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STSpreadFieldNode(
+                this.leadingComma,
+                this.ellipsis,
+                this.valueExpr,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

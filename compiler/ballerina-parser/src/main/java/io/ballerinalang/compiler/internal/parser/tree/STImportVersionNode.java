@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,13 +37,30 @@ public class STImportVersionNode extends STNode {
     STImportVersionNode(
             STNode versionKeyword,
             STNode versionNumber) {
-        super(SyntaxKind.IMPORT_VERSION);
+        this(
+                versionKeyword,
+                versionNumber,
+                Collections.emptyList());
+    }
+
+    STImportVersionNode(
+            STNode versionKeyword,
+            STNode versionNumber,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.IMPORT_VERSION, diagnostics);
         this.versionKeyword = versionKeyword;
         this.versionNumber = versionNumber;
 
         addChildren(
                 versionKeyword,
                 versionNumber);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STImportVersionNode(
+                this.versionKeyword,
+                this.versionNumber,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
