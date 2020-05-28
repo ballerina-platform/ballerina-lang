@@ -184,6 +184,7 @@ public class BallerinaDocGenerator {
             }
         }
     }
+
     public static void writeAPIDocsForModules(Map<String, ModuleDoc> docsMap, String output, boolean excludeIndex) {
         // Sort modules by module path
         List<ModuleDoc> moduleDocList = new ArrayList<>(docsMap.values());
@@ -372,7 +373,6 @@ public class BallerinaDocGenerator {
                     out.println("docerina: successfully copied project resources into " + resourcesDir);
                 }
             }
-
         }
 
         // Copy template resources to output dir
