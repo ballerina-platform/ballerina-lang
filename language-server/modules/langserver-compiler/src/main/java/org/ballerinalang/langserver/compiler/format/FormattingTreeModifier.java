@@ -16,7 +16,8 @@
 package org.ballerinalang.langserver.compiler.format;
 
 import io.ballerinalang.compiler.syntax.tree.AbstractNodeFactory;
-import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.ExpressionListItemNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
@@ -26,15 +27,19 @@ import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
+import io.ballerinalang.compiler.syntax.tree.MetadataNode;
 import io.ballerinalang.compiler.syntax.tree.Minutiae;
 import io.ballerinalang.compiler.syntax.tree.MinutiaeList;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeFactory;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.ServiceBodyNode;
+import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.StatementNode;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.syntax.tree.TreeModifier;
+import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 
 /**
  * Modifies the given tree to format the nodes.
@@ -44,6 +49,7 @@ import io.ballerinalang.compiler.syntax.tree.TreeModifier;
 public class FormattingTreeModifier extends TreeModifier {
     @Override
     public FunctionDefinitionNode transform(FunctionDefinitionNode functionDefinitionNode) {
+        Token visibilityQualifier = getToken(functionDefinitionNode.visibilityQualifier().orElse(null));
         Token functionKeyword = getToken(functionDefinitionNode.functionKeyword());
         Token functionName = getToken(functionDefinitionNode.functionName());
 
@@ -53,6 +59,17 @@ public class FormattingTreeModifier extends TreeModifier {
 
         FunctionBodyNode functionBodyNode = this.modifyNode(functionDefinitionNode.functionBody());
 
+        if (visibilityQualifier != null) {
+            return functionDefinitionNode.modify()
+                    .withVisibilityQualifier(formatToken(visibilityQualifier, 0, 0, 0))
+                    .withFunctionKeyword(formatToken(functionKeyword, 1, 0, 0))
+                    .withFunctionName((IdentifierToken) formatToken(functionName, 1, 0, 0))
+                    .withFunctionSignature(functionSignatureNode
+                            .modify(functionSignatureOpenPara, functionSignatureNode.parameters(),
+                                    functionSignatureClosePara, null))
+                    .withFunctionBody(functionBodyNode)
+                    .apply();
+        }
         return functionDefinitionNode.modify()
                 .withFunctionKeyword(formatToken(functionKeyword, 0, 0, 0))
                 .withFunctionName((IdentifierToken) formatToken(functionName, 1, 0, 0))
@@ -173,6 +190,7 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     private <T extends Token> Token getToken(T node) {
+        if (node == null) return node;
         return node.modify(AbstractNodeFactory.createEmptyMinutiaeList(),
                 AbstractNodeFactory.createEmptyMinutiaeList());
     }
