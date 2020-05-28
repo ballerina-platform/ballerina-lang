@@ -6,7 +6,6 @@ import ballerina/openapi;
 
 @openapi:ServiceInfo {
         contract: "src/openapi-validator-on/resources/openapi_validator_on.yaml",
-        failOnErrors: false
         }
 @http:ServiceConfig {
         basePath: "/api/v1"
