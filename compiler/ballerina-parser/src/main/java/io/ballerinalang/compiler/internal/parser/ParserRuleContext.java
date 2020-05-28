@@ -302,6 +302,8 @@ public enum ParserRuleContext {
     ROLLBACK_KEYWORD("rollback"),
     TRANSACTIONAL_KEYWORD("transactional"),
     ENUM_KEYWORD("enum"),
+    BASE16_KEYWORD("base16"),
+    BASE64_KEYWORD("base64"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -348,7 +350,6 @@ public enum ParserRuleContext {
     SIMPLE_TYPE_DESCRIPTOR("simple-type-desc"),
     BINARY_OPERATOR("binary-operator"),
     TYPE_NAME("type-name"),
-    FIELD_OR_FUNC_NAME("field-or-func-name"),
     BOOLEAN_LITERAL("boolean-literal"),
     CHECKING_KEYWORD("checking-keyword"),
     SERVICE_NAME("service-name"),
@@ -407,7 +408,7 @@ public enum ParserRuleContext {
     TABLE_CONSTRUCTOR_OR_QUERY_START("table-constructor-or-query-start"),
     TABLE_CONSTRUCTOR_OR_QUERY_RHS("table-constructor-or-query-rhs"),
     QUERY_EXPRESSION("query-expr"),
-    ANNOT_TAG_REFERENCE("annot-tag-reference"),
+    FIELD_ACCESS_IDENTIFIER("field-access-identifier"),
     QUERY_PIPELINE_RHS("query-pipeline-rhs"),
     LET_CLAUSE_END("let-clause-end"),
     CONDITIONAL_EXPRESSION("conditional-expr"),

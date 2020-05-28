@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STAssignmentStatementNode extends STStatementNode {
             STNode equalsToken,
             STNode expression,
             STNode semicolonToken) {
-        super(SyntaxKind.ASSIGNMENT_STATEMENT);
+        this(
+                varRef,
+                equalsToken,
+                expression,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STAssignmentStatementNode(
+            STNode varRef,
+            STNode equalsToken,
+            STNode expression,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.ASSIGNMENT_STATEMENT, diagnostics);
         this.varRef = varRef;
         this.equalsToken = equalsToken;
         this.expression = expression;
@@ -49,6 +66,15 @@ public class STAssignmentStatementNode extends STStatementNode {
                 equalsToken,
                 expression,
                 semicolonToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STAssignmentStatementNode(
+                this.varRef,
+                this.equalsToken,
+                this.expression,
+                this.semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

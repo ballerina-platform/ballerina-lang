@@ -17,62 +17,21 @@
 import ballerina/auth;
 import ballerina/config;
 import ballerina/http;
-import ballerina/jwt;
 
 auth:InboundBasicAuthProvider basicAuthProvider19 = new;
 http:BasicAuthHandler basicAuthHandler19 = new(basicAuthProvider19);
 
-jwt:InboundJwtAuthProvider jwtAuthProvider19_1 = new({
-    issuer: "example1",
-    audience: "ballerina",
-    signatureConfig: {
-        certificateAlias: "ballerina",
-        trustStore: {
-           path: config:getAsString("truststore"),
-           password: "ballerina"
-        }
-    }
-});
-http:BearerAuthHandler jwtAuthHandler19_1 = new(jwtAuthProvider19_1);
+auth:InboundBasicAuthProvider basicAuthProvider19_1 = new({ tableName: "b7a.group1" });
+http:BasicAuthHandler basicAuthHandler19_1 = new(basicAuthProvider19_1);
 
-jwt:InboundJwtAuthProvider jwtAuthProvider19_2 = new({
-    issuer: "example2",
-    audience: "ballerina",
-    signatureConfig: {
-        certificateAlias: "ballerina",
-        trustStore: {
-           path: config:getAsString("truststore"),
-           password: "ballerina"
-        }
-    }
-});
-http:BearerAuthHandler jwtAuthHandler19_2 = new(jwtAuthProvider19_2);
+auth:InboundBasicAuthProvider basicAuthProvider19_2 = new({ tableName: "b7a.group2" });
+http:BasicAuthHandler basicAuthHandler19_2 = new(basicAuthProvider19_2);
 
-jwt:InboundJwtAuthProvider jwtAuthProvider19_3 = new({
-    issuer: "example3",
-    audience: "ballerina",
-    signatureConfig: {
-        certificateAlias: "ballerina",
-        trustStore: {
-           path: config:getAsString("truststore"),
-           password: "ballerina"
-        }
-    }
-});
-http:BearerAuthHandler jwtAuthHandler19_3 = new(jwtAuthProvider19_3);
+auth:InboundBasicAuthProvider basicAuthProvider19_3 = new({ tableName: "b7a.group3" });
+http:BasicAuthHandler basicAuthHandler19_3 = new(basicAuthProvider19_3);
 
-jwt:InboundJwtAuthProvider jwtAuthProvider19_4 = new({
-    issuer: "example4",
-    audience: "ballerina",
-    signatureConfig: {
-        certificateAlias: "ballerina",
-        trustStore: {
-           path: config:getAsString("truststore"),
-           password: "ballerina"
-        }
-    }
-});
-http:BearerAuthHandler jwtAuthHandler19_4 = new(jwtAuthProvider19_4);
+auth:InboundBasicAuthProvider basicAuthProvider19_4 = new({ tableName: "b7a.group4" });
+http:BasicAuthHandler basicAuthHandler19_4 = new(basicAuthProvider19_4);
 
 listener http:Listener listener19 = new(20025, {
     auth: {
@@ -95,7 +54,7 @@ service echo19 on listener19 {
         methods: ["GET"],
         auth: {
             enabled: true,
-            authHandlers: [jwtAuthHandler19_1]
+            authHandlers: [basicAuthHandler19_1]
         }
     }
     resource function test1(http:Caller caller, http:Request req) {
@@ -106,7 +65,7 @@ service echo19 on listener19 {
         methods: ["GET"],
         auth: {
             enabled: true,
-            authHandlers: [jwtAuthHandler19_1, jwtAuthHandler19_2]
+            authHandlers: [basicAuthHandler19_1, basicAuthHandler19_2]
         }
     }
     resource function test2(http:Caller caller, http:Request req) {
@@ -117,7 +76,7 @@ service echo19 on listener19 {
         methods: ["GET"],
         auth: {
             enabled: true,
-            authHandlers: [[jwtAuthHandler19_1]]
+            authHandlers: [[basicAuthHandler19_1]]
         }
     }
     resource function test3(http:Caller caller, http:Request req) {
@@ -128,7 +87,7 @@ service echo19 on listener19 {
         methods: ["GET"],
         auth: {
             enabled: true,
-            authHandlers: [[jwtAuthHandler19_1], [jwtAuthHandler19_3]]
+            authHandlers: [[basicAuthHandler19_1], [basicAuthHandler19_3]]
         }
     }
     resource function test4(http:Caller caller, http:Request req) {
@@ -139,7 +98,7 @@ service echo19 on listener19 {
         methods: ["GET"],
         auth: {
             enabled: true,
-            authHandlers: [[jwtAuthHandler19_1, jwtAuthHandler19_2], [jwtAuthHandler19_3, jwtAuthHandler19_4]]
+            authHandlers: [[basicAuthHandler19_1, basicAuthHandler19_2], [basicAuthHandler19_3, basicAuthHandler19_4]]
         }
     }
     resource function test5(http:Caller caller, http:Request req) {

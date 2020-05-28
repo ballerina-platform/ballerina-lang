@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.PanicStatementNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STPanicStatementNode extends STStatementNode {
             STNode panicKeyword,
             STNode expression,
             STNode semicolonToken) {
-        super(SyntaxKind.PANIC_STATEMENT);
+        this(
+                panicKeyword,
+                expression,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STPanicStatementNode(
+            STNode panicKeyword,
+            STNode expression,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.PANIC_STATEMENT, diagnostics);
         this.panicKeyword = panicKeyword;
         this.expression = expression;
         this.semicolonToken = semicolonToken;
@@ -45,6 +60,14 @@ public class STPanicStatementNode extends STStatementNode {
                 panicKeyword,
                 expression,
                 semicolonToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STPanicStatementNode(
+                this.panicKeyword,
+                this.expression,
+                this.semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

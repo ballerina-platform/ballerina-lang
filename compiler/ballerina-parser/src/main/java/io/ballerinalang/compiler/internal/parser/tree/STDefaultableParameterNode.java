@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -44,7 +47,27 @@ public class STDefaultableParameterNode extends STParameterNode {
             STNode paramName,
             STNode equalsToken,
             STNode expression) {
-        super(SyntaxKind.DEFAULTABLE_PARAM);
+        this(
+                leadingComma,
+                annotations,
+                visibilityQualifier,
+                typeName,
+                paramName,
+                equalsToken,
+                expression,
+                Collections.emptyList());
+    }
+
+    STDefaultableParameterNode(
+            STNode leadingComma,
+            STNode annotations,
+            STNode visibilityQualifier,
+            STNode typeName,
+            STNode paramName,
+            STNode equalsToken,
+            STNode expression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.DEFAULTABLE_PARAM, diagnostics);
         this.leadingComma = leadingComma;
         this.annotations = annotations;
         this.visibilityQualifier = visibilityQualifier;
@@ -61,6 +84,18 @@ public class STDefaultableParameterNode extends STParameterNode {
                 paramName,
                 equalsToken,
                 expression);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STDefaultableParameterNode(
+                this.leadingComma,
+                this.annotations,
+                this.visibilityQualifier,
+                this.typeName,
+                this.paramName,
+                this.equalsToken,
+                this.expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -33,8 +33,8 @@ public class DefaultableParameterNode extends ParameterNode {
         super(internalNode, position, parent);
     }
 
-    public Token leadingComma() {
-        return childInBucket(0);
+    public Optional<Token> leadingComma() {
+        return optionalChildInBucket(0);
     }
 
     public NodeList<AnnotationNode> annotations() {
@@ -133,7 +133,7 @@ public class DefaultableParameterNode extends ParameterNode {
 
         public DefaultableParameterNodeModifier(DefaultableParameterNode oldNode) {
             this.oldNode = oldNode;
-            this.leadingComma = oldNode.leadingComma();
+            this.leadingComma = oldNode.leadingComma().orElse(null);
             this.annotations = oldNode.annotations();
             this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
             this.typeName = oldNode.typeName();

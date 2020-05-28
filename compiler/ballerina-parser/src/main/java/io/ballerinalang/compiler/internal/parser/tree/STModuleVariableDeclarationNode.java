@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -42,7 +45,25 @@ public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNo
             STNode equalsToken,
             STNode initializer,
             STNode semicolonToken) {
-        super(SyntaxKind.MODULE_VAR_DECL);
+        this(
+                metadata,
+                finalKeyword,
+                typedBindingPattern,
+                equalsToken,
+                initializer,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STModuleVariableDeclarationNode(
+            STNode metadata,
+            STNode finalKeyword,
+            STNode typedBindingPattern,
+            STNode equalsToken,
+            STNode initializer,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.MODULE_VAR_DECL, diagnostics);
         this.metadata = metadata;
         this.finalKeyword = finalKeyword;
         this.typedBindingPattern = typedBindingPattern;
@@ -57,6 +78,17 @@ public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNo
                 equalsToken,
                 initializer,
                 semicolonToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STModuleVariableDeclarationNode(
+                this.metadata,
+                this.finalKeyword,
+                this.typedBindingPattern,
+                this.equalsToken,
+                this.initializer,
+                this.semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

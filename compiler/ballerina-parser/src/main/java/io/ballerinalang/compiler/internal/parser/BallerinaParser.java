@@ -17,6 +17,8 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
+import io.ballerinalang.compiler.internal.diagnostics.DiagnosticCode;
+import io.ballerinalang.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Action;
 import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Solution;
 import io.ballerinalang.compiler.internal.parser.tree.STAmbiguousListNode;
@@ -35,6 +37,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STRestParameterNode;
 import io.ballerinalang.compiler.internal.parser.tree.STSimpleNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.STTypedBindingPatternNode;
+import io.ballerinalang.compiler.internal.syntax.NodeListUtils;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocuments;
@@ -42,8 +45,6 @@ import io.ballerinalang.compiler.text.TextDocuments;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
-
-import static io.ballerinalang.compiler.internal.diagnostics.DiagnosticErrorCode.ERROR_MISSING_FUNCTION_NAME;
 
 /**
  * A LL(k) recursive-descent parser for ballerina.
@@ -211,7 +212,6 @@ public class BallerinaParser extends AbstractParser {
             case IMPORT_MODULE_NAME:
             case IMPORT_ORG_OR_MODULE_NAME:
             case VARIABLE_REF:
-            case FIELD_OR_FUNC_NAME:
             case SERVICE_NAME:
             case IMPLICIT_ANON_FUNC_PARAM:
                 return parseIdentifier(context);
@@ -435,8 +435,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseWaitFieldEnd();
             case ANNOT_CHAINING_TOKEN:
                 return parseAnnotChainingToken();
-            case ANNOT_TAG_REFERENCE:
-                return parseAnnotTagReference();
+            case FIELD_ACCESS_IDENTIFIER:
+                return parseFieldAccessIdentifier();
             case DO_KEYWORD:
                 return parseDoKeyword();
             case MEMBER_ACCESS_KEY_EXPR_END:
@@ -477,6 +477,10 @@ public class BallerinaParser extends AbstractParser {
             case BRACKETED_LIST_MEMBER:
             case LIST_BINDING_MEMBER_OR_ARRAY_LENGTH:
                 return parseBracketedListMember((boolean) args[0]);
+            case BASE16_KEYWORD:
+                return parseBase16Keyword();
+            case BASE64_KEYWORD:
+                return parseBase64Keyword();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -1425,7 +1429,7 @@ public class BallerinaParser extends AbstractParser {
 
         // We reach this method only if the func-name is not present.
         STNode name = errorHandler.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
-                ERROR_MISSING_FUNCTION_NAME);
+                DiagnosticErrorCode.ERROR_MISSING_FUNCTION_NAME);
 
         // Function definition cannot have missing param-names. So validate it.
         funcSignature = validateAndGetFuncParams((STFunctionSignatureNode) funcSignature);
@@ -3500,7 +3504,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse the component after the type-desc, of a typed-binding-pattern.
-     * 
+     *
      * @param typeDesc Starting type-desc of the typed-binding-pattern
      * @return Typed-binding pattern
      */
@@ -3538,7 +3542,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse typed-binding pattern with list, array-type-desc, or member-access-expr.
-     * 
+     *
      * @param typeDescOrExpr Type desc or the expression at the start
      * @param isTypedBindingPattern Is this is a typed-binding-pattern.
      * @return
@@ -3626,7 +3630,7 @@ public class BallerinaParser extends AbstractParser {
      * 1) Array length
      * 2) Key expression of a member-access-expr
      * 3) A member-binding pattern of a list-binding-pattern.
-     * 
+     *
      * @param nextTokenKind Kind of the next token
      * @param isTypedBindingPattern Is this in a definite typed-binding pattern
      * @return Parsed member node
@@ -3693,7 +3697,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Treat the current node as an array, and parse the remainder of the binding pattern.
-     * 
+     *
      * @param typeDesc Type-desc
      * @param openBracket Open bracket
      * @param member Member
@@ -3737,7 +3741,7 @@ public class BallerinaParser extends AbstractParser {
      * 1) Array Type Desc
      * 2) Member access on LHS
      * 3) Typed-binding-pattern
-     * 
+     *
      * @param typeDescOrExpr Type name or the expr that precede the open-bracket.
      * @param openBracket Open bracket
      * @param member Member
@@ -3869,7 +3873,7 @@ public class BallerinaParser extends AbstractParser {
      * is another binding-pattern, then <code>(T[a] |/& R[b])</code> becomes the type-desc. However,
      * if the token follows this is an equal or semicolon, then <code>(T[a] |/& R)</code> becomes
      * the type-desc, and <code>[b]</code> becomes the binding pattern.
-     * 
+     *
      * @param typeDescOrExpr Type desc or the expression
      * @param openBracket Open bracket
      * @param member Member
@@ -3903,7 +3907,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse union (|) or intersection (&) type operator.
-     * 
+     *
      * @return pipe or bitwise and token
      */
     private STNode parseUnionOrIntersectionToken() {
@@ -3918,7 +3922,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Infer the type of the ambiguous bracketed list, based on the type of the member.
-     * 
+     *
      * @param memberNode Member node
      * @return Inferred type of the bracketed list
      */
@@ -3954,7 +3958,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Create a type-desc out of an expression.
-     * 
+     *
      * @param expression Expression
      * @return Type descriptor
      */
@@ -4274,6 +4278,9 @@ public class BallerinaParser extends AbstractParser {
                 return parseTransactionalExpression();
             case SERVICE_KEYWORD:
                 return parseServiceConstructorExpression(annots);
+            case BASE16_KEYWORD:
+            case BASE64_KEYWORD:
+                return parseByteArrayLiteral(kind);
             default:
                 break;
         }
@@ -4293,7 +4300,6 @@ public class BallerinaParser extends AbstractParser {
 
         switch (solution.tokenKind) {
             case IDENTIFIER_TOKEN:
-                this.errorHandler.reportMissingTokenError("missing " + solution.ctx);
                 return parseQualifiedIdentifier(solution.recoveredNode);
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
@@ -4303,7 +4309,6 @@ public class BallerinaParser extends AbstractParser {
             case FALSE_KEYWORD:
             case DECIMAL_FLOATING_POINT_LITERAL:
             case HEX_FLOATING_POINT_LITERAL:
-                this.errorHandler.reportMissingTokenError("missing " + solution.ctx);
                 return solution.recoveredNode;
             default:
                 return parseTerminalExpression(solution.tokenKind, annots, isRhsExpr, allowActions);
@@ -4662,7 +4667,7 @@ public class BallerinaParser extends AbstractParser {
      * method.
      * <p>
      * <code>key-expression := single-key-expression | multi-key-expression</code>
-     * 
+     *
      * @param isRhsExpr Is this is a rhs expression
      * @return Key expression
      */
@@ -4744,14 +4749,28 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse field access expression and method call expression.
+     * Parse field access, xml required attribute access expressions or method call expression.
+     * <p>
+     * <code>
+     * field-access-expr := expression . field-name
+     * <br/>
+     * xml-required-attribute-access-expr := expression . xml-attribute-name
+     * <br/>
+     * xml-attribute-name := xml-qualified-name | qualified-identifier | identifier
+     * <br/>
+     * method-call-expr := expression . method-name ( arg-list )
+     * </code>
      *
      * @param lhsExpr Preceding expression of the field access or method call
      * @return One of <code>field-access-expression</code> or <code>method-call-expression</code>.
      */
     private STNode parseFieldAccessOrMethodCall(STNode lhsExpr) {
         STNode dotToken = parseDotToken();
-        STNode fieldOrMethodName = parseIdentifier(ParserRuleContext.FIELD_OR_FUNC_NAME);
+        STNode fieldOrMethodName = parseFieldAccessIdentifier();
+
+        if (fieldOrMethodName.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            return STNodeFactory.createFieldAccessExpressionNode(lhsExpr, dotToken, fieldOrMethodName);
+        }
 
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN) {
@@ -6243,9 +6262,10 @@ public class BallerinaParser extends AbstractParser {
         STNode onKeyword = parseOnKeyword();
         STNode expressionList = parseListeners();
         STNode serviceBody = parseServiceBody();
-        STNode service = STNodeFactory.createServiceDeclarationNode(metadata, serviceKeyword, serviceName, onKeyword,
+
+        onKeyword = addDiagnosticIfListEmpty(expressionList, onKeyword, DiagnosticErrorCode.ERROR_MISSING_EXPRESSION);
+        return STNodeFactory.createServiceDeclarationNode(metadata, serviceKeyword, serviceName, onKeyword,
                 expressionList, serviceBody);
-        return service;
     }
 
     private STNode parseServiceName() {
@@ -6342,8 +6362,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         if (isEndOfExpressionsList(nextToken.kind)) {
             endContext();
-            this.errorHandler.reportMissingTokenError("missing expression");
-            return STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            return STNodeFactory.createEmptyNodeList();
         }
 
         // Parse first expression, that has no leading comma
@@ -7704,6 +7723,8 @@ public class BallerinaParser extends AbstractParser {
             case ON_KEYWORD:
                 onKeyword = parseOnKeyword();
                 attachPoints = parseAnnotationAttachPoints();
+                onKeyword = addDiagnosticIfListEmpty(attachPoints, onKeyword,
+                        DiagnosticErrorCode.ERROR_MISSING_ANNOTATION_ATTACH_POINT);
                 break;
             default:
                 STToken token = peek();
@@ -7764,8 +7785,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         if (isEndAnnotAttachPointList(nextToken.kind)) {
             endContext();
-            this.errorHandler.reportMissingTokenError("missing attach point");
-            return STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            return STNodeFactory.createEmptyNodeList();
         }
 
         // Parse first attach-point, that has no leading comma
@@ -7785,8 +7805,8 @@ public class BallerinaParser extends AbstractParser {
             // Parse attach point. Null represents the end of attach-points.
             attachPoint = parseAnnotationAttachPoint();
             if (attachPoint == null) {
-                this.errorHandler.reportMissingTokenError("missing attach point");
-                attachPoint = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+                attachPoint = errorHandler.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                        DiagnosticErrorCode.ERROR_MISSING_ANNOTATION_ATTACH_POINT);
                 attachPoints.add(attachPoint);
                 break;
             }
@@ -9050,6 +9070,10 @@ public class BallerinaParser extends AbstractParser {
         STNode letVarDeclarations = parseLetVarDeclarations(ParserRuleContext.LET_EXPR_LET_VAR_DECL, isRhsExpr);
         STNode inKeyword = parseInKeyword();
 
+        // Clone the letKeyword token with the given diagnostic, if the variable declaration list is empty.
+        letKeyword = addDiagnosticIfListEmpty(letVarDeclarations, letKeyword,
+                DiagnosticErrorCode.ERROR_MISSING_LET_VARIABLE_DECLARATION);
+
         // allow-actions flag is always false, since there will not be any actions
         // within the let-expr, due to the precedence.
         STNode expression = parseExpression(OperatorPrecedence.UNARY, isRhsExpr, false);
@@ -9086,8 +9110,7 @@ public class BallerinaParser extends AbstractParser {
         // Make sure at least one let variable declaration is present
         if (isEndOfLetVarDeclarations(nextToken.kind)) {
             endContext();
-            this.errorHandler.reportMissingTokenError("missing let variable declaration");
-            return STNodeFactory.createNodeList(varDecls);
+            return STNodeFactory.createEmptyNodeList();
         }
 
         // Parse first variable declaration, that has no leading comma
@@ -9197,7 +9220,7 @@ public class BallerinaParser extends AbstractParser {
         STNode type = parseStringKeyword();
         STNode startingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
         STNode content = parseTemplateContent();
-        STNode endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
+        STNode endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_END);
         return STNodeFactory.createTemplateExpressionNode(SyntaxKind.STRING_TEMPLATE_EXPRESSION, type, startingBackTick,
                 content, endingBackTick);
     }
@@ -9690,6 +9713,11 @@ public class BallerinaParser extends AbstractParser {
         STNode memberTypeDesc = parseTupleMemberTypeDescList();
         STNode closeBracket = parseCloseBracket();
         endContext();
+
+        // Clone the openBracket token with the given diagnostic, if the tuple member type-desc list is empty.
+        openBracket = addDiagnosticIfListEmpty(memberTypeDesc, openBracket,
+                DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC);
+
         return STNodeFactory.createTupleTypeDescriptorNode(openBracket, memberTypeDesc, closeBracket);
     }
 
@@ -9704,8 +9732,7 @@ public class BallerinaParser extends AbstractParser {
 
         // Return an empty list
         if (isEndOfTypeList(nextToken.kind)) {
-            this.errorHandler.reportMissingTokenError("missing type-desc");
-            return STNodeFactory.createNodeList(new ArrayList<>());
+            return STNodeFactory.createEmptyNodeList();
         }
 
         // Parse first typedesc, that has no leading comma
@@ -9933,20 +9960,31 @@ public class BallerinaParser extends AbstractParser {
             }
         }
 
-        STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
-        STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
-
         if (peek().kind == SyntaxKind.DO_KEYWORD) {
+            STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
+            STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
             return parseQueryAction(queryPipeline, selectClause);
         }
 
         if (selectClause == null) {
-            this.errorHandler.reportMissingTokenError("missing select clause");
-            STNode selectKeyword = STNodeFactory.createMissingToken(SyntaxKind.SELECT_KEYWORD);
-            STNode expr = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            STNode selectKeyword = errorHandler.createMissingToken(SyntaxKind.SELECT_KEYWORD);
+            STNode expr = errorHandler.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
             selectClause = STNodeFactory.createSelectClauseNode(selectKeyword, expr);
+
+            // Now we need to attach the diagnostic to the last intermediate clause.
+            // If there are no intermediate clauses, then attach to the from clause.
+            if (clauses.isEmpty()) {
+                fromClause = errorHandler.addDiagnostics(fromClause, DiagnosticErrorCode.ERROR_MISSING_SELECT_CLAUSE);
+            } else {
+                int lastIndex = clauses.size() - 1;
+                STNode intClauseWithDiagnostic = errorHandler.addDiagnostics(clauses.get(lastIndex),
+                        DiagnosticErrorCode.ERROR_MISSING_SELECT_CLAUSE);
+                clauses.set(lastIndex, intClauseWithDiagnostic);
+            }
         }
 
+        STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
+        STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
         return STNodeFactory.createQueryExpressionNode(queryConstructType, queryPipeline, selectClause);
     }
 
@@ -10092,6 +10130,10 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseLetClause(boolean isRhsExpr) {
         STNode letKeyword = parseLetKeyword();
         STNode letVarDeclarations = parseLetVarDeclarations(ParserRuleContext.LET_CLAUSE_LET_VAR_DECL, isRhsExpr);
+
+        // Clone the letKeyword token with the given diagnostic, if the variable declaration list is empty.
+        letKeyword = addDiagnosticIfListEmpty(letVarDeclarations, letKeyword,
+                DiagnosticErrorCode.ERROR_MISSING_LET_VARIABLE_DECLARATION);
         return STNodeFactory.createLetClauseNode(letKeyword, letVarDeclarations);
     }
 
@@ -11102,14 +11144,18 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse annot access expression.
      * <p>
-     * <code>annot-access-expr := expression .@ annot-tag-reference</code>
+     * <code>
+     * annot-access-expr := expression .@ annot-tag-reference
+     * <br/>
+     * annot-tag-reference := qualified-identifier | identifier
+     * </code>
      *
      * @param lhsExpr Preceding expression of the annot access access
      * @return Parsed node
      */
     private STNode parseAnnotAccessExpression(STNode lhsExpr) {
         STNode annotAccessToken = parseAnnotChainingToken();
-        STNode annotTagReference = parseAnnotTagReference();
+        STNode annotTagReference = parseFieldAccessIdentifier();
         return STNodeFactory.createAnnotAccessExpressionNode(lhsExpr, annotAccessToken, annotTagReference);
     }
 
@@ -11129,14 +11175,14 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse annot tag reference.
+     * Parse field access identifier.
      * <p>
-     * <code>annot-tag-reference := qualified-identifier | identifier</code>
+     * <code>field-access-identifier := qualified-identifier | identifier</code>
      *
      * @return Parsed node
      */
-    private STNode parseAnnotTagReference() {
-        return parseQualifiedIdentifier(ParserRuleContext.ANNOT_TAG_REFERENCE);
+    private STNode parseFieldAccessIdentifier() {
+        return parseQualifiedIdentifier(ParserRuleContext.FIELD_ACCESS_IDENTIFIER);
     }
 
     /**
@@ -11179,16 +11225,26 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse optional field access expression.
+     * Parse optional field access or xml optional attribute access expression.
      * <p>
-     * <code>optional-field-access-expr := expression ?. field-name</code>
+     * <code>
+     * optional-field-access-expr := expression ?. field-name
+     * <br/>
+     * xml-optional-attribute-access-expr := expression ?. xml-attribute-name
+     * <br/>
+     * xml-attribute-name := xml-qualified-name | qualified-identifier | identifier
+     * <br/>
+     * xml-qualified-name := xml-namespace-prefix : identifier
+     * <br/>
+     * xml-namespace-prefix := identifier
+     * </code>
      *
-     * @param lhsExpr Preceding expression of the optional field access
+     * @param lhsExpr Preceding expression of the optional access
      * @return Parsed node
      */
     private STNode parseOptionalFieldAccessExpression(STNode lhsExpr) {
         STNode optionalFieldAccessToken = parseOptionalChainingToken();
-        STNode fieldName = parseIdentifier(ParserRuleContext.FIELD_OR_FUNC_NAME);
+        STNode fieldName = parseFieldAccessIdentifier();
         return STNodeFactory.createOptionalFieldAccessExpressionNode(lhsExpr, optionalFieldAccessToken, fieldName);
     }
 
@@ -11233,7 +11289,7 @@ public class BallerinaParser extends AbstractParser {
      * [public] enum identifier { enum-member (, enum-member)* }
      * enum-member := metadata identifier [= const-expr]
      * </p>
-     * 
+     *
      * @param metadata
      * @param qualifier
      *
@@ -11394,7 +11450,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse transaction statement.
      * <p>
      * <code>transaction-stmt := "transaction" block-stmt ;</code>
-     * 
+     *
      * @return Transaction statement node
      */
     private STNode parseTransactionStatement() {
@@ -11424,7 +11480,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse commit action.
      * <p>
      * <code>commit-action := "commit"</code>
-     * 
+     *
      * @return Commit action node
      */
     private STNode parseCommitAction() {
@@ -11455,7 +11511,7 @@ public class BallerinaParser extends AbstractParser {
      * <br/>
      * retry-spec :=  [type-parameter] [ "(" arg-list ")" ]
      * </code>
-     * 
+     *
      * @return Retry statement node
      */
     private STNode parseRetryStatement() {
@@ -11552,7 +11608,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse transaction statement.
      * <p>
      * <code>rollback-stmt := "rollback" [expression] ";"</code>
-     * 
+     *
      * @return Rollback statement node
      */
     private STNode parseRollbackStatement() {
@@ -11589,7 +11645,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse transactional expression.
      * <p>
      * <code>transactional-expr := "transactional"</code>
-     * 
+     *
      * @return Transactional expression node
      */
     private STNode parseTransactionalExpression() {
@@ -11687,7 +11743,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse a member of a list-binding-pattern or tuple-type-desc, when the parent is ambiguous.
-     * 
+     *
      * @param nextTokenKind Kind of the next token.
      * @return Parsed node
      */
@@ -11914,5 +11970,134 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createServiceConstructorExpressionNode(annots,
                 serviceKeyword,
                 serviceBody);
+    }
+
+    /**
+     * Returns 'true' if the list is empty.
+     * <p>
+     * First check whether this node is an instance of STNodeList.
+     *
+     * @param node the nodelist instance
+     * @return returns 'true' if the list is empty
+     */
+    private boolean isNodeListEmpty(STNode node) {
+        if (!NodeListUtils.isSTNodeList(node)) {
+            throw new IllegalArgumentException("The 'node' should be an instance of STNodeList");
+        }
+
+        STNodeList nodeList = (STNodeList) node;
+        return nodeList.isEmpty();
+    }
+
+    /**
+     * Returns a clone of the given STNode with the given diagnostic if the nodeList is empty,
+     * otherwise returns the original STNode.
+     *
+     * @param nodeList       the node list instance
+     * @param target         the STNode instance
+     * @param diagnosticCode the DiagnosticCode to be added to the node
+     * @return a clone of the given STNode
+     */
+    private STNode addDiagnosticIfListEmpty(STNode nodeList,
+                                            STNode target,
+                                            DiagnosticCode diagnosticCode) {
+        if (isNodeListEmpty(nodeList)) {
+            return errorHandler.addDiagnostics(target, diagnosticCode);
+        }
+        return target;
+    }
+
+    /**
+     * * Parse base16 literal.
+     * <p>
+     * <code>
+     * byte-array-literal := Base16Literal | Base64Literal
+     * <br/>
+     * Base16Literal := base16 WS ` HexGroup* WS `
+     * <br/>
+     * Base64Literal := base64 WS ` Base64Group* [PaddedBase64Group] WS `
+     * </code>
+     *
+     * @param kind byte array literal kind
+     * @return parsed node
+     */
+    private STNode parseByteArrayLiteral(SyntaxKind kind) {
+        STNode type;
+
+        if (kind == SyntaxKind.BASE16_KEYWORD) {
+            type = parseBase16Keyword();
+        } else {
+            type = parseBase64Keyword();
+        }
+
+        STNode startingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
+        STNode content = parseByteArrayContent(kind);
+        STNode endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_END);
+        return STNodeFactory.createByteArrayLiteralNode(type, startingBackTick, content, endingBackTick);
+    }
+
+    /**
+     * Parse <code>base16</code> keyword.
+     *
+     * @return base16 keyword node
+     */
+    private STNode parseBase16Keyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.BASE16_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.BASE16_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse <code>base64</code> keyword.
+     *
+     * @return base64 keyword node
+     */
+    private STNode parseBase64Keyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.BASE64_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.BASE64_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Validate and parse byte array literal content.
+     * An error is reported, if the content is invalid.
+     *
+     * @param kind byte array literal kind
+     * @return parsed node
+     */
+    private STNode parseByteArrayContent(SyntaxKind kind) {
+        STNode content = STNodeFactory.createEmptyNode();
+        STToken nextToken = peek();
+
+        List<STNode> items = new ArrayList<>();
+        while (!isEndOfBacktickContent(nextToken.kind)) {
+            content = parseTemplateItem();
+            items.add(content);
+            nextToken = peek();
+        }
+
+        if (items.size() > 1) {
+            this.errorHandler.reportInvalidNode(null, "invalid content within backticks");
+        } else if (items.size() == 1 && content.kind != SyntaxKind.TEMPLATE_STRING) {
+            this.errorHandler.reportInvalidNode(null, "invalid content within backticks");
+        } else if (items.size() == 1) {
+            if (kind == SyntaxKind.BASE16_KEYWORD &&
+                    !BallerinaLexer.isValidBase16LiteralContent(content.toString())) {
+                this.errorHandler.reportInvalidNode(null, "invalid content within backticks");
+            } else if (kind == SyntaxKind.BASE64_KEYWORD &&
+                    !BallerinaLexer.isValidBase64LiteralContent(content.toString())) {
+                this.errorHandler.reportInvalidNode(null, "invalid content within backticks");
+            }
+        }
+
+        return content;
     }
 }

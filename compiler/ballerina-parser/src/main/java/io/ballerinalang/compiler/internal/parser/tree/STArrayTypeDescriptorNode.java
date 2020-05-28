@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STArrayTypeDescriptorNode extends STTypeDescriptorNode {
             STNode openBracket,
             STNode arrayLength,
             STNode closeBracket) {
-        super(SyntaxKind.ARRAY_TYPE_DESC);
+        this(
+                memberTypeDesc,
+                openBracket,
+                arrayLength,
+                closeBracket,
+                Collections.emptyList());
+    }
+
+    STArrayTypeDescriptorNode(
+            STNode memberTypeDesc,
+            STNode openBracket,
+            STNode arrayLength,
+            STNode closeBracket,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.ARRAY_TYPE_DESC, diagnostics);
         this.memberTypeDesc = memberTypeDesc;
         this.openBracket = openBracket;
         this.arrayLength = arrayLength;
@@ -49,6 +66,15 @@ public class STArrayTypeDescriptorNode extends STTypeDescriptorNode {
                 openBracket,
                 arrayLength,
                 closeBracket);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STArrayTypeDescriptorNode(
+                this.memberTypeDesc,
+                this.openBracket,
+                this.arrayLength,
+                this.closeBracket,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
