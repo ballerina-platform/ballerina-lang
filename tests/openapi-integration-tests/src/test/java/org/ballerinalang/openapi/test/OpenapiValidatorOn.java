@@ -36,16 +36,16 @@ public class OpenapiValidatorOn extends BaseTestCase{
     @Test
     public void testOpenapiValidatorOn() throws BallerinaTestException {
 
-        String msg1 = "error: openapi-test/openapi-validator-on:0.0.0::openapi-validator-on.bal:14:17:" +
+        String msg1 = "error: openapi-test/openapi-validator-on:0.0.0::openapi-validator-on.bal:14:9:" +
                 " Couldn't find a Ballerina service resource for the path '/{param1}/{param2}' which" +
                 " is documented in the OpenAPI contract";
-        String msg2 = "error: openapi-test/openapi-validator-on:0.0.0::openapi-validator-on.bal:18:9:" +
+        String msg2 = "error: openapi-test/openapi-validator-on:0.0.0::openapi-validator-on.bal:17:9:" +
                 " Ballerina service contains a Resource that is not documented in the OpenAPI contract." +
                 " Error Resource path '/{param1}/{param3}'";
         LogLeecher clientLeecher1 = new LogLeecher(msg1, LogLeecher.LeecherType.ERROR);
         LogLeecher clientLeecher2 = new LogLeecher(msg2, LogLeecher.LeecherType.ERROR);
 
-        balClient.runMain("test", new String[]{ "openapi-validator-on"}, null, new String[]{},
+        balClient.runMain("build", new String[]{ "openapi-validator-on"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);

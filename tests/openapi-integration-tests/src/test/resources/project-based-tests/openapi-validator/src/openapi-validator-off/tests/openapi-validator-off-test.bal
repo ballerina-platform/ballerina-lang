@@ -8,7 +8,7 @@ import ballerina/io;
 }
 function testFunction() {
     http:Client clientModule = new ("http://localhost:9091");
-    var respModule = clientModule->get("/api/v1/Test/Parametes");
+    var respModule = clientModule->get("/api/v1/Test/Parameters");
 
     if (respModule is http:Response) {
         var payload = respModule.getTextPayload();

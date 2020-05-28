@@ -36,18 +36,11 @@ public class OpenapiValidatorOff extends BaseTestCase {
     }
     @Test
     public void testOpenapiValidatorOff() throws BallerinaTestException {
-        String msg1 = "warning: openapi-test/openapi-validator-off:0.0.0::openapi-validator-off.bal:15:17:" +
-                " Couldn't find a Ballerina service resource for the path '/{param1}/{param2}'" +
-                " which is documented in the OpenAPI contract";
-        String msg2 = "warning: openapi-test/openapi-validator-off:0.0.0::openapi-validator-off.bal:19:9:" +
-                " Ballerina service contains a Resource that is not documented in the OpenAPI contract." +
-                " Error Resource path '/{param1}/{param3}'";
+        String msg1 = "warning: openapi-test/openapi-validator-off:";
 
         LogLeecher clientLeecher1 = new LogLeecher(msg1, LogLeecher.LeecherType.ERROR);
-        LogLeecher clientLeecher2 = new LogLeecher(msg2, LogLeecher.LeecherType.ERROR);
-        balClient.runMain("test", new String[]{ "openapi-validator-off"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
+        balClient.runMain("build", new String[]{"openapi-validator-off"}, null, new String[]{},
+                new LogLeecher[]{clientLeecher1}, projectPath);
         clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
     }
 }

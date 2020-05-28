@@ -11,19 +11,16 @@ import ballerina/openapi;
         basePath: "/api/v1"
         }
 
-        service openapi_validator_off on ep0 {
-
-@http:ResourceConfig {
+service openapi_validator_on on ep0 {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/{param1}/{param3}"
+    }
+    resource function test2Params (http:Caller caller, http:Request req,  string param1,  string param3) returns error? {
+        string msg = "Hello, " + param1 + " " + param3 ;
+        var result = caller->respond(<@untained> msg);
+        if (result is error) {
+            log:printError("Error sending response", result);
         }
-        resource function test2Params (http:Caller caller, http:Request req,  string param1,  string param3) returns error? {
-            string msg = "Hello, " + param1 + " " + param3 ;
-            var result = caller->respond(<@untained> msg);
-            if (result is error) {
-                log:printError("Error sending response", result);
-            }
-
-        }
-
-        }
+    }
+}
