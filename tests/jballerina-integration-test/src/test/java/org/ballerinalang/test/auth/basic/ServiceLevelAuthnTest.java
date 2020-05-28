@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Test cases for service level authorization.
+ * Test cases for service level authentication/authorization.
  */
 @Test(groups = "auth-test")
 public class ServiceLevelAuthnTest extends AuthBaseTest {

@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Test cases for resource level authorization.
+ * Test cases for resource level authentication/authorization.
  */
 @Test(groups = "auth-test")
 public class ResourceLevelAuthTest extends AuthBaseTest {

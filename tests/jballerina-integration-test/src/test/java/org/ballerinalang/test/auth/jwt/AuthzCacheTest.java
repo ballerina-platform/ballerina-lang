@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Test cases for authorization cache.
+ * Test cases for authorization cache with JWT.
  *
  * @since 0.983.0
  */

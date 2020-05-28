@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Test cases for service level authorization.
+ * Test cases for JWT authentication with expired certificates.
  */
 @Test(groups = "auth-test")
 public class AuthnWithExpiredCertificateTest extends AuthBaseTest {
