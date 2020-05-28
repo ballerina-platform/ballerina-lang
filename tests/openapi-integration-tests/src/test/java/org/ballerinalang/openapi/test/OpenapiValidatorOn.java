@@ -24,7 +24,10 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-public class OpenapiValidatorOn extends BaseTestCase{
+/**
+ * Test class to test openapi annotation enable validating.
+ */
+public class OpenapiValidatorOn extends BaseTestCase {
     private BMainInstance balClient;
     private String projectPath;
 

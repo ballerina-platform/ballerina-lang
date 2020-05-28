@@ -30,6 +30,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Parent test class for all integration test cases. This will provide basic functionality for integration tests.
+ */
 public class BaseTestCase {
     public static BalServer balServer;
     Path tempProjectDirectory;
@@ -41,11 +44,11 @@ public class BaseTestCase {
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-openapi-project");
 
         // copy TestProject validator off  to a temp directory
-        Path OpenapiValidatorProj = Paths.get("src", "test", "resources",
+        Path openapiValidatorProj = Paths.get("src", "test", "resources",
                 "project-based-tests/openapi-validator").toAbsolutePath();
 
         basicTestsProjectPath = tempProjectDirectory.resolve("openapi-validator");
-        FileUtils.copyFolder(OpenapiValidatorProj, basicTestsProjectPath);
+        FileUtils.copyFolder(openapiValidatorProj, basicTestsProjectPath);
 
 
     }
