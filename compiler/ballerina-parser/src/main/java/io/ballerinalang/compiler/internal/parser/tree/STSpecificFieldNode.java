@@ -31,18 +31,15 @@ import java.util.Collections;
  * @since 2.0.0
  */
 public class STSpecificFieldNode extends STMappingFieldNode {
-    public final STNode leadingComma;
     public final STNode fieldName;
     public final STNode colon;
     public final STNode valueExpr;
 
     STSpecificFieldNode(
-            STNode leadingComma,
             STNode fieldName,
             STNode colon,
             STNode valueExpr) {
         this(
-                leadingComma,
                 fieldName,
                 colon,
                 valueExpr,
@@ -50,19 +47,16 @@ public class STSpecificFieldNode extends STMappingFieldNode {
     }
 
     STSpecificFieldNode(
-            STNode leadingComma,
             STNode fieldName,
             STNode colon,
             STNode valueExpr,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.SPECIFIC_FIELD, diagnostics);
-        this.leadingComma = leadingComma;
         this.fieldName = fieldName;
         this.colon = colon;
         this.valueExpr = valueExpr;
 
         addChildren(
-                leadingComma,
                 fieldName,
                 colon,
                 valueExpr);
@@ -70,7 +64,6 @@ public class STSpecificFieldNode extends STMappingFieldNode {
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STSpecificFieldNode(
-                this.leadingComma,
                 this.fieldName,
                 this.colon,
                 this.valueExpr,
