@@ -2597,41 +2597,5 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 endToken.internalNode());
         return stXMLAtomicNamePatternNode.createUnlinkedFacade();
     }
-
-    public static OpenBracketExpressionChainingNode createOpenBracketExpressionChainingNode(
-            Token openBracket,
-            ExpressionNode expression,
-            Token closeBracket) {
-        Objects.requireNonNull(openBracket, "openBracket must not be null");
-        Objects.requireNonNull(expression, "expression must not be null");
-        Objects.requireNonNull(closeBracket, "closeBracket must not be null");
-
-        STNode stOpenBracketExpressionChainingNode = STNodeFactory.createOpenBracketExpressionChainingNode(
-                openBracket.internalNode(),
-                expression.internalNode(),
-                closeBracket.internalNode());
-        return stOpenBracketExpressionChainingNode.createUnlinkedFacade();
-    }
-
-    public static MethodCallChainingNode createMethodCallChainingNode(
-            Token dotToken,
-            NameReferenceNode methodName,
-            Token openParenToken,
-            NodeList<FunctionArgumentNode> arguments,
-            Token closeParenToken) {
-        Objects.requireNonNull(dotToken, "dotToken must not be null");
-        Objects.requireNonNull(methodName, "methodName must not be null");
-        Objects.requireNonNull(openParenToken, "openParenToken must not be null");
-        Objects.requireNonNull(arguments, "arguments must not be null");
-        Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
-
-        STNode stMethodCallChainingNode = STNodeFactory.createMethodCallChainingNode(
-                dotToken.internalNode(),
-                methodName.internalNode(),
-                openParenToken.internalNode(),
-                arguments.underlyingListNode().internalNode(),
-                closeParenToken.internalNode());
-        return stMethodCallChainingNode.createUnlinkedFacade();
-    }
 }
 

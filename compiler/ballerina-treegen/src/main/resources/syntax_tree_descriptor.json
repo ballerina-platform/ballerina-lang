@@ -3466,53 +3466,6 @@
                     "type": "Token"
                 }
             ]
-        },
-        {
-            "name": "OpenBracketExpressionChainingNode",
-            "base": "Node",
-            "kind": "OPEN_BRACKET_EXPRESSION_CHAIN",
-            "attributes": [
-                {
-                    "name": "openBracket",
-                    "type": "Token"
-                },
-                {
-                    "name": "expression",
-                    "type": "ExpressionNode"
-                },
-                {
-                    "name": "closeBracket",
-                    "type": "Token"
-                }
-            ]
-        },
-        {
-            "name": "MethodCallChainingNode",
-            "base": "Node",
-            "kind": "METHOD_CALL_CHAIN",
-            "attributes": [
-                {
-                    "name": "dotToken",
-                    "type": "Token"
-                },
-                {
-                    "name": "methodName",
-                    "type": "NameReferenceNode"
-                },
-                {
-                    "name": "openParenToken",
-                    "type": "Token"
-                },
-                {
-                    "name": "arguments",
-                    "type": "FunctionArgumentNode",
-                    "occurrences": "MULTIPLE"
-                },
-                {
-                    "name": "closeParenToken",
-                    "type": "Token"
-                }
-            ]
         }
     ]
 }

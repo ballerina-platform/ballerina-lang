@@ -2619,42 +2619,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 endToken);
     }
 
-    @Override
-    public OpenBracketExpressionChainingNode transform(
-            OpenBracketExpressionChainingNode openBracketExpressionChainingNode) {
-        Token openBracket =
-                modifyToken(openBracketExpressionChainingNode.openBracket());
-        ExpressionNode expression =
-                modifyNode(openBracketExpressionChainingNode.expression());
-        Token closeBracket =
-                modifyToken(openBracketExpressionChainingNode.closeBracket());
-        return openBracketExpressionChainingNode.modify(
-                openBracket,
-                expression,
-                closeBracket);
-    }
-
-    @Override
-    public MethodCallChainingNode transform(
-            MethodCallChainingNode methodCallChainingNode) {
-        Token dotToken =
-                modifyToken(methodCallChainingNode.dotToken());
-        NameReferenceNode methodName =
-                modifyNode(methodCallChainingNode.methodName());
-        Token openParenToken =
-                modifyToken(methodCallChainingNode.openParenToken());
-        NodeList<FunctionArgumentNode> arguments =
-                modifyNodeList(methodCallChainingNode.arguments());
-        Token closeParenToken =
-                modifyToken(methodCallChainingNode.closeParenToken());
-        return methodCallChainingNode.modify(
-                dotToken,
-                methodName,
-                openParenToken,
-                arguments,
-                closeParenToken);
-    }
-
     // Tokens
 
     @Override

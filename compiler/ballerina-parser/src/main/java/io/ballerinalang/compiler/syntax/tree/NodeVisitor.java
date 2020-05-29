@@ -683,14 +683,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(xMLAtomicNamePatternNode);
     }
 
-    public void visit(OpenBracketExpressionChainingNode openBracketExpressionChainingNode) {
-        visitSyntaxNode(openBracketExpressionChainingNode);
-    }
-
-    public void visit(MethodCallChainingNode methodCallChainingNode) {
-        visitSyntaxNode(methodCallChainingNode);
-    }
-
     // Tokens
 
     public void visit(Token token) {

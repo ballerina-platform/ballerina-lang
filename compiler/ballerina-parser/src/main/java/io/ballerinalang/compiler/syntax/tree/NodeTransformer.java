@@ -684,14 +684,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(xMLAtomicNamePatternNode);
     }
 
-    public T transform(OpenBracketExpressionChainingNode openBracketExpressionChainingNode) {
-        return transformSyntaxNode(openBracketExpressionChainingNode);
-    }
-
-    public T transform(MethodCallChainingNode methodCallChainingNode) {
-        return transformSyntaxNode(methodCallChainingNode);
-    }
-
     // Tokens
 
     public T transform(Token token) {

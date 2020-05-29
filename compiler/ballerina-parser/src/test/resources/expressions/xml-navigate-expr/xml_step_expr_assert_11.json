@@ -28,14 +28,19 @@
             "kind": "LIST",
             "children": [
                 {
-                    "kind": "OPEN_BRACKET_EXPRESSION_CHAIN",
+                    "kind": "INDEXED_EXPRESSION",
                     "children": [
                         {
                             "kind": "OPEN_BRACKET_TOKEN"
                         },
                         {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "b"
+                            "kind": "LIST",
+                            "children": [
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "b"
+                                }
+                            ]
                         },
                         {
                             "kind": "CLOSE_BRACKET_TOKEN"

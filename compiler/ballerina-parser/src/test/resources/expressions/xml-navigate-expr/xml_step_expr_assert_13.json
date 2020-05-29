@@ -68,23 +68,28 @@
                     ]
                 },
                 {
-                    "kind": "OPEN_BRACKET_EXPRESSION_CHAIN",
+                    "kind": "METHOD_CALL",
                     "children": [
                         {
-                            "kind": "OPEN_BRACKET_TOKEN"
+                            "kind": "INDEXED_EXPRESSION",
+                            "children": [
+                                {
+                                    "kind": "OPEN_BRACKET_TOKEN"
+                                },
+                                {
+                                    "kind": "LIST",
+                                    "children": [
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "e"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "CLOSE_BRACKET_TOKEN"
+                                }
+                            ]
                         },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "e"
-                        },
-                        {
-                            "kind": "CLOSE_BRACKET_TOKEN"
-                        }
-                    ]
-                },
-                {
-                    "kind": "METHOD_CALL_CHAIN",
-                    "children": [
                         {
                             "kind": "DOT_TOKEN"
                         },

@@ -12,7 +12,7 @@
             "kind": "LIST",
             "children": [
                 {
-                    "kind": "METHOD_CALL_CHAIN",
+                    "kind": "METHOD_CALL",
                     "children": [
                         {
                             "kind": "DOT_TOKEN"

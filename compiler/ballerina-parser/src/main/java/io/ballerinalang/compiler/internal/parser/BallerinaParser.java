@@ -4522,7 +4522,7 @@ public class BallerinaParser extends AbstractParser {
             return lhsExpr;
         }
 
-        if (lhsExpr.kind == SyntaxKind.ASYNC_SEND_ACTION) {
+        if (lhsExpr != null && lhsExpr.kind == SyntaxKind.ASYNC_SEND_ACTION) {
             // Async-send action can only exists in an action-statement.
             // It also has to be the right-most action. i.e: Should be
             // followed by a semicolon
@@ -12334,47 +12334,16 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseXMLStepExtend() {
         STToken token = peek();
+        // token kind is already validated in isEndOfXMLStepExtend and reach here.
+        // therefore, the token kind will be one of following three.
         switch (token.kind) {
             case DOT_LT_TOKEN:
                 return parseXMLFilterExpressionRhs();
             case DOT_TOKEN:
-                return parseMethodCallChain();
-            // token kind is already validated in isEndOfXMLStepExtend and reach here.
-            // therefore, a recover solution is not required for the default case.
             case OPEN_BRACKET_TOKEN:
             default:
-                return parseOpenBracketExpressionChain();
-
+                STNode lhsExpr = STNodeFactory.createEmptyNode();
+                return parseExpressionRhs(token.kind, OperatorPrecedence.ACTION, lhsExpr, true, false);
         }
-    }
-
-    /**
-     * Parse open bracket expression chain.
-     * <p>
-     * <code>open-bracket-expression-chain := `[` expression `]`</code>
-     *
-     * @return Parsed node
-     */
-    private STNode parseOpenBracketExpressionChain() {
-        STNode openBracketToken = parseOpenBracket();
-        STNode expression = parseExpression();
-        STNode closeBracketToken = parseCloseBracket();
-        return STNodeFactory.createOpenBracketExpressionChainingNode(openBracketToken, expression, closeBracketToken);
-    }
-
-    /**
-     * Parse method call chain.
-     * <p>
-     * <code>method-call-chain := `.` method-name `(` arg-list `)`</code>
-     *
-     * @return Parsed node
-     */
-    private STNode parseMethodCallChain() {
-        STNode dotToken = parseDotToken();
-        STNode methodName = parseIdentifier(ParserRuleContext.FIELD_OR_FUNC_NAME);
-        STNode openParen = parseOpenParenthesis(ParserRuleContext.ARG_LIST_START);
-        STNode args = parseArgsList();
-        STNode closeParen = parseCloseParenthesis();
-        return STNodeFactory.createMethodCallChainingNode(dotToken, methodName, openParen, args, closeParen);
     }
 }
