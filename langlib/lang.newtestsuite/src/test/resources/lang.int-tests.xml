@@ -8,16 +8,21 @@
         </source>
         <steps>
             <run>
-                <callFunction name="testValueAssignment">
-                    <parameters>
-                        <int>10</int>
-                        <string>hello</string>
-                    </parameters>
+                <callFunction name="testFail">
+                    <assert>
+                        <error>error {ballerina/lang.test}AssertionError message= failed</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testAbs">
                     <assert>
                         <return>
-                            <int>5</int>
+                            <decimal>100.1</decimal>
                         </return>
                     </assert>
+                </callFunction>
+                <callFunction name="testValueAssignment">
+                </callFunction>
+                <callFunction name="sum">
                 </callFunction>
             </run>
         </steps>

@@ -29,20 +29,23 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import static org.ballerinalang.util.BLangCompilerConstants.TEST_VERSION;
 
 /**
- * Native implementation of assertNotError(anydata|error value).
+ * Native implementation of assertNotError(any|error value, string message? = ()).
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.test", version = TEST_VERSION, functionName = "assertNotError",
-        args = {@Argument(name = "value", type = TypeKind.UNION)},
+        args = {@Argument(name = "value", type = TypeKind.UNION), @Argument(name = "message", type = TypeKind.UNION)},
         isPublic = true
 )
 public class AssertNotError {
-    public static void assertNotError(Strand strand, Object value) {
+    public static void assertNotError(Strand strand, Object value, Object message) {
         if (TypeChecker.getType(value).getTag() == TypeTags.ERROR_TAG) {
-            throw BallerinaErrors.createError("{ballerina/lang.test}AssertionError",
-                    "expected a non-error type");
+            String msg = " expected a non-error type";
+            msg = message != null ? message.toString() + msg : msg;
+            strand.setProperty("lang.test.state.failMsg",
+                    BallerinaErrors.createError("{ballerina/lang.test}AssertionError", msg));
+            throw BallerinaErrors.createError("{ballerina/lang.test}AssertionError", msg);
         }
     }
 }
