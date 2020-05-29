@@ -50,6 +50,33 @@ function testToJsonString() returns map<string> {
     return result;
 }
 
+function testToJsonStringForNonJsonTypes() {
+    () aNil = ();
+    string aString = "aString";
+    int aNumber = 10;
+    float aFloatNumber = 10.5;
+    string[] anStringArray = ["hello", "world"];
+    int[] anIntArray = [1, 2];
+    Address aRecord = {country: "A", city: "Aa", street: "Aaa"};
+    map<string> result = {};
+
+    result["aNil"] = aNil.toJsonString();
+    result["aString"] = aString.toJsonString();
+    result["aNumber"] = aNumber.toJsonString();
+    result["aFloatNumber"] = aFloatNumber.toJsonString();
+    result["anStringArray"] = anStringArray.toJsonString();
+    result["anIntArray"] = anIntArray.toJsonString();
+    result["aRecord"] = aRecord.toJsonString();
+
+    assert(result["aNil"], "null");
+    assert(result["aString"], "aString");
+    assert(result["aNumber"], "10");
+    assert(result["aFloatNumber"], "10.5");
+    assert(result["anStringArray"], "[\"hello\", \"world\"]");
+    assert(result["anIntArray"], "[1, 2]");
+    assert(result["aRecord"], "{\"country\":\"A\", \"city\":\"Aa\", \"street\":\"Aaa\"}");
+}
+
 function testFromJsonString() returns map<json|error> {
     string aNil = "()";
     string aNull = "null";
@@ -537,6 +564,253 @@ function testCloneWithTypeStringArray() {
 // assert(clonedArr.length(), anArray.length());
 // assert(clonedArr[0], "Hello");
 // assert(clonedArr[1], "World");
+}
+
+/////////////////////////// Tests for `fromJsonWithType()` ///////////////////////////
+type Student2 record {
+    string name;
+    int age;
+};
+
+function testFromJsonWithTypeRecord1() {
+    string str = "{\"name\":\"Name\", \"age\":35}";
+    json j = <json> str.fromJsonString();
+    Student2|error p = j.fromJsonWithType(Student2);
+
+    assert(p is Student2, true);
+    assert(p.toString(), "name=Name age=35");
+}
+
+type Student3 record {
+    string name;
+    int age?;
+};
+
+function testFromJsonWithTypeRecord2() {
+    string str = "{\"name\":\"Name\", \"age\":35}";
+    json j = <json> str.fromJsonString();
+    Student3|error p = j.fromJsonWithType(Student3);
+
+    assert(p is Student3, true);
+    assert(p.toString(), "name=Name age=35");
+}
+
+function testFromJsonWithTypeAmbiguousTargetType() {
+    string str = "{\"name\":\"Name\", \"age\":35}";
+    json j = <json> str.fromJsonString();
+    Student3|error p = j.fromJsonWithType(typedesc<Student2|Student3>);
+    assert(p is error, true);
+}
+
+function testFromJsonWithTypeXML() {
+    string s1 = "<test>name</test>";
+    xml|error x1 = s1.fromJsonWithType(xml);
+    assert(x1 is xml, true);
+    xml x11 = <xml> x1;
+    json|error j = x11.toJson();
+    assert(<json> j, s1);
+}
+
+type Student4 record {
+    int id;
+    xml x;
+};
+
+function testFromJsonWithTypeRecordWithXMLField() {
+    Student4 student = {id: 1, x: xml `<book>DJ</book>`};
+    json j = <json> student.toJson();
+    Student4|error ss = j.fromJsonWithType(Student4);
+    assert(ss is Student4, true);
+}
+
+function testFromJsonWithTypeMap() {
+    json movie = {
+        title: "Some",
+        year: 2010
+    };
+    map<anydata>|error movieMap = movie.fromJsonWithType(map<anydata>);
+    map<anydata> movieMap2 = <map<anydata>> movieMap;
+    assert(movieMap2["title"], "Some");
+    assert(movieMap2["year"], 2010);
+}
+
+function testFromJsonWithTypeStringArray() {
+    json j = ["Hello", "World"];
+    string[]|error a = j.fromJsonWithType(string[]);
+    string[] a2 = <string[]> a;
+    assert(a2.length(), 2);
+    assert(a2[0], "Hello");
+}
+
+function testFromJsonWithTypeArrayNegative() {
+    json j = [1, 2];
+    string[]|error s = j.fromJsonWithType(string[]);
+    assert(s is error, true);
+}
+
+function testFromJsonWithTypeIntArray() {
+    json j = [1, 2];
+    int[]|error arr = j.fromJsonWithType(int[]);
+    int[] intArr = <int[]> arr;
+    assert(intArr[0], 1);
+    assert(intArr[1], 2);
+}
+
+/////////////////////////// Tests for `fromJsonStringWithType()` ///////////////////////////
+
+function testFromJsonStringWithTypeJson() {
+    string aNil = "()";
+    string aNull = "null";
+    string aString = "\"aString\"";
+    string aNumber = "10";
+    string anArray = "[\"hello\", \"world\"]";
+    string anObject = "{\"name\":\"anObject\", \"value\":10, \"sub\":{\"subName\":\"subObject\", \"subValue\":10}}";
+    string anInvalid = "{\"name\":\"anObject\",";
+    map<json|error> result = {};
+
+    result["aNil"] = aNil.fromJsonStringWithType(json);
+    result["aNull"] = aNull.fromJsonStringWithType(json);
+    result["aString"] = aString.fromJsonStringWithType(json);
+    result["aNumber"] = aNumber.fromJsonStringWithType(json);
+    result["anArray"] = anArray.fromJsonStringWithType(json);
+    result["anObject"] = anObject.fromJsonStringWithType(json);
+    result["anInvalid"] = anInvalid.fromJsonStringWithType(json);
+
+    assert(result["aNil"] is error, true);
+    assert(result["aNull"] is (), true);
+
+    json aStringJson = <json> result["aString"];
+    assert(aStringJson.toJsonString(), "aString");
+
+    json anArrayJson = <json> result["anArray"];
+    assert(anArrayJson.toJsonString(), "[\"hello\", \"world\"]");
+
+    json anObjectJson = <json> result["anObject"];
+    assert(anObjectJson.toJsonString(), "{\"name\":\"anObject\", \"value\":10, \"sub\":{\"subName\":\"subObject\", \"subValue\":10}}");
+
+    assert(result["anInvalid"] is error, true);
+}
+
+function testFromJsonStringWithTypeRecord() {
+    string str = "{\"name\":\"Name\", \"age\":35}";
+    Student3|error studentOrError = str.fromJsonStringWithType(Student3);
+
+    assert(studentOrError is Student3, true);
+    Student3 student = <Student3> studentOrError;
+    assert(student.name, "Name");
+}
+
+function testFromJsonStringWithAmbiguousType() {
+    string str = "{\"name\":\"Name\", \"age\":35}";
+    Student3|error p = str.fromJsonStringWithType(typedesc<Student2|Student3>);
+    assert(p is error, true);
+}
+
+function testFromJsonStringWithTypeMap() {
+    string s = "{\"title\":\"Some\", \"year\":2010}";
+    map<anydata>|error movieMap = s.fromJsonStringWithType(map<anydata>);
+    map<anydata> movieMap2 = <map<anydata>> movieMap;
+    assert(movieMap2["title"], "Some");
+    assert(movieMap2["year"], 2010);
+}
+
+function testFromJsonStringWithTypeStringArray() {
+    string s = "[\"Hello\", \"World\"]";
+    string[]|error a = s.fromJsonStringWithType(string[]);
+    string[] a2 = <string[]> a;
+    assert(a2.length(), 2);
+    assert(a2[0], "Hello");
+}
+
+function testFromJsonStringWithTypeArrayNegative() {
+    string s = "[1, 2]";
+    string[]|error a = s.fromJsonStringWithType(string[]);
+    assert(a is error, true);
+}
+
+function testFromJsonStringWithTypeIntArray() {
+    string s = "[1, 2]";
+    int[]|error arr = s.fromJsonStringWithType(int[]);
+    int[] intArr = <int[]> arr;
+    assert(intArr[0], 1);
+    assert(intArr[1], 2);
+}
+
+/////////////////////////// Tests for `toJson()` ///////////////////////////
+
+function testToJsonWithRecord() {
+    Student2 s = {name: "Adam", age: 23};
+    json|error j = s.toJson();
+    assert(j is json, true);
+}
+
+function testToJsonWithLiterals() {
+    () aNil = ();
+    string aString = "some string";
+    int aNumber = 10;
+
+    json|error aNilJson = aNil.toJson();
+    assert(aNilJson is json, true);
+
+    json|error aStringJson = aString.toJson();
+    assert(aStringJson is json, true);
+
+    json|error aNumberJson = aNumber.toJson();
+    assert(aNumberJson is json, true);
+}
+
+function testToJsonWithArray() {
+    string[] arrString = ["hello", "world"];
+    json|error arrStringJson = arrString.toJson();
+    assert(arrStringJson is json[], true);
+    assert(<json[]> arrStringJson, <json[]> ["hello", "world"]);
+}
+
+function testToJsonWithXML() {
+    xml x1 = xml `<movie>
+                    <title>Some</title>
+                    <writer>Writer</writer>
+                  </movie>`;
+    json j = x1.toJson();
+    xml|error x2 = j.fromJsonWithType(xml);
+    assert(<xml> x2, x1);
+}
+
+function testToJsonWithMap() {
+    map<string> m = {
+        line1: "Line1",
+        line2: "Line2"
+    };
+    json j = m.toJson();
+    assert(j.toJsonString(),"{\"line1\":\"Line1\", \"line2\":\"Line2\"}");
+    map<string>|error m2 = j.fromJsonWithType(map<string>);
+    assert(<map<string>> m2, m);
+}
+
+function testToJsonWithStringArray() {
+    string[] a = ["Hello", "World"];
+    json j = a.toJson();
+    assert(j.toJsonString(), "[\"Hello\", \"World\"]");
+}
+
+function testToJsonWithIntArray() {
+    int[] a = [1, 2];
+    json j = a.toJson();
+    assert(j.toJsonString(), "[1, 2]");
+}
+
+type Boo record {|
+    int id;
+    string str;
+|};
+
+function testToJsonWithTable() {
+    table<Boo> tb = table [
+            {id: 12, str: "abc"},
+            {id: 34, str: "def"}
+    ];
+    json j = tb.toJson();
+    assert(j.toJsonString(), "[{\"id\":12, \"str\":\"abc\"}, {\"id\":34, \"str\":\"def\"}]");
 }
 
 function assert(anydata actual, anydata expected) {
