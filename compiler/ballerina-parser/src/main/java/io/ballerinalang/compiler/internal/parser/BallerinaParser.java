@@ -8110,6 +8110,12 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseOptionalExpressionsList() {
         List<STNode> expressions = new ArrayList<>();
+        if (isEndOfListConstructor(peek().kind)) {
+            return STNodeFactory.createNodeList(expressions);
+        }
+
+        STNode expr = parseExpression();
+        expressions.add(expr);
         return parseOptionalExpressionsList(expressions);
     }
 
@@ -8117,14 +8123,15 @@ public class BallerinaParser extends AbstractParser {
         // Parse the remaining expressions
         STNode listConstructorMemberEnd;
         while (!isEndOfListConstructor(peek().kind)) {
-            STNode expr = parseExpression();
-            expressions.add(expr);
 
             listConstructorMemberEnd = parseListConstructorMemberEnd();
             if (listConstructorMemberEnd == null) {
                 break;
             }
             expressions.add(listConstructorMemberEnd);
+
+            STNode expr = parseExpression();
+            expressions.add(expr);
         }
 
         return STNodeFactory.createNodeList(expressions);
@@ -11309,30 +11316,28 @@ public class BallerinaParser extends AbstractParser {
         return parseMappingBindingPattern(openBrace, bindingPatterns, prevMember);
     }
 
-    private STNode parseMappingBindingPattern(STNode openBrace, List<STNode> bindingPatterns,
-                                              STNode mappingBindingPatternMember) {
+    private STNode parseMappingBindingPattern(STNode openBrace, List<STNode> bindingPatterns, STNode member) {
         STToken token = peek(); // get next valid token
         STNode mappingBindingPatternRhs = null;
-        while (!isEndOfMappingBindingPattern(token.kind) &&
-                mappingBindingPatternMember.kind != SyntaxKind.REST_BINDING_PATTERN) {
+        while (!isEndOfMappingBindingPattern(token.kind) && member.kind != SyntaxKind.REST_BINDING_PATTERN) {
             mappingBindingPatternRhs = parseMappingBindingpatternEnd(token.kind);
             if (mappingBindingPatternRhs == null) {
                 break;
             }
 
             bindingPatterns.add(mappingBindingPatternRhs);
-            mappingBindingPatternMember = parseMappingBindingPatternMember();
-            if (mappingBindingPatternMember.kind == SyntaxKind.REST_BINDING_PATTERN) {
+            member = parseMappingBindingPatternMember();
+            if (member.kind == SyntaxKind.REST_BINDING_PATTERN) {
                 break;
             }
-            bindingPatterns.add(mappingBindingPatternMember);
+            bindingPatterns.add(member);
             token = peek();
         }
 
         // Separating out the rest-binding-pattern
         STNode restBindingPattern;
-        if (mappingBindingPatternMember.kind == SyntaxKind.REST_BINDING_PATTERN) {
-            restBindingPattern = mappingBindingPatternMember;
+        if (member.kind == SyntaxKind.REST_BINDING_PATTERN) {
+            restBindingPattern = member;
         } else {
             restBindingPattern = STNodeFactory.createEmptyNode();
         }
@@ -12001,6 +12006,8 @@ public class BallerinaParser extends AbstractParser {
                     // If the member type was figured out as a list constructor, then parse the
                     // remaining members as list constructor members and be done with it.
                     return parseAsListConstructor(openBracket, memberList, member);
+                case LIST_BP_OR_LIST_CONSTRUCTOR:
+                    return parseAsListBindingPatternOrListConstructor(openBracket, memberList, member);
                 case NONE:
                 default:
                     memberList.add(member);
@@ -12127,6 +12134,25 @@ public class BallerinaParser extends AbstractParser {
         return listBindingPattern;
     }
 
+    private STNode parseAsListBindingPatternOrListConstructor(STNode openBracket, List<STNode> memberList,
+                                                              STNode member) {
+        memberList.add(member);
+        STNode memberEnd = parseBracketedListMemberEnd();
+
+        STNode listBindingPatternOrListCons;
+        if (memberEnd == null) {
+            // We reach here if it is still ambiguous, even after parsing the full list.
+            STNode closeBracket = parseCloseBracket();
+            listBindingPatternOrListCons =
+                    parseListBindingPatternOrListConstructor(openBracket, memberList, closeBracket);
+        } else {
+            memberList.add(memberEnd);
+            listBindingPatternOrListCons = parseListBindingPatternOrListConstructor(openBracket, memberList);
+        }
+
+        return listBindingPatternOrListCons;
+    }
+
     private SyntaxKind getStmtStartBracketedListType(STNode memberNode) {
         if (memberNode.kind.compareTo(SyntaxKind.TYPE_DESC) >= 0 &&
                 memberNode.kind.compareTo(SyntaxKind.SINGLETON_TYPE_DESC) <= 0) {
@@ -12148,10 +12174,13 @@ public class BallerinaParser extends AbstractParser {
             case LIST_CONSTRUCTOR:
             case MAPPING_CONSTRUCTOR:
                 return SyntaxKind.LIST_CONSTRUCTOR;
+            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
+                // can be either list-bp or list-constructor. Cannot be a tuple-type-desc
+                return SyntaxKind.LIST_BP_OR_LIST_CONSTRUCTOR;
             case SIMPLE_NAME_REFERENCE: // member is a simple type-ref/var-ref
             case BRACKETED_LIST: // member is again ambiguous
-            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
             default:
+                // can be anyof the three.
                 return SyntaxKind.NONE;
         }
     }
@@ -12282,7 +12311,7 @@ public class BallerinaParser extends AbstractParser {
         members = getExpressionList(members);
 
         // create mapping constructor
-        startContext(ParserRuleContext.MAPPING_CONSTRUCTOR);
+        switchContext(ParserRuleContext.MAPPING_CONSTRUCTOR);
         STNode fields = parseMappingConstructorFields(members);
         STNode closeBrace = parseCloseBrace();
         endContext();
@@ -12500,6 +12529,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseMappingBindingPatterOrMappingConstructor() {
+        startContext(ParserRuleContext.MAPPING_BP_OR_MAPPING_CONSTRUCTOR);
         STNode openBrace = parseOpenBrace();
         List<STNode> memberList = new ArrayList<>();
         return parseMappingBindingPatternOrMappingConstructor(openBrace, memberList);
@@ -12539,6 +12569,7 @@ public class BallerinaParser extends AbstractParser {
 
         // We reach here if it is still ambiguous, even after parsing the full list.
         STNode closeBrace = parseCloseBrace();
+        endContext();
         return parseMappingBindingPatternOrMappingConstructor(openBrace, memberList, closeBrace);
     }
 
@@ -12606,18 +12637,23 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseMappingFieldValue(STNode key, STNode colon) {
         // {foo: ...
+        STNode expr;
         switch (peek().kind) {
             case IDENTIFIER_TOKEN:
-                STNode expr = parseExpression();
-                return STNodeFactory.createSpecificFieldNode(key, colon, expr);
+                expr = parseExpression();
+                break;
             case OPEN_BRACKET_TOKEN: // { foo:[
-                return parseListBindingPatternOrListConstructor();
+                expr = parseListBindingPatternOrListConstructor();
+                break;
             case OPEN_BRACE_TOKEN: // { foo:{
-                return parseMappingBindingPatterOrMappingConstructor();
+                expr = parseMappingBindingPatterOrMappingConstructor();
+                break;
             default:
                 expr = parseExpression();
-                return STNodeFactory.createSpecificFieldNode(key, colon, expr);
+                break;
         }
+
+        return STNodeFactory.createSpecificFieldNode(key, colon, expr);
     }
 
     private SyntaxKind getParsingNodeTypeOfMappingBPOrMappingCons(STNode memberNode) {
@@ -12650,7 +12686,7 @@ public class BallerinaParser extends AbstractParser {
         members.add(member);
         members = getBindingPatternsList(members);
         // create mapping binding pattern
-        startContext(ParserRuleContext.MAPPING_BINDING_PATTERN);
+        switchContext(ParserRuleContext.MAPPING_BINDING_PATTERN);
         return parseMappingBindingPattern(openBrace, members, member);
     }
 
@@ -12660,9 +12696,13 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseListBindingPatternOrListConstructor() {
+        startContext(ParserRuleContext.BRACKETED_LIST);
         STNode openBracket = parseOpenBracket();
         List<STNode> memberList = new ArrayList<>();
+        return parseListBindingPatternOrListConstructor(openBracket, memberList);
+    }
 
+    private STNode parseListBindingPatternOrListConstructor(STNode openBracket, List<STNode> memberList) {
         // Parse the members
         STToken nextToken = peek();
         while (!isBracketedListEnd(nextToken.kind)) {
@@ -12744,7 +12784,7 @@ public class BallerinaParser extends AbstractParser {
                 return SyntaxKind.LIST_BINDING_PATTERN;
             case SIMPLE_NAME_REFERENCE: // member is a simple type-ref/var-ref
             case LIST_BP_OR_LIST_CONSTRUCTOR: // member is again ambiguous
-                return SyntaxKind.NONE;
+                return SyntaxKind.LIST_BP_OR_LIST_CONSTRUCTOR;
             default:
                 return SyntaxKind.LIST_CONSTRUCTOR;
         }
@@ -12755,14 +12795,7 @@ public class BallerinaParser extends AbstractParser {
         memberList = getExpressionList(memberList);
 
         switchContext(ParserRuleContext.LIST_CONSTRUCTOR);
-        STNode memberEnd = parseListConstructorMemberEnd(peek().kind);
-        STNode expressions;
-        if (memberEnd == null) {
-            expressions = STNodeFactory.createNodeList(memberList);
-        } else {
-            memberList.add(memberEnd);
-            expressions = parseOptionalExpressionsList(memberList);
-        }
+        STNode expressions = parseOptionalExpressionsList(memberList);
         STNode closeBracket = parseCloseBracket();
         endContext();
         return STNodeFactory.createListConstructorExpressionNode(openBracket, expressions, closeBracket);
@@ -12770,16 +12803,34 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseListBindingPatternOrListConstructor(STNode openBracket, List<STNode> members,
                                                             STNode closeBracket) {
+        STNode lbpOrListCons;
         switch (peek().kind) {
             case COMMA_TOKEN: // [a, b, c],
             case CLOSE_BRACE_TOKEN: // [a, b, c]}
             case CLOSE_BRACKET_TOKEN:// [a, b, c]]
-                return new STAmbiguousCollectionNode(SyntaxKind.LIST_BP_OR_LIST_CONSTRUCTOR, openBracket, members,
-                        closeBracket);
+                lbpOrListCons = new STAmbiguousCollectionNode(SyntaxKind.LIST_BP_OR_LIST_CONSTRUCTOR, openBracket,
+                        members, closeBracket);
+                break;
             default:
-                STNode memberExpressions = STNodeFactory.createNodeList(members);
-                return STNodeFactory.createListConstructorExpressionNode(openBracket, memberExpressions, closeBracket);
+                if (isValidExprRhsStart(peek().kind)) {
+                    members = getExpressionList(members);
+                    STNode memberExpressions = STNodeFactory.createNodeList(members);
+                    lbpOrListCons = STNodeFactory.createListConstructorExpressionNode(openBracket, memberExpressions,
+                            closeBracket);
+                    break;
+                }
+
+                // Treat everything else as list-binding-pattern
+                members = getBindingPatternsList(members);
+                STNode bindingPatternsNode = STNodeFactory.createNodeList(members);
+                STNode restBindingPattern = STNodeFactory.createEmptyNode();
+                lbpOrListCons = STNodeFactory.createListBindingPatternNode(openBracket, bindingPatternsNode,
+                        restBindingPattern, closeBracket);
+                break;
         }
+
+        endContext();
+        return lbpOrListCons;
     }
 
     // ---------------------- Convert ambiguous nodes to a specific node --------------------------
@@ -12865,6 +12916,9 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createMappingConstructorExpressionNode(innerList.collectionStartToken, memberExprs,
                         innerList.collectionEndToken);
             case SPECIFIC_FIELD:
+                STSpecificFieldNode field = (STSpecificFieldNode) ambiguousNode;
+                return STNodeFactory.createSpecificFieldNode(field.fieldName, field.colon,
+                        getExpression(field.valueExpr));
             case QUALIFIED_NAME_REFERENCE:
             default:
                 return ambiguousNode;

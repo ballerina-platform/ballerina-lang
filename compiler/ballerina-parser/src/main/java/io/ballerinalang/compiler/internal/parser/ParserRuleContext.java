@@ -207,6 +207,7 @@ public enum ParserRuleContext {
     TYPED_BINDING_PATTERN_TYPE_RHS("type-binding-pattern-type-rhs"),
     UNION_OR_INTERSECTION_TOKEN("union-or-intersection"),
 
+    MAPPING_BP_OR_MAPPING_CONSTRUCTOR("mapping-bp-or-mapping-cons"),
     MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER("mapping-bp-or-mapping-cons-member"),
     LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER("list-bp-or-list-cons-member"),
 
