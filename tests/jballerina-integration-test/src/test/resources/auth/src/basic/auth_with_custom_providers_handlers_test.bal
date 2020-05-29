@@ -22,7 +22,7 @@ import ballerina/http;
 OutboundCustomAuthProvider outboundCustomAuthProvider = new;
 OutboundCustomAuthHandler outboundCustomAuthHandler = new(outboundCustomAuthProvider);
 
-http:Client client17 = new("https://localhost:20008", {
+http:Client client06 = new("https://localhost:20008", {
     auth: {
         authHandler: outboundCustomAuthHandler
     },
@@ -34,7 +34,7 @@ http:Client client17 = new("https://localhost:20008", {
     }
 });
 
-listener http:Listener listener17_1 = new(20007, {
+listener http:Listener listener06_1 = new(20007, {
     secureSocket: {
         keyStore: {
             path: config:getAsString("keystore"),
@@ -46,13 +46,13 @@ listener http:Listener listener17_1 = new(20007, {
 @http:ServiceConfig {
     basePath: "/echo"
 }
-service passthrough on listener17_1 {
+service passthrough on listener06_1 {
 
     @http:ResourceConfig {
         path: "/{testCase}"
     }
     resource function test(http:Caller caller, http:Request req, string testCase) {
-        var response = client17->get("/echo/" + <@untainted> testCase);
+        var response = client06->get("/echo/" + <@untainted> testCase);
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
@@ -68,7 +68,7 @@ service passthrough on listener17_1 {
 InboundCustomAuthProvider inboundCustomAuthProvider = new;
 InboundCustomAuthHandler inboundCustomAuthHandler = new(inboundCustomAuthProvider);
 
-listener http:Listener listener17_2 = new(20008, {
+listener http:Listener listener06_2 = new(20008, {
     auth: {
         authHandlers: [inboundCustomAuthHandler]
     },
@@ -83,7 +83,7 @@ listener http:Listener listener17_2 = new(20008, {
 @http:ServiceConfig {
     basePath: "/echo"
 }
-service echo17 on listener17_2 {
+service echo06 on listener06_2 {
 
     @http:ResourceConfig {
         auth: {

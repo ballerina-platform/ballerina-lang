@@ -18,12 +18,12 @@ import ballerina/auth;
 import ballerina/config;
 import ballerina/http;
 
-auth:InboundBasicAuthProvider basicAuthProvider20 = new;
-http:BasicAuthHandler basicAuthHandler20 = new(basicAuthProvider20);
+auth:InboundBasicAuthProvider basicAuthProvider08 = new;
+http:BasicAuthHandler basicAuthHandler08 = new(basicAuthProvider08);
 
-listener http:Listener listener20 = new(20010, {
+listener http:Listener listener08 = new(20010, {
     auth: {
-        authHandlers: [basicAuthHandler20]
+        authHandlers: [basicAuthHandler08]
     },
     secureSocket: {
         keyStore: {
@@ -36,7 +36,7 @@ listener http:Listener listener20 = new(20010, {
 @http:ServiceConfig {
     basePath: "/echo"
 }
-service echo20 on listener20 {
+service echo08 on listener08 {
 
     @http:ResourceConfig {
         methods: ["GET"],
