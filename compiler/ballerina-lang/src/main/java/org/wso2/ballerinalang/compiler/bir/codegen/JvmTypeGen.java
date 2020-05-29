@@ -694,9 +694,16 @@ class JvmTypeGen {
         // Load flags
         mv.visitLdcInsn(typeSymbol.flags);
 
+        BIntersectionType immutableType = objectType.immutableType;
+        if (immutableType == null) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            loadType(mv, immutableType);
+        }
+
         // initialize the object
         mv.visitMethodInsn(INVOKESPECIAL, OBJECT_TYPE, "<init>",
-                String.format("(L%s;L%s;I)V", STRING_VALUE, PACKAGE_TYPE), false);
+                String.format("(L%s;L%s;IL%s;)V", STRING_VALUE, PACKAGE_TYPE, INTERSECTION_TYPE), false);
     }
 
     /**

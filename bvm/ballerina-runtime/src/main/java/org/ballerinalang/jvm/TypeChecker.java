@@ -1236,10 +1236,6 @@ public class TypeChecker {
         return false;
     }
 
-    boolean isSelectivelyImmutableType(BType type) {
-        return isSelectivelyImmutableType(type, new HashSet<>());
-    }
-
     public static boolean isSelectivelyImmutableType(BType type, Set<BType> unresolvedTypes) {
         if (!unresolvedTypes.add(type)) {
             return true;
@@ -1291,6 +1287,16 @@ public class TypeChecker {
 
                 return isInherentlyImmutableType(recordRestType) ||
                         isSelectivelyImmutableType(recordRestType, unresolvedTypes);
+            case TypeTags.OBJECT_TYPE_TAG:
+                BObjectType objectType = (BObjectType) type;
+                for (BField field : objectType.getFields().values()) {
+                    BType fieldType = field.type;
+                    if (!isInherentlyImmutableType(fieldType) &&
+                            !isSelectivelyImmutableType(fieldType, unresolvedTypes)) {
+                        return false;
+                    }
+                }
+                return true;
             case TypeTags.MAP_TAG:
                 BType constraintType = ((BMapType) type).getConstrainedType();
                 return isInherentlyImmutableType(constraintType) ||

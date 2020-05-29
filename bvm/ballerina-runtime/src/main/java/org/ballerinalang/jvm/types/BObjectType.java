@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.util.Flags;
 
 import java.util.Map.Entry;
 import java.util.StringJoiner;
@@ -33,6 +34,9 @@ public class BObjectType extends BStructureType {
     public AttachedFunction initializer;
     public AttachedFunction generatedInitializer;
 
+    private final boolean readonly;
+    private BIntersectionType immutableType;
+
     /**
      * Create a {@code BObjectType} which represents the user defined struct type.
      *
@@ -42,6 +46,12 @@ public class BObjectType extends BStructureType {
      */
     public BObjectType(String typeName, BPackage pkg, int flags) {
         super(typeName, pkg, flags, Object.class);
+        this.readonly = Flags.isFlagOn(flags, Flags.READONLY);
+    }
+
+    public BObjectType(String typeName, BPackage pkg, int flags, BIntersectionType immutableType) {
+        this(typeName, pkg, flags);
+        this.immutableType = immutableType;
     }
 
     @Override
@@ -99,5 +109,20 @@ public class BObjectType extends BStructureType {
         }
 
         return sj.toString();
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return this.readonly;
+    }
+
+    @Override
+    public BType getImmutableType() {
+        return this.immutableType;
+    }
+
+    @Override
+    public void setImmutableType(BIntersectionType immutableType) {
+        this.immutableType = immutableType;
     }
 }

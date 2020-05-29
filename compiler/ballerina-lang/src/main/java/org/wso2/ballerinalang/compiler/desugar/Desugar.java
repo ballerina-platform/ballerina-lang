@@ -405,7 +405,7 @@ public class Desugar extends BLangNodeVisitor {
             } else if (typeDef.symbol.tag == SymTag.RECORD) {
                 BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
                 recordTypeNode.initFunction = rewrite(
-                        TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable),
+                        TypeDefBuilderHelper.createInitFunctionForStructureType(recordTypeNode, env, names, symTable),
                         env);
                 pkgNode.functions.add(recordTypeNode.initFunction);
                 pkgNode.topLevelNodes.add(recordTypeNode.initFunction);
@@ -785,8 +785,8 @@ public class Desugar extends BLangNodeVisitor {
 
         // Will be null only for locally defined anonymous types
         if (recordTypeNode.initFunction == null) {
-            recordTypeNode.initFunction = TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env,
-                                                                                               names, symTable);
+            recordTypeNode.initFunction = TypeDefBuilderHelper.createInitFunctionForStructureType(recordTypeNode, env,
+                                                                                                  names, symTable);
             env.enclPkg.addFunction(recordTypeNode.initFunction);
             env.enclPkg.topLevelNodes.add(recordTypeNode.initFunction);
         }
@@ -2265,7 +2265,7 @@ public class Desugar extends BLangNodeVisitor {
                 BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(
                         (BRecordType) recordVarRef.type, env.enclPkg.packageID, symTable, recordVarRef.pos);
                 recordTypeNode.initFunction = TypeDefBuilderHelper
-                        .createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
+                        .createInitFunctionForStructureType(recordTypeNode, env, names, symTable);
                 TypeDefBuilderHelper
                         .addTypeDefinition(recordVarRef.type, recordVarRef.type.tsymbol, recordTypeNode, env);
 
@@ -5780,8 +5780,8 @@ public class Desugar extends BLangNodeVisitor {
                                                                                            recordVarType,
                                                                                            bindingPatternVariable.pos);
             recordTypeNode.initFunction =
-                    rewrite(TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable),
-                            env);
+                    rewrite(TypeDefBuilderHelper.createInitFunctionForStructureType(recordTypeNode, env, names,
+                                                                                    symTable), env);
             TypeDefBuilderHelper.addTypeDefinition(recordVarType, recordSymbol, recordTypeNode, env);
 
             return recordVarType;
@@ -5803,7 +5803,7 @@ public class Desugar extends BLangNodeVisitor {
 
                 BLangRecordTypeNode recordTypeNode = createRecordTypeNode(errorVariable, (BRecordType) detailType);
                 recordTypeNode.initFunction = TypeDefBuilderHelper
-                        .createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
+                        .createInitFunctionForStructureType(recordTypeNode, env, names, symTable);
                 TypeDefBuilderHelper.addTypeDefinition(detailType, detailType.tsymbol, recordTypeNode, env);
             }
             BErrorType errorType = new BErrorType(errorTypeSymbol,

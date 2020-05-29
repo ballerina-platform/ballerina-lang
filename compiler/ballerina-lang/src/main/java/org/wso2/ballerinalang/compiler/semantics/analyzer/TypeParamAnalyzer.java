@@ -684,7 +684,7 @@ public class TypeParamAnalyzer {
 
     private BType getMatchingObjectBoundType(BObjectType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
 
-        BObjectTypeSymbol actObjectSymbol = (BObjectTypeSymbol) Symbols.createObjectSymbol(expType.tsymbol.flags,
+        BObjectTypeSymbol actObjectSymbol = Symbols.createObjectSymbol(expType.tsymbol.flags,
                 expType.tsymbol.name, expType.tsymbol.pkgID, null, expType.tsymbol.scope.owner);
         BObjectType objectType = new BObjectType(actObjectSymbol);
         actObjectSymbol.type = objectType;
