@@ -18,6 +18,7 @@
 package org.ballerinalang.test.query;
 
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -91,6 +92,12 @@ public class LimitClauseTest {
         Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
         Assert.assertEquals(person2.get("lastName").stringValue(), "Fonseka");
         Assert.assertEquals(((BInteger) person3.get("age")).intValue(), 35);
+    }
+
+    @Test
+    public void testLimitClauseReturnStream() {
+        BValue[] values = BRunUtil.invoke(result, "testLimitClauseReturnStream", new BValue[]{});
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
     @Test(description = "Test query action with limit clause return simple value")
