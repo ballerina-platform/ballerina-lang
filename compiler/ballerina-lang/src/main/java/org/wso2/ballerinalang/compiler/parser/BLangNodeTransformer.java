@@ -31,6 +31,7 @@ import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.CompoundAssignmentStatementNode;
+import io.ballerinalang.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ContinueStatementNode;
 import io.ballerinalang.compiler.syntax.tree.DefaultableParameterNode;
@@ -201,6 +202,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
@@ -1115,6 +1117,27 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     // -----------------------------------------------Expressions-------------------------------------------------------
+    @Override
+    public BLangNode transform(ConditionalExpressionNode conditionalExpressionNode) {
+        BLangTernaryExpr ternaryExpr = (BLangTernaryExpr) TreeBuilder.createTernaryExpressionNode();
+        ternaryExpr.pos = getPosition(conditionalExpressionNode);
+        ternaryExpr.elseExpr = createExpression(conditionalExpressionNode.endExpression());
+        ternaryExpr.thenExpr = createExpression(conditionalExpressionNode.middleExpression());
+        ternaryExpr.expr = createExpression(conditionalExpressionNode.lhsExpression());
+        if (ternaryExpr.expr.getKind() == NodeKind.TERNARY_EXPR) {
+            // Re-organizing ternary expression tree if there nested ternary expressions.
+            BLangTernaryExpr root = (BLangTernaryExpr) ternaryExpr.expr;
+            BLangTernaryExpr parent = root;
+            while (parent.elseExpr.getKind() == NodeKind.TERNARY_EXPR) {
+                parent = (BLangTernaryExpr) parent.elseExpr;
+            }
+            ternaryExpr.expr = parent.elseExpr;
+            parent.elseExpr = ternaryExpr;
+            ternaryExpr = root;
+        }
+        return ternaryExpr;
+    }
+
     @Override
     public BLangNode transform(CheckExpressionNode checkExpressionNode) {
         DiagnosticPos pos = getPosition(checkExpressionNode);
