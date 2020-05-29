@@ -125,22 +125,17 @@ public class RuntimeUtils {
         }
     }
 
+    public static void handleRuntimeErrorsAndExit(Throwable throwable) {
+        handleRuntimeErrors(throwable);
+        Runtime.getRuntime().exit(1);
+    }
+
     public static void handleRuntimeErrors(Throwable throwable) {
         if (throwable instanceof ErrorValue) {
             errStream.println("error: " + ((ErrorValue) throwable).getPrintableStackTrace());
         } else {
             // These errors are unhandled errors in JVM, hence logging them to bre log.
             errStream.println(BLangConstants.INTERNAL_ERROR_MESSAGE);
-            silentlyLogBadSad(throwable);
-        }
-
-        Runtime.getRuntime().exit(1);
-    }
-
-    public static void handleRuntimeErrorWithoutShutDown(Throwable throwable) {
-        if (throwable instanceof ErrorValue) {
-            errStream.println("error: " + ((ErrorValue) throwable).getPrintableStackTrace());
-        } else {
             silentlyLogBadSad(throwable);
         }
     }

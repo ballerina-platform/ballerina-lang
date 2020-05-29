@@ -157,8 +157,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_SUCCESS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
@@ -760,11 +760,6 @@ public class JvmMethodGen {
 
         return func.name.value.equals(calculateModuleSpecialFuncName(packageToModuleId(module), "<testinit>"));
     }
-
-    private static boolean isModuleStartFunction(BIRPackage module, BIRFunction function) {
-        return function == module.functions.get(1);
-    }
-
     private static String calculateModuleInitFuncName(PackageID id) {
 
         return calculateModuleSpecialFuncName(id, "<init>");
@@ -836,7 +831,7 @@ public class JvmMethodGen {
 
         // handle any runtime errors
         mv.visitJumpInsn(IFNULL, labelIf);
-        mv.visitFieldInsn(GETSTATIC, moduleClass, MODULE_START_SUCCESS, "Z");
+        mv.visitFieldInsn(GETSTATIC, moduleClass, MODULE_STARTED, "Z");
         mv.visitJumpInsn(IFEQ, labelIf);
 
         mv.visitVarInsn(ALOAD, futureIndex);
@@ -1749,6 +1744,10 @@ public class JvmMethodGen {
         mv.visitEnd();
     }
 
+    private static boolean isModuleStartFunction(BIRPackage module, BIRFunction function) {
+        return function.name.value.equals(calculateModuleSpecialFuncName(packageToModuleId(module), "<start>"));
+    }
+
     public void generateBasicBlocks(MethodVisitor mv, List<BIRBasicBlock> basicBlocks,
                                     LabelGenerator labelGen, JvmErrorGen errorGen,
                                     JvmInstructionGen instGen, JvmTerminatorGen termGen,
@@ -1938,13 +1937,6 @@ public class JvmMethodGen {
                 mv.visitIntInsn(SIPUSH, caseIndex);
                 mv.visitVarInsn(ISTORE, stateVarIndex);
                 caseIndex += 1;
-
-                //set module start success to true for ___init class
-                if (isModuleStartFunction(module, func) && terminator.kind == InstructionKind.RETURN) {
-                    mv.visitInsn(ICONST_1);
-                    mv.visitFieldInsn(PUTSTATIC, getModuleLevelClassName(module.org.value, module.name.value,
-                            module.version.value, MODULE_INIT_CLASS_NAME), MODULE_START_SUCCESS, "Z");
-                }
             }
 
             // process terminator
@@ -1954,6 +1946,12 @@ public class JvmMethodGen {
                         terminator instanceof Return) {
                     generateAnnotLoad(mv, module.typeDefs, getPackageName(module.org.value, module.name.value,
                                                                           module.version.value));
+                }
+                //set module start success to true for ___init class
+                if (isModuleStartFunction(module, func) && terminator.kind == InstructionKind.RETURN) {
+                    mv.visitInsn(ICONST_1);
+                    mv.visitFieldInsn(PUTSTATIC, getModuleLevelClassName(module.org.value, module.name.value,
+                            module.version.value, MODULE_INIT_CLASS_NAME), MODULE_STARTED, "Z");
                 }
                 termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType,
                         isObserved, lambdaMetadata);

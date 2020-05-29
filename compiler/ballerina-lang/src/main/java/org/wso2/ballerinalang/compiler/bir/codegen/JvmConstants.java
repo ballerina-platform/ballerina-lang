@@ -167,10 +167,10 @@ public class JvmConstants {
     public static final String BLANG_RUNTIME_EXCEPTION = "org/ballerinalang/jvm/util/exceptions/BLangRuntimeException";
     public static final String THROWABLE = "java/lang/Throwable";
     public static final String STACK_OVERFLOW_ERROR = "java/lang/StackOverflowError";
-    public static final String HANDLE_THROWABLE_METHOD = "handleRuntimeErrors";
+    public static final String HANDLE_THROWABLE_METHOD = "handleRuntimeErrorsAndExit";
     public static final String HANDLE_RETURNED_ERROR_METHOD = "handleRuntimeReturnValues";
     public static final String UNSUPPORTED_OPERATION_EXCEPTION = "java/lang/UnsupportedOperationException";
-    public static final String HANDLE_STOP_PANIC_METHOD = "handleRuntimeErrorWithoutShutDown";
+    public static final String HANDLE_STOP_PANIC_METHOD = "handleRuntimeErrors";
 
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "___init";
@@ -187,8 +187,8 @@ public class JvmConstants {
     public static final String TYPEDESC_CLASS_PREFIX = "$typedesc$";
     public static final String BALLERINA = "ballerina";
     public static final String BUILT_IN_PACKAGE_NAME = "lang.annotations";
-    public static final String MODULE_START_ATTEMPTED = "moduleStartAttempted";
-    public static final String MODULE_START_SUCCESS = "moduleStartSuccess";
+    public static final String MODULE_START_ATTEMPTED = "$moduleStartAttempted";
+    public static final String MODULE_STARTED = "$moduleStarted";
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";
