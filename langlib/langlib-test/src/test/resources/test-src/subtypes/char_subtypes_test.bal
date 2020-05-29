@@ -20,12 +20,12 @@ import ballerina/lang.test as test;
 function testValueAssignment() {
     s:Char a1 = "a";
     string t1 = a1;
-    test:assertValueEqual("a", t1);
+    test:assertEqual("a", t1);
     test:assertNotError(trap <s:Char> t1);
 
     s:Char a2 = "µ";
     string t2 = a2;
-    test:assertValueEqual("µ", t2);
+    test:assertEqual("µ", t2);
     test:assertNotError(trap <s:Char> t2);
 
     string b = "ab";
@@ -38,8 +38,8 @@ function testTypeAlias() {
     Char value = "a";
     string a = value;
     s:Char b = value;
-    test:assertValueEqual("a", a);
-    test:assertValueEqual("a", b);
+    test:assertEqual("a", a);
+    test:assertEqual("a", b);
 }
 
 function testConcat() {
@@ -56,9 +56,9 @@ function testConcat() {
     string t3 = c + b;
     xml t4 = a + x;
     xml t5 = x + a;
-    test:assertValueEqual("ab", t1);
-    test:assertValueEqual("ac", t2);
-    test:assertValueEqual("cb", t3);
+    test:assertEqual("ab", t1);
+    test:assertEqual("ac", t2);
+    test:assertEqual("cb", t3);
     string sa = "a";
     xml xa = sa + x;
     xml ax = x + sa;
@@ -71,16 +71,16 @@ function testCharLangLib() {
     int x = s.getCodePoint(0);
     s:Char|error result = s:fromCodePointInt(x);
     if(result is s:Char){
-        test:assertValueEqual("h", result);
+        test:assertEqual("h", result);
     } else {
         test:assertNotError(result); // Should fail.
     }
 
     s:Char h = <s:Char> result;
-    test:assertValueEqual("h", h);
+    test:assertEqual("h", h);
 
     int y = h.toCodePointInt();
-    test:assertValueEqual(x, y);
+    test:assertEqual(x, y);
 }
 
 function testList(){
@@ -88,7 +88,7 @@ function testList(){
     string[] strings = chars;
 
     test:assertNotError(trap <s:Char> chars[0]);
-    test:assertValueEqual("a", chars[0]);
+    test:assertEqual("a", chars[0]);
     test:assertNotError(trap <s:Char[]> strings);
     test:assertError(trap insertListValue(chars, 5, "b")); // Error due to no filler value;
     test:assertNotError(trap insertListValue(chars, 3, "b"));
@@ -103,8 +103,8 @@ function testList(){
     [string, s:Char] x = ["ab", "c"];
     s:Char t1 = x[1];
     string t2 = x[1];
-    test:assertValueEqual("c", t1);
-    test:assertValueEqual("c", t2);
+    test:assertEqual("c", t1);
+    test:assertEqual("c", t2);
 }
 
 function testMapping() {
@@ -112,7 +112,7 @@ function testMapping() {
     map<s:Char> m1 = {};
     m1["k1"] = "a";
     string? t0 = m1["k1"];
-    test:assertValueEqual("a", t0);
+    test:assertEqual("a", t0);
     map<string> t1 = m1;
 
     test:assertError(trap insertMapValue(t1, "k2", "abc"));
@@ -121,7 +121,7 @@ function testMapping() {
         s:Char i;
     } rec = { i : "a"};
     rec.i = "b";
-    test:assertValueEqual("b", rec.i);
+    test:assertEqual("b", rec.i);
 
     record { string i;} t3 = rec;
     test:assertError(trap updateRecord(t3, "abc"));

@@ -27,24 +27,21 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import static org.ballerinalang.util.BLangCompilerConstants.TEST_VERSION;
 
 /**
- * Native implementation of assertTrue(boolean condition, string message? = ()).
+ * Native implementation of assertFail(string message? = ()).
  *
  * @since 2.0.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.test", version = TEST_VERSION, functionName = "assertTrue",
-        args = {@Argument(name = "condition", type = TypeKind.BOOLEAN),
-                @Argument(name = "message", type = TypeKind.UNION)},
+        orgName = "ballerina", packageName = "lang.test", version = TEST_VERSION, functionName = "fail",
+        args = {@Argument(name = "message", type = TypeKind.UNION)},
         isPublic = true
 )
-public class AssertTrue {
-    public static void assertTrue(Strand strand, boolean condition, Object message) {
-        if (!condition) {
-            String msg = " expected a true value";
-            msg = message != null ? message.toString() + msg : msg;
-            strand.setProperty("lang.test.state.failMsg",
-                    BallerinaErrors.createError("{ballerina/lang.test}AssertionError", msg));
-            throw BallerinaErrors.createError("{ballerina/lang.test}AssertionError", msg);
-        }
+public class Fail {
+    public static void fail(Strand strand, Object message) {
+        String msg = " failed";
+        msg = message != null ? message.toString() + msg : msg;
+        strand.setProperty("lang.test.state.failMsg",
+                BallerinaErrors.createError("{ballerina/lang.test}AssertionError", msg));
+        throw BallerinaErrors.createError("{ballerina/lang.test}AssertionError", msg);
     }
 }

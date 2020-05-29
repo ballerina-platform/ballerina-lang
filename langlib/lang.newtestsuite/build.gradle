@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -22,40 +22,6 @@ description = 'Lang Library Unit Test new  Module'
 apply from: "$rootDir/gradle/balTestableProjectForTest.gradle"
 apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
-
-
-dependencies {
-    testCompile project(path: ':ballerina-file')
-
-}
-
-
-runtask{
-
+runTestSuites{
     libPath << "src/test/resources/TestSuite.xml"
-
-    doLast{
-        copy {
-            from "${buildDir}/jacocodumpclass/ballerina/"
-
-            into "${buildDir}/jacococlasses"
-            include "**/*.class"
-            exclude '**/*ini*.class'
-            includeEmptyDirs = false
-        }
-
-    }
-
-    finalizedBy jacocoTestReport
-}
-
-jacocoTestReport {
-
-    executionData = files("${buildDir}/jacoco/test.exec")
-    classDirectories =  files("${buildDir}/jacococlasses/")
-    reports {
-        xml.enabled true
-        csv.enabled false
-        html.destination file("${buildDir}/jacocoHtml")
-    }
 }

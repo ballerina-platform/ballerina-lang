@@ -32,22 +32,34 @@ function testValueAssignment() {
     ints:Unsigned8 f1 = 255;
     ints:Unsigned8 f2 = 0;
 
-    test:assertValueEqual(ints:abs(34), ints:abs(-34));
     byte g1 = 255;
     byte g2 = 0;
 
-    test:assertValueEqual(2147483647, a1);
-    test:assertValueEqual(-2147483648, a2);
-    test:assertValueEqual(32767, b1);
-    test:assertValueEqual(-32768, b2);
-    test:assertValueEqual(127, c1);
-    test:assertValueEqual(-128, c2);
-    test:assertValueEqual(4294967295, d1);
-    test:assertValueEqual(0, d2);
-    test:assertValueEqual(65535, e1);
-    test:assertValueEqual(0, e2);
-    test:assertValueEqual(255, f1);
-    test:assertValueEqual(0, f2);
-    test:assertValueEqual(255, g1);
-    test:assertValueEqual(0, g2);
+    test:assertEqual(2147483647, a1);
+    test:assertEqual(-2147483648, a2);
+    test:assertEqual(32767, b1);
+    test:assertEqual(-32768, b2);
+    test:assertEqual(127, c1);
+    test:assertEqual(-128, c2);
+    test:assertEqual(4294967295, d1);
+    test:assertEqual(0, d2);
+    test:assertEqual(65535, e1);
+    test:assertEqual(0, e2);
+    test:assertEqual(255, f1);
+    test:assertEqual(0, f2);
+    test:assertEqual(255, g1);
+    test:assertEqual(0, g2);
+}
+
+function testAbs() returns decimal {
+    decimal d1 = 100.1;
+    return d1;
+}
+
+function sum(){
+    test:assertEqual(24, 24);
+}
+
+function testFail(){
+    test:fail();
 }

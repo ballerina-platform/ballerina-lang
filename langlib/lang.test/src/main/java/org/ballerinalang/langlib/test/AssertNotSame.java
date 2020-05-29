@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.test;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -26,21 +27,24 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import static org.ballerinalang.util.BLangCompilerConstants.TEST_VERSION;
 
+
 /**
- * Native implementation of assertTrue(boolean condition, string message? = ()).
+ * Native implementation of assertNotSame(any|error actual, any|error expected, string message? = ()).
  *
  * @since 2.0.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.test", version = TEST_VERSION, functionName = "assertTrue",
-        args = {@Argument(name = "condition", type = TypeKind.BOOLEAN),
+        orgName = "ballerina", packageName = "lang.test", version = TEST_VERSION, functionName = "assertNotSame",
+        args = {@Argument(name = "val1", type = TypeKind.UNION),
+                @Argument(name = "val2", type = TypeKind.UNION),
                 @Argument(name = "message", type = TypeKind.UNION)},
         isPublic = true
 )
-public class AssertTrue {
-    public static void assertTrue(Strand strand, boolean condition, Object message) {
-        if (!condition) {
-            String msg = " expected a true value";
+
+public class AssertNotSame {
+    public static void assertNotSame(Strand strand, Object val1, Object val2, Object message) {
+        if (TypeChecker.isReferenceEqual(val2, val1)) {
+            String msg = " expected the actual value do not refer to [" + val2 + "]";
             msg = message != null ? message.toString() + msg : msg;
             strand.setProperty("lang.test.state.failMsg",
                     BallerinaErrors.createError("{ballerina/lang.test}AssertionError", msg));

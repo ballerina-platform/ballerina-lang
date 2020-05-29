@@ -27,23 +27,27 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import static org.ballerinalang.util.BLangCompilerConstants.TEST_VERSION;
 
+
 /**
- * Native implementation of assertValueEqual(anydata expected, anydata actual).
+ * Native implementation of assertSame(any|error actual, any|error expected, string message? = ()).
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.test", version = TEST_VERSION, functionName = "assertValueEqual",
-        args = {@Argument(name = "expected", type = TypeKind.ANYDATA),
-                @Argument(name = "actual", type = TypeKind.ANYDATA)},
+        orgName = "ballerina", packageName = "lang.test", version = TEST_VERSION, functionName = "assertSame",
+        args = {@Argument(name = "actual", type = TypeKind.UNION),
+                @Argument(name = "expected", type = TypeKind.UNION),
+                @Argument(name = "message", type = TypeKind.UNION)},
         isPublic = true
 )
-public class AssertValueEqual {
-    public static void assertValueEqual(Strand strand, Object expected, Object actual) {
-        if (!TypeChecker.isEqual(expected, actual)) {
-            String reason = "{ballerina/lang.test}AssertionError";
-            String msg = "expected " + expected.toString() + " but found " + actual.toString();
-            throw BallerinaErrors.createError(reason, msg);
+public class AssertSame {
+    public static void assertSame(Strand strand, Object actual, Object expected, Object message) {
+        if (!TypeChecker.isReferenceEqual(expected, actual)) {
+            String msg = "expected: " + expected + " but found: " + actual;
+            msg = message != null ? message.toString() + msg : msg;
+            strand.setProperty("lang.test.state.failMsg",
+                    BallerinaErrors.createError("{ballerina/lang.test}AssertionError", msg));
+            throw BallerinaErrors.createError("{ballerina/lang.test}AssertionError", msg);
         }
     }
 }
