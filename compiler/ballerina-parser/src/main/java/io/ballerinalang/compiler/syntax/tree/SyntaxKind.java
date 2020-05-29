@@ -84,7 +84,14 @@ public enum SyntaxKind {
     DEFAULT_KEYWORD(230, "default"),
     WAIT_KEYWORD(231, "wait"),
     DO_KEYWORD(232, "do"),
-    ENUM_KEYWORD(233, "enum"),
+    TRANSACTION_KEYWORD(233, "transaction"),
+    TRANSACTIONAL_KEYWORD(234, "transactional"),
+    COMMIT_KEYWORD(235, "commit"),
+    ROLLBACK_KEYWORD(236, "rollback"),
+    RETRY_KEYWORD(237, "retry"),
+    ENUM_KEYWORD(238, "enum"),
+    BASE16_KEYWORD(239, "base16"),
+    BASE64_KEYWORD(240, "base64"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -140,7 +147,7 @@ public enum SyntaxKind {
     LT_TOKEN(558, "<"),
     LT_EQUAL_TOKEN(559, "<="),
     GT_TOKEN(560, ">"),
-    RIGHT_DOUBLE_ARROW(561, "=>"),
+    RIGHT_DOUBLE_ARROW_TOKEN(561, "=>"),
     QUESTION_MARK_TOKEN(562, "?"),
     PIPE_TOKEN(563, "|"),
     GT_EQUAL_TOKEN(564, ">="),
@@ -212,6 +219,9 @@ public enum SyntaxKind {
     NAMED_WORKER_DECLARATION(1215),
     FORK_STATEMENT(1216),
     FOREACH_STATEMENT(1217),
+    TRANSACTION_STATEMENT(1218),
+    ROLLBACK_STATEMENT(1219),
+    RETRY_STATEMENT(1220),
 
     // Expressions
     BINARY_EXPRESSION(1300),
@@ -245,6 +255,8 @@ public enum SyntaxKind {
     ANNOT_ACCESS(1328),
     OPTIONAL_FIELD_ACCESS(1329),
     CONDITIONAL_EXPRESSION(1330),
+    TRANSACTIONAL_EXPRESSION(1331),
+    SERVICE_CONSTRUCTOR_EXPRESSION(1332),
 
     // Type descriptors
     TYPE_DESC(2000),
@@ -292,6 +304,7 @@ public enum SyntaxKind {
     RECEIVE_ACTION(2508),
     WAIT_ACTION(2509),
     QUERY_ACTION(2510),
+    COMMIT_ACTION(2511),
 
     // Other
     RETURN_TYPE_DESCRIPTOR(3000),
@@ -356,6 +369,10 @@ public enum SyntaxKind {
     WAIT_FIELDS_LIST(3058),
     WAIT_FIELD(3059),
     ENUM_MEMBER(3060),
+    LIST_BP_OR_TUPLE_TYPE_DESC(3061),
+    BYTE_ARRAY_LITERAL(3062),
+    MAPPING_BINDING_PATTERN(3063),
+    FIELD_BINDING_PATTERN(3064),
 
     // XML
     XML_ELEMENT(4000),

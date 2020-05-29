@@ -40,7 +40,7 @@ import java.util.List;
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal",
+        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0",
         functionName = "getFilteredChildrenFlat",
         args = {@Argument(name = "xmlValue", type = TypeKind.XML),
                 @Argument(name = "index", type = TypeKind.INT),
@@ -54,7 +54,8 @@ public class GetFilteredChildrenFlat {
     public static XMLValue getFilteredChildrenFlat(Strand strand, XMLValue xmlVal, long index, ArrayValue elemNames) {
         if (xmlVal.getNodeType() == XMLNodeType.ELEMENT) {
             XMLItem element = (XMLItem) xmlVal;
-            return new XMLSequence(filterElementChildren(strand, index, elemNames, element));
+            XMLSequence xmlSeq = new XMLSequence(filterElementChildren(strand, index, elemNames, element));
+            return xmlSeq;
         } else if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE) {
             XMLSequence sequence = (XMLSequence) xmlVal;
             ArrayList<BXML> liftedFilteredChildren = new ArrayList<>();
@@ -81,10 +82,5 @@ public class GetFilteredChildrenFlat {
             // OutOfRange return empty list
             return new ArrayList<>();
         }
-    }
-
-    public static XMLValue getFilteredChildrenFlat_bstring(Strand strand, XMLValue xmlVal, long index,
-                                                           ArrayValue elemNames) {
-        return getFilteredChildrenFlat(strand, xmlVal, index, elemNames);
     }
 }

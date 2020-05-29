@@ -1,36 +1,36 @@
 {
-    "kind": "CONDITIONAL_EXPRESSION",
-    "children": [
+  "kind": "CONDITIONAL_EXPRESSION",
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a"
+    },
+    {
+      "kind": "QUESTION_MARK_TOKEN"
+    },
+    {
+      "kind": "QUALIFIED_NAME_REFERENCE",
+      "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true
         },
         {
-            "kind": "QUESTION_MARK_TOKEN"
+          "kind": "COLON_TOKEN"
         },
         {
-            "kind": "QUALIFIED_NAME_REFERENCE",
-            "children": [
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "isMissing": true
-                },
-                {
-                    "kind": "COLON_TOKEN"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "c"
-                }
-            ]
-        },
-        {
-            "kind": "COLON_TOKEN",
-            "isMissing": true
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "isMissing": true
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "c"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "COLON_TOKEN",
+      "isMissing": true
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "isMissing": true
+    }
+  ]
 }

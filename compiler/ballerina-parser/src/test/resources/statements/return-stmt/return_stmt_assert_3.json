@@ -1,28 +1,27 @@
 {
-    "kind": "RETURN_STATEMENT",
-    "children": [
+  "kind": "RETURN_STATEMENT",
+  "children": [
+    {
+      "kind": "RETURN_KEYWORD"
+    },
+    {
+      "kind": "BINARY_EXPRESSION",
+      "children": [
         {
-            "kind": "RETURN_KEYWORD"
+          "kind": "DECIMAL_INTEGER_LITERAL",
+          "value": "6"
         },
         {
-            "kind": "BINARY_EXPRESSION",
-            "children": [
-                {
-                    "kind": "DECIMAL_INTEGER_LITERAL",
-                    "value": 6
-                },
-                {
-                    "kind": "PLUS_TOKEN",
-                    "value": "+"
-                },
-                {
-                    "kind": "DECIMAL_INTEGER_LITERAL",
-                    "value": 7
-                }
-            ]
+          "kind": "PLUS_TOKEN"
         },
         {
-            "kind": "SEMICOLON_TOKEN"
+          "kind": "DECIMAL_INTEGER_LITERAL",
+          "value": "7"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

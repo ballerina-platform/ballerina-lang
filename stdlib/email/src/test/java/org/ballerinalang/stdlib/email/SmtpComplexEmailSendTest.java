@@ -160,7 +160,7 @@ public class SmtpComplexEmailSendTest {
     private static void testAttachment3(MimeBodyPart bodyPart) throws IOException, MessagingException {
         InputStream input = bodyPart.getInputStream();
         assertEquals("<name>Ballerina xml file part</name>", convertInputStreamToString(input));
-        assertEquals("text/xml", bodyPart.getContentType());
+        assertTrue(bodyPart.getContentType().startsWith("text/xml"));
     }
 
     private static void testAttachment4(MimeBodyPart bodyPart) throws MessagingException, IOException {

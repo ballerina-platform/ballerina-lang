@@ -17,7 +17,9 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.values.api.BString;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
@@ -32,7 +34,7 @@ public final class ObserveNativeImplConstants {
     }
 
     public static final String OBSERVE_PACKAGE_PATH = "ballerina/observe";
-    public static final BPackage OBSERVE_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "observe");
+    public static final BPackage OBSERVE_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "observe", "0.8.0");
     public static final String GAUGE = "Gauge";
     public static final String COUNTER = "Counter";
     public static final String SNAPSHOT = "Snapshot";
@@ -41,11 +43,11 @@ public final class ObserveNativeImplConstants {
     public static final String PERCENTILE_VALUE = "PercentileValue";
     public static final String METRIC_NATIVE_INSTANCE_KEY = "__metric_native_instance__";
 
-    public static final String NAME_FIELD = "name";
-    public static final String DESCRIPTION_FIELD = "description";
-    public static final String TAGS_FIELD = "metricTags";
-    public static final String STATISTICS_CONFIG_FIELD = "statisticConfigs";
-    public static final String EXPIRY_FIELD = "timeWindow";
-    public static final String BUCKETS_FIELD = "buckets";
-    public static final String PERCENTILES_FIELD = "percentiles";
+    public static final BString NAME_FIELD = StringUtils.fromString("name");
+    public static final BString DESCRIPTION_FIELD = StringUtils.fromString("description");
+    public static final BString TAGS_FIELD = StringUtils.fromString("metricTags");
+    public static final BString STATISTICS_CONFIG_FIELD = StringUtils.fromString("statisticConfigs");
+    public static final BString EXPIRY_FIELD = StringUtils.fromString("timeWindow");
+    public static final BString BUCKETS_FIELD = StringUtils.fromString("buckets");
+    public static final BString PERCENTILES_FIELD = StringUtils.fromString("percentiles");
 }

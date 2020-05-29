@@ -33,13 +33,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+
 /**
  * Native implementation of lang.xml:filter(map&lt;Type&gt;, function).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", functionName = "filter",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION, functionName = "filter",
         args = {
                 @Argument(name = "x", type = TypeKind.XML),
                 @Argument(name = "func", type = TypeKind.FUNCTION)},

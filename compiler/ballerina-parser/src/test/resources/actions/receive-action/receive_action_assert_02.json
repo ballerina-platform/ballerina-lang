@@ -1,352 +1,354 @@
 {
-    "kind": "FUNCTION_DEFINITION",
-    "children": [
+  "kind": "FUNCTION_DEFINITION",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
         {
-            "kind": "METADATA",
-            "children": [
-                {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "FUNCTION_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "foo"
-        },
-        {
-            "kind": "FUNCTION_SIGNATURE",
-            "children": [
-                {
-                    "kind": "OPEN_PAREN_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                },
-                {
-                    "kind": "CLOSE_PAREN_TOKEN"
-                }
-            ]
-        },
-        {
-            "kind": "FUNCTION_BODY_BLOCK",
-            "children": [
-                {
-                    "kind": "OPEN_BRACE_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                        {
-                            "kind": "ACTION_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "RECEIVE_SEND_ACTION",
-                                    "children": [
-                                        {
-                                            "kind": "LEFT_ARROW_TOKEN"
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "isMissing": true
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "RECEIVE_SEND_ACTION",
-                                    "children": [
-                                        {
-                                            "kind": "LEFT_ARROW_TOKEN"
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "isMissing": true
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "RECEIVE_SEND_ACTION",
-                                    "children": [
-                                        {
-                                            "kind": "LEFT_ARROW_TOKEN"
-                                        },
-                                        {
-                                            "kind": "RECEIVE_FIELDS",
-                                            "children": [
-                                                {
-                                                    "kind": "OPEN_BRACE_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "CLOSE_BRACE_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "RECEIVE_SEND_ACTION",
-                                    "children": [
-                                        {
-                                            "kind": "LEFT_ARROW_TOKEN"
-                                        },
-                                        {
-                                            "kind": "RECEIVE_FIELDS",
-                                            "children": [
-                                                {
-                                                    "kind": "OPEN_BRACE_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "a"
-                                                        },
-                                                        {
-                                                            "kind": "COMMA_TOKEN",
-                                                            "isMissing": true
-                                                        },
-                                                        {
-                                                            "kind": "QUALIFIED_NAME_REFERENCE",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "b"
-                                                                },
-                                                                {
-                                                                    "kind": "COLON_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "c"
-                                                                }
-                                                            ]
-                                                        },
-                                                        {
-                                                            "kind": "COMMA_TOKEN"
-                                                        },
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "d"
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "CLOSE_BRACE_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "RECEIVE_SEND_ACTION",
-                                    "children": [
-                                        {
-                                            "kind": "LEFT_ARROW_TOKEN"
-                                        },
-                                        {
-                                            "kind": "RECEIVE_FIELDS",
-                                            "children": [
-                                                {
-                                                    "kind": "OPEN_BRACE_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "a"
-                                                        },
-                                                        {
-                                                            "kind": "COMMA_TOKEN"
-                                                        },
-                                                        {
-                                                            "kind": "QUALIFIED_NAME_REFERENCE",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "isMissing": true
-                                                                },
-                                                                {
-                                                                    "kind": "COLON_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "c"
-                                                                }
-                                                            ]
-                                                        },
-                                                        {
-                                                            "kind": "COMMA_TOKEN"
-                                                        },
-                                                        {
-                                                            "kind": "QUALIFIED_NAME_REFERENCE",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "d"
-                                                                },
-                                                                {
-                                                                    "kind": "COLON_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "isMissing": true
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "CLOSE_BRACE_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ACTION_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "RECEIVE_SEND_ACTION",
-                                    "children": [
-                                        {
-                                            "kind": "LEFT_ARROW_TOKEN"
-                                        },
-                                        {
-                                            "kind": "RECEIVE_FIELDS",
-                                            "children": [
-                                                {
-                                                    "kind": "OPEN_BRACE_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                        {
-                                                            "kind": "DEFAULT_KEYWORD"
-                                                        },
-                                                        {
-                                                            "kind": "COMMA_TOKEN"
-                                                        },
-                                                        {
-                                                            "kind": "QUALIFIED_NAME_REFERENCE",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "b"
-                                                                },
-                                                                {
-                                                                    "kind": "COLON_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "DEFAULT_KEYWORD"
-                                                                }
-                                                            ]
-                                                        },
-                                                        {
-                                                            "kind": "COMMA_TOKEN"
-                                                        },
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "d"
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "CLOSE_BRACE_TOKEN",
-                                                    "isMissing": true
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "kind": "CLOSE_BRACE_TOKEN"
-                }
-            ]
+          "kind": "LIST",
+          "children": []
         }
-    ]
+      ]
+    },
+    {
+      "kind": "FUNCTION_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "foo"
+    },
+    {
+      "kind": "FUNCTION_SIGNATURE",
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN"
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_BODY_BLOCK",
+      "children": [
+        {
+          "kind": "OPEN_BRACE_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "ACTION_STATEMENT",
+              "children": [
+                {
+                  "kind": "RECEIVE_ACTION",
+                  "children": [
+                    {
+                      "kind": "LEFT_ARROW_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "RECEIVE_ACTION",
+                  "children": [
+                    {
+                      "kind": "LEFT_ARROW_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "RECEIVE_ACTION",
+                  "children": [
+                    {
+                      "kind": "LEFT_ARROW_TOKEN"
+                    },
+                    {
+                      "kind": "RECEIVE_FIELDS",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACE_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "isMissing": true
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACE_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "RECEIVE_ACTION",
+                  "children": [
+                    {
+                      "kind": "LEFT_ARROW_TOKEN"
+                    },
+                    {
+                      "kind": "RECEIVE_FIELDS",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACE_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "a"
+                            },
+                            {
+                              "kind": "COMMA_TOKEN",
+                              "isMissing": true
+                            },
+                            {
+                              "kind": "QUALIFIED_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "b"
+                                },
+                                {
+                                  "kind": "COLON_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "c"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "COMMA_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "d"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACE_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "RECEIVE_ACTION",
+                  "children": [
+                    {
+                      "kind": "LEFT_ARROW_TOKEN"
+                    },
+                    {
+                      "kind": "RECEIVE_FIELDS",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACE_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "a"
+                            },
+                            {
+                              "kind": "COMMA_TOKEN"
+                            },
+                            {
+                              "kind": "QUALIFIED_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "isMissing": true
+                                },
+                                {
+                                  "kind": "COLON_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "c"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "COMMA_TOKEN"
+                            },
+                            {
+                              "kind": "QUALIFIED_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "d"
+                                },
+                                {
+                                  "kind": "COLON_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "isMissing": true
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACE_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ACTION_STATEMENT",
+              "children": [
+                {
+                  "kind": "RECEIVE_ACTION",
+                  "children": [
+                    {
+                      "kind": "LEFT_ARROW_TOKEN"
+                    },
+                    {
+                      "kind": "RECEIVE_FIELDS",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACE_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "DEFAULT_KEYWORD"
+                            },
+                            {
+                              "kind": "COMMA_TOKEN"
+                            },
+                            {
+                              "kind": "QUALIFIED_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "b"
+                                },
+                                {
+                                  "kind": "COLON_TOKEN"
+                                },
+                                {
+                                  "kind": "DEFAULT_KEYWORD"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "COMMA_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "d"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACE_TOKEN",
+                          "isMissing": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_BRACE_TOKEN"
+        }
+      ]
+    }
+  ]
 }

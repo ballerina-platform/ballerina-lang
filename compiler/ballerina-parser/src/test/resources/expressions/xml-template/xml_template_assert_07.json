@@ -1,529 +1,531 @@
 {
-    "kind": "FUNCTION_DEFINITION",
-    "children": [
+  "kind": "FUNCTION_DEFINITION",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
         {
-            "kind": "METADATA",
-            "children": [
-                {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "FUNCTION_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "foo"
-        },
-        {
-            "kind": "FUNCTION_SIGNATURE",
-            "children": [
-                {
-                    "kind": "OPEN_PAREN_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                },
-                {
-                    "kind": "CLOSE_PAREN_TOKEN"
-                }
-            ]
-        },
-        {
-            "kind": "FUNCTION_BODY_BLOCK",
-            "children": [
-                {
-                    "kind": "OPEN_BRACE_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "INT_KEYWORD"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "x"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "XML_TEMPLATE_EXPRESSION",
-                                    "children": [
-                                        {
-                                            "kind": "XML_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "BACKTICK_TOKEN"
-                                        },
-                                        {
-                                            "kind": "LIST",
-                                            "children": [
-                                                {
-                                                    "kind": "XML_TEXT_CONTENT",
-                                                    "value": "some "
-                                                },
-                                                {
-                                                    "kind": "INTERPOLATION",
-                                                    "children": [
-                                                        {
-                                                            "kind": "INTERPOLATION_START_TOKEN"
-                                                        },
-                                                        {
-                                                            "kind": "STRING_LITERAL",
-                                                            "value": "Hello, World! "
-                                                        },
-                                                        {
-                                                            "kind": "CLOSE_BRACE_TOKEN"
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "XML_TEXT_CONTENT",
-                                                    "value": " text\n                 "
-                                                },
-                                                {
-                                                    "kind": "XML_ELEMENT",
-                                                    "children": [
-                                                        {
-                                                            "kind": "XML_ELEMENT_START_TAG",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "LT_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "XML_QUALIFIED_NAME",
-                                                                    "children": [
-                                                                        {
-                                                                            "kind": "XML_SIMPLE_NAME",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "ns0"
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "COLON_TOKEN"
-                                                                        },
-                                                                        {
-                                                                            "kind": "XML_SIMPLE_NAME",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "foo"
-                                                                                }
-                                                                            ]
-                                                                        }
-                                                                    ]
-                                                                },
-                                                                {
-                                                                    "kind": "LIST",
-                                                                    "children": [
-                                                                    ]
-                                                                },
-                                                                {
-                                                                    "kind": "GT_TOKEN"
-                                                                }
-                                                            ]
-                                                        },
-                                                        {
-                                                            "kind": "LIST",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "XML_TEXT_CONTENT",
-                                                                    "value": " \n                    hello "
-                                                                },
-                                                                {
-                                                                    "kind": "INTERPOLATION",
-                                                                    "children": [
-                                                                        {
-                                                                            "kind": "INTERPOLATION_START_TOKEN"
-                                                                        },
-                                                                        {
-                                                                            "kind": "INDEXED_EXPRESSION",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "INDEXED_EXPRESSION",
-                                                                                    "children": [
-                                                                                        {
-                                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                                            "value": "a"
-                                                                                        },
-                                                                                        {
-                                                                                            "kind": "OPEN_BRACKET_TOKEN"
-                                                                                        },
-                                                                                        {
-                                                                                            "kind": "LIST",
-                                                                                            "children": [
-                                                                                                {
-                                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                                    "value": "b"
-                                                                                                }
-                                                                                            ]
-                                                                                        },
-                                                                                        {
-                                                                                            "kind": "CLOSE_BRACKET_TOKEN"
-                                                                                        }
-                                                                                    ]
-                                                                                },
-                                                                                {
-                                                                                    "kind": "OPEN_BRACKET_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "LIST",
-                                                                                    "children": [
-                                                                                        {
-                                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                                            "value": "c"
-                                                                                        }
-                                                                                    ]
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_BRACKET_TOKEN"
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CLOSE_BRACE_TOKEN"
-                                                                        }
-                                                                    ]
-                                                                },
-                                                                {
-                                                                    "kind": "XML_TEXT_CONTENT",
-                                                                    "value": " world  "
-                                                                },
-                                                                {
-                                                                    "kind": "INTERPOLATION",
-                                                                    "children": [
-                                                                        {
-                                                                            "kind": "INTERPOLATION_START_TOKEN"
-                                                                        },
-                                                                        {
-                                                                            "kind": "BINARY_EXPRESSION",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "DECIMAL_INTEGER_LITERAL",
-                                                                                    "value": "5"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "PLUS_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "DECIMAL_INTEGER_LITERAL",
-                                                                                    "value": "3"
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CLOSE_BRACE_TOKEN"
-                                                                        }
-                                                                    ]
-                                                                },
-                                                                {
-                                                                    "kind": "INTERPOLATION",
-                                                                    "children": [
-                                                                        {
-                                                                            "kind": "INTERPOLATION_START_TOKEN"
-                                                                        },
-                                                                        {
-                                                                            "kind": "XML_TEMPLATE_EXPRESSION",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "XML_KEYWORD"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "BACKTICK_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "LIST",
-                                                                                    "children": [
-                                                                                        {
-                                                                                            "kind": "XML_ELEMENT",
-                                                                                            "children": [
-                                                                                                {
-                                                                                                    "kind": "XML_ELEMENT_START_TAG",
-                                                                                                    "children": [
-                                                                                                        {
-                                                                                                            "kind": "LT_TOKEN"
-                                                                                                        },
-                                                                                                        {
-                                                                                                            "kind": "XML_SIMPLE_NAME",
-                                                                                                            "children": [
-                                                                                                                {
-                                                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                                                    "value": "baz"
-                                                                                                                }
-                                                                                                            ]
-                                                                                                        },
-                                                                                                        {
-                                                                                                            "kind": "LIST",
-                                                                                                            "children": [
-                                                                                                            ]
-                                                                                                        },
-                                                                                                        {
-                                                                                                            "kind": "GT_TOKEN"
-                                                                                                        }
-                                                                                                    ]
-                                                                                                },
-                                                                                                {
-                                                                                                    "kind": "LIST",
-                                                                                                    "children": [
-                                                                                                    ]
-                                                                                                },
-                                                                                                {
-                                                                                                    "kind": "XML_ELEMENT_END_TAG",
-                                                                                                    "children": [
-                                                                                                        {
-                                                                                                            "kind": "LT_TOKEN"
-                                                                                                        },
-                                                                                                        {
-                                                                                                            "kind": "SLASH_TOKEN"
-                                                                                                        },
-                                                                                                        {
-                                                                                                            "kind": "XML_SIMPLE_NAME",
-                                                                                                            "children": [
-                                                                                                                {
-                                                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                                                    "value": "baz"
-                                                                                                                }
-                                                                                                            ]
-                                                                                                        },
-                                                                                                        {
-                                                                                                            "kind": "GT_TOKEN"
-                                                                                                        }
-                                                                                                    ]
-                                                                                                }
-                                                                                            ]
-                                                                                        }
-                                                                                    ]
-                                                                                },
-                                                                                {
-                                                                                    "kind": "BACKTICK_TOKEN"
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CLOSE_BRACE_TOKEN"
-                                                                        }
-                                                                    ]
-                                                                },
-                                                                {
-                                                                    "kind": "XML_TEXT_CONTENT",
-                                                                    "value": "\n                    "
-                                                                },
-                                                                {
-                                                                    "kind": "XML_ELEMENT",
-                                                                    "children": [
-                                                                        {
-                                                                            "kind": "XML_ELEMENT_START_TAG",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "LT_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "XML_SIMPLE_NAME",
-                                                                                    "children": [
-                                                                                        {
-                                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                                            "value": "bar"
-                                                                                        }
-                                                                                    ]
-                                                                                },
-                                                                                {
-                                                                                    "kind": "LIST",
-                                                                                    "children": [
-                                                                                    ]
-                                                                                },
-                                                                                {
-                                                                                    "kind": "GT_TOKEN"
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "LIST",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "XML_TEXT_CONTENT",
-                                                                                    "value": "\n                        "
-                                                                                },
-                                                                                {
-                                                                                    "kind": "XML_ELEMENT",
-                                                                                    "children": [
-                                                                                        {
-                                                                                            "kind": "XML_ELEMENT_START_TAG",
-                                                                                            "children": [
-                                                                                                {
-                                                                                                    "kind": "LT_TOKEN"
-                                                                                                },
-                                                                                                {
-                                                                                                    "kind": "XML_SIMPLE_NAME",
-                                                                                                    "children": [
-                                                                                                        {
-                                                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                                                            "value": "city"
-                                                                                                        }
-                                                                                                    ]
-                                                                                                },
-                                                                                                {
-                                                                                                    "kind": "LIST",
-                                                                                                    "children": [
-                                                                                                    ]
-                                                                                                },
-                                                                                                {
-                                                                                                    "kind": "GT_TOKEN"
-                                                                                                }
-                                                                                            ]
-                                                                                        },
-                                                                                        {
-                                                                                            "kind": "LIST",
-                                                                                            "children": [
-                                                                                                {
-                                                                                                    "kind": "XML_TEXT_CONTENT",
-                                                                                                    "value": "\n                            Colombo\n                        "
-                                                                                                }
-                                                                                            ]
-                                                                                        },
-                                                                                        {
-                                                                                            "kind": "XML_ELEMENT_END_TAG",
-                                                                                            "children": [
-                                                                                                {
-                                                                                                    "kind": "LT_TOKEN"
-                                                                                                },
-                                                                                                {
-                                                                                                    "kind": "SLASH_TOKEN"
-                                                                                                },
-                                                                                                {
-                                                                                                    "kind": "XML_SIMPLE_NAME",
-                                                                                                    "children": [
-                                                                                                        {
-                                                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                                                            "value": "city"
-                                                                                                        }
-                                                                                                    ]
-                                                                                                },
-                                                                                                {
-                                                                                                    "kind": "GT_TOKEN"
-                                                                                                }
-                                                                                            ]
-                                                                                        }
-                                                                                    ]
-                                                                                },
-                                                                                {
-                                                                                    "kind": "XML_TEXT_CONTENT",
-                                                                                    "value": "\n                    "
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "XML_ELEMENT_END_TAG",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "LT_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "SLASH_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "XML_SIMPLE_NAME",
-                                                                                    "children": [
-                                                                                        {
-                                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                                            "value": "bar"
-                                                                                        }
-                                                                                    ]
-                                                                                },
-                                                                                {
-                                                                                    "kind": "GT_TOKEN"
-                                                                                }
-                                                                            ]
-                                                                        }
-                                                                    ]
-                                                                },
-                                                                {
-                                                                    "kind": "XML_TEXT_CONTENT",
-                                                                    "value": "\n                 "
-                                                                }
-                                                            ]
-                                                        },
-                                                        {
-                                                            "kind": "XML_ELEMENT_END_TAG",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "LT_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "SLASH_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "XML_QUALIFIED_NAME",
-                                                                    "children": [
-                                                                        {
-                                                                            "kind": "XML_SIMPLE_NAME",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "ns0"
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "COLON_TOKEN"
-                                                                        },
-                                                                        {
-                                                                            "kind": "XML_SIMPLE_NAME",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "foo"
-                                                                                }
-                                                                            ]
-                                                                        }
-                                                                    ]
-                                                                },
-                                                                {
-                                                                    "kind": "GT_TOKEN"
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "XML_TEXT_CONTENT",
-                                                    "value": " "
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "BACKTICK_TOKEN"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "kind": "CLOSE_BRACE_TOKEN"
-                }
-            ]
+          "kind": "LIST",
+          "children": []
         }
-    ]
+      ]
+    },
+    {
+      "kind": "FUNCTION_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "foo"
+    },
+    {
+      "kind": "FUNCTION_SIGNATURE",
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN"
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_BODY_BLOCK",
+      "children": [
+        {
+          "kind": "OPEN_BRACE_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "INT_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "x"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "XML_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "XML_KEYWORD"
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "XML_TEXT_CONTENT",
+                          "value": "some "
+                        },
+                        {
+                          "kind": "INTERPOLATION",
+                          "children": [
+                            {
+                              "kind": "INTERPOLATION_START_TOKEN"
+                            },
+                            {
+                              "kind": "STRING_LITERAL",
+                              "value": "Hello, World! "
+                            },
+                            {
+                              "kind": "CLOSE_BRACE_TOKEN"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "XML_TEXT_CONTENT",
+                          "value": " text\n                 "
+                        },
+                        {
+                          "kind": "XML_ELEMENT",
+                          "children": [
+                            {
+                              "kind": "XML_ELEMENT_START_TAG",
+                              "children": [
+                                {
+                                  "kind": "LT_TOKEN"
+                                },
+                                {
+                                  "kind": "XML_QUALIFIED_NAME",
+                                  "children": [
+                                    {
+                                      "kind": "XML_SIMPLE_NAME",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "ns0"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "COLON_TOKEN"
+                                    },
+                                    {
+                                      "kind": "XML_SIMPLE_NAME",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "foo"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "GT_TOKEN"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "XML_TEXT_CONTENT",
+                                  "value": " \n                    hello "
+                                },
+                                {
+                                  "kind": "INTERPOLATION",
+                                  "children": [
+                                    {
+                                      "kind": "INTERPOLATION_START_TOKEN"
+                                    },
+                                    {
+                                      "kind": "INDEXED_EXPRESSION",
+                                      "children": [
+                                        {
+                                          "kind": "INDEXED_EXPRESSION",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "a"
+                                            },
+                                            {
+                                              "kind": "OPEN_BRACKET_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "b"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACKET_TOKEN"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "c"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACE_TOKEN"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "XML_TEXT_CONTENT",
+                                  "value": " world  "
+                                },
+                                {
+                                  "kind": "INTERPOLATION",
+                                  "children": [
+                                    {
+                                      "kind": "INTERPOLATION_START_TOKEN"
+                                    },
+                                    {
+                                      "kind": "BINARY_EXPRESSION",
+                                      "children": [
+                                        {
+                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                          "value": "5"
+                                        },
+                                        {
+                                          "kind": "PLUS_TOKEN"
+                                        },
+                                        {
+                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                          "value": "3"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACE_TOKEN"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "INTERPOLATION",
+                                  "children": [
+                                    {
+                                      "kind": "INTERPOLATION_START_TOKEN"
+                                    },
+                                    {
+                                      "kind": "XML_TEMPLATE_EXPRESSION",
+                                      "children": [
+                                        {
+                                          "kind": "XML_KEYWORD"
+                                        },
+                                        {
+                                          "kind": "BACKTICK_TOKEN"
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "XML_ELEMENT",
+                                              "children": [
+                                                {
+                                                  "kind": "XML_ELEMENT_START_TAG",
+                                                  "children": [
+                                                    {
+                                                      "kind": "LT_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "XML_SIMPLE_NAME",
+                                                      "children": [
+                                                        {
+                                                          "kind": "IDENTIFIER_TOKEN",
+                                                          "value": "baz"
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "kind": "LIST",
+                                                      "children": []
+                                                    },
+                                                    {
+                                                      "kind": "GT_TOKEN"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": []
+                                                },
+                                                {
+                                                  "kind": "XML_ELEMENT_END_TAG",
+                                                  "children": [
+                                                    {
+                                                      "kind": "LT_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "SLASH_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "XML_SIMPLE_NAME",
+                                                      "children": [
+                                                        {
+                                                          "kind": "IDENTIFIER_TOKEN",
+                                                          "value": "baz"
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "kind": "GT_TOKEN"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "BACKTICK_TOKEN"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACE_TOKEN"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "XML_TEXT_CONTENT",
+                                  "value": "\n                    "
+                                },
+                                {
+                                  "kind": "XML_ELEMENT",
+                                  "children": [
+                                    {
+                                      "kind": "XML_ELEMENT_START_TAG",
+                                      "children": [
+                                        {
+                                          "kind": "LT_TOKEN"
+                                        },
+                                        {
+                                          "kind": "XML_SIMPLE_NAME",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "bar"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
+                                        {
+                                          "kind": "GT_TOKEN"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "LIST",
+                                      "children": [
+                                        {
+                                          "kind": "XML_TEXT_CONTENT",
+                                          "value": "\n                        "
+                                        },
+                                        {
+                                          "kind": "XML_ELEMENT",
+                                          "children": [
+                                            {
+                                              "kind": "XML_ELEMENT_START_TAG",
+                                              "children": [
+                                                {
+                                                  "kind": "LT_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "XML_SIMPLE_NAME",
+                                                  "children": [
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "city"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": []
+                                                },
+                                                {
+                                                  "kind": "GT_TOKEN"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "XML_TEXT_CONTENT",
+                                                  "value": "\n                            Colombo\n                        "
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "XML_ELEMENT_END_TAG",
+                                              "children": [
+                                                {
+                                                  "kind": "LT_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "SLASH_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "XML_SIMPLE_NAME",
+                                                  "children": [
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "city"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "kind": "GT_TOKEN"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "XML_TEXT_CONTENT",
+                                          "value": "\n                    "
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "XML_ELEMENT_END_TAG",
+                                      "children": [
+                                        {
+                                          "kind": "LT_TOKEN"
+                                        },
+                                        {
+                                          "kind": "SLASH_TOKEN"
+                                        },
+                                        {
+                                          "kind": "XML_SIMPLE_NAME",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "bar"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "GT_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "XML_TEXT_CONTENT",
+                                  "value": "\n                 "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "XML_ELEMENT_END_TAG",
+                              "children": [
+                                {
+                                  "kind": "LT_TOKEN"
+                                },
+                                {
+                                  "kind": "SLASH_TOKEN"
+                                },
+                                {
+                                  "kind": "XML_QUALIFIED_NAME",
+                                  "children": [
+                                    {
+                                      "kind": "XML_SIMPLE_NAME",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "ns0"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "COLON_TOKEN"
+                                    },
+                                    {
+                                      "kind": "XML_SIMPLE_NAME",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "foo"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "GT_TOKEN"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "XML_TEXT_CONTENT",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_BRACE_TOKEN"
+        }
+      ]
+    }
+  ]
 }

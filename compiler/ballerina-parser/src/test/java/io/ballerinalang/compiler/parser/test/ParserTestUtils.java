@@ -35,6 +35,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STSimpleNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.STXMLTextNode;
+import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.TextDocument;
@@ -50,7 +51,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils.isSTNodePresent;
+import static io.ballerinalang.compiler.internal.syntax.SyntaxUtils.isSTNodePresent;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.CHILDREN_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.IS_MISSING_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.KIND_FIELD;
@@ -87,36 +88,6 @@ public class ParserTestUtils {
         test(content, context, assertFilePath);
     }
 
-    @SuppressWarnings("unused")
-    private static void updateAssertFiles(Path sourceFilePath, Path assertFilePath, ParserRuleContext context) {
-        if (UPDATE_ASSERTS) {
-            try {
-                String jsonString = SyntaxTreeJSONGenerator.generateJSON(sourceFilePath, context);
-                try (BufferedWriter writer =
-                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
-                    writer.write(jsonString);
-                }
-            } catch (Exception e) {
-                // Ignore
-            }
-        }
-    }
-
-    @SuppressWarnings("unused")
-    private static void updateAssertFiles(String source, Path assertFilePath, ParserRuleContext context) {
-        if (UPDATE_ASSERTS) {
-            try {
-                String jsonString = SyntaxTreeJSONGenerator.generateJSON(source, context);
-                try (BufferedWriter writer =
-                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
-                    writer.write(jsonString);
-                }
-            } catch (Exception e) {
-                // Ignore
-            }
-        }
-    }
-
     /**
      * Test parsing a valid source.
      *
@@ -136,6 +107,20 @@ public class ParserTestUtils {
 
         // Validate the tree against the assertion file
         assertNode(syntaxTree, assertJson);
+    }
+
+    /**
+     * Compares the actualTree with the given json.
+     *
+     * @param actualTreeRoot the syntax tree to be compared
+     * @param assertFilePath json file path which contains the tree structure
+     */
+    public static void testTree(Node actualTreeRoot, Path assertFilePath) {
+        // Read the assertion file
+        JsonObject assertJson = readAssertFile(RESOURCE_DIRECTORY.resolve(assertFilePath));
+
+        // Validate the tree against the assertion file
+        assertNode(actualTreeRoot.internalNode(), assertJson);
     }
 
     /**
@@ -331,6 +316,36 @@ public class ParserTestUtils {
         return text.replace(System.lineSeparator(), "\n");
     }
 
+    @SuppressWarnings("unused")
+    private static void updateAssertFiles(Path sourceFilePath, Path assertFilePath, ParserRuleContext context) {
+        if (UPDATE_ASSERTS) {
+            try {
+                String jsonString = SyntaxTreeJSONGenerator.generateJSON(sourceFilePath, context);
+                try (BufferedWriter writer =
+                             new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
+                    writer.write(jsonString);
+                }
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private static void updateAssertFiles(String source, Path assertFilePath, ParserRuleContext context) {
+        if (UPDATE_ASSERTS) {
+            try {
+                String jsonString = SyntaxTreeJSONGenerator.generateJSON(source, context);
+                try (BufferedWriter writer =
+                             new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
+                    writer.write(jsonString);
+                }
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
+    }
+
     private static SyntaxKind getNodeKind(String kind) {
         switch (kind) {
             case "MODULE_PART":
@@ -511,8 +526,22 @@ public class ParserTestUtils {
                 return SyntaxKind.WAIT_KEYWORD;
             case "DO_KEYWORD":
                 return SyntaxKind.DO_KEYWORD;
+            case "TRANSACTION_KEYWORD":
+                return SyntaxKind.TRANSACTION_KEYWORD;
+            case "COMMIT_KEYWORD":
+                return SyntaxKind.COMMIT_KEYWORD;
+            case "RETRY_KEYWORD":
+                return SyntaxKind.RETRY_KEYWORD;
+            case "ROLLBACK_KEYWORD":
+                return SyntaxKind.ROLLBACK_KEYWORD;
+            case "TRANSACTIONAL_KEYWORD":
+                return SyntaxKind.TRANSACTIONAL_KEYWORD;
             case "ENUM_KEYWORD":
                 return SyntaxKind.ENUM_KEYWORD;
+            case "BASE16_KEYWORD":
+                return SyntaxKind.BASE16_KEYWORD;
+            case "BASE64_KEYWORD":
+                return SyntaxKind.BASE64_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -536,7 +565,7 @@ public class ParserTestUtils {
             case "GT_TOKEN":
                 return SyntaxKind.GT_TOKEN;
             case "EQUAL_GT_TOKEN":
-                return SyntaxKind.RIGHT_DOUBLE_ARROW;
+                return SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN;
             case "QUESTION_MARK_TOKEN":
                 return SyntaxKind.QUESTION_MARK_TOKEN;
             case "LT_EQUAL_TOKEN":
@@ -614,7 +643,7 @@ public class ParserTestUtils {
             case "SINGLE_QUOTE_TOKEN":
                 return SyntaxKind.SINGLE_QUOTE_TOKEN;
             case "RIGHT_DOUBLE_ARROW":
-                return SyntaxKind.RIGHT_DOUBLE_ARROW;
+                return SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN;
             case "SYNC_SEND_TOKEN":
                 return SyntaxKind.SYNC_SEND_TOKEN;
             case "LEFT_ARROW_TOKEN":
@@ -699,6 +728,12 @@ public class ParserTestUtils {
                 return SyntaxKind.OPTIONAL_FIELD_ACCESS;
             case "CONDITIONAL_EXPRESSION":
                 return SyntaxKind.CONDITIONAL_EXPRESSION;
+            case "TRANSACTIONAL_EXPRESSION":
+                return SyntaxKind.TRANSACTIONAL_EXPRESSION;
+            case "SERVICE_CONSTRUCTOR_EXPRESSION":
+                return SyntaxKind.SERVICE_CONSTRUCTOR_EXPRESSION;
+            case "BYTE_ARRAY_LITERAL":
+                return SyntaxKind.BYTE_ARRAY_LITERAL;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
@@ -717,12 +752,14 @@ public class ParserTestUtils {
                 return SyntaxKind.ASYNC_SEND_ACTION;
             case "SYNC_SEND_ACTION":
                 return SyntaxKind.SYNC_SEND_ACTION;
-            case "RECEIVE_SEND_ACTION":
+            case "RECEIVE_ACTION":
                 return SyntaxKind.RECEIVE_ACTION;
             case "WAIT_ACTION":
                 return SyntaxKind.WAIT_ACTION;
             case "QUERY_ACTION":
                 return SyntaxKind.QUERY_ACTION;
+            case "COMMIT_ACTION":
+                return SyntaxKind.COMMIT_ACTION;
 
             // Statements
             case "BLOCK_STATEMENT":
@@ -759,6 +796,12 @@ public class ParserTestUtils {
                 return SyntaxKind.FORK_STATEMENT;
             case "FOREACH_STATEMENT":
                 return SyntaxKind.FOREACH_STATEMENT;
+            case "TRANSACTION_STATEMENT":
+                return SyntaxKind.TRANSACTION_STATEMENT;
+            case "RETRY_STATEMENT":
+                return SyntaxKind.RETRY_STATEMENT;
+            case "ROLLBACK_STATEMENT":
+                return SyntaxKind.ROLLBACK_STATEMENT;
 
             // Types
             case "TYPE_DESC":
@@ -929,6 +972,10 @@ public class ParserTestUtils {
                 return SyntaxKind.LIST_BINDING_PATTERN;
             case "REST_BINDING_PATTERN":
                 return SyntaxKind.REST_BINDING_PATTERN;
+            case "FIELD_BINDING_PATTERN":
+                return SyntaxKind.FIELD_BINDING_PATTERN;
+            case "MAPPING_BINDING_PATTERN":
+                return SyntaxKind.MAPPING_BINDING_PATTERN;
             case "TYPE_PARAMETER":
                 return SyntaxKind.TYPE_PARAMETER;
             case "KEY_TYPE_CONSTRAINT":

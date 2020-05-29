@@ -34,7 +34,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", functionName = "construct",
+        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0", functionName = "construct",
         args = {
                 @Argument(name = "td", type = TypeKind.TYPEDESC),
                 @Argument(name = "iteratorObj", type = TypeKind.OBJECT)
@@ -45,9 +45,5 @@ public class Construct {
 
     public static StreamValue construct(Strand strand, TypedescValue td, ObjectValue iteratorObj) {
         return new StreamValue(new BStreamType(td.getDescribingType()), iteratorObj);
-    }
-
-    public static StreamValue construct_bstring(Strand strand, TypedescValue td, ObjectValue iteratorObj) {
-        return construct(strand, td, iteratorObj);
     }
 }

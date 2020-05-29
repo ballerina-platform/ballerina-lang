@@ -25,24 +25,22 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
+
 /**
  * Extern function lang.string:startsWith(string, string).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "startsWith",
+        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "startsWith",
         args = {@Argument(name = "str", type = TypeKind.STRING), @Argument(name = "substr", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
 public class StartsWith {
 
-    public static boolean startsWith(Strand strand, String str, String substr) {
-        return str.startsWith(substr);
-    }
-
-    public static boolean startsWith_bstring(Strand strand, BString str, BString substr) {
+    public static boolean startsWith(Strand strand, BString str, BString substr) {
         return str.getValue().startsWith(substr.getValue());
     }
 }

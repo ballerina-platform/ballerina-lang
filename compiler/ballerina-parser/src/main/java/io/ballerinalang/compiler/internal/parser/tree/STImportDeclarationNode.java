@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -42,7 +45,25 @@ public class STImportDeclarationNode extends STNode {
             STNode version,
             STNode prefix,
             STNode semicolon) {
-        super(SyntaxKind.IMPORT_DECLARATION);
+        this(
+                importKeyword,
+                orgName,
+                moduleName,
+                version,
+                prefix,
+                semicolon,
+                Collections.emptyList());
+    }
+
+    STImportDeclarationNode(
+            STNode importKeyword,
+            STNode orgName,
+            STNode moduleName,
+            STNode version,
+            STNode prefix,
+            STNode semicolon,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.IMPORT_DECLARATION, diagnostics);
         this.importKeyword = importKeyword;
         this.orgName = orgName;
         this.moduleName = moduleName;
@@ -57,6 +78,17 @@ public class STImportDeclarationNode extends STNode {
                 version,
                 prefix,
                 semicolon);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STImportDeclarationNode(
+                this.importKeyword,
+                this.orgName,
+                this.moduleName,
+                this.version,
+                this.prefix,
+                this.semicolon,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

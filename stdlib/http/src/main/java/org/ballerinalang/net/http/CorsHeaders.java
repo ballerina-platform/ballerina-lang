@@ -17,7 +17,9 @@
 */
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,12 +31,12 @@ import java.util.List;
  */
 public class CorsHeaders {
 
-    private static final String ALLOW_CREDENTIALS_FIELD = "allowCredentials";
-    private static final String ALLOW_HEADERS_FIELD = "allowHeaders";
-    private static final String ALLOW_METHODS_FIELD = "allowMethods";
-    private static final String ALLOWS_ORIGINS_FIELD = "allowOrigins";
-    private static final String EXPOSE_HEADERS_FIELD = "exposeHeaders";
-    private static final String MAX_AGE_FIELD = "maxAge";
+    private static final BString ALLOW_CREDENTIALS_FIELD = StringUtils.fromString("allowCredentials");
+    private static final BString ALLOW_HEADERS_FIELD = StringUtils.fromString("allowHeaders");
+    private static final BString ALLOW_METHODS_FIELD = StringUtils.fromString("allowMethods");
+    private static final BString ALLOWS_ORIGINS_FIELD = StringUtils.fromString("allowOrigins");
+    private static final BString EXPOSE_HEADERS_FIELD = StringUtils.fromString("exposeHeaders");
+    private static final BString MAX_AGE_FIELD = StringUtils.fromString("maxAge");
 
     private boolean available;
     private List<String> allowOrigins;

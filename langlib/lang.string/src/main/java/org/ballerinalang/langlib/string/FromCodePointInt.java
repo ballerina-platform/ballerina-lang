@@ -19,11 +19,14 @@
 package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
 
 /**
  * Extern function lang.string:startsWith(string, string).
@@ -31,7 +34,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "fromCodePointInt",
+        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "fromCodePointInt",
         args = {@Argument(name = "codePoint", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.UNION)},
         isPublic = true
@@ -42,7 +45,7 @@ public class FromCodePointInt {
         try {
             StringBuilder builder = new StringBuilder();
             builder.appendCodePoint(((Long) codePoint).intValue());
-            return builder.toString();
+            return StringUtils.fromString(builder.toString());
         } catch (IllegalArgumentException e) {
             return BallerinaErrors.createError("Invalid codepoint: " + codePoint);
         }

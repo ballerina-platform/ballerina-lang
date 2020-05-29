@@ -18,10 +18,12 @@
 
 package org.ballerinalang.stdlib.email.util;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.mime.nativeimpl.EntityHeaders;
 import org.ballerinalang.mime.nativeimpl.MimeDataSourceBuilder;
 import org.ballerinalang.mime.util.EntityBodyHandler;
@@ -67,7 +69,7 @@ public class SmtpUtil {
      * @param host Host address of the SMTP server
      * @return Properties Set of properties required to connect to an SMTP server
      */
-    public static Properties getProperties(MapValue smtpConfig, String host) {
+    public static Properties getProperties(MapValue<BString, Object> smtpConfig, String host) {
         Properties properties = new Properties();
         properties.put(EmailConstants.PROPS_SMTP_HOST, host);
         properties.put(EmailConstants.PROPS_SMTP_PORT, Long.toString(
@@ -75,7 +77,8 @@ public class SmtpUtil {
         properties.put(EmailConstants.PROPS_SMTP_AUTH, "true");
         properties.put(EmailConstants.PROPS_SMTP_STARTTLS, "true");
         properties.put(EmailConstants.PROPS_ENABLE_SSL, smtpConfig.getBooleanValue(EmailConstants.PROPS_SSL));
-        CommonUtil.addCustomProperties(smtpConfig.getMapValue(EmailConstants.PROPS_PROPERTIES), properties);
+        CommonUtil.addCustomProperties(
+                (MapValue<BString, Object>) smtpConfig.getMapValue(EmailConstants.PROPS_PROPERTIES), properties);
         if (log.isDebugEnabled()) {
             Set<String> propertySet = properties.stringPropertyNames();
             log.debug("SMTP Properties set are as follows.");
@@ -97,16 +100,16 @@ public class SmtpUtil {
      * @throws MessagingException If an error occurs related to messaging operations
      * @throws IOException If an error occurs related to I/O operations
      */
-    public static MimeMessage generateMessage(Session session, String username, MapValue message)
+    public static MimeMessage generateMessage(Session session, String username, MapValue<BString, Object> message)
             throws MessagingException, IOException {
         Address[] toAddressArray = extractAddressLists(message, EmailConstants.MESSAGE_TO);
         Address[] ccAddressArray = extractAddressLists(message, EmailConstants.MESSAGE_CC);
         Address[] bccAddressArray = extractAddressLists(message, EmailConstants.MESSAGE_BCC);
         Address[] replyToAddressArray = extractAddressLists(message, EmailConstants.MESSAGE_REPLY_TO);
-        String subject = message.getStringValue(EmailConstants.MESSAGE_SUBJECT);
-        String messageBody = message.getStringValue(EmailConstants.MESSAGE_MESSAGE_BODY);
-        String bodyContentType = message.getStringValue(EmailConstants.MESSAGE_BODY_CONTENT_TYPE);
-        String fromAddress = message.getStringValue(EmailConstants.MESSAGE_FROM);
+        String subject = message.getStringValue(EmailConstants.MESSAGE_SUBJECT).getValue();
+        String messageBody = message.getStringValue(EmailConstants.MESSAGE_MESSAGE_BODY).getValue();
+        String bodyContentType = message.getStringValue(EmailConstants.MESSAGE_BODY_CONTENT_TYPE).getValue();
+        String fromAddress = message.getStringValue(EmailConstants.MESSAGE_FROM).getValue();
         if (fromAddress == null || fromAddress.isEmpty()) {
             fromAddress = username;
         }
@@ -137,12 +140,14 @@ public class SmtpUtil {
         return emailMessage;
     }
 
-    private static void addMessageHeaders(MimeMessage emailMessage, MapValue message) throws MessagingException {
-        MapValue headers = message.getMapValue(EmailConstants.MESSAGE_HEADERS);
+    private static void addMessageHeaders(MimeMessage emailMessage, MapValue<BString, Object> message)
+            throws MessagingException {
+        MapValue<BString, BString> headers =
+                (MapValue<BString, BString>) message.getMapValue(EmailConstants.MESSAGE_HEADERS);
         if (headers != null) {
-            String[] headerNames = (String[]) headers.getKeys();
-            for (String headerName : headerNames) {
-                emailMessage.addHeader(headerName, headers.getStringValue(headerName));
+            BString[] headerNames = headers.getKeys();
+            for (BString headerName : headerNames) {
+                emailMessage.addHeader(headerName.getValue(), headers.getStringValue(headerName).getValue());
             }
         }
     }
@@ -208,7 +213,8 @@ public class SmtpUtil {
 
     private static void addHeadersToJavaMailBodyPart(ObjectValue mimeEntity, MimeBodyPart attachmentBodyPart)
             throws MessagingException {
-        ArrayValue headerNamesArrayValue = EntityHeaders.getHeaderNames(mimeEntity, MimeConstants.LEADING_HEADER);
+        ArrayValue headerNamesArrayValue = EntityHeaders.getHeaderNames(mimeEntity,
+                StringUtils.fromString(MimeConstants.LEADING_HEADER));
         HandleValue[] handleValues = (HandleValue[]) headerNamesArrayValue.getValues();
         String[] headerNames = new String[handleValues.length];
         for (int j = 0; j < handleValues.length; j++) {
@@ -216,7 +222,8 @@ public class SmtpUtil {
         }
         if (headerNames.length > 0) {
             for (String headerName : headerNames) {
-                String headerValue = EntityHeaders.getHeader(mimeEntity, headerName, MimeConstants.LEADING_HEADER);
+                String headerValue = EntityHeaders.getHeader(mimeEntity, headerName,
+                        StringUtils.fromString(MimeConstants.LEADING_HEADER));
                 if (isNotEmpty(headerValue)) {
                     log.debug("Added a MIME body part header " + headerName + " with value " + headerValue);
                     attachmentBodyPart.setHeader(headerName, headerValue);
@@ -225,7 +232,8 @@ public class SmtpUtil {
         }
     }
 
-    private static Address[] extractAddressLists(MapValue message, String addressType) throws AddressException {
+    private static Address[] extractAddressLists(MapValue<BString, Object> message, BString addressType)
+            throws AddressException {
         String[] address =  getNullCheckedStringArray(message, addressType);
         int addressArrayLength = address.length;
         Address[] addressArray = new Address[addressArrayLength];
@@ -235,7 +243,7 @@ public class SmtpUtil {
         return addressArray;
     }
 
-    private static String[] getNullCheckedStringArray(MapValue mapValue, String parameter) {
+    private static String[] getNullCheckedStringArray(MapValue<BString, Object> mapValue, BString parameter) {
         if (mapValue != null) {
             ArrayValue arrayValue = mapValue.getArrayValue(parameter);
             if (arrayValue != null) {
@@ -248,8 +256,8 @@ public class SmtpUtil {
         }
     }
 
-    private static String getNullCheckedString(String string) {
-        return string == null ? "" : string;
+    private static String getNullCheckedString(BString string) {
+        return string == null ? "" : string.getValue();
     }
 
     private static boolean isNotEmpty(String string) {

@@ -40,25 +40,13 @@ import java.util.HashMap;
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", functionName = "setNarrowType",
+        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0", functionName = "setNarrowType",
         args = {@Argument(name = "td", type = TypeKind.TYPEDESC), @Argument(name = "val", type = TypeKind.RECORD)},
         returnType = {@ReturnType(type = TypeKind.RECORD)}
 )
 public class SetNarrowType {
 
     public static MapValue setNarrowType(Strand strand, TypedescValue td, MapValue value) {
-        BRecordType recordType = (BRecordType) value.getType();
-        BRecordType newRecordType = new BRecordType("narrowType", recordType.getPackage(), recordType.flags,
-                recordType.sealed, recordType.typeFlags);
-        newRecordType.setFields(new HashMap<String, BField>() {{
-            put("value", new BField(td.getDescribingType(), "value", Flags.PUBLIC + Flags.REQUIRED));
-        }});
-
-        MapValueImpl<String, Object> newRecord = new MapValueImpl<>(newRecordType);
-        newRecord.put("value", value.get("value"));
-        return newRecord;
-    }
-    public static MapValue setNarrowType_bstring(Strand strand, TypedescValue td, MapValue value) {
         BRecordType recordType = (BRecordType) value.getType();
         BRecordType newRecordType = new BRecordType("narrowType", recordType.getPackage(), recordType.flags,
                                                     recordType.sealed, recordType.typeFlags);

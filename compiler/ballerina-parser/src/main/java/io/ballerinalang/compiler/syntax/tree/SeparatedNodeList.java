@@ -17,6 +17,10 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
+import java.util.Collection;
+
+import static io.ballerinalang.compiler.internal.syntax.NodeListUtils.rangeCheck;
+
 /**
  * Represents a list of {@code Node}s separated by a separator.
  *
@@ -35,10 +39,44 @@ public class SeparatedNodeList<T extends Node> extends NodeList<T> {
         // TODO check whether the given node is a node list with separator
     }
 
+    // Positional access methods
+
     public T get(int index) {
         rangeCheck(index, size);
-        return this.node.childInBucket(index * 2);
+        return this.nonTerminalNode.childInBucket(index * 2);
     }
+
+    // Modification methods
+
+    public NodeList<T> add(T node) {
+        throw new UnsupportedOperationException();
+    }
+
+    public NodeList<T> add(int index, T node) {
+        throw new UnsupportedOperationException();
+    }
+
+    public NodeList<T> addAll(Collection<T> c) {
+        throw new UnsupportedOperationException();
+    }
+
+    public NodeList<T> set(int index, T node) {
+        throw new UnsupportedOperationException();
+    }
+
+    public NodeList<T> remove(int index) {
+        throw new UnsupportedOperationException();
+    }
+
+    public NodeList<T> remove(T node) {
+        throw new UnsupportedOperationException();
+    }
+
+    public NodeList<T> removeAll(Collection<T> c) {
+        throw new UnsupportedOperationException();
+    }
+
+    // Separator related methods
 
     public int separatorSize() {
         return this.separatorSize;
@@ -46,6 +84,6 @@ public class SeparatedNodeList<T extends Node> extends NodeList<T> {
 
     public Token getSeparator(int index) {
         rangeCheck(index, separatorSize);
-        return this.node.childInBucket(index * 2 + 1);
+        return this.nonTerminalNode.childInBucket(index * 2 + 1);
     }
 }

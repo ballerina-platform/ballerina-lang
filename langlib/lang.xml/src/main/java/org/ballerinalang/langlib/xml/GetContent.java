@@ -17,15 +17,19 @@
  */
 package org.ballerinalang.langlib.xml;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLValueUtil;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
  * Returns the content of a text or processing instruction or comment item.
@@ -33,7 +37,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.90
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
         functionName = "getContent",
         args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
@@ -41,16 +45,16 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class GetContent {
 
-    public static String getContent(Strand strand, Object xmlVal) {
+    public static BString getContent(Strand strand, Object xmlVal) {
         XMLValue value = (XMLValue) xmlVal;
         if (IsText.isText(strand, value)) {
-            return value.getTextValue();
+            return StringUtils.fromString(value.getTextValue());
         } else if (IsProcessingInstruction.isProcessingInstruction(strand, value)) {
-            return XMLValueUtil.getPIContent(value);
-        } else  if (IsComment.isComment(strand, value)) {
-            return XMLValueUtil.getCommentContent(value);
+            return StringUtils.fromString(XMLValueUtil.getPIContent(value));
+        } else if (IsComment.isComment(strand, value)) {
+            return StringUtils.fromString(XMLValueUtil.getCommentContent(value));
         }
         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "getContent",
-                "text|processing instruction|comment");
+                                                       "text|processing instruction|comment");
     }
 }

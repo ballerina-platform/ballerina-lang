@@ -4,7 +4,7 @@ function testStaticFieldAccess() returns handle {
     return getContractId();
 }
 
-function testStaticFieldMutate(handle value) {
+function testStaticFieldMutate(string value) {
     setContractId(value);
 }
 
@@ -41,7 +41,7 @@ public function getContractId() returns handle = @java:FieldGet {
     class:"org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate"
 } external;
 
-public function setContractId(handle contractId) = @java:FieldSet {
+public function setContractId(string contractId) = @java:FieldSet {
     name:"contractId",
     class:"org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate"
 } external;

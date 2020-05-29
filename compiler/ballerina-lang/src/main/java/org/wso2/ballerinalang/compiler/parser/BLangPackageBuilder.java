@@ -517,6 +517,27 @@ public class BLangPackageBuilder {
         }
 
         if (isReadonly) {
+            BLangType typeNode = field.typeNode;
+            Set<Whitespace> typeNodeWS = typeNode.getWS();
+            DiagnosticPos typeNodePos = typeNode.getPosition();
+
+            BLangValueType readOnlyTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+            readOnlyTypeNode.addWS(typeNodeWS);
+            readOnlyTypeNode.pos = typeNodePos;
+            readOnlyTypeNode.typeKind = (TreeUtils.stringToTypeKind("readonly"));
+
+            if (typeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE) {
+                ((BLangIntersectionTypeNode) typeNode).constituentTypeNodes.add(readOnlyTypeNode);
+            } else {
+                BLangIntersectionTypeNode intersectionTypeNode =
+                        (BLangIntersectionTypeNode) TreeBuilder.createIntersectionTypeNode();
+                intersectionTypeNode.constituentTypeNodes.add(typeNode);
+                intersectionTypeNode.constituentTypeNodes.add(readOnlyTypeNode);
+                intersectionTypeNode.addWS(typeNodeWS);
+                intersectionTypeNode.pos = typeNodePos;
+                field.typeNode = intersectionTypeNode;
+            }
+
             field.flagSet.add(Flag.READONLY);
         }
 

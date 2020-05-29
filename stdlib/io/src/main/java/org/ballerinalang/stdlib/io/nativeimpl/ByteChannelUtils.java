@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.stdlib.io.channels.AbstractNativeChannel;
 import org.ballerinalang.stdlib.io.channels.BlobChannel;
@@ -124,10 +125,10 @@ public class ByteChannelUtils extends AbstractNativeChannel {
         }
     }
 
-    public static Object openReadableFile(String pathUrl) {
+    public static Object openReadableFile(BString pathUrl) {
         Object channel;
         try {
-            channel = createChannel(inFlow(pathUrl));
+            channel = createChannel(inFlow(pathUrl.getValue()));
         } catch (BallerinaIOException e) {
             channel = IOUtils.createError(e);
         } catch (ErrorValue e) {
@@ -136,9 +137,9 @@ public class ByteChannelUtils extends AbstractNativeChannel {
         return channel;
     }
 
-    public static Object openWritableFile(String pathUrl, boolean accessMode) {
+    public static Object openWritableFile(BString pathUrl, boolean accessMode) {
         try {
-            return createChannel(inFlow(pathUrl, accessMode));
+            return createChannel(inFlow(pathUrl.getValue(), accessMode));
         } catch (BallerinaIOException | BallerinaException e) {
             return IOUtils.createError(e);
         } catch (ErrorValue e) {

@@ -15,8 +15,10 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.ballerinalang.sql.utils;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -34,6 +36,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValue;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.sql.Constants;
@@ -108,7 +111,7 @@ class Utils {
         }
     }
 
-    static String getSqlQuery(MapValue<String, Object> paramString) throws ApplicationError {
+    static String getSqlQuery(MapValue<BString, Object> paramString) throws ApplicationError {
         ArrayValue partsArray = paramString.getArrayValue(Constants.ParameterizedStingFields.PARTS);
         ArrayValue insertionsArray = paramString.getArrayValue(Constants.ParameterizedStingFields.INSERTIONS);
         if (partsArray.size() - 1 == insertionsArray.size()) {
@@ -126,7 +129,7 @@ class Utils {
         }
     }
 
-    static void setParams(Connection connection, PreparedStatement preparedStatement, MapValue<String,
+    static void setParams(Connection connection, PreparedStatement preparedStatement, MapValue<BString,
             Object> paramString) throws SQLException, ApplicationError, IOException {
         ArrayValue arrayValue = paramString.getArrayValue(Constants.ParameterizedStingFields.INSERTIONS);
         for (int i = 0; i < arrayValue.size(); i++) {
@@ -134,7 +137,7 @@ class Utils {
             int index = i + 1;
             if (object == null) {
                 preparedStatement.setNull(index, Types.NULL);
-            } else if (object instanceof String) {
+            } else if (object instanceof BString) {
                 preparedStatement.setString(index, object.toString());
             } else if (object instanceof Long) {
                 preparedStatement.setLong(index, (Long) object);
@@ -195,7 +198,7 @@ class Utils {
             case Constants.SqlTypes.BOOLEAN:
                 if (value == null) {
                     preparedStatement.setNull(index, Types.BOOLEAN);
-                } else if (value instanceof String) {
+                } else if (value instanceof BString) {
                     preparedStatement.setBoolean(index, Boolean.parseBoolean(value.toString()));
                 } else if (value instanceof Integer || value instanceof Long) {
                     long lVal = ((Number) value).longValue();
@@ -316,7 +319,7 @@ class Utils {
                     } else {
                         clob = connection.createClob();
                     }
-                    if (value instanceof String) {
+                    if (value instanceof BString) {
                         clob.setString(1, value.toString());
                         preparedStatement.setClob(index, clob);
                     } else if (value instanceof ObjectValue) {
@@ -338,12 +341,12 @@ class Utils {
                 if (value == null) {
                     preparedStatement.setDate(index, null);
                 } else {
-                    if (value instanceof String) {
+                    if (value instanceof BString) {
                         date = Date.valueOf(value.toString());
                     } else if (value instanceof Long) {
                         date = new Date((Long) value);
                     } else if (value instanceof MapValue) {
-                        MapValue<String, Object> dateTimeStruct = (MapValue<String, Object>) value;
+                    MapValue<BString, Object> dateTimeStruct = (MapValue<BString, Object>) value;
                         if (dateTimeStruct.getType().getName()
                                 .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
                             ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
@@ -362,12 +365,12 @@ class Utils {
                     preparedStatement.setTime(index, null);
                 } else {
                     Time time;
-                    if (value instanceof String) {
+                    if (value instanceof BString) {
                         time = Time.valueOf(value.toString());
                     } else if (value instanceof Long) {
                         time = new Time((Long) value);
                     } else if (value instanceof MapValue) {
-                        MapValue<String, Object> dateTimeStruct = (MapValue<String, Object>) value;
+                    MapValue<BString, Object> dateTimeStruct = (MapValue<BString, Object>) value;
                         if (dateTimeStruct.getType().getName()
                                 .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
                             ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
@@ -387,12 +390,12 @@ class Utils {
                     preparedStatement.setTimestamp(index, null);
                 } else {
                     Timestamp timestamp;
-                    if (value instanceof String) {
+                    if (value instanceof BString) {
                         timestamp = Timestamp.valueOf(value.toString());
                     } else if (value instanceof Long) {
                         timestamp = new Timestamp((Long) value);
                     } else if (value instanceof MapValue) {
-                        MapValue<String, Object> dateTimeStruct = (MapValue<String, Object>) value;
+                    MapValue<BString, Object> dateTimeStruct = (MapValue<BString, Object>) value;
                         if (dateTimeStruct.getType().getName()
                                 .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
                             ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
@@ -524,7 +527,7 @@ class Utils {
         Iterator<BField> fieldIterator = structFields.values().iterator();
         for (int i = 0; i < fieldCount; ++i) {
             BField field = fieldIterator.next();
-            Object bValue = ((MapValue) value).get(field.getFieldName());
+            Object bValue = ((MapValue) value).get(StringUtils.fromString(field.getFieldName()));
             int typeTag = field.getFieldType().getTag();
             switch (typeTag) {
                 case TypeTags.INT_TAG:
@@ -740,14 +743,14 @@ class Utils {
         return returnResult;
     }
 
-    static String convert(String value, int sqlType, BType bType) throws ApplicationError {
+    static BString convert(String value, int sqlType, BType bType) throws ApplicationError {
         validatedInvalidFieldAssignment(sqlType, bType, "SQL String");
-        return value;
+        return StringUtils.fromString(value);
     }
 
     static Object convert(String value, int sqlType, BType bType, String sqlTypeName) throws ApplicationError {
         validatedInvalidFieldAssignment(sqlType, bType, sqlTypeName);
-        return value;
+        return StringUtils.fromString(value);
     }
 
     static Object convert(byte[] value, int sqlType, BType bType, String sqlTypeName) throws ApplicationError {
@@ -867,13 +870,13 @@ class Utils {
         }
     }
 
-    private static MapValue<String, Object> createUserDefinedType(Struct structValue, BStructureType structType)
+    private static MapValue<BString, Object> createUserDefinedType(Struct structValue, BStructureType structType)
             throws ApplicationError {
         if (structValue == null) {
             return null;
         }
         BField[] internalStructFields = structType.getFields().values().toArray(new BField[0]);
-        MapValue<String, Object> struct = new MapValueImpl<>(structType);
+        MapValue<BString, Object> struct = new MapValueImpl<>(structType);
         try {
             Object[] dataArray = structValue.getAttributes();
             if (dataArray != null) {
@@ -884,7 +887,7 @@ class Utils {
                 int index = 0;
                 for (BField internalField : internalStructFields) {
                     int type = internalField.getFieldType().getTag();
-                    String fieldName = internalField.getFieldName();
+                    BString fieldName = StringUtils.fromString(internalField.getFieldName());
                     Object value = dataArray[index];
                     switch (type) {
                         case TypeTags.INT_TAG:
@@ -935,9 +938,10 @@ class Utils {
         return struct;
     }
 
-    private static MapValue<String, Object> createTimeStruct(long millis) {
+
+    private static MapValue<BString, Object> createTimeStruct(long millis) {
         return TimeUtils.createTimeRecord(TimeUtils.getTimeZoneRecord(), TimeUtils.getTimeRecord(), millis,
-                Constants.TIMEZONE_UTC);
+                                          Constants.TIMEZONE_UTC);
     }
 
     private static String getString(java.util.Date value) {

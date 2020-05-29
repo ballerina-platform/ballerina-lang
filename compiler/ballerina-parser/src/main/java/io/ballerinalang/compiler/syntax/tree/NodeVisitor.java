@@ -567,6 +567,18 @@ public abstract class NodeVisitor {
         visitSyntaxNode(listBindingPatternNode);
     }
 
+    public void visit(MappingBindingPatternNode mappingBindingPatternNode) {
+        visitSyntaxNode(mappingBindingPatternNode);
+    }
+
+    public void visit(FieldBindingPatternFullNode fieldBindingPatternFullNode) {
+        visitSyntaxNode(fieldBindingPatternFullNode);
+    }
+
+    public void visit(FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
+        visitSyntaxNode(fieldBindingPatternVarnameNode);
+    }
+
     public void visit(RestBindingPatternNode restBindingPatternNode) {
         visitSyntaxNode(restBindingPatternNode);
     }
@@ -637,6 +649,34 @@ public abstract class NodeVisitor {
 
     public void visit(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
         visitSyntaxNode(arrayTypeDescriptorNode);
+    }
+
+    public void visit(TransactionStatementNode transactionStatementNode) {
+        visitSyntaxNode(transactionStatementNode);
+    }
+
+    public void visit(RollbackStatementNode rollbackStatementNode) {
+        visitSyntaxNode(rollbackStatementNode);
+    }
+
+    public void visit(RetryStatementNode retryStatementNode) {
+        visitSyntaxNode(retryStatementNode);
+    }
+
+    public void visit(CommitActionNode commitActionNode) {
+        visitSyntaxNode(commitActionNode);
+    }
+
+    public void visit(TransactionalExpressionNode transactionalExpressionNode) {
+        visitSyntaxNode(transactionalExpressionNode);
+    }
+
+    public void visit(ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
+        visitSyntaxNode(serviceConstructorExpressionNode);
+    }
+
+    public void visit(ByteArrayLiteralNode byteArrayLiteralNode) {
+        visitSyntaxNode(byteArrayLiteralNode);
     }
 
     // Tokens

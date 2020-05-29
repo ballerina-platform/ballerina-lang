@@ -1531,8 +1531,6 @@ public class TypeChecker extends BLangNodeVisitor {
         boolean hasAllRequiredFields = true;
         boolean hasValidReadonlyFields = true;
 
-        boolean mutableRecordType = !Symbols.isFlagOn(type.flags, Flags.READONLY);
-
         for (BField field : type.fields.values()) {
             String fieldName = field.name.value;
 
@@ -1542,11 +1540,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY) ||
                         types.isAssignable(typePosPair.type, symTable.readonlyType)) {
                     continue;
-                }
-
-                if (mutableRecordType && !Symbols.isFlagOn(field.type.flags, Flags.READONLY)) {
-                    // If the expected field type itself is readonly, an error would be logged already.
-                    dlog.error(typePosPair.pos, DiagnosticCode.INVALID_FIELD_FOR_READONLY_RECORD_FIELD, fieldName);
                 }
 
                 if (hasValidReadonlyFields) {

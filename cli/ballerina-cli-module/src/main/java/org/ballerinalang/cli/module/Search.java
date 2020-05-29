@@ -19,6 +19,7 @@ package org.ballerinalang.cli.module;
 import org.ballerinalang.cli.module.util.ErrorUtil;
 import org.ballerinalang.cli.module.util.Utils;
 import org.ballerinalang.jvm.JSONParser;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 
@@ -97,8 +98,8 @@ public class Search {
                     throw ErrorUtil.createCommandException(e.getMessage());
                 }
 
-                if (payload.getIntValue("count") > 0) {
-                    ArrayValue modules = payload.getArrayValue("modules");
+                if (payload.getIntValue(StringUtils.fromString("count")) > 0) {
+                    ArrayValue modules = payload.getArrayValue(StringUtils.fromString("modules"));
                     printModules(modules, terminalWidth);
                 } else {
                     outStream.println("no modules found");
@@ -116,7 +117,8 @@ public class Search {
                 }
 
                 payload = (MapValue) JSONParser.parse(result.toString());
-                throw ErrorUtil.createCommandException(payload.getStringValue("message"));
+                throw ErrorUtil.createCommandException(
+                        payload.getStringValue(StringUtils.fromString("message")).getValue());
             }
         } finally {
             conn.disconnect();
@@ -170,23 +172,23 @@ public class Search {
      */
     private static void printModule(MapValue module, int dateColWidth, int versionColWidth, int authorsColWidth,
             int nameColWidth, int descColWidth, int minDescColWidth) {
-        String orgName = module.getStringValue("orgName");
-        String packageName = module.getStringValue("name");
+        String orgName = module.getStringValue(StringUtils.fromString("orgName")).getValue();
+        String packageName = module.getStringValue(StringUtils.fromString("name")).getValue();
         printInCLI("|" + orgName + "/" + packageName, nameColWidth);
 
-        String summary = module.getStringValue("summary");
+        String summary = module.getStringValue(StringUtils.fromString("summary")).getValue();
 
         if (descColWidth >= minDescColWidth) {
             printInCLI(summary, descColWidth - authorsColWidth);
             String authors = "";
-            ArrayValue authorsArr = module.getArrayValue("authors");
+            ArrayValue authorsArr = module.getArrayValue(StringUtils.fromString("authors"));
 
             if (authorsArr.size() > 0) {
                 for (int j = 0; j < authorsArr.size(); j++) {
                     if (j == 0) {
-                        authors = (String) authorsArr.get(j);
+                        authors = authorsArr.get(j).toString();
                     } else if (j == authorsArr.size() - 1) {
-                        authors = (String) authorsArr.get(j);
+                        authors = authorsArr.get(j).toString();
                     } else {
                         authors = ", " + authorsArr.get(j);
                     }
@@ -197,10 +199,10 @@ public class Search {
             printInCLI(summary, descColWidth);
         }
 
-        long createTimeJson = module.getIntValue("createdDate");
+        long createTimeJson = module.getIntValue(StringUtils.fromString("createdDate"));
         printInCLI(getDateCreated(createTimeJson), dateColWidth);
 
-        String packageVersion = module.getStringValue("version");
+        String packageVersion = module.getStringValue(StringUtils.fromString("version")).getValue();
         printInCLI(packageVersion, versionColWidth);
     }
 

@@ -28,15 +28,12 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 1.0.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "java",
+        orgName = "ballerina", packageName = "java", version = "0.9.0",
         functionName = "fromString"
 )
 public class FromString {
 
-    public static HandleValue fromString(Strand strand, String strValue) {
-        return new HandleValue(strValue);
-    }
-    public static HandleValue fromString_bstring(Strand strand, BString strValue) {
-        return new HandleValue(strValue.getValue());
+    public static HandleValue fromString(Strand strand, BString strValue) {
+        return new HandleValue(strValue == null ? null : strValue.getValue());
     }
 }

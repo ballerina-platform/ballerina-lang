@@ -86,7 +86,7 @@ public class StampInbuiltFunctionNegativeTest {
                                   87, 40);
         BAssertUtil.validateError(compileResult, index++,
                                   "incompatible types: expected 'typedesc<anydata>', found 'typedesc<map>'", 95, 31);
-        BAssertUtil.validateError(compileResult, index++,
+        BAssertUtil.validateError(compileResult, index,
                                   "incompatible types: expected 'anydata', found 'ExtendedEmployee'", 103, 56);
     }
 

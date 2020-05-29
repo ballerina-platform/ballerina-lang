@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.StartActionNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STStartActionNode extends STExpressionNode {
             STNode annotations,
             STNode startKeyword,
             STNode expression) {
-        super(SyntaxKind.START_ACTION);
+        this(
+                annotations,
+                startKeyword,
+                expression,
+                Collections.emptyList());
+    }
+
+    STStartActionNode(
+            STNode annotations,
+            STNode startKeyword,
+            STNode expression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.START_ACTION, diagnostics);
         this.annotations = annotations;
         this.startKeyword = startKeyword;
         this.expression = expression;
@@ -45,6 +60,14 @@ public class STStartActionNode extends STExpressionNode {
                 annotations,
                 startKeyword,
                 expression);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STStartActionNode(
+                this.annotations,
+                this.startKeyword,
+                this.expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

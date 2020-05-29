@@ -33,13 +33,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+
 /**
  * Native implementation of lang.xml:map(map&lt;Type&gt;, function).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", functionName = "map",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION, functionName = "map",
         args = {
                 @Argument(name = "x", type = TypeKind.XML),
                 @Argument(name = "func", type = TypeKind.FUNCTION)},
@@ -62,8 +64,5 @@ public class Map {
                                                        result -> elements.add((XMLValue) result),
                                                        () -> new XMLSequence(elements));
         return new XMLSequence(elements);
-    }
-    public static XMLValue map_bstring(Strand strand, XMLValue x, FPValue<Object, Object> func) {
-        return map(strand, x, func);
     }
 }

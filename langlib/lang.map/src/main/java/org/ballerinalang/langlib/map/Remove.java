@@ -31,6 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
 
 /**
@@ -38,31 +39,14 @@ import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
  * ballerina.model.map:remove(string)
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "remove",
+        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION, functionName = "remove",
         args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "k", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.ANY)},
         isPublic = true
 )
 public class Remove {
 
-    public static Object remove(Strand strand, MapValue<?, ?> m, String k) {
-        BType type = m.getType();
-
-        checkIsMapOnlyOperation(type, REMOVE);
-        MapUtils.validateRequiredFieldForRecord(m, k);
-        if (m.containsKey(k)) {
-            try {
-                return m.remove(k);
-            } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
-                throw BallerinaErrors.createError(e.getMessage(),
-                        "Failed to remove element from map: " + e.getDetail());
-            }
-        }
-
-        throw BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR, "cannot find key '" + k + "'");
-    }
-
-    public static Object remove_bstring(Strand strand, MapValue<?, ?> m, BString k) {
+    public static Object remove(Strand strand, MapValue<?, ?> m, BString k) {
         BType type = m.getType();
 
         checkIsMapOnlyOperation(type, REMOVE);
