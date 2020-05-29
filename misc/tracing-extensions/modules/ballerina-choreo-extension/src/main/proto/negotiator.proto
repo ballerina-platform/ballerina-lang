@@ -6,49 +6,48 @@ option java_package = "org.ballerinalang.observe.trace.extension.choreo.gen";
 import "google/protobuf/empty.proto";
 import "google/protobuf/wrappers.proto";
 
-service Registration {
+service Handshake {
     rpc register (RegisterRequest) returns (RegisterResponse);
-    rpc publishProgram (PublishProgramRequest) returns (google.protobuf.Empty);
+    rpc publishAst (PublishAstRequest) returns (google.protobuf.Empty);
 }
 
 message RegisterRequest {
-    // --- Mandatory fields ---
     // This is the hash of the Ballerina program's AST
     string astHash = 1; // obsId = f(astHash, projectSecret)
 
-    // This is a unique ID for the project
-    // This is stored at $USER/.config/choreo/obsgid/projectSecret
-    string projectSecret = 2; // This is unique for an anonymous project. This maps to a obsGID, which can be public.
+    // This is unique for an anonymous project. This maps to a obsId, which can be public.
+    string projectSecret = 2;
 
     // This is a unique ID for node/machine on which programs run.
-    // if two programs foo and bar run in the same machine(node), they will have the same node ID
+    // if two programs run in the same machine(node), they will have the same node ID
     string nodeId = 3;
 }
 
 message RegisterResponse {
     string obsId = 1; // When publishing, you need to send the obsId
-    string obsGid = 2; // This will be used as the dir name where the projectSecret is stored. No need to send this when publishing.
-    string obsUrl = 3; // This will contain the obsGID
+    string version = 2; // version of the program
+    string obsUrl = 3; // This will contain the obsid & version
     bool sendAst = 4;
 }
 
-message PublishProgramRequest {
-    string observabilityId = 1;
-    string programJson = 2;
+message PublishAstRequest {
+    string obsId = 1;
+    string projectSecret = 2;
+    string ast = 3;
 }
 
 service Negotiator {
     rpc getObservabilityUrl(GetObservabilityUrlRequest)
-            returns (GetObservabilityUrlResponse);
+    returns (GetObservabilityUrlResponse);
 
     rpc getApplicationId(GetAppIdRequest)
-            returns (GetAppIdResponse);
+    returns (GetAppIdResponse);
 
     rpc getObservabilityIDs(GetObservabilityIDsRequest)
-            returns (GetObservabilityIDsResponse);
+    returns (GetObservabilityIDsResponse);
 
     rpc linkApplication (LinkApplicationRequest)
-            returns (google.protobuf.Empty);
+    returns (google.protobuf.Empty);
 }
 
 message GetObservabilityUrlRequest {

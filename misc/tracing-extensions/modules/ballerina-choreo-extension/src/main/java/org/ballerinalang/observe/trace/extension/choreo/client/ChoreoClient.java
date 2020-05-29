@@ -18,10 +18,10 @@ package org.ballerinalang.observe.trace.extension.choreo.client;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.PublishProgramRequest;
+import org.ballerinalang.observe.trace.extension.choreo.gen.HandshakeGrpc;
+import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.PublishAstRequest;
 import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.RegisterRequest;
 import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.RegisterResponse;
-import org.ballerinalang.observe.trace.extension.choreo.gen.RegistrationGrpc;
 import org.ballerinalang.observe.trace.extension.choreo.gen.TelemetryGrpc;
 import org.ballerinalang.observe.trace.extension.choreo.gen.TelemetryOuterClass;
 import org.ballerinalang.observe.trace.extension.choreo.logging.LogFactory;
@@ -47,7 +47,7 @@ public class ChoreoClient implements AutoCloseable {
     // TODO: Remove this field from the class.
     private String appId;
     private ManagedChannel channel;
-    private RegistrationGrpc.RegistrationBlockingStub registrationClient;
+    private HandshakeGrpc.HandshakeBlockingStub registrationClient;
     private TelemetryGrpc.TelemetryBlockingStub telemetryClient;
     private Thread uploadingThread;
 
@@ -59,7 +59,7 @@ public class ChoreoClient implements AutoCloseable {
             channelBuilder.usePlaintext();
         }
         channel = channelBuilder.build();
-        registrationClient = RegistrationGrpc.newBlockingStub(channel);
+        registrationClient = HandshakeGrpc.newBlockingStub(channel);
         telemetryClient = TelemetryGrpc.newBlockingStub(channel);
     }
 
@@ -76,11 +76,12 @@ public class ChoreoClient implements AutoCloseable {
 
         if (sendProgramJson) {
             uploadingThread = new Thread(() -> {
-                PublishProgramRequest programRequest = PublishProgramRequest.newBuilder()
-                        .setProgramJson(metadataReader.getAstData())
-                        .setObservabilityId(id)
+                PublishAstRequest programRequest = PublishAstRequest.newBuilder()
+                        .setAst(metadataReader.getAstData())
+                        .setObsId(id)
+                        .setProjectSecret(appSecret)
                         .build();
-                registrationClient.withCompression("gzip").publishProgram(programRequest);
+                registrationClient.withCompression("gzip").publishAst(programRequest);
                 // TODO add debug log to indicate success
             }, "AST Uploading Thread");
             uploadingThread.start();
