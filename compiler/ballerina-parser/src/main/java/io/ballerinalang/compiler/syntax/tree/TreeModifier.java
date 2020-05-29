@@ -2188,6 +2188,48 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public MappingBindingPatternNode transform(
+            MappingBindingPatternNode mappingBindingPatternNode) {
+        Token openBrace =
+                modifyToken(mappingBindingPatternNode.openBrace());
+        SeparatedNodeList<FieldBindingPatternNode> fieldBindingPatterns =
+                modifySeparatedNodeList(mappingBindingPatternNode.fieldBindingPatterns());
+        RestBindingPatternNode restBindingPattern =
+                modifyNode(mappingBindingPatternNode.restBindingPattern().orElse(null));
+        Token closeBrace =
+                modifyToken(mappingBindingPatternNode.closeBrace());
+        return mappingBindingPatternNode.modify(
+                openBrace,
+                fieldBindingPatterns,
+                restBindingPattern,
+                closeBrace);
+    }
+
+    @Override
+    public FieldBindingPatternFullNode transform(
+            FieldBindingPatternFullNode fieldBindingPatternFullNode) {
+        SimpleNameReferenceNode variableName =
+                modifyNode(fieldBindingPatternFullNode.variableName());
+        Token colon =
+                modifyToken(fieldBindingPatternFullNode.colon());
+        BindingPatternNode bindingPattern =
+                modifyNode(fieldBindingPatternFullNode.bindingPattern());
+        return fieldBindingPatternFullNode.modify(
+                variableName,
+                colon,
+                bindingPattern);
+    }
+
+    @Override
+    public FieldBindingPatternVarnameNode transform(
+            FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
+        SimpleNameReferenceNode variableName =
+                modifyNode(fieldBindingPatternVarnameNode.variableName());
+        return fieldBindingPatternVarnameNode.modify(
+                variableName);
+    }
+
+    @Override
     public RestBindingPatternNode transform(
             RestBindingPatternNode restBindingPatternNode) {
         Token ellipsisToken =

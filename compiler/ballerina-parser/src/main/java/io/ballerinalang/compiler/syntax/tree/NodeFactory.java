@@ -2159,6 +2159,47 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stListBindingPatternNode.createUnlinkedFacade();
     }
 
+    public static MappingBindingPatternNode createMappingBindingPatternNode(
+            Token openBrace,
+            SeparatedNodeList<FieldBindingPatternNode> fieldBindingPatterns,
+            RestBindingPatternNode restBindingPattern,
+            Token closeBrace) {
+        Objects.requireNonNull(openBrace, "openBrace must not be null");
+        Objects.requireNonNull(fieldBindingPatterns, "fieldBindingPatterns must not be null");
+        Objects.requireNonNull(closeBrace, "closeBrace must not be null");
+
+        STNode stMappingBindingPatternNode = STNodeFactory.createMappingBindingPatternNode(
+                openBrace.internalNode(),
+                fieldBindingPatterns.underlyingListNode().internalNode(),
+                getOptionalSTNode(restBindingPattern),
+                closeBrace.internalNode());
+        return stMappingBindingPatternNode.createUnlinkedFacade();
+    }
+
+    public static FieldBindingPatternFullNode createFieldBindingPatternFullNode(
+            SimpleNameReferenceNode variableName,
+            Token colon,
+            BindingPatternNode bindingPattern) {
+        Objects.requireNonNull(variableName, "variableName must not be null");
+        Objects.requireNonNull(colon, "colon must not be null");
+        Objects.requireNonNull(bindingPattern, "bindingPattern must not be null");
+
+        STNode stFieldBindingPatternFullNode = STNodeFactory.createFieldBindingPatternFullNode(
+                variableName.internalNode(),
+                colon.internalNode(),
+                bindingPattern.internalNode());
+        return stFieldBindingPatternFullNode.createUnlinkedFacade();
+    }
+
+    public static FieldBindingPatternVarnameNode createFieldBindingPatternVarnameNode(
+            SimpleNameReferenceNode variableName) {
+        Objects.requireNonNull(variableName, "variableName must not be null");
+
+        STNode stFieldBindingPatternVarnameNode = STNodeFactory.createFieldBindingPatternVarnameNode(
+                variableName.internalNode());
+        return stFieldBindingPatternVarnameNode.createUnlinkedFacade();
+    }
+
     public static RestBindingPatternNode createRestBindingPatternNode(
             Token ellipsisToken,
             SimpleNameReferenceNode variableName) {
