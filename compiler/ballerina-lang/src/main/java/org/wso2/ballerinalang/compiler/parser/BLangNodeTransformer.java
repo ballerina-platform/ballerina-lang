@@ -93,6 +93,7 @@ import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
 import io.ballerinalang.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerinalang.compiler.syntax.tree.RecordRestDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RecordTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerinalang.compiler.syntax.tree.RestArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.RestDescriptorNode;
@@ -1854,6 +1855,21 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         xmlTextLiteral.textFragments.add(0, (BLangExpression) xmlTextNode.content().apply(this));
         xmlTextLiteral.pos = getPosition(xmlTextNode);
         return xmlTextLiteral;
+    }
+
+
+    @Override
+    public BLangNode transform(RemoteMethodCallActionNode remoteMethodCallActionNode) {
+        BLangInvocation.BLangActionInvocation bLangActionInvocation = (BLangInvocation.BLangActionInvocation)
+                TreeBuilder.createActionInvocation();
+
+        bLangActionInvocation.expr = createExpression(remoteMethodCallActionNode.expression());
+        bLangActionInvocation.argExprs = applyAll(remoteMethodCallActionNode.arguments());
+
+        BLangNameReference nameReference = createBLangNameReference(remoteMethodCallActionNode.methodName().name());
+        bLangActionInvocation.name = (BLangIdentifier) nameReference.name;
+        bLangActionInvocation.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+        return bLangActionInvocation;
     }
 
     @Override
