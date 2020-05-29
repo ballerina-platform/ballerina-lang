@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.WhileStatementNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STWhileStatementNode extends STStatementNode {
             STNode whileKeyword,
             STNode condition,
             STNode whileBody) {
-        super(SyntaxKind.WHILE_STATEMENT);
+        this(
+                whileKeyword,
+                condition,
+                whileBody,
+                Collections.emptyList());
+    }
+
+    STWhileStatementNode(
+            STNode whileKeyword,
+            STNode condition,
+            STNode whileBody,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.WHILE_STATEMENT, diagnostics);
         this.whileKeyword = whileKeyword;
         this.condition = condition;
         this.whileBody = whileBody;
@@ -45,6 +60,14 @@ public class STWhileStatementNode extends STStatementNode {
                 whileKeyword,
                 condition,
                 whileBody);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STWhileStatementNode(
+                this.whileKeyword,
+                this.condition,
+                this.whileBody,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

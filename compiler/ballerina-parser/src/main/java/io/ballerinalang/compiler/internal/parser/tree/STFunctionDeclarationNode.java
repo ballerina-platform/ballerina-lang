@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -42,7 +45,25 @@ public class STFunctionDeclarationNode extends STNode {
             STNode functionName,
             STNode functionSignature,
             STNode semicolon) {
-        super(SyntaxKind.FUNCTION_DECLARATION);
+        this(
+                metadata,
+                visibilityQualifier,
+                functionKeyword,
+                functionName,
+                functionSignature,
+                semicolon,
+                Collections.emptyList());
+    }
+
+    STFunctionDeclarationNode(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode functionKeyword,
+            STNode functionName,
+            STNode functionSignature,
+            STNode semicolon,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.FUNCTION_DECLARATION, diagnostics);
         this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
         this.functionKeyword = functionKeyword;
@@ -57,6 +78,17 @@ public class STFunctionDeclarationNode extends STNode {
                 functionName,
                 functionSignature,
                 semicolon);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STFunctionDeclarationNode(
+                this.metadata,
+                this.visibilityQualifier,
+                this.functionKeyword,
+                this.functionName,
+                this.functionSignature,
+                this.semicolon,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

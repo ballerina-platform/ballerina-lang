@@ -19,6 +19,8 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -28,5 +30,9 @@ public abstract class STNewExpressionNode extends STExpressionNode {
 
     STNewExpressionNode(SyntaxKind kind) {
         super(kind);
+    }
+
+    STNewExpressionNode(SyntaxKind kind, Collection<STNodeDiagnostic> diagnostics) {
+        super(kind, diagnostics);
     }
 }

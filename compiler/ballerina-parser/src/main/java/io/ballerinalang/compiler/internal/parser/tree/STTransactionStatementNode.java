@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TransactionStatementNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,13 +37,30 @@ public class STTransactionStatementNode extends STStatementNode {
     STTransactionStatementNode(
             STNode transactionKeyword,
             STNode blockStatement) {
-        super(SyntaxKind.TRANSACTION_STATEMENT);
+        this(
+                transactionKeyword,
+                blockStatement,
+                Collections.emptyList());
+    }
+
+    STTransactionStatementNode(
+            STNode transactionKeyword,
+            STNode blockStatement,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.TRANSACTION_STATEMENT, diagnostics);
         this.transactionKeyword = transactionKeyword;
         this.blockStatement = blockStatement;
 
         addChildren(
                 transactionKeyword,
                 blockStatement);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STTransactionStatementNode(
+                this.transactionKeyword,
+                this.blockStatement,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

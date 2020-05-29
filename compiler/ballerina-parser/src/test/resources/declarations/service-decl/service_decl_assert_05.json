@@ -22,8 +22,8 @@
       "isMissing": true
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "isMissing": true
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "SERVICE_BODY",

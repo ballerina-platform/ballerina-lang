@@ -480,8 +480,8 @@ public enum ParserRuleContext {
     TABLE_TYPE_DESC_RHS("table-type-desc-rhs"),
     SIGNED_INT_OR_FLOAT_RHS("signed-int-or-float-rhs"),
     ENUM_MEMBER_LIST("enum-member-list"),
-    ENUM_MEMBER_RHS("enum-member-rhs"),
-    ENUM_MEMBER_INTERNAL_RHS("enum-member-internal-rhs"),
+    ENUM_MEMBER_END("enum-member-rhs"),
+    ENUM_MEMBER_RHS("enum-member-internal-rhs"),
     ENUM_MEMBER_START("enum-member-start"),
     ;
 

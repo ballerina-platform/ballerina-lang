@@ -128,13 +128,8 @@
                           "kind": "TYPED_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "SIMPLE_NAME_REFERENCE",
-                              "children": [
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "expr2"
-                                }
-                              ]
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "expr2"
                             },
                             {
                               "kind": "CAPTURE_BINDING_PATTERN",

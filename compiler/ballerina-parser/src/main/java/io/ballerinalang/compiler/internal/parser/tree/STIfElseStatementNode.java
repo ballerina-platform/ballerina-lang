@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STIfElseStatementNode extends STStatementNode {
             STNode condition,
             STNode ifBody,
             STNode elseBody) {
-        super(SyntaxKind.IF_ELSE_STATEMENT);
+        this(
+                ifKeyword,
+                condition,
+                ifBody,
+                elseBody,
+                Collections.emptyList());
+    }
+
+    STIfElseStatementNode(
+            STNode ifKeyword,
+            STNode condition,
+            STNode ifBody,
+            STNode elseBody,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.IF_ELSE_STATEMENT, diagnostics);
         this.ifKeyword = ifKeyword;
         this.condition = condition;
         this.ifBody = ifBody;
@@ -49,6 +66,15 @@ public class STIfElseStatementNode extends STStatementNode {
                 condition,
                 ifBody,
                 elseBody);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STIfElseStatementNode(
+                this.ifKeyword,
+                this.condition,
+                this.ifBody,
+                this.elseBody,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

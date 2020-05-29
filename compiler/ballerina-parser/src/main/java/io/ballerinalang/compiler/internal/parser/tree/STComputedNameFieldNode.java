@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -40,7 +43,23 @@ public class STComputedNameFieldNode extends STMappingFieldNode {
             STNode closeBracket,
             STNode colonToken,
             STNode valueExpr) {
-        super(SyntaxKind.COMPUTED_NAME_FIELD);
+        this(
+                openBracket,
+                fieldNameExpr,
+                closeBracket,
+                colonToken,
+                valueExpr,
+                Collections.emptyList());
+    }
+
+    STComputedNameFieldNode(
+            STNode openBracket,
+            STNode fieldNameExpr,
+            STNode closeBracket,
+            STNode colonToken,
+            STNode valueExpr,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.COMPUTED_NAME_FIELD, diagnostics);
         this.openBracket = openBracket;
         this.fieldNameExpr = fieldNameExpr;
         this.closeBracket = closeBracket;
@@ -53,6 +72,16 @@ public class STComputedNameFieldNode extends STMappingFieldNode {
                 closeBracket,
                 colonToken,
                 valueExpr);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STComputedNameFieldNode(
+                this.openBracket,
+                this.fieldNameExpr,
+                this.closeBracket,
+                this.colonToken,
+                this.valueExpr,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

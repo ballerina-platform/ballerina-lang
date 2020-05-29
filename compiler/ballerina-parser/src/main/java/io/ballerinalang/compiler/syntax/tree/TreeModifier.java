@@ -666,7 +666,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public DefaultableParameterNode transform(
             DefaultableParameterNode defaultableParameterNode) {
         Token leadingComma =
-                modifyToken(defaultableParameterNode.leadingComma());
+                modifyToken(defaultableParameterNode.leadingComma().orElse(null));
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(defaultableParameterNode.annotations());
         Token visibilityQualifier =
@@ -693,7 +693,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public RequiredParameterNode transform(
             RequiredParameterNode requiredParameterNode) {
         Token leadingComma =
-                modifyToken(requiredParameterNode.leadingComma());
+                modifyToken(requiredParameterNode.leadingComma().orElse(null));
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(requiredParameterNode.annotations());
         Token visibilityQualifier =
@@ -714,7 +714,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public RestParameterNode transform(
             RestParameterNode restParameterNode) {
         Token leadingComma =
-                modifyToken(restParameterNode.leadingComma());
+                modifyToken(restParameterNode.leadingComma().orElse(null));
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(restParameterNode.annotations());
         Node typeName =
@@ -735,7 +735,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public ExpressionListItemNode transform(
             ExpressionListItemNode expressionListItemNode) {
         Token leadingComma =
-                modifyToken(expressionListItemNode.leadingComma());
+                modifyToken(expressionListItemNode.leadingComma().orElse(null));
         ExpressionNode expression =
                 modifyNode(expressionListItemNode.expression());
         return expressionListItemNode.modify(
@@ -771,7 +771,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public ImportSubVersionNode transform(
             ImportSubVersionNode importSubVersionNode) {
         Token leadingDot =
-                modifyToken(importSubVersionNode.leadingDot());
+                modifyToken(importSubVersionNode.leadingDot().orElse(null));
         Token versionNumber =
                 modifyToken(importSubVersionNode.versionNumber());
         return importSubVersionNode.modify(
@@ -822,7 +822,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public NamedArgumentNode transform(
             NamedArgumentNode namedArgumentNode) {
         Token leadingComma =
-                modifyToken(namedArgumentNode.leadingComma());
+                modifyToken(namedArgumentNode.leadingComma().orElse(null));
         SimpleNameReferenceNode argumentName =
                 modifyNode(namedArgumentNode.argumentName());
         Token equalsToken =
@@ -840,7 +840,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public PositionalArgumentNode transform(
             PositionalArgumentNode positionalArgumentNode) {
         Token leadingComma =
-                modifyToken(positionalArgumentNode.leadingComma());
+                modifyToken(positionalArgumentNode.leadingComma().orElse(null));
         ExpressionNode expression =
                 modifyNode(positionalArgumentNode.expression());
         return positionalArgumentNode.modify(
@@ -852,7 +852,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public RestArgumentNode transform(
             RestArgumentNode restArgumentNode) {
         Token leadingComma =
-                modifyToken(restArgumentNode.leadingComma());
+                modifyToken(restArgumentNode.leadingComma().orElse(null));
         Token ellipsis =
                 modifyToken(restArgumentNode.ellipsis());
         ExpressionNode expression =

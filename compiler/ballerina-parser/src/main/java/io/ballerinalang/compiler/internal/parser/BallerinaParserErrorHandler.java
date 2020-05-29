@@ -442,10 +442,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] ENUM_MEMBER_START =
             { ParserRuleContext.DOC_STRING, ParserRuleContext.ANNOTATIONS, ParserRuleContext.ENUM_MEMBER_NAME };
 
-    private static final ParserRuleContext[] ENUM_MEMBER_INTERNAL_RHS =
-            { ParserRuleContext.ASSIGN_OP, ParserRuleContext.ENUM_MEMBER_RHS };
-
     private static final ParserRuleContext[] ENUM_MEMBER_RHS =
+            { ParserRuleContext.ASSIGN_OP, ParserRuleContext.ENUM_MEMBER_END };
+
+    private static final ParserRuleContext[] ENUM_MEMBER_END =
             { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_BRACE };
 
     private static final ParserRuleContext[] MEMBER_ACCESS_KEY_EXPR_END =
@@ -560,10 +560,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case WAIT_FUTURE_EXPR_END:
             case MAPPING_FIELD_END:
             case ENUM_MEMBER_START:
-            case ENUM_MEMBER_INTERNAL_RHS:
             case ENUM_MEMBER_RHS:
             case STMT_START_BRACKETED_LIST_MEMBER:
             case STMT_START_BRACKETED_LIST_RHS:
+            case ENUM_MEMBER_END:
             case STMT_START_IDENTIFIER_RHS:
             case BRACKETED_LIST_RHS:
             case BRACKETED_LIST_MEMBER:
@@ -1201,8 +1201,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case WAIT_FUTURE_EXPR_END:
             case OPTIONAL_PEER_WORKER:
             case ENUM_MEMBER_START:
-            case ENUM_MEMBER_INTERNAL_RHS:
             case ENUM_MEMBER_RHS:
+            case ENUM_MEMBER_END:
             case MEMBER_ACCESS_KEY_EXPR_END:
             case ROLLBACK_RHS:
             case RETRY_KEYWORD_RHS:
@@ -1575,11 +1575,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ENUM_MEMBER_START:
                 alternativeRules = ENUM_MEMBER_START;
                 break;
-            case ENUM_MEMBER_INTERNAL_RHS:
-                alternativeRules = ENUM_MEMBER_INTERNAL_RHS;
-                break;
             case ENUM_MEMBER_RHS:
                 alternativeRules = ENUM_MEMBER_RHS;
+                break;
+            case ENUM_MEMBER_END:
+                alternativeRules = ENUM_MEMBER_END;
                 break;
             case MEMBER_ACCESS_KEY_EXPR_END:
                 alternativeRules = MEMBER_ACCESS_KEY_EXPR_END;
@@ -1799,7 +1799,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         } else if (parentCtx == ParserRuleContext.CONDITIONAL_EXPRESSION) {
             nextContext = ParserRuleContext.COLON;
         } else if (parentCtx == ParserRuleContext.ENUM_MEMBER_LIST) {
-            nextContext = ParserRuleContext.ENUM_MEMBER_RHS;
+            nextContext = ParserRuleContext.ENUM_MEMBER_END;
         } else {
             throw new IllegalStateException(parentCtx.toString());
         }
@@ -2331,6 +2331,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ARG_LIST_START:
                 return ParserRuleContext.ARG_LIST;
             case ARG_LIST_END:
+            case QUERY_EXPRESSION_END:
                 endContext();
                 return ParserRuleContext.EXPRESSION_RHS;
             case ARG_LIST:
@@ -2502,14 +2503,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ENUM_MEMBER_LIST:
                 return ParserRuleContext.ENUM_MEMBER_START;
             case ENUM_MEMBER_NAME:
-                return ParserRuleContext.ENUM_MEMBER_INTERNAL_RHS;
+                return ParserRuleContext.ENUM_MEMBER_RHS;
             case TYPED_BINDING_PATTERN_TYPE_RHS:
                 return ParserRuleContext.BINDING_PATTERN;
             case UNION_OR_INTERSECTION_TOKEN:
                 return ParserRuleContext.TYPE_DESCRIPTOR;
-            case QUERY_EXPRESSION_END:
-                endContext();
-                return ParserRuleContext.EXPRESSION_RHS;
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -3958,8 +3956,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MODULE_ENUM_NAME:
             case ENUM_MEMBER_NAME:
                 return SyntaxKind.IDENTIFIER_TOKEN;
-            case ENUM_MEMBER_INTERNAL_RHS:
             case ENUM_MEMBER_RHS:
+            case ENUM_MEMBER_END:
                 return SyntaxKind.CLOSE_BRACE_TOKEN;
             case TYPED_BINDING_PATTERN_TYPE_RHS:
                 return SyntaxKind.IDENTIFIER_TOKEN;

@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -40,7 +43,23 @@ public class STConditionalExpressionNode extends STExpressionNode {
             STNode middleExpression,
             STNode colonToken,
             STNode endExpression) {
-        super(SyntaxKind.CONDITIONAL_EXPRESSION);
+        this(
+                lhsExpression,
+                questionMarkToken,
+                middleExpression,
+                colonToken,
+                endExpression,
+                Collections.emptyList());
+    }
+
+    STConditionalExpressionNode(
+            STNode lhsExpression,
+            STNode questionMarkToken,
+            STNode middleExpression,
+            STNode colonToken,
+            STNode endExpression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.CONDITIONAL_EXPRESSION, diagnostics);
         this.lhsExpression = lhsExpression;
         this.questionMarkToken = questionMarkToken;
         this.middleExpression = middleExpression;
@@ -53,6 +72,16 @@ public class STConditionalExpressionNode extends STExpressionNode {
                 middleExpression,
                 colonToken,
                 endExpression);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STConditionalExpressionNode(
+                this.lhsExpression,
+                this.questionMarkToken,
+                this.middleExpression,
+                this.colonToken,
+                this.endExpression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
