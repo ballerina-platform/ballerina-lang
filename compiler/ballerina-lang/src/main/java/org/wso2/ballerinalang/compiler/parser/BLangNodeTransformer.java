@@ -39,6 +39,7 @@ import io.ballerinalang.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ErrorTypeParamsNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.ExpressionListItemNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ExternalFunctionBodyNode;
 import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
@@ -696,10 +697,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         serviceVar.pos = identifierPos;
         bLService.setName(serviceVar);
         if (!isAnonServiceValue) {
-            // TODO: Enable this one CCE error fixed
-//            for (io.ballerinalang.compiler.syntax.tree.ExpressionNode expr : serviceDeclrNode.expressions()) {
-//                bLService.attachedExprs.add((BLangExpression) expr.apply(this));
-//            }
+            for (Node expr : serviceDeclrNode.expressions()) {
+                bLService.attachedExprs.add(createExpression(expr));
+            }
         }
         // We add all service nodes to top level, only for future reference.
         this.additionalTopLevelNodes.add(bLService);
@@ -753,6 +753,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             if (bLangNode.getKind() == NodeKind.FUNCTION) {
                 BLangFunction bLangFunction = (BLangFunction) bLangNode;
                 bLangFunction.attachedFunction = true;
+                bLangFunction.flagSet.add(Flag.ATTACHED);
                 objectTypeNode.addFunction(bLangFunction);
             }
         }
@@ -771,7 +772,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             if (field.kind() == SyntaxKind.RECORD_FIELD || field.kind() == SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE) {
                 recordTypeNode.fields.add((BLangSimpleVariable) field.apply(this));
             } else if (field.kind() == SyntaxKind.RECORD_REST_TYPE) {
-                recordTypeNode.restFieldType = (BLangValueType) field.apply(this);
+                recordTypeNode.restFieldType = (BLangType) field.apply(this);
                 hasRestField = true;
             } else if (field.kind() == SyntaxKind.TYPE_REFERENCE) {
                 recordTypeNode.addTypeReference((BLangType) field.apply(this));
@@ -909,7 +910,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         bLFunction.addFlag(Flag.LAMBDA);
         bLFunction.addFlag(Flag.ANONYMOUS);
-        this.additionalTopLevelNodes.add(bLFunction);
+        this.currentCompilationUnit.addTopLevelNode(bLFunction);
 
         BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaExpr.function = bLFunction;
@@ -1017,7 +1018,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             bLFunction.setReturnTypeNode(bLValueType);
         }
 
-        this.additionalTopLevelNodes.add(bLFunction);
+        this.currentCompilationUnit.addTopLevelNode(bLFunction);
 
         BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaExpr.function = bLFunction;
@@ -1217,8 +1218,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangFieldBasedAccess bLFieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         Node fieldName = fieldAccessExprNode.fieldName();
         bLFieldBasedAccess.pos = getPosition(fieldAccessExprNode);
-        BLangNameReference nameRef = createBLangNameReference(fieldName);
-        bLFieldBasedAccess.field = createIdentifier(getPosition(fieldName), nameRef.name.getValue());
+        bLFieldBasedAccess.field = createIdentifier(getPosition(fieldName),
+                ((SimpleNameReferenceNode) fieldName).name().text());
         bLFieldBasedAccess.field.pos = getPosition(fieldAccessExprNode);
         bLFieldBasedAccess.expr = createExpression(fieldAccessExprNode.expression());
         bLFieldBasedAccess.fieldKind = FieldKind.SINGLE;
@@ -1231,8 +1232,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangFieldBasedAccess bLFieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         Node fieldName = optionalFieldAccessExpressionNode.fieldName();
         bLFieldBasedAccess.pos = getPosition(optionalFieldAccessExpressionNode);
-        BLangNameReference nameRef = createBLangNameReference(fieldName);
-        bLFieldBasedAccess.field = createIdentifier(getPosition(fieldName), nameRef.name.getValue());
+        bLFieldBasedAccess.field = createIdentifier(getPosition(fieldName),
+                ((SimpleNameReferenceNode) fieldName).name().text());
         bLFieldBasedAccess.field.pos = getPosition(optionalFieldAccessExpressionNode);
         bLFieldBasedAccess.expr = createExpression(optionalFieldAccessExpressionNode.expression());
         bLFieldBasedAccess.fieldKind = FieldKind.SINGLE;
@@ -1462,10 +1463,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(ListenerDeclarationNode listenerDeclarationNode) {
+        Token visibilityQualifier = null;
+        if (listenerDeclarationNode.visibilityQualifier().isPresent()) {
+            visibilityQualifier = listenerDeclarationNode.visibilityQualifier().get();
+        }
+
         BLangSimpleVariable var = new SimpleVarBuilder()
                 .with(listenerDeclarationNode.variableName().text())
                 .setTypeByNode(listenerDeclarationNode.typeDescriptor())
                 .setExpressionByNode(listenerDeclarationNode.initializer())
+                .setVisibility(visibilityQualifier)
                 .isListenerVar()
                 .build();
         var.annAttachments = applyAll(listenerDeclarationNode.metadata().annotations());
@@ -1984,6 +1991,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         for (NamedWorkerDeclarationNode workerDeclarationNode : forkStatementNode.namedWorkerDeclarations()) {
             BLangSimpleVariableDef workerDef = (BLangSimpleVariableDef) workerDeclarationNode.apply(this);
             workerDef.isWorker = true;
+            workerDef.isInFork = true;
+            ((BLangLambdaFunction) workerDef.var.expr).function.addFlag(Flag.FORKED);
             workerDef.var.flagSet.add(Flag.FORKED);
             statements.add(workerDef);
             while (!this.additionalStatements.empty()) {
@@ -2082,6 +2091,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             BLangGroupExpr group = (BLangGroupExpr) TreeBuilder.createGroupExpressionNode();
             group.expression = (BLangExpression) expression.apply(this);
             return group;
+        } else if (expression.kind() == SyntaxKind.EXPRESSION_LIST_ITEM) {
+            return createExpression(((ExpressionListItemNode) expression).expression());
         } else {
             return (BLangExpression) expression.apply(this);
         }
