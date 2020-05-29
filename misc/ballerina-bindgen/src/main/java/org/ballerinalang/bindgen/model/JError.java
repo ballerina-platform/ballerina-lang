@@ -33,7 +33,7 @@ public class JError {
     JError(Class exception) {
 
         exceptionName = exception.getName();
-        shortExceptionName = exception.getSimpleName().replace("Exception", "Error");
+        shortExceptionName = exception.getSimpleName();
         exceptionConstName = exception.getSimpleName().toUpperCase(Locale.ENGLISH);
     }
 

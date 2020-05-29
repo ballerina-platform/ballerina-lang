@@ -63,7 +63,7 @@ public class SyntaxTreeJSONGenerator {
     private static final ParserRuleContext PARSER_CONTEXT = ParserRuleContext.TOP_LEVEL_NODE;
 
     private static final PrintStream STANDARD_OUT = System.out;
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
+    private static final Path RESOURCE_DIRECTORY = Paths.get("compiler/ballerina-parser/src/test/resources/");
 
     public static void main(String[] args) throws IOException {
         // Using a string source as input
@@ -81,10 +81,14 @@ public class SyntaxTreeJSONGenerator {
         return generateJSON(content, context);
     }
 
+    public static String generateJSON(STNode treeNode) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(getJSON(treeNode));
+    }
+
     public static String generateJSON(String source, ParserRuleContext context) {
         STNode tree = getParserTree(source, context);
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        return gson.toJson(getJSON(tree));
+        return generateJSON(tree);
     }
 
     private static STNode getParserTree(String source, ParserRuleContext context) {

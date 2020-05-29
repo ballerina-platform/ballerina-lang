@@ -280,12 +280,8 @@
                     "isOptional": true
                 },
                 {
-                    "name": "typeName",
-                    "type": "Node"
-                },
-                {
-                    "name": "variableName",
-                    "type": "Token"
+                    "name": "typedBindingPattern",
+                    "type": "TypedBindingPatternNode"
                 },
                 {
                     "name": "equalsToken",
@@ -652,7 +648,7 @@
                 },
                 {
                     "name": "fieldName",
-                    "type": "Token"
+                    "type": "NameReferenceNode"
                 }
             ]
         },
@@ -695,7 +691,7 @@
                 },
                 {
                     "name": "methodName",
-                    "type": "Token"
+                    "type": "NameReferenceNode"
                 },
                 {
                     "name": "openParenToken",
@@ -793,7 +789,8 @@
             "attributes": [
                 {
                     "name": "leadingComma",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "openBracket",
@@ -868,7 +865,8 @@
             "attributes": [
                 {
                     "name": "leadingComma",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "annotations",
@@ -906,7 +904,8 @@
             "attributes": [
                 {
                     "name": "leadingComma",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "annotations",
@@ -936,7 +935,8 @@
             "attributes": [
                 {
                     "name": "leadingComma",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "annotations",
@@ -965,7 +965,8 @@
             "attributes": [
                 {
                     "name": "leadingComma",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "expression",
@@ -1010,7 +1011,8 @@
             "attributes": [
                 {
                     "name": "leadingDot",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "versionNumber",
@@ -1045,7 +1047,8 @@
             "attributes": [
                 {
                     "name": "leadingComma",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "fieldName",
@@ -1068,7 +1071,8 @@
             "attributes": [
                 {
                     "name": "leadingComma",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "ellipsis",
@@ -1092,7 +1096,8 @@
             "attributes": [
                 {
                     "name": "leadingComma",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "argumentName",
@@ -1115,7 +1120,8 @@
             "attributes": [
                 {
                     "name": "leadingComma",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "expression",
@@ -1130,7 +1136,8 @@
             "attributes": [
                 {
                     "name": "leadingComma",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "ellipsis",
@@ -1449,12 +1456,8 @@
                     "isOptional": true
                 },
                 {
-                    "name": "typeName",
-                    "type": "Node"
-                },
-                {
-                    "name": "variableName",
-                    "type": "Token"
+                    "name": "typedBindingPattern",
+                    "type": "TypedBindingPatternNode"
                 },
                 {
                     "name": "equalsToken",
@@ -2053,12 +2056,8 @@
                     "occurrences": "MULTIPLE"
                 },
                 {
-                    "name": "typeName",
-                    "type": "Node"
-                },
-                {
-                    "name": "variableName",
-                    "type": "Token"
+                    "name": "typedBindingPattern",
+                    "type": "TypedBindingPatternNode"
                 },
                 {
                     "name": "equalsToken",
@@ -2918,6 +2917,66 @@
             ]
         },
         {
+            "name": "MappingBindingPatternNode",
+            "base": "BindingPatternNode",
+            "kind": "MAPPING_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "openBrace",
+                    "type": "Token"
+                },
+                {
+                    "name": "fieldBindingPatterns",
+                    "type": "FieldBindingPatternNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "restBindingPattern",
+                    "type": "RestBindingPatternNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "closeBrace",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "FieldBindingPatternNode",
+            "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "FieldBindingPatternFullNode",
+            "base": "FieldBindingPatternNode",
+            "kind": "FIELD_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "variableName",
+                    "type": "SimpleNameReferenceNode"
+                },
+                {
+                    "name": "colon",
+                    "type": "Token"
+                },
+                {
+                    "name": "bindingPattern",
+                    "type": "BindingPatternNode"
+                }
+            ]
+        },
+        {
+            "name": "FieldBindingPatternVarnameNode",
+            "base": "FieldBindingPatternNode",
+            "kind": "FIELD_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "variableName",
+                    "type": "SimpleNameReferenceNode"
+                }
+            ]
+        },
+        {
             "name": "RestBindingPatternNode",
             "base": "Node",
             "kind": "REST_BINDING_PATTERN",
@@ -2947,7 +3006,7 @@
                 },
                 {
                     "name": "peerWorker",
-                    "type": "NameReferenceNode"
+                    "type": "SimpleNameReferenceNode"
                 }
             ]
         },
@@ -2966,7 +3025,7 @@
                 },
                 {
                     "name": "peerWorker",
-                    "type": "NameReferenceNode"
+                    "type": "SimpleNameReferenceNode"
                 }
             ]
         },
@@ -2981,7 +3040,7 @@
                 },
                 {
                     "name": "receiveWorkers",
-                    "type": "Node"
+                    "type": "SimpleNameReferenceNode"
                 }
             ]
         },
@@ -3161,7 +3220,7 @@
                 },
                 {
                     "name": "fieldName",
-                    "type": "Token"
+                    "type": "NameReferenceNode"
                 }
             ]
         },
@@ -3353,6 +3412,49 @@
             "attributes": [
                 {
                     "name": "transactionalKeyword",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "ServiceConstructorExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "SERVICE_CONSTRUCTOR_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "serviceKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "serviceBody",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ByteArrayLiteralNode",
+            "base": "ExpressionNode",
+            "kind": "BYTE_ARRAY_LITERAL",
+            "attributes": [
+                {
+                    "name": "type",
+                    "type": "Token"
+                },
+                {
+                    "name": "startBacktick",
+                    "type": "Token"
+                },
+                {
+                    "name": "content",
+                    "type": "Token"
+                },
+                {
+                    "name": "endBacktick",
                     "type": "Token"
                 }
             ]

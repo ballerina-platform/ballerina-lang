@@ -26,13 +26,15 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
+
 /**
  * Native implementation of lang.map:iterator(map).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "iterator",
+        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION, functionName = "iterator",
         args = {@Argument(name = "m", type = TypeKind.MAP)},
         returnType = {@ReturnType(type = TypeKind.OBJECT)},
         isPublic = true

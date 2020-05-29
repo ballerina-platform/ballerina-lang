@@ -24,13 +24,15 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.FLOAT_VERSION;
+
 /**
  * Native implementation of lang.float:atan2(float, float).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.float", functionName = "atan2",
+        orgName = "ballerina", packageName = "lang.float", version = FLOAT_VERSION, functionName = "atan2",
         args = {@Argument(name = "y", type = TypeKind.FLOAT), @Argument(name = "x", type = TypeKind.FLOAT)},
         returnType = {@ReturnType(type = TypeKind.FLOAT)},
         isPublic = true

@@ -36,7 +36,7 @@ public class ReceiveActionNode extends ActionNode {
         return childInBucket(0);
     }
 
-    public Node receiveWorkers() {
+    public SimpleNameReferenceNode receiveWorkers() {
         return childInBucket(1);
     }
 
@@ -59,7 +59,7 @@ public class ReceiveActionNode extends ActionNode {
 
     public ReceiveActionNode modify(
             Token leftArrow,
-            Node receiveWorkers) {
+            SimpleNameReferenceNode receiveWorkers) {
         if (checkForReferenceEquality(
                 leftArrow,
                 receiveWorkers)) {
@@ -83,7 +83,7 @@ public class ReceiveActionNode extends ActionNode {
     public static class ReceiveActionNodeModifier {
         private final ReceiveActionNode oldNode;
         private Token leftArrow;
-        private Node receiveWorkers;
+        private SimpleNameReferenceNode receiveWorkers;
 
         public ReceiveActionNodeModifier(ReceiveActionNode oldNode) {
             this.oldNode = oldNode;
@@ -99,7 +99,7 @@ public class ReceiveActionNode extends ActionNode {
         }
 
         public ReceiveActionNodeModifier withReceiveWorkers(
-                Node receiveWorkers) {
+                SimpleNameReferenceNode receiveWorkers) {
             Objects.requireNonNull(receiveWorkers, "receiveWorkers must not be null");
             this.receiveWorkers = receiveWorkers;
             return this;

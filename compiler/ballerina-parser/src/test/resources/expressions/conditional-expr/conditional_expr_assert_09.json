@@ -1,24 +1,24 @@
 {
-    "kind": "CONDITIONAL_EXPRESSION",
-    "children": [
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "QUESTION_MARK_TOKEN"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "b"
-        },
-        {
-            "kind": "COLON_TOKEN",
-            "isMissing": true
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "isMissing": true
-        }
-    ]
+  "kind": "CONDITIONAL_EXPRESSION",
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a"
+    },
+    {
+      "kind": "QUESTION_MARK_TOKEN"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "b"
+    },
+    {
+      "kind": "COLON_TOKEN",
+      "isMissing": true
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "isMissing": true
+    }
+  ]
 }

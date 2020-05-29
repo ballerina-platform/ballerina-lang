@@ -20,8 +20,8 @@ package io.ballerinalang.compiler.internal.parser.incremental;
 import io.ballerinalang.compiler.internal.parser.BallerinaLexer;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
-import io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils;
 import io.ballerinalang.compiler.internal.parser.utils.PersistentStack;
+import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 
 /**
  * Represents a {@code STNode} retrieved either from the old syntax tree or from the new text document.
