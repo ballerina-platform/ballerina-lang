@@ -109,3 +109,13 @@ function referToANonExistingParam(typedesc<anydata> aTypeVar = int) returns NonE
     name: "getValue",
     paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
 } external;
+
+function referToNonTypedescParam(string str) returns str = @java:Method {
+    class: "xyz.pubudu.Hello",
+    name: "getValue",
+    paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
+} external;
+
+function normalFunction(string str) returns str {
+    return "foo";
+}

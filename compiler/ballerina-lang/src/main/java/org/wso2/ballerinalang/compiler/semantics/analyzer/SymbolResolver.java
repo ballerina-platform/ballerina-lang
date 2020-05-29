@@ -1184,29 +1184,40 @@ public class SymbolResolver extends BLangNodeVisitor {
                 symbol = tempSymbol;
             } else if (Symbols.isTagOn(tempSymbol, SymTag.VARIABLE) && env.node.getKind() == NodeKind.FUNCTION) {
                 BLangFunction func = (BLangFunction) env.node;
+                boolean errored = false;
 
-                if (func.returnTypeNode != null && func.hasBody() &&
-                        func.body.getKind() == NodeKind.EXTERN_FUNCTION_BODY) {
-                    BType paramValType = getTypedescParamValueType(func.requiredParams, tempSymbol);
-
-                    if (paramValType == symTable.semanticError) {
-                        this.resultType = symTable.semanticError;
-                        return;
-                    }
-
-                    if (paramValType != null) {
-                        BTypeSymbol tSymbol = new BTypeSymbol(SymTag.TYPE, Flags.PARAMETERIZED | tempSymbol.flags,
-                                                              tempSymbol.name, tempSymbol.pkgID, null, func.symbol);
-                        tSymbol.type = new BParameterizedType(paramValType, (BVarSymbol) tempSymbol,
-                                                              tSymbol, tempSymbol.name);
-                        tSymbol.type.flags |= Flags.PARAMETERIZED;
-
-                        this.resultType = tSymbol.type;
-                        return;
-                    }
-                } else {
+                if (func.returnTypeNode == null || !func.hasBody() ||
+                        func.body.getKind() != NodeKind.EXTERN_FUNCTION_BODY) {
                     dlog.error(userDefinedTypeNode.pos, DiagnosticCode.INVALID_USE_OF_TYPEDESC_PARAM);
-                    resultType = symTable.semanticError;
+                    errored = true;
+                }
+
+                if (tempSymbol.type.tag != TypeTags.TYPEDESC) {
+                    dlog.error(userDefinedTypeNode.pos, DiagnosticCode.INVALID_PARAM_TYPE_FOR_RETURN_TYPE,
+                               tempSymbol.type);
+                    errored = true;
+                }
+
+                if (errored) {
+                    this.resultType = symTable.semanticError;
+                    return;
+                }
+
+                BType paramValType = getTypedescParamValueType(func.requiredParams, tempSymbol);
+
+                if (paramValType == symTable.semanticError) {
+                    this.resultType = symTable.semanticError;
+                    return;
+                }
+
+                if (paramValType != null) {
+                    BTypeSymbol tSymbol = new BTypeSymbol(SymTag.TYPE, Flags.PARAMETERIZED | tempSymbol.flags,
+                                                          tempSymbol.name, tempSymbol.pkgID, null, func.symbol);
+                    tSymbol.type = new BParameterizedType(paramValType, (BVarSymbol) tempSymbol,
+                                                          tSymbol, tempSymbol.name);
+                    tSymbol.type.flags |= Flags.PARAMETERIZED;
+
+                    this.resultType = tSymbol.type;
                     return;
                 }
             }
