@@ -4805,7 +4805,7 @@ public class BallerinaParser extends AbstractParser {
         STNode openParen = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
         startContext(ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAMS);
         STToken nextToken = peek();
-        STNode expr = STNodeFactory.createEmptyNode();
+        STNode expr;
         // Could be nill literal or empty param-list of an implicit-anon-func-expr'
         if (nextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
             return parseNilLiteralOrEmptyAnonFuncParamRhs(openParen);
