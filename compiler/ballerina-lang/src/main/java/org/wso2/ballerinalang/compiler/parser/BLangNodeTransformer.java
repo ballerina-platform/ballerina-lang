@@ -1286,11 +1286,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private boolean isFunctionCallAsync(FunctionCallExpressionNode functionCallExpressionNode) {
-        if (functionCallExpressionNode.parent().kind() == SyntaxKind.START_ACTION) {
-            return true;
-        }
-
-        return false;
+        return functionCallExpressionNode.parent().kind() == SyntaxKind.START_ACTION;
     }
 
     private BLangTypeInit createTypeInit(NewExpressionNode expression) {
@@ -1629,7 +1625,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangExpression expression = createExpression(startActionNode.expression());
         BLangInvocation.BLangActionInvocation invocation = (BLangInvocation.BLangActionInvocation) expression;
         invocation.async = true;
-
         invocation.annAttachments = applyAll(startActionNode.annotations());
 
         return expression;
@@ -1945,7 +1940,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         for (Node node : expressionNodes) {
             expressionsList.add(createExpression(node));
         }
-
         return expressionsList;
     }
 
