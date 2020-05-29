@@ -125,7 +125,6 @@ public class ChoreoClient implements AutoCloseable {
             telemetryClient.publishMetrics(requestBuilder.setObservabilityId(id)
                     .setNodeId(nodeId)
                     .setVersion(version)
-                    .setAppId(appId)
                     .build());
         }
     }
@@ -172,7 +171,6 @@ public class ChoreoClient implements AutoCloseable {
             telemetryClient.publishTraces(requestBuilder.setObservabilityId(id)
                     .setNodeId(nodeId)
                     .setVersion(version)
-                    .setAppId(appId)
                     .build());
         }
     }
