@@ -106,8 +106,6 @@ public class CreateJarTask implements Task {
                     // get the jar path of the module.
                     Path testJarOutput = buildContext.getTestJarPathFromTargetCache(testPkg.packageID);
                     if (!Files.exists(testJarOutput)) {
-                        HashSet<Path> testLibs = new HashSet<>(moduleDependencies);
-                        testLibs.addAll(buildContext.moduleDependencyPathMap.get(packageID).testLibs);
                         jarFileWriter.write(testPkg, testJarOutput);
                         alreadyImportedModuleSet.add(testPkg.packageID);
                     }
