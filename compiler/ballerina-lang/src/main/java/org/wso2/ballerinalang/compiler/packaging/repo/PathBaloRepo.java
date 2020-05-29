@@ -80,14 +80,14 @@ public class PathBaloRepo implements Repo<Path> {
         
         // if balo file does not exists
         if (Files.notExists(baloPath)) {
-            throw new BLangCompilerException("balo file for dependency [" + dep.getModuleID() + "] does not exists: " +
-                                             dep.getMetadata().getPath().toAbsolutePath().normalize());
+            throw new BLangCompilerException("balo file for module [" + dep.getModuleID() + "] is not found in the " +
+                    "specified path: " + dep.getMetadata().getPath());
         }
     
         // if balo file is not a file
         if (!Files.isRegularFile(baloPath)) {
-            throw new BLangCompilerException("balo file for dependency [" + dep.getModuleID() + "] is not a file: " +
-                                             dep.getMetadata().getPath().toAbsolutePath().normalize());
+            throw new BLangCompilerException("balo file for module [" + dep.getModuleID() + "] is not a regular " +
+                    "file: " + dep.getMetadata().getPath().toAbsolutePath().normalize());
         }
         
         // update version of the dependency from the current(root) project
