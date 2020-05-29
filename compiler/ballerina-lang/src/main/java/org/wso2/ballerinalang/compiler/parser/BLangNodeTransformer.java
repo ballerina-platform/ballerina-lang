@@ -519,7 +519,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         if (!finiteTypeElements.isEmpty()) {
-            unionTypeNode.memberTypeNodes.add(deSugarFiniteTypeAsUserDefType(bLangFiniteTypeNode));
+            unionTypeNode.memberTypeNodes.add(deSugarTypeAsUserDefType(bLangFiniteTypeNode));
         }
         return unionTypeNode;
     }
@@ -541,7 +541,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
     }
 
-    private BLangUserDefinedType deSugarFiniteTypeAsUserDefType(BLangFiniteTypeNode toIndirect) {
+    private BLangUserDefinedType deSugarTypeAsUserDefType(BLangType toIndirect) {
         DiagnosticPos pos = toIndirect.pos;
         BLangUserDefinedType bLUserDefinedType;
         BLangTypeDefinition bLTypeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
@@ -557,12 +557,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLTypeDef.pos = pos;
         currentCompilationUnit.addTopLevelNode(bLTypeDef);
 
-        // Create UserDefinedType
-        bLUserDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-        bLUserDefinedType.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        bLUserDefinedType.typeName = bLTypeDef.name;
-        bLUserDefinedType.pos = pos;
-        return bLUserDefinedType;
+        return createUserDefinedType(pos, (BLangIdentifier) TreeBuilder.createIdentifierNode(), bLTypeDef.name);
     }
 
     @Override
@@ -649,8 +644,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
         }
 
-        DiagnosticPos pos = getPosition(objTypeDescNode);
-        objectTypeNode.pos = pos;
+        objectTypeNode.pos = getPosition(objTypeDescNode);
 
         boolean isAnonymous = checkIfAnonymous(objTypeDescNode);
         objectTypeNode.isAnonymous = isAnonymous;
@@ -659,19 +653,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             return objectTypeNode;
         }
 
-        BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
-        // Generate a name for the anonymous object
-        String genName = anonymousModelHelper.getNextAnonymousTypeKey(pos.src.pkgID);
-        IdentifierNode anonTypeGenName = createIdentifier(pos, genName);
-        typeDef.setName(anonTypeGenName);
-        typeDef.flagSet.add(Flag.PUBLIC);
-        typeDef.flagSet.add(Flag.ANONYMOUS);
-
-        typeDef.typeNode = objectTypeNode;
-        typeDef.pos = pos;
-        
-        this.currentCompilationUnit.addTopLevelNode(typeDef);
-        return createUserDefinedType(pos, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name);
+        return deSugarTypeAsUserDefType(objectTypeNode);
     }
 
     @Override
