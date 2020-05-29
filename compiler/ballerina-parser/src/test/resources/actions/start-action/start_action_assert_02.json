@@ -79,6 +79,10 @@
                   "kind": "START_ACTION",
                   "children": [
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "START_KEYWORD"
                     },
                     {
@@ -105,6 +109,10 @@
                 {
                   "kind": "START_ACTION",
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "START_KEYWORD"
                     },
@@ -150,6 +158,10 @@
                 {
                   "kind": "START_ACTION",
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "START_KEYWORD"
                     },
