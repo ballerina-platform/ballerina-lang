@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
@@ -272,18 +273,29 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     BLangVariableReference buildStream(List<BLangNode> clauses, BType resultType, SymbolEnv env, BLangBlockStmt block) {
         this.env = env;
-        BLangNode initFromClause = clauses.get(0);
-        final BLangVariableReference initPipeline = addPipeline(block, (BLangFromClause) initFromClause, resultType);
-        BLangVariableReference initFrom = addInputFunction(block, (BLangFromClause) initFromClause);
+        BLangFromClause initFromClause = (BLangFromClause) clauses.get(0);
+        final BLangVariableReference initPipeline = addPipeline(block, initFromClause.pos,
+                initFromClause.collection, resultType);
+        BLangVariableReference initFrom = addInputFunction(block, initFromClause);
         addStreamFunction(block, initPipeline, initFrom);
         for (BLangNode clause : clauses.subList(1, clauses.size())) {
             switch (clause.getKind()) {
                 case FROM:
+                    BLangFromClause fromClause = (BLangFromClause) clause;
+                    BLangVariableReference nestedPipeline = addPipeline(block, fromClause.pos,
+                            fromClause.collection, resultType);
+                    BLangVariableReference fromInputFunc = addInputFunction(block, fromClause);
+                    addStreamFunction(block, nestedPipeline, fromInputFunc);
+                    BLangVariableReference nestedFromFunc = addJoinFunction(block, nestedPipeline);
+                    addStreamFunction(block, initPipeline, nestedFromFunc);
+                    break;
                 case JOIN:
-                    BLangVariableReference pipeline = addPipeline(block, (BLangInputClause) clause, resultType);
-                    BLangVariableReference fromFunc = addInputFunction(block, (BLangInputClause) clause);
-                    addStreamFunction(block, pipeline, fromFunc);
-                    BLangVariableReference joinFunc = addJoinFunction(block, pipeline);
+                    BLangJoinClause joinClause = (BLangJoinClause) clause;
+                    BLangVariableReference joinPipeline = addPipeline(block, joinClause.pos,
+                            joinClause.collection, resultType);
+                    BLangVariableReference joinInputFunc = addInputFunction(block, joinClause);
+                    addStreamFunction(block, joinPipeline, joinInputFunc);
+                    BLangVariableReference joinFunc = addJoinFunction(block, joinPipeline);
                     addStreamFunction(block, initPipeline, joinFunc);
                     break;
                 case LET_CLAUSE:
@@ -325,18 +337,19 @@ public class QueryDesugar extends BLangNodeVisitor {
      * _StreamPipeline pipeline = createPipeline(collection);
      *
      * @param blockStmt  parent block to write to.
-     * @param inputClause to init pipeline.
+     * @param pos diagnostic pos of the collection.
+     * @param collection reference to the collection.
+     * @param resultType constraint type of the collection.
      * @return variableReference to created _StreamPipeline.
      */
-    BLangVariableReference addPipeline(BLangBlockStmt blockStmt, BLangInputClause inputClause, BType resultType) {
-        BLangExpression collection = inputClause.collection;
-        DiagnosticPos pos = inputClause.pos;
+    BLangVariableReference addPipeline(BLangBlockStmt blockStmt, DiagnosticPos pos,
+                                       BLangExpression collection, BType resultType) {
         String name = getNewVarName();
         BVarSymbol dataSymbol = new BVarSymbol(0, names.fromString(name), env.scope.owner.pkgID,
                 collection.type, this.env.scope.owner);
-        BLangSimpleVariable dataVariable = ASTBuilderUtil.createVariable(inputClause.pos, name,
+        BLangSimpleVariable dataVariable = ASTBuilderUtil.createVariable(pos, name,
                 collection.type, collection, dataSymbol);
-        BLangSimpleVariableDef dataVarDef = ASTBuilderUtil.createVariableDef(inputClause.pos, dataVariable);
+        BLangSimpleVariableDef dataVarDef = ASTBuilderUtil.createVariableDef(pos, dataVariable);
         BLangVariableReference valueVarRef = ASTBuilderUtil.createVariableRef(pos, dataSymbol);
         blockStmt.addStatement(dataVarDef);
         if (resultType.tag == TypeTags.ARRAY) {
@@ -349,7 +362,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         typedescExpr.resolvedType = resultType;
         typedescExpr.type = typedescType;
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_PIPELINE_FUNCTION,
-                Lists.of(valueVarRef, typedescExpr), inputClause.pos);
+                Lists.of(valueVarRef, typedescExpr), pos);
     }
 
     /**
