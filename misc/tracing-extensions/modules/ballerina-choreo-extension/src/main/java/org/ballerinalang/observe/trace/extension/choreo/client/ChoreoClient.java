@@ -43,6 +43,7 @@ public class ChoreoClient implements AutoCloseable {
 
     private String id;      // ID received from the handshake
     private String nodeId;
+    private String version;
 
     // TODO: Remove this field from the class.
     private String appId;
@@ -72,6 +73,8 @@ public class ChoreoClient implements AutoCloseable {
         RegisterResponse registerResponse = registrationClient.register(handshakeRequest);
         this.id = registerResponse.getObsId();
         this.appId = this.id;
+        // TODO: Remove this dummy version once the version is properly set
+        this.version = "v-2f0e0000-e0f0-0b00-a000-06db000ea00d";
         boolean sendProgramJson = registerResponse.getSendAst();
 
         if (sendProgramJson) {
@@ -121,7 +124,7 @@ public class ChoreoClient implements AutoCloseable {
             }
             telemetryClient.publishMetrics(requestBuilder.setObservabilityId(id)
                     .setNodeId(nodeId)
-                    .setAppId(appId)
+                    .setVersion(version)
                     .build());
         }
     }
@@ -167,7 +170,7 @@ public class ChoreoClient implements AutoCloseable {
             }
             telemetryClient.publishTraces(requestBuilder.setObservabilityId(id)
                     .setNodeId(nodeId)
-                    .setAppId(appId)
+                    .setVersion(version)
                     .build());
         }
     }
