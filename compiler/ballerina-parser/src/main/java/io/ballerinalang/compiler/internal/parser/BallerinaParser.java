@@ -403,6 +403,11 @@ public class BallerinaParser extends AbstractParser {
                 return parseTupleMemberRhs();
             case LIST_BINDING_PATTERN_END_OR_CONTINUE:
                 return parseListBindingpatternRhs();
+            case MAPPING_BINDING_PATTERN_END:
+                return parseMappingBindingpatternEnd();
+            case FIELD_BINDING_PATTERN_NAME:
+            case FIELD_BINDING_PATTERN:
+                return parseFieldBindingPattern();
             case CONSTANT_EXPRESSION_START:
                 return parseConstExprInternal();
             case LIST_CONSTRUCTOR_MEMBER_END:
@@ -10391,6 +10396,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseListBindingPattern();
             case IDENTIFIER_TOKEN:
                 return parseCaptureBindingPattern();
+            case OPEN_BRACE_TOKEN:
+                return parseMappingBindingPattern();
             default:
                 Solution sol = recover(peek(), ParserRuleContext.BINDING_PATTERN);
 
@@ -10533,14 +10540,18 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
         switch (token.kind) {
             case ELLIPSIS_TOKEN:
-                startContext(ParserRuleContext.REST_BINDING_PATTERN);
-                STNode ellipsis = parseEllipsis();
-                STNode varName = parseVariableName();
-                endContext();
-                return STNodeFactory.createRestBindingPatternNode(ellipsis, varName);
+                return parseRestBindingPattern();
             default:
                 return parseBindingPattern();
         }
+    }
+
+    private STNode parseRestBindingPattern() {
+        startContext(ParserRuleContext.REST_BINDING_PATTERN);
+        STNode ellipsis = parseEllipsis();
+        STNode varName = parseVariableName();
+        endContext();
+        return STNodeFactory.createRestBindingPatternNode(ellipsis, varName);
     }
 
     /**
@@ -10558,6 +10569,160 @@ public class BallerinaParser extends AbstractParser {
         STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true);
         STNode typeBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, context);
         return typeBindingPattern;
+    }
+
+    /**
+     * Parse mapping-binding-patterns.
+     *
+     * mapping-binding-pattern := { field-binding-patterns }
+     * field-binding-patterns :=
+     *    field-binding-pattern (, field-binding-pattern)* [, rest-binding-pattern]
+     *    | [ rest-binding-pattern ]
+     * field-binding-pattern :=
+     *    field-name : binding-pattern
+     *    | variable-name
+     *
+     * @return mapping-binding-pattern node
+     */
+    private STNode parseMappingBindingPattern() {
+        startContext(ParserRuleContext.MAPPING_BINDING_PATTERN);
+        ArrayList<STNode> bindingPatterns = new ArrayList<>();
+        STNode openBrace = parseOpenBrace();
+
+        STNode mappingBindingPatternMember;
+        STNode restBindingPattern = STNodeFactory.createEmptyNode();
+        STToken token = peek();
+        if (!isEndOfMappingBindingPattern(token.kind)) {
+            mappingBindingPatternMember = parseMappingBindingPatternMember();
+            bindingPatterns.add(mappingBindingPatternMember);
+
+            // parsing the main chunck of mapping-binding-pattern
+            token = peek(); // get next valid token
+            STNode mappingBindingPatternRhs = null;
+            while (!isEndOfMappingBindingPattern(token.kind) &&
+                    mappingBindingPatternMember.kind != SyntaxKind.REST_BINDING_PATTERN) {
+                mappingBindingPatternRhs = parseMappingBindingpatternEnd(token.kind);
+                if (mappingBindingPatternRhs == null) {
+                    break;
+                }
+
+                bindingPatterns.add(mappingBindingPatternRhs);
+                mappingBindingPatternMember = parseMappingBindingPatternMember();
+                if (mappingBindingPatternMember.kind == SyntaxKind.REST_BINDING_PATTERN) {
+                    break;
+                }
+                bindingPatterns.add(mappingBindingPatternMember);
+                token = peek();
+            }
+
+            // seperating out the rest-binding-pattern
+            if (mappingBindingPatternMember.kind == SyntaxKind.REST_BINDING_PATTERN) {
+                restBindingPattern = mappingBindingPatternMember;
+            }
+        }
+
+        STNode closeBrace = parseCloseBrace();
+        STNode bindingPatternsNode = STNodeFactory.createNodeList(bindingPatterns);
+        endContext();
+        return STNodeFactory.createMappingBindingPatternNode(openBrace, bindingPatternsNode, restBindingPattern,
+                closeBrace);
+    }
+
+    /**
+     * Parse mapping-binding-pattern entry.
+     *
+     * mapping-binding-pattern := { field-binding-patterns }
+     * field-binding-patterns :=
+     *    field-binding-pattern (, field-binding-pattern)* [, rest-binding-pattern]
+     *    | [ rest-binding-pattern ]
+     * field-binding-pattern :=
+     *    field-name : binding-pattern
+     *    | variable-name
+     *
+     * @return mapping-binding-pattern node
+     */
+    private STNode parseMappingBindingPatternMember() {
+        STToken token = peek();
+        switch (token.kind) {
+            case ELLIPSIS_TOKEN:
+                return parseRestBindingPattern();
+            default:
+                return parseFieldBindingPattern();
+        }
+    }
+
+    private STNode parseMappingBindingpatternEnd() {
+        return parseMappingBindingpatternEnd(peek().kind);
+    }
+
+    private STNode parseMappingBindingpatternEnd(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case COMMA_TOKEN:
+                return parseComma();
+            case CLOSE_BRACE_TOKEN:
+                return null;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.MAPPING_BINDING_PATTERN_END);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseMappingBindingpatternEnd(solution.tokenKind);
+        }
+    }
+
+    private STNode parseFieldBindingPattern() {
+        return parseFieldBindingPattern(peek().kind);
+    }
+
+    /**
+     * Parse field-binding-pattern.
+     *
+     * field-binding-pattern := field-name : binding-pattern | varname
+     *
+     * @return field-binding-pattern node
+     */
+    private STNode parseFieldBindingPattern(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case IDENTIFIER_TOKEN:
+                STNode identifier = parseIdentifier(ParserRuleContext.FIELD_BINDING_PATTERN_NAME);
+                STNode fieldBindingPattern = parseFieldBindingPattern(identifier);
+                return fieldBindingPattern;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.FIELD_BINDING_PATTERN_NAME);
+
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseFieldBindingPattern(solution.tokenKind);
+        }
+    }
+
+    private STNode parseFieldBindingPattern(STNode identifier) {
+        if (peek().kind != SyntaxKind.COLON_TOKEN) {
+            return STNodeFactory.createFieldBindingPatternVarnameNode(identifier);
+        }
+
+        STNode colon = parseColon();
+        STNode bindingPattern = parseBindingPattern();
+
+        return STNodeFactory.createFieldBindingPatternFullNode(identifier,
+                colon,
+                bindingPattern);
+    }
+
+    private boolean isEndOfMappingBindingPattern(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case CLOSE_BRACE_TOKEN:
+                return true;
+            default:
+                return false;
+        }
     }
 
     /**
