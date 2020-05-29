@@ -761,6 +761,10 @@ public class JvmMethodGen {
         return func.name.value.equals(calculateModuleSpecialFuncName(packageToModuleId(module), "<testinit>"));
     }
 
+    private static boolean isModuleStartFunction(BIRPackage module, BIRFunction function) {
+        return function == module.functions.get(1);
+    }
+
     private static String calculateModuleInitFuncName(PackageID id) {
 
         return calculateModuleSpecialFuncName(id, "<init>");
@@ -1493,7 +1497,7 @@ public class JvmMethodGen {
         LabelGenerator labelGen = new LabelGenerator();
 
         mv.visitCode();
-        if (func == module.functions.get(1)) {
+        if (isModuleStartFunction(module, func)) {
             mv.visitInsn(ICONST_1);
             mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_START_ATTEMPTED, "Z");
         }
@@ -1705,10 +1709,6 @@ public class JvmMethodGen {
             mv.visitInsn(ATHROW);
         }
         mv.visitLabel(methodEndLabel);
-        if (func == module.functions.get(1)) {
-            mv.visitInsn(ICONST_1);
-            mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_START_SUCCESS, "Z");
-        }
         termGen.genReturnTerm(new Return(null), returnVarRefIndex, func, false, -1);
 
         // Create Local Variable Table
@@ -1940,7 +1940,7 @@ public class JvmMethodGen {
                 caseIndex += 1;
 
                 //set module start success to true for ___init class
-                if (func == module.functions.get(1) && terminator.kind == InstructionKind.RETURN) {
+                if (isModuleStartFunction(module, func) && terminator.kind == InstructionKind.RETURN) {
                     mv.visitInsn(ICONST_1);
                     mv.visitFieldInsn(PUTSTATIC, getModuleLevelClassName(module.org.value, module.name.value,
                             module.version.value, MODULE_INIT_CLASS_NAME), MODULE_START_SUCCESS, "Z");
