@@ -1445,19 +1445,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         // Set Parameters
         Node param = implicitAnonymousFunctionExpressionNode.params();
         if (param.kind() == SyntaxKind.INFER_PARAM_LIST) {
-            try {
-                ImplicitAnonymousFunctionParameters paramsNode = (ImplicitAnonymousFunctionParameters) param;
-                SeparatedNodeList<SimpleNameReferenceNode> paramList = paramsNode.parameters();
 
-                for (SimpleNameReferenceNode child : paramList) {
-                    BLangUserDefinedType userDefinedType = (BLangUserDefinedType) child.apply(this);
-                    BLangSimpleVariable parameter = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-                    parameter.name = userDefinedType.typeName;
-                    arrowFunction.params.add(parameter);
-                }
-            } catch (Exception e) {
-                System.out.println("Empty parameter list");
+            ImplicitAnonymousFunctionParameters paramsNode = (ImplicitAnonymousFunctionParameters) param;
+            SeparatedNodeList<SimpleNameReferenceNode> paramList = paramsNode.parameters();
+
+            for (SimpleNameReferenceNode child : paramList) {
+                BLangUserDefinedType userDefinedType = (BLangUserDefinedType) child.apply(this);
+                BLangSimpleVariable parameter = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+                parameter.name = userDefinedType.typeName;
+                arrowFunction.params.add(parameter);
             }
+
         } else {
             BLangUserDefinedType userDefinedType = (BLangUserDefinedType) param.apply(this);
             BLangSimpleVariable parameter = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
