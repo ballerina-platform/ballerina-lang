@@ -14,17 +14,14 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ */
+package org.ballerinalang.langlib.testutils;
+
+/**
+ * Interface for test steps.
  *
+ * @since 2.0.0
  */
 
-description = 'Compiler test Utils'
-
-apply from: "$rootDir/gradle/javaProject.gradle"
-
-dependencies {
-    implementation project(':ballerina-core')
-    implementation project(':ballerina-lang')
-    implementation project(':ballerina-logging')
-    implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
-    implementation project(path: ':ballerina-runtime')
+public interface CTestSteps {
 }

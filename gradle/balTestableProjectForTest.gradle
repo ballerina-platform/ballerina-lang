@@ -1,8 +1,26 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 apply from: "$rootDir/gradle/birTestableProject.gradle"
 
 configurations {
-
     testCompile.extendsFrom(birJar)
     jacocoPath
 }
@@ -10,17 +28,13 @@ configurations {
 dependencies {
     compile project(':ballerina-lang:testutils')
     jacocoPath  group: 'org.jacoco', name: 'org.jacoco.agent',classifier: 'runtime' , version: '0.8.5'
-
 }
 
 class execsuite extends JavaExec{
-
     @Input def  libPath = []
-
     execsuite(){
         setMain('org.ballerinalang.langlib.testutils.TestMain')
     }
-
     @Override
     void exec() {
         def args = libPath
@@ -29,15 +43,39 @@ class execsuite extends JavaExec{
     }
 }
 
-task runtask(type:execsuite){
+task runTestSuites(type:execsuite){
     dependsOn createTestBalHome
     jvmArgs "-javaagent:${configurations.jacocoPath.asPath}=destfile=build/jacoco/test.exec,classdumpdir=build/jacocodumpclass/"
-
     inputs.files(configurations.baloTestImplementation);
-
     systemProperty "ballerina.home", "$buildDir/ballerina-home/test"
     systemProperty "enableJBallerinaTests", "true"
-
     classpath = sourceSets.test.runtimeClasspath
     libPath << "${file("$projectDir")}/"
+    doLast{
+        copy {
+            from "${buildDir}/jacocodumpclass/ballerina/"
+
+            into "${buildDir}/jacococlasses"
+            include "**/*.class"
+            exclude '**/*ini*.class'
+            includeEmptyDirs = false
+        }
+    }
+    finalizedBy jacocoTestReport
+    minHeapSize = "256m"
+    maxHeapSize = "1024m"
+}
+
+jacocoTestReport {
+    executionData = files("${buildDir}/jacoco/test.exec")
+    classDirectories =  files("${buildDir}/jacococlasses/")
+    reports {
+        xml.enabled true
+        csv.enabled false
+        html.destination file("${buildDir}/jacocoHtml")
+    }
+}
+
+build{
+    finalizedBy runTestSuites
 }
