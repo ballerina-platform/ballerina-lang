@@ -1441,12 +1441,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         // Set Parameters
         Node param = implicitAnonymousFunctionExpressionNode.params();
         if (param.kind() == SyntaxKind.INFER_PARAM_LIST) {
-            ImplicitAnonymousFunctionParameters paramsNode = (ImplicitAnonymousFunctionParameters) param;
-            SeparatedNodeList<SimpleNameReferenceNode> paramList = paramsNode.parameters();
+            try {
+                ImplicitAnonymousFunctionParameters paramsNode = (ImplicitAnonymousFunctionParameters) param;
+                SeparatedNodeList<SimpleNameReferenceNode> paramList = paramsNode.parameters();
 
-            for (SimpleNameReferenceNode child : paramList) {
-                SimpleVariableNode parameter = (SimpleVariableNode) child.apply(this);
-                arrowFunction.params.add((BLangSimpleVariable) parameter);
+                for (SimpleNameReferenceNode child : paramList) {
+                    SimpleVariableNode parameter = (SimpleVariableNode) child.apply(this);
+                    arrowFunction.params.add((BLangSimpleVariable) parameter);
+                }
+            } catch (Exception e) {
+                System.out.println("Empty parameter list");
             }
         } else {
             SimpleVariableNode simpleParam = (SimpleVariableNode) param.apply(this);
