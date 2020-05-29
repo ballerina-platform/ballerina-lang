@@ -972,6 +972,10 @@ public class ParserTestUtils {
                 return SyntaxKind.LIST_BINDING_PATTERN;
             case "REST_BINDING_PATTERN":
                 return SyntaxKind.REST_BINDING_PATTERN;
+            case "FIELD_BINDING_PATTERN":
+                return SyntaxKind.FIELD_BINDING_PATTERN;
+            case "MAPPING_BINDING_PATTERN":
+                return SyntaxKind.MAPPING_BINDING_PATTERN;
             case "TYPE_PARAMETER":
                 return SyntaxKind.TYPE_PARAMETER;
             case "KEY_TYPE_CONSTRAINT":

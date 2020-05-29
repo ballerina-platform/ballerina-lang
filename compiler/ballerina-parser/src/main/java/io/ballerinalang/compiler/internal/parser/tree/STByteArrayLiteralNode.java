@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STByteArrayLiteralNode extends STExpressionNode {
             STNode startBacktick,
             STNode content,
             STNode endBacktick) {
-        super(SyntaxKind.BYTE_ARRAY_LITERAL);
+        this(
+                type,
+                startBacktick,
+                content,
+                endBacktick,
+                Collections.emptyList());
+    }
+
+    STByteArrayLiteralNode(
+            STNode type,
+            STNode startBacktick,
+            STNode content,
+            STNode endBacktick,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.BYTE_ARRAY_LITERAL, diagnostics);
         this.type = type;
         this.startBacktick = startBacktick;
         this.content = content;
@@ -49,6 +66,15 @@ public class STByteArrayLiteralNode extends STExpressionNode {
                 startBacktick,
                 content,
                 endBacktick);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STByteArrayLiteralNode(
+                this.type,
+                this.startBacktick,
+                this.content,
+                this.endBacktick,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
