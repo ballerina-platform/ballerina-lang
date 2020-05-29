@@ -67,7 +67,7 @@ public class ChoreoClient implements AutoCloseable {
     public String register(final MetadataReader metadataReader, String nodeId, String appSecret) {
         RegisterRequest handshakeRequest = RegisterRequest.newBuilder()
                 .setAstHash(metadataReader.getAstHash())
-                .setProjectSecret(nodeId)
+                .setProjectSecret(appSecret)
                 .setNodeId(nodeId)
                 .build();
         RegisterResponse registerResponse = registrationClient.register(handshakeRequest);
