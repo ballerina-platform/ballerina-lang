@@ -2917,6 +2917,66 @@
             ]
         },
         {
+            "name": "MappingBindingPatternNode",
+            "base": "BindingPatternNode",
+            "kind": "MAPPING_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "openBrace",
+                    "type": "Token"
+                },
+                {
+                    "name": "fieldBindingPatterns",
+                    "type": "FieldBindingPatternNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "restBindingPattern",
+                    "type": "RestBindingPatternNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "closeBrace",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "FieldBindingPatternNode",
+            "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "FieldBindingPatternFullNode",
+            "base": "FieldBindingPatternNode",
+            "kind": "FIELD_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "variableName",
+                    "type": "SimpleNameReferenceNode"
+                },
+                {
+                    "name": "colon",
+                    "type": "Token"
+                },
+                {
+                    "name": "bindingPattern",
+                    "type": "BindingPatternNode"
+                }
+            ]
+        },
+        {
+            "name": "FieldBindingPatternVarnameNode",
+            "base": "FieldBindingPatternNode",
+            "kind": "FIELD_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "variableName",
+                    "type": "SimpleNameReferenceNode"
+                }
+            ]
+        },
+        {
             "name": "RestBindingPatternNode",
             "base": "Node",
             "kind": "REST_BINDING_PATTERN",
