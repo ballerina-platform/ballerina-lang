@@ -163,6 +163,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
@@ -1456,7 +1457,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             SimpleVariableNode simpleParam = (SimpleVariableNode) param.apply(this);
             arrowFunction.params.add((BLangSimpleVariable) simpleParam);
         }
-
+        arrowFunction.body = new BLangExprFunctionBody();
         arrowFunction.body.expr =  createExpression(implicitAnonymousFunctionExpressionNode.expression());
         return arrowFunction;
     }
