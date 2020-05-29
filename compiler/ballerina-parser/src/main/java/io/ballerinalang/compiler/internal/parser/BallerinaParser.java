@@ -503,7 +503,10 @@ public class BallerinaParser extends AbstractParser {
         boolean processImports = true;
         while (token.kind != SyntaxKind.EOF_TOKEN) {
             STNode decl = parseTopLevelNode(token.kind);
-            if (decl != null && decl.kind == SyntaxKind.IMPORT_DECLARATION) {
+            if (decl == null) {
+                break;
+            }
+            if (decl.kind == SyntaxKind.IMPORT_DECLARATION) {
                 if (processImports) {
                     importDecls.add(decl);
                 } else {
@@ -513,7 +516,7 @@ public class BallerinaParser extends AbstractParser {
                     otherDecls.add(decl);
                     this.errorHandler.reportInvalidNode(token, "imports must be declared before other declarations");
                 }
-            } else if (decl != null) {
+            } else {
                 if (processImports) {
                     // While processing imports, if we reach any other declaration,
                     // then mark this as the end of processing imports.
