@@ -2280,13 +2280,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static WaitActionNode createWaitActionNode(
             Token waitKeyword,
-            SeparatedNodeList<ExpressionNode> waitFutureExpr) {
+            Node waitFutureExpr) {
         Objects.requireNonNull(waitKeyword, "waitKeyword must not be null");
         Objects.requireNonNull(waitFutureExpr, "waitFutureExpr must not be null");
 
         STNode stWaitActionNode = STNodeFactory.createWaitActionNode(
                 waitKeyword.internalNode(),
-                waitFutureExpr.underlyingListNode().internalNode());
+                waitFutureExpr.internalNode());
         return stWaitActionNode.createUnlinkedFacade();
     }
 

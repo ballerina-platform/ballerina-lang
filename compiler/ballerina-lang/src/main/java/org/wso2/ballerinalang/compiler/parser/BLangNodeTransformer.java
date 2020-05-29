@@ -1615,8 +1615,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(WaitActionNode waitActionNode) {
         BLangWaitExpr waitExpr = TreeBuilder.createWaitExpressionNode();
-        waitExpr.exprList = createExpressionList(waitActionNode.waitFutureExpr());
         waitExpr.pos = getPosition(waitActionNode);
+        if (waitActionNode.waitFutureExpr().kind() != SyntaxKind.WAIT_FIELDS_LIST) {
+            waitExpr.exprList = Collections.singletonList(createExpression(waitActionNode.waitFutureExpr()));
+        }
         return waitExpr;
     }
 
@@ -1934,15 +1936,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     // ------------------------------------------private methods--------------------------------------------------------
-    private List<BLangExpression> createExpressionList(
-            SeparatedNodeList<io.ballerinalang.compiler.syntax.tree.ExpressionNode> expressionNodes) {
-        List<BLangExpression> expressionsList = new ArrayList<>();
-        for (Node node : expressionNodes) {
-            expressionsList.add(createExpression(node));
-        }
-        return expressionsList;
-    }
-
     private List<BLangStatement> generateBLangStatements(NodeList<StatementNode> statementNodes) {
         List<BLangStatement> statements = new ArrayList<>();
         for (StatementNode statement : statementNodes) {

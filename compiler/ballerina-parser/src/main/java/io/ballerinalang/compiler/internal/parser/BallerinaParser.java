@@ -10915,10 +10915,11 @@ public class BallerinaParser extends AbstractParser {
             waitFutureExprList.add(waitField);
             nextToken = peek();
         }
-
-        STNode waitFutureExprs = STNodeFactory.createNodeList(waitFutureExprList);
+        // TODO: Due to a bug in spec, only one node is always there. Hence not creating a list.
+        // https://github.com/ballerina-platform/ballerina-spec/issues/525
+        //STNode waitFutureExprs = STNodeFactory.createNodeList(waitFutureExprList);
         endContext();
-        return STNodeFactory.createWaitActionNode(waitKeyword, waitFutureExprs);
+        return STNodeFactory.createWaitActionNode(waitKeyword, waitFutureExprList.get(0));
     }
 
     private boolean isEndOfWaitFutureExprList(SyntaxKind nextTokenKind) {

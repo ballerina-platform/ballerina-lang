@@ -2300,8 +2300,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             WaitActionNode waitActionNode) {
         Token waitKeyword =
                 modifyToken(waitActionNode.waitKeyword());
-        SeparatedNodeList<ExpressionNode> waitFutureExpr =
-                modifySeparatedNodeList(waitActionNode.waitFutureExpr());
+        Node waitFutureExpr =
+                modifyNode(waitActionNode.waitFutureExpr());
         return waitActionNode.modify(
                 waitKeyword,
                 waitFutureExpr);

@@ -36,8 +36,8 @@ public class WaitActionNode extends ActionNode {
         return childInBucket(0);
     }
 
-    public SeparatedNodeList<ExpressionNode> waitFutureExpr() {
-        return new SeparatedNodeList<>(childInBucket(1));
+    public Node waitFutureExpr() {
+        return childInBucket(1);
     }
 
     @Override
@@ -59,10 +59,10 @@ public class WaitActionNode extends ActionNode {
 
     public WaitActionNode modify(
             Token waitKeyword,
-            SeparatedNodeList<ExpressionNode> waitFutureExpr) {
+            Node waitFutureExpr) {
         if (checkForReferenceEquality(
                 waitKeyword,
-                waitFutureExpr.underlyingListNode())) {
+                waitFutureExpr)) {
             return this;
         }
 
@@ -83,7 +83,7 @@ public class WaitActionNode extends ActionNode {
     public static class WaitActionNodeModifier {
         private final WaitActionNode oldNode;
         private Token waitKeyword;
-        private SeparatedNodeList<ExpressionNode> waitFutureExpr;
+        private Node waitFutureExpr;
 
         public WaitActionNodeModifier(WaitActionNode oldNode) {
             this.oldNode = oldNode;
@@ -99,7 +99,7 @@ public class WaitActionNode extends ActionNode {
         }
 
         public WaitActionNodeModifier withWaitFutureExpr(
-                SeparatedNodeList<ExpressionNode> waitFutureExpr) {
+                Node waitFutureExpr) {
             Objects.requireNonNull(waitFutureExpr, "waitFutureExpr must not be null");
             this.waitFutureExpr = waitFutureExpr;
             return this;
