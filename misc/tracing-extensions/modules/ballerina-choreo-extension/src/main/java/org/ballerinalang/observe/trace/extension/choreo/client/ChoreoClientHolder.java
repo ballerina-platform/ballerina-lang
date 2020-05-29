@@ -120,7 +120,7 @@ public class ChoreoClientHolder {
 
     private static String locallyStoredAppSecret() throws IOException {
         final String workingDir = System.getProperty("user.dir");
-        Path projectPropertiesFileLocation = Paths.get(workingDir + File.separator + ".choreoProject");
+        Path projectPropertiesFileLocation = Paths.get(workingDir + File.separator + ".choreoproject");
         if (Files.exists(projectPropertiesFileLocation)) {
             return readStoreSecret(projectPropertiesFileLocation);
         } else {
