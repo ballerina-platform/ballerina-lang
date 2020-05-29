@@ -129,6 +129,16 @@ public function toJsonString(json v) returns string = external;
 # + return - `str` parsed to json or error
 public function fromJsonString(string str) returns json|error = external;
 
+# Converts a value of type json to a user-specified type.
+# This works the same as `cloneWithType`,
+# except that it also does the inverse of the conversions done by `toJson`.
+#
+# + v - json value
+# + t - type to convert to
+# + return - value belonging to `t`, or error if this cannot be done
+public function fromJsonWithType(json v, typedesc<anydata> t)
+    returns t|error = external;
+
 # Merges two json values.
 #
 # + j1 - json value
