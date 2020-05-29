@@ -1150,7 +1150,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        List<BType> fieldTypes = new ArrayList<>();
+        List<BType> fieldTypes = new ArrayList<>(recordType.fields.size());
         for (BField field : recordType.fields.values()) {
             BType type = field.type;
             fieldTypes.add(type);

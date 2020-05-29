@@ -204,7 +204,7 @@ public class Symbols {
         return (sym.flags & Flags.INTERFACE) == Flags.INTERFACE;
     }
 
-    public static boolean isSymTagOn(BSymbol symbol, int symTag) {
+    public static boolean isTagOn(BSymbol symbol, int symTag) {
         return (symbol.tag & symTag) == symTag;
     }
 }

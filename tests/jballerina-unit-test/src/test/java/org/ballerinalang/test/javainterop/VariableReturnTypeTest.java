@@ -67,7 +67,7 @@ public class VariableReturnTypeTest {
                 "in external functions", 93, 67);
         validateError(errors, indx++, "default value for a typedesc parameter used in the return type should be a " +
                 "reference to a type", 97, 29);
-        validateError(errors, indx++, "expected 'aTypeVar' to be a parameter of the function", 97, 81);
+        validateError(errors, indx++, "unknown type 'NonExistentParam'", 107, 77);
 
         Assert.assertEquals(errors.getErrorCount(), indx);
     }

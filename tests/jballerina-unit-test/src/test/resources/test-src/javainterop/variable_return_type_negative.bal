@@ -103,3 +103,9 @@ function getNonTypedescExpr(typedesc<anydata> aTypeVar = getTypedesc()) returns 
 function getTypedesc() returns typedesc<anydata> {
     return float;
 }
+
+function referToANonExistingParam(typedesc<anydata> aTypeVar = int) returns NonExistentParam = @java:Method {
+    class: "xyz.pubudu.Hello",
+    name: "getValue",
+    paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
+} external;

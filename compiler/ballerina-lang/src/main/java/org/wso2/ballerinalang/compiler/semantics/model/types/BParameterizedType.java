@@ -24,7 +24,12 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
- * Represents a parameterized type.
+ * This is a special type introduced to be used in the return type of an extern function. In extern function return
+ * types, typedesc typed parameters of the function can be referred. This type is basically a wrapper created around
+ * that parameter. This contains the symbol of the parameter referred, and if there is one, the default value of the
+ * parameter.
+ *
+ * @since 2.0.0-Preview1
  */
 public class BParameterizedType extends BType {
 
@@ -47,7 +52,7 @@ public class BParameterizedType extends BType {
 
     @Override
     public String toString() {
-        return "<T>" + this.paramValueType.toString();
+        return this.paramSymbol.name.toString();
     }
 
     @Override
