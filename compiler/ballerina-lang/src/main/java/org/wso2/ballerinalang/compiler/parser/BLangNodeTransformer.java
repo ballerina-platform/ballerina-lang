@@ -1463,7 +1463,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             arrowFunction.params.add(parameter);
         }
         arrowFunction.body = new BLangExprFunctionBody();
-        arrowFunction.body.expr =  createExpression(implicitAnonymousFunctionExpressionNode.expression());
+        arrowFunction.body.expr = createExpression(implicitAnonymousFunctionExpressionNode.expression());
         return arrowFunction;
     }
 
