@@ -57,11 +57,49 @@ public class TransactionStmtTest {
 
     @Test(description = "Test transaction statement with errors")
     public void testTransactionNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        Assert.assertEquals(resultNegative.getErrorCount(), 21);
         BAssertUtil.validateError(resultNegative, 0, "invalid transaction commit count",
                 5, 5);
-        BAssertUtil.validateError(resultNegative, 1, "transaction statement cannot be used " +
-                        "within a transaction handler",
-                19, 5);
+        BAssertUtil.validateError(resultNegative, 1, "rollback not allowed here",
+                11, 9);
+        BAssertUtil.validateError(resultNegative, 2, "transaction statement cannot be used " +
+                        "within a transactional scope", 20, 5);
+        BAssertUtil.validateError(resultNegative, 3, "usage of start within a transactional " +
+                "scope is prohibited", 29, 19);
+        BAssertUtil.validateError(resultNegative, 4, "usage of start within a transactional " +
+                "scope is prohibited", 38, 21);
+        BAssertUtil.validateError(resultNegative, 5, "invoking transactional function outside " +
+                        "transactional scope is prohibited", 40, 15);
+        BAssertUtil.validateError(resultNegative, 6, "commit not allowed here",
+                59, 17);
+        BAssertUtil.validateError(resultNegative, 7, "invoking transactional function outside " +
+                        "transactional scope is prohibited", 70, 21);
+        BAssertUtil.validateError(resultNegative, 8, "commit not allowed here",
+                73, 17);
+        BAssertUtil.validateError(resultNegative, 9, "rollback not allowed here",
+                96, 17);
+        BAssertUtil.validateError(resultNegative, 10, "rollback not allowed here",
+                100, 9);
+        BAssertUtil.validateError(resultNegative, 11, "commit not allowed here",
+                102, 17);
+        BAssertUtil.validateError(resultNegative, 12, "invalid transaction commit count",
+                116, 9);
+        BAssertUtil.validateError(resultNegative, 13, "break statement cannot be used to " +
+                        "exit from a transaction without a commit or a rollback statement",
+                118, 17);
+        BAssertUtil.validateError(resultNegative, 14, "commit cannot be used outside " +
+                "a transaction statement", 122, 13);
+        BAssertUtil.validateError(resultNegative, 15, "continue statement cannot be used " +
+                "to exit from a transaction without a commit or a rollback statement", 132, 17);
+        BAssertUtil.validateError(resultNegative, 16, "return statement cannot be used to exit " +
+                "from a transaction without a commit or a rollback statement", 147, 17);
+        BAssertUtil.validateError(resultNegative, 17, "return statement cannot be used to exit " +
+                "from a transaction without a commit or a rollback statement", 164, 13);
+        BAssertUtil.validateError(resultNegative, 18, "return statement cannot be used to exit " +
+                "from a transaction without a commit or a rollback statement", 184, 21);
+        BAssertUtil.validateError(resultNegative, 19, "return statement cannot be used to exit " +
+                "from a transaction without a commit or a rollback statement", 188, 21);
+        BAssertUtil.validateError(resultNegative, 20, "invoking transactional function outside " +
+                "transactional scope is prohibited", 207, 16);
     }
 }

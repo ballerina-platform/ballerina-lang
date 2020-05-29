@@ -2555,6 +2555,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterTransactionalExpression(BallerinaParser.TransactionalExpressionContext ctx) {
+    }
+
+    public void exitTransactionalExpression(BallerinaParser.TransactionalExpressionContext ctx) {
         if (isInErrorState) {
             return;
         }
