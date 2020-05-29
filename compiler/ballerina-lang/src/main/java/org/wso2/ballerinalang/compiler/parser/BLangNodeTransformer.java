@@ -1438,6 +1438,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
         BLangArrowFunction arrowFunction = (BLangArrowFunction) TreeBuilder.createArrowFunctionNode();
         arrowFunction.pos = getPosition(implicitAnonymousFunctionExpressionNode);
+        arrowFunction.functionName = TreeBuilder.createIdentifierNode();
+        //TODO initialize other attributes
+        //arrowFunction.funcType;
+        //arrowFunction.function;
 
         // Set Parameters
         Node param = implicitAnonymousFunctionExpressionNode.params();
@@ -1447,15 +1451,19 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 SeparatedNodeList<SimpleNameReferenceNode> paramList = paramsNode.parameters();
 
                 for (SimpleNameReferenceNode child : paramList) {
-                    SimpleVariableNode parameter = (SimpleVariableNode) child.apply(this);
-                    arrowFunction.params.add((BLangSimpleVariable) parameter);
+                    BLangUserDefinedType userDefinedType = (BLangUserDefinedType) child.apply(this);
+                    BLangSimpleVariable parameter = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+                    parameter.name = userDefinedType.typeName;
+                    arrowFunction.params.add(parameter);
                 }
             } catch (Exception e) {
                 System.out.println("Empty parameter list");
             }
         } else {
-            SimpleVariableNode simpleParam = (SimpleVariableNode) param.apply(this);
-            arrowFunction.params.add((BLangSimpleVariable) simpleParam);
+            BLangUserDefinedType userDefinedType = (BLangUserDefinedType) param.apply(this);
+            BLangSimpleVariable parameter = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+            parameter.name = userDefinedType.typeName;
+            arrowFunction.params.add(parameter);
         }
         arrowFunction.body = new BLangExprFunctionBody();
         arrowFunction.body.expr =  createExpression(implicitAnonymousFunctionExpressionNode.expression());
