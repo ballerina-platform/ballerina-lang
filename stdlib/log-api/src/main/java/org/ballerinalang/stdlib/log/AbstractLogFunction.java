@@ -60,7 +60,7 @@ public abstract class AbstractLogFunction {
      * @param consumer log message consumer
      */
     static void logMessage(Strand strand, Object message, BLogLevel logLevel, String pckg,
-            BiConsumer<String, String> consumer) {
+                           BiConsumer<String, String> consumer) {
         // Create a new log message supplier
         Supplier<String> logMessage = new Supplier<String>() {
             private String msg = null;
@@ -77,10 +77,8 @@ public abstract class AbstractLogFunction {
                 return msg;
             }
         };
-        if (LOG_MANAGER.getPackageLogLevel(pckg).value() <= logLevel.value()) {
-            consumer.accept(pckg, logMessage.get());
-            ObserveUtils.logMessageToActiveSpan(strand, logLevel.name(), logMessage, logLevel == BLogLevel.ERROR);
-        }
+        consumer.accept(pckg, logMessage.get());
+        ObserveUtils.logMessageToActiveSpan(strand, logLevel.name(), logMessage, logLevel == BLogLevel.ERROR);
     }
 
     static String getPackagePath() {

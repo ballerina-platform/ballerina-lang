@@ -462,10 +462,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseRollbackKeyword();
             case RETRY_BODY:
                 return parseRetryBody();
-            case ENUM_MEMBER_INTERNAL_RHS:
-                return parseEnumMemberInternalRhs((STNode) args[0], (STNode) args[1]);
             case ENUM_MEMBER_RHS:
-                return parseEnumMemberRhs();
+                return parseEnumMemberRhs((STNode) args[0], (STNode) args[1]);
+            case ENUM_MEMBER_END:
+                return parseEnumMemberEnd();
             case ENUM_MEMBER_NAME:
                 return parseEnumMember();
             case BRACKETED_LIST_MEMBER_END:
@@ -4218,11 +4218,6 @@ public class BallerinaParser extends AbstractParser {
             case IDENTIFIER_TOKEN:
                 return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
             case OPEN_PAREN_TOKEN:
-                STToken nextNextToken = getNextNextToken(kind);
-                // parse nil literal '()'
-                if (nextNextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
-                    return parseNilLiteral();
-                }
                 return parseBracedExpression(isRhsExpr, allowActions);
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
@@ -4255,7 +4250,7 @@ public class BallerinaParser extends AbstractParser {
             case BACKTICK_TOKEN:
                 return parseTemplateExpression();
             case XML_KEYWORD:
-                nextNextToken = getNextNextToken(kind);
+                STToken nextNextToken = getNextNextToken(kind);
                 if (nextNextToken.kind == SyntaxKind.BACKTICK_TOKEN) {
                     return parseXMLTemplateExpression();
                 }
@@ -4809,7 +4804,12 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseBracedExpression(boolean isRhsExpr, boolean allowActions) {
         STNode openParen = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
         startContext(ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAMS);
-        STNode expr;
+        STToken nextToken = peek();
+        STNode expr = STNodeFactory.createEmptyNode();
+        // Could be nill literal or empty param-list of an implicit-anon-func-expr'
+        if (nextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
+            return parseNilLiteralOrEmptyAnonFuncParamRhs(openParen, expr);
+        }
         if (allowActions) {
             expr = parseExpression(DEFAULT_OP_PRECEDENCE, isRhsExpr, true);
         } else {
@@ -4827,6 +4827,20 @@ public class BallerinaParser extends AbstractParser {
             return STNodeFactory.createBracedExpressionNode(SyntaxKind.BRACED_ACTION, openParen, expr, closeParen);
         }
         return STNodeFactory.createBracedExpressionNode(SyntaxKind.BRACED_EXPRESSION, openParen, expr, closeParen);
+    }
+
+    private STNode parseNilLiteralOrEmptyAnonFuncParamRhs(STNode openParen, STNode expr) {
+        STNode closeParen = parseCloseParenthesis();
+        STToken nextToken = peek();
+        if (nextToken.kind != SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN) {
+            endContext();
+            return createNilLiteral(openParen, closeParen);
+        } else {
+            STNode anonFuncParam = STNodeFactory.createBracedExpressionNode(SyntaxKind.BRACED_EXPRESSION,
+                    openParen, expr, closeParen);
+            endContext();
+            return anonFuncParam;
+        }
     }
 
     private STNode parseBracedExprOrAnonFuncParamRhs(SyntaxKind nextTokenKind, STNode openParen, STNode expr) {
@@ -7529,6 +7543,10 @@ public class BallerinaParser extends AbstractParser {
         STNode openParenthesisToken = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
         STNode closeParenthesisToken = parseCloseParenthesis();
         endContext();
+        return STNodeFactory.createNilLiteralNode(openParenthesisToken, closeParenthesisToken);
+    }
+
+    private STNode createNilLiteral(STNode openParenthesisToken, STNode closeParenthesisToken) {
         return STNodeFactory.createNilLiteralNode(openParenthesisToken, closeParenthesisToken);
     }
 
@@ -11496,7 +11514,7 @@ public class BallerinaParser extends AbstractParser {
         nextToken = peek();
         STNode enumMemberRhs;
         while (nextToken.kind != SyntaxKind.CLOSE_BRACE_TOKEN) {
-            enumMemberRhs = parseEnumMemberRhs(nextToken.kind);
+            enumMemberRhs = parseEnumMemberEnd(nextToken.kind);
             if (enumMemberRhs == null) {
                 break;
             }
@@ -11533,14 +11551,14 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode identifierNode = parseIdentifier(ParserRuleContext.ENUM_MEMBER_NAME);
-        return parseEnumMemberInternalRhs(metadata, identifierNode);
+        return parseEnumMemberRhs(metadata, identifierNode);
     }
 
-    private STNode parseEnumMemberInternalRhs(STNode metadata, STNode identifierNode) {
-        return parseEnumMemberInternalRhs(metadata, identifierNode, peek().kind);
+    private STNode parseEnumMemberRhs(STNode metadata, STNode identifierNode) {
+        return parseEnumMemberRhs(peek().kind, metadata, identifierNode);
     }
 
-    private STNode parseEnumMemberInternalRhs(STNode metadata, STNode identifierNode, SyntaxKind nextToken) {
+    private STNode parseEnumMemberRhs(SyntaxKind nextToken, STNode metadata, STNode identifierNode) {
         STNode equalToken, constExprNode;
         switch (nextToken) {
             case EQUAL_TOKEN:
@@ -11553,8 +11571,8 @@ public class BallerinaParser extends AbstractParser {
                 constExprNode = STNodeFactory.createEmptyNode();
                 break;
             default:
-                Solution solution =
-                        recover(peek(), ParserRuleContext.ENUM_MEMBER_INTERNAL_RHS, metadata, identifierNode);
+                Solution solution = recover(peek(), ParserRuleContext.ENUM_MEMBER_RHS, metadata,
+                        identifierNode);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -11563,10 +11581,34 @@ public class BallerinaParser extends AbstractParser {
                     return solution.recoveredNode;
                 }
 
-                return parseEnumMemberInternalRhs(metadata, identifierNode, solution.tokenKind);
+                return parseEnumMemberRhs(solution.tokenKind, metadata, identifierNode);
         }
 
         return STNodeFactory.createEnumMemberNode(metadata, identifierNode, equalToken, constExprNode);
+    }
+
+    private STNode parseEnumMemberEnd() {
+        return parseEnumMemberEnd(peek().kind);
+    }
+
+    private STNode parseEnumMemberEnd(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case COMMA_TOKEN:
+                return parseComma();
+            case CLOSE_BRACE_TOKEN:
+                return null;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.ENUM_MEMBER_END);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseEnumMemberEnd(solution.tokenKind);
+        }
     }
 
     /**
@@ -11709,30 +11751,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.RETRY_BODY);
                 return parseRetryBody(solution.tokenKind);
-        }
-    }
-
-    private STNode parseEnumMemberRhs() {
-        return parseEnumMemberRhs(peek().kind);
-    }
-
-    private STNode parseEnumMemberRhs(SyntaxKind nextTokenKind) {
-        switch (nextTokenKind) {
-            case COMMA_TOKEN:
-                return parseComma();
-            case CLOSE_BRACE_TOKEN:
-                return null;
-            default:
-                Solution solution = recover(peek(), ParserRuleContext.ENUM_MEMBER_RHS);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
-                return parseEnumMemberRhs(solution.tokenKind);
         }
     }
 
