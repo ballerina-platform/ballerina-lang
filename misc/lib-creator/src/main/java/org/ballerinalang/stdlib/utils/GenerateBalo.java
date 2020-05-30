@@ -118,7 +118,6 @@ public class GenerateBalo {
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootDir);
         options.put(OFFLINE, Boolean.TRUE.toString());
-        options.put(SOURCE_TYPE, "SINGLE_MODULE");
         options.put(BALO_GENERATION, Boolean.TRUE.toString());
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(SKIP_TESTS, Boolean.TRUE.toString());
