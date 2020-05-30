@@ -462,7 +462,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createComputedNameFieldNode(
-            STNode leadingComma,
             STNode openBracket,
             STNode fieldNameExpr,
             STNode closeBracket,
@@ -470,7 +469,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode valueExpr) {
 
         return new STComputedNameFieldNode(
-                leadingComma,
                 openBracket,
                 fieldNameExpr,
                 closeBracket,
@@ -594,25 +592,21 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createSpecificFieldNode(
-            STNode leadingComma,
             STNode fieldName,
             STNode colon,
             STNode valueExpr) {
 
         return new STSpecificFieldNode(
-                leadingComma,
                 fieldName,
                 colon,
                 valueExpr);
     }
 
     public static STNode createSpreadFieldNode(
-            STNode leadingComma,
             STNode ellipsis,
             STNode valueExpr) {
 
         return new STSpreadFieldNode(
-                leadingComma,
                 ellipsis,
                 valueExpr);
     }

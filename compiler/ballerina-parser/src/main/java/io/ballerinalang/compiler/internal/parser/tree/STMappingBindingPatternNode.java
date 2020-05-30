@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STMappingBindingPatternNode extends STBindingPatternNode {
             STNode fieldBindingPatterns,
             STNode restBindingPattern,
             STNode closeBrace) {
-        super(SyntaxKind.MAPPING_BINDING_PATTERN);
+        this(
+                openBrace,
+                fieldBindingPatterns,
+                restBindingPattern,
+                closeBrace,
+                Collections.emptyList());
+    }
+
+    STMappingBindingPatternNode(
+            STNode openBrace,
+            STNode fieldBindingPatterns,
+            STNode restBindingPattern,
+            STNode closeBrace,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.MAPPING_BINDING_PATTERN, diagnostics);
         this.openBrace = openBrace;
         this.fieldBindingPatterns = fieldBindingPatterns;
         this.restBindingPattern = restBindingPattern;
@@ -49,6 +66,15 @@ public class STMappingBindingPatternNode extends STBindingPatternNode {
                 fieldBindingPatterns,
                 restBindingPattern,
                 closeBrace);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STMappingBindingPatternNode(
+                this.openBrace,
+                this.fieldBindingPatterns,
+                this.restBindingPattern,
+                this.closeBrace,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

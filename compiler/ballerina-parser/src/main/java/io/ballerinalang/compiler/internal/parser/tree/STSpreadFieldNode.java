@@ -31,40 +31,33 @@ import java.util.Collections;
  * @since 2.0.0
  */
 public class STSpreadFieldNode extends STMappingFieldNode {
-    public final STNode leadingComma;
     public final STNode ellipsis;
     public final STNode valueExpr;
 
     STSpreadFieldNode(
-            STNode leadingComma,
             STNode ellipsis,
             STNode valueExpr) {
         this(
-                leadingComma,
                 ellipsis,
                 valueExpr,
                 Collections.emptyList());
     }
 
     STSpreadFieldNode(
-            STNode leadingComma,
             STNode ellipsis,
             STNode valueExpr,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.SPREAD_FIELD, diagnostics);
-        this.leadingComma = leadingComma;
         this.ellipsis = ellipsis;
         this.valueExpr = valueExpr;
 
         addChildren(
-                leadingComma,
                 ellipsis,
                 valueExpr);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STSpreadFieldNode(
-                this.leadingComma,
                 this.ellipsis,
                 this.valueExpr,
                 diagnostics);
