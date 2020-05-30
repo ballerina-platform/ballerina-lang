@@ -36,12 +36,12 @@ import org.ballerinalang.jvm.values.api.BValueCreator;
 //)
 public class GetReturnType {
 
-    public static TypedescValue getReturnType(Strand strand, Object obj) {
+    public static TypedescValue getReturnType(Object obj) {
         FPValue fpValue = (FPValue) obj;
         BFunctionType functionType = (BFunctionType) fpValue.getType();
         return (TypedescValue) BValueCreator.createTypedescValue(functionType.retType);
     }
     public static TypedescValue getReturnType_bstring(Strand strand, Object obj) {
-        return getReturnType(strand, obj);
+        return getReturnType(obj);
     }
 }

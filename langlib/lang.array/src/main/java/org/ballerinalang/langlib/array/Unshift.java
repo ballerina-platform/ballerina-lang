@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOperation;
@@ -35,7 +34,7 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOper
 //)
 public class Unshift {
 
-    public static void unshift(Strand strand, ArrayValue arr, ArrayValue vals) {
+    public static void unshift(ArrayValue arr, ArrayValue vals) {
         checkIsArrayOnlyOperation(arr.getType(), "unshift()");
         arr.unshift(vals);
     }

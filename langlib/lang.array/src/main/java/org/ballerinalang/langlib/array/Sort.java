@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -39,10 +40,10 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOper
 //)
 public class Sort {
 
-    public static ArrayValue sort(Strand strand, ArrayValue arr, FPValue<Object, Long> func) {
+    public static ArrayValue sort(ArrayValue arr, FPValue<Object, Long> func) {
         checkIsArrayOnlyOperation(arr.getType(), "sort()");
         ArrayValue aux = new ArrayValueImpl((BArrayType) arr.getType());
-        mergesort(arr, aux, 0, arr.size() - 1, strand, func);
+        mergesort(arr, aux, 0, arr.size() - 1, Scheduler.getStrand(), func);
         return arr;
     }
 

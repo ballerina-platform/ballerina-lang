@@ -37,13 +37,13 @@ import org.ballerinalang.jvm.values.FPValue;
 //)
 public class GetFilterFunc {
 
-    public static FPValue getFilterFunc(Strand strand, Object obj) {
+    public static FPValue getFilterFunc(Object obj) {
         FPValue fpValue = (FPValue) obj;
         BFunctionType functionType = (BFunctionType) fpValue.getType();
         functionType.paramTypes[0] = new BUnionType(new BType[]{BTypes.typeAny, BTypes.typeError}, 0);
         return fpValue;
     }
     public static FPValue getFilterFunc_bstring(Strand strand, Object obj) {
-        return getFilterFunc(strand, obj);
+        return getFilterFunc(obj);
     }
 }

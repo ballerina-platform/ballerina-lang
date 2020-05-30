@@ -16,27 +16,29 @@
  */
 
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+//apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
-configurations.testCompileClasspath {
-    resolutionStrategy {
-        preferProjectModules()
-    }
-}
+//configurations.testCompileClasspath {
+//    resolutionStrategy {
+//        preferProjectModules()
+//    }
+//}
 
 dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
-
-
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 }
 
 createBalo {
+    isBuiltin = 'true'
     jvmTarget = 'true'
 }
 
 description = 'Ballerina - Java Array Utils'
 
-configurations.all {
-    resolutionStrategy.preferProjectModules()
-}
+//configurations.all {
+//    resolutionStrategy.preferProjectModules()
+//}

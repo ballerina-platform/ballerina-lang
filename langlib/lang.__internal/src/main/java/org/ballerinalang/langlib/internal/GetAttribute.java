@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langlib.internal;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLQName;
@@ -42,7 +43,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.XML_OP
 //)
 public class GetAttribute {
 
-    public static Object getAttribute(Strand strand, XMLValue xmlVal, String attrName, boolean optionalFiledAccess) {
+    public static Object getAttribute(XMLValue xmlVal, BString attrName, boolean optionalFiledAccess) {
         if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE && ((XMLSequence) xmlVal).size() == 0) {
             return null;
         }
@@ -50,16 +51,16 @@ public class GetAttribute {
             return createError(XML_OPERATION_ERROR,
                     "Invalid xml attribute access on xml " + xmlVal.getNodeType().value());
         }
-        XMLQName qname = new XMLQName(attrName);
+        XMLQName qname = new XMLQName(attrName.getValue());
         String attrVal = xmlVal.getAttribute(qname.getLocalName(), qname.getUri());
         if (attrVal == null && !optionalFiledAccess) {
-            return createError(XML_OPERATION_ERROR, "attribute '" + attrName + "' not found");
+            return createError(XML_OPERATION_ERROR, "attribute '" + attrName.getValue() + "' not found");
         }
-        return attrVal;
+        return attrVal != null ? StringUtils.fromString(attrVal) : null;
     }
 
     public static Object getAttribute_bstring(Strand strand, XMLValue xmlVal, BString attrName,
                                               boolean optionalFiledAccess) {
-        return getAttribute(strand, xmlVal, attrName.getValue(), optionalFiledAccess);
+        return getAttribute(xmlVal, attrName, optionalFiledAccess);
     }
 }

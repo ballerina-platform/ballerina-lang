@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOperation;
@@ -36,7 +35,7 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOper
 //)
 public class Remove {
 
-    public static Object remove(Strand strand, ArrayValue arr, long i) {
+    public static Object remove(ArrayValue arr, long i) {
         checkIsArrayOnlyOperation(arr.getType(), "remove()");
         return arr.shift(i);
     }

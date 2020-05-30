@@ -19,7 +19,6 @@
 package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
@@ -44,7 +43,7 @@ public class ToBase16 {
 
     private static final char[] chars = "0123456789abcdef".toCharArray();
 
-    public static String toBase16(Strand strand, ArrayValue arr) {
+    public static String toBase16(ArrayValue arr) {
         BType arrType = arr.getType();
         if (arrType.getTag() != TypeTags.ARRAY_TAG ||
                 ((BArrayType) arrType).getElementType().getTag() != TypeTags.BYTE_TAG) {

@@ -19,9 +19,9 @@ package org.ballerinalang.langlib.internal;
 
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 
 import java.util.ArrayList;
@@ -49,12 +49,11 @@ public class GetElements {
      * Expected element name format.
      * elemNames: {nsUrl}elemName | elemName | {nsUrl}* | *
      *
-     * @param strand the stand
      * @param xmlVal the XML value
      * @param elemNames element names to select
      * @return sequence of elements matching given element names
      */
-    public static XMLValue getElements(Strand strand, XMLValue xmlVal, ArrayValue elemNames) {
+    public static XMLValue getElements(XMLValue xmlVal, BString[] elemNames) {
 
         ArrayList<String> nsList = new ArrayList<>();
         ArrayList<String> localNameList = new ArrayList<>();
@@ -84,11 +83,11 @@ public class GetElements {
         return new XMLSequence(selectedElements);
     }
 
-    public static void destructureFilters(ArrayValue elemNames,
+    public static void destructureFilters(BString[] elemNames,
                                           ArrayList<String> nsList, ArrayList<String> localNameList) {
-        int filterCount = elemNames.size();
+        int filterCount = elemNames.length;
         for (int i = 0; i < filterCount; i++) {
-            String fullName = elemNames.getString(i);
+            String fullName = elemNames[i].getValue();
             int lastIndexOf = fullName.lastIndexOf('}');
             if (lastIndexOf < 0) {
                 nsList.add(EMPTY);
@@ -100,9 +99,9 @@ public class GetElements {
         }
     }
 
-    public static boolean matchFilters(ArrayValue elemNames,
+    public static boolean matchFilters(BString[] elemNames,
                                         ArrayList<String> nsList, ArrayList<String> elemList, String elementName) {
-        int filterCount = elemNames.size();
+        int filterCount = elemNames.length;
         for (int i = 0; i < filterCount; i++) {
             String ns = nsList.get(i);
             String eName = elemList.get(i);
@@ -118,13 +117,13 @@ public class GetElements {
                 }
             }
             // .<ns:foo> or .<foo>
-            if (elementName.equals(elemNames.getString(i))) {
+            if (elementName.equals(elemNames[i].getValue())) {
                 return true;
             }
         }
         return false;
     }
-    public static XMLValue getElements_bstring(Strand strand, XMLValue xmlVal, ArrayValue elemNames) {
-        return getElements(strand, xmlVal, elemNames);
+    public static XMLValue getElements_bstring(Strand strand, XMLValue xmlVal, BString[] elemNames) {
+        return getElements(xmlVal, elemNames);
     }
 }

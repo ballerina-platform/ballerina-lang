@@ -19,7 +19,6 @@
 package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 
 import java.util.ArrayList;
@@ -38,7 +37,7 @@ import java.util.List;
 //)
 public class FromBase16 {
 
-    public static Object fromBase16(Strand strand, String str) {
+    public static Object fromBase16(String str) {
         if (str.length() % 2 != 0) {
             return BallerinaErrors
                     .createError("Invalid base16 string",

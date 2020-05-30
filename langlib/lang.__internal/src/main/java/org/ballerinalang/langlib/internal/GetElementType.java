@@ -40,7 +40,7 @@ import org.ballerinalang.jvm.values.api.BValueCreator;
 //)
 public class GetElementType {
 
-    public static TypedescValue getElementType(Strand strand, Object td) {
+    public static TypedescValue getElementType(Object td) {
         TypedescValue typedescValue = (TypedescValue) td;
         BType type = typedescValue.getDescribingType();
         if (type.getTag() == TypeTags.ARRAY_TAG) {
@@ -54,6 +54,6 @@ public class GetElementType {
         return (TypedescValue) BValueCreator.createTypedescValue(BTypes.typeNull);
     }
     public static TypedescValue getElementType_bstring(Strand strand, Object td) {
-        return getElementType(strand, td);
+        return getElementType(td);
     }
 }

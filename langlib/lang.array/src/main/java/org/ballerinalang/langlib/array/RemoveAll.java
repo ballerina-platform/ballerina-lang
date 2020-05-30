@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 
 /**
@@ -33,7 +32,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 //)
 public class RemoveAll {
 
-    public static void removeAll(Strand strand, ArrayValue arr) {
-        SetLength.setLength(strand, arr, 0);
+    public static void removeAll(ArrayValue arr) {
+        SetLength.setLength(arr, 0);
     }
 }

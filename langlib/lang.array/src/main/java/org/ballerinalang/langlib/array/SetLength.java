@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 
 /**
@@ -33,7 +32,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 //)
 public class SetLength {
 
-    public static void setLength(Strand strand, ArrayValue arr, long i) {
+    public static void setLength(ArrayValue arr, long i) {
         arr.setLength(i);
     }
 }

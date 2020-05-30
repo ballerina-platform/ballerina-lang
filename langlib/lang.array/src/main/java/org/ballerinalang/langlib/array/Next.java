@@ -40,7 +40,7 @@ import org.ballerinalang.jvm.values.ObjectValue;
 //)
 public class Next {
     //TODO: refactor hard coded values
-    public static Object next(Strand strand, ObjectValue m) {
+    public static Object next(ObjectValue m) {
         IteratorValue arrIterator = (IteratorValue) m.getNativeData("&iterator&");
         AbstractArrayValue arr = (AbstractArrayValue) m.getArrayValue("m");
         if (arrIterator == null) {

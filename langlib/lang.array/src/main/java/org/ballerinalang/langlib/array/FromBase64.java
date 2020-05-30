@@ -19,7 +19,6 @@
 package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 
 import java.util.Base64;
@@ -37,7 +36,7 @@ import java.util.Base64;
 //)
 public class FromBase64 {
 
-    public static Object fromBase64(Strand strand, String str) {
+    public static Object fromBase64(String str) {
         try {
             byte[] decodedArr = Base64.getDecoder().decode(str);
             return new ArrayValueImpl(decodedArr);

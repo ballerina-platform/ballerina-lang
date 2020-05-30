@@ -40,7 +40,7 @@ public class Push {
 
     private static final String FUNCTION_SIGNATURE = "push()";
 
-    public static void push(Strand strand, ArrayValue arr, ArrayValue vals) {
+    public static void push(ArrayValue arr, ArrayValue vals) {
         BType arrType = arr.getType();
         int nVals = vals.size();
         switch (arrType.getTag()) {
@@ -56,6 +56,6 @@ public class Push {
     }
 
     public static void push_bstring(Strand strand, ArrayValue arr, ArrayValue vals) {
-        push(strand, arr, vals);
+        push(arr, vals);
     }
 }

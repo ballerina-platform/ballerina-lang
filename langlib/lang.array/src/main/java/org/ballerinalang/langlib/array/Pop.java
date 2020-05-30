@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOperation;
@@ -38,7 +37,7 @@ public class Pop {
 
     private static final String FUNCTION_SIGNATURE = "pop()";
 
-    public static Object pop(Strand strand, ArrayValue arr) {
+    public static Object pop(ArrayValue arr) {
         checkIsArrayOnlyOperation(arr.getType(), FUNCTION_SIGNATURE);
         return arr.shift(arr.size() - 1);
     }

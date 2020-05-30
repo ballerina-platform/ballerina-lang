@@ -19,8 +19,8 @@ package org.ballerinalang.langlib.internal;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,12 +42,12 @@ public class SelectDescendants {
 
     private static final String OPERATION = "select descendants from xml";
 
-    public static XMLValue selectDescendants(Strand strand, XMLValue xml, ArrayValue qnames) {
+    public static XMLValue selectDescendants(XMLValue xml, BString[] qnames) {
         try {
             List<String> qnameList = new ArrayList<>();
-            int size = qnames.size();
+            int size = qnames.length;
             for (int i = 0; i < size; i++) {
-                String strQname = qnames.getString(i);
+                String strQname = qnames[i].getValue();
                 // remove empty namespace in expanded form i.e `{}local => local`
                 if (strQname.lastIndexOf('}') == 1) {
                     strQname = strQname.substring(2);
@@ -60,7 +60,7 @@ public class SelectDescendants {
         }
         return null;
     }
-    public static XMLValue selectDescendants_bstring(Strand strand, XMLValue xml, ArrayValue qnames) {
-        return selectDescendants(strand, xml, qnames);
+    public static XMLValue selectDescendants_bstring(Strand strand, XMLValue xml, BString[] qnames) {
+        return selectDescendants(xml, qnames);
     }
 }
