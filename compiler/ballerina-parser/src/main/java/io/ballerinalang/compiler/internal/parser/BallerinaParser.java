@@ -17,7 +17,6 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
-import io.ballerinalang.compiler.internal.diagnostics.DiagnosticCode;
 import io.ballerinalang.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Action;
 import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Solution;
@@ -39,7 +38,6 @@ import io.ballerinalang.compiler.internal.parser.tree.STSimpleNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STSpecificFieldNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.STTypedBindingPatternNode;
-import io.ballerinalang.compiler.internal.syntax.NodeListUtils;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocuments;
@@ -5800,7 +5798,8 @@ public class BallerinaParser extends AbstractParser {
         STNode expressionList = parseListeners();
         STNode serviceBody = parseServiceBody();
 
-        onKeyword = addDiagnosticIfListEmpty(expressionList, onKeyword, DiagnosticErrorCode.ERROR_MISSING_EXPRESSION);
+        onKeyword = cloneWithDiagnosticIfListEmpty(expressionList,
+                onKeyword, DiagnosticErrorCode.ERROR_MISSING_EXPRESSION);
         return STNodeFactory.createServiceDeclarationNode(metadata, serviceKeyword, serviceName, onKeyword,
                 expressionList, serviceBody);
     }
@@ -7254,8 +7253,8 @@ public class BallerinaParser extends AbstractParser {
             case ON_KEYWORD:
                 onKeyword = parseOnKeyword();
                 attachPoints = parseAnnotationAttachPoints();
-                onKeyword = addDiagnosticIfListEmpty(attachPoints, onKeyword,
-                        DiagnosticErrorCode.ERROR_MISSING_ANNOTATION_ATTACH_POINT);
+                onKeyword = cloneWithDiagnosticIfListEmpty(attachPoints,
+                        onKeyword, DiagnosticErrorCode.ERROR_MISSING_ANNOTATION_ATTACH_POINT);
                 break;
             default:
                 STToken token = peek();
@@ -8603,9 +8602,9 @@ public class BallerinaParser extends AbstractParser {
         STNode letVarDeclarations = parseLetVarDeclarations(ParserRuleContext.LET_EXPR_LET_VAR_DECL, isRhsExpr);
         STNode inKeyword = parseInKeyword();
 
-        // Clone the letKeyword token with the given diagnostic, if the variable declaration list is empty.
-        letKeyword = addDiagnosticIfListEmpty(letVarDeclarations, letKeyword,
-                DiagnosticErrorCode.ERROR_MISSING_LET_VARIABLE_DECLARATION);
+        // If the variable declaration list is empty, clone the letKeyword token with the given diagnostic.
+        letKeyword = cloneWithDiagnosticIfListEmpty(letVarDeclarations,
+                letKeyword, DiagnosticErrorCode.ERROR_MISSING_LET_VARIABLE_DECLARATION);
 
         // allow-actions flag is always false, since there will not be any actions
         // within the let-expr, due to the precedence.
@@ -9247,9 +9246,9 @@ public class BallerinaParser extends AbstractParser {
         STNode closeBracket = parseCloseBracket();
         endContext();
 
-        // Clone the openBracket token with the given diagnostic, if the tuple member type-desc list is empty.
-        openBracket =
-                addDiagnosticIfListEmpty(memberTypeDesc, openBracket, DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC);
+        // If the tuple member type-desc list is empty, clone the openBracket token with the given diagnostic,
+        openBracket = cloneWithDiagnosticIfListEmpty(memberTypeDesc,
+                openBracket, DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC);
 
         return STNodeFactory.createTupleTypeDescriptorNode(openBracket, memberTypeDesc, closeBracket);
     }
@@ -9663,9 +9662,9 @@ public class BallerinaParser extends AbstractParser {
         STNode letKeyword = parseLetKeyword();
         STNode letVarDeclarations = parseLetVarDeclarations(ParserRuleContext.LET_CLAUSE_LET_VAR_DECL, isRhsExpr);
 
-        // Clone the letKeyword token with the given diagnostic, if the variable declaration list is empty.
-        letKeyword = addDiagnosticIfListEmpty(letVarDeclarations, letKeyword,
-                DiagnosticErrorCode.ERROR_MISSING_LET_VARIABLE_DECLARATION);
+        // If the variable declaration list is empty, clone the letKeyword token with the given diagnostic.
+        letKeyword = cloneWithDiagnosticIfListEmpty(letVarDeclarations,
+                letKeyword, DiagnosticErrorCode.ERROR_MISSING_LET_VARIABLE_DECLARATION);
 
         return STNodeFactory.createLetClauseNode(letKeyword, letVarDeclarations);
     }
@@ -11095,39 +11094,6 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return content;
-    }
-
-    /**
-     * Returns 'true' if the list is empty.
-     * <p>
-     * First check whether this node is an instance of STNodeList.
-     *
-     * @param node the nodelist instance
-     * @return returns 'true' if the list is empty
-     */
-    private boolean isNodeListEmpty(STNode node) {
-        if (!NodeListUtils.isSTNodeList(node)) {
-            throw new IllegalArgumentException("The 'node' should be an instance of STNodeList");
-        }
-
-        STNodeList nodeList = (STNodeList) node;
-        return nodeList.isEmpty();
-    }
-
-    /**
-     * Returns a clone of the given STNode with the given diagnostic if the nodeList is empty,
-     * otherwise returns the original STNode.
-     *
-     * @param nodeList the node list instance
-     * @param target the STNode instance
-     * @param diagnosticCode the DiagnosticCode to be added to the node
-     * @return a clone of the given STNode
-     */
-    private STNode addDiagnosticIfListEmpty(STNode nodeList, STNode target, DiagnosticCode diagnosticCode) {
-        if (isNodeListEmpty(nodeList)) {
-            return errorHandler.addDiagnostics(target, diagnosticCode);
-        }
-        return target;
     }
 
     // ------------------------ Typed binding patterns ---------------------------
@@ -12908,9 +12874,9 @@ public class BallerinaParser extends AbstractParser {
 
     // ---------------------- Convert ambiguous nodes to a specific node --------------------------
 
-    private List<STNode> getTypeDescList(List<STNode> ambibuousList) {
+    private List<STNode> getTypeDescList(List<STNode> ambiguousList) {
         List<STNode> typeDescList = new ArrayList<STNode>();
-        for (STNode item : ambibuousList) {
+        for (STNode item : ambiguousList) {
             // Here we assume that items in ambiguous list can only be
             // either simple name references, or list of simple name
             // references (i.e: another ambiguous list).
