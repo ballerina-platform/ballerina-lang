@@ -38,6 +38,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -121,11 +122,13 @@ public class TracingTestCase extends BaseTest {
 
         Optional<BMockSpan> span1 = mockSpans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"),
-                        "01_trace_test_ootb.bal:24:5")).findFirst();
+                        "01_trace_test_ootb.bal:24:5"))
+                .findFirst();
         Assert.assertTrue(span1.isPresent());
         long traceId = span1.get().getTraceId();
         span1.ifPresent(span -> {
-            Assert.assertEquals(span.getParentId(), 0);
+            Assert.assertTrue(mockSpans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
+                    && mockSpan.getSpanId() == span.getParentId()));
             Assert.assertEquals(span.getOperationName(), "resourceOne");
             Assert.assertEquals(span.getTags().size(), 7);
             Assert.assertEquals(span.getTags().get("span.kind"), "server");
@@ -138,7 +141,8 @@ public class TracingTestCase extends BaseTest {
 
         Optional<BMockSpan> span2 = mockSpans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"),
-                        "01_trace_test_ootb.bal:56:32")).findFirst();
+                        "01_trace_test_ootb.bal:56:32"))
+                .findFirst();
         Assert.assertTrue(span2.isPresent());
         span2.ifPresent(span -> {
             Assert.assertEquals(span.getTraceId(), traceId);
@@ -156,7 +160,8 @@ public class TracingTestCase extends BaseTest {
 
         Optional<BMockSpan> span3 = mockSpans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"),
-                        "client_endpoint.bal:164:41")).findFirst();
+                        "client_endpoint.bal:164:41"))
+                .findFirst();
         Assert.assertTrue(span3.isPresent());
         span3.ifPresent(span -> {
             Assert.assertEquals(span.getTraceId(), traceId);
@@ -166,8 +171,8 @@ public class TracingTestCase extends BaseTest {
             Assert.assertEquals(span.getTags().get("span.kind"), "client");
             Assert.assertEquals(span.getTags().get("src.module"), "ballerina/http:");
             Assert.assertEquals(span.getTags().get("src.remote"), "true");
-            Assert.assertEquals(span.getTags().get("http.status_code"), "0");
-            Assert.assertEquals(span.getTags().get("http.status_code_group"), "0xx");
+            Assert.assertEquals(span.getTags().get("http.status_code"), "200");
+            Assert.assertEquals(span.getTags().get("http.status_code_group"), "2xx");
             Assert.assertEquals(span.getTags().get("http.url"), "/echoService/resourceTwo");
             Assert.assertEquals(span.getTags().get("http.method"), "GET");
             Assert.assertEquals(span.getTags().get("peer.address"), "localhost:9090");
@@ -175,7 +180,8 @@ public class TracingTestCase extends BaseTest {
 
         Optional<BMockSpan> span4 = mockSpans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"),
-                        "01_trace_test_ootb.bal:36:5")).findFirst();
+                        "01_trace_test_ootb.bal:36:5"))
+                .findFirst();
         Assert.assertTrue(span4.isPresent());
         span4.ifPresent(span -> {
             Assert.assertEquals(span.getTraceId(), traceId);
@@ -192,7 +198,8 @@ public class TracingTestCase extends BaseTest {
 
         Optional<BMockSpan> span5 = mockSpans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"),
-                        "01_trace_test_ootb.bal:39:20")).findFirst();
+                        "01_trace_test_ootb.bal:39:20"))
+                .findFirst();
         Assert.assertTrue(span5.isPresent());
         span5.ifPresent(span -> {
             Assert.assertEquals(span.getTraceId(), traceId);
@@ -208,7 +215,8 @@ public class TracingTestCase extends BaseTest {
 
         Optional<BMockSpan> span6 = mockSpans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"),
-                        "01_trace_test_ootb.bal:29:24")).findFirst();
+                        "01_trace_test_ootb.bal:29:24"))
+                .findFirst();
         Assert.assertTrue(span6.isPresent());
         span6.ifPresent(span -> {
             Assert.assertEquals(span.getTraceId(), traceId);
@@ -245,6 +253,49 @@ public class TracingTestCase extends BaseTest {
         Assert.assertEquals(mockSpans.size(), 16, "Mismatch in number of spans reported.");
         Assert.assertEquals(mockSpans.stream()
                 .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 3, "Mismatch in number of root spans.");
+
+        Optional<BMockSpan> span1 = mockSpans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"),
+                        "02_trace_test_user_trace_false.bal:25:5"))
+                .findFirst();
+        Assert.assertTrue(span1.isPresent());
+        long traceId = span1.get().getTraceId();
+
+        Optional<BMockSpan> span2 = mockSpans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getOperationName(), "uSpanOne"))
+                .findFirst();
+        Assert.assertTrue(span2.isPresent());
+        span2.ifPresent(span -> {
+            Assert.assertEquals(span.getTraceId(), traceId);
+            Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
+            Assert.assertEquals(span.getTags().size(), 1);
+            Assert.assertEquals(span.getTags().get("span.kind"), "client");
+
+            List<BMockSpan> childSpans = mockSpans.stream()
+                    .filter(mockSpan -> mockSpan.getTraceId() == traceId && mockSpan.getParentId() == span.getSpanId())
+                    .collect(Collectors.toList());
+            Assert.assertEquals(childSpans.size(), 2, "Invalid number of children");
+            Assert.assertTrue(childSpans.stream().anyMatch(bMockSpan -> Objects.equals(
+                    bMockSpan.getTags().get("src.position"), "02_trace_test_user_trace_false.bal:35:24")));
+        });
+
+        Optional<BMockSpan> span3 = mockSpans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getOperationName(), "uSpanTwo"))
+                .findFirst();
+        Assert.assertTrue(span3.isPresent());
+        span3.ifPresent(span -> {
+            Assert.assertEquals(span.getTraceId(), traceId);
+            Assert.assertEquals(span.getParentId(), span2.get().getSpanId());
+            Assert.assertEquals(span.getTags().size(), 1);
+            Assert.assertEquals(span.getTags().get("span.kind"), "client");
+
+            List<BMockSpan> childSpans = mockSpans.stream()
+                    .filter(mockSpan -> mockSpan.getTraceId() == traceId && mockSpan.getParentId() == span.getSpanId())
+                    .collect(Collectors.toList());
+            Assert.assertEquals(childSpans.size(), 1, "Invalid number of children");
+            Assert.assertEquals(childSpans.get(0).getTags().get("src.position"),
+                    "02_trace_test_user_trace_false.bal:64:32");
+        });
     }
 
     @Test(dependsOnMethods = "testObservePackageUserTraceFalse")
@@ -271,12 +322,36 @@ public class TracingTestCase extends BaseTest {
         Assert.assertEquals(mockSpans.stream()
                 .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 6, "Mismatch in number of root spans.");
 
-        Optional<BMockSpan> uSpanTwo = mockSpans.stream()
-                .filter(bMockSpan -> bMockSpan.getOperationName().equals("uSpanFour")).findFirst();
-        Assert.assertTrue(uSpanTwo.isPresent());
-        uSpanTwo.ifPresent(bMockSpan -> {
-            Assert.assertEquals(bMockSpan.getTags().get("Allowed"), "Successful", "Tag not found");
-            Assert.assertNull(bMockSpan.getTags().get("Disallowed"), "Unexpected tag found");
+        Optional<BMockSpan> span1 = mockSpans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getOperationName(), "uSpanThree"))
+                .findFirst();
+        Assert.assertTrue(span1.isPresent());
+        long traceId = span1.get().getTraceId();
+        span1.ifPresent(span -> {
+            Assert.assertTrue(mockSpans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
+                    && mockSpan.getSpanId() == span.getParentId()));
+            Assert.assertEquals(span.getTags().size(), 1);
+            Assert.assertEquals(span.getTags().get("span.kind"), "client");
+
+            List<BMockSpan> childSpans = mockSpans.stream()
+                    .filter(mockSpan -> mockSpan.getTraceId() == traceId && mockSpan.getParentId() == span.getSpanId())
+                    .collect(Collectors.toList());
+            Assert.assertEquals(childSpans.size(), 1, "Invalid number of children");
+        });
+
+        Optional<BMockSpan> span2 = mockSpans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getOperationName(), "uSpanFour"))
+                .findFirst();
+        Assert.assertTrue(span2.isPresent());
+        span2.ifPresent(span -> {
+            Assert.assertEquals(span.getTraceId(), traceId);
+            Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
+            Assert.assertEquals(span.getTags().size(), 2);
+            Assert.assertEquals(span.getTags().get("span.kind"), "client");
+            Assert.assertEquals(span.getTags().get("Allowed"), "Successful");
+
+            Assert.assertTrue(mockSpans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
+                    && mockSpan.getParentId() == span.getSpanId()), "Invalid number of children");
         });
     }
 
@@ -304,6 +379,49 @@ public class TracingTestCase extends BaseTest {
         Assert.assertEquals(mockSpans.size(), 38, "Mismatch in number of spans reported.");
         Assert.assertEquals(mockSpans.stream()
                 .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 8, "Mismatch in number of root spans.");
+
+        Optional<BMockSpan> parentSpan = mockSpans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"),
+                        "04_trace_test_workers.bal:25:5"))
+                .findFirst();
+        Assert.assertTrue(parentSpan.isPresent());
+        long traceId = parentSpan.get().getTraceId();
+
+        List<BMockSpan> w1Spans = mockSpans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"),
+                        "04_trace_test_workers.bal:54:5"))
+                .collect(Collectors.toList());
+        Assert.assertEquals(w1Spans.size(), 2);
+        w1Spans.forEach(span -> {
+            Assert.assertEquals(span.getTraceId(), traceId);
+            Assert.assertEquals(span.getParentId(), parentSpan.get().getSpanId());
+            Assert.assertEquals(span.getOperationName(), "w1");
+            Assert.assertEquals(span.getTags().size(), 4);
+            Assert.assertEquals(span.getTags().get("span.kind"), "client");
+            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
+            Assert.assertEquals(span.getTags().get("src.worker"), "w1");
+
+            Assert.assertTrue(mockSpans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
+                    && mockSpan.getParentId() == span.getSpanId()), "Invalid number of children");
+        });
+
+        List<BMockSpan> w2Spans = mockSpans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"),
+                        "04_trace_test_workers.bal:61:5"))
+                .collect(Collectors.toList());
+        Assert.assertEquals(w2Spans.size(), 2);
+        w2Spans.forEach(span -> {
+            Assert.assertEquals(span.getTraceId(), traceId);
+            Assert.assertEquals(span.getParentId(), parentSpan.get().getSpanId());
+            Assert.assertEquals(span.getOperationName(), "w2");
+            Assert.assertEquals(span.getTags().size(), 4);
+            Assert.assertEquals(span.getTags().get("span.kind"), "client");
+            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
+            Assert.assertEquals(span.getTags().get("src.worker"), "w2");
+
+            Assert.assertTrue(mockSpans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
+                    && mockSpan.getParentId() == span.getSpanId()), "Invalid number of children");
+        });
     }
 
     @Test(dependsOnMethods = "testOOTBTracingWithWorkers")
@@ -326,6 +444,9 @@ public class TracingTestCase extends BaseTest {
         Assert.assertEquals(mockSpans.size(), 46, "Mismatch in number of spans reported.");
         Assert.assertEquals(mockSpans.stream()
                 .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 10, "Mismatch in number of root spans.");
+        Assert.assertEquals(mockSpans.stream()
+                        .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("error"), "true")).count(), 0,
+                "Mismatch in number of error spans.");
 
         HttpClientRequest.doGet(service + "resourceOne/2");
         Thread.sleep(1000);
@@ -344,6 +465,12 @@ public class TracingTestCase extends BaseTest {
         Assert.assertEquals(mockSpans.size(), 54, "Mismatch in number of spans reported.");
         Assert.assertEquals(mockSpans.stream()
                 .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 12, "Mismatch in number of root spans.");
+        Assert.assertEquals(mockSpans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("error"), "true")).count(), 0,
+                "Mismatch in number of error spans.");
+        Assert.assertEquals(mockSpans.stream()
+                        .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("http.status_code"), "501"))
+                        .count(), 2, "Mismatch in number of server error spans.");
 
         HttpClientRequest.doGet(service + "resourceOne/1");
         Thread.sleep(1000);
@@ -361,6 +488,9 @@ public class TracingTestCase extends BaseTest {
         Assert.assertEquals(mockSpans.size(), 61, "Mismatch in number of spans reported.");
         Assert.assertEquals(mockSpans.stream()
                 .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 14, "Mismatch in number of root spans.");
+        Assert.assertEquals(mockSpans.stream()
+                        .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("error"), "true")).count(), 1,
+                "Mismatch in number of error spans.");
 
         HttpClientRequest.doGet(service + "resourceOne/0");
         Thread.sleep(1000);
@@ -374,6 +504,9 @@ public class TracingTestCase extends BaseTest {
         Assert.assertEquals(mockSpans.size(), 64, "Mismatch in number of spans reported.");
         Assert.assertEquals(mockSpans.stream()
                 .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 16, "Mismatch in number of root spans.");
+        Assert.assertEquals(mockSpans.stream()
+                        .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("error"), "true")).count(), 2,
+                "Mismatch in number of error spans.");
     }
 
     @Test(dependsOnMethods = "testOOTBTracingWithErrors")
@@ -394,6 +527,53 @@ public class TracingTestCase extends BaseTest {
         // 72. echoService5 -> ballerina/http/Caller:respond
         // 73. echoService5 -> getGreeting1
         // 74. echoService5 -> ballerina/http/Caller:respond
+
+        Optional<BMockSpan> resourceOneSpan = mockSpans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"),
+                        "06_trace_test_user_defined_functions.bal:25:5"))
+                .findFirst();
+        Assert.assertTrue(resourceOneSpan.isPresent());
+        long traceId = resourceOneSpan.get().getTraceId();
+
+        Optional<BMockSpan> span1 = mockSpans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"),
+                        "06_trace_test_user_defined_functions.bal:29:40"))
+                .findFirst();
+        Assert.assertTrue(span1.isPresent());
+        span1.ifPresent(span -> {
+            Assert.assertEquals(span.getTraceId(), traceId);
+            Assert.assertEquals(span.getParentId(), resourceOneSpan.get().getSpanId());
+            Assert.assertEquals(span.getOperationName(), "getGreeting1");
+            Assert.assertEquals(span.getTags().size(), 3);
+            Assert.assertEquals(span.getTags().get("span.kind"), "client");
+            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
+
+            Assert.assertTrue(mockSpans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
+                    && mockSpan.getParentId() == span.getSpanId()), "Invalid number of children");
+        });
+
+        Optional<BMockSpan> resourceTwoSpan = mockSpans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"),
+                        "06_trace_test_user_defined_functions.bal:37:5"))
+                .findFirst();
+        Assert.assertTrue(resourceTwoSpan.isPresent());
+
+        Optional<BMockSpan> span2 = mockSpans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"),
+                        "06_trace_test_user_defined_functions.bal:39:28"))
+                .findFirst();
+        Assert.assertTrue(span2.isPresent());
+        span2.ifPresent(span -> {
+            Assert.assertEquals(span.getTraceId(), traceId);
+            Assert.assertEquals(span.getParentId(), resourceTwoSpan.get().getSpanId());
+            Assert.assertEquals(span.getOperationName(), "getGreeting2");
+            Assert.assertEquals(span.getTags().size(), 3);
+            Assert.assertEquals(span.getTags().get("span.kind"), "client");
+            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
+
+            Assert.assertTrue(mockSpans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
+                    && mockSpan.getParentId() == span.getSpanId()), "Invalid number of children");
+        });
 
         Assert.assertEquals(mockSpans.size(), 74, "Mismatch in number of spans reported.");
         Assert.assertEquals(mockSpans.stream()

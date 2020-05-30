@@ -62,7 +62,6 @@ import java.net.URL;
 import java.util.Optional;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.ACCEPT_ENCODING;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.STATUS_CODE_GROUP_SUFFIX;
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.BALLERINA_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
@@ -474,14 +473,13 @@ public abstract class AbstractHTTPAction {
 
         @Override
         public void onMessage(HttpCarbonMessage httpCarbonMessage) {
-            super.onMessage(httpCarbonMessage);
             int statusCode = httpCarbonMessage.getHttpStatusCode();
             addHttpStatusCode(statusCode);
+            super.onMessage(httpCarbonMessage);
         }
 
         @Override
         public void onError(Throwable throwable) {
-            super.onError(throwable);
             if (throwable instanceof ClientConnectorException) {
                 ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;
                 addHttpStatusCode(clientConnectorException.getHttpStatusCode());
@@ -493,16 +491,14 @@ public abstract class AbstractHTTPAction {
                 });
 
             }
+            super.onError(throwable);
         }
 
         private void addHttpStatusCode(int statusCode) {
             Optional<ObserverContext> observerContext =
                     ObserveUtils.getObserverContextOfCurrentFrame(context.getStrand());
-            observerContext.ifPresent(ctx -> {
-                ctx.addProperty(ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE, statusCode);
-                ctx.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP,
-                        statusCode / 100 + STATUS_CODE_GROUP_SUFFIX);
-            });
+            observerContext.ifPresent(ctx -> ctx.addProperty(ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE,
+                    statusCode));
         }
     }
 }
