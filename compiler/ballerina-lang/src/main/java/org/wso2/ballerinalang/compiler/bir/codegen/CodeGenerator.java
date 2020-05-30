@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerOptionName;
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.NativeDependencyResolver;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
@@ -26,7 +27,6 @@ import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
@@ -111,7 +111,7 @@ public class CodeGenerator {
         }
 
         // find module dependencies path
-        Set<Path> moduleDependencies = findDependencies(bLangPackage);
+        Set<Path> moduleDependencies = findDependencies(bLangPackage.packageID);
 
         // generate module jar
         generate(bLangPackage.symbol, moduleDependencies);
@@ -123,10 +123,10 @@ public class CodeGenerator {
         bLangPackage.getTestablePkgs().forEach(testablePackage -> {
 
             // find module dependencies path
-            Set<Path> testDependencies = findTestDependencies(testablePackage);
+            moduleDependencies.addAll(findTestDependencies(testablePackage.packageID));
 
             // generate test module jar
-            generate(testablePackage.symbol, testDependencies);
+            generate(testablePackage.symbol, moduleDependencies);
         });
 
         return bLangPackage;
@@ -143,7 +143,7 @@ public class CodeGenerator {
         packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, interopValidator, true);
     }
 
-    private Set<Path> findDependencies(BLangPackage bLangPackage) {
+    private Set<Path> findDependencies(PackageID packageID) {
 
         Set<Path> moduleDependencies = new HashSet<>();
 
@@ -152,28 +152,27 @@ public class CodeGenerator {
         }
 
         if (isBaloGen) {
-            return readInteropDependencies();
+            moduleDependencies.addAll(readInteropDependencies());
         }
 
         NativeDependencyResolver nativeDependencyResolver = compilerContext.get(JAR_RESOLVER_KEY);
 
         if (nativeDependencyResolver != null) {
-            moduleDependencies.addAll(nativeDependencyResolver.nativeDependencies(bLangPackage.packageID));
+            moduleDependencies.addAll(nativeDependencyResolver.nativeDependencies(packageID));
             moduleDependencies.add(getRuntimeAllJarPath());
         }
 
         return moduleDependencies;
     }
 
-    private Set<Path> findTestDependencies(BLangTestablePackage testablePackage) {
+    private Set<Path> findTestDependencies(PackageID testPackageId) {
 
         Set<Path> testDependencies = new HashSet<>();
 
         NativeDependencyResolver nativeDependencyResolver = compilerContext.get(JAR_RESOLVER_KEY);
 
         if (nativeDependencyResolver != null) {
-            testDependencies.addAll(nativeDependencyResolver.nativeDependenciesForTests(testablePackage.packageID));
-            testDependencies.add(getRuntimeAllJarPath());
+            testDependencies.addAll(nativeDependencyResolver.nativeDependenciesForTests(testPackageId));
         }
 
         return testDependencies;
