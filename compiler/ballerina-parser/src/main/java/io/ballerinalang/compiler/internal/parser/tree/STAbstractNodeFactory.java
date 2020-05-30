@@ -46,6 +46,9 @@ public abstract class STAbstractNodeFactory {
     }
 
     public static STNode createNodeList(Collection<STNode> children) {
+        if (children.isEmpty()) {
+            return EMPTY_LIST;
+        }
         return new STNodeList(children);
     }
 
