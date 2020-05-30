@@ -37,14 +37,6 @@ import ballerina/java;
 #            already started up hub
 function startUpHubService(string basePath, string subscriptionResourcePath, string publishResourcePath,
                            boolean topicRegistrationRequired, string publicUrl, http:Listener hubListener)
-                                    returns Hub|HubStartedUpError|HubStartupError {
-    return externStartUpHubService(java:fromString(basePath), java:fromString(subscriptionResourcePath),
-                                   java:fromString(publishResourcePath), topicRegistrationRequired,
-                                   java:fromString(publicUrl), hubListener);
-}
-
-function externStartUpHubService(handle basePath, handle subscriptionResourcePath, handle publishResourcePath,
-                                 boolean topicRegistrationRequired, handle publicUrl, http:Listener hubListener)
                                     returns Hub|HubStartedUpError|HubStartupError = @java:Method {
     name: "startUpHubService",
     class: "org.ballerinalang.net.websub.nativeimpl.HubNativeOperationHandler"
@@ -70,11 +62,7 @@ function addSubscription(SubscriptionDetails subscriptionDetails) = @java:Method
 # + topic - The topic for which the update should happen
 # + content - The content to send to subscribers with the specified payload and content-type
 # + return - An `error` if an error occurred during publishing or esle `()`
-function publishToInternalHub(string topic, WebSubContent content) returns error? {
-    return externPublishToInternalHub(java:fromString(topic), content);
-}
-
-function externPublishToInternalHub(handle topic, WebSubContent content) returns error? = @java:Method {
+function publishToInternalHub(string topic, WebSubContent content) returns error? = @java:Method {
     name: "publishToInternalHub",
     class: "org.ballerinalang.net.websub.nativeimpl.HubNativeOperationHandler"
 } external;
@@ -83,11 +71,7 @@ function externPublishToInternalHub(handle topic, WebSubContent content) returns
 #
 # + topic - The topic for which the subscription was added
 # + callback - The callback registered for this subscription
-function removeNativeSubscription(string topic, string callback) {
-    return externRemoveNativeSubscription(java:fromString(topic), java:fromString(callback));
-}
-
-function externRemoveNativeSubscription(handle topic, handle callback) = @java:Method {
+function removeNativeSubscription(string topic, string callback) = @java:Method {
     name: "removeNativeSubscription",
     class: "org.ballerinalang.net.websub.nativeimpl.HubNativeOperationHandler"
 } external;
@@ -96,11 +80,7 @@ function externRemoveNativeSubscription(handle topic, handle callback) = @java:M
 #
 # + topic - The topic to register
 # + return - An `error` if an error occurred during the registration
-function registerTopicAtNativeHub(string topic) returns error? {
-   return externRegisterTopicAtNativeHub(java:fromString(topic));
-}
-
-function externRegisterTopicAtNativeHub(handle topic) returns error? = @java:Method {
+function registerTopicAtNativeHub(string topic) returns error? = @java:Method {
    name: "registerTopicAtNativeHub",
    class: "org.ballerinalang.net.websub.nativeimpl.HubNativeOperationHandler"
 } external;
@@ -109,11 +89,7 @@ function externRegisterTopicAtNativeHub(handle topic) returns error? = @java:Met
 #
 # + topic - The topic to unregister
 # + return - An `error` if an error occurred during the unregistration
-function unregisterTopicAtNativeHub(string topic) returns error? {
-    return externUnregisterTopicAtNativeHub(java:fromString(topic));
-}
-
-function externUnregisterTopicAtNativeHub(handle topic) returns error? = @java:Method {
+function unregisterTopicAtNativeHub(string topic) returns error? = @java:Method {
     name: "unregisterTopicAtNativeHub",
     class: "org.ballerinalang.net.websub.nativeimpl.HubNativeOperationHandler"
 } external;
@@ -122,11 +98,7 @@ function externUnregisterTopicAtNativeHub(handle topic) returns error? = @java:M
 #
 # + topic - The topic to check
 # + return - `true` if the topic has been registered by a publisher or else `false`otherwise
-function isTopicRegistered(string topic) returns boolean {
-    return externIsTopicRegistered(java:fromString(topic));
-}
-
-function externIsTopicRegistered(handle topic) returns boolean = @java:Method {
+function isTopicRegistered(string topic) returns boolean = @java:Method {
     name: "isTopicRegistered",
     class: "org.ballerinalang.net.websub.nativeimpl.HubNativeOperationHandler"
 } external;
@@ -140,12 +112,8 @@ function externIsTopicRegistered(handle topic) returns boolean = @java:Method {
 # + topic - The topic for which the update should happen
 # + content - The content to send to subscribers with the specified payload and content-type
 # + return - An `error` if an error occurred during publishing
-function validateAndPublishToInternalHub(string publishUrl, string topic, WebSubContent content) returns error? {
-    return externValidateAndPublishToInternalHub(java:fromString(publishUrl), java:fromString(topic), content);
-}
-
-function externValidateAndPublishToInternalHub(handle publishUrl, handle topic, WebSubContent content)
-                                                returns error? = @java:Method {
+function validateAndPublishToInternalHub(string publishUrl, string topic, WebSubContent content)
+                                         returns error? = @java:Method {
     name: "validateAndPublishToInternalHub",
     class: "org.ballerinalang.net.websub.nativeimpl.PublisherNativeOperationHandler"
 } external;
