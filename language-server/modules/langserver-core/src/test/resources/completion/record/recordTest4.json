@@ -6,6 +6,24 @@
   "source": "record/source/recordTest4.bal",
   "items": [
     {
+      "label": "cloneWithType(typedesc<anydata> t)((anydata|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConstructs a value with a specified type by cloning another value.  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed  \n  \n**Returns** `(anydata|error)`   \n- a new value that belongs to `t`, or an error if this cannot be done  \n  \nWhen `v` is a structural value, the inherent type of the value to be constructed  \ncomes from `t`. When `t` is a union, it must be possible to determine which  \nmember of the union to use for the inherent type by following the same rules  \nthat are used by list constructor expressions and mapping constructor expressions  \nwith the contextually expected type. If not, then an error is returned.  \nThe `constructFrom` operation is recursively applied to each member of `v` using  \nthe type descriptor that the inherent type requires for that member.  \n  \nLike the Clone abstract operation, this does a deep copy, but differs in  \nthe following respects:  \n- the inherent type of any structural values constructed comes from the specified  \n  type descriptor rather than the value being constructed  \n- the read-only bit of values and fields comes from the specified type descriptor  \n- the graph structure of `v` is not preserved; the result will always be a tree;  \n  an error will be returned if `v` has cycles  \n- immutable structural values are copied rather being returned as is; all  \n  structural values in the result will be mutable, except for error values  \n  (which are always immutable)  \n- numeric values can be converted using the NumericConvert abstract operation  \n- if a record type descriptor specifies default values, these will be used  \n  to supply any missing members  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "cloneWithType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "fromJsonString()((json|error))",
       "kind": "Function",
       "detail": "Function",
@@ -17,6 +35,214 @@
       },
       "sortText": "120",
       "insertText": "fromJsonString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "createFilterFunction()(_StreamFunction)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n  \n  \n**Returns** `_StreamFunction`   \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "createFilterFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "removeAll()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves all members of a map.\nThis panics if any member cannot be removed.\n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "removeAll();",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "iterator()()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns an iterator over a map.\nThe iterator will iterate over the members of the map not the keys.\nThe `entries` function can be used to iterate over the keys and members together.\nThe `keys` function can be used to iterator over just the keys.\n  \n  \n  \n**Returns** ``   \n- a new iterator object that will iterate over the members of `m`  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "iterator()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "toArray()((any|error)[])",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a list of all the members of a map.\n  \n  \n  \n**Returns** `(any|error)[]`   \n- an array whose members are the members of `m`  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "toArray()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "createJoinFunction()(_StreamFunction)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n  \n  \n**Returns** `_StreamFunction`   \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "createJoinFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "toJsonString()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns the string that represents `v` in JSON format.\n  \n  \n  \n**Returns** `string`   \n- string representation of json  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "toJsonString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "reduce(function ((any|error),(any|error)) returns ((any|error)) func, (any|error) initial)((any|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nCombines the members of a map using a combining function.\nThe combining function takes the combined value so far and a member of the map,\nand returns a new combined value.\n  \n**Params**  \n- `function ((any|error),(any|error)) returns ((any|error))` func: combining function  \n- `(any|error)` initial: initial value for the first argument of combining parameter `func`  \n  \n**Returns** `(any|error)`   \n- result of combining the members of `m` using `func`  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "reduce(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "cloneReadOnly()(anydata)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "cloneReadOnly()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "createInputFunction()(_StreamFunction)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n  \n  \n**Returns** `_StreamFunction`   \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "createInputFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "entries()(map<[string,(any|error)]>)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a map containing [key, member] pair as the value for each key.\n  \n  \n  \n**Returns** `map<[string,(any|error)]>`   \n- a new map of [key, member] pairs  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "entries()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "addStreamFunction(_StreamFunction streamFunction)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n**Params**  \n- `_StreamFunction` streamFunction"
+        }
+      },
+      "sortText": "120",
+      "insertText": "addStreamFunction(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "mergeJson(json j2)((json|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nMerges two json values.\n  \n**Params**  \n- `json` j2: json value  \n  \n**Returns** `(json|error)`   \n- the merge of `j1` with `j2` or an error if the merge fails  \n  \nThe merge of `j1` with `j2` is defined as follows:  \n- if `j1` is `()`, then the result is `j2`  \n- if `j2` is `()`, then the result is `j1`  \n- if `j1` is a mapping and `j2` is a mapping, then for each entry [k, j] in j2,  \n  set `j1[k]` to the merge of `j1[k]` with `j`  \n    - if `j1[k]` is undefined, then set `j1[k]` to `j`  \n    - if any merge fails, then the merge of `j1` with `j2` fails  \n    - otherwise, the result is `j1`.  \n- otherwise, the merge fails  \nIf the merge fails, then `j1` is unchanged.  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "mergeJson(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "consumeStream()((()|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n  \n  \n**Returns** `(()|error)`   \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "consumeStream()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "createLetFunction()(_StreamFunction)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n  \n  \n**Returns** `_StreamFunction`   \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "createLetFunction()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -80,48 +306,6 @@
       }
     },
     {
-      "label": "createFilterFunction()(_StreamFunction)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n  \n  \n**Returns** `_StreamFunction`   \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "createFilterFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "removeAll()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves all members of a map.\nThis panics if any member cannot be removed.\n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "removeAll();",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "iterator()()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns an iterator over a map.\nThe iterator will iterate over the members of the map not the keys.\nThe `entries` function can be used to iterate over the keys and members together.\nThe `keys` function can be used to iterator over just the keys.\n  \n  \n  \n**Returns** ``   \n- a new iterator object that will iterate over the members of `m`  \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "iterator()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "isReadOnly()(boolean)",
       "kind": "Function",
       "detail": "Function",
@@ -154,34 +338,6 @@
       }
     },
     {
-      "label": "toArray()((any|error)[])",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a list of all the members of a map.\n  \n  \n  \n**Returns** `(any|error)[]`   \n- an array whose members are the members of `m`  \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "toArray()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "createJoinFunction()(_StreamFunction)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n  \n  \n**Returns** `_StreamFunction`   \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "createJoinFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "map(function ((any|error)) returns ((any|error)) func)(map<(any|error)>)",
       "kind": "Function",
       "detail": "Function",
@@ -193,38 +349,6 @@
       },
       "sortText": "120",
       "insertText": "map(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "toJsonString()(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns the string that represents `v` in JSON format.\n  \n  \n  \n**Returns** `string`   \n- string representation of json  \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "toJsonString()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "reduce(function ((any|error),(any|error)) returns ((any|error)) func, (any|error) initial)((any|error))",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nCombines the members of a map using a combining function.\nThe combining function takes the combined value so far and a member of the map,\nand returns a new combined value.\n  \n**Params**  \n- `function ((any|error),(any|error)) returns ((any|error))` func: combining function  \n- `(any|error)` initial: initial value for the first argument of combining parameter `func`  \n  \n**Returns** `(any|error)`   \n- result of combining the members of `m` using `func`  \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "reduce(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -293,34 +417,6 @@
       },
       "sortText": "120",
       "insertText": "createLimitFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "cloneReadOnly()(anydata)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "cloneReadOnly()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "createInputFunction()(_StreamFunction)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n  \n  \n**Returns** `_StreamFunction`   \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "createInputFunction()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -400,38 +496,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "entries()(map<[string,(any|error)]>)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a map containing [key, member] pair as the value for each key.\n  \n  \n  \n**Returns** `map<[string,(any|error)]>`   \n- a new map of [key, member] pairs  \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "entries()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "addStreamFunction(_StreamFunction streamFunction)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n**Params**  \n- `_StreamFunction` streamFunction"
-        }
-      },
-      "sortText": "120",
-      "insertText": "addStreamFunction(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "createSelectFunction()(_StreamFunction)",
       "kind": "Function",
       "detail": "Function",
@@ -462,52 +526,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "mergeJson(json j2)((json|error))",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nMerges two json values.\n  \n**Params**  \n- `json` j2: json value  \n  \n**Returns** `(json|error)`   \n- the merge of `j1` with `j2` or an error if the merge fails  \n  \nThe merge of `j1` with `j2` is defined as follows:  \n- if `j1` is `()`, then the result is `j2`  \n- if `j2` is `()`, then the result is `j1`  \n- if `j1` is a mapping and `j2` is a mapping, then for each entry [k, j] in j2,  \n  set `j1[k]` to the merge of `j1[k]` with `j`  \n    - if `j1[k]` is undefined, then set `j1[k]` to `j`  \n    - if any merge fails, then the merge of `j1` with `j2` fails  \n    - otherwise, the result is `j1`.  \n- otherwise, the merge fails  \nIf the merge fails, then `j1` is unchanged.  \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "mergeJson(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "consumeStream()((()|error))",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n  \n  \n**Returns** `(()|error)`   \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "consumeStream()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "createLetFunction()(_StreamFunction)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n  \n  \n**Returns** `_StreamFunction`   \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "createLetFunction()",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "clone()(anydata)",
