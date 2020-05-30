@@ -63,15 +63,39 @@ public class TypedBindingPatternsTest extends AbstractMiscTest {
     }
 
     @Test
-    public void testBindingPatternInLetVarDeclInQuery() {
+    public void testListBindingPatternInLetVarDeclInQuery() {
         testFile("typed-binding-patterns/typed_binding_patterns_source_10.bal",
                 "typed-binding-patterns/typed_binding_patterns_assert_10.json");
     }
 
     @Test
-    public void testBindingPatternInLetVarDeclInLetExpr() {
+    public void testListBindingPatternInLetVarDeclInLetExpr() {
         testFile("typed-binding-patterns/typed_binding_patterns_source_11.bal",
                 "typed-binding-patterns/typed_binding_patterns_assert_11.json");
+    }
+
+    @Test
+    public void testMappingBindingPattern() {
+        testFile("typed-binding-patterns/typed_binding_patterns_source_14.bal",
+                "typed-binding-patterns/typed_binding_patterns_assert_14.json");
+    }
+
+    @Test
+    public void testMappingBindingPatternWithListsInside() {
+        testFile("typed-binding-patterns/typed_binding_patterns_source_15.bal",
+                "typed-binding-patterns/typed_binding_patterns_assert_15.json");
+    }
+
+    @Test
+    public void testComplexTypedBindingPatternWith() {
+        testFile("typed-binding-patterns/typed_binding_patterns_source_16.bal",
+                "typed-binding-patterns/typed_binding_patterns_assert_16.json");
+    }
+
+    @Test
+    public void testMappingBindingPatternInLetVarDeclInQuery() {
+        testFile("typed-binding-patterns/typed_binding_patterns_source_17.bal",
+                "typed-binding-patterns/typed_binding_patterns_assert_17.json");
     }
 
     // Recovery tests
@@ -105,4 +129,11 @@ public class TypedBindingPatternsTest extends AbstractMiscTest {
         testFile("typed-binding-patterns/typed_binding_patterns_source_13.bal",
                 "typed-binding-patterns/typed_binding_patterns_assert_13.json");
     }
+
+    @Test
+    public void testMappingBindingPatternWithListsInsideRecovery() {
+        testFile("typed-binding-patterns/typed_binding_patterns_source_18.bal",
+                "typed-binding-patterns/typed_binding_patterns_assert_18.json");
+    }
+
 }
