@@ -633,7 +633,7 @@ public class JvmPackageGen {
 
                 BIRFunctionWrapper birFuncWrapperOrError;
                 try {
-                    if (isExternFunc(getFunction(birFunc))) {
+                    if (isExternFunc(getFunction(birFunc)) && isEntry) {
                         birFuncWrapperOrError = createExternalFunctionWrapper(interopValidator, birFunc, orgName,
                                 moduleName, version, birModuleClassName, this);
                     } else {
