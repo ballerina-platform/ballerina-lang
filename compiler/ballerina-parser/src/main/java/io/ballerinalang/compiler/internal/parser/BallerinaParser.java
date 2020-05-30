@@ -589,7 +589,7 @@ public class BallerinaParser extends AbstractParser {
                     // If the solution is {@link Action#KEEP}, that means next immediate token is
                     // at the correct place, but some token after that is not. There only one such
                     // cases here, which is the `case IDENTIFIER_TOKEN`. So accept it, and continue.
-                    metadata = STNodeFactory.createNodeList(new ArrayList<>());
+                    metadata = STNodeFactory.createEmptyNodeList();
                     break;
                 }
 
@@ -1641,15 +1641,13 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseParamList(boolean isParamNameOptional) {
         startContext(ParserRuleContext.PARAM_LIST);
-        ArrayList<STNode> paramsList = new ArrayList<>();
-
         STToken token = peek();
         if (isEndOfParametersList(token.kind)) {
-            STNode params = STNodeFactory.createNodeList(paramsList);
-            return params;
+            return STNodeFactory.createEmptyNodeList();
         }
 
         // Parse the first parameter. Comma precedes the first parameter doesn't exist.
+        ArrayList<STNode> paramsList = new ArrayList<>();
         STNode startingComma = STNodeFactory.createEmptyNode();
         startContext(ParserRuleContext.REQUIRED_PARAM);
         STNode firstParam = parseParameter(startingComma, SyntaxKind.REQUIRED_PARAM, isParamNameOptional);
@@ -1692,8 +1690,7 @@ public class BallerinaParser extends AbstractParser {
             token = peek();
         }
 
-        STNode params = STNodeFactory.createNodeList(paramsList);
-        return params;
+        return STNodeFactory.createNodeList(paramsList);
     }
 
     private STNode parseParameterRhs(SyntaxKind tokenKind) {
@@ -1744,12 +1741,12 @@ public class BallerinaParser extends AbstractParser {
                 break;
             case PUBLIC_KEYWORD:
             case IDENTIFIER_TOKEN:
-                annots = STNodeFactory.createNodeList(new ArrayList<>());
+                annots = STNodeFactory.createEmptyNodeList();
                 break;
             default:
                 // TODO: can remove the first check?
                 if (nextTokenKind != SyntaxKind.IDENTIFIER_TOKEN && isTypeStartingToken(nextTokenKind)) {
-                    annots = STNodeFactory.createNodeList(new ArrayList<>());
+                    annots = STNodeFactory.createEmptyNodeList();
                     break;
                 }
 
@@ -1761,7 +1758,7 @@ public class BallerinaParser extends AbstractParser {
                     // If the solution is {@link Action#KEEP}, that means next immediate token is
                     // at the correct place, but some token after that is not. There only one such
                     // cases here, which is the `case IDENTIFIER_TOKEN`. So accept it, and continue.
-                    annots = STNodeFactory.createNodeList(new ArrayList<>());
+                    annots = STNodeFactory.createEmptyNodeList();
                     break;
                 }
 
@@ -3371,7 +3368,7 @@ public class BallerinaParser extends AbstractParser {
             return nullbaleAnnot;
         }
 
-        return STNodeFactory.createNodeList(new ArrayList<>());
+        return STNodeFactory.createEmptyNodeList();
     }
 
     private STNode parseStatement(STNode annots) {
@@ -4509,11 +4506,10 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseArgsList() {
         startContext(ParserRuleContext.ARG_LIST);
-        ArrayList<STNode> argsList = new ArrayList<>();
 
         STToken token = peek();
         if (isEndOfParametersList(token.kind)) {
-            STNode args = STNodeFactory.createNodeList(argsList);
+            STNode args = STNodeFactory.createEmptyNodeList();
             endContext();
             return args;
         }
@@ -4521,12 +4517,13 @@ public class BallerinaParser extends AbstractParser {
         STNode leadingComma = STNodeFactory.createEmptyNode();
         STNode arg = parseArg(leadingComma);
         if (arg == null) {
-            STNode args = STNodeFactory.createNodeList(argsList);
+            STNode args = STNodeFactory.createEmptyNodeList();
             endContext();
             return args;
         }
 
         // TODO: Is this check required?
+        ArrayList<STNode> argsList = new ArrayList<>();
         SyntaxKind lastProcessedArgKind;
         if (SyntaxKind.POSITIONAL_ARG.ordinal() <= arg.kind.ordinal()) {
             argsList.add(arg);
@@ -4721,7 +4718,6 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseObjectTypeQualifiers(SyntaxKind kind) {
-        List<STNode> qualifiers = new ArrayList<>();
         STNode firstQualifier;
         switch (kind) {
             case CLIENT_KEYWORD:
@@ -4733,7 +4729,7 @@ public class BallerinaParser extends AbstractParser {
                 firstQualifier = abstractKeyword;
                 break;
             case OBJECT_KEYWORD:
-                return STNodeFactory.createNodeList(qualifiers);
+                return STNodeFactory.createEmptyNodeList();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.OBJECT_TYPE_FIRST_QUALIFIER);
 
@@ -4750,6 +4746,7 @@ public class BallerinaParser extends AbstractParser {
         // Parse the second qualifier if available.
         STNode secondQualifier = parseObjectTypeSecondQualifier(firstQualifier);
 
+        List<STNode> qualifiers = new ArrayList<>();
         qualifiers.add(firstQualifier);
         if (secondQualifier != null) {
             qualifiers.add(secondQualifier);
@@ -5457,13 +5454,13 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseMappingConstructorFields() {
-        List<STNode> fields = new ArrayList<>();
         STToken nextToken = peek();
         if (isEndOfMappingConstructor(nextToken.kind)) {
-            return STNodeFactory.createNodeList(fields);
+            return STNodeFactory.createEmptyNodeList();
         }
 
         // Parse first field mapping, that has no leading comma
+        List<STNode> fields = new ArrayList<>();
         STNode field = parseMappingField(ParserRuleContext.FIRST_MAPPING_FIELD);
         fields.add(field);
 
@@ -6572,7 +6569,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode createEmptyMetadata() {
         return STNodeFactory.createMetadataNode(STNodeFactory.createEmptyNode(),
-                STNodeFactory.createNodeList(new ArrayList<>()));
+                STNodeFactory.createEmptyNodeList());
     }
 
     /**
@@ -8012,8 +8009,7 @@ public class BallerinaParser extends AbstractParser {
         if (workers.isEmpty()) {
             this.errorHandler.reportInvalidNode(null, "Fork Statement must contain atleast one named-worker");
         }
-        STNode namedWorkers = STNodeFactory.createNodeList(workers);
-        return namedWorkers;
+        return STNodeFactory.createNodeList(workers);
     }
 
     /**
@@ -8126,7 +8122,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseOptionalExpressionsList() {
         List<STNode> expressions = new ArrayList<>();
         if (isEndOfListConstructor(peek().kind)) {
-            return STNodeFactory.createNodeList(expressions);
+            return STNodeFactory.createEmptyNodeList();
         }
 
         STNode expr = parseExpression();
@@ -8324,15 +8320,14 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseRowList() {
-        List<STNode> mappings = new ArrayList<>();
         STToken nextToken = peek();
-
         // Return an empty list if list is empty
         if (isEndOfTableRowList(nextToken.kind)) {
-            return STNodeFactory.createNodeList(new ArrayList<>());
+            return STNodeFactory.createEmptyNodeList();
         }
 
         // Parse first mapping constructor, that has no leading comma
+        List<STNode> mappings = new ArrayList<>();
         STNode mapExpr = parseMappingConstructorExpr();
         mappings.add(mapExpr);
 
@@ -8403,15 +8398,14 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseFieldNames() {
-        List<STNode> fieldNames = new ArrayList<>();
         STToken nextToken = peek();
-
         // Return an empty list if list is empty
         if (isEndOfFieldNamesList(nextToken.kind)) {
-            return STNodeFactory.createNodeList(new ArrayList<>());
+            return STNodeFactory.createEmptyNodeList();
         }
 
         // Parse first field name, that has no leading comma
+        List<STNode> fieldNames = new ArrayList<>();
         STNode fieldName = parseVariableName();
         fieldNames.add(fieldName);
 
@@ -10260,18 +10254,18 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseSingleOrAlternateWaitAction(STNode waitKeyword) {
         startContext(ParserRuleContext.ALTERNATE_WAIT_EXPRS);
-        List<STNode> waitFutureExprList = new ArrayList<>();
         STToken nextToken = peek();
 
         // Return an empty list
         if (isEndOfWaitFutureExprList(nextToken.kind)) {
             this.errorHandler.reportMissingTokenError("missing wait field");
             endContext();
-            STNode waitFutureExprs = STNodeFactory.createNodeList(waitFutureExprList);
+            STNode waitFutureExprs = STNodeFactory.createEmptyNodeList();
             return STNodeFactory.createWaitActionNode(waitKeyword, waitFutureExprs);
         }
 
         // Parse first wait, that has no leading comma
+        List<STNode> waitFutureExprList = new ArrayList<>();
         STNode waitField = parseWaitFutureExpr();
         waitFutureExprList.add(waitField);
 
@@ -10648,16 +10642,16 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseEnumMemberList() {
         startContext(ParserRuleContext.ENUM_MEMBER_LIST);
-        List<STNode> enumMemberList = new ArrayList<>();
         STToken nextToken = peek();
 
         // Report an empty enum member list
         if (nextToken.kind == SyntaxKind.CLOSE_BRACE_TOKEN) {
             this.errorHandler.reportMissingTokenError("enum member list cannot be empty");
-            return STNodeFactory.createNodeList(new ArrayList<>());
+            return STNodeFactory.createEmptyNodeList();
         }
 
         // Parse first enum member, that has no leading comma
+        List<STNode> enumMemberList = new ArrayList<>();
         STNode enumMember = parseEnumMember();
 
         // Parse the remaining enum members
@@ -11337,19 +11331,19 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseMappingBindingPattern() {
         startContext(ParserRuleContext.MAPPING_BINDING_PATTERN);
-        List<STNode> bindingPatterns = new ArrayList<>();
         STNode openBrace = parseOpenBrace();
 
         STToken token = peek();
         if (isEndOfMappingBindingPattern(token.kind)) {
             STNode closeBrace = parseCloseBrace();
-            STNode bindingPatternsNode = STNodeFactory.createNodeList(bindingPatterns);
+            STNode bindingPatternsNode = STNodeFactory.createEmptyNodeList();
             STNode restBindingPattern = STNodeFactory.createEmptyNode();
             endContext();
             return STNodeFactory.createMappingBindingPatternNode(openBrace, bindingPatternsNode, restBindingPattern,
                     closeBrace);
         }
 
+        List<STNode> bindingPatterns = new ArrayList<>();
         STNode prevMember = parseMappingBindingPatternMember();
         bindingPatterns.add(prevMember);
         return parseMappingBindingPattern(openBrace, bindingPatterns, prevMember);
@@ -11844,7 +11838,7 @@ public class BallerinaParser extends AbstractParser {
                                              STNode closeBracket) {
         STNode bindingPatterns;
         if (isEmpty(member)) {
-            bindingPatterns = STNodeFactory.createNodeList();
+            bindingPatterns = STNodeFactory.createEmptyNodeList();
         } else {
             bindingPatterns = STNodeFactory.createNodeList(STNodeFactory.createCaptureBindingPatternNode(member));
         }
