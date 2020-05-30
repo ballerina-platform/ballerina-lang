@@ -157,7 +157,7 @@ function testInherentTypeViolationViaSpreadOp() {
     error resError = <error> res;
     assertEquality("{ballerina/lang.map}InherentTypeViolation", resError.message());
     assertEquality("invalid value for record field 's': expected value of type 'string', found 'boolean'",
-                   resError.detail()?.message);
+                   resError.detail()["message"].toString());
 }
 
 function assertEquality(any|error expected, any|error actual) {

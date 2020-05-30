@@ -486,7 +486,12 @@ structuredBindingPattern
     ;
 
 errorBindingPattern
-    :   TYPE_ERROR LEFT_PARENTHESIS Identifier (COMMA Identifier)? (COMMA errorDetailBindingPattern)* (COMMA errorRestBindingPattern)? RIGHT_PARENTHESIS
+    :   TYPE_ERROR LEFT_PARENTHESIS errorBindingPatternParamaters RIGHT_PARENTHESIS
+    |   userDefineTypeName LEFT_PARENTHESIS errorBindingPatternParamaters RIGHT_PARENTHESIS
+    ;
+
+errorBindingPatternParamaters
+    : Identifier (COMMA Identifier)? (COMMA errorDetailBindingPattern)* (COMMA errorRestBindingPattern)?
     ;
 
 errorMatchPattern

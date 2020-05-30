@@ -362,8 +362,8 @@ type Detail record {
     int? code;
 };
 
-function errorReturningFunc(int? i) returns error<string, Detail> {
-    return error("hello", message = "hello", code = i, f = 1.0);
+function errorReturningFunc(int? i) returns error<Detail> {
+    return ErrorD("hello", message = "hello", code = i, f = 1.0);
 }
 
 function testInvalidAccessOfOutOfScopeVar() {
@@ -377,3 +377,5 @@ function testInvalidAccessOfOutOfScopeVar() {
         int k = j; // undefined symbol 'j'
     }
 }
+
+type ErrorD error<Detail>;

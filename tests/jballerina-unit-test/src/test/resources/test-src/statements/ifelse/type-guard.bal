@@ -1029,8 +1029,10 @@ type Detail record {
     int? code;
 };
 
+type ErrorD error<Detail>;
+
 function errorReturningFunc(int? i) returns error<Detail> {
-    return error("hello", message = "hello", code = i, f = 1.0);
+    return ErrorD("hello", message = "hello", code = i, f = 1.0);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

@@ -1141,22 +1141,25 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        TerminalNode messageNode = ctx.Identifier(0);
+        BallerinaParser.ErrorBindingPatternParamatersContext paramCtx = ctx.errorBindingPatternParamaters();
+        TerminalNode messageNode = paramCtx.Identifier(0);
         String reasonIdentifier = messageNode.getText(); // Mandatory first arg
         DiagnosticPos currentPos = getCurrentPos(ctx);
 
-        TerminalNode causeNode = ctx.Identifier().size() > 1 ? ctx.Identifier(1) : null;
+        TerminalNode causeNode = paramCtx.Identifier().size() > 1 ? paramCtx.Identifier(1) : null;
         String causeIdentifier = causeNode != null ? causeNode.getText() : null;
         DiagnosticPos causePos = causeNode != null ? getCurrentPos(causeNode) : null;
 
         String restIdentifier = null;
         DiagnosticPos restParamPos = null;
-        if (ctx.errorRestBindingPattern() != null) {
-            restIdentifier = ctx.errorRestBindingPattern().Identifier().getText();
-            restParamPos = getCurrentPos(ctx.errorRestBindingPattern());
+        if (paramCtx.errorRestBindingPattern() != null) {
+            restIdentifier = paramCtx.errorRestBindingPattern().Identifier().getText();
+            restParamPos = getCurrentPos(paramCtx.errorRestBindingPattern());
         }
 
-        this.pkgBuilder.addErrorVariable(currentPos, getWS(ctx), reasonIdentifier,
+        boolean isUserDefinedErrorType = ctx.userDefineTypeName() != null;
+
+        this.pkgBuilder.addErrorVariable(currentPos, getWS(ctx), isUserDefinedErrorType, reasonIdentifier,
                 causeIdentifier, causePos, restIdentifier, false, false, restParamPos);
     }
 
@@ -1286,7 +1289,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             }
         }
 
-        this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), reasonIdentifier, null, null,
+        this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), false, reasonIdentifier, null, null,
                 restIdentifier, reasonVar, constReasonMatchPattern, restParamPos);
     }
 

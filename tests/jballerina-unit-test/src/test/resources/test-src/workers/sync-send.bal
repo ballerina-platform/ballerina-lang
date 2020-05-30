@@ -551,8 +551,8 @@ public function testSyncSendAfterSend() returns error? {
 const R1 = "r1";
 const R2 = "r2";
 
-type E1 error<R1>;
-type E2 error<R2>;
+type E1 distinct error;
+type E2 distinct error;
 
 public function testNoFailureForReceiveWithError() returns boolean {
     @strand{thread:"any"}

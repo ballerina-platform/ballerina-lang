@@ -637,7 +637,6 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangErrorType errorType) {
-        this.acceptNode(errorType.reasonType);
         this.acceptNode(errorType.detailType);
     }
 

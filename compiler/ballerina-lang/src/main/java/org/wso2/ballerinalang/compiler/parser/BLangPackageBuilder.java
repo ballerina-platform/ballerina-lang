@@ -893,12 +893,16 @@ public class BLangPackageBuilder {
         this.restMatchPatternWS.push(ws);
     }
 
-    void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, String reason, String cause, DiagnosticPos causePos,
-                          String restIdentifier, boolean reasonVar, boolean constReasonMatchPattern,
-                          DiagnosticPos restParamPos) {
+    void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, boolean isUserDefinedType, String reason, String cause,
+                          DiagnosticPos causePos, String restIdentifier, boolean reasonVar,
+                          boolean constReasonMatchPattern, DiagnosticPos restParamPos) {
         BLangErrorVariable errorVariable = (BLangErrorVariable) varStack.peek();
         errorVariable.pos = pos;
         errorVariable.addWS(ws);
+
+        if (isUserDefinedType) {
+            errorVariable.typeNode = (BLangType) typeNodeStack.pop();
+        }
 
         if (constReasonMatchPattern) {
             BLangLiteral reasonLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();

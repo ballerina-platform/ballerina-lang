@@ -128,7 +128,7 @@ function testNilLiftingOnMemberAccessOnNillableObjectField() returns boolean {
 
 function assertNonMappingJsonError(json|error je) returns boolean {
     if (je is error) {
-        return je.message() == "{ballerina}JSONOperationError" && je.detail()?.message == "JSON value is not a mapping";
+        return je.message() == "{ballerina}JSONOperationError" && je.detail()["message"].toString() == "JSON value is not a mapping";
     }
     return false;
 }

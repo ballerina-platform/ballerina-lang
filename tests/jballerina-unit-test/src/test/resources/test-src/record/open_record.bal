@@ -480,7 +480,7 @@ public type CustomDetail record {
 };
 
 const FOO_REASON = "FooError";
-type FooError error<CustomDetail>;
+type FooError distinct error<CustomDetail>;
 
 const BAR_REASON = "BarError";
 type BarError error<CustomDetail>;
