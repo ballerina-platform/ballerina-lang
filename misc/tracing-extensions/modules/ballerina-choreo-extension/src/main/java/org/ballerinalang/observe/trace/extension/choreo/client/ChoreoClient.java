@@ -70,8 +70,7 @@ public class ChoreoClient implements AutoCloseable {
                 .build();
         RegisterResponse registerResponse = registrationClient.register(handshakeRequest);
         this.id = registerResponse.getObsId();
-        // TODO: Remove this dummy version once the version is properly set
-        this.version = "v-2f0e0000-e0f0-0b00-a000-06db000ea00d";
+        this.version = registerResponse.getVersion();
         boolean sendProgramJson = registerResponse.getSendAst();
 
         if (sendProgramJson) {

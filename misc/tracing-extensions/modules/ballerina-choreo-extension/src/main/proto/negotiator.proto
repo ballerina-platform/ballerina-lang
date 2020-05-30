@@ -37,17 +37,43 @@ message PublishAstRequest {
 }
 
 service Negotiator {
+    rpc getAst(GetAstRequest)
+            returns (GetAstResponse);
+
+    rpc validateProjectSecret(ValidateProjectSecretRequest)
+            returns (ValidateProjectSecretResponse);
+
     rpc getObservabilityUrl(GetObservabilityUrlRequest)
-    returns (GetObservabilityUrlResponse);
+            returns (GetObservabilityUrlResponse);
 
     rpc getApplicationId(GetAppIdRequest)
-    returns (GetAppIdResponse);
+            returns (GetAppIdResponse);
 
     rpc getObservabilityIDs(GetObservabilityIDsRequest)
-    returns (GetObservabilityIDsResponse);
+            returns (GetObservabilityIDsResponse);
 
     rpc linkApplication (LinkApplicationRequest)
-    returns (google.protobuf.Empty);
+            returns (google.protobuf.Empty);
+}
+
+message GetAstRequest {
+    string obsId = 1;
+    string version = 2;
+}
+
+message GetAstResponse {
+    string obsId = 1;
+    string version = 2;
+    string ast = 3;
+}
+
+message ValidateProjectSecretRequest {
+    string obsId = 1;
+    string projectSecret = 2;
+}
+
+message ValidateProjectSecretResponse {
+    bool isValid = 1;
 }
 
 message GetObservabilityUrlRequest {
