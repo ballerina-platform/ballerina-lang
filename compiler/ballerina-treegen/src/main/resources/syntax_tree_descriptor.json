@@ -2872,7 +2872,7 @@
             "attributes": [
                 {
                     "name": "variableName",
-                    "type": "SimpleNameReferenceNode"
+                    "type": "Token"
                 }
             ]
         },

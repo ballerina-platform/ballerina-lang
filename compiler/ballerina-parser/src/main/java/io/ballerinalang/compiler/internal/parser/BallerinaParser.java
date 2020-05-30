@@ -11707,7 +11707,8 @@ public class BallerinaParser extends AbstractParser {
 
         STNode expr = parseExpression();
         if (isWildcardBP(expr)) {
-            return STNodeFactory.createCaptureBindingPatternNode(expr);
+            STNode varName = ((STSimpleNameReferenceNode) expr).name;
+            return STNodeFactory.createCaptureBindingPatternNode(varName);
         }
         if (expr.kind == SyntaxKind.SIMPLE_NAME_REFERENCE || expr.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             nextTokenKind = peek().kind;
@@ -11880,7 +11881,8 @@ public class BallerinaParser extends AbstractParser {
         if (isEmpty(member)) {
             bindingPatterns = STNodeFactory.createNodeList();
         } else {
-            bindingPatterns = STNodeFactory.createNodeList(STNodeFactory.createCaptureBindingPatternNode(member));
+            STNode varName = ((STSimpleNameReferenceNode) member).name;
+            bindingPatterns = STNodeFactory.createNodeList(STNodeFactory.createCaptureBindingPatternNode(varName));
         }
 
         STNode restBindingPattern = STNodeFactory.createEmptyNode();
@@ -12121,7 +12123,8 @@ public class BallerinaParser extends AbstractParser {
                 STNode identifier = parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
                 nextTokenKind = peek().kind;
                 if (isWildcardBP(identifier)) {
-                    return STNodeFactory.createCaptureBindingPatternNode(identifier);
+                    STNode varName = ((STSimpleNameReferenceNode) identifier).name;
+                    return STNodeFactory.createCaptureBindingPatternNode(varName);
                 }
 
                 if (nextTokenKind == SyntaxKind.ELLIPSIS_TOKEN) {
@@ -12525,8 +12528,7 @@ public class BallerinaParser extends AbstractParser {
 
         if (isWildcardBP(secondIdentifier)) {
             // { foo:_
-            STNode qualifiedNameRef = STNodeFactory.createSimpleNameReferenceNode(identifier);
-            return STNodeFactory.createCaptureBindingPatternNode(qualifiedNameRef);
+            return STNodeFactory.createCaptureBindingPatternNode(identifier);
         }
 
         // Reach here for something like: "{foo:bar". This could be anything.
@@ -12820,7 +12822,8 @@ public class BallerinaParser extends AbstractParser {
             case IDENTIFIER_TOKEN:
                 STNode identifier = parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
                 if (isWildcardBP(identifier)) {
-                    return STNodeFactory.createCaptureBindingPatternNode(identifier);
+                    STNode varName = ((STSimpleNameReferenceNode) identifier).name;
+                    return STNodeFactory.createCaptureBindingPatternNode(varName);
                 }
 
                 // TODO: handle function-binding-pattern
@@ -12940,7 +12943,8 @@ public class BallerinaParser extends AbstractParser {
     private STNode getBindingPattern(STNode ambiguousNode) {
         switch (ambiguousNode.kind) {
             case SIMPLE_NAME_REFERENCE:
-                return STNodeFactory.createCaptureBindingPatternNode(ambiguousNode);
+                STNode varName = ((STSimpleNameReferenceNode) ambiguousNode).name;
+                return STNodeFactory.createCaptureBindingPatternNode(varName);
             case QUALIFIED_NAME_REFERENCE:
                 STQualifiedNameReferenceNode qualifiedName = (STQualifiedNameReferenceNode) ambiguousNode;
                 return STNodeFactory.createFieldBindingPatternFullNode(qualifiedName.modulePrefix, qualifiedName.colon,
