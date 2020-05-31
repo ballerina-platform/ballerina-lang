@@ -19,9 +19,9 @@ package org.ballerinalang.observe.trace.extension.choreo.client;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.ballerinalang.observe.trace.extension.choreo.gen.HandshakeGrpc;
+import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass;
 import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.PublishAstRequest;
 import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.RegisterRequest;
-import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.RegisterResponse;
 import org.ballerinalang.observe.trace.extension.choreo.gen.TelemetryGrpc;
 import org.ballerinalang.observe.trace.extension.choreo.gen.TelemetryOuterClass;
 import org.ballerinalang.observe.trace.extension.choreo.logging.LogFactory;
@@ -62,13 +62,13 @@ public class ChoreoClient implements AutoCloseable {
         telemetryClient = TelemetryGrpc.newBlockingStub(channel);
     }
 
-    public String register(final MetadataReader metadataReader, String nodeId, String appSecret) {
+    public RegisterResponse register(final MetadataReader metadataReader, String nodeId, String appSecret) {
         RegisterRequest handshakeRequest = RegisterRequest.newBuilder()
                 .setAstHash(metadataReader.getAstHash())
                 .setProjectSecret(appSecret)
                 .setNodeId(nodeId)
                 .build();
-        RegisterResponse registerResponse = registrationClient.register(handshakeRequest);
+        NegotiatorOuterClass.RegisterResponse registerResponse = registrationClient.register(handshakeRequest);
         this.id = registerResponse.getObsId();
         this.version = registerResponse.getVersion();
         boolean sendProgramJson = registerResponse.getSendAst();
@@ -87,7 +87,28 @@ public class ChoreoClient implements AutoCloseable {
         }
 
         this.nodeId = nodeId;
-        return registerResponse.getObsUrl();
+        return new RegisterResponse(registerResponse.getObsUrl(), this.id);
+    }
+
+    /**
+     * Data holder for register response call.
+     */
+    public static class RegisterResponse {
+        private String obsUrl;
+        private String obsId;
+
+        public RegisterResponse(String obsUrl, String obsId) {
+            this.obsUrl = obsUrl;
+            this.obsId = obsId;
+        }
+
+        public String getObsUrl() {
+            return obsUrl;
+        }
+
+        public String getObsId() {
+            return obsId;
+        }
     }
 
     public void publishMetrics(ChoreoMetric[] metrics) {
