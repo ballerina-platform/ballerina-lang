@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 
 /**
@@ -38,7 +39,7 @@ public class FromCodePointInt {
         try {
             StringBuilder builder = new StringBuilder();
             builder.appendCodePoint(((Long) codePoint).intValue());
-            return builder.toString();
+            return StringUtils.fromString(builder.toString());
         } catch (IllegalArgumentException e) {
             return BallerinaErrors.createError("Invalid codepoint: " + codePoint);
         }

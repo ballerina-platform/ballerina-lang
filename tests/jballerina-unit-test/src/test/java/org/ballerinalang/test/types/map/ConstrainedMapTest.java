@@ -197,7 +197,7 @@ public class ConstrainedMapTest {
     @Test(description = "Test Map constrained with value type boolean positive.")
     public void testConstrainedMapBooleanTypePositive() {
         BValue[] returns = BRunUtil.invoke(compileResult,
-                "testConstrainedMapBooleanTypePositive");
+                                           "testConstrainedMapBooleanTypePositive");
         Assert.assertNotNull(returns[0]);
         Assert.assertNotNull(returns[1]);
         Assert.assertTrue(returns[0] instanceof BBoolean);
@@ -379,7 +379,7 @@ public class ConstrainedMapTest {
     public void testMapFunctionsOnConstrainedMaps() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMapFunctionsOnConstrainedMaps");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(((BValueArray) returns[0]).size(), 2);
+        Assert.assertEquals(returns[0].size(), 2);
     }
 
     @Test(description = "Test struct to map conversion for constrained map negative.")

@@ -42,7 +42,9 @@ import org.testng.annotations.Test;
 import java.math.BigDecimal;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for filling the elements of the array with its type's implicit initial value.
@@ -222,21 +224,10 @@ public class ArrayFillTest {
         validateMapValue((BMap<String, BValue>) mapArr.getBValue(index), map);
     }
 
-    //TODO Table remove - Fix
-    @Test (enabled = false)
+    @Test
     public void testTableArrayFill() {
         BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTableArrayFill", args);
-        BValueArray tableArr = (BValueArray) returns[0];
-        assertEquals(tableArr.size(), index + 1);
-
-        for (int i = 0; i < index; i++) {
-            assertEquals(tableArr.getBValue(i).stringValue(), "table<Employee> {index: [], primaryKey: [], data: []}");
-        }
-
-        assertEquals(tableArr.getBValue(index).stringValue(), "table<Employee> {index: [], primaryKey: [\"id\"], " +
-                "data: [{id:1, name:\"John\", salary:50000.0}]}");
-        assertEquals(returns[1].stringValue(), "John");
+        BRunUtil.invoke(compileResult, "testTableArrayFill", args);
     }
 
     @Test
@@ -346,10 +337,10 @@ public class ArrayFillTest {
         assertEquals(unionArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertEquals(((BBoolean) unionArr.getBValue(i)).booleanValue(), false);
+            assertFalse(((BBoolean) unionArr.getBValue(i)).booleanValue());
         }
 
-        assertEquals(((BBoolean) unionArr.getBValue(index)).booleanValue(), true);
+        assertTrue(((BBoolean) unionArr.getBValue(index)).booleanValue());
     }
 
     @Test
@@ -363,7 +354,7 @@ public class ArrayFillTest {
             assertNull(unionArr.getBValue(i));
         }
 
-        assertEquals(((BBoolean) unionArr.getBValue(index)).booleanValue(), true);
+        assertTrue(((BBoolean) unionArr.getBValue(index)).booleanValue());
     }
 
     @Test

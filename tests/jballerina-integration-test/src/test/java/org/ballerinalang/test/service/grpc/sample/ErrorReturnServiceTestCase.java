@@ -20,6 +20,7 @@ package org.ballerinalang.test.service.grpc.sample;
 
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -51,7 +52,7 @@ public class ErrorReturnServiceTestCase extends GrpcBaseTest {
     public void testBlockingErrorResponse() {
         final String serverMsg = "Error from Connector: {ballerina/grpc}InternalError - error Testing message=Details";
 
-        BValue[] responses = BRunUtil.invoke(result, "testErrorResponse", new Object[]{"WSO2"});
+        BValue[] responses = BRunUtil.invoke(result, "testErrorResponse", new Object[]{StringUtils.fromString("WSO2")});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         Assert.assertEquals(responses[0].stringValue(), serverMsg);

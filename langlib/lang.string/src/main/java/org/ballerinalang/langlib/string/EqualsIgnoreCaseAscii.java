@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -44,11 +45,12 @@ public class EqualsIgnoreCaseAscii {
         decoder = Charset.forName("US-ASCII").newDecoder();
     }
 
-    public static boolean equalsIgnoreCaseAscii(Strand strand, String str1, String str2) {
-        if (str1.length() != str2.length()) {
+    public static boolean equalsIgnoreCaseAscii(Strand strand, BString s1, BString s2) {
+        if (s1.length() != s2.length()) {
             return false;
         }
-
+        String str1 = s1.getValue();
+        String str2 = s2.getValue();
         for (int i = 0; i < str1.length(); i++) {
             String charFromOne = Character.toString(str1.charAt(i));
             String charFromTwo = Character.toString(str2.charAt(i));

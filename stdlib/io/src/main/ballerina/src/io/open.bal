@@ -23,11 +23,7 @@ import ballerina/java;
 #
 # + path - Relative/absolute path string to locate the file
 # + return - The `ByteChannel` representation of the file resource or else an `io:Error` if any error occurred
-public function openReadableFile(@untainted string path) returns @tainted ReadableByteChannel|Error {
-    return openReadableFileExtern(java:fromString(path));
-}
-
-function openReadableFileExtern(@untainted handle path) returns @tainted ReadableByteChannel|Error = @java:Method {
+public function openReadableFile(@untainted string path) returns @tainted ReadableByteChannel|Error = @java:Method {
     name: "openReadableFile",
     class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
 } external;
@@ -41,11 +37,6 @@ function openReadableFileExtern(@untainted handle path) returns @tainted Readabl
 # + append - Whether to append to the end of file
 # + return - The `ByteChannel` representation of the file resource or else an `io:Error` if any error occurred
 public function openWritableFile(@untainted string path, boolean append = false)
-    returns @tainted WritableByteChannel|Error {
-    return openWritableFileExtern(java:fromString(path), append);
-}
-
-function openWritableFileExtern(@untainted handle path, boolean append)
     returns @tainted WritableByteChannel|Error = @java:Method {
     name: "openWritableFile",
     class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
@@ -58,11 +49,7 @@ function openWritableFileExtern(@untainted handle path, boolean append)
 #
 # + content - Content, which should be exposed as a channel
 # + return - The `ByteChannel` representation to read the memory content or else an `io:Error` if any error occurred
-public function createReadableChannel(byte[] content) returns ReadableByteChannel|Error {
-    return createReadableChannelExtern(content);
-}
-
-function createReadableChannelExtern(byte[] content) returns ReadableByteChannel|Error = @java:Method {
+public function createReadableChannel(byte[] content) returns ReadableByteChannel|Error = @java:Method {
     name: "createReadableChannel",
     class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
 } external;
@@ -78,9 +65,9 @@ function createReadableChannelExtern(byte[] content) returns ReadableByteChannel
 # + skipHeaders - Number of headers, which should be skipped
 # + return - The `ReadableCSVChannel`, which could be used to iterate through the CSV records or else an `io:Error` if any error occurred.
 public function openReadableCsvFile(@untainted string path,
-                            @untainted public Separator fieldSeparator = ",",
-                            @untainted public string charset = "UTF-8",
-                            @untainted public int skipHeaders = 0) returns @tainted ReadableCSVChannel|Error {
+                                    @untainted public Separator fieldSeparator = ",",
+                                    @untainted public string charset = "UTF-8",
+                                    @untainted public int skipHeaders = 0) returns @tainted ReadableCSVChannel|Error {
     ReadableByteChannel byteChannel = check openReadableFile(path);
     ReadableCharacterChannel charChannel = new(byteChannel, charset);
     return new ReadableCSVChannel(charChannel, fieldSeparator, skipHeaders);

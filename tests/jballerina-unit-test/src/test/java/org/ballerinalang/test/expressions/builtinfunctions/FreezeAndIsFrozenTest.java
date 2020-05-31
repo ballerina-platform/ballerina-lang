@@ -184,8 +184,8 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}InvalidUpdate message=failed to set " +
-                    "element to json: message=modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}InvalidUpdate message=modification " +
+                    "not allowed on readonly value.*")
     public void testFrozenJsonArrayModification() {
         BRunUtil.invoke(result, "testFrozenJsonArrayModification", new BValue[0]);
     }
@@ -433,7 +433,7 @@ public class FreezeAndIsFrozenTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "failed to set element to json: message=modification not allowed on readonly value");
+                            "modification not allowed on readonly value");
     }
 
     @Test

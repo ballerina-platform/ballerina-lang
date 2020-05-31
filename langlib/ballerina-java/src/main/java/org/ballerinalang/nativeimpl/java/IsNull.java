@@ -29,8 +29,4 @@ public class IsNull {
     public static boolean isNull(HandleValue value) {
         return value.getValue() == null;
     }
-
-    public static boolean isNull_bstring(HandleValue value) {
-        return isNull(value);
-    }
 }

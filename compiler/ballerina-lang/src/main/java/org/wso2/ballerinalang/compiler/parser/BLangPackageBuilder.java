@@ -74,6 +74,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -86,7 +87,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -190,6 +196,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -224,6 +231,7 @@ import java.util.Stack;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import static org.wso2.ballerinalang.compiler.util.Constants.STRING_TYPE;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
 /**
@@ -277,15 +285,7 @@ public class BLangPackageBuilder {
 
     private Stack<IfNode> ifElseStatementStack = new Stack<>();
 
-    private Stack<BLangFromClause> fromClauseNodeStack = new Stack<>();
-
-    private Stack<BLangLetClause> letClauseNodeStack = new Stack<>();
-
-    private Stack<BLangSelectClause> selectClauseNodeStack = new Stack<>();
-
-    private Stack<BLangWhereClause> whereClauseNodeStack = new Stack<>();
-
-    private Stack<BLangDoClause> doClauseNodeStack = new Stack<>();
+    private Stack<BLangNode> queryClauseStack = new Stack<>();
 
     private Stack<TransactionNode> transactionNodeStack = new Stack<>();
 
@@ -332,6 +332,7 @@ public class BLangPackageBuilder {
     private long isInErrorType = 0;
 
     private boolean isInQuery = false;
+    private boolean isInOnCondition = false;
 
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
@@ -387,6 +388,32 @@ public class BLangPackageBuilder {
         this.typeNodeStack.push(unionTypeNode);
     }
 
+    void addIntersectionType(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangType rhsTypeNode = (BLangType) this.typeNodeStack.pop();
+        BLangType lhsTypeNode = (BLangType) this.typeNodeStack.pop();
+        addIntersectionType(lhsTypeNode, rhsTypeNode, pos, ws);
+    }
+
+    private void addIntersectionType(BLangType lhsTypeNode, BLangType rhsTypeNode, DiagnosticPos pos,
+                                     Set<Whitespace> ws) {
+        BLangIntersectionTypeNode intersectionTypeNode;
+        if (rhsTypeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE) {
+            intersectionTypeNode = (BLangIntersectionTypeNode) rhsTypeNode;
+            intersectionTypeNode.constituentTypeNodes.add(0, lhsTypeNode);
+        } else if (lhsTypeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE) {
+            intersectionTypeNode = (BLangIntersectionTypeNode) lhsTypeNode;
+            intersectionTypeNode.constituentTypeNodes.add(rhsTypeNode);
+        } else {
+            intersectionTypeNode = (BLangIntersectionTypeNode) TreeBuilder.createIntersectionTypeNode();
+            intersectionTypeNode.constituentTypeNodes.add(lhsTypeNode);
+            intersectionTypeNode.constituentTypeNodes.add(rhsTypeNode);
+        }
+
+        intersectionTypeNode.pos = pos;
+        intersectionTypeNode.addWS(ws);
+        this.typeNodeStack.push(intersectionTypeNode);
+    }
+
     void addTupleType(DiagnosticPos pos, Set<Whitespace> ws, int members, boolean hasRestParam) {
         BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
         if (hasRestParam) {
@@ -438,9 +465,9 @@ public class BLangPackageBuilder {
         recordTypeNode.addWS(ws);
         recordTypeNode.isAnonymous = isAnonymous;
         recordTypeNode.isLocal = isInLocalDefinition();
-        this.varListStack.pop().forEach(variableNode -> {
+        for (BLangVariable variableNode : this.varListStack.pop()) {
             recordTypeNode.addField((SimpleVariableNode) variableNode);
-        });
+        }
         return recordTypeNode;
     }
 
@@ -490,6 +517,27 @@ public class BLangPackageBuilder {
         }
 
         if (isReadonly) {
+            BLangType typeNode = field.typeNode;
+            Set<Whitespace> typeNodeWS = typeNode.getWS();
+            DiagnosticPos typeNodePos = typeNode.getPosition();
+
+            BLangValueType readOnlyTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+            readOnlyTypeNode.addWS(typeNodeWS);
+            readOnlyTypeNode.pos = typeNodePos;
+            readOnlyTypeNode.typeKind = (TreeUtils.stringToTypeKind("readonly"));
+
+            if (typeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE) {
+                ((BLangIntersectionTypeNode) typeNode).constituentTypeNodes.add(readOnlyTypeNode);
+            } else {
+                BLangIntersectionTypeNode intersectionTypeNode =
+                        (BLangIntersectionTypeNode) TreeBuilder.createIntersectionTypeNode();
+                intersectionTypeNode.constituentTypeNodes.add(typeNode);
+                intersectionTypeNode.constituentTypeNodes.add(readOnlyTypeNode);
+                intersectionTypeNode.addWS(typeNodeWS);
+                intersectionTypeNode.pos = typeNodePos;
+                field.typeNode = intersectionTypeNode;
+            }
+
             field.flagSet.add(Flag.READONLY);
         }
 
@@ -1615,7 +1663,7 @@ public class BLangPackageBuilder {
         letClause.addWS(ws);
         letClause.pos = pos;
         letClause.letVarDeclarations = letVarListStack.pop();
-        letClauseNodeStack.push(letClause);
+        queryClauseStack.push(letClause);
     }
 
     void addLetExpression(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -1932,23 +1980,22 @@ public class BLangPackageBuilder {
         addExpressionNode(trapExpr);
     }
 
-    void createQueryExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+    void createQueryExpr(DiagnosticPos pos, Set<Whitespace> ws, boolean isTable, boolean isStream,
+                         List<BLangIdentifier> keyFieldNameIdentifierList) {
         BLangQueryExpr queryExpr = (BLangQueryExpr) TreeBuilder.createQueryExpressionNode();
         queryExpr.pos = pos;
         queryExpr.addWS(ws);
+        queryExpr.setIsTable(isTable);
+        if (isTable) {
+            for (BLangIdentifier identifier : keyFieldNameIdentifierList) {
+                queryExpr.addFieldNameIdentifier(identifier);
+            }
+        }
+        queryExpr.setIsStream(isStream);
+        Collections.reverse(queryClauseStack);
+        while (queryClauseStack.size() > 0) {
+            queryExpr.addQueryClause(queryClauseStack.pop());
 
-        Collections.reverse(fromClauseNodeStack);
-        while (fromClauseNodeStack.size() > 0) {
-            queryExpr.addFromClauseNode(fromClauseNodeStack.pop());
-        }
-        Collections.reverse(letClauseNodeStack);
-        while (letClauseNodeStack.size() > 0) {
-            queryExpr.addLetClause(letClauseNodeStack.pop());
-        }
-        queryExpr.setSelectClauseNode(selectClauseNodeStack.pop());
-        Collections.reverse(whereClauseNodeStack);
-        while (whereClauseNodeStack.size() > 0) {
-            queryExpr.addWhereClauseNode(whereClauseNodeStack.pop());
         }
         addExpressionNode(queryExpr);
     }
@@ -1957,72 +2004,108 @@ public class BLangPackageBuilder {
         this.isInQuery = true;
     }
 
-    void createFromClauseWithSimpleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                                                        DiagnosticPos identifierPos, boolean isDeclaredWithVar) {
+    void createClauseWithSimpleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                                                        DiagnosticPos identifierPos, boolean isDeclaredWithVar,
+                                                        boolean isFromClause, boolean isOuterJoin) {
         BLangSimpleVariableDef variableDefinitionNode = createSimpleVariableDef(pos, null, identifier, identifierPos,
                 false, false, isDeclaredWithVar);
-        if (!this.bindingPatternIdentifierWS.isEmpty() && !isInQuery) {
+
+        if ((!this.bindingPatternIdentifierWS.isEmpty() && !isInQuery) || !this.bindingPatternIdentifierWS.isEmpty()) {
             variableDefinitionNode.var.addWS(this.bindingPatternIdentifierWS.pop());
         } else if (!this.queryBindingPatternIdentifierWS.isEmpty()) {
             variableDefinitionNode.var.addWS(this.queryBindingPatternIdentifierWS.pop());
         }
 
-        isInQuery = false;
-        addFromClause(pos, ws, variableDefinitionNode, isDeclaredWithVar);
+        if (isFromClause) {
+            isInQuery = false;
+        }
+
+        addClause(pos, ws, variableDefinitionNode, isDeclaredWithVar, isFromClause, isOuterJoin);
     }
 
-    void createFromClauseWithRecordVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
-                                                        boolean isDeclaredWithVar) {
+    void createClauseWithRecordVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
+                                                        boolean isDeclaredWithVar, boolean isFromClause,
+                                                        boolean isOuterJoin) {
         BLangRecordVariableDef variableDefinitionNode = createRecordVariableDef(pos, ws, false, false,
                 isDeclaredWithVar);
-        if (!this.bindingPatternIdentifierWS.isEmpty() && !isInQuery) {
+        if ((!this.bindingPatternIdentifierWS.isEmpty() && !isInQuery) || !this.bindingPatternIdentifierWS.isEmpty()) {
             variableDefinitionNode.addWS(this.bindingPatternIdentifierWS.pop());
         } else if (!this.queryBindingPatternIdentifierWS.isEmpty()) {
             variableDefinitionNode.var.addWS(this.queryBindingPatternIdentifierWS.pop());
         }
 
-        isInQuery = false;
-        addFromClause(pos, ws, variableDefinitionNode, isDeclaredWithVar);
+        if (isFromClause) {
+            isInQuery = false;
+        }
+        addClause(pos, ws, variableDefinitionNode, isDeclaredWithVar, isFromClause, isOuterJoin);
     }
 
-    void createFromClauseWithErrorVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
-                                                       boolean isDeclaredWithVar) {
+    void createClauseWithErrorVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
+                                                       boolean isDeclaredWithVar, boolean isFromClause,
+                                                       boolean isOuterJoin) {
         BLangErrorVariableDef variableDefinitionNode = createErrorVariableDef(pos, ws, false,
                 false, isDeclaredWithVar);
-        if (!this.bindingPatternIdentifierWS.isEmpty() && !isInQuery) {
+        if ((!this.bindingPatternIdentifierWS.isEmpty() && !isInQuery) || !this.bindingPatternIdentifierWS.isEmpty()) {
             variableDefinitionNode.addWS(this.bindingPatternIdentifierWS.pop());
         } else if (!this.queryBindingPatternIdentifierWS.isEmpty()) {
             variableDefinitionNode.addWS(this.queryBindingPatternIdentifierWS.pop());
         }
 
-        isInQuery = false;
-        addFromClause(pos, ws, variableDefinitionNode, isDeclaredWithVar);
+        if (isFromClause) {
+            isInQuery = false;
+        }
+        addClause(pos, ws, variableDefinitionNode, isDeclaredWithVar, isFromClause, isOuterJoin);
     }
 
-    void createFromClauseWithTupleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
-                                                       boolean isDeclaredWithVar) {
+    void createClauseWithTupleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
+                                                       boolean isDeclaredWithVar, boolean isFromClause,
+                                                       boolean isOuterJoin) {
         BLangTupleVariableDef variableDefinitionNode = createTupleVariableDef(pos, ws, false,
                 false, isDeclaredWithVar);
-        if (!this.bindingPatternIdentifierWS.isEmpty() && !isInQuery) {
+        if ((!this.bindingPatternIdentifierWS.isEmpty() && !isInQuery) || !this.bindingPatternIdentifierWS.isEmpty()) {
             variableDefinitionNode.addWS(this.bindingPatternIdentifierWS.pop());
         } else if (!this.queryBindingPatternIdentifierWS.isEmpty()) {
             variableDefinitionNode.addWS(this.queryBindingPatternIdentifierWS.pop());
         }
 
-        isInQuery = false;
-        addFromClause(pos, ws, variableDefinitionNode, isDeclaredWithVar);
+        if (isFromClause) {
+            isInQuery = false;
+        }
+        addClause(pos, ws, variableDefinitionNode, isDeclaredWithVar, isFromClause, isOuterJoin);
     }
 
-    private void addFromClause(DiagnosticPos pos, Set<Whitespace> ws,
-                               VariableDefinitionNode variableDefinitionNode, boolean isDeclaredWithVar) {
-        BLangFromClause fromClause = (BLangFromClause) TreeBuilder.createFromClauseNode();
-        fromClause.addWS(ws);
-        fromClause.pos = pos;
+    private void addClause(DiagnosticPos pos, Set<Whitespace> ws,
+                           VariableDefinitionNode variableDefinitionNode,
+                           boolean isDeclaredWithVar, boolean isFromClause, boolean isOuterJoin) {
+        BLangInputClause inputClause;
+        if (isFromClause) {
+            inputClause = (BLangFromClause) TreeBuilder.createFromClauseNode();
+        } else {
+            inputClause = (BLangJoinClause) TreeBuilder.createJoinClauseNode();
+        }
+        inputClause.addWS(ws);
+        inputClause.pos = pos;
         markVariableAsFinal((BLangVariable) variableDefinitionNode.getVariable());
-        fromClause.setVariableDefinitionNode(variableDefinitionNode);
-        fromClause.setCollection(this.exprNodeStack.pop());
-        fromClause.isDeclaredWithVar = isDeclaredWithVar;
-        fromClauseNodeStack.push(fromClause);
+        inputClause.setVariableDefinitionNode(variableDefinitionNode);
+        inputClause.setCollection(this.exprNodeStack.pop());
+        inputClause.isDeclaredWithVar = isDeclaredWithVar;
+        inputClause.isOuterJoin = isOuterJoin;
+        queryClauseStack.push(inputClause);
+
+    }
+
+    void startOnClause() {
+        this.isInOnCondition = true;
+    }
+
+    void createOnClause(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangOnClause onClause = (BLangOnClause) TreeBuilder.createOnClauseNode();
+        onClause.addWS(ws);
+        onClause.pos = pos;
+        onClause.expression = (BLangExpression) this.exprNodeStack.pop();
+        queryClauseStack.push(onClause);
+
+        isInOnCondition = false;
     }
 
     void createSelectClause(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -2030,7 +2113,23 @@ public class BLangPackageBuilder {
         selectClause.addWS(ws);
         selectClause.pos = pos;
         selectClause.expression = (BLangExpression) this.exprNodeStack.pop();
-        selectClauseNodeStack.push(selectClause);
+        queryClauseStack.push(selectClause);
+    }
+
+    void createOnConflictClause(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangOnConflictClause onConflictClause = (BLangOnConflictClause) TreeBuilder.createOnConflictClauseNode();
+        onConflictClause.addWS(ws);
+        onConflictClause.pos = pos;
+        onConflictClause.expression = (BLangExpression) this.exprNodeStack.pop();
+        queryClauseStack.push(onConflictClause);
+    }
+
+    void createLimitClause(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangLimitClause limitClause = (BLangLimitClause) TreeBuilder.createLimitClauseNode();
+        limitClause.addWS(ws);
+        limitClause.pos = pos;
+        limitClause.expression = (BLangExpression) this.exprNodeStack.pop();
+        queryClauseStack.push(limitClause);
     }
 
     void createWhereClause(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -2038,7 +2137,7 @@ public class BLangPackageBuilder {
         whereClause.addWS(ws);
         whereClause.pos = pos;
         whereClause.expression = (BLangExpression) this.exprNodeStack.pop();
-        whereClauseNodeStack.push(whereClause);
+        queryClauseStack.push(whereClause);
     }
 
     void startDoActionBlock() {
@@ -2053,28 +2152,17 @@ public class BLangPackageBuilder {
         blockNode.pos = pos;
         doClause.setBody(blockNode);
         doClause.addWS(ws);
-        doClauseNodeStack.push(doClause);
+        queryClauseStack.push(doClause);
     }
 
     void createQueryActionExpr(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangQueryAction queryAction = (BLangQueryAction) TreeBuilder.createQueryActionNode();
         queryAction.pos = pos;
         queryAction.addWS(ws);
-
-        Collections.reverse(fromClauseNodeStack);
-        while (fromClauseNodeStack.size() > 0) {
-            queryAction.addFromClauseNode(fromClauseNodeStack.pop());
+        Collections.reverse(queryClauseStack);
+        while (queryClauseStack.size() > 0) {
+            queryAction.addQueryClause(queryClauseStack.pop());
         }
-        Collections.reverse(letClauseNodeStack);
-        while (letClauseNodeStack.size() > 0) {
-            queryAction.addLetClauseNode(letClauseNodeStack.pop());
-        }
-        Collections.reverse(whereClauseNodeStack);
-        while (whereClauseNodeStack.size() > 0) {
-            queryAction.addWhereClauseNode(whereClauseNodeStack.pop());
-        }
-
-        queryAction.setDoClauseNode(doClauseNodeStack.pop());
         addExpressionNode(queryAction);
     }
 
@@ -2402,6 +2490,24 @@ public class BLangPackageBuilder {
             identifier = StringEscapeUtils.unescapeJava(identifier).substring(1);
         }
         return identifier;
+    }
+
+    void addEnumMember(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
+                       boolean isPublic, boolean hasExpression) {
+        // Set typenode as string
+        addValueType(pos, null, STRING_TYPE);
+
+        // Set expression value if not set
+        if (!hasExpression) {
+            addLiteralValue(pos, null, TypeTags.STRING, identifier);
+        }
+
+        // Add enum member as constant
+        addConstant(pos, ws, identifier, identifierPos, isPublic, true);
+
+        // Create typenode for enum type definition member
+        addNameReference(pos, ws, null, identifier);
+        addUserDefineType(ws);
     }
 
     void addGlobalVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
@@ -3033,6 +3139,17 @@ public class BLangPackageBuilder {
         whileBlock.pos = pos;
         whileNode.setBody(whileBlock);
         addStmtToCurrentBlock(whileNode);
+    }
+
+    void startBlockStmt() {
+        startBlock();
+    }
+
+    void addBlockStmt(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangBlockStmt block = (BLangBlockStmt) this.blockNodeStack.pop();
+        block.pos = pos;
+        block.addWS(ws);
+        addStmtToCurrentBlock(block);
     }
 
     void startLockStmt() {

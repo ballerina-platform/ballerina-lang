@@ -88,7 +88,7 @@ public class LValueTest {
         validateError(semanticsNegativeResult, i++, "undefined field 'y' in record 'E'", 75, 5);
         validateError(semanticsNegativeResult, i++, "invalid operation: type 'map<int>?' does not support member " +
                 "access for assignment", 78, 5);
-        validateError(semanticsNegativeResult, i++, "invalid operation: type 'E?' does not support field access",
+        validateError(semanticsNegativeResult, i, "invalid operation: type 'E?' does not support field access",
                 79, 5);
     }
 

@@ -33,9 +33,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupFunctionName;
@@ -214,11 +214,11 @@ public class JvmDesugarPhase {
 
         // Inject an additional parameter to accept the self-record value into the init function
         BIRFunctionParameter selfParam = new BIRFunctionParameter(null, receiver.type, receiver.name,
-                receiver.scope, VarKind.ARG, paramName, false);
+                                                                  receiver.scope, VarKind.ARG, paramName, false);
 
-        func.type = new BInvokableType(Collections.singletonList(receiver.type), func.type.restType, func.type.retType
-                , null);
-        func.type.paramTypes = Collections.singletonList(receiver.type);
+        List<BType> updatedParamTypes = Lists.of(receiver.type);
+        updatedParamTypes.addAll(func.type.paramTypes);
+        func.type = new BInvokableType(updatedParamTypes, func.type.restType, func.type.retType, null);
 
         List<BIRVariableDcl> localVars = func.localVars;
         List<BIRVariableDcl> updatedLocalVars = new ArrayList<>();

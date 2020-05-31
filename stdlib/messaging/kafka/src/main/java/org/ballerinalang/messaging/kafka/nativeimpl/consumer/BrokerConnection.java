@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
 import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
 import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
@@ -109,7 +110,7 @@ public class BrokerConnection {
                     "Kafka consumer is already connected to external broker. Please close it before re-connecting " +
                             "the external broker again.", CONSUMER_ERROR);
         }
-        MapValue<String, Object> configs = consumerObject.getMapValue(CONSUMER_CONFIG_FIELD_NAME);
+        MapValue<BString, Object> configs = consumerObject.getMapValue(CONSUMER_CONFIG_FIELD_NAME);
         Properties consumerProperties = processKafkaConsumerConfig(configs);
         try {
             KafkaConsumer kafkaConsumer = new KafkaConsumer<>(consumerProperties);

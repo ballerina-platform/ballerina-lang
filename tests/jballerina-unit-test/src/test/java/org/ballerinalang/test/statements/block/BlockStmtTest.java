@@ -64,15 +64,32 @@ public class BlockStmtTest {
         Assert.assertEquals(returns[0].stringValue(), "K25");
     }
 
+    @Test
+    public void testScopeOfBlock() {
+        BRunUtil.invoke(result, "testScopeOfBlock");
+    }
+
+    @Test
+    public void testStmtInBlock() {
+        BRunUtil.invoke(result, "testStmtInBlock");
+    }
+
+    @Test
+    public void testReturnStmtLocationInBlock() {
+        BRunUtil.invoke(result, "testReturnStmtLocationInBlock");
+    }
+
     @Test(description = "Test block statement with errors")
     public void testBlockStmtSemanticsNegative() {
-        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 1);
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 3);
         BAssertUtil.validateError(resultSemanticsNegative, 0, "redeclared symbol 'value'", 8, 9);
+        BAssertUtil.validateError(resultSemanticsNegative, 1, "redeclared symbol 'value'", 19, 13);
+        BAssertUtil.validateError(resultSemanticsNegative, 2, "redeclared symbol 'value'", 31, 17);
     }
 
     @Test(description = "Test block statement with errors")
     public void testBlockStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 11);
+        Assert.assertEquals(resultNegative.getErrorCount(), 14);
         //testUnreachableStmtInIfFunction1
         BAssertUtil.validateError(resultNegative, 0, "unreachable code", 9, 5);
         //testUnreachableStmtInIfFunction2
@@ -93,5 +110,9 @@ public class BlockStmtTest {
         //testUnreachableThrow
         BAssertUtil.validateError(resultNegative, 9, "unreachable code", 107, 9);
         BAssertUtil.validateError(resultNegative, 10, "unreachable code", 116, 9);
+        BAssertUtil.validateError(resultNegative, 11, "unreachable code", 126, 9);
+        //testUninitializedVariableAssignInBlock
+        BAssertUtil.validateError(resultNegative, 12, "variable 'a' is not initialized", 136, 17);
+        BAssertUtil.validateError(resultNegative, 13, "variable 'a' is not initialized", 143, 9);
     }
 }

@@ -33,13 +33,7 @@ import org.ballerinalang.jvm.values.api.BString;
 //        returnType = {@ReturnType(type = TypeKind.STRING)})
 public class Reason {
 
-
-    @Deprecated
-    public static String reason(Strand strand, ErrorValue value) {
+    public static BString reason(Strand strand, ErrorValue value) {
         return value.getReason();
-    }
-
-    public static BString reason_bstring(Strand strand, ErrorValue value) {
-        return value.getErrorReason();
     }
 }

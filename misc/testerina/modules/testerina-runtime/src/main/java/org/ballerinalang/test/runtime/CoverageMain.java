@@ -41,8 +41,9 @@ public class CoverageMain {
         Path testJarPath = Paths.get(args[2]);
         String orgName = args[3];
         String moduleName = args[4];
+        String version = args[5];
 
-        CoverageReport coverageReport = new CoverageReport(testJarPath, targetDir, orgName, moduleName);
+        CoverageReport coverageReport = new CoverageReport(testJarPath, targetDir, orgName, moduleName, version);
         coverageReport.generateReport();
         Path jsonTmpSummaryPath = Paths.get(args[0], TesterinaConstants.COVERAGE_FILE);
         writeCoverageToJsonFile(ModuleCoverage.getInstance(), jsonTmpSummaryPath);

@@ -35,11 +35,7 @@ import org.ballerinalang.jvm.values.api.BString;
 //)
 public class ToHexString {
 
-    public static String toHexString(Strand strand, long n) {
-        return Long.toHexString(n);
-    }
-
-    public static BString toHexString_bstring(Strand strand, long n) {
-        return StringUtils.fromString(toHexString(strand, n));
+    public static BString toHexString(Strand strand, long n) {
+        return StringUtils.fromString(Long.toHexString(n));
     }
 }

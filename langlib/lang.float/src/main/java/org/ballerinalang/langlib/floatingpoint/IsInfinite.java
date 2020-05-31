@@ -36,8 +36,4 @@ public class IsInfinite {
     public static boolean isInfinite(Strand strand, double x) {
         return Double.isInfinite(x);
     }
-
-    public static boolean isInfinite_bstring(Strand strand, double x) {
-        return isInfinite(strand, x);
-    }
 }

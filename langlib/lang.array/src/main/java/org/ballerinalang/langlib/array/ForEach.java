@@ -53,21 +53,4 @@ public class ForEach {
                                                        result -> {
                                                        }, () -> null);
     }
-
-    public static void forEach_bstring(Strand strand, ArrayValue arr, FPValue<Object, Object> func) {
-        forEach(strand, arr, func);
-    }
-
-    public static void forEach(ArrayValue arr, FPValue<Object, Object> func) {
-        int size = arr.size();
-        BType arrType = arr.getType();
-        GetFunction getFn = getElementAccessFunction(arrType, "forEach()");
-        AtomicInteger index = new AtomicInteger(-1);
-        BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, size,
-                        () -> new Object[]{
-                                getFn.get(arr, index.incrementAndGet()), true},
-                        result -> {
-                        }, () -> null);
-    }
 }

@@ -99,7 +99,7 @@ public class RequestNativeFunctionSuccessTest {
     @Test
     public void testContentType() {
         ObjectValue inRequest = createRequestObject();
-        Object[] inputArg = { inRequest, "application/x-custom-type+json" };
+        Object[] inputArg = {inRequest, org.ballerinalang.jvm.StringUtils.fromString("application/x-custom-type+json")};
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testContentType", inputArg);
         Assert.assertNotNull(returnVals[0]);
         Assert.assertEquals(((BString) returnVals[0]).value(), "application/x-custom-type+json");
@@ -118,7 +118,7 @@ public class RequestNativeFunctionSuccessTest {
                            "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entityStruct =
-                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD);
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD.getValue());
         HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         Assert.assertEquals(httpHeaders.getAll(headerName).get(0), "1stHeader");
         Assert.assertEquals(httpHeaders.getAll(headerName).get(1), headerValue);
@@ -192,8 +192,8 @@ public class RequestNativeFunctionSuccessTest {
         ObjectValue entity = createEntityObject();
         HttpUtil.populateInboundRequest(inRequest, entity, inRequestMsg);
 
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetHeader",
-                                              new Object[]{ inRequest, HttpHeaderNames.CONTENT_TYPE.toString() });
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetHeader", new Object[]{inRequest,
+                org.ballerinalang.jvm.StringUtils.fromString(HttpHeaderNames.CONTENT_TYPE.toString())});
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertEquals(returnVals[0].stringValue(), APPLICATION_FORM);
     }
@@ -222,8 +222,8 @@ public class RequestNativeFunctionSuccessTest {
         ObjectValue entity = createEntityObject();
         HttpUtil.populateInboundRequest(inRequest, entity, inRequestMsg);
 
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetHeaders",
-                                              new Object[]{ inRequest, "test-header" });
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetHeaders", new Object[]{inRequest,
+                org.ballerinalang.jvm.StringUtils.fromString("test-header")});
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertEquals(((BValueArray) returnVals[0]).getString(0), APPLICATION_FORM);
         Assert.assertEquals(((BValueArray) returnVals[0]).getString(1), TEXT_PLAIN);
@@ -460,7 +460,7 @@ public class RequestNativeFunctionSuccessTest {
                            "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entityStruct =
-                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD);
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD.getValue());
         HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         Assert.assertEquals(httpHeaders.get(headerName), headerValue);
     }
@@ -479,7 +479,7 @@ public class RequestNativeFunctionSuccessTest {
                            "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entityStruct =
-                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD);
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD.getValue());
         HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         Assert.assertEquals(httpHeaders.get(headerName), headerValue);
     }
@@ -507,9 +507,11 @@ public class RequestNativeFunctionSuccessTest {
                            "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entity =
-                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD);
-        MapValueImpl bJson = (MapValueImpl) TestEntityUtils.getMessageDataSource(entity);
-        Assert.assertEquals(bJson.get("name"), "wso2", "Payload is not set properly");
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD.getValue());
+        MapValueImpl<BString, Object> bJson = (MapValueImpl<BString, Object>) TestEntityUtils.getMessageDataSource(
+                entity);
+        Assert.assertEquals(bJson.get(org.ballerinalang.jvm.StringUtils.fromString("name")).toString(), "wso2",
+                            "Payload is not set properly");
     }
 
     @Test(description = "Test SetJsonPayload function within a service")
@@ -535,7 +537,7 @@ public class RequestNativeFunctionSuccessTest {
                            "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entity =
-                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD);
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD.getValue());
         String stringValue = (String) TestEntityUtils.getMessageDataSource(entity);
         Assert.assertEquals(stringValue, "Ballerina", "Payload is not set properly");
     }
@@ -562,7 +564,7 @@ public class RequestNativeFunctionSuccessTest {
                            "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entity =
-                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD);
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD.getValue());
         XMLValue xmlValue = (XMLValue) TestEntityUtils.getMessageDataSource(entity);
         Assert.assertEquals(xmlValue.getTextValue(), "Ballerina", "Payload is not set properly");
     }
@@ -615,7 +617,7 @@ public class RequestNativeFunctionSuccessTest {
                            "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entity =
-                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD);
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD.getValue());
         ArrayValue messageDataSource = (ArrayValue) TestEntityUtils.getMessageDataSource(entity);
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         messageDataSource.serialize(outStream);
@@ -637,7 +639,7 @@ public class RequestNativeFunctionSuccessTest {
                            "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entity =
-                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD);
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD.getValue());
         /*
          * BMap<String, BValue> returnFileStruct = (BMap<String, BValue>) entity.get(OVERFLOW_DATA_INDEX);
          *
@@ -731,7 +733,7 @@ public class RequestNativeFunctionSuccessTest {
                            "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entityStruct =
-                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD);
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD.getValue());
         HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         Assert.assertEquals(httpHeaders.getAll(headerName).get(0), headerValue);
     }

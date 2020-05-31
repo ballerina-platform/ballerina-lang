@@ -48,7 +48,8 @@ public class ByteAsJsonTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: incompatible types: expected 'byte', found 'int'.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}InherentTypeViolation message=incompatible" +
+                    " types: expected 'byte', found 'int'.*")
     public void testInherentTypeViolationForArray() {
         BRunUtil.invoke(result, "testInherentTypeViolationForArray");
     }

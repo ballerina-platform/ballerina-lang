@@ -19,10 +19,12 @@
 package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
@@ -43,7 +45,7 @@ public class ToBase16 {
 
     private static final char[] chars = "0123456789abcdef".toCharArray();
 
-    public static String toBase16(ArrayValue arr) {
+    public static BString toBase16(ArrayValue arr) {
         BType arrType = arr.getType();
         if (arrType.getTag() != TypeTags.ARRAY_TAG ||
                 ((BArrayType) arrType).getElementType().getTag() != TypeTags.BYTE_TAG) {
@@ -62,6 +64,6 @@ public class ToBase16 {
             base16Chars[i * 2 + 1] = chars[v & 0xF];
         }
 
-        return new String(base16Chars);
+        return StringUtils.fromString(new String(base16Chars));
     }
 }

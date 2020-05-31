@@ -149,7 +149,7 @@ public class ComplexObjectSerializationTest {
         BValueArray tuple = (BValueArray) returns[1];
         String serialize = new JsonSerializer().serialize(tuple);
         BValueArray deserialize = new JsonSerializer().deserialize(serialize, BValueArray.class);
-        Assert.assertTrue(tuple.getType().getTag() == deserialize.getType().getTag());
+        Assert.assertEquals(deserialize.getType().getTag(), tuple.getType().getTag());
         List<Integer> tupleTypesTags = ((BTupleType) tuple.getType()).getTupleTypes().stream()
                 .map(t -> t.getTag())
                 .collect(Collectors.toList());

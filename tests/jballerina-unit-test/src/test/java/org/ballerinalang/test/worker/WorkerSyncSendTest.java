@@ -56,16 +56,16 @@ public class WorkerSyncSendTest {
 
         BValue[] returns = BRunUtil.invoke(result, "multipleSyncSend");
         Assert.assertTrue(returns[0].stringValue().startsWith("w2w2w2w2w2"),
-                "Returned wrong value:" + returns[0].stringValue());
+                          "Returned wrong value:" + returns[0].stringValue());
         Assert.assertFalse(returns[0].stringValue().startsWith("w11"),
-                "Returned wrong value:" + returns[0].stringValue());
+                           "Returned wrong value:" + returns[0].stringValue());
     }
 
     @Test
     public void nilReturnTest() {
 
         BValue[] returns = BRunUtil.invoke(result, "process2");
-        Assert.assertEquals(returns[0], null);
+        Assert.assertNull(returns[0]);
     }
 
     @Test

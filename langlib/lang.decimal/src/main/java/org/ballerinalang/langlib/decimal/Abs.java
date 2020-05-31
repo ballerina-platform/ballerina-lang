@@ -21,6 +21,8 @@ package org.ballerinalang.langlib.decimal;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.DecimalValue;
 
+import static org.ballerinalang.util.BLangCompilerConstants.DECIMAL_VERSION;
+
 /**
  * Native implementation of lang.decimal:abs(decimal).
  *

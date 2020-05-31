@@ -26,30 +26,30 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Tests related to BVM dynamic control stack growth. 
+ * Tests related to BVM dynamic control stack growth.
  */
 public class DynamicControlStackTest {
 
     private CompileResult result;
-    
+
     @BeforeClass
     public void setup() {
         this.result = BCompileUtil.compile("test-src/vm/control-stack-test.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
     }
-    
+
     @Test
     public void controlStackTest1() {
         BValue[] vals = BRunUtil.invoke(result, "f1", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals(((BInteger) vals[0]).intValue(), 50025000);
     }
-    
+
     @Test
     public void controlStackTest2() {
         BValue[] vals = BRunUtil.invoke(result, "f5", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals(((BInteger) vals[0]).intValue(), 50125000);
     }
-    
+
 }

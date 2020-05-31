@@ -88,14 +88,14 @@ public class BArrayValueTest {
         BValueArray arrayValue = (BValueArray) returns[0];
         Assert.assertEquals(arrayValue.size(), 200, "Invalid arrays size.");
 
-        Assert.assertEquals(arrayValue.getFloat(0), new Double(-10.0), DELTA, "Invalid value returned.");
-        Assert.assertEquals(arrayValue.getFloat(15), new Double(2.5), DELTA, "Invalid value returned.");
-        Assert.assertEquals(arrayValue.getFloat(99), new Double(2147483647.1), DELTA,
-                "Invalid value returned.");
-        Assert.assertEquals(arrayValue.getFloat(100), new Double(4.3), DELTA, "Invalid value returned.");
-        Assert.assertEquals(arrayValue.getFloat(115), new Double(-2147483647.7), DELTA,
-                "Invalid value returned.");
-        Assert.assertEquals(arrayValue.getFloat(199), new Double(6.9), DELTA, "Invalid value returned.");
+        Assert.assertEquals(arrayValue.getFloat(0), -10.0, DELTA, "Invalid value returned.");
+        Assert.assertEquals(arrayValue.getFloat(15), 2.5, DELTA, "Invalid value returned.");
+        Assert.assertEquals(arrayValue.getFloat(99), 2147483647.1, DELTA,
+                            "Invalid value returned.");
+        Assert.assertEquals(arrayValue.getFloat(100), 4.3, DELTA, "Invalid value returned.");
+        Assert.assertEquals(arrayValue.getFloat(115), -2147483647.7, DELTA,
+                            "Invalid value returned.");
+        Assert.assertEquals(arrayValue.getFloat(199), 6.9, DELTA, "Invalid value returned.");
     }
 
     @Test(description = "test default value of an element in an integer array")

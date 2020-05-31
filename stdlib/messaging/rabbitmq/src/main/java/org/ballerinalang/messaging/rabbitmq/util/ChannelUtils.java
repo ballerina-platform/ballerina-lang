@@ -67,7 +67,7 @@ public class ChannelUtils {
             }
             @SuppressWarnings(RabbitMQConstants.UNCHECKED)
             MapValue<String, Object> config = (MapValue<String, Object>) queueConfig;
-            String queueName = config.getStringValue(RabbitMQConstants.QUEUE_NAME);
+            String queueName = config.getStringValue(RabbitMQConstants.QUEUE_NAME).getValue();
             boolean durable = config.getBooleanValue(RabbitMQConstants.QUEUE_DURABLE);
             boolean exclusive = config.getBooleanValue(RabbitMQConstants.QUEUE_EXCLUSIVE);
             boolean autoDelete = config.getBooleanValue(RabbitMQConstants.QUEUE_AUTO_DELETE);
@@ -89,8 +89,8 @@ public class ChannelUtils {
     public static Object exchangeDeclare(MapValue<String, Object> exchangeConfig, Channel channel) {
         RabbitMQTracingUtil.traceResourceInvocation(channel);
         try {
-            String exchangeName = exchangeConfig.getStringValue(RabbitMQConstants.EXCHANGE_NAME);
-            String exchangeType = exchangeConfig.getStringValue(RabbitMQConstants.EXCHANGE_TYPE);
+            String exchangeName = exchangeConfig.getStringValue(RabbitMQConstants.EXCHANGE_NAME).getValue();
+            String exchangeType = exchangeConfig.getStringValue(RabbitMQConstants.EXCHANGE_TYPE).getValue();
             boolean durable = exchangeConfig.getBooleanValue(RabbitMQConstants.EXCHANGE_DURABLE);
             boolean autoDelete = exchangeConfig.getBooleanValue(RabbitMQConstants.EXCHANGE_AUTO_DELETE);
             Map<String, Object> argumentsMap = null;
@@ -133,10 +133,11 @@ public class ChannelUtils {
             if (properties != null) {
                 @SuppressWarnings(RabbitMQConstants.UNCHECKED)
                 MapValue<String, Object> basicPropsMap = (MapValue) properties;
-                String replyTo = basicPropsMap.getStringValue(RabbitMQConstants.ALIAS_REPLY_TO);
-                String contentType = basicPropsMap.getStringValue(RabbitMQConstants.ALIAS_CONTENT_TYPE);
-                String contentEncoding = basicPropsMap.getStringValue(RabbitMQConstants.ALIAS_CONTENT_ENCODING);
-                String correlationId = basicPropsMap.getStringValue(RabbitMQConstants.ALIAS_CORRELATION_ID);
+                String replyTo = basicPropsMap.getStringValue(RabbitMQConstants.ALIAS_REPLY_TO).getValue();
+                String contentType = basicPropsMap.getStringValue(RabbitMQConstants.ALIAS_CONTENT_TYPE).getValue();
+                String contentEncoding = basicPropsMap.getStringValue(RabbitMQConstants.ALIAS_CONTENT_ENCODING)
+                        .getValue();
+                String correlationId = basicPropsMap.getStringValue(RabbitMQConstants.ALIAS_CORRELATION_ID).getValue();
                 if (replyTo != null) {
                     builder.replyTo(replyTo);
                 }
@@ -260,8 +261,8 @@ public class ChannelUtils {
             GetResponse response = channel.basicGet(queueName, ackMode);
             ObjectValue messageObjectValue = createAndPopulateMessageObjectValue(response, channel, ackMode);
             RabbitMQMetricsUtil.reportConsume(channel, queueName, ((byte[]) messageObjectValue
-                                                      .getNativeData(RabbitMQConstants.MESSAGE_CONTENT)).length,
-                                              RabbitMQObservabilityConstants.CONSUME_TYPE_CHANNEL);
+                    .getNativeData(RabbitMQConstants.MESSAGE_CONTENT.getValue()))
+                    .length, RabbitMQObservabilityConstants.CONSUME_TYPE_CHANNEL);
             RabbitMQTracingUtil.traceQueueResourceInvocation(channel, queueName);
             return messageObjectValue;
         } catch (IOException e) {
@@ -275,12 +276,13 @@ public class ChannelUtils {
                                                                    boolean autoAck) {
         ObjectValue messageObjectValue = BallerinaValues.createObjectValue(RabbitMQConstants.PACKAGE_ID_RABBITMQ,
                                                                            RabbitMQConstants.MESSAGE_OBJECT);
-        messageObjectValue.addNativeData(RabbitMQConstants.DELIVERY_TAG, response.getEnvelope().getDeliveryTag());
+        messageObjectValue.addNativeData(RabbitMQConstants.DELIVERY_TAG.getValue(),
+                                         response.getEnvelope().getDeliveryTag());
         messageObjectValue.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, new HandleValue(channel));
-        messageObjectValue.addNativeData(RabbitMQConstants.MESSAGE_CONTENT, response.getBody());
-        messageObjectValue.addNativeData(RabbitMQConstants.AUTO_ACK_STATUS, autoAck);
-        messageObjectValue.addNativeData(RabbitMQConstants.BASIC_PROPERTIES, response.getProps());
-        messageObjectValue.addNativeData(RabbitMQConstants.MESSAGE_ACK_STATUS, false);
+        messageObjectValue.addNativeData(RabbitMQConstants.MESSAGE_CONTENT.getValue(), response.getBody());
+        messageObjectValue.addNativeData(RabbitMQConstants.AUTO_ACK_STATUS.getValue(), autoAck);
+        messageObjectValue.addNativeData(RabbitMQConstants.BASIC_PROPERTIES.getValue(), response.getProps());
+        messageObjectValue.addNativeData(RabbitMQConstants.MESSAGE_ACK_STATUS.getValue(), false);
         return messageObjectValue;
     }
 

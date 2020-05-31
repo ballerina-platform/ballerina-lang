@@ -55,7 +55,7 @@ public class Detach {
         @SuppressWarnings("unchecked")
         ConcurrentHashMap<String, Dispatcher> dispatcherList = (ConcurrentHashMap<String, Dispatcher>)
                 listener.getNativeData(Constants.DISPATCHER_LIST);
-        String subject = subscriptionConfig.getStringValue(Constants.SUBJECT);
+        String subject = subscriptionConfig.getStringValue(Constants.SUBJECT).getValue();
         Dispatcher dispatcher = dispatcherList.get(service.getType().getName());
         try {
             dispatcher.unsubscribe(subject);

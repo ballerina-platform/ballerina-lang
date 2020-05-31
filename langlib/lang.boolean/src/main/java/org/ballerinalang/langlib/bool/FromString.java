@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
+import org.ballerinalang.jvm.values.api.BString;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BOOLEAN_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.BOOLEAN_PARSING_ERROR_IDENTIFIER;
@@ -41,7 +42,8 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
 //)
 public class FromString {
 
-    public static Object fromString(Strand strand, String s) {
+    public static Object fromString(Strand strand, BString str) {
+        String s = str.getValue();
         if ("true".equalsIgnoreCase(s) || "1".equalsIgnoreCase(s)) {
             return true;
         } else if ("false".equalsIgnoreCase(s) || "0".equalsIgnoreCase(s)) {

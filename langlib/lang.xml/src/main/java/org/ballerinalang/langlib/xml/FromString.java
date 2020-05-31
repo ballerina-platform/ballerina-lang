@@ -20,6 +20,11 @@ package org.ballerinalang.langlib.xml;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Converts a XML to the corresponding JSON representation.
@@ -35,9 +40,9 @@ import org.ballerinalang.jvm.values.ErrorValue;
 //)
 public class FromString {
 
-    public static Object fromString(Strand strand, String string) {
+    public static Object fromString(Strand strand, BString string) {
         try {
-            return XMLFactory.parse(string);
+            return XMLFactory.parse(string.getValue());
         } catch (ErrorValue errorValue) {
             return errorValue;
         }

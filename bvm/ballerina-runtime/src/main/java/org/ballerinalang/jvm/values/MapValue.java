@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * <p>
@@ -34,25 +35,27 @@ import org.ballerinalang.jvm.values.api.BMap;
  */
 public interface MapValue<K, V> extends RefValue, CollectionValue, BMap<K, V> {
 
-    Long getIntValue(String key);
+    Long getIntValue(BString key);
 
-    Double getFloatValue(String key);
+    Double getFloatValue(BString key);
 
-    String getStringValue(String key);
+    BString getStringValue(BString key);
 
-    Boolean getBooleanValue(String key);
+    Boolean getBooleanValue(BString key);
 
-    MapValue<?, ?> getMapValue(String key);
+    MapValue<?, ?> getMapValue(BString key);
 
-    ObjectValue getObjectValue(String key);
+    ObjectValue getObjectValue(BString key);
 
-    ArrayValue getArrayValue(String key);
+    ArrayValue getArrayValue(BString key);
 
-    long getDefaultableIntValue(String key);
+    long getDefaultableIntValue(BString key);
 
     Object merge(MapValue v2, boolean checkMergeability);
 
     void addNativeData(String key, Object data);
 
     Object getNativeData(String key);
+
+    TypedescValue getTypedesc();
 }

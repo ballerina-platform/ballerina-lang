@@ -30,6 +30,11 @@ import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.model.util.JsonParser;
+import org.ballerinalang.model.util.StringUtils;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.ResponseReader;
@@ -211,7 +216,9 @@ public class ServiceTest {
         Object bJson = JSONParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertTrue(bJson instanceof MapValue);
 
-        Assert.assertTrue(((MapValueImpl) bJson).get("Team").toString().isEmpty(), "Team variable not set properly");
+        Assert.assertTrue(((MapValueImpl<BString, BString>) bJson).get(
+                org.ballerinalang.jvm.StringUtils.fromString("Team")).toString().isEmpty(),
+                          "Team variable not set properly");
     }
 
     @Test(description = "Test GetFormParams empty responseMsgPayloads")

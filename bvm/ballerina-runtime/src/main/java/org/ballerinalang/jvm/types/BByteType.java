@@ -50,4 +50,9 @@ public class BByteType extends BType {
     public int getTag() {
         return TypeTags.BYTE_TAG;
     }
+
+    @Override
+    public boolean isReadOnly() {
+        return true;
+    }
 }

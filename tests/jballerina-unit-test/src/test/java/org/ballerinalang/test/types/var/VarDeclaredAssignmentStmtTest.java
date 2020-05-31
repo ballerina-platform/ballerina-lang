@@ -21,7 +21,6 @@ import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -118,13 +117,13 @@ public class VarDeclaredAssignmentStmtTest {
     public void testStringToVarAssignment() {
         BValue[] returns = BRunUtil.invoke(result, "testStringToVarAssignment",
                 new BValue[]{});
-        Assert.assertEquals(((BString) returns[0]).stringValue(), "name");
+        Assert.assertEquals(returns[0].stringValue(), "name");
     }
 
     @Test(description = "Test multiple string to var assignment.")
     public void testMultipleStringToVarAssignment() {
         BValue[] returns = BRunUtil.invoke(result, "testMultipleStringToVarAssignment",
-                new BValue[]{});
+                                           new BValue[]{});
         Assert.assertEquals(returns.length, 4);
 
         Assert.assertNotNull(returns[0]);
@@ -132,17 +131,17 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertNotNull(returns[2]);
         Assert.assertNotNull(returns[3]);
 
-        Assert.assertEquals(((BString) returns[0]).stringValue(), "name_1");
-        Assert.assertEquals(((BString) returns[1]).stringValue(), "name_2");
-        Assert.assertEquals(((BString) returns[2]).stringValue(), "name_3");
-        Assert.assertEquals(((BString) returns[3]).stringValue(), "name_4");
+        Assert.assertEquals(returns[0].stringValue(), "name_1");
+        Assert.assertEquals(returns[1].stringValue(), "name_2");
+        Assert.assertEquals(returns[2].stringValue(), "name_3");
+        Assert.assertEquals(returns[3].stringValue(), "name_4");
     }
 
     @Test(description = "Test boolean to var assignment.")
     public void testBooleanToVarAssignment() {
         BValue[] returns = BRunUtil.invoke(result, "testBooleanToVarAssignment",
                 new BValue[]{});
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(description = "Test var in variable def.")

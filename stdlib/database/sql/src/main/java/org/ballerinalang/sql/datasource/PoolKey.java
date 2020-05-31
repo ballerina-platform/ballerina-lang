@@ -21,6 +21,7 @@ import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Map;
 
@@ -31,9 +32,9 @@ import java.util.Map;
  */
 public class PoolKey {
     private String jdbcUrl;
-    private MapValue<String, ?> options;
+    private MapValue<BString, ?> options;
 
-    public PoolKey(String jdbcUrl, MapValue<String, ?> options) {
+    public PoolKey(String jdbcUrl, MapValue<BString, ?> options) {
         this.jdbcUrl = jdbcUrl;
         this.options = options;
     }
@@ -62,7 +63,7 @@ public class PoolKey {
 
     private int calculateDbOptionsHashCode() {
         int hashCode = 17;
-        for (Map.Entry<String, ?> entry : options.entrySet()) {
+        for (Map.Entry<BString, ?> entry : options.entrySet()) {
             int keyHashCode = entry.getKey().hashCode();
             Object value = entry.getValue();
             BType type = TypeChecker.getType(value);
@@ -94,7 +95,7 @@ public class PoolKey {
     }
 
     private boolean optionsEqual(PoolKey anotherPoolKey) {
-        MapValue<String, ?> anotherDbOptions = anotherPoolKey.options;
+        MapValue<BString, ?> anotherDbOptions = anotherPoolKey.options;
         if (options == null && anotherDbOptions == null) {
             return true;
         }
@@ -104,7 +105,7 @@ public class PoolKey {
         if (this.options.size() != anotherDbOptions.size()) {
             return false;
         }
-        for (Map.Entry<String, ?> entry : options.entrySet()) {
+        for (Map.Entry<BString, ?> entry : options.entrySet()) {
             if (!entry.getValue().equals(anotherDbOptions.get(entry.getKey()))) {
                 return false;
             }

@@ -14,6 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.jdbc.connection;
 
 import org.ballerinalang.core.model.values.BError;
@@ -110,9 +111,11 @@ public class ConnectorInitTest {
         SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BMap);
         BMap connectionPool = (BMap) returnVal[0];
-        Assert.assertEquals(connectionPool.get(Constants.ConnectionPool.MAX_CONNECTION_LIFE_TIME_SECONDS).stringValue()
+        Assert.assertEquals(
+                connectionPool.get(Constants.ConnectionPool.MAX_CONNECTION_LIFE_TIME_SECONDS.getValue()).stringValue()
                 , "1800");
-        Assert.assertEquals(connectionPool.get(Constants.ConnectionPool.MAX_OPEN_CONNECTIONS).stringValue(), "25");
+        Assert.assertEquals(connectionPool.get(Constants.ConnectionPool.MAX_OPEN_CONNECTIONS.getValue()).stringValue(),
+                            "25");
     }
 
     @Test

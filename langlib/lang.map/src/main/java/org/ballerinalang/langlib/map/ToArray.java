@@ -27,6 +27,7 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.langlib.map.util.MapLibUtils;
 
 import java.util.Collection;
@@ -90,9 +91,9 @@ public class ToArray {
                 }
                 return new ArrayValueImpl(booleanArr);
             case TypeTags.STRING_TAG:
-                String[] stringArr = new String[size];
+                BString[] stringArr = new BString[size];
                 for (Object val : values) {
-                    stringArr[i++] = (String) val;
+                    stringArr[i++] = (BString) val;
                 }
                 return new ArrayValueImpl(stringArr);
             default:

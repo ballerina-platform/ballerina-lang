@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,14 +38,14 @@ import java.util.List;
 //)
 public class FromBase16 {
 
-    public static Object fromBase16(String str) {
+    public static Object fromBase16(BString str) {
         if (str.length() % 2 != 0) {
             return BallerinaErrors
                     .createError("Invalid base16 string",
                                  "Expected an even length string, but the length of the string was: " + str.length());
         }
 
-        char[] chars = str.toCharArray();
+        char[] chars = str.getValue().toCharArray();
         byte[] bytes = new byte[chars.length / 2];
         List<Character> invalidChars = new ArrayList<>();
 

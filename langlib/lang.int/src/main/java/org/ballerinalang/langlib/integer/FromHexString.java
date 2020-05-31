@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.integer;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.api.BString;
 
 import static org.ballerinalang.jvm.util.BLangConstants.INT_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
@@ -38,9 +39,9 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
 //)
 public class FromHexString {
 
-    public static Object fromHexString(Strand strand, String s) {
+    public static Object fromHexString(Strand strand, BString s) {
         try {
-            return Long.parseLong(s, 16);
+            return Long.parseLong(s.getValue(), 16);
         } catch (NumberFormatException e) {
             return BallerinaErrors.createError(getModulePrefixedReason(INT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER),
                                                e.getMessage());

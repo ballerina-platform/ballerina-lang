@@ -38,29 +38,7 @@ import org.ballerinalang.langlib.string.utils.StringUtils;
 //)
 public class Substring {
 
-    public static String substring(Strand strand, String value, long startIndex, long endIndex) {
-        StringUtils.checkForNull(value);
-        if (startIndex != (int) startIndex) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndex);
-        }
-        if (endIndex != (int) endIndex) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, endIndex);
-        }
-
-        if (startIndex < 0 || endIndex > value.length()) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
-                    RuntimeErrors.STRING_INDEX_OUT_OF_RANGE, value.length(), startIndex, endIndex);
-        }
-        if (endIndex < startIndex) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
-                    RuntimeErrors.INVALID_SUBSTRING_RANGE, value.length(), startIndex, endIndex);
-        }
-        return value.substring((int) startIndex, (int) endIndex);
-    }
-
-    public static BString substring_bstring(Strand strand, BString value, long startIndex, long endIndex) {
+    public static BString substring(Strand strand, BString value, long startIndex, long endIndex) {
         if (value == null) {
             throw BallerinaErrors.createNullReferenceError();
         }

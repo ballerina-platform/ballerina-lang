@@ -42,10 +42,11 @@ public class JavaUtils {
     /**
      * Returns the Java Class object associated with the class or interface with the given string name.
      *
-     * @param name   class name
+     * @param namebStr   class name
      * @return a Java Class object instance
      */
-    public static Object getClass(String name) {
+    public static Object getClass(BString namebStr) {
+        String name = namebStr.getValue();
         Class<?> clazz = getPrimitiveTypeClass(name);
         if (clazz != null) {
             return new HandleValue(clazz);
@@ -57,10 +58,6 @@ public class JavaUtils {
         } catch (ClassNotFoundException e) {
             return BallerinaErrors.createError(JAVA_CLASS_NOT_FOUND_ERROR, name);
         }
-    }
-
-    public static Object getClass_bstring(BString name) {
-        return getClass(name.getValue());
     }
 
     private static Class<?> getPrimitiveTypeClass(String name) {

@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.TableValueImpl;
 
 /**
  * {@code BTableType} represents tabular data in Ballerina.
@@ -35,6 +36,12 @@ public class BTableType extends BType {
         this.constraint = constraint;
         this.fieldNames = fieldNames;
         this.keyType = null;
+    }
+
+    public BTableType(BType constraint, BType keyType) {
+        super(TypeConstants.TABLE_TNAME, null, TableValue.class);
+        this.constraint = constraint;
+        this.keyType = keyType;
     }
 
     public BTableType(BType constraint) {
@@ -56,12 +63,12 @@ public class BTableType extends BType {
 
     @Override
     public <V> V getZeroValue() {
-        return null;
+        return (V) new TableValueImpl<BAnydataType, V>(new BTableType(constraint));
     }
 
     @Override
     public <V> V getEmptyValue() {
-        return null;
+        return getZeroValue();
     }
 
     @Override
@@ -86,8 +93,8 @@ public class BTableType extends BType {
             return super.toString() + "<" + constraint.getName() + "> key(" + keyStringBuilder.toString() + ")";
         }
 
-        return super.toString() + "<" + constraint.getName() + "> " +
-                ((keyType != null) ? ("key<" + keyType + ">") : "");
+        return super.toString() + "<" + constraint.getName() + ">" +
+                ((keyType != null) ? (" key<" + keyType + ">") : "");
     }
 
     @Override

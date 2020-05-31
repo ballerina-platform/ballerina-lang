@@ -27,10 +27,7 @@ import org.ballerinalang.jvm.values.api.BString;
  */
 public class FromString {
 
-    public static HandleValue fromString(String strValue) {
-        return new HandleValue(strValue);
-    }
-    public static HandleValue fromString_bstring(BString strValue) {
-        return new HandleValue(strValue.getValue());
+    public static HandleValue fromString(BString strValue) {
+        return new HandleValue(strValue == null ? null : strValue.getValue());
     }
 }

@@ -40,11 +40,16 @@ public class SystemConstants {
     public static final String PACKAGE_NAME = "system";
 
     /**
+     * Package version.
+     */
+    public static final String PACKAGE_VERSION = "0.6.0";
+
+    /**
      * Package path.
      */
     static final String SYSTEM_PACKAGE_PATH = ORG_NAME + ORG_NAME_SEPARATOR + PACKAGE_NAME;
 
-    static final BPackage SYSTEM_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME);
+    static final BPackage SYSTEM_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME, PACKAGE_VERSION);
 
     static final String ERROR_REASON_PREFIX = "{ballerina/system}";
 

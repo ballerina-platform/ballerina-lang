@@ -75,8 +75,4 @@ public class Map {
 
         return retArr;
     }
-
-    public static ArrayValue map_bstring(Strand strand, ArrayValue arr, FPValue<Object, Object> func) {
-        return map(arr, func);
-    }
 }

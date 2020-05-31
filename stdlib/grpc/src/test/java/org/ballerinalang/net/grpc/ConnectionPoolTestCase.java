@@ -79,14 +79,15 @@ public class ConnectionPoolTestCase {
     }
 
     private void verifyResults(BMap<String, BValue> client) {
-        BValue userDefinedPoolConfig = client.get(HttpConstants.USER_DEFINED_POOL_CONFIG);
+        BValue userDefinedPoolConfig = client.get(HttpConstants.USER_DEFINED_POOL_CONFIG.getValue());
         Assert.assertNull(userDefinedPoolConfig, "Client shouldn't have pool config defined by the user");
     }
 
     private ConnectionManager verifyPoolConfig(BValue aReturn) {
         BMap<String, BValue> result = (BMap<String, BValue>) aReturn;
-        BMap<String, BValue> clientConfig = (BMap) result.get(CLIENT_ENDPOINT_CONFIG);
-        BMap<String, BValue> userDefinedPoolConfig = (BMap) clientConfig.get(HttpConstants.USER_DEFINED_POOL_CONFIG);
+        BMap<String, BValue> clientConfig = (BMap) result.get(CLIENT_ENDPOINT_CONFIG.getValue());
+        BMap<String, BValue> userDefinedPoolConfig = (BMap) clientConfig
+                .get(HttpConstants.USER_DEFINED_POOL_CONFIG.getValue());
         Assert.assertNotNull(userDefinedPoolConfig, "Client should have a pool config defined by the user");
         return (ConnectionManager) userDefinedPoolConfig.getNativeData(CONNECTION_MANAGER);
     }

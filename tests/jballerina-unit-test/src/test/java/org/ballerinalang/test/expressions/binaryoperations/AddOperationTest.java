@@ -107,7 +107,7 @@ public class AddOperationTest {
         BValue[] returns = BRunUtil.invoke(result, "stringAndIntAdd", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
-        String actualResult = ((BString) returns[0]).stringValue();
+        String actualResult = returns[0].stringValue();
         Assert.assertEquals(actualResult, expectedResult);
     }
 

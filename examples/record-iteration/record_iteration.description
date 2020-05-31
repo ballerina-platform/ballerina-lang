@@ -1,4 +1,0 @@
-// Records are iterable. Therefore, records can be used with `foreach` loops. The iterable operations
-// `foreach()`, `map()`, `filter()`, and `count()` can also be performed on records.
-// In addition to these, if all the fields (including the rest descriptor if it is an open record) are either of
-// the type `int` or `float`, the iterable operations `sum()`, `average()`, `max()`, and `min()` are also allowed.

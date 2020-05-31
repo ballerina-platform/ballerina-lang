@@ -92,6 +92,7 @@ public class BallerinaSdkUtils {
 
     private static final String INSTALLER_PATH_UNIX = "/usr/bin/ballerina";
     private static final String INSTALLER_PATH_MAC = "/etc/paths.d/ballerina";
+    private static final String HOMEBREW_PATH_MAC = "/usr/local/bin/ballerina";
     // Todo
     private static final String INSTALLER_PATH_WINDOWS = "C:\\Program Files\\Ballerina\\ballerina";
 
@@ -270,7 +271,14 @@ public class BallerinaSdkUtils {
             return "";
         }
 
-        String ballerinaPath = execBalHomeCmd(String.format("%s %s", BALLERINA_CMD, BALLERINA_HOME_CMD));
+        String ballerinaPath = "";
+        try {
+            ballerinaPath = execBalHomeCmd(String.format("%s %s", BALLERINA_CMD, BALLERINA_HOME_CMD));
+        } catch (BallerinaCmdException ignored) {
+            // We don nothing here as we need to fallback for default installer specific locations, since "ballerina"
+            // commands might not work because of the IntelliJ issue of PATH variable might not being identified by
+            // the IntelliJ java runtime.
+        }
         if (ballerinaPath.isEmpty()) {
             // Todo - Verify
             // Tries for default installer based locations since "ballerina" commands might not work
@@ -340,23 +348,21 @@ public class BallerinaSdkUtils {
             case UNIX:
                 return INSTALLER_PATH_UNIX;
             case MAC:
-                // Reads the file content to get the ballerina home location.
-                return getContentAsString(INSTALLER_PATH_MAC);
+                return getMacDefaultPath();
             case WINDOWS:
-                // Tries to get the ballerina router script path using the default installation location.
-                return getWinDefaultPath(INSTALLER_PATH_WINDOWS);
+                return getWinDefaultPath();
             default:
                 return "";
         }
     }
 
-    private static String getWinDefaultPath(String defaultDir) {
+    private static String getWinDefaultPath() {
         try {
             String pluginVersion = getBallerinaPluginVersion();
             if (pluginVersion == null) {
                 return "";
             }
-            String routerPath = String.join("-", defaultDir, pluginVersion);
+            String routerPath = String.join("-", INSTALLER_PATH_WINDOWS, pluginVersion);
             return Paths.get(routerPath, "bin", "ballerina.bat").toString();
         } catch (Exception e) {
             LOG.warn("Error occurred when trying to auto detect using default installation path.", e);
@@ -364,15 +370,19 @@ public class BallerinaSdkUtils {
         }
     }
 
-    private static String getContentAsString(String filePath) {
+    private static String getMacDefaultPath() {
         try {
-            Stream<String> stream = Files.lines(Paths.get(filePath), StandardCharsets.UTF_8);
+            Stream<String> stream = Files.lines(Paths.get(INSTALLER_PATH_MAC), StandardCharsets.UTF_8);
             StringBuilder contentBuilder = new StringBuilder();
             stream.forEach(s -> contentBuilder.append(s).append("\n"));
             String balHomePath = contentBuilder.toString().trim();
-            // Append "/ballerina" to content since we only need the ballerina home root.
             balHomePath = !Strings.isNullOrEmpty(balHomePath) && balHomePath.endsWith("/bin") ?
                     balHomePath.replace("/bin", "/bin/ballerina") : "";
+
+            // If a ballerina router script does not exist in this directory, falls-back to homebrew specific symlinks.
+            if (balHomePath.isEmpty() || !new File(balHomePath).exists()) {
+                return HOMEBREW_PATH_MAC;
+            }
             return balHomePath;
         } catch (Exception ignored) {
             return "";

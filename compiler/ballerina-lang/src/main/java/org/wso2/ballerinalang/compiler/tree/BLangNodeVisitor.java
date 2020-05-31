@@ -21,7 +21,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
@@ -150,6 +154,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -334,7 +339,15 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangJoinClause joinClause) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangLetClause letClause) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangOnClause onClause) {
         throw new AssertionError();
     }
 
@@ -347,6 +360,14 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangDoClause doClause) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangOnConflictClause onConflictClause) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangLimitClause limitClause) {
         throw new AssertionError();
     }
 
@@ -647,6 +668,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangUnionTypeNode unionTypeNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangIntersectionTypeNode intersectionTypeNode) {
         throw new AssertionError();
     }
 

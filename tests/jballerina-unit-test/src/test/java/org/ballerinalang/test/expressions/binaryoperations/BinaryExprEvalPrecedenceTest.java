@@ -91,7 +91,7 @@ public class BinaryExprEvalPrecedenceTest {
         BValue[] args = {new BBoolean(one), new BBoolean(two), new BBoolean(three)};
         BValue[] returns = BRunUtil.invoke(result, "binaryANDExprWithLeftMostSubExprFalse", args);
         boolean actualResult = ((BBoolean) returns[0]).booleanValue();
-        Assert.assertEquals(actualResult, false);
+        Assert.assertFalse(actualResult);
     }
 
     @Test(description = "Test multi binary expression with OR sub expressions inside If condition.")

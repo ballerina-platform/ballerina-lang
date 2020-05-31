@@ -53,8 +53,9 @@ dependencies {
     testCompile 'org.awaitility:awaitility'
     testCompile 'org.testng:testng'
     testCompile 'org.scala-lang:scala-library'
-    testCompile 'io.debezium:debezium-core'
-    testCompile group: 'io.debezium', name: 'debezium-core', classifier: 'tests'
+    testCompile 'org.apache.zookeeper:zookeeper'
+    testCompile 'io.dropwizard.metrics:metrics-core'
+
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(':ballerina-transactions')

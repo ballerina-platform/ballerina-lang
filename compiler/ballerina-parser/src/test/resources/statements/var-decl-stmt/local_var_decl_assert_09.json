@@ -1,0 +1,12 @@
+{
+  "kind": "INVALID",
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "Foo"
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
+}

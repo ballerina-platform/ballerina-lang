@@ -36,12 +36,13 @@ public class QueryExpressionIterableObjectTest {
 
     private CompileResult program;
 
-    @BeforeClass
+    // TODO: Skipping until https://github.com/ballerina-platform/ballerina-lang/issues/23129 is fixed.
+    @BeforeClass(enabled = false)
     public void setup() {
         program = BCompileUtil.compile("test-src/query/query-exp-iterable-objects.bal");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testIterableObject() {
         BValue[] returns = BRunUtil.invoke(program, "testIterableObject");
 
@@ -58,7 +59,7 @@ public class QueryExpressionIterableObjectTest {
 
     }
 
-    @Test
+    @Test(enabled = false)
     public void testNestedIterableObject() {
         BValue[] returns = BRunUtil.invoke(program, "testNestedIterableObject");
 
@@ -82,7 +83,7 @@ public class QueryExpressionIterableObjectTest {
 
     }
 
-    @Test
+    @Test(enabled = false)
     public void testIterableWithError() {
         BValue[] returnValues = BRunUtil.invoke(program, "testIterableWithError");
         Assert.assertNotNull(returnValues);

@@ -65,6 +65,8 @@ public class PopComplexEmailReceiveTest {
     private static final String EMAIL_SENDER = "someone2@localhost.com";
     private static final String EMAIL_SUBJECT = "Test E-Mail";
     private static final String EMAIL_TEXT = "This is a test e-mail.";
+    private static final String HEADER1_NAME = "header1_name";
+    private static final String HEADER1_VALUE = "header1_value";
     private static final String ATTACHMENT1_TEXT = "Sample attachment text";
     private static final String ATTACHMENT2_TEXT = "{\"bodyPart\":\"jsonPart\"}";
     private static final String ATTACHMENT3_TEXT = "<name>Ballerina xml file part</name>";
@@ -113,6 +115,7 @@ public class PopComplexEmailReceiveTest {
         multipartMessage.addBodyPart(attachment3);
         multipartMessage.addBodyPart(attachment4);
         message.setContent(multipartMessage);
+        message.addHeader(HEADER1_NAME, HEADER1_VALUE);
 
         // Use greenmail to store the message
         user.deliver(message);
@@ -142,6 +145,7 @@ public class PopComplexEmailReceiveTest {
         assertEquals(new String(ATTACHMENT4_BINARY), result[10]);
         assertEquals(ATTACHMENT1_HEADER1_VALUE_TEXT, result[11]);
         Assert.assertTrue(result[12].startsWith(MimeConstants.TEXT_PLAIN));
+        assertEquals(HEADER1_VALUE, result[13]);
     }
 
     private String concatAddresses(String[] addresses) {

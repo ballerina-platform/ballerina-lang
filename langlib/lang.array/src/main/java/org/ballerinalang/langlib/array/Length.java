@@ -37,7 +37,4 @@ public class Length {
     public static long length(ArrayValue arr) {
         return arr.size();
     }
-    public static long length_bstring(Strand strand, ArrayValue arr) {
-        return length(arr);
-    }
 }

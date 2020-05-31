@@ -39,15 +39,10 @@ import java.util.Locale;
 //)
 public class ToLowerAscii {
 
-    public static String toLowerAscii(Strand strand, String value) {
-        StringUtils.checkForNull(value);
-        return value.toLowerCase(Locale.getDefault());
-    }
-
-    public static BString toLowerAscii_bstring(Strand strand, BString str) {
+    public static BString toLowerAscii(Strand strand, BString str) {
         if (str == null) {
             throw BallerinaErrors.createNullReferenceError();
         }
-        return org.ballerinalang.jvm.StringUtils.fromString(toLowerAscii(strand, str.getValue()));
+        return org.ballerinalang.jvm.StringUtils.fromString(str.getValue().toLowerCase(Locale.getDefault()));
     }
 }

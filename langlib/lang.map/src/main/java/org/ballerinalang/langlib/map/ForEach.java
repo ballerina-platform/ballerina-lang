@@ -47,8 +47,4 @@ public class ForEach {
                                                        result -> {
                                                        }, () -> null);
     }
-
-    public static void forEach_bstring(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func) {
-        forEach(strand, m, func);
-    }
 }

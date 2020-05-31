@@ -18,7 +18,6 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BErrorType;
@@ -27,7 +26,6 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -56,20 +54,6 @@ public class ErrorValue extends BError implements RefValue {
     private final BType type;
     private final BString reason;
     private final Object details;
-
-    @Deprecated
-    public ErrorValue(String reason, Object details) {
-        this(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(),
-                            BTypes.typeString, TypeChecker.getType(details)), reason, details);
-    }
-
-    @Deprecated
-    public ErrorValue(BType type, String reason, Object details) {
-        super(reason);
-        this.type = type;
-        this.reason = StringUtils.fromString(reason);
-        this.details = details;
-    }
 
     @Deprecated
     public ErrorValue(BString reason, Object details) {
@@ -111,11 +95,6 @@ public class ErrorValue extends BError implements RefValue {
         return this;
     }
 
-    @Override
-    public void attemptFreeze(Status freezeStatus) {
-        // do nothing, since error types are always frozen
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -133,17 +112,7 @@ public class ErrorValue extends BError implements RefValue {
      *
      * @return reason string
      */
-    @Deprecated
-    public String getReason() {
-        return reason.getValue();
-    }
-
-    /**
-     * Returns error reason.
-     *
-     * @return reason string
-     */
-    public BString getErrorReason() {
+    public BString getReason() {
         return reason;
     }
 
@@ -249,13 +218,5 @@ public class ErrorValue extends BError implements RefValue {
             return true;
         }
         return (details instanceof MapValue) && ((MapValue) details).isEmpty();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isFrozen() {
-        return true;
     }
 }

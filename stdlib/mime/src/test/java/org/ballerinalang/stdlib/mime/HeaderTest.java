@@ -225,9 +225,10 @@ public class HeaderTest {
           expectedExceptionsMessageRegExp = ".*HeaderNotFound message=Http header does not " +
                   "exist.*")
     public void testNonExistenceTrailingHeader() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testNonExistenceTrailingHeader");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "");
+        BString headerName = new BString("heAder1");
+        BString headerValue = new BString("value1");
+        BValue[] args = {headerName, headerValue};
+        BRunUtil.invoke(compileResult, "testNonExistenceTrailingHeader", args);
     }
 
     @Test(description = "Test getting all trailing header names")
@@ -239,7 +240,9 @@ public class HeaderTest {
 
     @Test(description = "Test trailing has header function")
     public void testTrailingHasHeader() {
-        BValue[] args = {};
+        BString headerName = new BString("heAder1");
+        BString headerValue = new BString("value1");
+        BValue[] args = {headerName, headerValue};
         BValue[] returns = BRunUtil.invoke(compileResult, "testTrailingHasHeader", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(Boolean.parseBoolean(returns[0].stringValue()));
@@ -254,5 +257,25 @@ public class HeaderTest {
                 "any headers");
         Assert.assertEquals(returns[1].stringValue(), "[]", "Header names for newly created entity" +
                 "should be empty");
+    }
+
+    @Test(description = "Test adding illegal trailing header", expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*InvalidHeaderOperation message=prohibited trailing header: " +
+                  "Transfer-encoding.*")
+    public void testAddHeaderWhenAddingIllegalHeaderAsTrailingHeader() {
+        BString headerName = new BString("Transfer-encoding");
+        BString headerValue = new BString("gzip");
+        BValue[] args = {headerName, headerValue};
+        BRunUtil.invoke(compileResult, "testNonExistenceTrailingHeader", args);
+    }
+
+    @Test(description = "Test setting illegal trailing header", expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*InvalidHeaderOperation message=prohibited trailing header: " +
+                  "Content-Length.*")
+    public void testSetHeaderWhenSettingIllegalHeaderAsTrailingHeader() {
+        BString headerName = new BString("Content-Length");
+        BString headerValue = new BString("15");
+        BValue[] args = {headerName, headerValue};
+        BRunUtil.invoke(compileResult, "testTrailingHasHeader", args);
     }
 }

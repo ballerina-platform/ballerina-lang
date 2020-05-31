@@ -19,10 +19,11 @@
 package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Extern function lang.string:fromBytes(byte[]).
@@ -39,7 +40,7 @@ public class FromBytes {
 
     public static Object fromBytes(Strand strand, ArrayValue bytes) {
         try {
-            return new String(bytes.getBytes(), Charset.forName("UTF-8"));
+            return StringUtils.fromString(new String(bytes.getBytes(), StandardCharsets.UTF_8));
         } catch (Exception e) {
             return BallerinaErrors.createError("FailedToDecodeBytes", e.getMessage());
         }

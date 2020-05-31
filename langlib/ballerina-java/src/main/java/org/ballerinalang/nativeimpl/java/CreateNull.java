@@ -29,7 +29,4 @@ public class CreateNull {
     public static HandleValue createNull() {
         return new HandleValue(null);
     }
-    public static HandleValue createNull_bstring() {
-        return createNull();
-    }
 }

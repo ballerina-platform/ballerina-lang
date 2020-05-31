@@ -18,6 +18,8 @@
 
 package org.ballerinalang.packerina.task;
 
+import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.packerina.NativeDependencyResolverImpl;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.MultiModuleContext;
@@ -26,6 +28,7 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContex
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
 import org.ballerinalang.packerina.model.ExecutableJar;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.NativeDependencyResolver;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -38,13 +41,24 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
  * Task for compiling a package.
  */
 public class CompileTask implements Task {
+    private boolean skipCopyLibsFromDist;
+
+    public CompileTask(boolean skipCopyLibsFromDist) {
+        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+    }
+
+    public CompileTask() {
+        this(false);
+    }
 
     @Override
     public void execute(BuildContext buildContext) {
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
-        
         Compiler compiler = Compiler.getInstance(context);
         compiler.setOutStream(buildContext.out());
+        NativeDependencyResolver nativeDependencyResolver = NativeDependencyResolverImpl.getInstance(buildContext,
+                skipCopyLibsFromDist);
+        buildContext.put(buildContext.get(BuildContextField.JAR_RESOLVER), nativeDependencyResolver);
         if (buildContext.getSourceType() == SourceType.SINGLE_BAL_FILE) {
             SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
             Path balFile = singleFileContext.getBalFile().getFileName();
@@ -76,7 +90,7 @@ public class CompileTask implements Task {
         List<BLangPackage> modules = buildContext.getModules();
         for (BLangPackage module : modules) {
             if (module.diagCollector.hasErrors()) {
-                throw createLauncherException("compilation contains errors");
+                throw new BLangCompilerException("compilation contains errors");
             }
         }
         

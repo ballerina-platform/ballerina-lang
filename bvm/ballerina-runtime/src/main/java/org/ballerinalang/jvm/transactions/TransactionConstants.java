@@ -17,10 +17,13 @@
 */
 package org.ballerinalang.jvm.transactions;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.values.api.BString;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static org.ballerinalang.jvm.util.BLangConstants.VERSION_SEPARATOR;
 
 /**
  * {@code TransactionConstants} Define transaction related constants.
@@ -32,8 +35,12 @@ public class TransactionConstants {
     public static final String COORDINATOR_ABORT_TRANSACTION = "abortTransaction";
 
     public static final String TRANSACTION_PACKAGE_NAME = "ballerina.transactions";
-    public static final String TRANSACTION_PACKAGE_PATH = "ballerina" + ORG_NAME_SEPARATOR + "transactions";
-    public static final BPackage TRANSACTION_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "transactions");
+    public static final String TRANSACTION_PACKAGE_VERSION = "0.5.0";
+    public static final String TRANSACTION_PACKAGE_PATH =
+            "ballerina" + ORG_NAME_SEPARATOR + "transactions" + VERSION_SEPARATOR + TRANSACTION_PACKAGE_VERSION;
+
+    public static final BPackage TRANSACTION_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "transactions",
+                                                                       TRANSACTION_PACKAGE_VERSION);
     public static final String TRANSACTION_BLOCK_CLASS_NAME = "transaction_block";
     public static final String COORDINATOR_PACKAGE = TRANSACTION_PACKAGE_PATH;
 
@@ -45,10 +52,10 @@ public class TransactionConstants {
 
     // TransactionContext struct field names
     public static final String CONTEXT_VERSION = "contextVersion";
-    public static final String TRANSACTION_BLOCK_ID = "transactionBlockId";
-    public static final String TRANSACTION_ID = "transactionId";
-    public static final String CORDINATION_TYPE = "coordinationType";
-    public static final String REGISTER_AT_URL = "registerAtURL";
+    public static final BString TRANSACTION_BLOCK_ID = StringUtils.fromString("transactionBlockId");
+    public static final BString TRANSACTION_ID = StringUtils.fromString("transactionId");
+    public static final BString CORDINATION_TYPE = StringUtils.fromString("coordinationType");
+    public static final BString REGISTER_AT_URL = StringUtils.fromString("registerAtURL");
 
     public static final String ANN_NAME_TRX_PARTICIPANT_CONFIG = "Participant";
 }

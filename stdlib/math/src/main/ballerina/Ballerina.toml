@@ -7,7 +7,7 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "math"
-    version = "@project.version@"
-    path = "./lib/ballerina-math-@project.version@.jar"
+    version = "1.0.0"
+    path = "./lib/ballerina-math-1.0.0-java.jar"
     groupId = "ballerina"
     modules = ["math"]

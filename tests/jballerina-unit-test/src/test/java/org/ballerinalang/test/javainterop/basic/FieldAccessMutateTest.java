@@ -21,6 +21,7 @@ import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BHandleValue;
 import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.nativeimpl.jvm.tests.JavaFieldAccessMutate;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -58,9 +59,9 @@ public class FieldAccessMutateTest {
     public void testStaticFieldMutate() {
         BValue[] args = new BValue[1];
         String argValue = "NewValue";
-        args[0] = new BHandleValue(argValue);
+        args[0] = new BString(argValue);
         BRunUtil.invoke(result, "testStaticFieldMutate", args);
-        Assert.assertEquals(JavaFieldAccessMutate.contractId, argValue);
+        Assert.assertEquals(JavaFieldAccessMutate.contractId.getValue(), argValue);
     }
 
     @Test(description = "Test static field access")

@@ -123,7 +123,4 @@ public class GetElements {
         }
         return false;
     }
-    public static XMLValue getElements_bstring(Strand strand, XMLValue xmlVal, BString[] elemNames) {
-        return getElements(xmlVal, elemNames);
-    }
 }

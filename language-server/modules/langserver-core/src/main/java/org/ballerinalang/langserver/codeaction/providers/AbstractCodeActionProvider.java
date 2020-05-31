@@ -209,6 +209,10 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
         if (content.startsWith("from ")) {
             return position;
         }
+        // Streaming `start` clause
+        if (content.startsWith("start ")) {
+            return position;
+        }
         int pendingLParenthesis = 0;
         boolean loop = true;
         insideString = false;

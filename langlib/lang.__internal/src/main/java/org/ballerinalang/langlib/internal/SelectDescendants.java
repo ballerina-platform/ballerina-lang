@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  **/
+
 package org.ballerinalang.langlib.internal;
 
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -59,8 +60,5 @@ public class SelectDescendants {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }
         return null;
-    }
-    public static XMLValue selectDescendants_bstring(Strand strand, XMLValue xml, BString[] qnames) {
-        return selectDescendants(xml, qnames);
     }
 }

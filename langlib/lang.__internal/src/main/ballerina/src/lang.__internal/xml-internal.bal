@@ -70,3 +70,30 @@ public function getElementNameNilLifting(xml x) returns string|error? = @java:Me
     class: "org.ballerinalang.langlib.internal.GetElementNameNilLifting",
     name: "getElementNameNilLifting"
 } external;
+
+# Functional constructor for xml:Element subtype.
+#
+# + name - Name of element
+# + attributeMap - Optional attribute map
+# + children - Optional children
+# + return - Constructed Element value
+public function elementCtor(string name, map<string> attributeMap = {}, xml children = textCtor()) returns xml = external;
+
+# Functional constructor for xml:ProcessingInstruction subtype.
+#
+# + target - Target potion
+# + content - Content potion
+# + return - Constructed ProcessingInstruction value
+public function processingInstructionCtor(string target, string content = "") returns xml = external;
+
+# Functional constructor for xml:Comment subtype.
+#
+# + content - Comment content
+# + return - Constructed Comment value
+public function commentCtor(string content = "") returns xml = external;
+
+# Functional constructor for xml:Text subtype.
+#
+# + characters - Text content
+# + return - Constructed Text value
+public function textCtor(string characters = "") returns xml = external;

@@ -432,16 +432,17 @@ public class FunctionSignatureTest {
         Assert.assertEquals(returns[1].stringValue(), "inner default world");
     }
 
-    public static ArrayValue mockedNativeFuncWithOptionalParams(long a, double b, String c,
-                                                                long d, String e) {
+    public static ArrayValue mockedNativeFuncWithOptionalParams(long a, double b,
+                                                                org.ballerinalang.jvm.values.api.BString c, long d,
+                                                                org.ballerinalang.jvm.values.api.BString e) {
         BTupleType tupleType = new BTupleType(
                 Arrays.asList(BTypes.typeInt, BTypes.typeFloat, BTypes.typeString, BTypes.typeInt, BTypes.typeString));
         ArrayValue tuple = new TupleValueImpl(tupleType);
         tuple.add(0, Long.valueOf(a));
         tuple.add(1, Double.valueOf(b));
-        tuple.add(2, (Object) c);
+        tuple.add(2, c);
         tuple.add(3, Long.valueOf(d));
-        tuple.add(4, (Object) e);
+        tuple.add(4, e);
         return tuple;
     }
 

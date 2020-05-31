@@ -53,7 +53,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.jvm.BallerinaErrors.createError;
-import static org.ballerinalang.jvm.TypeConverter.getConvertibleTypes_bstring;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CONVERSION_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
@@ -71,35 +70,19 @@ public class ConstructFrom {
         BType describingType = t.getDescribingType();
         // typedesc<json>.constructFrom like usage
         if (describingType.getTag() == TypeTags.TYPEDESC_TAG) {
-            return convert(((BTypedescType) t.getDescribingType()).getConstraint(), v);
+            return convert(((BTypedescType) t.getDescribingType()).getConstraint(), v, t, strand);
         }
         // json.constructFrom like usage
-        return convert(describingType, v);
-    }
-
-    public static Object constructFrom_bstring(Strand strand, TypedescValue t, Object v) {
-        BType describingType = t.getDescribingType();
-        // typedesc<json>.constructFrom like usage
-        if (describingType.getTag() == TypeTags.TYPEDESC_TAG) {
-            return convert_bstring(((BTypedescType) t.getDescribingType()).getConstraint(), v);
-        }
-        // json.constructFrom like usage
-        return convert_bstring(describingType, v);
-    }
-
-    public static Object convert_bstring(BType convertType, Object inputValue) {
-        try {
-            return convert_bstring(inputValue, convertType, new ArrayList<>());
-        } catch (ErrorValue e) {
-            return e;
-        } catch (BallerinaException e) {
-            return createError(CONSTRUCT_FROM_CONVERSION_ERROR, e.getDetail());
-        }
+        return convert(describingType, v, t, strand);
     }
 
     public static Object convert(BType convertType, Object inputValue) {
+        return convert(convertType, inputValue, null, null);
+    }
+
+    public static Object convert(BType convertType, Object inputValue, TypedescValue t, Strand strand) {
         try {
-            return convert(inputValue, convertType, new ArrayList<>());
+            return convert(inputValue, convertType, new ArrayList<>(), t, strand);
         } catch (ErrorValue e) {
             return e;
         } catch (BallerinaException e) {
@@ -107,16 +90,12 @@ public class ConstructFrom {
         }
     }
 
-    private static Object convert_bstring(Object value, BType targetType, List<TypeValuePair> unresolvedValues) {
-        return convert_bstring(value, targetType, unresolvedValues, false);
-    }
-
     private static Object convert(Object value, BType targetType, List<TypeValuePair> unresolvedValues) {
-        return convert(value, targetType, unresolvedValues, false);
+        return convert(value, targetType, unresolvedValues, false, null, null);
     }
 
-    private static Object convert_bstring(Object value, BType targetType, List<TypeValuePair> unresolvedValues,
-                                          boolean allowAmbiguity) {
+    private static Object convert(Object value, BType targetType, List<TypeValuePair> unresolvedValues,
+                                  boolean allowAmbiguity) {
         if (value == null) {
             if (targetType.isNilable()) {
                 return null;
@@ -127,44 +106,8 @@ public class ConstructFrom {
                                                .getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, targetType)));
         }
 
-        List<BType> convertibleTypes = getConvertibleTypes_bstring(value, targetType);
+        List<BType> convertibleTypes = TypeConverter.getConvertibleTypes(value, targetType);
         if (convertibleTypes.size() == 0) {
-            throw createConversionError_bstring(value, targetType);
-        } else if (!allowAmbiguity && convertibleTypes.size() > 1) {
-            throw createConversionError_bstring(value, targetType, AMBIGUOUS_TARGET);
-        }
-
-        BType sourceType = TypeChecker.getType(value);
-        BType matchingType = convertibleTypes.get(0);
-        // handle primitive values
-        if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG) {
-            if (TypeChecker.checkIsType(value, matchingType)) {
-                return value;
-            } else {
-                // Has to be a numeric conversion.
-                return TypeConverter.convertValues_bstring(matchingType, value);
-            }
-        }
-
-        return convert((RefValue) value, matchingType, unresolvedValues);
-    }
-
-    private static Object convert(Object value, BType targetType, List<TypeValuePair> unresolvedValues,
-                                  boolean allowAmbiguity) {
-        if (value == null) {
-            if (targetType.isNilable()) {
-                return null;
-            }
-            return createError(CONSTRUCT_FROM_CONVERSION_ERROR,
-                               BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
-        }
-        List<BType> convertibleTypes;
-        if (TypeChecker.USE_BSTRING) {
-            convertibleTypes = getConvertibleTypes_bstring(value, targetType);
-        } else {
-            convertibleTypes = TypeConverter.getConvertibleTypes(value, targetType);
-        }
-        if (convertibleTypes.isEmpty()) {
             throw createConversionError(value, targetType);
         } else if (!allowAmbiguity && convertibleTypes.size() > 1) {
             throw createConversionError(value, targetType, AMBIGUOUS_TARGET);
@@ -185,7 +128,46 @@ public class ConstructFrom {
         return convert((RefValue) value, matchingType, unresolvedValues);
     }
 
-    private static Object convert(RefValue value, BType targetType, List<TypeValuePair> unresolvedValues) {
+    private static Object convert(Object value, BType targetType, List<TypeValuePair> unresolvedValues,
+                                  TypedescValue t, Strand strand) {
+        return convert(value, targetType, unresolvedValues, false, t, strand);
+    }
+
+
+    private static Object convert(Object value, BType targetType, List<TypeValuePair> unresolvedValues,
+                                  boolean allowAmbiguity, TypedescValue t, Strand strand) {
+        if (value == null) {
+            if (targetType.isNilable()) {
+                return null;
+            }
+            return createError(CONSTRUCT_FROM_CONVERSION_ERROR,
+                               BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
+        }
+        List<BType> convertibleTypes;
+        convertibleTypes = TypeConverter.getConvertibleTypes(value, targetType);
+        if (convertibleTypes.isEmpty()) {
+            throw createConversionError(value, targetType);
+        } else if (!allowAmbiguity && convertibleTypes.size() > 1) {
+            throw createConversionError(value, targetType, AMBIGUOUS_TARGET);
+        }
+
+        BType sourceType = TypeChecker.getType(value);
+        BType matchingType = convertibleTypes.get(0);
+        // handle primitive values
+        if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG) {
+            if (TypeChecker.checkIsType(value, matchingType)) {
+                return value;
+            } else {
+                // Has to be a numeric conversion.
+                return TypeConverter.convertValues(matchingType, value);
+            }
+        }
+
+        return convert((RefValue) value, matchingType, unresolvedValues, t, strand);
+    }
+
+    private static Object convert(RefValue value, BType targetType, List<TypeValuePair> unresolvedValues,
+                                  TypedescValue t, Strand strand) {
         TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
 
         if (unresolvedValues.contains(typeValuePair)) {
@@ -199,15 +181,11 @@ public class ConstructFrom {
         switch (value.getType().getTag()) {
             case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                if (TypeChecker.USE_BSTRING) {
-                    newValue = convertMap_bstring((MapValue<?, ?>) value, targetType, unresolvedValues);
-                    break;
-                }
-                newValue = convertMap((MapValue<?, ?>) value, targetType, unresolvedValues);
+                newValue = convertMap((MapValue<?, ?>) value, targetType, unresolvedValues, t, strand);
                 break;
             case TypeTags.ARRAY_TAG:
             case TypeTags.TUPLE_TAG:
-                newValue = convertArray((ArrayValue) value, targetType, unresolvedValues);
+                newValue = convertArray((ArrayValue) value, targetType, unresolvedValues, t, strand);
                 break;
             case TypeTags.XML_TAG:
             case TypeTags.XML_ELEMENT_TAG:
@@ -226,19 +204,25 @@ public class ConstructFrom {
         return newValue;
     }
 
-    private static Object convertMap_bstring(MapValue<?, ?> map, BType targetType,
-                                             List<TypeValuePair> unresolvedValues) {
+    private static Object convertMap(MapValue<?, ?> map, BType targetType, List<TypeValuePair> unresolvedValues,
+                                     TypedescValue t, Strand strand) {
         switch (targetType.getTag()) {
             case TypeTags.MAP_TAG:
                 MapValueImpl<BString, Object> newMap = new MapValueImpl<>(targetType);
                 for (Map.Entry entry : map.entrySet()) {
                     BType constraintType = ((BMapType) targetType).getConstrainedType();
-                    putToMap_bstring(newMap, entry, constraintType, unresolvedValues);
+                    putToMap(newMap, entry, constraintType, unresolvedValues, t, strand);
                 }
                 return newMap;
             case TypeTags.RECORD_TYPE_TAG:
                 BRecordType recordType = (BRecordType) targetType;
-                MapValue newRecord = BallerinaValues.createRecordValue(recordType.getPackage(), recordType.getName());
+                MapValueImpl<BString, Object> newRecord;
+                if (t != null && t.getDescribingType() == targetType) {
+                    newRecord = (MapValueImpl<BString, Object>) t.instantiate(strand);
+                } else {
+                    newRecord = (MapValueImpl<BString, Object>) BallerinaValues
+                            .createRecordValue(recordType.getPackage(), recordType.getName());
+                }
 
                 BType restFieldType = recordType.restFieldType;
                 Map<String, BType> targetTypeField = new HashMap<>();
@@ -248,12 +232,12 @@ public class ConstructFrom {
 
                 for (Map.Entry entry : map.entrySet()) {
                     BType fieldType = targetTypeField.getOrDefault(entry.getKey().toString(), restFieldType);
-                    putToMap_bstring(newRecord, entry, fieldType, unresolvedValues);
+                    putToMap(newRecord, entry, fieldType, unresolvedValues, t, strand);
                 }
                 return newRecord;
             case TypeTags.JSON_TAG:
                 BType matchingType = TypeConverter.resolveMatchingTypeForUnion(map, targetType);
-                return convert(map, matchingType, unresolvedValues);
+                return convert(map, matchingType, unresolvedValues, t, strand);
             default:
                 break;
         }
@@ -261,53 +245,15 @@ public class ConstructFrom {
         throw BallerinaErrors.createConversionError(map, targetType);
     }
 
-    private static Object convertMap(MapValue<?, ?> map, BType targetType, List<TypeValuePair> unresolvedValues) {
-        switch (targetType.getTag()) {
-            case TypeTags.MAP_TAG:
-                MapValueImpl<String, Object> newMap = new MapValueImpl<>(targetType);
-                for (Map.Entry entry : map.entrySet()) {
-                    BType constraintType = ((BMapType) targetType).getConstrainedType();
-                    putToMap(newMap, entry, constraintType, unresolvedValues);
-                }
-                return newMap;
-            case TypeTags.RECORD_TYPE_TAG:
-                BRecordType recordType = (BRecordType) targetType;
-                MapValueImpl<String, Object> newRecord = (MapValueImpl<String, Object>) BallerinaValues
-                        .createRecordValue(recordType.getPackage(), recordType.getName());
 
-                BType restFieldType = recordType.restFieldType;
-                Map<String, BType> targetTypeField = new HashMap<>();
-                for (BField field : recordType.getFields().values()) {
-                    targetTypeField.put(field.getFieldName(), field.getFieldType());
-                }
-
-                for (Map.Entry entry : map.entrySet()) {
-                    BType fieldType = targetTypeField.getOrDefault(entry.getKey(), restFieldType);
-                    putToMap(newRecord, entry, fieldType, unresolvedValues);
-                }
-                return newRecord;
-            case TypeTags.JSON_TAG:
-                BType matchingType = TypeConverter.resolveMatchingTypeForUnion(map, targetType);
-                return convert(map, matchingType, unresolvedValues);
-            default:
-                break;
-        }
-        // should never reach here
-        throw BallerinaErrors.createConversionError(map, targetType);
-    }
-
-    private static Object convertArray(ArrayValue array, BType targetType, List<TypeValuePair> unresolvedValues) {
+    private static Object convertArray(ArrayValue array, BType targetType, List<TypeValuePair> unresolvedValues,
+                                       TypedescValue t, Strand strand) {
         switch (targetType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) targetType;
                 ArrayValueImpl newArray = new ArrayValueImpl(arrayType);
                 for (int i = 0; i < array.size(); i++) {
-                    if (TypeChecker.USE_BSTRING) {
-                        Object newValue = convert_bstring(array.get(i), arrayType.getElementType(), unresolvedValues);
-                        newArray.add(i, newValue);
-                        continue;
-                    }
-                    Object newValue = convert(array.get(i), arrayType.getElementType(), unresolvedValues);
+                    Object newValue = convert(array.get(i), arrayType.getElementType(), unresolvedValues, t, strand);
                     newArray.add(i, newValue);
                 }
                 return newArray;
@@ -317,19 +263,14 @@ public class ConstructFrom {
                 int minLen = tupleType.getTupleTypes().size();
                 for (int i = 0; i < array.size(); i++) {
                     BType elementType = (i < minLen) ? tupleType.getTupleTypes().get(i) : tupleType.getRestType();
-                    if (TypeChecker.USE_BSTRING) {
-                        Object newValue = convert_bstring(array.get(i), elementType, unresolvedValues);
-                        newTuple.add(i, newValue);
-                        continue;
-                    }
-                    Object newValue = convert(array.get(i), elementType, unresolvedValues);
+                    Object newValue = convert(array.get(i), elementType, unresolvedValues, t, strand);
                     newTuple.add(i, newValue);
                 }
                 return newTuple;
             case TypeTags.JSON_TAG:
                 newArray = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
                 for (int i = 0; i < array.size(); i++) {
-                    Object newValue = convert(array.get(i), BTypes.typeJSON, unresolvedValues);
+                    Object newValue = convert(array.get(i), BTypes.typeJSON, unresolvedValues, t, strand);
                     newArray.add(i, newValue);
                 }
                 return newArray;
@@ -340,42 +281,23 @@ public class ConstructFrom {
         throw BallerinaErrors.createConversionError(array, targetType);
     }
 
-    private static void putToMap_bstring(MapValue<BString, Object> map, Map.Entry entry, BType fieldType,
-                                         List<TypeValuePair> unresolvedValues) {
-        Object newValue = convert_bstring(entry.getValue(), fieldType, unresolvedValues, true);
+    private static void putToMap(MapValue<BString, Object> map, Map.Entry entry, BType fieldType,
+                                 List<TypeValuePair> unresolvedValues, TypedescValue t, Strand strand) {
+        Object newValue = convert(entry.getValue(), fieldType, unresolvedValues, true, t, strand);
         map.put(StringUtils.fromString(entry.getKey().toString()), newValue);
     }
 
-    private static void putToMap(MapValue<String, Object> map, Map.Entry entry, BType fieldType,
-                                 List<TypeValuePair> unresolvedValues) {
-        Object newValue = convert(entry.getValue(), fieldType, unresolvedValues, true);
-        map.put(entry.getKey().toString(), newValue);
-    }
-
-    private static ErrorValue createConversionError_bstring(Object inputValue, BType targetType) {
-        return createError(StringUtils.fromString(CONSTRUCT_FROM_CONVERSION_ERROR), StringUtils.fromString(
-                BLangExceptionHelper.getErrorMessage(
-                        INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)));
-    }
-
     private static ErrorValue createConversionError(Object inputValue, BType targetType) {
-        return createError(CONSTRUCT_FROM_CONVERSION_ERROR,
-                           BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
-                                                                TypeChecker.getType(inputValue), targetType));
-    }
-
-    private static ErrorValue createConversionError_bstring(Object inputValue, BType targetType, String detailMessage) {
-        return createError(StringUtils.fromString(CONSTRUCT_FROM_CONVERSION_ERROR),
-                           StringUtils.fromString(BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
-                                                                                       TypeChecker.getType(inputValue),
-                                                                                       targetType)
-                                                          .concat(": ".concat(detailMessage))));
+        return createError(StringUtils.fromString(CONSTRUCT_FROM_CONVERSION_ERROR), StringUtils.fromString(
+                BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
+                                                     TypeChecker.getType(inputValue), targetType)));
     }
 
     private static ErrorValue createConversionError(Object inputValue, BType targetType, String detailMessage) {
-        return createError(CONSTRUCT_FROM_CONVERSION_ERROR,
-                           BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
-                                                                TypeChecker.getType(inputValue), targetType)
-                                   .concat(": ".concat(detailMessage)));
+        return createError(StringUtils.fromString(CONSTRUCT_FROM_CONVERSION_ERROR),
+                           StringUtils.fromString(BLangExceptionHelper.getErrorMessage(
+                                   INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
+                                                          .concat(": ".concat(detailMessage))));
     }
+
 }

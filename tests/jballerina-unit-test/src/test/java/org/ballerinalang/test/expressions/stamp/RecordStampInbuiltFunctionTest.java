@@ -210,7 +210,7 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue0.get("school").stringValue(), "Hindu College");
         Assert.assertEquals(mapValue0.get("school").getType().getClass(), BStringType.class);
 
-        Assert.assertEquals(((BMap) mapValue0.get("emp")).size(), 3);
+        Assert.assertEquals(mapValue0.get("emp").size(), 3);
         Assert.assertEquals(mapValue0.get("emp").getType().getClass(), BMapType.class);
         Assert.assertEquals(((BMapType) mapValue0.get("emp").getType()).getConstrainedType().getClass(),
                 BAnydataType.class);
@@ -429,7 +429,7 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
         Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
 
-        Assert.assertEquals(employee0.get("school"), null);
+        Assert.assertNull(employee0.get("school"));
     }
 
     @Test
@@ -443,7 +443,7 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
         Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
 
-        Assert.assertEquals(employee0.get("school"), null);
+        Assert.assertNull(employee0.get("school"));
     }
 
     @Test
@@ -480,7 +480,7 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
         Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
 
-        Assert.assertEquals(mapValue.get("address"), null);
+        Assert.assertNull(mapValue.get("address"));
     }
 
     @Test
