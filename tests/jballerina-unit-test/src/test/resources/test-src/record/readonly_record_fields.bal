@@ -56,7 +56,7 @@ function testInvalidRecordSimpleReadonlyFieldUpdate() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.reason());
+    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.message());
     assertEquality("cannot update 'readonly' field 'name' in record of type 'Student'", err.detail()?.message);
 
     var fn2 = function () {
@@ -66,7 +66,7 @@ function testInvalidRecordSimpleReadonlyFieldUpdate() {
     assertTrue(res is error);
 
     err = <error> res;
-    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.reason());
+    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.message());
     assertEquality("cannot update 'readonly' field 'id' in record of type 'Student'", err.detail()?.message);
 }
 
@@ -121,7 +121,7 @@ function testInvalidUpdateOfPossiblyReadonlyFieldInUnion() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.reason());
+    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.message());
     assertEquality("cannot update 'readonly' field 'name' in record of type 'Student'", err.detail()?.message);
 
     var fn2 = function () {
@@ -131,7 +131,7 @@ function testInvalidUpdateOfPossiblyReadonlyFieldInUnion() {
     assertTrue(res is error);
 
     err = <error> res;
-    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.reason());
+    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.message());
     assertEquality("cannot update 'readonly' field 'id' in record of type 'Student'", err.detail()?.message);
 }
 

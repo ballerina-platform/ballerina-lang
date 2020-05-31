@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,21 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function main (string... args) {
-    error err = error("Reason");
-    secureFunction(err, err);
-
-    error err1 = error("Reason", message = "message");
-    secureFunction(err1, err1);
-
-    secureFunction1(err.message(), err.message());
-    secureFunction1(err.detail(), err.detail());
+function testErrorCause() returns [error?, error?, error?] {
+    error cause = error("This is the cause");
+    error e = error("This is a wrapper", cause);
+    error f = error("This wrap the wrapper", e);
+    error fCause = <error> f.cause();
+    return [cause.cause(), e.cause(), fCause.cause()];
 }
 
-public function secureFunction (@untainted error secureIn, error insecureIn) {
-
-}
-
-public function secureFunction1 (@untainted any secureIn, any insecureIn) {
-
+function testErrorDestructureWithCause() returns error? {
+    error cause = error("This is the cause");
+    error e = error("This is a wrapper", cause);
+    var error(message, dCause) = e;
+    return dCause;
 }

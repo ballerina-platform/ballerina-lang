@@ -16,7 +16,7 @@ function testCheckedExprSemanticErrors2() returns error? {
     string line = checkpanic readLineError();
 }
 
-public type MyError error<string, record { int code; string message?; error cause?; }>;
+public type MyError error<record { int code; string message?; error cause?; }>;
 
 public type CustomError error<string, record { int code; string data; string message?; error cause?; }>;
 

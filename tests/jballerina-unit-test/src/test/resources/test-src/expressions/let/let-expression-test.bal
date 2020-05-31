@@ -294,10 +294,10 @@ type SampleErrorData record {
     boolean fatal;
 };
 
-type SampleError error<string, SampleErrorData>;
+type SampleError error<SampleErrorData>;
 
 function getSampleError() returns SampleError {
-    SampleError e = error("Sample Error", info = "Detail Msg", fatal = true);
+    SampleError e = SampleError("Sample Error", info = "Detail Msg", fatal = true);
     return e;
 }
 
@@ -308,8 +308,10 @@ type Foo record {|
     boolean isFatal;
 |};
 
-function getRecordConstrainedError() returns error<string, Foo> {
-    error<string, Foo> e = error("Some Error", detailMsg = "Failed Message", isFatal = true);
+type FooError error<Foo>;
+
+function getRecordConstrainedError() returns FooError {
+    FooError e = FooError("Some Error", detailMsg = "Failed Message", isFatal = true);
     return e;
 }
 

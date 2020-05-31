@@ -487,8 +487,6 @@ public class SignatureHelpUtil {
                 boolean isDirectErrorConstructor = bInvokableSymbol.type.tsymbol.kind == null;
                 if (isDirectErrorConstructor) {
                     // If it is direct error constructor, `reason` is mandatory
-                    BType reasonType = bErrorType.reasonType;
-                    parameters.add(new Parameter(" ", reasonType, false, false));
                 }
                 // todo: need to support error detail map case
                 if (bErrorType.detailType instanceof BRecordType) {

@@ -18,7 +18,10 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BErrorType;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypeIdSet;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
@@ -96,13 +99,24 @@ public class BallerinaErrors {
         return new ErrorValue(type, message, null, detailMap);
     }
 
-    @Deprecated
-    public static ErrorValue createError(String reason, MapValue detailMap) {
-        return createError(StringUtils.fromString(reason), detailMap);
+
+    public static ErrorValue createDistinctError(String errorCode, String typeIdName, BPackage typeIdPkg,
+                                                 MapValue<BString, Object> detailRecord) {
+        ErrorValue error = createError(errorCode, detailRecord);
+        BErrorType type = (BErrorType) error.getType();
+        BTypeIdSet typeIdSet = new BTypeIdSet();
+        typeIdSet.add(typeIdPkg, typeIdName, true);
+        type.setTypeIdSet(typeIdSet);
+        return error;
     }
 
-    public static ErrorValue createError(BString reason, MapValue detailMap) {
-        return new ErrorValue(reason, detailMap);
+    @Deprecated
+    public static ErrorValue createError(String message, MapValue detailMap) {
+        return createError(StringUtils.fromString(message), detailMap);
+    }
+
+    public static ErrorValue createError(BString message, MapValue detailMap) {
+        return new ErrorValue(message, detailMap);
     }
 
     public static ErrorValue createError(Throwable error) {

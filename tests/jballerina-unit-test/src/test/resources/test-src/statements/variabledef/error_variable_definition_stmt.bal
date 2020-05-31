@@ -170,7 +170,7 @@ type BeeError distinct error<Bee>;
 
 function testIndirectErrorDestructuring() returns [string?, boolean, map<anydata|error>] {
     BeeError e = BeeError(R, message="Msg", fatal=false, other="k");
-    var BeeError(message=m, fatal=f, ...rest) = e;
+    var BeeError(_, message=m, fatal=f, ...rest) = e;
     return [m, f, rest];
 }
 

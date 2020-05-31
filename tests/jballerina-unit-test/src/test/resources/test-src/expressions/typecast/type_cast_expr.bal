@@ -16,8 +16,8 @@
 
 const ERR_REASON = "error reason";
 
-type MyError error<string>;
-type MyErrorTwo error<ERR_REASON, ErrorDetails>;
+type MyError error;
+type MyErrorTwo error<ErrorDetails>;
 
 type ErrorDetails record {
    string message;
@@ -340,7 +340,7 @@ function testErrorCastPositive() returns boolean {
     any|error a2 = e3;
     error e4 = <MyError> a2;
 
-    MyErrorTwo e5 = error(ERR_REASON, message = "error message");
+    MyErrorTwo e5 = MyErrorTwo(ERR_REASON, message = "error message");
     a2 = e5;
     MyErrorTwo e6 = <MyErrorTwo> a2;
     error e7 = <error> a2;

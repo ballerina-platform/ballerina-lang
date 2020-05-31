@@ -688,8 +688,8 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangErrorVarRef varRefExpr) {
-        if (varRefExpr.reason != null) {
-            varRefExpr.reason.accept(this);
+        if (varRefExpr.message != null) {
+            varRefExpr.message.accept(this);
         }
         if (varRefExpr.restVar != null) {
             varRefExpr.restVar.accept(this);

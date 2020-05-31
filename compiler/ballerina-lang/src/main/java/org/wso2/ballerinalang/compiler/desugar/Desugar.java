@@ -281,6 +281,7 @@ public class Desugar extends BLangNodeVisitor {
             new CompilerContext.Key<>();
     private static final String BASE_64 = "base64";
     private static final String ERROR_MESSAGE_FUNCTION_NAME = "message";
+    private static final String ERROR_CAUSE_FUNCTION_NAME = "cause";
     private static final String ERROR_DETAIL_FUNCTION_NAME = "detail";
     private static final String TO_STRING_FUNCTION_NAME = "toString";
     private static final String LENGTH_FUNCTION_NAME = "length";
@@ -1595,6 +1596,14 @@ public class Desugar extends BLangNodeVisitor {
             reasonVariableDef.var = parentErrorVariable.message;
         }
 
+        if (parentErrorVariable.cause != null) {
+            BLangSimpleVariableDef causeVariableDef =
+                    ASTBuilderUtil.createVariableDefStmt(parentErrorVariable.cause.pos, parentBlockStmt);
+            causeVariableDef.var = parentErrorVariable.cause;
+            parentErrorVariable.cause.expr = generateErrorCauseLanglibFunction(parentErrorVariable.cause.pos,
+                    parentErrorVariable.cause.type, convertedErrorVarSymbol, null);
+        }
+
         if ((parentErrorVariable.detail == null || parentErrorVariable.detail.isEmpty())
             && parentErrorVariable.restDetail == null) {
             return;
@@ -1900,10 +1909,25 @@ public class Desugar extends BLangNodeVisitor {
     private BLangInvocation generateErrorMessageBuiltinFunction(DiagnosticPos pos, BType reasonType,
                                                                 BVarSymbol errorVarSymbol,
                                                                 BLangIndexBasedAccess parentIndexBasedAccess) {
-        BLangExpression onExpr =
-                parentIndexBasedAccess != null
-                        ? parentIndexBasedAccess : ASTBuilderUtil.createVariableRef(pos, errorVarSymbol);
+        BLangExpression onExpr;
+        if (parentIndexBasedAccess != null) {
+            onExpr = parentIndexBasedAccess;
+        } else {
+            onExpr = ASTBuilderUtil.createVariableRef(pos, errorVarSymbol);
+        }
         return createLangLibInvocationNode(ERROR_MESSAGE_FUNCTION_NAME, onExpr, new ArrayList<>(), reasonType, pos);
+    }
+
+    private BLangInvocation generateErrorCauseLanglibFunction(DiagnosticPos pos, BType causeType,
+                                                                BVarSymbol errorVarSymbol,
+                                                                BLangIndexBasedAccess parentIndexBasedAccess) {
+        BLangExpression onExpr;
+        if (parentIndexBasedAccess != null) {
+            onExpr = parentIndexBasedAccess;
+        } else {
+            onExpr = ASTBuilderUtil.createVariableRef(pos, errorVarSymbol);
+        }
+        return createLangLibInvocationNode(ERROR_CAUSE_FUNCTION_NAME, onExpr, new ArrayList<>(), causeType, pos);
     }
 
     private BLangInvocation generateConstructFromInvocation(DiagnosticPos pos,
@@ -2471,14 +2495,14 @@ public class Desugar extends BLangNodeVisitor {
 
     private void createVarRefAssignmentStmts(BLangErrorVarRef parentErrorVarRef, BLangBlockStmt parentBlockStmt,
                                              BVarSymbol errorVarySymbol, BLangIndexBasedAccess parentIndexAccessExpr) {
-        if (parentErrorVarRef.reason.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
-                names.fromIdNode(((BLangSimpleVarRef) parentErrorVarRef.reason).variableName) != Names.IGNORE) {
-            BLangAssignment reasonAssignment = ASTBuilderUtil
+        if (parentErrorVarRef.message.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
+                names.fromIdNode(((BLangSimpleVarRef) parentErrorVarRef.message).variableName) != Names.IGNORE) {
+            BLangAssignment message = ASTBuilderUtil
                     .createAssignmentStmt(parentBlockStmt.pos, parentBlockStmt);
-            reasonAssignment.expr = generateErrorMessageBuiltinFunction(parentErrorVarRef.reason.pos,
+            message.expr = generateErrorMessageBuiltinFunction(parentErrorVarRef.message.pos,
                     symTable.stringType, errorVarySymbol, parentIndexAccessExpr);
-            reasonAssignment.expr = addConversionExprIfRequired(reasonAssignment.expr, parentErrorVarRef.reason.type);
-            reasonAssignment.varRef = parentErrorVarRef.reason;
+            message.expr = addConversionExprIfRequired(message.expr, parentErrorVarRef.message.type);
+            message.varRef = parentErrorVarRef.message;
         }
 
         // When no detail nor rest detail are to be destructured, we don't need to generate the detail invocation.

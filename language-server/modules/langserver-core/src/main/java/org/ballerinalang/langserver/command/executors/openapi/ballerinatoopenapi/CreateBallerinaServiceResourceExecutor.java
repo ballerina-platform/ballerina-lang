@@ -443,10 +443,6 @@ public class CreateBallerinaServiceResourceExecutor implements LSCommandExecutor
             //TODO Error type is handled as string variables. Need to discuss
             final BLangErrorType fieldTypeNode = (BLangErrorType) node;
             final BType bErrorType = fieldTypeNode.type;
-            if (bErrorType instanceof BErrorType) {
-                property = mapBallerinaTypes(((BErrorType) bErrorType)
-                                                     .getReasonType().getKind().typeName());
-            }
         } else if (node instanceof BLangFiniteTypeNode) {
             //TODO handle finite types
         } else if (node instanceof BLangFunctionTypeNode) {

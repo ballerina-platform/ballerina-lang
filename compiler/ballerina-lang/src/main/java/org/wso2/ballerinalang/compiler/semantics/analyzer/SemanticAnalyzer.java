@@ -1295,6 +1295,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (!errorVariable.isInMatchStmt) {
             errorVariable.message.type = symTable.stringType;
             errorVariable.message.accept(this);
+
+            if (errorVariable.cause != null) {
+                errorVariable.cause.type = symTable.errorOrNilType;
+                errorVariable.cause.accept(this);
+            }
         }
 
         if (errorVariable.detail == null || (errorVariable.detail.isEmpty()
@@ -1307,7 +1312,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         } else if (errorType.detailType.getKind() == TypeKind.UNION) {
             BErrorTypeSymbol errorTypeSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
                     env.enclPkg.packageID, symTable.errorType, env.scope.owner);
-            // TODO: detail type need to be a union representing all details of members of `errorType
+            // TODO: detail type need to be a union representing all details of members of `errorType`
             errorVariable.type = new BErrorType(errorTypeSymbol, symTable.detailType);
             return validateErrorVariable(errorVariable);
         }
@@ -1693,12 +1698,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorDestructure errorDeStmt) {
-        if (errorDeStmt.varRef.reason.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
-                names.fromIdNode(((BLangSimpleVarRef) errorDeStmt.varRef.reason).variableName) != Names.IGNORE) {
-            setTypeOfVarRefInErrorBindingAssignment(errorDeStmt.varRef.reason);
+        if (errorDeStmt.varRef.message.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
+                names.fromIdNode(((BLangSimpleVarRef) errorDeStmt.varRef.message).variableName) != Names.IGNORE) {
+            setTypeOfVarRefInErrorBindingAssignment(errorDeStmt.varRef.message);
         } else {
             // set reason var refs type to no type if the variable name is '_'
-            errorDeStmt.varRef.reason.type = symTable.noType;
+            errorDeStmt.varRef.message.type = symTable.noType;
         }
 
         typeChecker.checkExpr(errorDeStmt.expr, this.env);
@@ -2766,7 +2771,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 return;
             case ERROR_VARIABLE_REF:
                 BLangErrorVarRef errorVarRef = (BLangErrorVarRef) expr;
-                setTypeOfVarRefForBindingPattern(errorVarRef.reason);
+                setTypeOfVarRefForBindingPattern(errorVarRef.message);
                 errorVarRef.detail.forEach(namedArgExpr -> setTypeOfVarRefForBindingPattern(namedArgExpr.expr));
                 if (errorVarRef.restVar != null) {
                     setTypeOfVarRefForBindingPattern(errorVarRef.restVar);

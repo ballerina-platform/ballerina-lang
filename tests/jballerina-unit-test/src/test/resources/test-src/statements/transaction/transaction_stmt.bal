@@ -4,7 +4,7 @@ public type TrxErrorData record {|
     string data = "";
 |};
 
-public type TrxError error<string, TrxErrorData>;
+public type TrxError error<TrxErrorData>;
 
 final int RETRYCOUNT = 4;
 final int RETRYCOUNT_2 = -4;
@@ -18,7 +18,7 @@ function testTransactionStmt(int i) returns (string) {
     if (result is string) {
         a = result;
     } else {
-        a = a + <string>result.reason();
+        a = a + <string>result.message();
     }
     a = a + " rc:" + attemptCount.toString() + " end";
     return a;
@@ -30,7 +30,7 @@ function testTransactionStmtHelper1(string status, int i) returns string {
         error err = error(" err" );
         panic err;
     } else if (i < -1) {
-        TrxError err = error(" trxErr", data = "test");
+        TrxError err = TrxError(" trxErr", data = "test");
         panic err;
     }
     return a;
@@ -78,7 +78,7 @@ function testOptionalFailed(int i) returns (string) {
     if (result is string) {
         a = result;
     } else if (result is TrxError) {
-        a += <string>result.reason();
+        a += <string>result.message();
     }
     a = a + " end";
     return a;
@@ -90,7 +90,7 @@ function testOptionalFailedHelper1(int i, string status) returns string {
         error err = error(" err" );
         panic err;
     } else if (i < -1) {
-        TrxError err = error(" trxErr", data = "test");
+        TrxError err = TrxError(" trxErr", data = "test");
         panic err;
     }
     return a;
@@ -108,7 +108,7 @@ function testOptionalFailedHelper2(int i, string status) returns string {
             if (result is string) {
                 a = result;
             } else {
-                a += <string>result.reason();
+                a += <string>result.message();
             }
         }
         a = a + " endTrx";
@@ -123,7 +123,7 @@ function testTransactionStmtWithFailedAndNonDefaultRetries(int i) returns (strin
     if (result is string) {
         a = result;
     } else {
-        a = a + result.reason();
+        a = a + result.message();
     }
     a = a + " rc:" + attemptCount.toString() + " end";
     return a;
@@ -154,7 +154,7 @@ function testTransactionStmtWithFailedAndNonDefaultRetriesHelper2(int i, string 
         error err = error(" err" );
         panic err;
     } else if (i < -1) {
-        TrxError err = error(" trxErr", data = "test");
+        TrxError err = TrxError(" trxErr", data = "test");
         panic err;
     } else {
         a = a + " success";
@@ -168,7 +168,7 @@ function testTransactionStmtWithRetryOff(int i) returns (string) {
     if (result is string) {
         a = result;
     } else {
-        a += <string>result.reason();
+        a += <string>result.message();
     }
     a = a + " end";
     return a;
@@ -187,7 +187,7 @@ function testTransactionStmtWithRetryOffHelper2(int i, string status) returns st
         a = a + " inTrx";
         var result = trap testTransactionStmtWithRetryOffHelper1(i);
         if (result is error) {
-            a += <string>result.reason();
+            a += <string>result.message();
         }
         a = a + " endTrx";
     } onretry {
@@ -203,7 +203,7 @@ function testTransactionStmtWithConstRetryFailed() returns (string) {
     if (result is string) {
         a = result;
     } else {
-        a += result.reason();
+        a += result.message();
     }
     a = a + " rc:" + attemptCount.toString() + " end";
     return a;
@@ -258,7 +258,7 @@ function testTransactionStmtWithConstRetrySuccess() returns (string) {
     if (result is string) {
         a = result;
     } else {
-        a += result.reason();
+        a += result.message();
     }
     a = a + " end";
     return a;
@@ -280,7 +280,7 @@ function testMultipleTransactionStmtSuccess() returns (string) {
     if (result is string) {
         a = result;
     } else {
-        a += result.reason();
+        a += result.message();
     }
     a = a + " end";
     return a;
@@ -310,7 +310,7 @@ function testMultipleTransactionStmtFailed1() returns (string) {
     if (result is string) {
         a = failingTrxLog;
     } else {
-        a = failingTrxLog + result.reason();
+        a = failingTrxLog + result.message();
     }
     a = a + " end";
     return a;
@@ -346,7 +346,7 @@ function testMultipleTransactionStmtFailed2() returns (string) {
     if (result is string) {
         log2 = result;
     } else {
-        log2 += result.reason();
+        log2 += result.message();
     }
     transaction {
         log2 = log2 + " inSecTrxBlock";

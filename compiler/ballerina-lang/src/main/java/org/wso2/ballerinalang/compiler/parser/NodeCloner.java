@@ -842,7 +842,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangErrorVarRef clone = new BLangErrorVarRef();
         source.cloneRef = clone;
         clone.pkgAlias = source.pkgAlias;
-        clone.reason = clone(source.reason);
+        clone.message = clone(source.message);
         clone.detail = cloneList(source.detail);
         clone.restVar = clone(source.restVar);
         clone.typeNode = clone(source.typeNode);
@@ -1798,6 +1798,7 @@ public class NodeCloner extends BLangNodeVisitor {
         }
         clone.restDetail = clone(source.restDetail);
         clone.detailExpr = clone(source.detailExpr);
+        clone.cause = clone(source.cause);
         clone.reasonVarPrefixAvailable = source.reasonVarPrefixAvailable;
         clone.reasonMatchConst = source.reasonMatchConst;
         clone.isInMatchStmt = source.isInMatchStmt;

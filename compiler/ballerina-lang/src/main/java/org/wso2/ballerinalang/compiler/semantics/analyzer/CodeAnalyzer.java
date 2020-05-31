@@ -1566,7 +1566,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private List<BLangExpression> getVarRefs(BLangErrorVarRef varRef) {
         List<BLangExpression> varRefs = new ArrayList<>();
-        varRefs.add(varRef.reason);
+        varRefs.add(varRef.message);
         varRefs.addAll(varRef.detail.stream().map(e -> e.expr).collect(Collectors.toList()));
         varRefs.add(varRef.restVar);
         return varRefs;
