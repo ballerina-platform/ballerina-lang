@@ -331,6 +331,13 @@ function isInitiator(string transactionId, string transactionBlockId) returns bo
     return false;
 }
 
+# Checks whether strand is in transactional mode.
+#
+# + return - true or false representing whether strand is in transactional mode.
+function isTransactional() returns boolean {
+    return true;
+}
+
 # Wrapper function used to seperate panic and return error after calling participant function.
 #
 # + trxFunc - Participant logic.

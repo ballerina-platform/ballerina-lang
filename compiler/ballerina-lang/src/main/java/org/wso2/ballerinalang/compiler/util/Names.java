@@ -113,6 +113,7 @@ public class Names {
     public static final Name TRANSACTION_ORG = new Name("ballerina");
     public static final Name CREATE_INT_RANGE = new Name("createIntRange");
     public static final Name START_TRANSACTION = new Name("startTransaction");
+    public static final Name IS_TRANSACTIONAL = new Name("isTransactional");
     public static final Name ROLLBACK_TRANSACTION = new Name("rollbackTransaction");
     public static final Name END_TRANSACTION = new Name("endTransaction");
     public static final Name GET_AND_CLEAR_FAILURE_TRANSACTION = new Name("getAndClearFailure");

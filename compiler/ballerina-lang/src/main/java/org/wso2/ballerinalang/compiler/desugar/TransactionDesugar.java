@@ -125,7 +125,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
         // Invoke startTransaction method and get a transaction id
         BInvokableSymbol startTransactionInvokableSymbol = (BInvokableSymbol) symResolver.
-                lookupSymbolInMainSpace(symTable.pkgEnvMap.get(getTransactionSymbol(env)), START_TRANSACTION);
+                lookupSymbolInMainSpace(symTable.pkgEnvMap.get(desugar.getTransactionSymbol(env)), START_TRANSACTION);
         List<BLangExpression> args = new ArrayList<>();
         args.add(transactionBlockIDLiteral);
         BLangInvocation startTransactionInvocation = ASTBuilderUtil.
@@ -190,7 +190,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         // Rollback desugar implementation
         DiagnosticPos pos = rollbackNode.pos;
         BInvokableSymbol rollbackTransactionInvokableSymbol = (BInvokableSymbol) symResolver.
-                lookupSymbolInMainSpace(symTable.pkgEnvMap.get(getTransactionSymbol(env)), ROLLBACK_TRANSACTION);
+                lookupSymbolInMainSpace(symTable.pkgEnvMap.get(desugar.getTransactionSymbol(env)), ROLLBACK_TRANSACTION);
         List<BLangExpression> args = new ArrayList<>();
         args.add(transactionBlockID);
         BLangInvocation rollbackTransactionInvocation = ASTBuilderUtil.
@@ -212,7 +212,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     BLangStatementExpression desugar(BLangCommitExpr commitExpr, SymbolEnv env) {
         DiagnosticPos pos = commitExpr.pos;
         BLangBlockStmt commitBlockStatement = ASTBuilderUtil.createBlockStmt(pos);
-        BSymbol transactionSymbol = getTransactionSymbol(env);
+        BSymbol transactionSymbol = desugar.getTransactionSymbol(env);
 
         // Create temp output variable
         BLangExpression nilExpression = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE);
@@ -303,13 +303,5 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 outputVarRef);
         stmtExpr.type = symTable.errorOrNilType;
         return stmtExpr;
-    }
-
-    private BSymbol getTransactionSymbol(SymbolEnv env) {
-        return env.enclPkg.imports
-                .stream()
-                .filter(importPackage -> importPackage.symbol.pkgID.orgName.value.equals(Names.TRANSACTION_ORG.value) &&
-                        importPackage.symbol.pkgID.name.value.equals(Names.TRANSACTION_PACKAGE.value))
-                .findAny().get().symbol;
     }
 }
