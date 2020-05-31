@@ -682,7 +682,7 @@ public final class XMLItem extends XMLValue {
     public static XMLItem createXMLItemWithDefaultNSAttribute(QName name, boolean readonly, String defaultNsUri) {
         XMLItem item = new XMLItem(name, readonly);
 
-        if (defaultNsUri != null && !defaultNsUri.isEmpty()) {
+        if (!defaultNsUri.isEmpty()) {
             item.setAttributeOnInitialization(XMLConstants.XMLNS_ATTRIBUTE, null, null, defaultNsUri);
         }
         return item;

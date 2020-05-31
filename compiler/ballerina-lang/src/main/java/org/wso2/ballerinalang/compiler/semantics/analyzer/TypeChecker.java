@@ -3445,11 +3445,9 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = checkXmlSubTypeLiteralCompatibility(bLangXMLElementLiteral.pos, symTable.xmlElementType,
                                                          this.expType);
 
-        if (!Symbols.isFlagOn(resultType.flags, Flags.READONLY)) {
-            return;
+        if (Symbols.isFlagOn(resultType.flags, Flags.READONLY)) {
+            markChildrenAsImmutable(bLangXMLElementLiteral);
         }
-
-        markChildrenAsImmutable(bLangXMLElementLiteral);
     }
 
     private boolean isXmlNamespaceAttribute(BLangXMLAttribute attribute) {
