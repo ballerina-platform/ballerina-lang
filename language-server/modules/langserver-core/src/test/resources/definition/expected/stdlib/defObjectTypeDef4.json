@@ -18,7 +18,7 @@
           "character": 43
         }
       },
-      "uri": "src/ballerina_http_0.0.0/auth/authn_filter.bal"
+      "uri": "src/ballerina_http_1.0.0/auth/authn_filter.bal"
     }
   ]
 }

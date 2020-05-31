@@ -124,7 +124,7 @@ public class InteropMethodGen {
                                          JvmMethodGen jvmMethodGen,
                                          LambdaMetadata lambdaGenMetadata) {
 
-        String currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
+        String currentPackageName = getPackageName(birModule.org.value, birModule.name.value, birModule.version.value);
 
         // Create a local variable for the strand
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();

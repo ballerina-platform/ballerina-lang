@@ -24,13 +24,15 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
+import static org.ballerinalang.util.BLangCompilerConstants.TEST_VERSION;
+
 /**
  * Native implementation of assertFalse(boolean value).
  *
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.test", functionName = "assertFalse",
+        orgName = "ballerina", packageName = "lang.test", version = TEST_VERSION, functionName = "assertFalse",
         args = {@Argument(name = "value", type = TypeKind.BOOLEAN)},
         isPublic = true
 )

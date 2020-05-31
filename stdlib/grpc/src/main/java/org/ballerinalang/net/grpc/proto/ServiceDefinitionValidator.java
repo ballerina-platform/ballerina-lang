@@ -32,12 +32,11 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.CALLER;
+import static org.ballerinalang.net.grpc.GrpcConstants.CALLER_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_COMPLETE_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_ERROR_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_MESSAGE_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_OPEN_RESOURCE;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.ANN_SERVICE_CONFIG;
 import static org.ballerinalang.net.grpc.proto.ServiceProtoUtils.getServiceConfiguration;
 
@@ -49,8 +48,6 @@ import static org.ballerinalang.net.grpc.proto.ServiceProtoUtils.getServiceConfi
 public class ServiceDefinitionValidator {
 
     public static final int COMPULSORY_PARAM_COUNT = 1;
-
-    private static final String ENDPOINT_TYPE = PROTOCOL_STRUCT_PACKAGE_GRPC + ":" + CALLER;
 
     /**
      * Validate gRPC service instance.
@@ -164,8 +161,8 @@ public class ServiceDefinitionValidator {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "resource signature parameter count should be >= 1");
             return false;
         }
-        if (!isValidResourceParam(signatureParams.get(0), ENDPOINT_TYPE)) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "first parameter should be of type " + ENDPOINT_TYPE);
+        if (!isValidResourceParam(signatureParams.get(0), CALLER_ENDPOINT_TYPE)) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "first parameter should be of type " + CALLER_ENDPOINT_TYPE);
             return false;
         }
         return true;

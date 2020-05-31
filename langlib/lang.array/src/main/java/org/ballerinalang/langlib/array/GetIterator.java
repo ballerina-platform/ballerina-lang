@@ -26,13 +26,15 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
+
 /**
  * Native implementation of lang.array:iterator(Type[]).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "iterator",
+        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "iterator",
         args = {@Argument(name = "m", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.OBJECT)},
         isPublic = true

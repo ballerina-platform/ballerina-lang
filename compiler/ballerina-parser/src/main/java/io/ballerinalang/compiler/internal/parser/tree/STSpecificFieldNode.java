@@ -22,33 +22,52 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
  * @since 2.0.0
  */
 public class STSpecificFieldNode extends STMappingFieldNode {
-    public final STNode leadingComma;
     public final STNode fieldName;
     public final STNode colon;
     public final STNode valueExpr;
 
     STSpecificFieldNode(
-            STNode leadingComma,
             STNode fieldName,
             STNode colon,
             STNode valueExpr) {
-        super(SyntaxKind.SPECIFIC_FIELD);
-        this.leadingComma = leadingComma;
+        this(
+                fieldName,
+                colon,
+                valueExpr,
+                Collections.emptyList());
+    }
+
+    STSpecificFieldNode(
+            STNode fieldName,
+            STNode colon,
+            STNode valueExpr,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.SPECIFIC_FIELD, diagnostics);
         this.fieldName = fieldName;
         this.colon = colon;
         this.valueExpr = valueExpr;
 
         addChildren(
-                leadingComma,
                 fieldName,
                 colon,
                 valueExpr);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STSpecificFieldNode(
+                this.fieldName,
+                this.colon,
+                this.valueExpr,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

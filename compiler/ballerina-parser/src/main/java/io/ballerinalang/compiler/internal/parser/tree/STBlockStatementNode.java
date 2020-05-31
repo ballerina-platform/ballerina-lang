@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STBlockStatementNode extends STStatementNode {
             STNode openBraceToken,
             STNode statements,
             STNode closeBraceToken) {
-        super(SyntaxKind.BLOCK_STATEMENT);
+        this(
+                openBraceToken,
+                statements,
+                closeBraceToken,
+                Collections.emptyList());
+    }
+
+    STBlockStatementNode(
+            STNode openBraceToken,
+            STNode statements,
+            STNode closeBraceToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.BLOCK_STATEMENT, diagnostics);
         this.openBraceToken = openBraceToken;
         this.statements = statements;
         this.closeBraceToken = closeBraceToken;
@@ -45,6 +60,14 @@ public class STBlockStatementNode extends STStatementNode {
                 openBraceToken,
                 statements,
                 closeBraceToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STBlockStatementNode(
+                this.openBraceToken,
+                this.statements,
+                this.closeBraceToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

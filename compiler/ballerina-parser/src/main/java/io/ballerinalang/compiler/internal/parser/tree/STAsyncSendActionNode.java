@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STAsyncSendActionNode extends STActionNode {
             STNode expression,
             STNode rightArrowToken,
             STNode peerWorker) {
-        super(SyntaxKind.ASYNC_SEND_ACTION);
+        this(
+                expression,
+                rightArrowToken,
+                peerWorker,
+                Collections.emptyList());
+    }
+
+    STAsyncSendActionNode(
+            STNode expression,
+            STNode rightArrowToken,
+            STNode peerWorker,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.ASYNC_SEND_ACTION, diagnostics);
         this.expression = expression;
         this.rightArrowToken = rightArrowToken;
         this.peerWorker = peerWorker;
@@ -45,6 +60,14 @@ public class STAsyncSendActionNode extends STActionNode {
                 expression,
                 rightArrowToken,
                 peerWorker);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STAsyncSendActionNode(
+                this.expression,
+                this.rightArrowToken,
+                this.peerWorker,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

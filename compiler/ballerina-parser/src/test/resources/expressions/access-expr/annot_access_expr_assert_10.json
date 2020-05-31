@@ -1,55 +1,65 @@
 {
-    "kind": "LET_EXPRESSION",
-    "children": [
+  "kind": "LET_EXPRESSION",
+  "children": [
+    {
+      "kind": "LET_KEYWORD"
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "LET_KEYWORD"
-        },
-        {
-            "kind": "LIST",
-            "children": [
+          "kind": "LET_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
                 {
-                    "kind": "LET_VAR_DECL",
-                    "children": [
-                        {
-                            "kind": "LIST",
-                            "children": []
-                        },
-                        {
-                            "kind": "INT_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "a"
-                        },
-                        {
-                            "kind": "EQUAL_TOKEN"
-                        },
-                        {
-                            "kind": "ANNOT_ACCESS",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "isMissing": true
-                                },
-                                {
-                                    "kind": "ANNOT_CHAINING_TOKEN"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                }
-                            ]
-                        }
-                    ]
+                  "kind": "INT_KEYWORD"
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    }
+                  ]
                 }
-            ]
-        },
-        {
-            "kind": "IN_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "c"
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN"
+            },
+            {
+              "kind": "ANNOT_ACCESS",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "isMissing": true
+                },
+                {
+                  "kind": "ANNOT_CHAINING_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                }
+              ]
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "IN_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "c"
+    }
+  ]
 }

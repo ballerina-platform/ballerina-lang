@@ -1,211 +1,223 @@
 {
-    "kind": "FUNCTION_DEFINITION",
-    "children": [
+  "kind": "FUNCTION_DEFINITION",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
         {
-            "kind": "METADATA",
-            "children": [
+          "kind": "LIST",
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "PUBLIC_KEYWORD"
+    },
+    {
+      "kind": "FUNCTION_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "foo"
+    },
+    {
+      "kind": "FUNCTION_SIGNATURE",
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN"
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_BODY_BLOCK",
+      "children": [
+        {
+          "kind": "OPEN_BRACE_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "LOCK_STATEMENT",
+              "children": [
                 {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "PUBLIC_KEYWORD"
-        },
-        {
-            "kind": "FUNCTION_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "foo"
-        },
-        {
-            "kind": "FUNCTION_SIGNATURE",
-            "children": [
-                {
-                    "kind": "OPEN_PAREN_TOKEN"
+                  "kind": "LOCK_KEYWORD"
                 },
                 {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                },
-                {
-                    "kind": "CLOSE_PAREN_TOKEN"
-                }
-            ]
-        },
-        {
-            "kind": "FUNCTION_BODY_BLOCK",
-            "children": [
-                {
-                    "kind": "OPEN_BRACE_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
+                  "kind": "BLOCK_STATEMENT",
+                  "children": [
+                    {
+                      "kind": "OPEN_BRACE_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
                         {
-                            "kind": "LOCK_STATEMENT",
-                            "children": [
+                          "kind": "LOCAL_VAR_DECL",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
+                              "kind": "TYPED_BINDING_PATTERN",
+                              "children": [
                                 {
-                                    "kind": "LOCK_KEYWORD"
+                                  "kind": "INT_KEYWORD"
                                 },
                                 {
-                                    "kind": "BLOCK_STATEMENT",
-                                    "children": [
+                                  "kind": "CAPTURE_BINDING_PATTERN",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "a"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "SEMICOLON_TOKEN"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "LOCAL_VAR_DECL",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
+                              "kind": "TYPED_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "OBJECT_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "LIST",
+                                      "children": []
+                                    },
+                                    {
+                                      "kind": "OBJECT_KEYWORD"
+                                    },
+                                    {
+                                      "kind": "OPEN_BRACE_TOKEN"
+                                    },
+                                    {
+                                      "kind": "LIST",
+                                      "children": [
                                         {
-                                            "kind": "OPEN_BRACE_TOKEN"
+                                          "kind": "OBJECT_FIELD",
+                                          "children": [
+                                            {
+                                              "kind": "METADATA",
+                                              "children": [
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": []
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "INT_KEYWORD"
+                                            },
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "a"
+                                            },
+                                            {
+                                              "kind": "SEMICOLON_TOKEN",
+                                              "isMissing": true
+                                            }
+                                          ]
                                         },
                                         {
-                                            "kind": "LIST",
-                                            "children": [
+                                          "kind": "FUNCTION_DECLARATION",
+                                          "children": [
+                                            {
+                                              "kind": "METADATA",
+                                              "children": [
                                                 {
-                                                    "kind": "LOCAL_VAR_DECL",
-                                                    "children": [
-                                                        {
-                                                            "kind": "LIST",
-                                                            "children": [
-                                                            ]
-                                                        },
-                                                        {
-                                                            "kind": "INT_KEYWORD"
-                                                        },
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "a"
-                                                        },
-                                                        {
-                                                            "kind": "SEMICOLON_TOKEN"
-                                                        }
-                                                    ]
+                                                  "kind": "LIST",
+                                                  "children": []
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "FUNCTION_KEYWORD"
+                                            },
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "isMissing": true
+                                            },
+                                            {
+                                              "kind": "FUNCTION_SIGNATURE",
+                                              "children": [
+                                                {
+                                                  "kind": "OPEN_PAREN_TOKEN"
                                                 },
                                                 {
-                                                    "kind": "LOCAL_VAR_DECL",
-                                                    "children": [
-                                                        {
-                                                            "kind": "LIST",
-                                                            "children": [
-                                                            ]
-                                                        },
-                                                        {
-                                                            "kind": "OBJECT_TYPE_DESC",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "LIST",
-                                                                    "children": [
-                                                                    ]
-                                                                },
-                                                                {
-                                                                    "kind": "OBJECT_KEYWORD"
-                                                                },
-                                                                {
-                                                                    "kind": "OPEN_BRACE_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "LIST",
-                                                                    "children": [
-                                                                        {
-                                                                            "kind": "OBJECT_FIELD",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "METADATA",
-                                                                                    "children": [
-                                                                                        {
-                                                                                            "kind": "LIST",
-                                                                                            "children": [
-                                                                                            ]
-                                                                                        }
-                                                                                    ]
-                                                                                },
-                                                                                {
-                                                                                    "kind": "INT_KEYWORD"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "a"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "SEMICOLON_TOKEN",
-                                                                                    "isMissing": true
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "FUNCTION_DECLARATION",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "METADATA",
-                                                                                    "children": [
-                                                                                        {
-                                                                                            "kind": "LIST",
-                                                                                            "children": [
-                                                                                            ]
-                                                                                        }
-                                                                                    ]
-                                                                                },
-                                                                                {
-                                                                                    "kind": "FUNCTION_KEYWORD"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "isMissing": true
-                                                                                },
-                                                                                {
-                                                                                    "kind": "FUNCTION_SIGNATURE",
-                                                                                    "children": [
-                                                                                        {
-                                                                                            "kind": "OPEN_PAREN_TOKEN"
-                                                                                        },
-                                                                                        {
-                                                                                            "kind": "LIST",
-                                                                                            "children": [
-                                                                                            ]
-                                                                                        },
-                                                                                        {
-                                                                                            "kind": "CLOSE_PAREN_TOKEN"
-                                                                                        }
-                                                                                    ]
-                                                                                },
-                                                                                {
-                                                                                    "kind": "SEMICOLON_TOKEN",
-                                                                                    "isMissing": true
-                                                                                }
-                                                                            ]
-                                                                        }
-                                                                    ]
-                                                                },
-                                                                {
-                                                                    "kind": "CLOSE_BRACE_TOKEN"
-                                                                }
-                                                            ]
-                                                        },
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "isMissing": true
-                                                        },
-                                                        {
-                                                            "kind": "SEMICOLON_TOKEN",
-                                                            "isMissing": true
-                                                        }
-                                                    ]
+                                                  "kind": "LIST",
+                                                  "children": []
+                                                },
+                                                {
+                                                  "kind": "CLOSE_PAREN_TOKEN"
                                                 }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "CLOSE_BRACE_TOKEN"
+                                              ]
+                                            },
+                                            {
+                                              "kind": "SEMICOLON_TOKEN",
+                                              "isMissing": true
+                                            }
+                                          ]
                                         }
-                                    ]
+                                      ]
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACE_TOKEN"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "CAPTURE_BINDING_PATTERN",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "isMissing": true
+                                    }
+                                  ]
                                 }
-                            ]
+                              ]
+                            },
+                            {
+                              "kind": "SEMICOLON_TOKEN",
+                              "isMissing": true
+                            }
+                          ]
                         }
-                    ]
-                },
-                {
-                    "kind": "CLOSE_BRACE_TOKEN"
+                      ]
+                    },
+                    {
+                      "kind": "CLOSE_BRACE_TOKEN"
+                    }
+                  ]
                 }
-            ]
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_BRACE_TOKEN"
         }
-    ]
+      ]
+    }
+  ]
 }

@@ -1,69 +1,73 @@
 {
-    "kind": "BINARY_EXPRESSION",
-    "children": [
+  "kind": "BINARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a"
+    },
+    {
+      "kind": "DOUBLE_LT_TOKEN"
+    },
+    {
+      "kind": "BINARY_EXPRESSION",
+      "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "DOUBLE_LT_TOKEN"
-        },
-        {
-            "kind": "BINARY_EXPRESSION",
-            "children": [
+          "kind": "TYPE_CAST_EXPRESSION",
+          "children": [
+            {
+              "kind": "LT_TOKEN"
+            },
+            {
+              "kind": "TYPE_CAST_PARAM",
+              "children": [
                 {
-                    "kind": "TYPE_CAST_EXPRESSION",
-                    "children": [
-                        {
-                            "kind": "LT_TOKEN"
-                        },
-                        {
-                            "kind": "TYPE_CAST_PARAM",
-                            "children": [
-                                {
-                                    "kind": "PARAMETERIZED_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "MAP_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "LT_TOKEN"
-                                        },
-                                        {
-                                            "kind": "INT_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "GT_TOKEN"
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "GT_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "b"
-                        }
-                    ]
+                  "kind": "LIST",
+                  "children": []
                 },
                 {
-                    "kind": "DOUBLE_GT_TOKEN",
-                    "children": [
-                        {
-                            "kind": "GT_TOKEN"
-                        },
-                        {
-                            "kind": "GT_TOKEN"
-                        }
-                    ]
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "c"
+                  "kind": "PARAMETERIZED_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "MAP_KEYWORD"
+                    },
+                    {
+                      "kind": "LT_TOKEN"
+                    },
+                    {
+                      "kind": "INT_KEYWORD"
+                    },
+                    {
+                      "kind": "GT_TOKEN"
+                    }
+                  ]
                 }
-            ]
+              ]
+            },
+            {
+              "kind": "GT_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "b"
+            }
+          ]
+        },
+        {
+          "kind": "DOUBLE_GT_TOKEN",
+          "children": [
+            {
+              "kind": "GT_TOKEN"
+            },
+            {
+              "kind": "GT_TOKEN"
+            }
+          ]
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "c"
         }
-    ]
+      ]
+    }
+  ]
 }

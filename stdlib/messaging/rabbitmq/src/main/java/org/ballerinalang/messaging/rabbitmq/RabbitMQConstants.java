@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.values.api.BString;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static org.ballerinalang.jvm.util.BLangConstants.VERSION_SEPARATOR;
 
 /**
  * RabbitMQ Connector Constants.
@@ -35,8 +36,13 @@ public class RabbitMQConstants {
     // RabbitMQ package name constant fields
     private static final String ORG_NAME = "ballerina";
     static final String RABBITMQ = "rabbitmq";
-    public static final String PACKAGE_RABBITMQ = ORG_NAME + ORG_NAME_SEPARATOR + RABBITMQ;
-    public static final BPackage PACKAGE_ID_RABBITMQ = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "rabbitmq");
+    static final String RABBITMQ_VERSION = "1.0.0";
+    public static final String PACKAGE_RABBITMQ =
+            ORG_NAME + ORG_NAME_SEPARATOR + RABBITMQ + VERSION_SEPARATOR + RABBITMQ_VERSION;
+    public static final String PACKAGE_RABBITMQ_FQN =
+            ORG_NAME + ORG_NAME_SEPARATOR + RABBITMQ + VERSION_SEPARATOR + RABBITMQ_VERSION;
+    public static final BPackage PACKAGE_ID_RABBITMQ =
+            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "rabbitmq", RABBITMQ_VERSION);
 
     // Queue configuration constant fields
     public static final BString QUEUE_NAME = StringUtils.fromString("queueName");

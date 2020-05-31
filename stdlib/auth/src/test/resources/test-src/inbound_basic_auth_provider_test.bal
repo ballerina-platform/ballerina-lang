@@ -88,8 +88,23 @@ function testAuthenticationPlainNegative() returns boolean|auth:Error {
     return authenticate(usernameAndPassword);
 }
 
-function authenticate(string usernameAndPassword) returns boolean|auth:Error {
-    auth:InboundBasicAuthProvider basicAuthProvider = new;
+function testAuthenticationWithCustomTableName() returns boolean|auth:Error {
+    string usernameAndPassword = "alice:123";
+    return authenticate(usernameAndPassword, "custom.users");
+}
+
+function testAuthenticationWithNonExistingTableName() returns boolean|auth:Error {
+    string usernameAndPassword = "alice:123";
+    return authenticate(usernameAndPassword, "invalid.table");
+}
+
+function authenticate(string usernameAndPassword, string? tableName = ()) returns boolean|auth:Error {
+    auth:InboundBasicAuthProvider basicAuthProvider;
+    if (tableName is string) {
+        basicAuthProvider = new({ tableName: tableName });
+    } else {
+        basicAuthProvider = new;
+    }
     string credential = usernameAndPassword.toBytes().toBase64();
     return basicAuthProvider.authenticate(credential);
 }
