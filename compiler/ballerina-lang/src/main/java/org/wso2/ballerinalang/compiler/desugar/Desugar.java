@@ -285,7 +285,7 @@ public class Desugar extends BLangNodeVisitor {
     private static final String TO_STRING_FUNCTION_NAME = "toString";
     private static final String LENGTH_FUNCTION_NAME = "length";
     private static final String ERROR_REASON_NULL_REFERENCE_ERROR = "NullReferenceException";
-    private static final String CONSTRUCT_FROM = "constructFrom";
+    private static final String CLONE_WITH_TYPE = "cloneWithType";
     private static final String SLICE_LANGLIB_METHOD = "slice";
     private static final String PUSH_LANGLIB_METHOD = "push";
     private static final String DESUGARED_VARARG_KEY = "$vararg$";
@@ -1703,7 +1703,7 @@ public class Desugar extends BLangNodeVisitor {
                 filteredVarName);
 
         String filteredRestVarName = "$restVar$" + restNum;
-        BLangInvocation constructed = generateConstructFromInvocation(pos, targetType, filtered.symbol);
+        BLangInvocation constructed = generateCloneWithTypeInvocation(pos, targetType, filtered.symbol);
         return defVariable(pos, targetType, parentBlockStmt,
                 addConversionExprIfRequired(constructed, targetType),
                 filteredRestVarName);
@@ -1904,19 +1904,19 @@ public class Desugar extends BLangNodeVisitor {
         return createLangLibInvocationNode(ERROR_REASON_FUNCTION_NAME, onExpr, new ArrayList<>(), reasonType, pos);
     }
 
-    private BLangInvocation generateConstructFromInvocation(DiagnosticPos pos,
+    private BLangInvocation generateCloneWithTypeInvocation(DiagnosticPos pos,
                                                             BType targetType,
                                                             BVarSymbol source) {
         BType typedescType = new BTypedescType(targetType, symTable.typeDesc.tsymbol);
-        BLangInvocation invocationNode = createInvocationNode(CONSTRUCT_FROM, new ArrayList<>(), typedescType);
+        BLangInvocation invocationNode = createInvocationNode(CLONE_WITH_TYPE, new ArrayList<>(), typedescType);
 
         BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
         typedescExpr.resolvedType = targetType;
         typedescExpr.type = typedescType;
 
         invocationNode.expr = typedescExpr;
-        invocationNode.symbol = symResolver.lookupLangLibMethod(typedescType, names.fromString(CONSTRUCT_FROM));
-        invocationNode.requiredArgs = Lists.of(typedescExpr, ASTBuilderUtil.createVariableRef(pos, source));
+        invocationNode.symbol = symResolver.lookupLangLibMethod(typedescType, names.fromString(CLONE_WITH_TYPE));
+        invocationNode.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, source), typedescExpr);
         invocationNode.type = BUnionType.create(null, targetType, symTable.errorType);
         return invocationNode;
     }

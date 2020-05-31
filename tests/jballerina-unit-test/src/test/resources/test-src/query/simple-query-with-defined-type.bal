@@ -406,7 +406,7 @@ function testQueryExprWithTypeConversion() returns Person1[]{
 			firstName: person.firstName,
 			lastName: person.lastName,
 			deptAccess: person.deptAccess,
-			address: <Address>Address.constructFrom(m)
+			address: <Address> m.cloneWithType(Address)
 		};
 
     return  outputPersonList;

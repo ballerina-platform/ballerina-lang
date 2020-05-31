@@ -160,11 +160,11 @@ function testVarargEvaluationCount() {
 }
 
 function baz(int i, boolean... b) returns [int, boolean[]] {
-    return [i, checkpanic boolean[].constructFrom(b)];
+    return [i, checkpanic b.cloneWithType(boolean[])];
 }
 
 function bar(int i, string s = "hello", string... t) returns [int, string, string[]] {
-    return [i, s, checkpanic string[].constructFrom(t)];
+    return [i, s, checkpanic t.cloneWithType(string[])];
 }
 
 function qux(int i, string... s) {
@@ -278,11 +278,11 @@ function testMethodVarargEvaluationCount() {
 
 type Foo client object {
     function baz(int i, boolean... b) returns [int, boolean[]] {
-        return [i, checkpanic boolean[].constructFrom(b)];
+        return [i, checkpanic b.cloneWithType(boolean[])];
     }
 
     remote function bar(int i, string s = "hello", string... t) returns [int, string, string[]] {
-        return [i, s, checkpanic string[].constructFrom(t)];
+        return [i, s, checkpanic t.cloneWithType(string[])];
     }
 };
 
