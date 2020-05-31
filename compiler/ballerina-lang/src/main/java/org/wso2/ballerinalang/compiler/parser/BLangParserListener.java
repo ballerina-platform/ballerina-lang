@@ -2983,6 +2983,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitLimitClause(BallerinaParser.LimitClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.createLimitClause(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
     public void exitQueryExpr(BallerinaParser.QueryExprContext ctx) {
         if (isInErrorState) {
             return;

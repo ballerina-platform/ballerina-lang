@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,13 +37,30 @@ public class STBreakStatementNode extends STStatementNode {
     STBreakStatementNode(
             STNode breakToken,
             STNode semicolonToken) {
-        super(SyntaxKind.BREAK_STATEMENT);
+        this(
+                breakToken,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STBreakStatementNode(
+            STNode breakToken,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.BREAK_STATEMENT, diagnostics);
         this.breakToken = breakToken;
         this.semicolonToken = semicolonToken;
 
         addChildren(
                 breakToken,
                 semicolonToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STBreakStatementNode(
+                this.breakToken,
+                this.semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

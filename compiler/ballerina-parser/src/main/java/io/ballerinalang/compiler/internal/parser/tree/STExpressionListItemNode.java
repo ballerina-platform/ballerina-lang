@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,13 +37,30 @@ public class STExpressionListItemNode extends STNode {
     STExpressionListItemNode(
             STNode leadingComma,
             STNode expression) {
-        super(SyntaxKind.EXPRESSION_LIST_ITEM);
+        this(
+                leadingComma,
+                expression,
+                Collections.emptyList());
+    }
+
+    STExpressionListItemNode(
+            STNode leadingComma,
+            STNode expression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.EXPRESSION_LIST_ITEM, diagnostics);
         this.leadingComma = leadingComma;
         this.expression = expression;
 
         addChildren(
                 leadingComma,
                 expression);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STExpressionListItemNode(
+                this.leadingComma,
+                this.expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

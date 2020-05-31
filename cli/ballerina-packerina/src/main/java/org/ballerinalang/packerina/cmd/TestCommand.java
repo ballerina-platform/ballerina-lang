@@ -364,11 +364,11 @@ public class TestCommand implements BLauncherCmd {
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
                 .addTask(new CreateTargetDirTask()) // create target directory.
-                .addTask(new CompileTask()) // compile the modules
+                .addTask(new CompileTask(skipCopyLibsFromDist)) // compile the modules
                 .addTask(new CreateBaloTask(), isSingleFileBuild || listGroups) // create the balos for modules
                 // (projects only)
                 .addTask(new CreateBirTask(), listGroups)   // create the bir
-                .addTask(new CopyNativeLibTask(skipCopyLibsFromDist), listGroups) // copy the native libs(projects only)
+                .addTask(new CopyNativeLibTask(), listGroups) // copy the native libs(projects only)
                 // create the jar.
                 .addTask(new CreateJarTask(this.dumpBIR, this.skipCopyLibsFromDist), listGroups)
                 .addTask(new CopyResourcesTask(), isSingleFileBuild || listGroups)

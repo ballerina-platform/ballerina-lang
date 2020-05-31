@@ -66,7 +66,7 @@ type Student record {
 
 function testInvalidStructToConstrainedMapSafeConversion() returns (map<int>|error) {
     Student s = {index:100, age:25};
-    map<int> imap = check map<int>.constructFrom(s);
+    map<int> imap = check s.cloneWithType(map<int>);
     return imap;
 }
 
@@ -80,5 +80,5 @@ function testMapToStructConversionNegative () returns (Student|error) {
     map<string> testMap = {};
     testMap["index"] = "100";
     testMap["age"] = "63";
-    return check Student.constructFrom(testMap);
+    return check testMap.cloneWithType(typedesc<Student>);
 }

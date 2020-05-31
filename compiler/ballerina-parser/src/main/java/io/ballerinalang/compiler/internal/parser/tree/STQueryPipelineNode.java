@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QueryPipelineNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,13 +37,30 @@ public class STQueryPipelineNode extends STNode {
     STQueryPipelineNode(
             STNode fromClause,
             STNode intermediateClauses) {
-        super(SyntaxKind.QUERY_PIPELINE);
+        this(
+                fromClause,
+                intermediateClauses,
+                Collections.emptyList());
+    }
+
+    STQueryPipelineNode(
+            STNode fromClause,
+            STNode intermediateClauses,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.QUERY_PIPELINE, diagnostics);
         this.fromClause = fromClause;
         this.intermediateClauses = intermediateClauses;
 
         addChildren(
                 fromClause,
                 intermediateClauses);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STQueryPipelineNode(
+                this.fromClause,
+                this.intermediateClauses,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

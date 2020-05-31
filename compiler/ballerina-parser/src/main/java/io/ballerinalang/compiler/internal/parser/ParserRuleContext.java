@@ -172,6 +172,12 @@ public enum ParserRuleContext {
     LIST_BINDING_PATTERN("list-binding-pattern"),
     LIST_BINDING_PATTERN_CONTENTS("list-binding-pattern-content"),
     LIST_BINDING_PATTERN_END_OR_CONTINUE("list-binding-pattern-end-or-continue"),
+    FIELD_BINDING_PATTERN("field-binding-pattern"),
+    FIELD_BINDING_PATTERN_NAME("field-binding-pattern-name"),
+    MAPPING_BINDING_PATTERN("mapping-binding-pattern"),
+    MAPPING_BINDING_PATTERN_MEMBER("mapping-binding-pattern-member"),
+    MAPPING_BINDING_PATTERN_END("mapping-binding-pattern-end"),
+    FIELD_BINDING_PATTERN_END("field-binding-pattern-end-or-continue"),
     WAIT_KEYWORD_RHS("wait-keyword-rhs"),
     MULTI_WAIT_FIELDS("multi-wait-fields"),
     WAIT_FIELD_NAME("wait-field-name"),
@@ -190,9 +196,9 @@ public enum ParserRuleContext {
     RETRY_TYPE_PARAM_RHS("retry-type-param-rhs"),
     RETRY_BODY("retry-body"),
     ROLLBACK_RHS("rollback-rhs"),
-    LIST_BP_OR_TUPLE_TYPE_DESC("list-bp-or-tuple-type-desc"),
-    LIST_BP_OR_TUPLE_TYPE_MEMBER("list-bp-or-tuple-type-member"),
-    LIST_BP_OR_TUPLE_TYPE_DESC_RHS("list-bp-or-tuple-type-desc-rhs"),
+    STMT_START_BRACKETED_LIST("stmt-start-bracketed-list"),
+    STMT_START_BRACKETED_LIST_MEMBER("stmt-start-bracketed-list-member"),
+    STMT_START_BRACKETED_LIST_RHS("stmt-start-bracketed-list-rhs"),
     BRACKETED_LIST("bracketed-list"),
     BRACKETED_LIST_RHS("bracketed-list-rhs"),
     BRACKETED_LIST_MEMBER("bracketed-list-member"),
@@ -200,6 +206,10 @@ public enum ParserRuleContext {
     LIST_BINDING_MEMBER_OR_ARRAY_LENGTH("list-binding-member-or-array-length"),
     TYPED_BINDING_PATTERN_TYPE_RHS("type-binding-pattern-type-rhs"),
     UNION_OR_INTERSECTION_TOKEN("union-or-intersection"),
+
+    MAPPING_BP_OR_MAPPING_CONSTRUCTOR("mapping-bp-or-mapping-cons"),
+    MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER("mapping-bp-or-mapping-cons-member"),
+    LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER("list-bp-or-list-cons-member"),
 
     // Statements
     STATEMENT("statement"),
@@ -302,6 +312,8 @@ public enum ParserRuleContext {
     ROLLBACK_KEYWORD("rollback"),
     TRANSACTIONAL_KEYWORD("transactional"),
     ENUM_KEYWORD("enum"),
+    BASE16_KEYWORD("base16"),
+    BASE64_KEYWORD("base64"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -348,7 +360,6 @@ public enum ParserRuleContext {
     SIMPLE_TYPE_DESCRIPTOR("simple-type-desc"),
     BINARY_OPERATOR("binary-operator"),
     TYPE_NAME("type-name"),
-    FIELD_OR_FUNC_NAME("field-or-func-name"),
     BOOLEAN_LITERAL("boolean-literal"),
     CHECKING_KEYWORD("checking-keyword"),
     SERVICE_NAME("service-name"),
@@ -407,10 +418,12 @@ public enum ParserRuleContext {
     TABLE_CONSTRUCTOR_OR_QUERY_START("table-constructor-or-query-start"),
     TABLE_CONSTRUCTOR_OR_QUERY_RHS("table-constructor-or-query-rhs"),
     QUERY_EXPRESSION("query-expr"),
-    ANNOT_TAG_REFERENCE("annot-tag-reference"),
+    QUERY_EXPRESSION_END("query-expr-end"),
+    FIELD_ACCESS_IDENTIFIER("field-access-identifier"),
     QUERY_PIPELINE_RHS("query-pipeline-rhs"),
     LET_CLAUSE_END("let-clause-end"),
     CONDITIONAL_EXPRESSION("conditional-expr"),
+    SERVICE_CONSTRUCTOR_EXPRESSION("service-constructor-expression"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),
@@ -467,8 +480,8 @@ public enum ParserRuleContext {
     TABLE_TYPE_DESC_RHS("table-type-desc-rhs"),
     SIGNED_INT_OR_FLOAT_RHS("signed-int-or-float-rhs"),
     ENUM_MEMBER_LIST("enum-member-list"),
-    ENUM_MEMBER_RHS("enum-member-rhs"),
-    ENUM_MEMBER_INTERNAL_RHS("enum-member-internal-rhs"),
+    ENUM_MEMBER_END("enum-member-rhs"),
+    ENUM_MEMBER_RHS("enum-member-internal-rhs"),
     ENUM_MEMBER_START("enum-member-start"),
     ;
 

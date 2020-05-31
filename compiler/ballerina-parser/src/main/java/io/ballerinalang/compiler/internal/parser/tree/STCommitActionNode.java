@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -32,11 +35,25 @@ public class STCommitActionNode extends STActionNode {
 
     STCommitActionNode(
             STNode commitKeyword) {
-        super(SyntaxKind.COMMIT_ACTION);
+        this(
+                commitKeyword,
+                Collections.emptyList());
+    }
+
+    STCommitActionNode(
+            STNode commitKeyword,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.COMMIT_ACTION, diagnostics);
         this.commitKeyword = commitKeyword;
 
         addChildren(
                 commitKeyword);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STCommitActionNode(
+                this.commitKeyword,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

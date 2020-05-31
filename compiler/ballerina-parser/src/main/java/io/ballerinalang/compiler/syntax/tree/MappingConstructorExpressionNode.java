@@ -36,8 +36,8 @@ public class MappingConstructorExpressionNode extends ExpressionNode {
         return childInBucket(0);
     }
 
-    public NodeList<MappingFieldNode> fields() {
-        return new NodeList<>(childInBucket(1));
+    public SeparatedNodeList<MappingFieldNode> fields() {
+        return new SeparatedNodeList<>(childInBucket(1));
     }
 
     public Token closeBrace() {
@@ -64,7 +64,7 @@ public class MappingConstructorExpressionNode extends ExpressionNode {
 
     public MappingConstructorExpressionNode modify(
             Token openBrace,
-            NodeList<MappingFieldNode> fields,
+            SeparatedNodeList<MappingFieldNode> fields,
             Token closeBrace) {
         if (checkForReferenceEquality(
                 openBrace,
@@ -91,7 +91,7 @@ public class MappingConstructorExpressionNode extends ExpressionNode {
     public static class MappingConstructorExpressionNodeModifier {
         private final MappingConstructorExpressionNode oldNode;
         private Token openBrace;
-        private NodeList<MappingFieldNode> fields;
+        private SeparatedNodeList<MappingFieldNode> fields;
         private Token closeBrace;
 
         public MappingConstructorExpressionNodeModifier(MappingConstructorExpressionNode oldNode) {
@@ -109,7 +109,7 @@ public class MappingConstructorExpressionNode extends ExpressionNode {
         }
 
         public MappingConstructorExpressionNodeModifier withFields(
-                NodeList<MappingFieldNode> fields) {
+                SeparatedNodeList<MappingFieldNode> fields) {
             Objects.requireNonNull(fields, "fields must not be null");
             this.fields = fields;
             return this;
