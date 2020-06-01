@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLValue;
 
 import static org.ballerinalang.jvm.BallerinaErrors.createError;
@@ -37,7 +36,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.XML_OP
 //)
 public class GetElementNameNilLifting {
 
-    public static Object getElementNameNilLifting(Strand strand, XMLValue xmlVal, String attrName) {
+    public static Object getElementNameNilLifting(XMLValue xmlVal) {
         if (IsElement.isElement(xmlVal)) {
             String elementName = xmlVal.getElementName();
             if (elementName.equals("")) {

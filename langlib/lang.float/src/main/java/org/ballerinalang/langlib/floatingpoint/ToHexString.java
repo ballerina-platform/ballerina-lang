@@ -18,7 +18,8 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * Native implementation of lang.float:toHexString(float).
@@ -33,7 +34,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 //)
 public class ToHexString {
 
-    public static String toHexString(Strand strand, double n) {
-        return Double.toHexString(n);
+    public static BString toHexString(double n) {
+        return StringUtils.fromString(Double.toHexString(n));
     }
 }

@@ -20,7 +20,9 @@ package org.ballerinalang.nats.streaming;
 import io.nats.client.Connection;
 import io.nats.streaming.StreamingConnection;
 import io.nats.streaming.StreamingConnectionFactory;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -34,13 +36,13 @@ public class BallerinaNatsStreamingConnectionFactory {
     private final String clusterId;
     private final String clientId;
 
-    private static final String ACK_TIMEOUT = "ackTimeoutInSeconds";
-    private static final String CONNECTION_TIMEOUT = "connectionTimeoutInSeconds";
-    private static final String MAX_PUB_ACKS_IN_FLIGHT = "maxPubAcksInFlight";
-    private static final String DISCOVERY_PREFIX = "discoverPrefix";
+    private static final BString ACK_TIMEOUT = StringUtils.fromString("ackTimeoutInSeconds");
+    private static final BString CONNECTION_TIMEOUT = StringUtils.fromString("connectionTimeoutInSeconds");
+    private static final BString MAX_PUB_ACKS_IN_FLIGHT = StringUtils.fromString("maxPubAcksInFlight");
+    private static final BString DISCOVERY_PREFIX = StringUtils.fromString("discoverPrefix");
 
     public BallerinaNatsStreamingConnectionFactory(Connection natsConnection, String clusterId, String clientId,
-            MapValue<String, Object> streamingConfig) {
+                                                   MapValue<String, Object> streamingConfig) {
         this.streamingConfig = streamingConfig;
         this.natsConnection = natsConnection;
         this.clusterId = clusterId;
@@ -56,7 +58,7 @@ public class BallerinaNatsStreamingConnectionFactory {
                     .setConnectTimeout(streamingConfig.getIntValue(CONNECTION_TIMEOUT), TimeUnit.SECONDS);
             streamingConnectionFactory
                     .setMaxPubAcksInFlight(streamingConfig.getIntValue(MAX_PUB_ACKS_IN_FLIGHT).intValue());
-            streamingConnectionFactory.setDiscoverPrefix(streamingConfig.getStringValue(DISCOVERY_PREFIX));
+            streamingConnectionFactory.setDiscoverPrefix(streamingConfig.getStringValue(DISCOVERY_PREFIX).getValue());
         }
         return streamingConnectionFactory.createConnection();
     }

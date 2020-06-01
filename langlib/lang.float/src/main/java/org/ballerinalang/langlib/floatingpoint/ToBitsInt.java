@@ -18,8 +18,6 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-
 /**
  * Native implementation of lang.float:toBitsInt(float).
  *
@@ -33,7 +31,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 //)
 public class ToBitsInt {
 
-    public static long toBitsInt(Strand strand, double x) {
+    public static long toBitsInt(double x) {
         return Double.doubleToLongBits(x);
     }
 }

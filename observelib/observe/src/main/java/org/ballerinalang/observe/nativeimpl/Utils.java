@@ -29,7 +29,9 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,10 +54,10 @@ public class Utils {
             BallerinaValues.createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID,
                     ObserveNativeImplConstants.SNAPSHOT).getType();
 
-    public static Map<String, String> toStringMap(MapValue<?, ?> map) {
+    public static Map<String, String> toStringMap(MapValue<BString, ?> map) {
         Map<String, String> returnMap = new HashMap<>();
         if (map != null) {
-            for (Entry<?, ?> keyVals : map.entrySet()) {
+            for (Entry<BString, ?> keyVals : map.entrySet()) {
                 Object value = keyVals.getValue();
                 returnMap.put(keyVals.getKey().toString(), value == null ? "()" : value.toString());
             }
@@ -72,23 +74,23 @@ public class Utils {
                 ArrayValue bPercentiles = new ArrayValueImpl(new BArrayType(PERCENTILE_VALUE_TYPE));
                 int percentileIndex = 0;
                 for (PercentileValue percentileValue : snapshot.getPercentileValues()) {
-                    MapValue<String, Object> bPercentileValue =
+                    MapValue<BString, Object> bPercentileValue =
                             BallerinaValues.createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID,
-                                    ObserveNativeImplConstants.PERCENTILE_VALUE);
-                    bPercentileValue.put("percentile", percentileValue.getPercentile());
-                    bPercentileValue.put("value", percentileValue.getValue());
+                                                              ObserveNativeImplConstants.PERCENTILE_VALUE);
+                    bPercentileValue.put(new BmpStringValue("percentile"), percentileValue.getPercentile());
+                    bPercentileValue.put(new BmpStringValue("value"), percentileValue.getValue());
                     bPercentiles.add(percentileIndex, bPercentileValue);
                     percentileIndex++;
                 }
 
-                MapValue<String, Object> aSnapshot = BallerinaValues.createRecordValue(
+                MapValue<BString, Object> aSnapshot = BallerinaValues.createRecordValue(
                         ObserveNativeImplConstants.OBSERVE_PACKAGE_ID, ObserveNativeImplConstants.SNAPSHOT);
-                aSnapshot.put("timeWindow", snapshot.getTimeWindow().toMillis());
-                aSnapshot.put("mean", snapshot.getMean());
-                aSnapshot.put("max", snapshot.getMax());
-                aSnapshot.put("min", snapshot.getMin());
-                aSnapshot.put("stdDev", snapshot.getStdDev());
-                aSnapshot.put("percentileValues", bPercentiles);
+                aSnapshot.put(new BmpStringValue("timeWindow"), snapshot.getTimeWindow().toMillis());
+                aSnapshot.put(new BmpStringValue("mean"), snapshot.getMean());
+                aSnapshot.put(new BmpStringValue("max"), snapshot.getMax());
+                aSnapshot.put(new BmpStringValue("min"), snapshot.getMin());
+                aSnapshot.put(new BmpStringValue("stdDev"), snapshot.getStdDev());
+                aSnapshot.put(new BmpStringValue("percentileValues"), bPercentiles);
                 bSnapshots.add(index, aSnapshot);
                 index++;
             }
@@ -109,11 +111,11 @@ public class Utils {
                     bPercentiles.add(percentileIndex, percentile);
                     percentileIndex++;
                 }
-                MapValue<String, Object> aSnapshot = BallerinaValues.createRecordValue(
+                MapValue<BString, Object> aSnapshot = BallerinaValues.createRecordValue(
                         ObserveNativeImplConstants.OBSERVE_PACKAGE_ID, ObserveNativeImplConstants.STATISTIC_CONFIG);
-                aSnapshot.put("percentiles", bPercentiles);
-                aSnapshot.put("timeWindow", config.getTimeWindow());
-                aSnapshot.put("buckets", config.getBuckets());
+                aSnapshot.put(new BmpStringValue("percentiles"), bPercentiles);
+                aSnapshot.put(new BmpStringValue("timeWindow"), config.getTimeWindow());
+                aSnapshot.put(new BmpStringValue("buckets"), config.getBuckets());
                 bStatsConfig.add(index, aSnapshot);
                 index++;
             }

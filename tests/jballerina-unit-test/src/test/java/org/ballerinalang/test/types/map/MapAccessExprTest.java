@@ -127,7 +127,7 @@ public class MapAccessExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
 
-        Assert.assertEquals(((BBoolean) returns[0]).value(), new Boolean(true));
+        Assert.assertEquals(((BBoolean) returns[0]).value(), Boolean.TRUE);
     }
 
     @Test(description = "Test map has key negative.")
@@ -138,7 +138,7 @@ public class MapAccessExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
 
-        Assert.assertEquals(((BBoolean) returns[0]).value(), new Boolean(false));
+        Assert.assertEquals(((BBoolean) returns[0]).value(), Boolean.FALSE);
     }
 
     @Test(description = "Test get map values.")
@@ -161,7 +161,7 @@ public class MapAccessExprTest {
         BAssertUtil.validateError(resultSemanticsNegative, index++, "incompatible types: expected 'string', found " +
                         "'int'", 4, 20);
         // accessAllFields
-        BAssertUtil.validateError(resultSemanticsNegative, index++, "cannot get all fields from a map", 9, 13);
+        BAssertUtil.validateError(resultSemanticsNegative, index, "cannot get all fields from a map", 9, 13);
     }
 
     @Test(description = "Map access negative scenarios")
@@ -186,9 +186,9 @@ public class MapAccessExprTest {
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
 
-        Assert.assertEquals(((BBoolean) returns[0]).value(), new Boolean(true));
-        Assert.assertEquals(((BBoolean) returns[1]).value(), new Boolean(true));
-        Assert.assertEquals(((BBoolean) returns[2]).value(), new Boolean(false));
+        Assert.assertEquals(((BBoolean) returns[0]).value(), Boolean.TRUE);
+        Assert.assertEquals(((BBoolean) returns[1]).value(), Boolean.TRUE);
+        Assert.assertEquals(((BBoolean) returns[2]).value(), Boolean.FALSE);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},

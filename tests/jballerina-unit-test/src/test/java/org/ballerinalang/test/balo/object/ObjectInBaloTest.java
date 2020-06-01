@@ -571,7 +571,7 @@ public class ObjectInBaloTest {
         int i = 0;
         BAssertUtil.validateError(result, i++, "undefined field 'name' in object 'Manager1'", 25, 13);
         BAssertUtil.validateError(result, i++, "undefined field 'age' in object 'Manager1'", 26, 13);
-        BAssertUtil.validateError(result, i++, "incompatible types: 'foo:Manager1' is not an abstract object", 38, 6);
+        BAssertUtil.validateError(result, i, "incompatible types: 'foo:Manager1' is not an abstract object", 38, 6);
     }
 
     @AfterClass

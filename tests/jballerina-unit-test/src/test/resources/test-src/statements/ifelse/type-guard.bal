@@ -217,40 +217,39 @@ function testTypeGuardInElse_5() returns string {
     }
 }
 
-//TODO Table remove - Fix
-//function testTypeGuardInElse_6() returns string {
-//    int|string|table<record {}> x = 5;
-//    if (x is table<record {}>) {
-//        table<record {}> t = x;
-//        return "table";
-//    } else {
-//        int|string y = x;
-//        if (y is string) {
-//            string s = y;
-//            return "string: " + y;
-//        } else {
-//            int i = y;
-//            return "int: " + i.toString();
-//        }
-//    }
-//}
-//
-//function testTypeGuardInElse_7() returns string {
-//    int|string|table<A> x = 5;
-//    if (x is table<A>) {
-//        table<A> t = x;
-//        return "table";
-//    } else {
-//        int|string y = x;
-//        if (y is string) {
-//            string s = y;
-//            return "string: " + y;
-//        } else {
-//            int i = y;
-//            return "int: " + i.toString();
-//        }
-//    }
-//}
+function testTypeGuardInElse_6() returns string {
+    int|string|table<record {}> x = 5;
+    if (x is table<record {}>) {
+        table<record {}> t = x;
+        return "table";
+    } else {
+        int|string y = x;
+        if (y is string) {
+            string s = y;
+            return "string: " + y;
+        } else {
+            int i = y;
+            return "int: " + i.toString();
+        }
+    }
+}
+
+function testTypeGuardInElse_7() returns string {
+    int|string|table<A> x = 5;
+    if (x is table<A>) {
+        table<A> t = x;
+        return "table";
+    } else {
+        int|string y = x;
+        if (y is string) {
+            string s = y;
+            return "string: " + y;
+        } else {
+            int i = y;
+            return "int: " + i.toString();
+        }
+    }
+}
 
 function testComplexTernary_1() returns string {
     int|string|float|boolean|int[] x = "string";
@@ -558,10 +557,10 @@ type OneTwo 1|2.0;
 
 function testFiniteTypeAsBroaderTypes_1() returns boolean {
     FooBarOneTwoTrue f = "foo";
-    boolean equals = finiteTypeAsBroaderTypesHelper(f) == "string: foo";
+    boolean 'equals = finiteTypeAsBroaderTypesHelper(f) == "string: foo";
 
     f = "bar";
-    return equals && finiteTypeAsBroaderTypesHelper(f) == "string: bar";
+    return 'equals && finiteTypeAsBroaderTypesHelper(f) == "string: bar";
 }
 
 function testFiniteTypeAsBroaderTypes_2() returns boolean {
@@ -605,10 +604,10 @@ function finiteTypeAsBroaderTypesHelper(FooBarOneTwoTrue f) returns string {
 
 function testFiniteTypeAsBroaderTypesAndFiniteType_1() returns boolean {
     FooBarOneTwoTrue f = "foo";
-    boolean equals = finiteTypeAsBroaderTypesAndFiniteTypeHelper(f) == "string: foo";
+    boolean 'equals = finiteTypeAsBroaderTypesAndFiniteTypeHelper(f) == "string: foo";
 
     f = "bar";
-    return equals && finiteTypeAsBroaderTypesAndFiniteTypeHelper(f) == "string: bar";
+    return 'equals && finiteTypeAsBroaderTypesAndFiniteTypeHelper(f) == "string: bar";
 }
 
 function testFiniteTypeAsBroaderTypesAndFiniteType_2() returns boolean {

@@ -18,8 +18,6 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-
 /**
  * Native implementation of lang.float:cosh(float).
  *
@@ -33,7 +31,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 //)
 public class Cosh {
 
-    public static double cosh(Strand strand, double x) {
+    public static double cosh(double x) {
         return Math.cosh(x);
     }
 }

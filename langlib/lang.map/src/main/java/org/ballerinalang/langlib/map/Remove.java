@@ -20,7 +20,6 @@ package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.MapUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.api.BString;
@@ -41,24 +40,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
 //)
 public class Remove {
 
-    public static Object remove(Strand strand, MapValue<?, ?> m, String k) {
-        BType type = m.getType();
-
-        checkIsMapOnlyOperation(type, REMOVE);
-        MapUtils.validateRequiredFieldForRecord(m, k);
-        if (m.containsKey(k)) {
-            try {
-                return m.remove(k);
-            } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
-                throw BallerinaErrors.createError(e.getMessage(),
-                        "Failed to remove element from map: " + e.getDetail());
-            }
-        }
-
-        throw BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR, "cannot find key '" + k + "'");
-    }
-
-    public static Object remove_bstring(Strand strand, MapValue<?, ?> m, BString k) {
+    public static Object remove(MapValue<?, ?> m, BString k) {
         BType type = m.getType();
 
         checkIsMapOnlyOperation(type, REMOVE);

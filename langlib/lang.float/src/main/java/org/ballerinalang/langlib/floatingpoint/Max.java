@@ -18,9 +18,6 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-
 /**
  * Native implementation of lang.float:max(float...).
  *
@@ -34,17 +31,13 @@ import org.ballerinalang.jvm.values.ArrayValue;
 //)
 public class Max {
 
-    public static double max(Strand strand, ArrayValue ns) {
+    public static double max(double[] ns) {
         double max = Double.NEGATIVE_INFINITY;
-        int size = ns.size();
+        int size = ns.length;
         for (int i = 0; i < size; i++) {
-            double current = ns.getFloat(i);
+            double current = ns[i];
             max = current >= max ? current : max;
         }
         return max;
-    }
-
-    public static double max_bstring(Strand strand, ArrayValue ns) {
-        return max(strand, ns);
     }
 }

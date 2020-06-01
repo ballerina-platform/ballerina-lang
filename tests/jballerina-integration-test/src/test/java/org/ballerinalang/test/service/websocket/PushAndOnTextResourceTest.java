@@ -77,7 +77,7 @@ public class PushAndOnTextResourceTest extends WebSocketTestCommons {
 
     @Test(description = "Tests byte array support for pushText and onText")
     public void testByteArray() throws URISyntaxException, InterruptedException {
-        String url = "http://localhost:21026/onTextByteArray";
+        String url = "ws://localhost:21026/onTextByteArray";
         client = new WebSocketTestClient(url);
         client.handshake();
         String msg = "Hello";

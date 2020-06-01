@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.langlib.string.utils.StringUtils;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
@@ -41,14 +41,13 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
 //        isPublic = true
 //)
 public class LastIndexOf {
-    public static Object lastIndexOf(Strand strand, String value, String subString, long startIndex) {
+    public static Object lastIndexOf(BString value, BString subString, long startIndex) {
         StringUtils.checkForNull(value, subString);
         if (startIndex > Integer.MAX_VALUE) {
             throw BLangExceptionHelper.getRuntimeException(getModulePrefixedReason(STRING_LANG_LIB,
                     INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
                     RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndex);
         }
-        long index = value.lastIndexOf(subString, (int) startIndex);
-        return index >= 0 ? index : null;
+        return value.lastIndexOf(subString, (int) startIndex);
     }
 }

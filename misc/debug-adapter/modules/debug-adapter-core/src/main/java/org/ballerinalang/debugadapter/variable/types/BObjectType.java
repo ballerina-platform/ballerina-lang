@@ -18,28 +18,34 @@ package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.Value;
 import com.sun.tools.jdi.ObjectReferenceImpl;
-import org.ballerinalang.debugadapter.variable.VariableImpl;
+import org.ballerinalang.debugadapter.variable.BCompoundVariable;
+import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
 
+import java.util.HashMap;
 
 /**
- * object type.
+ * Ballerina object variable type.
+ * // Todo - verify
  */
-public class BObjectType extends VariableImpl {
+public class BObjectType extends BCompoundVariable {
 
-    private final ObjectReferenceImpl value;
+    private final ObjectReferenceImpl jvmValueRef;
 
     public BObjectType(Value value, Variable dapVariable) {
-        this.value = (ObjectReferenceImpl) value;
+         this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
+        dapVariable.setType(BVariableType.OBJECT.getString());
+        dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
-        dapVariable.setType("object");
-        dapVariable.setValue(this.toString());
     }
 
     @Override
-    public String toString() {
-        Value typeName = ((ObjectReferenceImpl) value)
-                .getValue(((ObjectReferenceImpl) value).referenceType().fieldByName("typeName"));
+    public String getValue() {
+        Value typeName = jvmValueRef.getValue(jvmValueRef.referenceType().fieldByName("typeName"));
         return typeName.toString();
+    }
+    @Override
+    public void computeChildVariables() {
+        this.setChildVariables(new HashMap<>());
     }
 }

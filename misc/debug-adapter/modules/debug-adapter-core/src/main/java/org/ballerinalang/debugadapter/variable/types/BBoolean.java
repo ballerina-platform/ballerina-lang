@@ -18,31 +18,39 @@ package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.Field;
 import com.sun.jdi.Value;
+import com.sun.tools.jdi.BooleanValueImpl;
 import com.sun.tools.jdi.ObjectReferenceImpl;
-import org.ballerinalang.debugadapter.variable.VariableImpl;
+import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
+import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.stream.Collectors;
 
 /**
- * Boolean variable type.
+ * Ballerina boolean variable type.
  */
-public class BBoolean extends VariableImpl {
+public class BBoolean extends BPrimitiveVariable {
 
-    private final ObjectReferenceImpl value;
+    private final Value jvmValue;
 
     public BBoolean(Value value, Variable dapVariable) {
-        this.value = (ObjectReferenceImpl) value;
+        this.jvmValue = value;
+        dapVariable.setType(BVariableType.BOOLEAN.getString());
+        dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
-        dapVariable.setType("double");
-        dapVariable.setValue(this.toString());
     }
 
     @Override
-    public String toString() {
-        Field valueField = value.referenceType().allFields().stream().filter(
-                field -> "value".equals(field.name())).collect(Collectors.toList()).get(0);
-        Value longValue = value.getValue(valueField);
-        return longValue.toString();
+    public String getValue() {
+        if (jvmValue instanceof BooleanValueImpl) {
+            return jvmValue.toString();
+        } else if (jvmValue instanceof ObjectReferenceImpl) {
+            ObjectReferenceImpl valueObjectRef = ((ObjectReferenceImpl) jvmValue);
+            Field valueField = valueObjectRef.referenceType().allFields().stream().filter(field ->
+                    field.name().equals("value")).collect(Collectors.toList()).get(0);
+            return valueObjectRef.getValue(valueField).toString();
+        } else {
+            return "unknown";
+        }
     }
 }

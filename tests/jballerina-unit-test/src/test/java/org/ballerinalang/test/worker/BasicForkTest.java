@@ -27,7 +27,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
 
@@ -59,14 +58,14 @@ public class BasicForkTest {
     }
 
     @BeforeMethod
-    private void initTempOut() throws IOException {
+    private void initTempOut() {
         defaultOut = System.out;
         tempOutStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(tempOutStream));
     }
 
     @AfterMethod
-    private void closeTempOut() throws IOException {
+    private void closeTempOut() {
         System.out.close();
         System.setOut(defaultOut);
     }

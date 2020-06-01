@@ -18,9 +18,6 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-
 /**
  * Native implementation of lang.float:sum(float...).
  */
@@ -32,15 +29,12 @@ import org.ballerinalang.jvm.values.ArrayValue;
 //)
 public class Sum {
 
-    public static double sum(Strand strand, ArrayValue ns) {
+    public static double sum(double[] ns) {
         double sum = 0;
-        int size = ns.size();
+        int size = ns.length;
         for (int i = 0; i < size; i++) {
-            sum += ns.getFloat(i);
+            sum += ns[i];
         }
         return sum;
-    }
-    public static double sum_bstring(Strand strand, ArrayValue ns) {
-        return sum(strand, ns);
     }
 }

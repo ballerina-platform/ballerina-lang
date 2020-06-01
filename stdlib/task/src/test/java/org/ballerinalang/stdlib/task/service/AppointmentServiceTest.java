@@ -76,7 +76,7 @@ public class AppointmentServiceTest {
         CompileResult compileResult = BCompileUtil.compile(true, getFilePath(path));
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         String expectedMessage = "incompatible types: expected " +
-                                "'(string|ballerina/task:AppointmentData)', found 'DuplicateAppointmentData'";
+                                "'(string|ballerina/task:1.1.0:AppointmentData)', found 'DuplicateAppointmentData'";
         BAssertUtil.validateError(compileResult, 0, expectedMessage, 40, 25);
     }
 

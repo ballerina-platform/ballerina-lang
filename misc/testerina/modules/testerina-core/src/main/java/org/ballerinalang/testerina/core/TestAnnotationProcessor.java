@@ -204,8 +204,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     //Creating a bLangTestablePackage to add a mock function
                     BLangTestablePackage bLangTestablePackage =
                             (BLangTestablePackage) ((BLangFunction) functionNode).parent;
-                    bLangTestablePackage.addMockFunction(vals[0] + MOCK_ANNOTATION_DELIMITER + vals[1],
-                            functionName);
+                    bLangTestablePackage.addMockFunction(functionToMockID + MOCK_ANNOTATION_DELIMITER + vals[1],
+                                                         functionName);
                 }
             } else if (TEST_ANNOTATION_NAME.equals(annotationName)) {
                 Test test = new Test();
@@ -345,8 +345,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
      * Formats the package name obtained from the mock annotation.
      * Checks for empty, '.', or single module names and replaces them.
      * Ballerina modules and fully qualified packages are simply returned
-     * @param value
-     * @return
+     * @param value package name
+     * @return formatted package name
      */
     private String formatPackageName(String value) {
         // If empty or '.' then return the current package ID
@@ -354,15 +354,10 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
             value = parent.packageID.toString();
 
         // If value does NOT contain 'ballerina/' then it could be fully qualified
-        } else if (!value.substring(0, 9).contains(Names.BALLERINA_ORG.value + Names.ORG_NAME_SEPARATOR.value)) {
-
-            // If value is NOT fully qualified, then it is probably a SINGLE module name that needs formatting
-            if (!value.contains(Names.ORG_NAME_SEPARATOR.value) && !value.contains(Names.VERSION_SEPARATOR.value)) {
-                value = new PackageID(parent.packageID.orgName, new Name(value),
-                        parent.packageID.version).toString();
-            }
+        } else if (!value.contains(Names.ORG_NAME_SEPARATOR.value) && !value.contains(Names.VERSION_SEPARATOR.value)) {
+            value = new PackageID(parent.packageID.orgName, new Name(value),
+                                  parent.packageID.version).toString();
         }
-
         return value;
     }
 

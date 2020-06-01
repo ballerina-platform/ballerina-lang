@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.decimal;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.DecimalValue;
 
 /**
@@ -34,7 +33,7 @@ import org.ballerinalang.jvm.values.DecimalValue;
 //)
 public class Abs {
 
-    public static DecimalValue abs(Strand strand, DecimalValue n) {
+    public static DecimalValue abs(DecimalValue n) {
         return new DecimalValue(n.value().abs());
     }
 }

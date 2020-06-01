@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import javax.xml.namespace.QName;
 
@@ -43,7 +44,8 @@ public class SetName {
     private static final String OPERATION = "set element name in xml";
 
 
-    public static void setName(Strand strand, XMLValue xmlVal, String newName) {
+    public static void setName(Strand strand, XMLValue xmlVal, BString newNameBStr) {
+        String newName = newNameBStr.getValue();
         if (!IsElement.isElement(strand, xmlVal)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "setName", "element");
         }

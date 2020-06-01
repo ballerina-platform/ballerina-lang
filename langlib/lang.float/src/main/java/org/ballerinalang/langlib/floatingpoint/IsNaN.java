@@ -18,8 +18,6 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-
 /**
  * Native implementation of lang.float:isNaN(float).
  *
@@ -33,10 +31,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 //)
 public class IsNaN {
 
-    public static boolean isNaN(Strand strand, double x) {
+    public static boolean isNaN(double x) {
         return Double.isNaN(x);
-    }
-    public static boolean isNaN_bstring(Strand strand, double x) {
-        return isNaN(strand, x);
     }
 }

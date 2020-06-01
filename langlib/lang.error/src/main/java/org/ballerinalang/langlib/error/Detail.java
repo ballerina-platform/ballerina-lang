@@ -17,7 +17,6 @@
  **/
 package org.ballerinalang.langlib.error;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 
@@ -33,11 +32,7 @@ import org.ballerinalang.jvm.values.MapValue;
 //        returnType = {@ReturnType(type = TypeKind.ANYDATA)})
 public class Detail {
 
-    public static MapValue detail(Strand strand, ErrorValue value) {
+    public static MapValue detail(ErrorValue value) {
         return (MapValue) value.getDetails();
-    }
-
-    public static MapValue detail_bstring(Strand strand, ErrorValue value) {
-        return detail(strand, value);
     }
 }

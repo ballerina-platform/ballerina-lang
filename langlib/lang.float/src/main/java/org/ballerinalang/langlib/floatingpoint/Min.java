@@ -18,9 +18,6 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-
 /**
  * Native implementation of lang.float:min(float...).
  *
@@ -34,16 +31,13 @@ import org.ballerinalang.jvm.values.ArrayValue;
 //)
 public class Min {
 
-    public static double min(Strand strand, ArrayValue ns) {
+    public static double min(double[] ns) {
         double min = Double.POSITIVE_INFINITY;
-        int size = ns.size();
+        int size = ns.length;
         for (int i = 0; i < size; i++) {
-            double current = ns.getFloat(i);
+            double current = ns[i];
             min = current <= min ? current : min;
         }
         return min;
-    }
-    public static double min_bstring(Strand strand, ArrayValue ns) {
-        return min(strand, ns);
     }
 }

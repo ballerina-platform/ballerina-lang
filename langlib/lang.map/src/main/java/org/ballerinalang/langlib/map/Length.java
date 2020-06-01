@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 
 /**
@@ -33,11 +32,7 @@ import org.ballerinalang.jvm.values.MapValue;
 //)
 public class Length {
 
-    public static long length(Strand strand, MapValue<?, ?> m) {
+    public static long length(MapValue<?, ?> m) {
         return m.size();
-    }
-
-    public static long length_bstring(Strand strand, MapValue<?, ?> m) {
-        return length(strand, m);
     }
 }

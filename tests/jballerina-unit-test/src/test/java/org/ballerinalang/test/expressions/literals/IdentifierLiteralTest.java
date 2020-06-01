@@ -48,7 +48,7 @@ public class IdentifierLiteralTest {
         BValue[] returns = BRunUtil.invoke(result, "getGlobalVarWithIL");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
-        String actual = ((BString) returns[0]).stringValue();
+        String actual = returns[0].stringValue();
         Assert.assertEquals(actual, "this is a IL with global var");
     }
 
@@ -68,7 +68,7 @@ public class IdentifierLiteralTest {
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertSame(returns[1].getClass(), BFloat.class);
         Assert.assertSame(returns[2].getClass(), BInteger.class);
-        String actualString = ((BString) returns[0]).stringValue();
+        String actualString = returns[0].stringValue();
         Assert.assertEquals(actualString, "this is a IL with global var");
         double actualFloat = ((BFloat) returns[1]).floatValue();
         Assert.assertEquals(actualFloat, 88.90);
@@ -83,9 +83,9 @@ public class IdentifierLiteralTest {
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertSame(returns[1].getClass(), BString.class);
         Assert.assertSame(returns[2].getClass(), BInteger.class);
-        String actualFirstName = ((BString) returns[0]).stringValue();
+        String actualFirstName = returns[0].stringValue();
         Assert.assertEquals(actualFirstName, "Tom");
-        String actualLastName = ((BString) returns[1]).stringValue();
+        String actualLastName = returns[1].stringValue();
         Assert.assertEquals(actualLastName, "hank");
         long actualInt = ((BInteger) returns[2]).intValue();
         Assert.assertEquals(actualInt, 50);
@@ -98,9 +98,9 @@ public class IdentifierLiteralTest {
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertSame(returns[1].getClass(), BString.class);
         Assert.assertSame(returns[2].getClass(), BInteger.class);
-        String actualFirstName = ((BString) returns[0]).stringValue();
+        String actualFirstName = returns[0].stringValue();
         Assert.assertEquals(actualFirstName, "Harry");
-        String actualLastName = ((BString) returns[1]).stringValue();
+        String actualLastName = returns[1].stringValue();
         Assert.assertEquals(actualLastName, "potter");
         long actualInt = ((BInteger) returns[2]).intValue();
         Assert.assertEquals(actualInt, 25);
@@ -129,7 +129,7 @@ public class IdentifierLiteralTest {
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertSame(returns[1].getClass(), BInteger.class);
-        String actualString = ((BString) returns[0]).stringValue();
+        String actualString = returns[0].stringValue();
         Assert.assertEquals(actualString, "Bill Kary");
         long actualInt = ((BInteger) returns[1]).intValue();
         Assert.assertEquals(actualInt, 40);
@@ -140,7 +140,7 @@ public class IdentifierLiteralTest {
         BValue[] returns = BRunUtil.invoke(result, "testCharInIL");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
-        String actualString = ((BString) returns[0]).stringValue();
+        String actualString = returns[0].stringValue();
         Assert.assertEquals(actualString, "sample value");
     }
 
@@ -149,7 +149,7 @@ public class IdentifierLiteralTest {
         BValue[] returns = BRunUtil.invoke(result, "testFunctionNameWithIL");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
-        String actualString = ((BString) returns[0]).stringValue();
+        String actualString = returns[0].stringValue();
         Assert.assertEquals(actualString, "sample test");
     }
 
@@ -159,7 +159,7 @@ public class IdentifierLiteralTest {
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(((BString) returns[0]).stringValue(), "this is a sample");
+        Assert.assertEquals(returns[0].stringValue(), "this is a sample");
     }
 
     @Test(description = "Test connector action with identifier literal")
@@ -168,7 +168,7 @@ public class IdentifierLiteralTest {
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(((BString) returns[0]).stringValue(), "sample string");
+        Assert.assertEquals(returns[0].stringValue(), "sample string");
     }
 
     @Test(description = "Test defining local variables with Identifier Literal")
@@ -180,10 +180,10 @@ public class IdentifierLiteralTest {
         Assert.assertSame(returns[2].getClass(), BInteger.class);
         Assert.assertSame(returns[3].getClass(), BString.class);
 
-        String actualFirstName = ((BString) returns[0]).stringValue();
+        String actualFirstName = returns[0].stringValue();
         Assert.assertEquals(actualFirstName, "Tom");
 
-        String actualLastName = ((BString) returns[1]).stringValue();
+        String actualLastName = returns[1].stringValue();
         Assert.assertEquals(actualLastName, "hank");
 
         long actualInt = ((BInteger) returns[2]).intValue();
@@ -198,7 +198,7 @@ public class IdentifierLiteralTest {
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(((BString) returns[0]).stringValue(), "සිංහල වාක්‍යක්");
+        Assert.assertEquals(returns[0].stringValue(), "සිංහල වාක්‍යක්");
     }
 
     //Error scenarios

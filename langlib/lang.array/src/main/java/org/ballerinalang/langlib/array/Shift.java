@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOperation;
@@ -36,7 +35,7 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOper
 //)
 public class Shift {
 
-    public static Object shift(Strand strand, ArrayValue arr) {
+    public static Object shift(ArrayValue arr) {
         checkIsArrayOnlyOperation(arr.getType(), "shift()");
         return arr.shift(0);
     }

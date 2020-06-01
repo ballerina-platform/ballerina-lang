@@ -102,3 +102,61 @@ function test3() returns string {
     string a = foo(3.4);
     return a;
 }
+
+function returnStmtLocation1InBlock() returns int {
+    int a = 2;
+    {
+        a = 10;
+    }
+    return a;
+}
+
+function returnStmtLocation2InBlock() returns int {
+    int a = 2;
+    {
+        a = 10;
+        return a;
+    }
+}
+
+int a = 10;
+function testScopeOfBlock() {
+    {
+        int a = 5;
+    }
+    assertEquality(10, a);
+}
+
+function testStmtInBlock() {
+    int a = 2;
+    int b = 5;
+    {
+        while (a < 4) {
+            a = a + 1;
+            if (a == 3) {
+                b = 8;
+            }
+        }
+    }
+    assertEquality(8, b);
+}
+
+function testReturnStmtLocationInBlock() {
+    assertEquality(10, returnStmtLocation1InBlock());
+    assertEquality(10, returnStmtLocation2InBlock());
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if (expected is anydata && actual is anydata && expected == actual) {
+        return;
+    }
+
+    if (expected === actual) {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                 message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

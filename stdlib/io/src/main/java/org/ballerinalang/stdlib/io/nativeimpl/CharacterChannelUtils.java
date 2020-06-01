@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
@@ -51,10 +52,10 @@ public class CharacterChannelUtils {
     }
 
     public static void initCharacterChannel(ObjectValue characterChannel, ObjectValue byteChannelInfo,
-            String encoding) {
+                                            BString encoding) {
         try {
             Channel byteChannel = (Channel) byteChannelInfo.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            CharacterChannel bCharacterChannel = new CharacterChannel(byteChannel, encoding);
+            CharacterChannel bCharacterChannel = new CharacterChannel(byteChannel, encoding.getValue());
             characterChannel.addNativeData(CHARACTER_CHANNEL_NAME, bCharacterChannel);
         } catch (Exception e) {
             String message = "error occurred while converting byte channel to character channel: " + e.getMessage();
@@ -69,7 +70,7 @@ public class CharacterChannelUtils {
             return IOUtils.createEoFError();
         } else {
             try {
-                return characterChannel.read((int) numberOfCharacters);
+                return org.ballerinalang.jvm.StringUtils.fromString(characterChannel.read((int) numberOfCharacters));
             } catch (BallerinaIOException e) {
                 log.error("error occurred while reading characters.", e);
                 return IOUtils.createError(e);
@@ -115,10 +116,10 @@ public class CharacterChannelUtils {
         return null;
     }
 
-    public static Object write(ObjectValue channel, String content, long startOffset) {
+    public static Object write(ObjectValue channel, BString content, long startOffset) {
         CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(CHARACTER_CHANNEL_NAME);
         try {
-            return characterChannel.write(content, (int) startOffset);
+            return characterChannel.write(content.getValue(), (int) startOffset);
         } catch (IOException e) {
             return IOUtils.createError(e);
         }

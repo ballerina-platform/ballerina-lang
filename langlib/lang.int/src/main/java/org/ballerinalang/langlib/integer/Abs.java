@@ -18,8 +18,6 @@
 
 package org.ballerinalang.langlib.integer;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-
 /**
  * Native implementation of lang.int:abs(int).
  *
@@ -33,7 +31,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 //)
 public class Abs {
 
-    public static long abs(Strand strand, long n) {
+    public static long abs(long n) {
         return Math.abs(n);
     }
 }

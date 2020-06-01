@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.api.BString;
 
@@ -35,11 +34,7 @@ import org.ballerinalang.jvm.values.api.BString;
 //)
 public class Get {
 
-    public static Object get(Strand strand, MapValue<?, ?> m, String k) {
-        return m.getOrThrow(k);
-    }
-
-    public static Object get_bstring(Strand strand, MapValue<?, ?> m, BString k) {
+    public static Object get(MapValue<?, ?> m, BString k) {
         return m.getOrThrow(k);
     }
 }

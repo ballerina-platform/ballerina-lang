@@ -573,7 +573,9 @@ public class FilterUtils {
      * @return map of scope entries
      */
     public static Map<Name, Scope.ScopeEntry> getLangLibScopeEntries(BType bType, SymbolTable symTable, Types types) {
-        Map<Name, Scope.ScopeEntry> entries = new HashMap<>(symTable.langValueModuleSymbol.scope.entries);
+        Map<Name, Scope.ScopeEntry> entries = new HashMap<>();
+        entries.putAll(symTable.langValueModuleSymbol.scope.entries);
+        entries.putAll(symTable.langQueryModuleSymbol.scope.entries);
         switch (bType.tag) {
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:

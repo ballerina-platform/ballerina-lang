@@ -8,6 +8,7 @@ int e = 0;
 int f = 0;
 int g = 0;
 int h = 0;
+int i = 0;
 
 function runParallelUsingLocks() {
     @strand{thread:"any"}
@@ -62,9 +63,17 @@ function runParallelUsingLocks() {
         }
     }
 
-    runtime:sleep(80);
+    @strand{thread:"any"}
+    worker w7 {
+        lock {
+            runtime:sleep(20);
+            i = 1;
+        }
+    }
 
-    if (!(a == 1 && b == 1 && c == 1 && d == 1 && e == 1 && f == 0 && g == 1 && h == 1)) {
+    runtime:sleep(100);
+
+    if (!(a == 1 && b == 1 && c == 1 && d == 1 && e == 1 && f == 0 && g == 1 && h == 1 && i == 1)) {
         panic error("Error in parallel run using locks");
     }
 }

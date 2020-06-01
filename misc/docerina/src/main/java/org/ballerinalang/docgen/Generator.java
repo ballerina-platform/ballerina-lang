@@ -454,11 +454,13 @@ public class Generator {
      */
     private static String description(BLangNode node) {
         if (isDocumentAttached(node)) {
-            BLangMarkdownDocumentation documentationAttachment =
-                    ((DocumentableNode) node).getMarkdownDocumentationAttachment();
-            return BallerinaDocUtils.mdToHtml(documentationAttachment.getDocumentation())
-                    .replace("<p>", "")
-                    .replace("</p>", "");
+            BLangMarkdownDocumentation documentationAttachment = ((DocumentableNode) node)
+                    .getMarkdownDocumentationAttachment();
+            if (((DocumentableNode) node).getMarkdownDocumentationAttachment().deprecationDocumentation != null) {
+                return replaceParagraphTag(BallerinaDocUtils.mdToHtml(documentationAttachment.getDocumentation()));
+            } else {
+                return BallerinaDocUtils.mdToHtml(documentationAttachment.getDocumentation());
+            }
         }
         return EMPTY_STRING;
     }
@@ -501,5 +503,15 @@ public class Generator {
             }
         }
         return false;
+    }
+
+    /**
+     * Replace paragraph tag for documentation with deprecated tag.
+     *
+     * @param documentation documentation
+     * @return documentation after replacing paragraph tag
+     */
+    private static String replaceParagraphTag(String documentation) {
+        return documentation.replaceFirst("<p>", "").replaceFirst("</p>", "");
     }
 }

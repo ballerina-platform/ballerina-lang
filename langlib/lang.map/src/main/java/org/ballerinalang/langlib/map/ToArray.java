@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
@@ -27,6 +26,7 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.langlib.map.util.MapLibUtils;
 
 import java.util.Collection;
@@ -47,7 +47,7 @@ import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
 //)
 public class ToArray {
 
-    public static ArrayValue toArray(Strand strand, MapValue<?, ?> m) {
+    public static ArrayValue toArray(MapValue<?, ?> m) {
         BType mapType = m.getType();
         BType arrElemType;
         switch (mapType.getTag()) {
@@ -90,9 +90,9 @@ public class ToArray {
                 }
                 return new ArrayValueImpl(booleanArr);
             case TypeTags.STRING_TAG:
-                String[] stringArr = new String[size];
+                BString[] stringArr = new BString[size];
                 for (Object val : values) {
-                    stringArr[i++] = (String) val;
+                    stringArr[i++] = (BString) val;
                 }
                 return new ArrayValueImpl(stringArr);
             default:

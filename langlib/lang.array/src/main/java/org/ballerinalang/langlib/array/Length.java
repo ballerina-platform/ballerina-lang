@@ -34,10 +34,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 //)
 public class Length {
 
-    public static long length(Strand strand, ArrayValue arr) {
+    public static long length(ArrayValue arr) {
         return arr.size();
-    }
-    public static long length_bstring(Strand strand, ArrayValue arr) {
-        return length(strand, arr);
     }
 }

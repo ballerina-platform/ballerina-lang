@@ -47,8 +47,10 @@ public class CodeCoverageUtils {
      * @param destination path to extract the classes
      * @param orgName org name of the project being executed
      * @param moduleName name of the module being executed
+     * @param version version of the module being executed
      */
-    public static void unzipCompiledSource(Path source, Path destination, String orgName, String moduleName) {
+    public static void unzipCompiledSource(Path source, Path destination, String orgName, String moduleName,
+                                           String version) {
         String destJarDir = destination.resolve(source.getFileName()).toString();
 
         try (JarFile jarFile = new JarFile(source.toFile())) {
@@ -56,7 +58,7 @@ public class CodeCoverageUtils {
             while (enu.hasMoreElements()) {
                 JarEntry entry = enu.nextElement();
                 File file = new File(destJarDir, entry.getName());
-                if (isRequiredFile(entry.getName(), orgName, moduleName)) {
+                if (isRequiredFile(entry.getName(), orgName, moduleName, version)) {
                     if (!file.exists()) {
                         Files.createDirectories(file.getParentFile().toPath());
                     }
@@ -68,7 +70,7 @@ public class CodeCoverageUtils {
                 }
 
             }
-            copyClassFilesToBinPath(destination, destJarDir, orgName, moduleName);
+            copyClassFilesToBinPath(destination, destJarDir, orgName, moduleName, version);
             deleteDirectory(new File(destJarDir));
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -76,7 +78,7 @@ public class CodeCoverageUtils {
     }
 
     private static void copyClassFilesToBinPath(Path destination, String destJarDir, String orgName,
-                                                String moduleName) throws IOException {
+                                                String moduleName, String version) throws IOException {
         Path extractedPath;
         Path binClassDirPath;
         if (TesterinaConstants.DOT.equals(moduleName)) {
@@ -94,14 +96,15 @@ public class CodeCoverageUtils {
         Files.move(extractedPath, binClassDirPath, StandardCopyOption.REPLACE_EXISTING);
     }
 
-    private static boolean isRequiredFile(String path, String orgName, String moduleName) {
+    private static boolean isRequiredFile(String path, String orgName, String moduleName, String version) {
         if (path.contains("___init") || path.contains("META-INF") || path.contains("tests/")) {
             return false;
         } else if (path.contains("Frame") && path.contains("module")) {
             return false;
         } else if (path.contains("Frame") && path.contains(orgName)) {
             return false;
-        } else if (path.contains(orgName + "/" + moduleName + "/" + moduleName + ".class")) {
+        } else if (path.contains(orgName + "/" + moduleName + "/" + version.replace(".", "_") + "/" + moduleName +
+                                         ".class")) {
             return false;
         }
         return true;

@@ -1,9 +1,0 @@
-# To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run tuple_destructure_binding_pattern.bal
-Tuple variable : Ballerina 453 false
-Tuple variable : Ballerina 453 false
-Tuple variable : Ballerina 657 true 76.8
-Tuple variable : Ballerina 3 true 34 5.6 45
-Tuple variable : Ballerina 453 false
-Tuple variable : Ballerina 3 true 34 5.6 45

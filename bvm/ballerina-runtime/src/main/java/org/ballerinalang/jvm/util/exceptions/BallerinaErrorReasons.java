@@ -55,6 +55,7 @@ public class BallerinaErrorReasons {
     public static final String BALLERINA_PREFIXED_STAMP_ERROR = BALLERINA_PREFIX.concat("StampError");
     public static final String BALLERINA_PREFIXED_CONVERSION_ERROR = BALLERINA_PREFIX.concat("ConversionError");
     public static final String CONCURRENT_MODIFICATION_ERROR = BALLERINA_PREFIX.concat("ConcurrentModification");
+    public static final String ITERATOR_MUTABILITY_ERROR = BALLERINA_PREFIX.concat("IteratorMutabilityError");
 
     public static final String NUMBER_PARSING_ERROR_IDENTIFIER = "NumberParsingError";
     public static final String BOOLEAN_PARSING_ERROR_IDENTIFIER = "BooleanParsingError";
@@ -81,8 +82,12 @@ public class BallerinaErrorReasons {
                                                                                  KEY_NOT_FOUND_ERROR_IDENTIFIER);
     public static final String TABLE_KEY_NOT_FOUND_ERROR = getModulePrefixedReason(TABLE_LANG_LIB,
             KEY_NOT_FOUND_ERROR_IDENTIFIER);
+    public static final String TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR =
+            getModulePrefixedReason(TABLE_LANG_LIB, "CyclicValueReferenceError");
     public static final String TABLE_HAS_A_VALUE_FOR_KEY_ERROR = getModulePrefixedReason(TABLE_LANG_LIB,
             "KeyConstraintViolation");
+    public static final String VALUE_INCONSISTENT_WITH_TABLE_TYPE_ERROR = getModulePrefixedReason(TABLE_LANG_LIB,
+            "ValueInconsistentError");
     public static final String ILLEGAL_LIST_INSERTION_ERROR = getModulePrefixedReason(ARRAY_LANG_LIB,
                                                                                       "IllegalListInsertion");
     public static final String FUTURE_CANCELLED = getModulePrefixedReason(FUTURE_LANG_LIB, "FutureAlreadyCancelled");

@@ -18,8 +18,6 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-
 /**
  * Native implementation of lang.float:isInfinite(float).
  *
@@ -33,11 +31,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 //)
 public class IsInfinite {
 
-    public static boolean isInfinite(Strand strand, double x) {
+    public static boolean isInfinite(double x) {
         return Double.isInfinite(x);
-    }
-
-    public static boolean isInfinite_bstring(Strand strand, double x) {
-        return isInfinite(strand, x);
     }
 }

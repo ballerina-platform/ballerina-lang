@@ -81,7 +81,7 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 93, 6);
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 93, 6);
         BAssertUtil.validateError(negativeResult, i++, "variable 'name' is not initialized", 96, 16);
-        BAssertUtil.validateError(negativeResult, i++, "variable 'salary' is not initialized", 100, 16);
+        BAssertUtil.validateError(negativeResult, i, "variable 'salary' is not initialized", 100, 16);
     }
 
     @Test
@@ -93,7 +93,7 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'map<string>' is not an abstract object",
                 18, 6);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'int' is not an abstract object", 20, 6);
-        BAssertUtil.validateError(negativeResult, i++, "unknown type 'YYY'", 29, 6);
+        BAssertUtil.validateError(negativeResult, i, "unknown type 'YYY'", 29, 6);
     }
 
     @Test
@@ -102,7 +102,7 @@ public class ObjectTypeReferenceTest {
         Assert.assertEquals(negativeResult.getErrorCount(), 2);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'x'", 18, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'y'", 18, 6);
+        BAssertUtil.validateError(negativeResult, i, "uninitialized field 'y'", 18, 6);
     }
 
     @Test

@@ -123,7 +123,7 @@ public class CloneOperationTest {
         BValue[] results = BRunUtil.invoke(result, "cloneXML");
         testCloneOnXMLs((BXMLItem) results[0], "Charlos");
         testCloneOnXMLs((BXMLItem) results[1], "Alex");
-        Assert.assertTrue(results[0] != results[1]);
+        Assert.assertNotSame(results[0], results[1]);
     }
 
     private void testCloneOnXMLs(BXMLItem bxmlItem, String name) {
@@ -266,45 +266,44 @@ public class CloneOperationTest {
         Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
-    //TODO Table remove - Fix
-//    @Test
-//    public void testCloneTable() {
-//        BValue[] results = BRunUtil.invoke(result, "cloneTable");
-//        Assert.assertNotNull(results);
-//
-//        Object[][] expectedValues = new Object[][]{
-//                new Object[]{1, "Jane", 300.50},
-//                new Object[]{2, "Anne", 100.50},
-//                new Object[]{3, "John", 400.50},
-//                };
-//        testValuesOnTable((BTable) results[0], expectedValues);
-//
-//        expectedValues = new Object[][]{
-//                new Object[]{1, "Jane", 300.50},
-//                new Object[]{2, "Anne", 100.50},
-//                };
-//        testValuesOnTable((BTable) results[1], expectedValues);
-//
-//        expectedValues = new Object[][]{
-//                new Object[]{1, "Jane", 300.50},
-//                new Object[]{2, "Anne", 100.50},
-//                new Object[]{3, "John", 400.50},
-//                };
-//        testValuesOnTable((BTable) results[2], expectedValues);
-//        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
-//    }
-//
-//    private void testValuesOnTable(BTable table, Object[][] expectedValues) {
-//        int i = 0;
-//        while (table.hasNext()) {
-//            BMap<String, BValue> next = table.getNext();
-//            Assert.assertEquals(((BInteger) next.get("id")).intValue(), ((Integer) expectedValues[i][0]).intValue());
-//            Assert.assertEquals(next.get("name").stringValue(), expectedValues[i][1]);
-//            Assert.assertEquals(((BFloat) next.get("salary")).floatValue(), expectedValues[i][2]);
-//            i++;
-//        }
-//        Assert.assertEquals(expectedValues.length, i);
-//    }
+    @Test
+    public void testCloneTable() {
+        BValue[] results = BRunUtil.invoke(result, "cloneTable");
+        Assert.assertNotNull(results);
+
+        Object[][] expectedValues = new Object[][]{
+                new Object[]{1, "Jane", 300.50},
+                new Object[]{2, "Anne", 100.50},
+                new Object[]{3, "John", 400.50},
+        };
+        testValuesOnTable((BValueArray) results[0], expectedValues);
+
+        expectedValues = new Object[][]{
+                new Object[]{1, "Jane", 300.50},
+                new Object[]{2, "Anne", 100.50},
+        };
+        testValuesOnTable((BValueArray) results[1], expectedValues);
+
+        expectedValues = new Object[][]{
+                new Object[]{1, "Jane", 300.50},
+                new Object[]{2, "Anne", 100.50},
+                new Object[]{3, "John", 400.50},
+        };
+        testValuesOnTable((BValueArray) results[2], expectedValues);
+        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+    }
+
+    private void testValuesOnTable(BValueArray arr, Object[][] expectedValues) {
+        int i = 0;
+        while (i < arr.size()) {
+            BMap<String, BValue> next = (BMap<String, BValue>) arr.getRefValue(i);
+            Assert.assertEquals(((BInteger) next.get("id")).intValue(), ((Integer) expectedValues[i][0]).intValue());
+            Assert.assertEquals(next.get("name").stringValue(), expectedValues[i][1]);
+            Assert.assertEquals(((BFloat) next.get("salary")).floatValue(), expectedValues[i][2]);
+            i++;
+        }
+        Assert.assertEquals(expectedValues.length, i);
+    }
 
     @Test
     public void testCloneMap() {

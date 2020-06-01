@@ -18,8 +18,6 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-
 /**
  * Native implementation of lang.float:sinh(float).
  *
@@ -33,7 +31,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 //)
 public class Sinh {
 
-    public static double sinh(Strand strand, double x) {
+    public static double sinh(double x) {
         return Math.sinh(x);
     }
 }

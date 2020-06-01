@@ -35,11 +35,7 @@ import org.ballerinalang.jvm.values.utils.StringUtils;
 //        isPublic = true
 //)
 public class ToString {
-    public static String toString(Strand strand, Object value) {
-        return StringUtils.getStringValue(value);
-    }
-
-    public static BString toString_bstring(Strand strand, Object value) {
+    public static BString toString(Strand strand, Object value) {
         return org.ballerinalang.jvm.StringUtils.fromString(StringUtils.getStringValue(value));
     }
 }

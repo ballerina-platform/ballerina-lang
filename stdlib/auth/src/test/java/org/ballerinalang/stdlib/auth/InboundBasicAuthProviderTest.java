@@ -151,6 +151,18 @@ public class InboundBasicAuthProviderTest {
         assertFailureOfResults(returns);
     }
 
+    @Test(description = "Test case for successful authentication with users from custom table name")
+    public void testAuthenticationWithCustomTableName() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationWithCustomTableName");
+        assertSuccessOfResults(returns);
+    }
+
+    @Test(description = "Test case for unsuccessful authentication with users from invalid table name")
+    public void testAuthenticationWithNonExistingTableName() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationWithNonExistingTableName");
+        assertFailureOfResults(returns);
+    }
+
     @AfterClass
     public void tearDown() throws IOException {
         Files.deleteIfExists(secretCopyFilePath);

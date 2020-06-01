@@ -18,9 +18,6 @@
 
 package org.ballerinalang.langlib.integer;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-
 /**
  * Native implementation of lang.int:min(int, int...).
  *
@@ -34,16 +31,13 @@ import org.ballerinalang.jvm.values.ArrayValue;
 //)
 public class Min {
 
-    public static long min(Strand strand, long n, ArrayValue ns) {
+    public static long min(long n, long[] ns) {
         long min = n;
-        int size = ns.size();
+        int size = ns.length;
         for (int i = 0; i < size; i++) {
-            long current = ns.getInt(i);
+            long current = ns[i];
             min = current <= min ? current : min;
         }
         return min;
-    }
-    public static long min_bstring(Strand strand, long n, ArrayValue ns) {
-        return min(strand, n, ns);
     }
 }

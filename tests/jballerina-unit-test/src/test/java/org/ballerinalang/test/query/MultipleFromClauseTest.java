@@ -20,7 +20,7 @@ package org.ballerinalang.test.query;
 
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -317,9 +317,7 @@ public class MultipleFromClauseTest {
 
         Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
 
-        Assert.assertEquals(((BValueArray) returnValues[0]).getString(0), "A");
-        Assert.assertEquals(((BValueArray) returnValues[0]).getString(1), "B");
-        Assert.assertEquals(((BValueArray) returnValues[0]).getString(2), "C");
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
 
     @Test(description = "Test query expressions with open records")

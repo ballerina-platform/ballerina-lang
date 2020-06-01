@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.api.BString;
@@ -37,13 +36,9 @@ import java.nio.charset.StandardCharsets;
 //)
 public class ToBytes {
 
-    public static ArrayValue toBytes(Strand strand, String value) {
+    public static ArrayValue toBytes(BString value) {
 
-        byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+        byte[] bytes = value.getValue().getBytes(StandardCharsets.UTF_8);
         return new ArrayValueImpl(bytes);
-    }
-
-    public static ArrayValue toBytes_bstring(Strand strand, BString str) {
-        return toBytes(strand, str.getValue());
     }
 }

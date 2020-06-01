@@ -45,4 +45,11 @@ public interface BTypedesc extends BRefValue {
      * @return instantiated object
      */
     Object instantiate(Strand strand);
+
+    /**
+     * @param strand        strand to be used to run the user-defined-type initialization code.
+     * @param initialValues the initial values provided in the constructor expression
+     * @return instantiated object
+     */
+    Object instantiate(Strand strand, BInitialValueEntry[] initialValues);
 }

@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BType;
@@ -46,7 +46,7 @@ import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
 //)
 public class Filter {
 
-    public static MapValue filter(Strand strand, MapValue<?, ?> m, FPValue<Object, Boolean> func) {
+    public static MapValue filter(MapValue<?, ?> m, FPValue<Object, Boolean> func) {
         BType mapType = m.getType();
         BType newMapType;
         switch (mapType.getTag()) {
@@ -65,7 +65,7 @@ public class Filter {
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, size,
-                                                       () -> new Object[]{strand,
+                                                       () -> new Object[]{Scheduler.getStrand(),
                                                                m.get(m.getKeys()[index.incrementAndGet()]), true},
                                                        result -> {
                                                            if ((Boolean) result) {
@@ -75,8 +75,5 @@ public class Filter {
                                                            }
                                                        }, () -> newMap);
         return newMap;
-    }
-    public static MapValue filter_bstring(Strand strand, MapValue<?, ?> m, FPValue<Object, Boolean> func) {
-        return filter(strand, m, func);
     }
 }

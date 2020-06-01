@@ -19,7 +19,6 @@
 package org.ballerinalang.langlib.integer;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
@@ -42,16 +41,13 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
 //)
 public class FromString {
 
-    public static Object fromString(Strand strand, String s) {
+    public static Object fromString(BString s) {
         try {
-            return Long.parseLong(s);
+            return Long.parseLong(s.getValue());
         } catch (NumberFormatException e) {
             return BallerinaErrors.createError(getModulePrefixedReason(INT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER),
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                     BTypes.typeString, s, BTypes.typeInt));
         }
-    }
-    public static Object fromString_bstring(Strand strand, BString s) {
-        return fromString(strand, s.getValue());
     }
 }

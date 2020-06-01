@@ -168,12 +168,6 @@ public class ParamsQueryTest {
     }
 
     @Test
-    public void testQueryTypBooleanIntParam() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypBooleanIntParam", args);
-        validateDataTableResult(returns);
-    }
-
-    @Test
     public void testQueryTypBitIntParam() {
         BValue[] returns = BRunUtil.invokeFunction(result, "queryTypBitIntParam", args);
         validateDataTableResult(returns);
@@ -190,15 +184,7 @@ public class ParamsQueryTest {
         BValue[] returns = BRunUtil.invokeFunction(result, "queryTypBitInvalidIntParam", args);
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
         Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(SQLDBUtils.SQL_ERROR_MESSAGE)
-                .stringValue().contains("Only 1 or 0 can be passed for BIT"));
-    }
-
-    @Test
-    public void testQueryTypBitDoubleParam() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypBitDoubleParam", args);
-        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
-        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(SQLDBUtils.SQL_ERROR_MESSAGE)
-                .stringValue().contains("Invalid parameter :java.lang.Double is passed as value for sql type : BIT"));
+                .stringValue().contains("Only 1 or 0 can be passed"));
     }
 
     @Test

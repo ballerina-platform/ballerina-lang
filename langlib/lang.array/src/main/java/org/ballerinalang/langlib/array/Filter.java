@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -40,14 +41,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 //)
 public class Filter {
 
-    public static ArrayValue filter(Strand strand, ArrayValue arr, FPValue<Object, Boolean> func) {
+    public static ArrayValue filter(ArrayValue arr, FPValue<Object, Boolean> func) {
         ArrayValue newArr = new ArrayValueImpl((BArrayType) arr.getType());
         int size = arr.size();
         AtomicInteger newArraySize = new AtomicInteger(-1);
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, size,
-                                                       () -> new Object[]{strand, arr.get(index.incrementAndGet()),
+                                                       () -> new Object[]{Scheduler.getStrand(),
+                                                               arr.get(index.incrementAndGet()),
                                                                true},
                                                        result -> {
                                                            if ((Boolean) result) {
@@ -56,8 +58,5 @@ public class Filter {
                                                            }
                                                        }, () -> newArr);
         return newArr;
-    }
-    public static ArrayValue filter_bstring(Strand strand, ArrayValue arr, FPValue<Object, Boolean> func) {
-        return filter(strand, arr, func);
     }
 }

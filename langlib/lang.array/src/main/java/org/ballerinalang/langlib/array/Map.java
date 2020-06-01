@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BFunctionType;
@@ -46,7 +47,7 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupported
 //)
 public class Map {
 
-    public static ArrayValue map(Strand strand, ArrayValue arr, FPValue<Object, Object> func) {
+    public static ArrayValue map(ArrayValue arr, FPValue<Object, Object> func) {
         BType elemType = ((BFunctionType) func.getType()).retType;
         BType retArrType = new BArrayType(elemType);
         ArrayValue retArr = new ArrayValueImpl((BArrayType) retArrType);
@@ -67,15 +68,11 @@ public class Map {
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, size,
-                                                       () -> new Object[]{strand,
+                                                       () -> new Object[]{Scheduler.getStrand(),
                                                                getFn.get(arr, index.incrementAndGet()), true},
                                                        result -> retArr.add(index.get(), result),
                                                        () -> retArr);
 
         return retArr;
-    }
-
-    public static ArrayValue map_bstring(Strand strand, ArrayValue arr, FPValue<Object, Object> func) {
-        return map(strand, arr, func);
     }
 }

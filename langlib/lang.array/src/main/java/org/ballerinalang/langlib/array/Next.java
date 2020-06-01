@@ -40,23 +40,7 @@ import org.ballerinalang.jvm.values.ObjectValue;
 //)
 public class Next {
     //TODO: refactor hard coded values
-    public static Object next(Strand strand, ObjectValue m) {
-        IteratorValue arrIterator = (IteratorValue) m.getNativeData("&iterator&");
-        AbstractArrayValue arr = (AbstractArrayValue) m.getArrayValue("m");
-        if (arrIterator == null) {
-            arrIterator = arr.getIterator();
-            m.addNativeData("&iterator&", arrIterator);
-        }
-
-        if (arrIterator.hasNext()) {
-            Object element = arrIterator.next();
-            return BallerinaValues.createRecord(new MapValueImpl<>(arr.getIteratorNextReturnType()), element);
-        }
-
-        return null;
-    }
-
-    public static Object next_bstring(Strand strand, ObjectValue m) {
+    public static Object next(ObjectValue m) {
         IteratorValue arrIterator = (IteratorValue) m.getNativeData("&iterator&");
         AbstractArrayValue arr = (AbstractArrayValue) m.get(StringUtils.fromString("m"));
         if (arrIterator == null) {
@@ -66,7 +50,7 @@ public class Next {
 
         if (arrIterator.hasNext()) {
             Object element = arrIterator.next();
-            return BallerinaValues.createRecord_bstring(new MapValueImpl<>(arr.getIteratorNextReturnType()), element);
+            return BallerinaValues.createRecord(new MapValueImpl<>(arr.getIteratorNextReturnType()), element);
         }
 
         return null;

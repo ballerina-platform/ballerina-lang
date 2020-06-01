@@ -236,4 +236,9 @@ public class ArrayTest {
     public void testArrayTupleType() {
         BRunUtil.invokeFunction(compileResult, "testArrayTupleType");
     }
+
+    @Test
+    public void testUpdatingJsonTupleViaArrayTypedVar() {
+        BRunUtil.invokeFunction(compileResult, "testUpdatingJsonTupleViaArrayTypedVar");
+    }
 }

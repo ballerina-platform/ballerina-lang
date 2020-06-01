@@ -102,12 +102,12 @@ public class SymbolTable {
 
     public final BType noType = new BNoType(TypeTags.NONE);
     public final BType nilType = new BNilType();
-    public final BType intType = new BType(TypeTags.INT, null);
-    public final BType byteType = new BType(TypeTags.BYTE, null);
-    public final BType floatType = new BType(TypeTags.FLOAT, null);
-    public final BType decimalType = new BType(TypeTags.DECIMAL, null);
-    public final BType stringType = new BType(TypeTags.STRING, null);
-    public final BType booleanType = new BType(TypeTags.BOOLEAN, null);
+    public final BType intType = new BType(TypeTags.INT, null, Flags.READONLY);
+    public final BType byteType = new BType(TypeTags.BYTE, null, Flags.READONLY);
+    public final BType floatType = new BType(TypeTags.FLOAT, null, Flags.READONLY);
+    public final BType decimalType = new BType(TypeTags.DECIMAL, null, Flags.READONLY);
+    public final BType stringType = new BType(TypeTags.STRING, null, Flags.READONLY);
+    public final BType booleanType = new BType(TypeTags.BOOLEAN, null, Flags.READONLY);
     public final BType jsonType = new BJSONType(TypeTags.JSON, null);
     public final BType anyType = new BAnyType(TypeTags.ANY, null);
     public final BType anydataType = new BAnydataType(TypeTags.ANYDATA, null);
@@ -115,7 +115,7 @@ public class SymbolTable {
     public final BType mapStringType = new BMapType(TypeTags.MAP, stringType, null);
     public final BType mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
     public final BType mapJsonType = new BMapType(TypeTags.MAP, jsonType, null);
-    public final BType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
+    public final BFutureType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BType arrayType = new BArrayType(anyType);
     public final BArrayType arrayStringType = new BArrayType(stringType);
     public final BArrayType arrayAnydataType = new BArrayType(anydataType);
@@ -127,7 +127,7 @@ public class SymbolTable {
     public final BType anydataArrayType = new BArrayType(anydataType);
     public final BType anyServiceType = new BServiceType(null);
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
-    public final BType typeDesc = new BTypedescType(this.anyType, null);
+    public final BTypedescType typeDesc = new BTypedescType(this.anyType, null);
     public final BType readonlyType = new BReadonlyType(TypeTags.READONLY, null);
 
     public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
@@ -157,7 +157,7 @@ public class SymbolTable {
     public final BXMLSubType xmlElementType = new BXMLSubType(TypeTags.XML_ELEMENT, Names.XML_ELEMENT);
     public final BXMLSubType xmlPIType = new BXMLSubType(TypeTags.XML_PI, Names.XML_PI);
     public final BXMLSubType xmlCommentType = new BXMLSubType(TypeTags.XML_COMMENT, Names.XML_COMMENT);
-    public final BXMLSubType xmlTextType = new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT);
+    public final BXMLSubType xmlTextType = new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT, Flags.READONLY);
 
     public final BType xmlType = new BXMLType(BUnionType.create(null, xmlElementType, xmlCommentType, xmlPIType,
             xmlTextType),  null);
@@ -180,6 +180,7 @@ public class SymbolTable {
     public BPackageSymbol langValueModuleSymbol;
     public BPackageSymbol langXmlModuleSymbol;
     public BPackageSymbol langBooleanModuleSymbol;
+    public BPackageSymbol langQueryModuleSymbol;
 
     private Names names;
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
@@ -414,7 +415,7 @@ public class SymbolTable {
         defineIntegerRightShiftOperations(OperatorKind.BITWISE_RIGHT_SHIFT);
         defineIntegerRightShiftOperations(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT);
 
-        // Binary equality operators ==, !=
+        // Binary equality operators ==, !=, equals
         defineBinaryOperator(OperatorKind.EQUAL, intType, intType, booleanType);
         defineBinaryOperator(OperatorKind.EQUAL, byteType, byteType, booleanType);
         defineBinaryOperator(OperatorKind.EQUAL, floatType, floatType, booleanType);
@@ -445,6 +446,21 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.NOT_EQUAL, anydataType, nilType, booleanType);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nilType, anydataType, booleanType);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nilType, nilType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, intType, intType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, byteType, byteType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, floatType, floatType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, decimalType, decimalType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, booleanType, booleanType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, stringType, stringType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, intType, byteType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, byteType, intType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, jsonType, nilType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, nilType, jsonType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, anyType, nilType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, nilType, anyType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, anydataType, nilType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, nilType, anydataType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, nilType, nilType, booleanType);
 
         // Binary reference equality operators ===, !==
         defineBinaryOperator(OperatorKind.REF_EQUAL, intType, intType, booleanType);

@@ -47,7 +47,7 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupported
 //)
 public class Enumerate {
 
-    public static ArrayValue enumerate(Strand strand, ArrayValue arr) {
+    public static ArrayValue enumerate(ArrayValue arr) {
         BType arrType = arr.getType();
         int size = arr.size();
         BTupleType elemType;
@@ -79,8 +79,5 @@ public class Enumerate {
         }
 
         return newArr;
-    }
-    public static ArrayValue enumerate_bstring(Strand strand, ArrayValue arr) {
-        return enumerate(strand, arr);
     }
 }

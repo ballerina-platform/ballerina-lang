@@ -48,7 +48,7 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupported
 //)
 public class Slice {
 
-    public static ArrayValue slice(Strand strand, ArrayValue arr, long startIndex, long endIndex) {
+    public static ArrayValue slice(ArrayValue arr, long startIndex, long endIndex) {
         int size = arr.size();
 
         if (startIndex < 0) {
@@ -97,9 +97,5 @@ public class Slice {
         }
 
         return slicedArr;
-    }
-
-    public static ArrayValue slice_bstring(Strand strand, ArrayValue arr, long startIndex, long endIndex) {
-        return slice(strand, arr, startIndex, endIndex);
     }
 }

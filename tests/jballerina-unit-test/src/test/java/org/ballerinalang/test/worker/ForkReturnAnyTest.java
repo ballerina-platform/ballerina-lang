@@ -45,5 +45,5 @@ public class ForkReturnAnyTest {
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertTrue(returns[1] instanceof BString);
     }
-    
+
 }

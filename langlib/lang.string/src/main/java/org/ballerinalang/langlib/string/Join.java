@@ -19,7 +19,6 @@
 package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.api.BString;
 
@@ -32,21 +31,14 @@ import java.util.StringJoiner;
  */
 //@BallerinaFunction(
 //        orgName = "ballerina", packageName = "lang.string", functionName = "join",
-//        args = {@Argument(name = "separator", type = TypeKind.STRING), @Argument(name = "strs", type = TypeKind.ARRAY)},
+//        args = {@Argument(name = "separator", type = TypeKind.STRING), @Argument(name = "strs", type = TypeKind
+//        .ARRAY)},
 //        returnType = {@ReturnType(type = TypeKind.STRING)},
 //        isPublic = true
 //)
 public class Join {
 
-    public static String join(Strand strand, String separator, ArrayValue strs) {
-        StringJoiner stringJoiner = new StringJoiner(separator);
-        int size = strs.size();
-        for (int i = 0; i < size; i++) {
-            stringJoiner.add(strs.getString(i));
-        }
-        return stringJoiner.toString();
-    }
-    public static BString join_bstring(Strand strand, BString separator, ArrayValue strs) {
+    public static BString join(BString separator, ArrayValue strs) {
         StringJoiner stringJoiner = new StringJoiner(separator.getValue());
         int size = strs.size();
         for (int i = 0; i < size; i++) {

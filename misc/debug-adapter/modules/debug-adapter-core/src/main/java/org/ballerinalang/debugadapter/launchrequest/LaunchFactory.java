@@ -16,7 +16,7 @@
 
 package org.ballerinalang.debugadapter.launchrequest;
 
-import org.ballerinalang.debugadapter.PackageUtils;
+import org.ballerinalang.debugadapter.utils.PackageUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

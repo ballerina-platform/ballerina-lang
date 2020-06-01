@@ -81,6 +81,9 @@ public class SmtpComplexEmailSendTest {
     private static final String EMAIL_SENDER = "someone2@localhost.com";
     private static final String EMAIL_SUBJECT = "Test E-Mail";
     private static final String EMAIL_TEXT = "This is a test e-mail.";
+    private static final String EMAIL_CONTENT_TYPE = "text/html";
+    private static final String HEADER1_NAME = "header1_name";
+    private static final String HEADER1_VALUE = "header1_value";
     private static final String[] EMAIL_TO_ADDRESSES = {"hascode1@localhost", "hascode2@localhost"};
     private static final String[] EMAIL_CC_ADDRESSES = {"hascode3@localhost", "hascode4@localhost"};
     private static final String[] EMAIL_BCC_ADDRESSES = {"hascode5@localhost", "hascode6@localhost"};
@@ -104,9 +107,10 @@ public class SmtpComplexEmailSendTest {
     @Test(description = "Test for sending an email with all the parameters")
     public void testSendComplexEmail() throws MessagingException, IOException {
         BValue[] args = { new BString(HOST_NAME), new BString(USER_NAME), new BString(USER_PASSWORD),
-                new BString(EMAIL_SUBJECT), new BString(EMAIL_TEXT), new BString(EMAIL_FROM), new BString(EMAIL_SENDER),
-                new BValueArray(EMAIL_TO_ADDRESSES), new BValueArray(EMAIL_CC_ADDRESSES),
-                new BValueArray(EMAIL_BCC_ADDRESSES), new BValueArray(EMAIL_REPLY_TO_ADDRESSES)};
+                new BString(EMAIL_SUBJECT), new BString(EMAIL_TEXT), new BString(EMAIL_CONTENT_TYPE),
+                new BString(EMAIL_FROM), new BString(EMAIL_SENDER), new BValueArray(EMAIL_TO_ADDRESSES),
+                new BValueArray(EMAIL_CC_ADDRESSES), new BValueArray(EMAIL_BCC_ADDRESSES),
+                new BValueArray(EMAIL_REPLY_TO_ADDRESSES)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSendComplexEmail", args);
         assertNull(returns[0], "Error while sending email in complex use case.");
         // Fetch messages from the server
@@ -129,6 +133,7 @@ public class SmtpComplexEmailSendTest {
             testAttachment5((MimeBodyPart) multiPart.getBodyPart(5));
             testAttachment6((MimeBodyPart) multiPart.getBodyPart(6));
 
+            assertEquals(HEADER1_VALUE, message.getHeader(HEADER1_NAME)[0]);
             assertEquals(EMAIL_FROM, message.getFrom()[0].toString());
             assertEquals(EMAIL_SENDER, message.getSender().toString());
             assertTrue(containAddresses(message.getRecipients(Message.RecipientType.TO), EMAIL_TO_ADDRESSES));
@@ -139,6 +144,7 @@ public class SmtpComplexEmailSendTest {
 
     private static void testMessageBody(MimeBodyPart bodyPart) throws IOException, MessagingException {
         assertEquals(EMAIL_TEXT, ((String) bodyPart.getContent()));
+        assertTrue(bodyPart.getContentType().startsWith(EMAIL_CONTENT_TYPE));
     }
 
     private static void testAttachment1(MimeBodyPart bodyPart) throws IOException, MessagingException {
@@ -154,7 +160,7 @@ public class SmtpComplexEmailSendTest {
     private static void testAttachment3(MimeBodyPart bodyPart) throws IOException, MessagingException {
         InputStream input = bodyPart.getInputStream();
         assertEquals("<name>Ballerina xml file part</name>", convertInputStreamToString(input));
-        assertEquals("text/xml", bodyPart.getContentType());
+        assertTrue(bodyPart.getContentType().startsWith("text/xml"));
     }
 
     private static void testAttachment4(MimeBodyPart bodyPart) throws MessagingException, IOException {

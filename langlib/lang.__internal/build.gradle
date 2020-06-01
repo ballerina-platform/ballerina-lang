@@ -31,9 +31,4 @@ createBalo {
     jvmTarget = 'true'
 }
 
-createBStringBalo {
-    isBuiltin = 'true'
-    jvmTarget = 'true'
-}
-
 description = 'ballerina/lang.__internal Implementation'

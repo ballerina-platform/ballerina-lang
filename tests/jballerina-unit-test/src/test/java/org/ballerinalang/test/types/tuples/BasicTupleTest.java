@@ -183,7 +183,7 @@ public class BasicTupleTest {
         BAssertUtil.validateError(
                 resultNegative, i++, "ambiguous type '([int,boolean,string]|[any,boolean,string])?'", 34, 63);
         BAssertUtil.validateError(
-                resultNegative, i++, "ambiguous type '([Person,int]|[Employee,int])?'", 38, 47);
+                resultNegative, i, "ambiguous type '([Person,int]|[Employee,int])?'", 38, 47);
     }
 
     @Test(description = "Test negative scenarios of assigning tuples and arrays")
@@ -212,7 +212,7 @@ public class BasicTupleTest {
         BAssertUtil.validateError(
                 resultNegative, i++, "incompatible types: expected '[int,int]', found 'int[1]'", 98, 20);
         BAssertUtil.validateError(
-                resultNegative, i++, "incompatible types: expected '[int,int]', found 'int[3]'", 101, 20);
+                resultNegative, i, "incompatible types: expected '[int,int]', found 'int[3]'", 101, 20);
     }
 
     @Test(description = "Test negatives of index based access of tuple type")
@@ -239,6 +239,6 @@ public class BasicTupleTest {
                                   "incompatible types: expected 'int', found '(0|1|2|S1|S2)'", 157, 19);
         BAssertUtil.validateError(resultNegative, i++,
                                   "invalid list index expression: value space '(3|4|5|6)' out of range", 158, 19);
-        BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '-1'", 165, 19);
+        BAssertUtil.validateError(resultNegative, i, "list index out of range: index: '-1'", 165, 19);
     }
 }

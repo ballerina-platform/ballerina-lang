@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.api.BString;
 
 /**
@@ -34,11 +33,7 @@ import org.ballerinalang.jvm.values.api.BString;
 //)
 public class EndsWith {
 
-    public static boolean endsWith(Strand strand, String str, String substr) {
-        return str.endsWith(substr);
-    }
-
-    public static boolean endsWith_bstring(Strand strand, BString str, BString substr) {
+    public static boolean endsWith(BString str, BString substr) {
         return str.getValue().endsWith(substr.getValue());
     }
 }

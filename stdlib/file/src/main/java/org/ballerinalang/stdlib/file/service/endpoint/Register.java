@@ -91,7 +91,7 @@ public class Register {
     }
 
     private static Map<String, String> getParamMap(MapValue serviceEndpointConfig, String events) {
-        final String path = serviceEndpointConfig.getStringValue(DirectoryListenerConstants.ANNOTATION_PATH);
+        final String path = serviceEndpointConfig.getStringValue(DirectoryListenerConstants.ANNOTATION_PATH).getValue();
         final boolean recursive = serviceEndpointConfig
                 .getBooleanValue(DirectoryListenerConstants.ANNOTATION_DIRECTORY_RECURSIVE);
         Map<String, String> paramMap = new HashMap<>(3);

@@ -300,7 +300,7 @@ public class CompoundAssignmentTest {
         BValue[] returns = BRunUtil.invoke(result, "testStringIntCompoundAssignmentAddition");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(((BString) returns[0]).stringValue(), "test5");
+        Assert.assertEquals(returns[0].stringValue(), "test5");
     }
 
     @Test(description = "Test compound assignment with addition of int and float.")
@@ -316,7 +316,7 @@ public class CompoundAssignmentTest {
         BValue[] returns = BRunUtil.invoke(result, "testXMLAttributeWithCompoundAssignment");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(((BString) returns[0]).stringValue(), "bar1bar2");
+        Assert.assertEquals(returns[0].stringValue(), "bar1bar2");
     }
 
     @Test(description = "Test compound assignment with addition recursive integer reference.")

@@ -18,11 +18,10 @@
 package org.ballerinalang.langlib.internal;
 
 import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 
 import java.util.ArrayList;
@@ -47,16 +46,16 @@ import java.util.List;
 public class GetFilteredChildrenFlat {
 
 
-    public static XMLValue getFilteredChildrenFlat(Strand strand, XMLValue xmlVal, long index, ArrayValue elemNames) {
+    public static XMLValue getFilteredChildrenFlat(XMLValue xmlVal, long index, BString[] elemNames) {
         if (xmlVal.getNodeType() == XMLNodeType.ELEMENT) {
             XMLItem element = (XMLItem) xmlVal;
-            return new XMLSequence(filterElementChildren(strand, index, elemNames, element));
+            return new XMLSequence(filterElementChildren(index, elemNames, element));
         } else if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE) {
             XMLSequence sequence = (XMLSequence) xmlVal;
             ArrayList<BXML> liftedFilteredChildren = new ArrayList<>();
             for (BXML child : sequence.getChildrenList()) {
                 if (child.getNodeType() == XMLNodeType.ELEMENT) {
-                    liftedFilteredChildren.addAll(filterElementChildren(strand, index, elemNames, (XMLItem) child));
+                    liftedFilteredChildren.addAll(filterElementChildren(index, elemNames, (XMLItem) child));
                 }
             }
             return new XMLSequence(liftedFilteredChildren);
@@ -65,8 +64,8 @@ public class GetFilteredChildrenFlat {
         return new XMLSequence();
     }
 
-    private static List<BXML> filterElementChildren(Strand strand, long index, ArrayValue elemNames, XMLItem element) {
-        XMLSequence elements = (XMLSequence) GetElements.getElements(strand, element.getChildrenSeq(), elemNames);
+    private static List<BXML> filterElementChildren(long index, BString[] elemNames, XMLItem element) {
+        XMLSequence elements = (XMLSequence) GetElements.getElements(element.getChildrenSeq(), elemNames);
         if (index < 0) {
             // Return all elements
             return elements.getChildrenList();
@@ -77,10 +76,5 @@ public class GetFilteredChildrenFlat {
             // OutOfRange return empty list
             return new ArrayList<>();
         }
-    }
-
-    public static XMLValue getFilteredChildrenFlat_bstring(Strand strand, XMLValue xmlVal, long index,
-                                                           ArrayValue elemNames) {
-        return getFilteredChildrenFlat(strand, xmlVal, index, elemNames);
     }
 }

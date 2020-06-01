@@ -30,6 +30,10 @@ configurations {
         transitive false
     }
 
+    docSearchLib {
+        transitive false
+    }
+
     htmlTemplateResources {
         transitive false
     }
@@ -37,10 +41,15 @@ configurations {
     syntaxHighlighter {
         transitive false
     }
+
+    docSearch {
+        transitive false
+    }
 }
 
 dependencies {
     highlighterLib project(path: ':composer-library', configuration: 'highlighter')
+    docSearchLib project(path: ':composer-library', configuration: 'docsearch')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-tool')
     implementation project(':ballerina-lang:annotations')
@@ -67,6 +76,7 @@ dependencies {
 artifacts {
     htmlTemplateResources file("$sourceSets.main.output.resourcesDir/html-template-resources/"), { builtBy(processResources) }
     syntaxHighlighter file("$sourceSets.main.output.resourcesDir/syntax-highlighter/"), { builtBy(processResources) }
+    docSearch file("$sourceSets.main.output.resourcesDir/doc-search/"), { builtBy(processResources) }
 }
 
 jar {
@@ -104,6 +114,7 @@ task copyBalo(type: Copy) {
 
 processResources {
     dependsOn 'copyHighlighter'
+    dependsOn 'copyDocSearch'
 }
 
 task copyHighlighter(type: Copy) {
@@ -114,6 +125,13 @@ task copyHighlighter(type: Copy) {
     into("$buildDir/resources/main/syntax-highlighter")
 }
 
+task copyDocSearch(type: Copy) {
+    dependsOn ":composer-library:npmBuild"
+    from configurations.docSearchLib {
+        include '*.js'
+    }
+    into("$buildDir/resources/main/doc-search")
+}
 
 test {
     useTestNG() {

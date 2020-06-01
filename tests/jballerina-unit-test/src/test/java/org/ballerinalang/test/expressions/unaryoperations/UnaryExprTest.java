@@ -116,15 +116,15 @@ public class UnaryExprTest {
 
         BBoolean x = (BBoolean) returns[0];
         Assert.assertSame(x.getClass(), BBoolean.class, "Invalid class type returned.");
-        Assert.assertEquals(x.booleanValue(), false, "Invalid value returned.");
+        Assert.assertFalse(x.booleanValue(), "Invalid value returned.");
 
         BBoolean y = (BBoolean) returns[1];
         Assert.assertSame(y.getClass(), BBoolean.class, "Invalid class type returned.");
-        Assert.assertEquals(y.booleanValue(), true, "Invalid value returned.");
+        Assert.assertTrue(y.booleanValue(), "Invalid value returned.");
 
         BBoolean z = (BBoolean) returns[2];
         Assert.assertSame(z.getClass(), BBoolean.class, "Invalid class type returned.");
-        Assert.assertEquals(z.booleanValue(), true, "Invalid value returned.");
+        Assert.assertTrue(z.booleanValue(), "Invalid value returned.");
     }
 
     @Test(description = "Test unary boolean not expression in if else")
@@ -136,7 +136,7 @@ public class UnaryExprTest {
 
         BBoolean x = (BBoolean) returns[0];
         Assert.assertSame(x.getClass(), BBoolean.class, "Invalid class type returned.");
-        Assert.assertEquals(x.booleanValue(), true, "Invalid value returned.");
+        Assert.assertTrue(x.booleanValue(), "Invalid value returned.");
     }
 
     @Test(description = "Test unary negation expression")

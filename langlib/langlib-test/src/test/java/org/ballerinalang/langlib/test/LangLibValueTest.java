@@ -155,6 +155,11 @@ public class LangLibValueTest {
                             "varRecord=name=Gima address=country=Sri Lanka city=Colombo street=Palm Grove age=12");
     }
 
+    @Test
+    public void testToStringForTable() {
+        BRunUtil.invokeFunction(compileResult, "testToStringMethodForTable");
+    }
+
     @Test(dataProvider = "mergeJsonFunctions")
     public void testMergeJson(String function) {
         BValue[] returns = BRunUtil.invoke(compileResult, function);
