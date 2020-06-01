@@ -1497,7 +1497,7 @@
                 },
                 {
                     "name": "methodName",
-                    "type": "Token"
+                    "type": "SimpleNameReferenceNode"
                 },
                 {
                     "name": "openParenToken",

@@ -1131,8 +1131,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(remoteMethodCallActionNode.expression());
         Token rightArrowToken =
                 modifyToken(remoteMethodCallActionNode.rightArrowToken());
-        Token methodName =
-                modifyToken(remoteMethodCallActionNode.methodName());
+        SimpleNameReferenceNode methodName =
+                modifyNode(remoteMethodCallActionNode.methodName());
         Token openParenToken =
                 modifyToken(remoteMethodCallActionNode.openParenToken());
         NodeList<FunctionArgumentNode> arguments =
