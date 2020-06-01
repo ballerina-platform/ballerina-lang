@@ -201,3 +201,59 @@ function assertArrayLengthPanic(int expected, any[] arr, string message = "Array
         panic error(message + " Expected : " + expected.toString() + " Actual : " + actual.toString());
     }
 }
+
+const TYPEDESC_ARRAY = "typedesc int[][2]";
+
+function testMultidimensionalArrayString() {
+    int[][2] arr = [];
+    typedesc<any> t = typeof arr;
+    assertEquality(TYPEDESC_ARRAY, t.toString());
+
+}
+
+function testArrayMapString() {
+    map<Foo>[2][] arr = [];
+    typedesc<any> t = typeof arr;
+    assertEquality("typedesc map<Foo>[2][]", t.toString());
+
+}
+
+function testArrayUnionType() {
+    (int|string[4][3])[][2][4] arr = [];
+    typedesc<any> t = typeof arr;
+    assertEquality("typedesc (int|string[4][3])[][2][4]", t.toString());
+}
+
+function testArrayTupleType() {
+    [string[2],int,float[3][4]][][] arr = [];
+    typedesc<any> t = typeof arr;
+    assertEquality("typedesc [string[2],int,float[3][4]][][]", t.toString());
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+    if expected === actual {
+        return;
+    }
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}
+
+function testUpdatingJsonTupleViaArrayTypedVar() {
+    [json...] a = [];
+    json[] b = a;
+
+    b[0] = {hello: "world"};
+    b[1] = 2;
+
+    assertArrayLengthPanic(2, b);
+
+    if a[0] == <map<json>> {hello: "world"} && a[1] == 2 {
+        return;
+    }
+    panic error("AssertionError", message = "expected 'hello=world 2', found '" + a.toString() +"'");
+}

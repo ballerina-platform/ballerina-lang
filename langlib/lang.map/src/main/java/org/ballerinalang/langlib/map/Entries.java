@@ -34,6 +34,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.Arrays;
 
 import static org.ballerinalang.langlib.map.util.MapLibUtils.getFieldType;
+import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 
 /**
  * Native implementation of lang.map:get(map&lt;Type&gt;, string).
@@ -41,15 +42,13 @@ import static org.ballerinalang.langlib.map.util.MapLibUtils.getFieldType;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map",
+        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION,
         functionName = "entries",
         args = {@Argument(name = "m", type = TypeKind.MAP)},
         returnType = {@ReturnType(type = TypeKind.MAP)},
         isPublic = true
 )
 public class Entries {
-
-    private static int refType = -1;
 
     public static MapValue<?, ?> entries(Strand strand, MapValue<?, ?> m) {
         BType newFieldType = getFieldType(m.getType(), "entries()");
@@ -67,7 +66,4 @@ public class Entries {
         return entries;
     }
 
-    public static MapValue<?, ?> entries_bstring(Strand strand, MapValue<?, ?> m) {
-        return entries(strand, m);
-    }
 }

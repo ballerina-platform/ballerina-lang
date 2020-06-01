@@ -19,10 +19,13 @@
 package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
 
 /**
  * Extern function lang.string:startsWith(string, string).
@@ -30,14 +33,14 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "toCodePointInt",
+        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "toCodePointInt",
         args = {@Argument(name = "ch", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
 public class ToCodePointInt {
 
-    public static long toCodePointInt(Strand strand, String ch) {
-        return ch.codePointAt(0);
+    public static long toCodePointInt(Strand strand, BString ch) {
+        return ch.getCodePoint(0);
     }
 }

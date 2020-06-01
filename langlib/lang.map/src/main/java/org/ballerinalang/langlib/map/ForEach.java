@@ -28,13 +28,15 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
+
 /**
  * Native implementation of lang.map:forEach(map&lt;Type&gt;, function).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "forEach",
+        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION, functionName = "forEach",
         args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "func", type = TypeKind.FUNCTION)},
         isPublic = true
 )
@@ -49,9 +51,5 @@ public class ForEach {
                                                                m.get(m.getKeys()[index.incrementAndGet()]), true},
                                                        result -> {
                                                        }, () -> null);
-    }
-
-    public static void forEach_bstring(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func) {
-        forEach(strand, m, func);
     }
 }

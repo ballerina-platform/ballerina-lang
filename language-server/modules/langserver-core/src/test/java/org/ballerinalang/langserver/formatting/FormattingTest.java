@@ -171,7 +171,8 @@ public class FormattingTest {
                 {"expectedListConstructorExpr.bal", "listConstructorExpr.bal"},
                 {"expectedRecordLiteralSpreadOp.bal", "recordLiteralSpreadOp.bal"},
                 {"expectedLetExpr.bal", "letExpr.bal"},
-                {"expectedStreamingQueries.bal", "streamingQueries.bal"},
+                // TODO: #23370
+                // {"expectedStreamingQueries.bal", "streamingQueries.bal"},
         };
     }
 

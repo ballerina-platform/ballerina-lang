@@ -91,13 +91,34 @@ public class Writer {
                 Context context = options.context;
                 String root = getRootPath(context);
                 String link = root + type.moduleName + "/" + type.category + "/" + name + ".html";
-                if (type.category.equals("objects")) {
+                if (type.category.equals("objects") && !name.equals("()")) {
                     defaultValue = "<span class=\"default\">(default</span> <span class=\"type\">" +
                             "<a href=\"" + link + "\">" + name + "</a>" + "</span><span class=\"default\">)</span>";
                 } else {
                     defaultValue = "<span class=\"default\">(default " + name + ")</span>";
                 }
                 return defaultValue;
+            });
+
+            handlebars.registerHelper("editDescription", (Helper<String>) (description, options) -> {
+                //remove anything with <pre> tag
+                String newDescription = description.replaceAll("<pre>(.|\\n)*?<\\/pre>", "");
+                // select only the first sentence
+                String[] splits = newDescription.split("\\.", 2);
+                if (splits.length < 2) {
+                    return splits[0];
+                } else {
+                    return splits[0] + ".";
+                }
+            });
+
+            handlebars.registerHelper("removePTags", (Helper<String>) (string, options) -> {
+                //remove paragraph tags
+                if (string != null) {
+                    return string.replaceAll("<\\/?p>", "");
+                } else {
+                    return "";
+                }
             });
 
             handlebars.registerHelper("equals", (arg1, options) -> {
@@ -159,7 +180,7 @@ public class Writer {
             label = "<span class=\"array-type\">" + getTypeLabel(type.elementType, context) + getSuffixes(type)
                     + "</span>";
         } else if ("builtin".equals(type.category) || "lang.annotations".equals(type.moduleName)
-                || !type.generateUserDefinedTypeLink) {
+                || !type.generateUserDefinedTypeLink || "UNKNOWN".equals(type.category)) {
             label = "<span class=\"builtin-type\">" + type.name + getSuffixes(type) + "</span>";
         } else {
             label = getHtmlLink(type, root);

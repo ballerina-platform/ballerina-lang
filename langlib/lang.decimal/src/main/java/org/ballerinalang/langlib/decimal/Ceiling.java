@@ -27,13 +27,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.math.RoundingMode;
 
+import static org.ballerinalang.util.BLangCompilerConstants.DECIMAL_VERSION;
+
 /**
  * Native implementation of lang.decimal:ceiling(decimal).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.decimal", functionName = "ceiling",
+        orgName = "ballerina", packageName = "lang.decimal", version = DECIMAL_VERSION, functionName = "ceiling",
         args = {@Argument(name = "x", type = TypeKind.DECIMAL)},
         returnType = {@ReturnType(type = TypeKind.DECIMAL)},
         isPublic = true

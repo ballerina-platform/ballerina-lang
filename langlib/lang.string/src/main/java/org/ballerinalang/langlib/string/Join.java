@@ -29,28 +29,22 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.StringJoiner;
 
+import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
+
 /**
  * Extern function lang.string:join(string, string...).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "join",
+        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "join",
         args = {@Argument(name = "separator", type = TypeKind.STRING), @Argument(name = "strs", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
 public class Join {
 
-    public static String join(Strand strand, String separator, ArrayValue strs) {
-        StringJoiner stringJoiner = new StringJoiner(separator);
-        int size = strs.size();
-        for (int i = 0; i < size; i++) {
-            stringJoiner.add(strs.getString(i));
-        }
-        return stringJoiner.toString();
-    }
-    public static BString join_bstring(Strand strand, BString separator, ArrayValue strs) {
+    public static BString join(Strand strand, BString separator, ArrayValue strs) {
         StringJoiner stringJoiner = new StringJoiner(separator.getValue());
         int size = strs.size();
         for (int i = 0; i < size; i++) {

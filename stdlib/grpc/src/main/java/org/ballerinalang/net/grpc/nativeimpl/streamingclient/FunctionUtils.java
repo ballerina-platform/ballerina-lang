@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
@@ -83,7 +84,7 @@ public class FunctionUtils {
      * @return Error if there is an error while sending error message to the server, else returns nil.
      */
     public static Object streamSendError(ObjectValue streamingConnection, long statusCode,
-                                         String errorMsg) {
+                                         BString errorMsg) {
         StreamObserver requestSender = (StreamObserver) streamingConnection.getNativeData(REQUEST_SENDER);
         if (requestSender == null) {
             return MessageUtils.getConnectorError(new StatusRuntimeException(Status
@@ -92,12 +93,12 @@ public class FunctionUtils {
         } else {
             try {
                 requestSender.onError(new Message(new StatusRuntimeException(Status.fromCodeValue((int) statusCode)
-                        .withDescription(errorMsg))));
+                        .withDescription(errorMsg.getValue()))));
                 // Add message content to observer context.
                 Optional<ObserverContext> observerContext =
                         ObserveUtils.getObserverContextOfCurrentFrame(Scheduler.getStrand());
                 observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_GRPC_ERROR_MESSAGE,
-                        getMappingHttpStatusCode((int) statusCode) + " : " + errorMsg));
+                        getMappingHttpStatusCode((int) statusCode) + " : " + errorMsg.getValue()));
 
             } catch (Exception e) {
                 LOG.error("Error while sending error to server.", e);

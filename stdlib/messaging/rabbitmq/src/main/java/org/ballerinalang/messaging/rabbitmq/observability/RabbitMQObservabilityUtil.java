@@ -34,6 +34,6 @@ public class RabbitMQObservabilityUtil {
     }
 
     public static String getQueueName(ObjectValue service) {
-        return (String) service.getNativeData(RabbitMQConstants.QUEUE_NAME);
+        return (String) service.getNativeData(RabbitMQConstants.QUEUE_NAME.getValue());
     }
 }

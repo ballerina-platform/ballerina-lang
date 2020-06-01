@@ -35,7 +35,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", functionName = "getFilterFunc",
+        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0", functionName = "getFilterFunc",
         args = {@Argument(name = "func", type = TypeKind.ANY)},
         returnType = {@ReturnType(type = TypeKind.FUNCTION)}
 )
@@ -46,8 +46,5 @@ public class GetFilterFunc {
         BFunctionType functionType = (BFunctionType) fpValue.getType();
         functionType.paramTypes[0] = new BUnionType(new BType[]{BTypes.typeAny, BTypes.typeError}, 0);
         return fpValue;
-    }
-    public static FPValue getFilterFunc_bstring(Strand strand, Object obj) {
-        return getFilterFunc(strand, obj);
     }
 }

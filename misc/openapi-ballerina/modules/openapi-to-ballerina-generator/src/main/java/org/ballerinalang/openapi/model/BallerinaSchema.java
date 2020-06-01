@@ -43,6 +43,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import static org.ballerinalang.openapi.utils.TypeExtractorUtil.escapeIdentifier;
+import static org.ballerinalang.openapi.utils.TypeExtractorUtil.escapeType;
+
 /**
  * This class wraps the {@link Schema} from openapi models inorder to overcome complications
  * while populating handlebar templates.
@@ -68,7 +71,7 @@ public class BallerinaSchema implements BallerinaOpenApiObject<BallerinaSchema, 
             extractComposedSchema((ComposedSchema) schema, openAPI);
             return this;
         } else if (isValueTypeSchema(schema)) {
-            this.type = getPropertyType(schema);
+            this.setType(getPropertyType(schema));
             return this;
         } else if (schema.get$ref() != null) {
             String refType = getReferenceType(schema.get$ref());
@@ -86,7 +89,7 @@ public class BallerinaSchema implements BallerinaOpenApiObject<BallerinaSchema, 
                 throw new BallerinaOpenApiException("Unsupported schema type in schema: " + schema.getName());
             }
 
-            this.type = getPropertyType(schema);
+            this.setType(getPropertyType(schema));
             return this;
         }
 
@@ -103,7 +106,7 @@ public class BallerinaSchema implements BallerinaOpenApiObject<BallerinaSchema, 
                 String type = getReferenceType(prop.get$ref());
                 type = type.isEmpty() ? UNSUPPORTED_PROPERTY_MSG : type;
                 name = toPropertyName(entry.getKey());
-                prop.setType(type);
+                prop.setType(escapeIdentifier(type));
                 newEntries.add(new AbstractMap.SimpleEntry<>(name, prop));
                 continue;
             }
@@ -151,14 +154,14 @@ public class BallerinaSchema implements BallerinaOpenApiObject<BallerinaSchema, 
                 if (ref == null) {
                     type = getPropertyType(((ArraySchema) prop).getItems());
                 } else {
-                    type = getReferenceType(ref);
+                    type = escapeIdentifier(getReferenceType(ref));
                 }
-
+    
                 // define type with ballerina array syntax
                 type += "[]";
                 break;
             case "object":
-                type = "any";
+                type = "anydata";
                 break;
             default:
                 type = prop.getType();
@@ -222,11 +225,21 @@ public class BallerinaSchema implements BallerinaOpenApiObject<BallerinaSchema, 
     private String toPropertyName(String origName) {
         String escapedName = origName;
         boolean isKeyword = GeneratorConstants.RESERVED_KEYWORDS.stream().anyMatch(key -> key.equals(origName));
-        if (isKeyword) {
-            escapedName = '_' + origName;
+        if (isKeyword || !escapedName.matches("\\b[_a-zA-Z][_a-zA-Z0-9]*\\b")) {
+            // TODO: Temporary fix(es) as identifier literals only support alphanumerics when writing this.
+            //  Refer - https://github.com/ballerina-platform/ballerina-lang/issues/18720
+            escapedName = escapedName.replace("-", "");
+            escapedName = escapedName.replace("$", "");
+    
+            // TODO: Remove this `if`. Refer - https://github.com/ballerina-platform/ballerina-lang/issues/23045
+            if (escapedName.equals("error")) {
+                escapedName = "_error";
+            } else {
+                escapedName = escapedName.replaceAll("([\\\\?!<>*\\-=^+()_{}|.$])", "\\\\$1");
+                escapedName = "'" + escapedName;
+            }
         }
-
-        escapedName = escapedName.replaceAll("[^a-zA-Z0-9_]+", "_");
+        
         return escapedName;
     }
 
@@ -253,7 +266,7 @@ public class BallerinaSchema implements BallerinaOpenApiObject<BallerinaSchema, 
     }
 
     public void setType(String type) {
-        this.type = type;
+        this.type = escapeType(type);
     }
 
     public boolean isComposed() {

@@ -27,20 +27,22 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
+
 /**
  * Extern function lang.string:concat(string...).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "concat",
+        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "concat",
         args = {@Argument(name = "str", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
 public class Concat {
 
-    public static String concat(Strand strand, ArrayValue str) {
+    public static BString concat(Strand strand, ArrayValue str) {
         StringBuilder stringBuilder = new StringBuilder();
         int size = str.size();
 
@@ -48,9 +50,6 @@ public class Concat {
             stringBuilder.append(str.getString(i));
         }
 
-        return stringBuilder.toString();
-    }
-    public static BString concat_bstring(Strand strand, ArrayValue arrayValue) {
-        return StringUtils.fromString(concat(strand, arrayValue));
+        return StringUtils.fromString(stringBuilder.toString());
     }
 }

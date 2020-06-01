@@ -81,7 +81,7 @@ public class TypeCastExpressionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible " +
-                    "types: 'string\\|int\\|\\(\\)\\[2\\]' cannot be cast to 'string\\[2\\]'.*")
+                    "types: '\\(string\\|int\\|\\(\\)\\)\\[2\\]' cannot be cast to 'string\\[2\\]'.*")
     public void testArrayCastNegative() {
         BRunUtil.invoke(result, "testArrayCastNegative");
     }
@@ -213,16 +213,16 @@ public class TypeCastExpressionsTest {
         BValue[] returns = BRunUtil.invoke(result, "testBooleanAsBoolean", new BValue[0]);
         Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true, "invalid boolean representation as " +
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "invalid boolean representation as " +
                 "boolean");
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true, "invalid boolean representation as " +
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "invalid boolean representation as " +
                 "boolean");
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false, "invalid boolean representation as " +
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue(), "invalid boolean representation as " +
                 "boolean");
         Assert.assertSame(returns[3].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[3]).booleanValue(), false, "invalid boolean representation as " +
+        Assert.assertFalse(((BBoolean) returns[3]).booleanValue(), "invalid boolean representation as " +
                 "boolean");
     }
 
@@ -231,10 +231,10 @@ public class TypeCastExpressionsTest {
         BValue[] returns = BRunUtil.invoke(result, "testBooleanInUnionAsBoolean", new BValue[0]);
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true, "invalid boolean representation as " +
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "invalid boolean representation as " +
                 "boolean");
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false, "invalid boolean representation as " +
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue(), "invalid boolean representation as " +
                 "boolean");
     }
 

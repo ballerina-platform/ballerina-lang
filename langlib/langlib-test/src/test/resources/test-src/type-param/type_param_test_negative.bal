@@ -85,8 +85,8 @@ type Student record {
 
 function testTypedescFunctions() {
     Student p = { name : "Michel"};
-    Person|error q = Person.constructFrom(p); // No error;
-    string r = Person.constructFrom(p); // Error
+    Person|error q = p.cloneWithType(Person); // No error
+    string r = p.cloneWithType(Person); // Error
 }
 
 function testInvalidArgForBoundRestParam() {
@@ -129,4 +129,11 @@ function testInvalidArgOnUnionTypedValue() {
     int[]|string[] arr = [1, 2];
     arr.push(true);
     array:unshift(arr, 13.2);
+}
+
+function testStringIntFloatSimpleAndArrayUnionReturnParameterNarrowing() {
+    string[]|int[]|int|float[]|float arr = <int[]>[1, 2];
+    if (arr is int[]|float[]|string[]) {
+        [int, (int|float)][] y = arr.enumerate();
+    }
 }

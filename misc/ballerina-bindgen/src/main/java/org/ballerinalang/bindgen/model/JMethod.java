@@ -26,12 +26,14 @@ import java.util.Locale;
 
 import static org.ballerinalang.bindgen.command.BindingsGenerator.getAllJavaClasses;
 import static org.ballerinalang.bindgen.command.BindingsGenerator.setClassListForLooping;
+import static org.ballerinalang.bindgen.command.BindingsGenerator.setExceptionList;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_RESERVED_WORDS;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.METHOD_INTEROP_TYPE;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaHandleType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaParamType;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.getJavaType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isStaticMethod;
 
 /**
@@ -44,6 +46,7 @@ public class JMethod {
     private boolean isStatic;
     private boolean hasParams = true;
     private boolean hasReturn = false;
+    private boolean returnError = false;
     private boolean isOverloaded = true;
     private boolean objectReturn = false;
     private boolean reservedWord = false;
@@ -52,13 +55,15 @@ public class JMethod {
     private boolean handleException = false;
     private boolean isStringReturn = false;
     private boolean hasPrimitiveParam = false;
-    private boolean isStringArrayReturn = false;
 
     private String methodName;
     private String returnType;
     private String externalType;
+    private String exceptionName;
+    private String returnTypeJava;
     private String shortClassName;
     private String javaMethodName;
+    private String returnComponentType;
     private String interopType = METHOD_INTEROP_TYPE;
 
     private List<JParameter> parameters = new ArrayList<>();
@@ -81,6 +86,9 @@ public class JMethod {
             try {
                 if (!this.getClass().getClassLoader().loadClass(RuntimeException.class.getCanonicalName())
                         .isAssignableFrom(exceptionType)) {
+                    JError jError = new JError(exceptionType);
+                    exceptionName = jError.getShortExceptionName();
+                    setExceptionList(jError);
                     hasException = true;
                     handleException = true;
                     break;
@@ -113,21 +121,25 @@ public class JMethod {
 
     private void setReturnTypeAttributes(Class returnTypeClass) {
         hasReturn = true;
+        returnTypeJava = getJavaType(returnTypeClass);
         externalType = getBallerinaHandleType(returnTypeClass);
         returnType = getBallerinaParamType(returnTypeClass);
         if (returnTypeClass.isArray()) {
+            hasException = true;
+            returnError = true;
             isArrayReturn = true;
             if (returnTypeClass.getComponentType().isPrimitive()) {
                 objectReturn = false;
+            } else if (returnTypeClass.getSimpleName().equals(JAVA_STRING_ARRAY)) {
+                objectReturn = false;
+            } else {
+                returnComponentType = returnTypeClass.getComponentType().getSimpleName();
+                objectReturn = true;
             }
         } else if (returnTypeClass.isPrimitive()) {
             objectReturn = false;
-        } else if (returnType.equals(BALLERINA_STRING)) {
+        } else if (returnTypeClass.getSimpleName().equals(JAVA_STRING)) {
             isStringReturn = true;
-        } else if (returnType.equals(BALLERINA_STRING_ARRAY)) {
-            objectReturn = true;
-            isArrayReturn = true;
-            isStringArrayReturn = true;
         } else {
             objectReturn = true;
         }
@@ -139,10 +151,12 @@ public class JMethod {
             JParameter parameter = new JParameter(param);
             parameters.add(parameter);
             if (parameter.getIsPrimitiveArray()) {
+                returnError = true;
                 hasPrimitiveParam = true;
                 hasException = true;
             }
             if (parameter.isObjArrayParam() || parameter.getIsStringArray()) {
+                returnError = true;
                 hasException = true;
             }
         }
@@ -206,5 +220,13 @@ public class JMethod {
 
     public boolean isHandleException() {
         return handleException;
+    }
+
+    public String getExceptionName() {
+        return exceptionName;
+    }
+
+    public boolean isReturnError() {
+        return returnError;
     }
 }

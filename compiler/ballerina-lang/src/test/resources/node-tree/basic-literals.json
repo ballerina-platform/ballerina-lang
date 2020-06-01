@@ -1,0 +1,1370 @@
+{
+    "compUnits": [
+        {
+            "name": "basic-literals.bal",
+            "hash": 0,
+            "length": 0,
+            "topLevelNodes": [
+                {
+                    "pkgNameComps": [
+                        {
+                            "value": "io",
+                            "originalValue": null,
+                            "isLiteral": false,
+                            "type": null,
+                            "desugared": false,
+                            "constantPropagated": false,
+                            "pos": {
+                                "src": {
+                                    "pkgID": {
+                                        "orgName": {
+                                            "value": "$anon"
+                                        },
+                                        "name": {
+                                            "value": "."
+                                        },
+                                        "version": {
+                                            "value": "0.0.0"
+                                        },
+                                        "isUnnamed": true,
+                                        "sourceFileName": {
+                                            "value": "basic-literals.bal"
+                                        },
+                                        "nameComps": [
+                                            "<Duplicated>"
+                                        ]
+                                    },
+                                    "cUnitName": "basic-literals.bal"
+                                },
+                                "sLine": 1,
+                                "eLine": 1,
+                                "sCol": 18,
+                                "eCol": 20
+                            },
+                            "cloneAttempt": 0
+                        }
+                    ],
+                    "version": {
+                        "value": "",
+                        "originalValue": null,
+                        "isLiteral": false,
+                        "type": null,
+                        "desugared": false,
+                        "constantPropagated": false,
+                        "pos": null,
+                        "cloneAttempt": 0
+                    },
+                    "alias": "<Duplicated>",
+                    "symbol": null,
+                    "orgName": {
+                        "value": "ballerina",
+                        "originalValue": null,
+                        "isLiteral": false,
+                        "type": null,
+                        "desugared": false,
+                        "constantPropagated": false,
+                        "pos": {
+                            "src": "<Duplicated>",
+                            "sLine": 1,
+                            "eLine": 1,
+                            "sCol": 8,
+                            "eCol": 18
+                        },
+                        "cloneAttempt": 0
+                    },
+                    "compUnit": {
+                        "value": "basic-literals.bal",
+                        "originalValue": null,
+                        "isLiteral": false,
+                        "type": null,
+                        "desugared": false,
+                        "constantPropagated": false,
+                        "pos": {
+                            "src": "<Duplicated>",
+                            "sLine": 1,
+                            "eLine": 21,
+                            "sCol": 1,
+                            "eCol": 2
+                        },
+                        "cloneAttempt": 0
+                    },
+                    "type": null,
+                    "desugared": false,
+                    "constantPropagated": false,
+                    "pos": {
+                        "src": "<Duplicated>",
+                        "sLine": 1,
+                        "eLine": 1,
+                        "sCol": 1,
+                        "eCol": 21
+                    },
+                    "cloneAttempt": 0
+                },
+                {
+                    "receiver": null,
+                    "attachedFunction": false,
+                    "objInitFunction": false,
+                    "interfaceFunction": false,
+                    "paramClosureMap": {},
+                    "mapSymbol": null,
+                    "initFunctionStmts": {},
+                    "closureVarSymbols": [],
+                    "originalFuncSymbol": null,
+                    "sendsToThis": [],
+                    "anonForkName": null,
+                    "DEFAULT_WORKER_NAME": "default",
+                    "name": {
+                        "value": "main",
+                        "originalValue": null,
+                        "isLiteral": false,
+                        "type": null,
+                        "desugared": false,
+                        "constantPropagated": false,
+                        "pos": {
+                            "src": "<Duplicated>",
+                            "sLine": 3,
+                            "eLine": 3,
+                            "sCol": 17,
+                            "eCol": 21
+                        },
+                        "cloneAttempt": 0
+                    },
+                    "defaultWorkerName": {
+                        "value": "default",
+                        "originalValue": null,
+                        "isLiteral": false,
+                        "type": null,
+                        "desugared": false,
+                        "constantPropagated": false,
+                        "pos": null,
+                        "cloneAttempt": 0
+                    },
+                    "requiredParams": [],
+                    "returnTypeNode": {
+                        "typeKind": "NIL",
+                        "nullable": false,
+                        "grouped": false,
+                        "type": {
+                            "tag": 10,
+                            "tsymbol": {
+                                "isLabel": false,
+                                "tag": 12,
+                                "flags": 1,
+                                "name": {
+                                    "value": "null"
+                                },
+                                "pkgID": {
+                                    "orgName": {
+                                        "value": "ballerina"
+                                    },
+                                    "name": {
+                                        "value": "lang.annotations"
+                                    },
+                                    "version": {
+                                        "value": "1.0.0"
+                                    },
+                                    "isUnnamed": false,
+                                    "sourceFileName": null,
+                                    "nameComps": [
+                                        {
+                                            "value": "lang"
+                                        },
+                                        {
+                                            "value": "annotations"
+                                        }
+                                    ]
+                                },
+                                "type": "<Duplicated>",
+                                "tainted": false,
+                                "closure": false,
+                                "markdownDocumentation": null,
+                                "scope": null
+                            },
+                            "name":{
+                                "value":""
+                            },
+                            "flags": 0
+                        },
+                        "desugared": false,
+                        "constantPropagated": false,
+                        "pos": {
+                            "src": "<Duplicated>",
+                            "sLine": 3,
+                            "eLine": 3,
+                            "sCol": 21,
+                            "eCol": 37
+                        },
+                        "cloneAttempt": 0
+                    },
+                    "returnTypeAnnAttachments": [],
+                    "body": {
+                        "stmts": [
+                            {
+                                "expr": {
+                                    "pkgAlias": "<Duplicated>",
+                                    "name": {
+                                        "value": "testBasicLiterals",
+                                        "originalValue": null,
+                                        "isLiteral": false,
+                                        "type": null,
+                                        "desugared": false,
+                                        "constantPropagated": false,
+                                        "pos": {
+                                            "src": "<Duplicated>",
+                                            "sLine": 4,
+                                            "eLine": 4,
+                                            "sCol": 5,
+                                            "eCol": 22
+                                        },
+                                        "cloneAttempt": 0
+                                    },
+                                    "argExprs": [],
+                                    "exprSymbol": null,
+                                    "functionPointerInvocation": false,
+                                    "langLibInvocation": false,
+                                    "async": false,
+                                    "flagSet": [],
+                                    "annAttachments": [],
+                                    "requiredArgs": [],
+                                    "restArgs": [],
+                                    "expr": null,
+                                    "optionalFieldAccess": false,
+                                    "errorSafeNavigation": false,
+                                    "nilSafeNavigation": false,
+                                    "originalType": null,
+                                    "leafNode": false,
+                                    "symbol": null,
+                                    "lhsVar": false,
+                                    "compoundAssignmentLhsVar": false,
+                                    "pkgSymbol": null,
+                                    "impConversionExpr": null,
+                                    "typeChecked": false,
+                                    "expectedType": null,
+                                    "narrowedTypeInfo": null,
+                                    "type": null,
+                                    "desugared": false,
+                                    "constantPropagated": false,
+                                    "pos": {
+                                        "src": "<Duplicated>",
+                                        "sLine": 4,
+                                        "eLine": 4,
+                                        "sCol": 5,
+                                        "eCol": 24
+                                    },
+                                    "cloneAttempt": 0
+                                },
+                                "statementLink": null,
+                                "type": null,
+                                "desugared": false,
+                                "constantPropagated": false,
+                                "pos": {
+                                    "src": "<Duplicated>",
+                                    "sLine": 4,
+                                    "eLine": 4,
+                                    "sCol": 5,
+                                    "eCol": 25
+                                },
+                                "cloneAttempt": 0
+                            }
+                        ],
+                        "mapSymbol": null,
+                        "scope": null,
+                        "type": null,
+                        "desugared": false,
+                        "constantPropagated": false,
+                        "pos": null,
+                        "cloneAttempt": 0
+                    },
+                    "flagSet": [
+                        {}
+                    ],
+                    "annAttachments": [],
+                    "markdownDocumentationAttachment": null,
+                    "endpoints": [],
+                    "workers": [],
+                    "restParam": {
+                        "name": {
+                            "value": "args",
+                            "originalValue": null,
+                            "isLiteral": false,
+                            "type": null,
+                            "desugared": false,
+                            "constantPropagated": false,
+                            "pos": {
+                                "src": "<Duplicated>",
+                                "sLine": 3,
+                                "eLine": 3,
+                                "sCol": 32,
+                                "eCol": 36
+                            },
+                            "cloneAttempt": 0
+                        },
+                        "typeNode": {
+                            "elemtype": {
+                                "typeKind": "STRING",
+                                "nullable": false,
+                                "grouped": false,
+                                "type": {
+                                    "tag": 5,
+                                    "tsymbol": {
+                                        "isLabel": false,
+                                        "tag": 12,
+                                        "flags": 1,
+                                        "name": {
+                                            "value": "string"
+                                        },
+                                        "pkgID": "<Duplicated>",
+                                        "type": "<Duplicated>",
+                                        "tainted": false,
+                                        "closure": false,
+                                        "markdownDocumentation": null,
+                                        "scope": null
+                                    },
+                                    "name": "<Duplicated>",
+                                    "flags": 0
+                                },
+                                "desugared": false,
+                                "constantPropagated": false,
+                                "pos": {
+                                    "src": "<Duplicated>",
+                                    "sLine": 3,
+                                    "eLine": 3,
+                                    "sCol": 22,
+                                    "eCol": 28
+                                },
+                                "cloneAttempt": 0
+                            },
+                            "dimensions": 1,
+                            "sizes": [],
+                            "nullable": false,
+                            "grouped": false,
+                            "type": {
+                                "eType": "<Duplicated>",
+                                "size": -1,
+                                "state": "UNSEALED",
+                                "tag": 19,
+                                "tsymbol": {
+                                    "isLabel": false,
+                                    "tag": 8388636,
+                                    "flags": 1,
+                                    "name": "<Duplicated>",
+                                    "pkgID": "<Duplicated>",
+                                    "type": "<Duplicated>",
+                                    "tainted": false,
+                                    "closure": false,
+                                    "markdownDocumentation": null,
+                                    "scope": null
+                                },
+                                "name": "<Duplicated>",
+                                "flags": 0
+                            },
+                            "desugared": false,
+                            "constantPropagated": false,
+                            "pos": "<Duplicated>",
+                            "cloneAttempt": 0
+                        },
+                        "expr": null,
+                        "flagSet": [],
+                        "annAttachments": [],
+                        "markdownDocumentationAttachment": null,
+                        "isDeclaredWithVar": false,
+                        "symbol": {
+                            "defaultableParam": false,
+                            "taintabilityAllowance": "IGNORED",
+                            "tag": 52,
+                            "flags": 0,
+                            "name": {
+                                "value": "args"
+                            },
+                            "pkgID": "<Duplicated>",
+                            "type": "<Duplicated>",
+                            "tainted": false,
+                            "closure": false,
+                            "markdownDocumentation": {
+                                "description": null,
+                                "parameters": [],
+                                "returnValueDescription": null
+                            },
+                            "scope": null
+                        },
+                        "type": "<Duplicated>",
+                        "desugared": false,
+                        "constantPropagated": false,
+                        "pos": {
+                            "src": "<Duplicated>",
+                            "sLine": 3,
+                            "eLine": 3,
+                            "sCol": 22,
+                            "eCol": 36
+                        },
+                        "cloneAttempt": 0
+                    },
+                    "symbol": {
+                        "params": [],
+                        "restParam": "<Duplicated>",
+                        "retType": "<Duplicated>",
+                        "taintTable": null,
+                        "receiverSymbol": null,
+                        "bodyExist": true,
+                        "enclForkName": null,
+                        "source": "basic-literals.bal",
+                        "schedulerPolicy": "PARENT",
+                        "dependentGlobalVars": [],
+                        "defaultableParam": false,
+                        "taintabilityAllowance": "IGNORED",
+                        "tag": 820,
+                        "flags": 1,
+                        "name": {
+                            "value": "main"
+                        },
+                        "pkgID": "<Duplicated>",
+                        "kind": "FUNCTION",
+                        "type": {
+                            "paramTypes": [],
+                            "restType": "<Duplicated>",
+                            "retType": "<Duplicated>",
+                            "tag": 16,
+                            "tsymbol": {
+                                "params": [],
+                                "restParam": "<Duplicated>",
+                                "returnType": "<Duplicated>",
+                                "isLabel": false,
+                                "tag": 33554460,
+                                "flags": 1,
+                                "name": "<Duplicated>",
+                                "pkgID": "<Duplicated>",
+                                "type": null,
+                                "tainted": false,
+                                "closure": false,
+                                "markdownDocumentation": null,
+                                "scope": null
+                            },
+                            "name": "<Duplicated>",
+                            "flags": 0
+                        },
+                        "tainted": false,
+                        "closure": false,
+                        "markdownDocumentation": {
+                            "description": null,
+                            "parameters": [],
+                            "returnValueDescription": null
+                        },
+                        "scope": {
+                            "NOT_FOUND_ENTRY": {
+                                "symbol": null
+                            },
+                            "owner": "<Duplicated>",
+                            "entries": {
+                                "args": {
+                                    "symbol": "<Duplicated>"
+                                }
+                            }
+                        }
+                    },
+                    "clonedEnv": {
+                        "scope": {
+                            "NOT_FOUND_ENTRY": "<Duplicated>",
+                            "owner": "<Duplicated>",
+                            "entries": {}
+                        },
+                        "node": "<Duplicated>",
+                        "enclPkg": {
+                            "compUnits": [
+                                "<Duplicated>"
+                            ],
+                            "imports": [
+                                "<Duplicated>"
+                            ],
+                            "xmlnsList": [],
+                            "globalEndpoints": [],
+                            "constants": [],
+                            "globalVars": [],
+                            "services": [],
+                            "functions": [
+                                "<Duplicated>",
+                                {
+                                    "receiver": null,
+                                    "attachedFunction": false,
+                                    "objInitFunction": false,
+                                    "interfaceFunction": false,
+                                    "paramClosureMap": {},
+                                    "mapSymbol": null,
+                                    "initFunctionStmts": {},
+                                    "closureVarSymbols": [],
+                                    "originalFuncSymbol": null,
+                                    "sendsToThis": [],
+                                    "anonForkName": null,
+                                    "DEFAULT_WORKER_NAME": "default",
+                                    "name": "<Duplicated>",
+                                    "defaultWorkerName": "<Duplicated>",
+                                    "requiredParams": [],
+                                    "returnTypeNode": {
+                                        "typeKind": "NIL",
+                                        "nullable": false,
+                                        "grouped": false,
+                                        "type": "<Duplicated>",
+                                        "desugared": false,
+                                        "constantPropagated": false,
+                                        "pos": {
+                                            "src": "<Duplicated>",
+                                            "sLine": 7,
+                                            "eLine": 7,
+                                            "sCol": 27,
+                                            "eCol": 29
+                                        },
+                                        "cloneAttempt": 0
+                                    },
+                                    "returnTypeAnnAttachments": [],
+                                    "body": {
+                                        "stmts": [
+                                            {
+                                                "expr": {
+                                                    "pkgAlias": "<Duplicated>",
+                                                    "name": {
+                                                        "value": "println",
+                                                        "originalValue": null,
+                                                        "isLiteral": false,
+                                                        "type": null,
+                                                        "desugared": false,
+                                                        "constantPropagated": false,
+                                                        "pos": {
+                                                            "src": "<Duplicated>",
+                                                            "sLine": 9,
+                                                            "eLine": 9,
+                                                            "sCol": 7,
+                                                            "eCol": 14
+                                                        },
+                                                        "cloneAttempt": 0
+                                                    },
+                                                    "argExprs": [
+                                                        {
+                                                            "value": "\"Hello world!\"",
+                                                            "originalValue": "\"Hello world!\"",
+                                                            "isJSONContext": false,
+                                                            "isFiniteContext": false,
+                                                            "isConstant": false,
+                                                            "impConversionExpr": null,
+                                                            "typeChecked": false,
+                                                            "expectedType": null,
+                                                            "narrowedTypeInfo": null,
+                                                            "type": "<Duplicated>",
+                                                            "desugared": false,
+                                                            "constantPropagated": false,
+                                                            "pos": {
+                                                                "src": "<Duplicated>",
+                                                                "sLine": 9,
+                                                                "eLine": 9,
+                                                                "sCol": 15,
+                                                                "eCol": 29
+                                                            },
+                                                            "cloneAttempt": 0
+                                                        }
+                                                    ],
+                                                    "exprSymbol": null,
+                                                    "functionPointerInvocation": false,
+                                                    "langLibInvocation": false,
+                                                    "async": false,
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
+                                                    "requiredArgs": [],
+                                                    "restArgs": [],
+                                                    "expr": null,
+                                                    "optionalFieldAccess": false,
+                                                    "errorSafeNavigation": false,
+                                                    "nilSafeNavigation": false,
+                                                    "originalType": null,
+                                                    "leafNode": false,
+                                                    "symbol": null,
+                                                    "lhsVar": false,
+                                                    "compoundAssignmentLhsVar": false,
+                                                    "pkgSymbol": null,
+                                                    "impConversionExpr": null,
+                                                    "typeChecked": false,
+                                                    "expectedType": null,
+                                                    "narrowedTypeInfo": null,
+                                                    "type": null,
+                                                    "desugared": false,
+                                                    "constantPropagated": false,
+                                                    "pos": {
+                                                        "src": "<Duplicated>",
+                                                        "sLine": 9,
+                                                        "eLine": 9,
+                                                        "sCol": 4,
+                                                        "eCol": 30
+                                                    },
+                                                    "cloneAttempt": 0
+                                                },
+                                                "statementLink": null,
+                                                "type": null,
+                                                "desugared": false,
+                                                "constantPropagated": false,
+                                                "pos": {
+                                                    "src": "<Duplicated>",
+                                                    "sLine": 9,
+                                                    "eLine": 9,
+                                                    "sCol": 4,
+                                                    "eCol": 31
+                                                },
+                                                "cloneAttempt": 0
+                                            },
+                                            {
+                                                "expr": {
+                                                    "pkgAlias": "<Duplicated>",
+                                                    "name": "<Duplicated>",
+                                                    "argExprs": [
+                                                        {
+                                                            "value": 1,
+                                                            "originalValue": "1",
+                                                            "isJSONContext": false,
+                                                            "isFiniteContext": false,
+                                                            "isConstant": false,
+                                                            "impConversionExpr": null,
+                                                            "typeChecked": false,
+                                                            "expectedType": null,
+                                                            "narrowedTypeInfo": null,
+                                                            "type": {
+                                                                "tag": 1,
+                                                                "tsymbol": {
+                                                                    "isLabel": false,
+                                                                    "tag": 12,
+                                                                    "flags": 1,
+                                                                    "name": {
+                                                                        "value": "int"
+                                                                    },
+                                                                    "pkgID": "<Duplicated>",
+                                                                    "type": "<Duplicated>",
+                                                                    "tainted": false,
+                                                                    "closure": false,
+                                                                    "markdownDocumentation": null,
+                                                                    "scope": null
+                                                                },
+                                                                "name": "<Duplicated>",
+                                                                "flags": 0
+                                                            },
+                                                            "desugared": false,
+                                                            "constantPropagated": false,
+                                                            "pos": {
+                                                                "src": "<Duplicated>",
+                                                                "sLine": 11,
+                                                                "eLine": 11,
+                                                                "sCol": 15,
+                                                                "eCol": 16
+                                                            },
+                                                            "cloneAttempt": 0
+                                                        }
+                                                    ],
+                                                    "exprSymbol": null,
+                                                    "functionPointerInvocation": false,
+                                                    "langLibInvocation": false,
+                                                    "async": false,
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
+                                                    "requiredArgs": [],
+                                                    "restArgs": [],
+                                                    "expr": null,
+                                                    "optionalFieldAccess": false,
+                                                    "errorSafeNavigation": false,
+                                                    "nilSafeNavigation": false,
+                                                    "originalType": null,
+                                                    "leafNode": false,
+                                                    "symbol": null,
+                                                    "lhsVar": false,
+                                                    "compoundAssignmentLhsVar": false,
+                                                    "pkgSymbol": null,
+                                                    "impConversionExpr": null,
+                                                    "typeChecked": false,
+                                                    "expectedType": null,
+                                                    "narrowedTypeInfo": null,
+                                                    "type": null,
+                                                    "desugared": false,
+                                                    "constantPropagated": false,
+                                                    "pos": {
+                                                        "src": "<Duplicated>",
+                                                        "sLine": 11,
+                                                        "eLine": 11,
+                                                        "sCol": 4,
+                                                        "eCol": 17
+                                                    },
+                                                    "cloneAttempt": 0
+                                                },
+                                                "statementLink": null,
+                                                "type": null,
+                                                "desugared": false,
+                                                "constantPropagated": false,
+                                                "pos": {
+                                                    "src": "<Duplicated>",
+                                                    "sLine": 11,
+                                                    "eLine": 11,
+                                                    "sCol": 4,
+                                                    "eCol": 18
+                                                },
+                                                "cloneAttempt": 0
+                                            },
+                                            {
+                                                "expr": {
+                                                    "pkgAlias": "<Duplicated>",
+                                                    "name": "<Duplicated>",
+                                                    "argExprs": [
+                                                        {
+                                                            "value": 255,
+                                                            "originalValue": "0xff",
+                                                            "isJSONContext": false,
+                                                            "isFiniteContext": false,
+                                                            "isConstant": false,
+                                                            "impConversionExpr": null,
+                                                            "typeChecked": false,
+                                                            "expectedType": null,
+                                                            "narrowedTypeInfo": null,
+                                                            "type": "<Duplicated>",
+                                                            "desugared": false,
+                                                            "constantPropagated": false,
+                                                            "pos": {
+                                                                "src": "<Duplicated>",
+                                                                "sLine": 13,
+                                                                "eLine": 13,
+                                                                "sCol": 15,
+                                                                "eCol": 19
+                                                            },
+                                                            "cloneAttempt": 0
+                                                        }
+                                                    ],
+                                                    "exprSymbol": null,
+                                                    "functionPointerInvocation": false,
+                                                    "langLibInvocation": false,
+                                                    "async": false,
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
+                                                    "requiredArgs": [],
+                                                    "restArgs": [],
+                                                    "expr": null,
+                                                    "optionalFieldAccess": false,
+                                                    "errorSafeNavigation": false,
+                                                    "nilSafeNavigation": false,
+                                                    "originalType": null,
+                                                    "leafNode": false,
+                                                    "symbol": null,
+                                                    "lhsVar": false,
+                                                    "compoundAssignmentLhsVar": false,
+                                                    "pkgSymbol": null,
+                                                    "impConversionExpr": null,
+                                                    "typeChecked": false,
+                                                    "expectedType": null,
+                                                    "narrowedTypeInfo": null,
+                                                    "type": null,
+                                                    "desugared": false,
+                                                    "constantPropagated": false,
+                                                    "pos": {
+                                                        "src": "<Duplicated>",
+                                                        "sLine": 13,
+                                                        "eLine": 13,
+                                                        "sCol": 4,
+                                                        "eCol": 20
+                                                    },
+                                                    "cloneAttempt": 0
+                                                },
+                                                "statementLink": null,
+                                                "type": null,
+                                                "desugared": false,
+                                                "constantPropagated": false,
+                                                "pos": {
+                                                    "src": "<Duplicated>",
+                                                    "sLine": 13,
+                                                    "eLine": 13,
+                                                    "sCol": 4,
+                                                    "eCol": 21
+                                                },
+                                                "cloneAttempt": 0
+                                            },
+                                            {
+                                                "expr": {
+                                                    "pkgAlias": "<Duplicated>",
+                                                    "name": "<Duplicated>",
+                                                    "argExprs": [
+                                                        {
+                                                            "value": "1.1",
+                                                            "originalValue": "1.1",
+                                                            "isJSONContext": false,
+                                                            "isFiniteContext": false,
+                                                            "isConstant": false,
+                                                            "impConversionExpr": null,
+                                                            "typeChecked": false,
+                                                            "expectedType": null,
+                                                            "narrowedTypeInfo": null,
+                                                            "type": {
+                                                                "tag": 3,
+                                                                "tsymbol": {
+                                                                    "isLabel": false,
+                                                                    "tag": 12,
+                                                                    "flags": 1,
+                                                                    "name": {
+                                                                        "value": "float"
+                                                                    },
+                                                                    "pkgID": "<Duplicated>",
+                                                                    "type": "<Duplicated>",
+                                                                    "tainted": false,
+                                                                    "closure": false,
+                                                                    "markdownDocumentation": null,
+                                                                    "scope": null
+                                                                },
+                                                                "name": "<Duplicated>",
+                                                                "flags": 0
+                                                            },
+                                                            "desugared": false,
+                                                            "constantPropagated": false,
+                                                            "pos": {
+                                                                "src": "<Duplicated>",
+                                                                "sLine": 15,
+                                                                "eLine": 15,
+                                                                "sCol": 15,
+                                                                "eCol": 18
+                                                            },
+                                                            "cloneAttempt": 0
+                                                        }
+                                                    ],
+                                                    "exprSymbol": null,
+                                                    "functionPointerInvocation": false,
+                                                    "langLibInvocation": false,
+                                                    "async": false,
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
+                                                    "requiredArgs": [],
+                                                    "restArgs": [],
+                                                    "expr": null,
+                                                    "optionalFieldAccess": false,
+                                                    "errorSafeNavigation": false,
+                                                    "nilSafeNavigation": false,
+                                                    "originalType": null,
+                                                    "leafNode": false,
+                                                    "symbol": null,
+                                                    "lhsVar": false,
+                                                    "compoundAssignmentLhsVar": false,
+                                                    "pkgSymbol": null,
+                                                    "impConversionExpr": null,
+                                                    "typeChecked": false,
+                                                    "expectedType": null,
+                                                    "narrowedTypeInfo": null,
+                                                    "type": null,
+                                                    "desugared": false,
+                                                    "constantPropagated": false,
+                                                    "pos": {
+                                                        "src": "<Duplicated>",
+                                                        "sLine": 15,
+                                                        "eLine": 15,
+                                                        "sCol": 4,
+                                                        "eCol": 19
+                                                    },
+                                                    "cloneAttempt": 0
+                                                },
+                                                "statementLink": null,
+                                                "type": null,
+                                                "desugared": false,
+                                                "constantPropagated": false,
+                                                "pos": {
+                                                    "src": "<Duplicated>",
+                                                    "sLine": 15,
+                                                    "eLine": 15,
+                                                    "sCol": 4,
+                                                    "eCol": 20
+                                                },
+                                                "cloneAttempt": 0
+                                            },
+                                            {
+                                                "expr": {
+                                                    "pkgAlias": "<Duplicated>",
+                                                    "name": "<Duplicated>",
+                                                    "argExprs": [
+                                                        {
+                                                            "value": "55e-1",
+                                                            "originalValue": "55e-1",
+                                                            "isJSONContext": false,
+                                                            "isFiniteContext": false,
+                                                            "isConstant": false,
+                                                            "impConversionExpr": null,
+                                                            "typeChecked": false,
+                                                            "expectedType": null,
+                                                            "narrowedTypeInfo": null,
+                                                            "type": "<Duplicated>",
+                                                            "desugared": false,
+                                                            "constantPropagated": false,
+                                                            "pos": {
+                                                                "src": "<Duplicated>",
+                                                                "sLine": 17,
+                                                                "eLine": 17,
+                                                                "sCol": 15,
+                                                                "eCol": 20
+                                                            },
+                                                            "cloneAttempt": 0
+                                                        }
+                                                    ],
+                                                    "exprSymbol": null,
+                                                    "functionPointerInvocation": false,
+                                                    "langLibInvocation": false,
+                                                    "async": false,
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
+                                                    "requiredArgs": [],
+                                                    "restArgs": [],
+                                                    "expr": null,
+                                                    "optionalFieldAccess": false,
+                                                    "errorSafeNavigation": false,
+                                                    "nilSafeNavigation": false,
+                                                    "originalType": null,
+                                                    "leafNode": false,
+                                                    "symbol": null,
+                                                    "lhsVar": false,
+                                                    "compoundAssignmentLhsVar": false,
+                                                    "pkgSymbol": null,
+                                                    "impConversionExpr": null,
+                                                    "typeChecked": false,
+                                                    "expectedType": null,
+                                                    "narrowedTypeInfo": null,
+                                                    "type": null,
+                                                    "desugared": false,
+                                                    "constantPropagated": false,
+                                                    "pos": {
+                                                        "src": "<Duplicated>",
+                                                        "sLine": 17,
+                                                        "eLine": 17,
+                                                        "sCol": 4,
+                                                        "eCol": 21
+                                                    },
+                                                    "cloneAttempt": 0
+                                                },
+                                                "statementLink": null,
+                                                "type": null,
+                                                "desugared": false,
+                                                "constantPropagated": false,
+                                                "pos": {
+                                                    "src": "<Duplicated>",
+                                                    "sLine": 17,
+                                                    "eLine": 17,
+                                                    "sCol": 4,
+                                                    "eCol": 22
+                                                },
+                                                "cloneAttempt": 0
+                                            },
+                                            {
+                                                "expr": {
+                                                    "pkgAlias": "<Duplicated>",
+                                                    "name": "<Duplicated>",
+                                                    "argExprs": [
+                                                        {
+                                                            "value": true,
+                                                            "originalValue": "true",
+                                                            "isJSONContext": false,
+                                                            "isFiniteContext": false,
+                                                            "isConstant": false,
+                                                            "impConversionExpr": null,
+                                                            "typeChecked": false,
+                                                            "expectedType": null,
+                                                            "narrowedTypeInfo": null,
+                                                            "type": {
+                                                                "tag": 6,
+                                                                "tsymbol": {
+                                                                    "isLabel": false,
+                                                                    "tag": 12,
+                                                                    "flags": 1,
+                                                                    "name": {
+                                                                        "value": "boolean"
+                                                                    },
+                                                                    "pkgID": "<Duplicated>",
+                                                                    "type": "<Duplicated>",
+                                                                    "tainted": false,
+                                                                    "closure": false,
+                                                                    "markdownDocumentation": null,
+                                                                    "scope": null
+                                                                },
+                                                                "name": "<Duplicated>",
+                                                                "flags": 0
+                                                            },
+                                                            "desugared": false,
+                                                            "constantPropagated": false,
+                                                            "pos": {
+                                                                "src": "<Duplicated>",
+                                                                "sLine": 19,
+                                                                "eLine": 19,
+                                                                "sCol": 15,
+                                                                "eCol": 19
+                                                            },
+                                                            "cloneAttempt": 0
+                                                        }
+                                                    ],
+                                                    "exprSymbol": null,
+                                                    "functionPointerInvocation": false,
+                                                    "langLibInvocation": false,
+                                                    "async": false,
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
+                                                    "requiredArgs": [],
+                                                    "restArgs": [],
+                                                    "expr": null,
+                                                    "optionalFieldAccess": false,
+                                                    "errorSafeNavigation": false,
+                                                    "nilSafeNavigation": false,
+                                                    "originalType": null,
+                                                    "leafNode": false,
+                                                    "symbol": null,
+                                                    "lhsVar": false,
+                                                    "compoundAssignmentLhsVar": false,
+                                                    "pkgSymbol": null,
+                                                    "impConversionExpr": null,
+                                                    "typeChecked": false,
+                                                    "expectedType": null,
+                                                    "narrowedTypeInfo": null,
+                                                    "type": null,
+                                                    "desugared": false,
+                                                    "constantPropagated": false,
+                                                    "pos": {
+                                                        "src": "<Duplicated>",
+                                                        "sLine": 19,
+                                                        "eLine": 19,
+                                                        "sCol": 4,
+                                                        "eCol": 20
+                                                    },
+                                                    "cloneAttempt": 0
+                                                },
+                                                "statementLink": null,
+                                                "type": null,
+                                                "desugared": false,
+                                                "constantPropagated": false,
+                                                "pos": {
+                                                    "src": "<Duplicated>",
+                                                    "sLine": 19,
+                                                    "eLine": 19,
+                                                    "sCol": 4,
+                                                    "eCol": 21
+                                                },
+                                                "cloneAttempt": 0
+                                            },
+                                            {
+                                                "expr": {
+                                                    "pkgAlias": "<Duplicated>",
+                                                    "name": "<Duplicated>",
+                                                    "argExprs": [
+                                                        {
+                                                            "value": false,
+                                                            "originalValue": "false",
+                                                            "isJSONContext": false,
+                                                            "isFiniteContext": false,
+                                                            "isConstant": false,
+                                                            "impConversionExpr": null,
+                                                            "typeChecked": false,
+                                                            "expectedType": null,
+                                                            "narrowedTypeInfo": null,
+                                                            "type": "<Duplicated>",
+                                                            "desugared": false,
+                                                            "constantPropagated": false,
+                                                            "pos": {
+                                                                "src": "<Duplicated>",
+                                                                "sLine": 20,
+                                                                "eLine": 20,
+                                                                "sCol": 15,
+                                                                "eCol": 20
+                                                            },
+                                                            "cloneAttempt": 0
+                                                        }
+                                                    ],
+                                                    "exprSymbol": null,
+                                                    "functionPointerInvocation": false,
+                                                    "langLibInvocation": false,
+                                                    "async": false,
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
+                                                    "requiredArgs": [],
+                                                    "restArgs": [],
+                                                    "expr": null,
+                                                    "optionalFieldAccess": false,
+                                                    "errorSafeNavigation": false,
+                                                    "nilSafeNavigation": false,
+                                                    "originalType": null,
+                                                    "leafNode": false,
+                                                    "symbol": null,
+                                                    "lhsVar": false,
+                                                    "compoundAssignmentLhsVar": false,
+                                                    "pkgSymbol": null,
+                                                    "impConversionExpr": null,
+                                                    "typeChecked": false,
+                                                    "expectedType": null,
+                                                    "narrowedTypeInfo": null,
+                                                    "type": null,
+                                                    "desugared": false,
+                                                    "constantPropagated": false,
+                                                    "pos": {
+                                                        "src": "<Duplicated>",
+                                                        "sLine": 20,
+                                                        "eLine": 20,
+                                                        "sCol": 4,
+                                                        "eCol": 21
+                                                    },
+                                                    "cloneAttempt": 0
+                                                },
+                                                "statementLink": null,
+                                                "type": null,
+                                                "desugared": false,
+                                                "constantPropagated": false,
+                                                "pos": {
+                                                    "src": "<Duplicated>",
+                                                    "sLine": 20,
+                                                    "eLine": 20,
+                                                    "sCol": 4,
+                                                    "eCol": 22
+                                                },
+                                                "cloneAttempt": 0
+                                            }
+                                        ],
+                                        "mapSymbol": null,
+                                        "scope": null,
+                                        "type": null,
+                                        "desugared": false,
+                                        "constantPropagated": false,
+                                        "pos": null,
+                                        "cloneAttempt": 0
+                                    },
+                                    "flagSet": [],
+                                    "annAttachments": [],
+                                    "markdownDocumentationAttachment": null,
+                                    "endpoints": [],
+                                    "workers": [],
+                                    "restParam": null,
+                                    "symbol": {
+                                        "params": [],
+                                        "restParam": null,
+                                        "retType": "<Duplicated>",
+                                        "taintTable": null,
+                                        "receiverSymbol": null,
+                                        "bodyExist": true,
+                                        "enclForkName": null,
+                                        "source": "basic-literals.bal",
+                                        "schedulerPolicy": "PARENT",
+                                        "dependentGlobalVars": [],
+                                        "defaultableParam": false,
+                                        "taintabilityAllowance": "IGNORED",
+                                        "tag": 820,
+                                        "flags": 0,
+                                        "name": {
+                                            "value": "testBasicLiterals"
+                                        },
+                                        "pkgID": "<Duplicated>",
+                                        "kind": "FUNCTION",
+                                        "type": {
+                                            "paramTypes": [],
+                                            "restType": null,
+                                            "retType": "<Duplicated>",
+                                            "tag": 16,
+                                            "tsymbol": {
+                                                "params": [],
+                                                "restParam": null,
+                                                "returnType": "<Duplicated>",
+                                                "isLabel": false,
+                                                "tag": 33554460,
+                                                "flags": 0,
+                                                "name": "<Duplicated>",
+                                                "pkgID": "<Duplicated>",
+                                                "type": null,
+                                                "tainted": false,
+                                                "closure": false,
+                                                "markdownDocumentation": null,
+                                                "scope": null
+                                            },
+                                            "name": "<Duplicated>",
+                                            "flags": 0
+                                        },
+                                        "tainted": false,
+                                        "closure": false,
+                                        "markdownDocumentation": {
+                                            "description": null,
+                                            "parameters": [],
+                                            "returnValueDescription": null
+                                        },
+                                        "scope": {
+                                            "NOT_FOUND_ENTRY": "<Duplicated>",
+                                            "owner": "<Duplicated>",
+                                            "entries": {}
+                                        }
+                                    },
+                                    "clonedEnv": {
+                                        "scope": {
+                                            "NOT_FOUND_ENTRY": "<Duplicated>",
+                                            "owner": "<Duplicated>",
+                                            "entries": {}
+                                        },
+                                        "node": "<Duplicated>",
+                                        "enclPkg": "<Duplicated>",
+                                        "enclType": null,
+                                        "enclAnnotation": null,
+                                        "enclService": null,
+                                        "enclInvokable": "<Duplicated>",
+                                        "enclVarSym": null,
+                                        "typeParamsEntries": null,
+                                        "logErrors": true,
+                                        "envCount": 1,
+                                        "relativeEnvCount": 0
+                                    },
+                                    "desugaredReturnType": false,
+                                    "type": null,
+                                    "desugared": false,
+                                    "constantPropagated": false,
+                                    "pos": {
+                                        "src": "<Duplicated>",
+                                        "sLine": 7,
+                                        "eLine": 21,
+                                        "sCol": 1,
+                                        "eCol": 2
+                                    },
+                                    "cloneAttempt": 0
+                                }
+                            ],
+                            "typeDefinitions": [],
+                            "annotations": [],
+                            "initFunction": null,
+                            "startFunction": null,
+                            "stopFunction": null,
+                            "completedPhases": [
+                                {}
+                            ],
+                            "objAttachedFunctions": [],
+                            "topLevelNodes": [
+                                "<Duplicated>",
+                                "<Duplicated>"
+                            ],
+                            "testablePkgs": [],
+                            "lambdaFunctions": [],
+                            "packageID": "<Duplicated>",
+                            "symbol": {
+                                "initFunctionSymbol": null,
+                                "startFunctionSymbol": null,
+                                "stopFunctionSymbol": null,
+                                "testInitFunctionSymbol": null,
+                                "testStartFunctionSymbol": null,
+                                "testStopFunctionSymbol": null,
+                                "imports": [],
+                                "packageFile": null,
+                                "compiledPackage": {
+                                    "pkgID": "<Duplicated>",
+                                    "srcEntries": [],
+                                    "pkgMDEntry": null,
+                                    "pkgBinaryEntry": null,
+                                    "pkgBirEntry": null
+                                },
+                                "compUnit": null,
+                                "isUsed": false,
+                                "bir": null,
+                                "birPackageFile": null,
+                                "entryPointExists": false,
+                                "isLabel": false,
+                                "tag": 4097,
+                                "flags": 0,
+                                "name": "<Duplicated>",
+                                "pkgID": "<Duplicated>",
+                                "type": {
+                                    "tag": 21,
+                                    "tsymbol": "<Duplicated>",
+                                    "name": "<Duplicated>",
+                                    "flags": 0
+                                },
+                                "tainted": false,
+                                "closure": false,
+                                "markdownDocumentation": null,
+                                "scope": {
+                                    "NOT_FOUND_ENTRY": "<Duplicated>",
+                                    "owner": "<Duplicated>",
+                                    "entries": {
+                                        "main": {
+                                            "symbol": "<Duplicated>"
+                                        },
+                                        "testBasicLiterals": {
+                                            "symbol": "<Duplicated>"
+                                        }
+                                    }
+                                }
+                            },
+                            "flagSet": [],
+                            "jarBinaryContent": [],
+                            "diagCollector": {},
+                            "repos": {},
+                            "type": null,
+                            "desugared": false,
+                            "constantPropagated": false,
+                            "pos": {
+                                "src": {
+                                    "pkgID": "<Duplicated>",
+                                    "cUnitName": "."
+                                },
+                                "sLine": 1,
+                                "eLine": 1,
+                                "sCol": 1,
+                                "eCol": 1
+                            },
+                            "cloneAttempt": 0
+                        },
+                        "enclType": null,
+                        "enclAnnotation": null,
+                        "enclService": null,
+                        "enclInvokable": "<Duplicated>",
+                        "enclVarSym": null,
+                        "typeParamsEntries": null,
+                        "logErrors": true,
+                        "envCount": 1,
+                        "relativeEnvCount": 0
+                    },
+                    "desugaredReturnType": false,
+                    "type": null,
+                    "desugared": false,
+                    "constantPropagated": false,
+                    "pos": {
+                        "src": "<Duplicated>",
+                        "sLine": 3,
+                        "eLine": 5,
+                        "sCol": 1,
+                        "eCol": 2
+                    },
+                    "cloneAttempt": 0
+                },
+                "<Duplicated>"
+            ],
+            "type": null,
+            "desugared": false,
+            "constantPropagated": false,
+            "pos": "<Duplicated>",
+            "cloneAttempt": 0
+        }
+    ],
+    "imports": [
+        "<Duplicated>"
+    ],
+    "xmlnsList": [],
+    "globalEndpoints": [],
+    "constants": [],
+    "globalVars": [],
+    "services": [],
+    "functions": [
+        "<Duplicated>",
+        "<Duplicated>"
+    ],
+    "typeDefinitions": [],
+    "annotations": [],
+    "initFunction": null,
+    "startFunction": null,
+    "stopFunction": null,
+    "completedPhases": [
+        "<Duplicated>"
+    ],
+    "objAttachedFunctions": [],
+    "topLevelNodes": [
+        "<Duplicated>",
+        "<Duplicated>"
+    ],
+    "testablePkgs": [],
+    "lambdaFunctions": [],
+    "packageID": "<Duplicated>",
+    "symbol": "<Duplicated>",
+    "flagSet": [],
+    "jarBinaryContent": [],
+    "diagCollector": "<Duplicated>",
+    "repos": "<Duplicated>",
+    "type": null,
+    "desugared": false,
+    "constantPropagated": false,
+    "pos": "<Duplicated>",
+    "cloneAttempt": 0
+}

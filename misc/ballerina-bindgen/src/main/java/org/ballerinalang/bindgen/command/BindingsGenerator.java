@@ -19,6 +19,11 @@ package org.ballerinalang.bindgen.command;
 
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.bindgen.model.JClass;
+import org.ballerinalang.bindgen.model.JError;
+import org.ballerinalang.bindgen.utils.BindgenMvnResolver;
+import org.ballerinalang.toml.model.Library;
+import org.ballerinalang.toml.model.Manifest;
+import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -40,6 +45,8 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_FILE_NA
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.DEFAULT_TEMPLATE_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.DEPENDENCIES_DIR;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.ERROR_TEMPLATE_NAME;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.ERROR_TYPES_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JOBJECT_FILE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JOBJECT_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
@@ -60,22 +67,42 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.writeOutputFile;
 public class BindingsGenerator {
 
     private Path modulePath;
+    private Path projectRoot;
     private Path dependenciesPath;
     private Path utilsDirPath;
-    private String outputPath;
-    private Set<String> classPaths = new HashSet<>();
+    private String mvnGroupId;
+    private String mvnArtifactId;
+    private String mvnVersion;
+    private PrintStream errStream;
+    private PrintStream outStream;
     private Set<String> classNames = new HashSet<>();
+
+    private static String outputPath;
     private static boolean directJavaClass = true;
-    private static final PrintStream errStream = System.err;
-    private static final PrintStream outStream = System.out;
+    private static Set<String> classPaths = new HashSet<>();
     private static Path userDir = Paths.get(System.getProperty(USER_DIR));
 
     private static Set<String> allClasses = new HashSet<>();
     private static Set<String> classListForLooping = new HashSet<>();
     private static Set<String> allJavaClasses = new HashSet<>();
+    private static Set<JError> exceptionList = new HashSet<>();
     private static Map<String, String> failedClassGens = new HashMap<>();
 
+    BindingsGenerator(PrintStream out, PrintStream err) {
+        this.outStream = out;
+        this.errStream = err;
+    }
+
     void generateJavaBindings() throws BindgenException {
+        // Resolve existing platform.libraries specified in the Ballerina.toml
+        resolvePlatformLibraries();
+
+        // Resolve the maven dependency received through the tool and update the Ballerina.toml file
+        // with the direct and transitive platform.libraries
+        if ((mvnGroupId != null) && (mvnArtifactId != null) && (mvnVersion != null)) {
+            new BindgenMvnResolver(outStream).mavenResolver(mvnGroupId, mvnArtifactId, mvnVersion, projectRoot, true);
+        }
+
         ClassLoader classLoader = setClassLoader();
         if (classLoader != null) {
             setDirectoryPaths();
@@ -109,13 +136,32 @@ public class BindingsGenerator {
         }
     }
 
+    private void resolvePlatformLibraries() throws BindgenException {
+        if (projectRoot != null) {
+            Manifest manifest = TomlParserUtils.getManifest(projectRoot);
+            if (manifest != null) {
+                List<Library> platformLibraries = manifest.getPlatform().getLibraries();
+                if (platformLibraries != null) {
+                    for (Library library : platformLibraries) {
+                        if (library.path != null) {
+                            classPaths.add(Paths.get(projectRoot.toString(), library.path).toString());
+                        } else if (library.groupId != null && library.artifactId != null && library.version != null) {
+                            new BindgenMvnResolver(outStream).mavenResolver(library.groupId, library.artifactId,
+                                    library.version, projectRoot, false);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private ClassLoader setClassLoader() throws BindgenException {
         ClassLoader classLoader;
         try {
-            if (!this.classPaths.isEmpty()) {
-                classLoader = getClassLoader(this.classPaths, this.getClass().getClassLoader());
+            if (!classPaths.isEmpty()) {
+                classLoader = getClassLoader(classPaths, this.getClass().getClassLoader());
             } else {
-                outStream.println("No classpaths were detected.");
+                outStream.println("\nNo classpaths were detected.");
                 classLoader = this.getClass().getClassLoader();
             }
         } catch (BindgenException e) {
@@ -124,9 +170,12 @@ public class BindingsGenerator {
         return classLoader;
     }
 
-    private void setDirectoryPaths() {
+    private void setDirectoryPaths() throws BindgenException {
         String userPath = userDir.toString();
         if (outputPath != null) {
+            if (!Paths.get(outputPath).toFile().exists()) {
+                throw new BindgenException("Output path provided [" + outputPath + "] could not be found.");
+            }
             userPath = outputPath;
         }
         modulePath = Paths.get(userPath, BALLERINA_BINDINGS_DIR, BINDINGS_DIR);
@@ -134,7 +183,7 @@ public class BindingsGenerator {
         utilsDirPath = Paths.get(userPath, BALLERINA_BINDINGS_DIR, UTILS_DIR);
     }
 
-    private void handleFailedClassGens() throws BindgenException {
+    private void handleFailedClassGens() {
         errStream.print("\n");
         for (Map.Entry<String, String> entry : failedClassGens.entrySet()) {
             if (classNames.contains(entry.getKey())) {
@@ -145,15 +194,17 @@ public class BindingsGenerator {
     }
 
     private void generateUtilFiles() throws BindgenException {
-        createDirectory(utilsDirPath.toString());
+        String utilsDirStrPath = utilsDirPath.toString();
+        createDirectory(utilsDirStrPath);
+        createDirectory(Paths.get(utilsDirStrPath, ERROR_TYPES_DIR).toString());
 
         // Create the JObject.bal file.
         writeOutputFile(null, DEFAULT_TEMPLATE_DIR, JOBJECT_TEMPLATE_NAME,
-                Paths.get(utilsDirPath.toString(), JOBJECT_FILE_NAME).toString(), false);
+                Paths.get(utilsDirStrPath, JOBJECT_FILE_NAME).toString(), false);
 
         // Create the ArrayUtils.bal file.
         writeOutputFile(null, DEFAULT_TEMPLATE_DIR, ARRAY_UTILS_TEMPLATE_NAME,
-                Paths.get(utilsDirPath.toString(), ARRAY_UTILS_FILE_NAME).toString(), false);
+                Paths.get(utilsDirStrPath, ARRAY_UTILS_FILE_NAME).toString(), false);
 
         // Create the Constants.bal file.
         Path constantsPath = Paths.get(utilsDirPath.toString(), CONSTANTS_FILE_NAME);
@@ -165,14 +216,21 @@ public class BindingsGenerator {
         if (!names.isEmpty()) {
             writeOutputFile(names, DEFAULT_TEMPLATE_DIR, CONSTANTS_TEMPLATE_NAME, constantsPath.toString(), true);
         }
+
+        // Create the .bal files for Ballerina error types.
+        for (JError jError : exceptionList) {
+            String fileName = jError.getShortExceptionName() + BAL_EXTENSION;
+            writeOutputFile(jError, DEFAULT_TEMPLATE_DIR, ERROR_TEMPLATE_NAME,
+                    Paths.get(utilsDirStrPath, ERROR_TYPES_DIR, fileName).toString(), false);
+        }
     }
 
-    void setOutputPath(String outputPath) {
-        this.outputPath = outputPath;
+    static void setOutputPath(String output) {
+        outputPath = output;
     }
 
     void setDependentJars(String[] jarPaths) {
-        Collections.addAll(this.classPaths, jarPaths);
+        Collections.addAll(classPaths, jarPaths);
     }
 
     void setClassNames(List<String> classNames) {
@@ -221,5 +279,33 @@ public class BindingsGenerator {
 
     public static void setAllClasses(String allClasses) {
         BindingsGenerator.allClasses.add(allClasses);
+    }
+
+    public static void setExceptionList(JError exception) {
+        BindingsGenerator.exceptionList.add(exception);
+    }
+
+    void setProjectRoot(Path projectRoot) {
+        this.projectRoot = projectRoot;
+    }
+
+    void setMvnGroupId(String mvnGroupId) {
+        this.mvnGroupId = mvnGroupId;
+    }
+
+    void setMvnArtifactId(String mvnArtifactId) {
+        this.mvnArtifactId = mvnArtifactId;
+    }
+
+    void setMvnVersion(String mvnVersion) {
+        this.mvnVersion = mvnVersion;
+    }
+
+    public static void setClassPaths(String classPath) {
+        BindingsGenerator.classPaths.add(classPath);
+    }
+
+    public static String getOutputPath() {
+        return outputPath;
     }
 }

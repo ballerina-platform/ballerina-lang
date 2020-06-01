@@ -29,6 +29,8 @@
     <div class="content-wrapper pusher">
         {{> mobMenu }}
         <div class="main-wrapper module-wrapper">
+            <div id="search-impl"></div>
+            <div id="main">
                 <h1>
                     {{> breadcrumb }}
                     {{#if project.isSingleFile}}
@@ -58,7 +60,7 @@
                                 {{#if isDeprecated}}
                                     <span class="stab">Deprecated</span>
                                 {{/if}}
-                                {{#if isAnonymous}}Anonymous record{{else}}{{{ description }}}{{/if}}
+                                {{#if isAnonymous}}Anonymous record{{else}}{{{ editDescription description }}}{{/if}}
                             </td>
                         </tr>
                     {{/each}}
@@ -84,7 +86,7 @@
                                 {{#if isDeprecated}}
                                     <span class="stab">Deprecated</span>
                                 {{/if}}
-                                {{{ description }}}
+                                {{{ editDescription description }}}
                             </td>
                         </tr>
                     {{/each}}
@@ -110,7 +112,7 @@
                                 {{#if isDeprecated}}
                                     <span class="stab">Deprecated</span>
                                 {{/if}}
-                                {{{ description }}}
+                                {{{ editDescription description }}}
                             </td>
                         </tr>
                     {{/each}}
@@ -136,7 +138,7 @@
                                 {{#if isDeprecated}}
                                     <span class="stab">Deprecated</span>
                                 {{/if}}
-                                {{{ description }}}
+                                {{{ editDescription description }}}
                             </td>
                         </tr>
                     {{/each}}
@@ -163,7 +165,7 @@
                                 {{#if isDeprecated}}
                                     <span class="stab">Deprecated</span>
                                 {{/if}}
-                                {{{ description }}}
+                                {{{ editDescription description }}}
                             </td>
                         </tr>
                     {{/each}}
@@ -190,7 +192,7 @@
                                 {{#if isDeprecated}}
                                     <span class="stab">Deprecated</span>
                                 {{/if}}
-                                {{{ description }}}
+                                {{{ editDescription description }}}
                             </td>
                         </tr>
                     {{/each}}
@@ -218,7 +220,7 @@
                                 {{#if isDeprecated}}
                                     <span class="stab">Deprecated</span>
                                 {{/if}}
-                                {{{ description }}}
+                                {{{ editDescription description }}}
                             </td>
                         </tr>
                     {{/each}}
@@ -244,7 +246,7 @@
                                 {{#if isDeprecated}}
                                     <span class="stab">Deprecated</span>
                                 {{/if}}
-                                {{{ description }}}
+                                {{{ editDescription description }}}
                             </td>
                         </tr>
                     {{/each}}
@@ -270,13 +272,14 @@
                                 {{#if isDeprecated}}
                                     <span class="stab">Deprecated</span>
                                 {{/if}}
-                                {{{ description }}}
+                                {{{ editDescription description }}}
                             </td>
                         </tr>
                     {{/each}}
                 </table>
             </section>
             {{/if}}
+        </div>
         </div>
     </div>
 

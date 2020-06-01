@@ -675,15 +675,15 @@ class JMethodResolver {
 
         if (kind == JMethodKind.CONSTRUCTOR) {
             return new JInteropException(OVERLOADED_METHODS,
-                                         "Overloaded constructors with '" + paramCount + "' parameter(s) in class '" +
+                    "Overloaded constructors with '" + paramCount + "' parameter(s) in class '" +
                             declaringClass + "', please specify class names for each parameter " +
                             "in 'paramTypes' field in the annotation");
         } else {
             return new JInteropException(OVERLOADED_METHODS,
-                                         "Overloaded methods '" + methodName + "' with '" + paramCount +
-                                         "' parameter(s) in class '" + declaringClass +
-                                         "', please specify class names for each parameter " +
-                                         "with 'paramTypes' field in the annotation");
+                    "Overloaded methods '" + methodName + "' with '" + paramCount +
+                            "' parameter(s) in class '" + declaringClass +
+                            "', please specify class names for each parameter " +
+                            "with 'paramTypes' field in the annotation");
         }
     }
 
@@ -695,13 +695,13 @@ class JMethodResolver {
         String paramTypesSig = getParamTypesAsString(constraints);
         if (kind == JMethodKind.CONSTRUCTOR) {
             return new JInteropException(OVERLOADED_METHODS,
-                                         "More than one public constructors that match with the parameter types '" +
-                                         paramTypesSig + "' found in class '" + declaringClass + "'");
+                    "More than one public constructors that match with the parameter types '" +
+                            paramTypesSig + "' found in class '" + declaringClass + "'");
         } else {
             return new JInteropException(OVERLOADED_METHODS,
-                                         "More than one public methods '" + methodName +
-                                         "' that match with the parameter types '" + paramTypesSig +
-                                         "' found in class '" + declaringClass + "'");
+                    "More than one public methods '" + methodName +
+                            "' that match with the parameter types '" + paramTypesSig +
+                            "' found in class '" + declaringClass + "'");
         }
     }
 
@@ -716,6 +716,7 @@ class JMethodResolver {
 
     private JInteropException getNoSuchMethodError(String methodName, Class<?> jType, BType bType,
                                                    Class<?> declaringClass) {
+
         return new JInteropException(DiagnosticCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
                 "Incompatible param type for method '" + methodName + "' in class '" + declaringClass.getName() +
                         "': Java type '" + jType.getName() + "' will not be matched to ballerina type '" +
@@ -723,6 +724,7 @@ class JMethodResolver {
     }
 
     private JInteropException getParamCountMismatchError(JMethodRequest jMethodRequest) {
+
         return new JInteropException(DiagnosticCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
                 "Parameter count does not match with Java method '" + jMethodRequest.methodName + "' found in class '" +
                         jMethodRequest.declaringClass.getName() + "'");

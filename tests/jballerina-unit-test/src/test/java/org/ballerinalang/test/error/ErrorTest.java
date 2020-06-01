@@ -22,7 +22,6 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BAssertUtil;
@@ -148,7 +147,7 @@ public class ErrorTest {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "testCustomErrorDetails");
         Assert.assertEquals(returns[0].stringValue(), "trxErr {message:\"\", data:\"test\"}");
         Assert.assertEquals(((BError) returns[0]).getDetails().getType().getTag(), TypeTags.RECORD_TYPE_TAG);
-        Assert.assertEquals(((BError) returns[0]).getDetails().getType().getName(), "TrxErrorData");
+        Assert.assertEquals(((BError) returns[0]).getDetails().getType().getName(), "TrxErrorData & readonly");
     }
 
     @Test
@@ -167,7 +166,7 @@ public class ErrorTest {
     public void testGetCallStack() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "getCallStackTest");
         Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", " +
-                                                      "moduleName:\"ballerina.runtime.errors\"," +
+                                                      "moduleName:\"ballerina.runtime.0_5_0.errors\"," +
                                                       " fileName:\"errors.bal\", lineNumber:38}");
     }
 
@@ -274,6 +273,7 @@ public class ErrorTest {
                 "incompatible types: expected 'error<string, " +
                         "record {| string message?; error cause?; int i; anydata...; |}>', found 'int'", 122, 73);
     }
+
     @DataProvider(name = "userDefTypeAsReasonTests")
     public Object[][] userDefTypeAsReasonTests() {
         return new Object[][] {
@@ -302,9 +302,9 @@ public class ErrorTest {
     @Test()
     public void indirectErrorCtorTest() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "indirectErrorCtor");
-        Assert.assertEquals(((BString) returns[0]).stringValue(), "foo");
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true);
-        Assert.assertEquals(((BError) returns[2]).stringValue(), "foo {code:3456}");
+        Assert.assertEquals(returns[0].stringValue(), "foo");
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertEquals(returns[2].stringValue(), "foo {code:3456}");
     }
 
     @Test()
@@ -316,13 +316,13 @@ public class ErrorTest {
     @Test()
     public void testOptionalErrorReturn() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "testOptionalErrorReturn");
-        Assert.assertEquals(((BError) returns[0]).stringValue(), "this is broken {message:\"too bad\"}");
+        Assert.assertEquals(returns[0].stringValue(), "this is broken {message:\"too bad\"}");
     }
 
     @Test()
     public void testIndirectErrorReturn() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "testIndirectErrorReturn");
-        Assert.assertEquals(((BError) returns[0]).stringValue(), "Foo {message:\"error msg\"}");
+        Assert.assertEquals(returns[0].stringValue(), "Foo {message:\"error msg\"}");
     }
 
     @Test
@@ -335,10 +335,10 @@ public class ErrorTest {
         }
 
         Assert.assertNotNull(expectedException);
-        String message = ((BLangRuntimeException) expectedException).getMessage();
+        String message = expectedException.getMessage();
         Assert.assertEquals(message,
                 "error: array index out of range: index: 4, size: 2 \n\t" +
-                        "at ballerina.lang_array:slice(array.bal:106)\n\t" +
+                        "at ballerina.lang_array.1_1_0:slice(array.bal:106)\n\t" +
                         "   error_test:testStackTraceInNative(error_test.bal:279)");
     }
 

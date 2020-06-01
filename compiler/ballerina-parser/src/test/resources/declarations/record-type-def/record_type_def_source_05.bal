@@ -1,0 +1,2 @@
+type Student record {
+}

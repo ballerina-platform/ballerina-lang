@@ -17,7 +17,9 @@
  */
 package org.ballerinalang.test.record;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -44,41 +46,41 @@ public class RecordValueTest {
     public void testRecordOperations_1() {
         Object result = BRunUtil.invokeAndGetJVMResult(compileResult, "getDefaultPerson");
         Assert.assertTrue(result instanceof MapValue);
-        MapValue<String, Object> person = (MapValue<String, Object>) result;
+        MapValue<BString, Object> person = (MapValue<BString, Object>) result;
 
         // test contains key, for required field
-        Assert.assertTrue(person.containsKey("name"));
+        Assert.assertTrue(person.containsKey(StringUtils.fromString("name")));
 
         // get existing field
-        Assert.assertEquals(person.get("name").toString(), "John");
+        Assert.assertEquals(person.get(StringUtils.fromString("name")).toString(), "John");
 
         // test contains key, for non-existing optional field
-        Assert.assertFalse(person.containsKey("spouse"));
+        Assert.assertFalse(person.containsKey(StringUtils.fromString("spouse")));
 
         // get optional field that is not set
-        Assert.assertNull(person.get("spouse"));
+        Assert.assertNull(person.get(StringUtils.fromString("spouse")));
 
         // set rest field
-        Assert.assertNull(person.put("last-name", "Doe"));
-        Assert.assertEquals(person.get("last-name"), "Doe");
+        Assert.assertNull(person.put(StringUtils.fromString("last-name"), StringUtils.fromString("Doe")));
+        Assert.assertEquals(person.get(StringUtils.fromString("last-name")), StringUtils.fromString("Doe"));
 
         // test contains key, for non-existing rest field
-        Assert.assertFalse(person.containsKey("first-name"));
+        Assert.assertFalse(person.containsKey(StringUtils.fromString("first-name")));
 
         // test contains key, for existing rest field
-        Assert.assertTrue(person.containsKey("last-name"));
+        Assert.assertTrue(person.containsKey(StringUtils.fromString("last-name")));
 
         // test entry set
         StringJoiner sj = new StringJoiner(", ", "[", "]");
-        for (Map.Entry<String, Object> entry : person.entrySet()) {
+        for (Map.Entry<BString, Object> entry : person.entrySet()) {
             sj.add("{" + entry.getKey() + ":" + entry.getValue() + "}");
         }
         Assert.assertEquals(sj.toString(), "[{name:John}, {age:30}, {last-name:Doe}]");
 
         // test key set
         sj = new StringJoiner(", ", "[", "]");
-        for (String key : person.getKeys()) {
-            sj.add(key);
+        for (BString key : person.getKeys()) {
+            sj.add(key.getValue());
         }
         Assert.assertEquals(sj.toString(), "[name, age, last-name]");
 
@@ -94,11 +96,11 @@ public class RecordValueTest {
         Assert.assertEquals(person.stringValue(), "name=John age=30 last-name=Doe");
 
         // set optional field
-        person.put("spouse", "Jane");
-        Assert.assertEquals(person.get("spouse"), "Jane");
+        person.put(StringUtils.fromString("spouse"), StringUtils.fromString("Jane"));
+        Assert.assertEquals(person.get(StringUtils.fromString("spouse")).toString(), "Jane");
 
         // test contains key, for existing optional field
-        Assert.assertTrue(person.containsKey("spouse"));
+        Assert.assertTrue(person.containsKey(StringUtils.fromString("spouse")));
 
     }
 
@@ -106,34 +108,34 @@ public class RecordValueTest {
     public void testRecordOperations_2() {
         Object result = BRunUtil.invokeAndGetJVMResult(compileResult, "getNewPerson");
         Assert.assertTrue(result instanceof MapValue);
-        MapValue<String, Object> person = (MapValue<String, Object>) result;
+        MapValue<BString, Object> person = (MapValue<BString, Object>) result;
 
         // test contains key, for required field
-        Assert.assertTrue(person.containsKey("name"));
+        Assert.assertTrue(person.containsKey(StringUtils.fromString("name")));
 
         // get existing field
-        Assert.assertEquals(person.get("name").toString(), "Jane");
+        Assert.assertEquals(person.get(StringUtils.fromString("name")).toString(), "Jane");
 
         // test contains key, for non-existing optional field
-        Assert.assertTrue(person.containsKey("spouse"));
+        Assert.assertTrue(person.containsKey(StringUtils.fromString("spouse")));
 
         // get optional field that is already set
-        Assert.assertEquals(person.get("spouse"), "John");
+        Assert.assertEquals(person.get(StringUtils.fromString("spouse")).toString(), "John");
 
         // get optional rest field that is already set
-        Assert.assertEquals(person.get("gender"), "female");
+        Assert.assertEquals(person.get(StringUtils.fromString("gender")).toString(), "female");
 
         // test entry set
         StringJoiner sj = new StringJoiner(", ", "[", "]");
-        for (Map.Entry<String, Object> entry : person.entrySet()) {
+        for (Map.Entry<BString, Object> entry : person.entrySet()) {
             sj.add("{" + entry.getKey() + ":" + entry.getValue() + "}");
         }
         Assert.assertEquals(sj.toString(), "[{name:Jane}, {age:25}, {spouse:John}, {gender:female}]");
 
         // test key set
         sj = new StringJoiner(", ", "[", "]");
-        for (String key : person.getKeys()) {
-            sj.add(key);
+        for (BString key : person.getKeys()) {
+            sj.add(key.getValue());
         }
         Assert.assertEquals(sj.toString(), "[name, age, spouse, gender]");
 
@@ -150,12 +152,12 @@ public class RecordValueTest {
         Assert.assertEquals(person.stringValue(), "name=Jane age=25 spouse=John gender=female");
     }
 
-    @Test(expectedExceptions = { UnsupportedOperationException.class })
+    @Test(expectedExceptions = {UnsupportedOperationException.class})
     public void testRecordRemove() {
         Object result = BRunUtil.invokeAndGetJVMResult(compileResult, "getDefaultPerson");
         Assert.assertTrue(result instanceof MapValue);
-        MapValue<String, Object> person = (MapValue<String, Object>) result;
-        person.remove("name");
+        MapValue<BString, Object> person = (MapValue<BString, Object>) result;
+        person.remove(StringUtils.fromString("name"));
     }
 
     @Test(expectedExceptions = { UnsupportedOperationException.class })

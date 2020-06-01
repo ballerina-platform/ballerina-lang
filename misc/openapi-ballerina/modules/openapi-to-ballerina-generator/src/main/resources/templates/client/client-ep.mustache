@@ -27,9 +27,9 @@ public type {{cut info.title " "}}Client client object {
 
         // TODO: Update the request as needed
     {{#equals . "GET"}}return check ep->{{lower .}}("{{../../../key}}", message = request);{{else}}{{#equals . "HEAD"}}
-        return check ep->{{lower .}}("{{../../../key}}", message = request);{{else}}{{#equals . "OPTIONS"}}
-        return check ep->{{lower .}}("{{../../../key}}", message = request);{{/equals}}{{/equals}}
-        return check ep->{{lower .}}("{{../../../key}}", request);{{/equals}}
+        return check ep->{{lower .}}({{../../../key}}, message = request);{{else}}{{#equals . "OPTIONS"}}
+        return check ep->{{lower .}}({{../../../key}}, message = request);{{/equals}}{{/equals}}
+        return check ep->{{lower .}}({{../../../key}}, request);{{/equals}}
     }
     {{/methods}}{{else}}{{#allMethods}}
     public remote function {{lower .}}{{{operationId}}}({{#pathParameters}}{{>pathParams}}{{#unless @last}}, {{/unless}}{{/pathParameters}}) returns http:Response | error {
@@ -37,10 +37,10 @@ public type {{cut info.title " "}}Client client object {
         http:Request request = new;
 
         // TODO: Update the request as needed{{#equals key "GET"}}
-        return check {{{operationId}}}Ep->{{lower .}}("{{../../../key}}", message = request);{{else}}{{#equals key "HEAD"}}
-        return check {{{operationId}}}Ep->{{lower .}}("{{../../../key}}", message = request);{{else}}{{#equals key "OPTIONS"}}
-        return check {{{operationId}}}Ep->{{lower .}}("{{../../../key}}", message = request);{{/equals}}{{/equals}}
-        return check {{{operationId}}}Ep->{{lower .}}("{{../../../key}}", request);{{/equals}}
+        return check {{{operationId}}}Ep->{{lower .}}({{../../../key}}, message = request);{{else}}{{#equals key "HEAD"}}
+        return check {{{operationId}}}Ep->{{lower .}}({{../../../key}}, message = request);{{else}}{{#equals key "OPTIONS"}}
+        return check {{{operationId}}}Ep->{{lower .}}({{../../../key}}, message = request);{{else}}
+        return check {{{operationId}}}Ep->{{lower .}}({{../../../key}}, request);{{/equals}}{{/equals}}{{/equals}}
     }
     {{/allMethods}}{{/if}}{{else}}
     public remote function {{{operationId}}}({{#requestBody}}{{>reqBody}}{{/requestBody}}{{#if requestBody}}{{#if pathParameters}}, {{/if}}{{/if}}{{#pathParameters}}{{>pathParams}}{{#unless @last}}, {{/unless}}{{/pathParameters}}) returns http:Response | error {
@@ -52,10 +52,10 @@ public type {{cut info.title " "}}Client client object {
         request.setPayload({{key}});{{/properties}}{{/schema}}{{/selectedMedia}}{{/requestBody}}{{/if}}{{/requestBody.selectedMedia.schema.type}}{{/equals}}{{/requestBody}}
 
         // TODO: Update the request as needed{{#equals key "GET"}}
-        return check {{{operationId}}}Ep->{{lower key}}("{{../../key}}", message = request);{{else}}{{#equals key "HEAD"}}
-        return check {{{operationId}}}Ep->{{lower key}}("{{../../key}}", message = request);{{else}}{{#equals key "OPTIONS"}}
-        return check {{{operationId}}}Ep->{{lower key}}("{{../../key}}", message = request);{{/equals}}{{/equals}}
-        return check {{{operationId}}}Ep->{{lower key}}("{{../../key}}", request);{{/equals}}
+        return check {{{operationId}}}Ep->{{lower key}}({{../../key}}, message = request);{{else}}{{#equals key "HEAD"}}
+        return check {{{operationId}}}Ep->{{lower key}}({{../../key}}, message = request);{{else}}{{#equals key "OPTIONS"}}
+        return check {{{operationId}}}Ep->{{lower key}}({{../../key}}, message = request);{{else}}
+        return check {{{operationId}}}Ep->{{lower key}}({{../../key}}, request);{{/equals}}{{/equals}}{{/equals}}
     }
     {{/equals}}{{/value}}{{/operations}}{{/value}}{{/paths}}
 };

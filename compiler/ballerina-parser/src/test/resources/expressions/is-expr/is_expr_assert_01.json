@@ -1,0 +1,15 @@
+{
+  "kind": "TYPE_TEST_EXPRESSION",
+  "children": [
+    {
+      "kind": "DECIMAL_INTEGER_LITERAL",
+      "value": "3"
+    },
+    {
+      "kind": "IS_KEYWORD"
+    },
+    {
+      "kind": "INT_KEYWORD"
+    }
+  ]
+}

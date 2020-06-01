@@ -1,0 +1,12 @@
+{
+  "kind": "CONTINUE_STATEMENT",
+  "children": [
+    {
+      "kind": "CONTINUE_KEYWORD"
+    },
+    {
+      "kind": "SEMICOLON_TOKEN",
+      "isMissing": true
+    }
+  ]
+}

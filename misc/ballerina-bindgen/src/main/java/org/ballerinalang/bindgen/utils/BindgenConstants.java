@@ -35,6 +35,7 @@ public class BindgenConstants {
     public static final String BBGEN_CLASS_TEMPLATE_NAME = "bridge_class";
     public static final String ARRAY_UTILS_TEMPLATE_NAME = "array_utils";
     public static final String CONSTANTS_TEMPLATE_NAME = "constants";
+    public static final String ERROR_TEMPLATE_NAME = "exception";
     public static final String JOBJECT_TEMPLATE_NAME = "jobject";
     public static final String COMPONENT_IDENTIFIER = "bindgen";
     public static final String CONSTRUCTOR_INTEROP_TYPE = "@java:Constructor";
@@ -48,8 +49,13 @@ public class BindgenConstants {
     public static final String CONSTANTS_FILE_NAME = "Constants.bal";
     public static final String ARRAY_UTILS_FILE_NAME = "ArrayUtils.bal";
     public static final String DEPENDENCIES_DIR = "dependencies";
+    public static final String ERROR_TYPES_DIR = "error_types";
+    static final String TARGET_DIR = "target";
+    static final String MVN_REPO = "platform-libs";
+    static final String FILE_SEPARATOR = "file.separator";
     static final String MUSTACHE_FILE_EXTENSION = ".mustache";
     static final String TEMPLATES_DIR_PATH_KEY = "templates.dir.path";
+    static final String BALLERINA_TOML = "Ballerina.toml";
     static final String FLOAT = "float";
     static final String INT = "int";
     static final String BOOLEAN = "boolean";
@@ -62,8 +68,8 @@ public class BindgenConstants {
     static final String CHAR = "char";
     static final String DOUBLE = "double";
     static final String LONG = "long";
-    static final String JAVA_STRING = "String";
-    static final String JAVA_STRING_ARRAY = "String[]";
+    public static final String JAVA_STRING = "String";
+    public static final String JAVA_STRING_ARRAY = "String[]";
     static final String HANDLE = "handle";
     public static final String BALLERINA_STRING = "string";
     public static final String BALLERINA_STRING_ARRAY = "string[]";
@@ -76,5 +82,5 @@ public class BindgenConstants {
             "catch", "finally", "throw", "panic", "trap", "return", "transaction", "abort", "retry", "onretry",
             "retries", "committed", "aborted", "with", "in", "lock", "untaint", "start", "but", "check", "checkpanic",
             "primarykey", "is", "flush", "wait", "default", "from", "select", "where", "limit", "order", "field",
-            "let", "Deprecated"};
+            "let", "Deprecated", "equals", "enum", "readonly", "outer", "conflict", "key"};
 }

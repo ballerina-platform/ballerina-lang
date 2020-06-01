@@ -67,18 +67,13 @@ public class GeneratorConstants {
 
     public static final String UNTITLED_SERVICE = "UntitledAPI";
     public static final List<String> RESERVED_KEYWORDS = Collections.unmodifiableList(
-            Arrays.asList("package", "import", "as", "public", "private", "extern", "service", "resource", "function",
-                    "object", "record", "annotation", "parameter", "transformer", "worker", "endpoint", "bind", "xmlns",
-                    "returns", "version", "deprecated", "channel", "from", "on", "select", "group", "by", "having",
-                    "order", "where", "followed", "insert", "into", "update", "delete", "set", "for", "window", "query",
-                    "expired", "current", "every", "events", "every", "within", "last", "first", "snapshot", "inner",
-                    "output", "outer", "right", "left", "full", "unidirectional", "reduce", "second", "minute", "hour",
-                    "day", "month", "year", "seconds", "minutes", "hours", "days", "months", "years", "forever",
-                    "limit", "acending", "descending", "int", "byte", "float", "boolean", "string", "map", "json",
-                    "xml", "table", "stream", "any", "typedesc", "type", "future", "var", "new", "if", "match", "else",
-                    "foreach", "while", "continue", "break", "fork", "join", "some", "all", "timeout", "try", "catch",
-                    "finally", "throw", "return", "transaction", "abort", "retry", "onretry", "retries", "onabort",
-                    "oncommit", "lengthof", "with", "in", "lock", "untaint", "start", "wait", "but", "check", "done",
-                    "scope", "compensation", "primarykey"));
-
+            Arrays.asList("abort", "aborted", "abstract", "all", "annotation",
+                "any", "anydata", "boolean", "break", "byte", "catch", "channel", "check", "checkpanic", "client",
+                "committed", "const", "continue", "decimal", "else", "error", "external", "fail", "final", "finally",
+                "float", "flush", "fork", "function", "future", "handle", "if", "import", "in", "int", "is", "join",
+                "json", "listener", "lock", "match", "new", "object", "OBJECT_INIT", "onretry", "parameter", "panic",
+                "private", "public", "record", "remote", "resource", "retries", "retry", "return", "returns", "service",
+                "source", "start", "stream", "string", "table", "transaction", "try", "type", "typedesc", "typeof",
+                "trap", "throw", "wait", "while", "with", "worker", "var", "version", "xml", "xmlns", "BOOLEAN_LITERAL",
+                "NULL_LITERAL", "ascending", "descending", "foreach", "map", "group", "from", "default", "field"));
 }

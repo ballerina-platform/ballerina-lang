@@ -26,24 +26,22 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.INT_VERSION;
+
 /**
  * Native implementation of lang.int:toHexString(int).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.int", functionName = "toHexString",
+        orgName = "ballerina", packageName = "lang.int", version = INT_VERSION, functionName = "toHexString",
         args = {@Argument(name = "n", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
 public class ToHexString {
 
-    public static String toHexString(Strand strand, long n) {
-        return Long.toHexString(n);
-    }
-
-    public static BString toHexString_bstring(Strand strand, long n) {
-        return StringUtils.fromString(toHexString(strand, n));
+    public static BString toHexString(Strand strand, long n) {
+        return StringUtils.fromString(Long.toHexString(n));
     }
 }

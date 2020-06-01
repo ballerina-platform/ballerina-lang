@@ -22,9 +22,8 @@ import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.BallerinaXMLSerializer;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
-import org.ballerinalang.jvm.values.freeze.FreezeUtils;
-import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -56,12 +55,12 @@ public abstract class XMLNonElementItem extends XMLValue {
     }
 
     @Override
-    public String getAttribute(String localName, String namespace) {
+    public BString getAttribute(String localName, String namespace) {
         return null;
     }
 
     @Override
-    public String getAttribute(String localName, String namespace, String prefix) {
+    public BString getAttribute(String localName, String namespace, String prefix) {
         return null;
     }
 
@@ -71,12 +70,12 @@ public abstract class XMLNonElementItem extends XMLValue {
     }
 
     @Override
-    public MapValue<String, String> getAttributesMap() {
+    public MapValue<BString, BString> getAttributesMap() {
         return null;
     }
 
     @Override
-    public void setAttributes(BMap<String, ?> attributes) {
+    public void setAttributes(BMap<BString, ?> attributes) {
 
     }
 
@@ -196,23 +195,18 @@ public abstract class XMLNonElementItem extends XMLValue {
     }
 
     @Override
-    public void attemptFreeze(Status freezeStatus) {
-        if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
-            this.freezeStatus = freezeStatus;
-        }
-    }
-
-    @Override
     public void freezeDirect() {
-        this.freezeStatus.setFrozen();
-    }
-
-    @Override
-    public Object freeze() {
-        freezeDirect();
-        return this;
+        this.type = ReadOnlyUtils.setImmutableType(this.type);
     }
 
     @Override
     public abstract boolean equals(Object obj);
+
+    @Override
+    protected void setAttributesOnInitialization(BMap<BString, ?> attributes) {
+    }
+
+    @Override
+    protected void setAttributeOnInitialization(String localName, String namespace, String prefix, String value) {
+    }
 }

@@ -44,6 +44,7 @@ import java.util.Collections;
 
 import static org.ballerinalang.jvm.BallerinaErrors.CALL_STACK_ELEMENT;
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_LANG_ERROR_PKG_ID;
+import static org.ballerinalang.util.BLangCompilerConstants.ERROR_VERSION;
 
 /**
  * Get the stackTrace of an error value.
@@ -51,7 +52,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_LANG_ERROR_PKG
  * @since 0.990.4
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.error",
+        orgName = "ballerina", packageName = "lang.error", version = ERROR_VERSION,
         functionName = "stackTrace",
         args = {@Argument(name = "value", type = TypeKind.ERROR)},
         returnType = {@ReturnType(type = TypeKind.OBJECT)})
@@ -66,12 +67,8 @@ public class StackTrace {
 
         CallStack callStack = new CallStack(callStackObjType);
         callStack.callStack = getCallStackArray(value.getStackTrace());
-        callStack.freeze();
+        callStack.callStack.freezeDirect();
         return callStack;
-    }
-
-    public static ObjectValue stackTrace_bstring(Strand strand, ErrorValue value) {
-        return stackTrace(strand, value);
     }
 
     private static ArrayValue getCallStackArray(StackTraceElement[] stackTrace) {
@@ -83,7 +80,7 @@ public class StackTrace {
         return new ArrayValueImpl(array, new BArrayType(recordType));
     }
 
-    static MapValue<String, Object> getStackFrame(StackTraceElement stackTraceElement) {
+    static MapValue<BString, Object> getStackFrame(StackTraceElement stackTraceElement) {
         Object[] values = new Object[4];
         values[0] = stackTraceElement.getMethodName();
         values[1] = stackTraceElement.getClassName();
@@ -114,31 +111,16 @@ public class StackTrace {
         }
 
         @Override
-        public Object get(String fieldName) {
-            if (fieldName.equals("callStack")) {
+        public Object get(BString fieldName) {
+            if (fieldName.getValue().equals("callStack")) {
                 return callStack;
             }
             throw new BLangRuntimeException("No such field or method: callStack");
         }
 
         @Override
-        public Object get(BString fieldName) {
-            return get(fieldName.getValue());
-        }
-
-        @Override
-        public void set(String fieldName, Object value) {
-            throw new BLangRuntimeException("No such field or method: callStack");
-        }
-
-        @Override
         public void set(BString fieldName, Object value) {
             throw new BLangRuntimeException("No such field or method: callStack");
-        }
-
-        @Override
-        public boolean isFrozen() {
-            return true;
         }
     }
 }

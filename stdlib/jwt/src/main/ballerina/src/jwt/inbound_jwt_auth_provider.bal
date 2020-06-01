@@ -23,7 +23,7 @@ import ballerina/stringutils;
 # jwt:InboundJwtAuthProvider inboundJwtAuthProvider = new({
 #     issuer: "example",
 #     audience: "ballerina",
-#     trustStoreConfig: {
+#     signatureConfig: {
 #         certificateAlias: "ballerina",
 #         trustStore: {
 #             path: "/path/to/truststore.p12",

@@ -47,28 +47,28 @@ type EmployeeObject object {
 function seaWithInvalidNoOrParameters() returns json {
 
     json jsonValue = [1, false, null, "foo", { first: "John", last: "Pala" }];
-    json returnValue = json.constructFrom(jsonValue, 34);
+    json returnValue = jsonValue.cloneWithType(typedesc<json>, 34);
 
     return returnValue;
 }
 
 function stampStringValueToJson() returns json|error {
     string value = "mohan";
-    json|error jsonValue = json.constructFrom(value);
+    json|error jsonValue = value.cloneWithType(json);
 
     return jsonValue;
 }
 
 function stampStringValueToAny() returns any|error {
     string[] stringArray = ["mohan", "mike"];
-    any|error anyValue = any.constructFrom(stringArray);
+    any|error anyValue = stringArray.cloneWithType(any);
 
     return anyValue;
 }
 
 function stampAnyToString() returns string?|error {
     any value = "mohan";
-    string?|error stringValue = string.constructFrom(value);
+    string?|error stringValue = value.cloneWithType(string);
 
     return stringValue;
 }
@@ -76,7 +76,7 @@ function stampAnyToString() returns string?|error {
 function seaWithInvalidTypedesc() returns json|error {
 
     json jsonValue = [1, false, null, "foo", { first: "John", last: "Pala" }];
-    json|error returnValue = TestType.constructFrom(jsonValue);
+    json|error returnValue = jsonValue.cloneWithType(TestType);
 
     return returnValue;
 }
@@ -84,7 +84,7 @@ function seaWithInvalidTypedesc() returns json|error {
 function stampAnyArrayToObject() returns EmployeeObject|error {
 
     anydata[] anyArray = ["Mohan", "Single", "LK2014"];
-    EmployeeObject|error objectValue = EmployeeObject.constructFrom(anyArray);
+    EmployeeObject|error objectValue = anyArray.cloneWithType(EmployeeObject);
 
     return objectValue;
 }
@@ -92,7 +92,7 @@ function stampAnyArrayToObject() returns EmployeeObject|error {
 function stampAnyArrayToMap() returns map<any>|error {
 
     anydata[] anyArray = ["Mohan", "Single", "LK2014"];
-    map<any>|error mapValue = map<any>.constructFrom(anyArray);
+    map<any>|error mapValue = anyArray.cloneWithType(map<any>);
 
     return mapValue;
 }
@@ -100,7 +100,7 @@ function stampAnyArrayToMap() returns map<any>|error {
 function stampExtendedRecordToAnydata() returns anydata|error {
     Address addressObj = new Address();
     ExtendedEmployee employee = { name: "Raja", status: "single", batch: "LK2014", address:addressObj};
-    anydata|error anydataValue = anydata.constructFrom(employee);
+    anydata|error anydataValue = employee.cloneWithType(anydata);
 
     return anydataValue;
 }

@@ -263,7 +263,7 @@ public class TypeGuardTest {
         Assert.assertEquals(returns[0].stringValue(), "x is int: 5");
     }
 
-    @Test (enabled = false)
+    @Test
     public void testTypeGuardInElse_6() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeGuardInElse_6");
         Assert.assertEquals(returns.length, 1);
@@ -271,9 +271,9 @@ public class TypeGuardTest {
         Assert.assertEquals(returns[0].stringValue(), "int: 5");
     }
 
-    @Test (enabled = false)
+    @Test
     public void testTypeGuardInElse_7() {
-        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardInElse_6");
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardInElse_7");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "int: 5");
@@ -617,12 +617,12 @@ public class TypeGuardTest {
     @Test(description = "Test Typetest for TypeDefs when types are equal")
     public void testTypetestForTypedefs1() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeDescTypeTest1");
-        Assert.assertEquals(BBoolean.TRUE, (BBoolean) returns[0]);
+        Assert.assertEquals(BBoolean.TRUE, returns[0]);
     }
 
     @Test(description = "Test Typetest for TypeDefs when types are not equal")
     public void testTypetestForTypedefs2() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeDescTypeTest2");
-        Assert.assertEquals(BBoolean.TRUE, (BBoolean) returns[0]);
+        Assert.assertEquals(BBoolean.TRUE, returns[0]);
     }
 }
