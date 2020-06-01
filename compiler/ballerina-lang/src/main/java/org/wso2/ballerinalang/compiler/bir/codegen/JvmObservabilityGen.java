@@ -437,7 +437,7 @@ class JvmObservabilityGen {
                  *
                  * These panic traps are different from the traps added in rewriteObservableFunctionInvocations method,
                  * in the sense that these report the error to the Observation covering the current function this body
-                 * belongs to. Also these does not cover the observable calls and fp calls (they are handled using the
+                 * belongs to. Also these do not cover the observable calls and fp calls (they are handled using the
                  * panic terminator handling logic)
                  */
 
@@ -583,7 +583,7 @@ class JvmObservabilityGen {
                 }
                 {
                     /*
-                     * Adding panic traps for the invocations. These reports the error to the Observation covering
+                     * Adding panic traps for the invocations. These report the error to the Observation covering
                      * the invocation.
                      */
                     Optional<BIRErrorEntry> existingEE = func.errorTable.stream()
