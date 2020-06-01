@@ -18,11 +18,13 @@
 
 package org.ballerinalang.jvm.observability;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.observability.tracer.BSpan;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Collections;
@@ -181,18 +183,18 @@ public class ObserveUtils {
      * @param isMainEntryPoint True if this was a main entry point invocation
      * @param isWorker True if this was a worker start
      * @param workerName name of the worker if this was a worker function
-     * @param objectType name of the object the function was attached to
+     * @param typeDef The type definition the function was attached to
      * @param functionName name of the function being invoked
      * @param pkg The package the resource belongs to
      * @param position The source code position the resource in defined in
      */
     public static void startCallableObservation(boolean isRemote, boolean isMainEntryPoint, boolean isWorker,
-                                                BString workerName, BString objectType, BString functionName,
+                                                BString workerName, ObjectValue typeDef, BString functionName,
                                                 BString pkg, BString position) {
         if (!enabled) {
             return;
         }
-        startCallableObservation(isRemote, isMainEntryPoint, isWorker, workerName.getValue(), objectType.getValue(),
+        startCallableObservation(isRemote, isMainEntryPoint, isWorker, workerName.getValue(), typeDef,
                 functionName.getValue(), pkg.getValue(), position.getValue());
     }
 
@@ -203,14 +205,14 @@ public class ObserveUtils {
      * @param isMainEntryPoint True if this was a main entry point invocation
      * @param isWorker True if this was a worker start
      * @param workerName name of the worker if this was a worker function
-     * @param objectType name of the object the function was attached to
+     * @param typeDef The typedef the function was attached to
      * @param functionName name of the action/function being invoked
      * @param pkg The package the resource belongs to
      * @param position The source code position the resource in defined in
      */
     public static void startCallableObservation(boolean isRemote, boolean isMainEntryPoint, boolean isWorker,
-                                                String workerName, String objectType, String functionName,
-                                                String pkg, String position) {
+                                                String workerName, ObjectValue typeDef, String functionName, String pkg,
+                                                String position) {
         if (!enabled) {
             return;
         }
@@ -222,7 +224,15 @@ public class ObserveUtils {
         newObContext.setStarted();
         newObContext.setServiceName(observerCtx == null ? UNKNOWN_SERVICE : observerCtx.getServiceName());
         newObContext.setResourceName(observerCtx == null ? UNKNOWN_RESOURCE : observerCtx.getResourceName());
-        newObContext.setConnectorName(objectType);
+        if (typeDef == null) {
+            newObContext.setConnectorName(StringUtils.EMPTY);
+        } else {
+            String className = typeDef.getClass().getCanonicalName();
+            String[] classNameSplit = className.split("\\.");
+            int lastIndexOfDollar = classNameSplit[2].lastIndexOf('$');
+            newObContext.setConnectorName(classNameSplit[0] + "/" + classNameSplit[1] + "/"
+                    + classNameSplit[2].substring(lastIndexOfDollar + 1));
+        }
         newObContext.setActionName(functionName);
 
         newObContext.addMainTag(TAG_KEY_MODULE, pkg);
