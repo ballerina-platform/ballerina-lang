@@ -54,6 +54,8 @@ import io.ballerinalang.compiler.syntax.tree.StatementNode;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.syntax.tree.TreeModifier;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
+import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerinalang.compiler.text.LinePosition;
 import io.ballerinalang.compiler.text.LineRange;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -388,6 +390,36 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withArguments(arguments)
                 .withOpenParenToken(formatToken(openParenToken, 0, 0, 0, 0))
                 .withCloseParenToken(formatToken(closeParenToken, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public VariableDeclarationNode transform(VariableDeclarationNode variableDeclarationNode) {
+        Token semicolonToken = this.modifyToken(variableDeclarationNode.semicolonToken());
+        Token equalToken = this.modifyToken(variableDeclarationNode.equalsToken().orElse(null));
+        Token finalToken = this.modifyToken(variableDeclarationNode.finalKeyword().orElse(null));
+        ExpressionNode initializerNode = this.modifyNode(variableDeclarationNode.initializer().orElse(null));
+        NodeList<AnnotationNode> annotationNodes = this.modifyNodeList(variableDeclarationNode.annotations());
+        TypedBindingPatternNode typedBindingPatternNode = this.modifyNode(
+                variableDeclarationNode.typedBindingPattern());
+
+        if (equalToken != null) {
+            variableDeclarationNode = variableDeclarationNode.modify().withEqualsToken(
+                    formatToken(equalToken, 1, 1, 0, 0)).apply();
+        }
+        if (finalToken != null) {
+            variableDeclarationNode = variableDeclarationNode.modify().withFinalKeyword(
+                    formatToken(finalToken, 0, 0, 0, 0)).apply();
+        }
+        if (initializerNode != null) {
+            variableDeclarationNode = variableDeclarationNode.modify().withInitializer(this.modifyNode(initializerNode))
+                    .apply();
+        }
+
+        return variableDeclarationNode.modify()
+                .withAnnotations(annotationNodes)
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
+                .withTypedBindingPattern(typedBindingPatternNode)
                 .apply();
     }
 
