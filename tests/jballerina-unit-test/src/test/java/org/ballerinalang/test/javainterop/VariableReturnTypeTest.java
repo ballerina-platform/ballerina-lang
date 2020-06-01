@@ -72,6 +72,11 @@ public class VariableReturnTypeTest {
         validateError(errors, indx++, "invalid parameter reference: expected 'typedesc', found 'string'", 119, 45);
         validateError(errors, indx++, "use of 'typedesc' parameters as types only allowed for return types " +
                 "in external functions", 119, 45);
+        validateError(errors, indx++, "incompatible types: expected 'function (typedesc<(string|int)>) returns " +
+                "(string)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 130, 61);
+        validateError(errors, indx++, "unknown type 'td'", 131, 48);
+        validateError(errors, indx++, "incompatible types: expected 'function (typedesc<(string|int)>) returns " +
+                "(other)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 131, 57);
 
         Assert.assertEquals(errors.getErrorCount(), indx);
     }
@@ -88,6 +93,13 @@ public class VariableReturnTypeTest {
                   "to 'int'.*")
     public void testCastingForInvalidValues() {
         BRunUtil.invoke(result, "testCastingForInvalidValues");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: 'string' cannot be cast " +
+                  "to 'int'.*")
+    public void testFunctionAssignment() {
+        BRunUtil.invoke(result, "testFunctionAssignment");
     }
 
     @Test(dataProvider = "FunctionNames")

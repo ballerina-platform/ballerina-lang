@@ -184,6 +184,17 @@ function testComplexTypes() {
     assert(tab, newTab);
 }
 
+function testFunctionAssignment() {
+    function (typedesc<string|int> td) returns int|string fn = getValue2;
+    int x = <int>fn(int);
+    assert(150, x);
+
+    string s = <string>fn(string);
+    assert("Hello World!", s);
+
+    x = <int>fn(string);
+}
+
 
 // Interop functions
 function getValue(typedesc<int|float|decimal|string|boolean> td) returns td = @java:Method {
@@ -272,6 +283,11 @@ function echo(typedesc<any> td, any val) returns td = @java:Method {
     paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc", "org.ballerinalang.jvm.values.api.BValue"]
 } external;
 
+function getValue2(typedesc<int|string> aTypeVar) returns aTypeVar = @java:Method {
+    class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+    name: "getValue",
+    paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
+} external;
 
 // Util functions
 function assert(anydata expected, anydata actual) {

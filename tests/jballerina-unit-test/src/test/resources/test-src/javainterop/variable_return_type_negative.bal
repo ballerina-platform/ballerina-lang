@@ -119,3 +119,14 @@ function referToNonTypedescParam(string str) returns str = @java:Method {
 function normalFunction(string str) returns str {
     return "foo";
 }
+
+function getValue2(typedesc<int|string> aTypeVar) returns aTypeVar = @java:Method {
+    class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+    name: "getValue",
+    paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
+} external;
+
+function testInvalidFunctionAssignment() {
+    function (typedesc<string|int> td) returns string fn1 = getValue2;
+    function (typedesc<string|int> td) returns td fn2 = getValue2;
+}

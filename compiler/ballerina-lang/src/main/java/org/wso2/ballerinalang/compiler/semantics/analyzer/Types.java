@@ -69,6 +69,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ConcreteBTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -115,6 +116,7 @@ public class Types {
 
     private static final CompilerContext.Key<Types> TYPES_KEY =
             new CompilerContext.Key<>();
+    private final ConcreteBTypeBuilder typeBuilder;
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
@@ -140,7 +142,9 @@ public class Types {
         this.dlogHelper = BLangDiagnosticLogHelper.getInstance(context);
         this.names = Names.getInstance(context);
         this.expandedXMLBuiltinSubtypes = BUnionType.create(null,
-                symTable.xmlElementType, symTable.xmlCommentType, symTable.xmlPIType, symTable.xmlTextType);
+                                                            symTable.xmlElementType, symTable.xmlCommentType,
+                                                            symTable.xmlPIType, symTable.xmlTextType);
+        this.typeBuilder = new ConcreteBTypeBuilder();
     }
 
     public List<BType> checkTypes(BLangExpression node,
@@ -639,6 +643,11 @@ public class Types {
 
         if (sourceTag == TypeTags.INVOKABLE && targetTag == TypeTags.INVOKABLE) {
             return isFunctionTypeAssignable((BInvokableType) source, (BInvokableType) target, new HashSet<>());
+        }
+
+        if (sourceTag == TypeTags.PARAMETERIZED_TYPE) {
+            BType resolvedType = typeBuilder.buildType(source);
+            return isAssignable(resolvedType, target, unresolvedTypes, unresolvedReadonlyTypes);
         }
 
         return sourceTag == TypeTags.ARRAY && targetTag == TypeTags.ARRAY &&
