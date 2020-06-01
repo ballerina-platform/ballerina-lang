@@ -45,11 +45,13 @@ import io.ballerinalang.compiler.syntax.tree.ParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerinalang.compiler.syntax.tree.ServiceBodyNode;
 import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.StatementNode;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.syntax.tree.TreeModifier;
@@ -420,6 +422,25 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withAnnotations(annotationNodes)
                 .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
                 .withTypedBindingPattern(typedBindingPatternNode)
+                .apply();
+    }
+
+    @Override
+    public RemoteMethodCallActionNode transform(RemoteMethodCallActionNode remoteMethodCallActionNode) {
+        Token openParenToken = getToken(remoteMethodCallActionNode.openParenToken());
+        Token closeParenToken = getToken(remoteMethodCallActionNode.closeParenToken());
+        Token rightArrowToken = getToken(remoteMethodCallActionNode.rightArrowToken());
+        NodeList<FunctionArgumentNode> arguments = this.modifyNodeList(remoteMethodCallActionNode.arguments());
+        ExpressionNode expression = this.modifyNode(remoteMethodCallActionNode.expression());
+        SimpleNameReferenceNode methodName = this.modifyNode(remoteMethodCallActionNode.methodName());
+
+        return remoteMethodCallActionNode.modify()
+                .withArguments(arguments)
+                .withOpenParenToken(formatToken(openParenToken, 0, 0, 0, 0))
+                .withCloseParenToken(formatToken(closeParenToken, 0, 0, 0, 0))
+                .withExpression(expression)
+                .withMethodName(methodName)
+                .withRightArrowToken(formatToken(rightArrowToken, 0, 0, 0, 0))
                 .apply();
     }
 
