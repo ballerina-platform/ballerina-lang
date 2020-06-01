@@ -42,6 +42,7 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeFactory;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.ParameterNode;
+import io.ballerinalang.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
@@ -242,7 +243,7 @@ public class FormattingTreeModifier extends TreeModifier {
         NodeList<StatementNode> statements = this.modifyNodeList(functionBodyBlockNode.statements());
 
         return functionBodyBlockNode.modify()
-                .withOpenBraceToken(formatToken(functionBodyOpenBrace, 1, 0, 0, 0))
+                .withOpenBraceToken(formatToken(functionBodyOpenBrace, 1, 0, 0, 1))
                 .withCloseBraceToken(formatToken(functionBodyCloseBrace, 0, 0, 0, 0))
                 .withStatements(statements)
                 .apply();
@@ -281,7 +282,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token colon = getToken((Token) qualifiedNameReferenceNode.colon());
 
         return qualifiedNameReferenceNode.modify()
-                .withModulePrefix(formatToken(modulePrefix, 4, 0, 1, 0))
+                .withModulePrefix(formatToken(modulePrefix, 0, 0, 0, 0))
                 .withIdentifier((IdentifierToken) formatToken(identifier, 0, 0, 0, 0))
                 .withColon(formatToken(colon, 0, 0, 0, 0))
                 .apply();
@@ -322,14 +323,14 @@ public class FormattingTreeModifier extends TreeModifier {
         Token onKeyword = getToken(serviceDeclarationNode.onKeyword());
 
         MetadataNode metadata = this.modifyNode(serviceDeclarationNode.metadata());
-//        NodeList<ExpressionNode> expressions = this.modifyNodeList(serviceDeclarationNode.expressions());
+        NodeList<ExpressionNode> expressions = this.modifyNodeList(serviceDeclarationNode.expressions());
         Node serviceBody = this.modifyNode(serviceDeclarationNode.serviceBody());
 
         return serviceDeclarationNode.modify()
                 .withServiceKeyword(formatToken(serviceKeyword, 0, 0, 1, 0))
                 .withServiceName((IdentifierToken) formatToken(serviceName, 1, 0, 0, 0))
                 .withOnKeyword(formatToken(onKeyword, 1, 0, 0, 0))
-//                .withExpressions(expressions)
+                .withExpressions(expressions)
                 .withMetadata(metadata)
                 .withServiceBody(serviceBody)
                 .apply();
@@ -342,15 +343,15 @@ public class FormattingTreeModifier extends TreeModifier {
         NodeList<Node> resources = this.modifyNodeList(serviceBodyNode.resources());
 
         return serviceBodyNode.modify()
-                .withOpenBraceToken(formatToken(openBraceToken, 0, 0, 0, 0))
-                .withCloseBraceToken(formatToken(closeBraceToken, 0, 0, 0, 0))
+                .withOpenBraceToken(formatToken(openBraceToken, 1, 0, 0, 1))
+                .withCloseBraceToken(formatToken(closeBraceToken, 0, 0, 1, 0))
                 .withResources(resources)
                 .apply();
     }
 
     @Override
     public ExpressionListItemNode transform(ExpressionListItemNode expressionListItemNode) {
-        ExpressionNode expression = expressionListItemNode.expression();
+        ExpressionNode expression = this.modifyNode(expressionListItemNode.expression());
         Token commaToken = getToken(expressionListItemNode.leadingComma().orElse(null));
 
         if (commaToken != null) {
@@ -367,13 +368,26 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ExplicitNewExpressionNode transform(ExplicitNewExpressionNode explicitNewExpressionNode) {
         Token newKeywordToken = getToken(explicitNewExpressionNode.newKeyword());
-        Node parenthesizedArgList = explicitNewExpressionNode.parenthesizedArgList();
-        TypeDescriptorNode typeDescriptorNode = explicitNewExpressionNode.typeDescriptor();
+        Node parenthesizedArgList = this.modifyNode(explicitNewExpressionNode.parenthesizedArgList());
+        TypeDescriptorNode typeDescriptorNode = this.modifyNode(explicitNewExpressionNode.typeDescriptor());
 
         return explicitNewExpressionNode.modify()
-                .withNewKeyword(formatToken(newKeywordToken, 1, 0, 0, 0))
+                .withNewKeyword(formatToken(newKeywordToken, 1, 1, 0, 0))
                 .withParenthesizedArgList(parenthesizedArgList)
                 .withTypeDescriptor(typeDescriptorNode)
+                .apply();
+    }
+
+    @Override
+    public ParenthesizedArgList transform(ParenthesizedArgList parenthesizedArgList) {
+        Token openParenToken = getToken(parenthesizedArgList.openParenToken());
+        Token closeParenToken = getToken(parenthesizedArgList.closeParenToken());
+        NodeList<FunctionArgumentNode> arguments = this.modifyNodeList(parenthesizedArgList.arguments());
+
+        return parenthesizedArgList.modify()
+                .withArguments(arguments)
+                .withOpenParenToken(formatToken(openParenToken, 0, 0, 0, 0))
+                .withCloseParenToken(formatToken(closeParenToken, 0, 0, 0, 0))
                 .apply();
     }
 
