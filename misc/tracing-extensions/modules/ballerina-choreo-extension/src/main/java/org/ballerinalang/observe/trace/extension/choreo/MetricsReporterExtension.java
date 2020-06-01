@@ -29,6 +29,7 @@ import org.ballerinalang.jvm.observability.metrics.spi.MetricReporter;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoClient;
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoClientHolder;
+import org.ballerinalang.observe.trace.extension.choreo.client.error.ChoreoClientException;
 import org.ballerinalang.observe.trace.extension.choreo.logging.LogFactory;
 import org.ballerinalang.observe.trace.extension.choreo.logging.Logger;
 import org.ballerinalang.observe.trace.extension.choreo.model.ChoreoMetric;
@@ -67,7 +68,15 @@ public class MetricsReporterExtension implements MetricReporter, AutoCloseable {
 
     @Override
     public void init() {
-        ChoreoClient choreoClient = ChoreoClientHolder.getChoreoClient(this);
+        ChoreoClient choreoClient = null;
+        try {
+            choreoClient = ChoreoClientHolder.getChoreoClient(this);
+        } catch (ChoreoClientException e) {
+            throw BValueCreator.createErrorValue(
+                    StringUtils.fromString("Could not initialize the client. Please check Ballerina configurations."),
+                    e.getMessage());
+        }
+
         if (Objects.isNull(choreoClient)) {
             throw BValueCreator.createErrorValue(StringUtils.fromString("Choreo client is not initialized"), null);
         }
