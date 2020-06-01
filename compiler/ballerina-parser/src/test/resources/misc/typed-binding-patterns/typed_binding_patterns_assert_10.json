@@ -186,7 +186,7 @@
                                                               "kind": "COMMA_TOKEN"
                                                             },
                                                             {
-                                                              "kind": "CAPTURE_BINDING_PATTERN",
+                                                              "kind": "WILDCARD_BINDING_PATTERN",
                                                               "children": [
                                                                 {
                                                                   "kind": "IDENTIFIER_TOKEN",
@@ -375,7 +375,7 @@
                                                               "kind": "COMMA_TOKEN"
                                                             },
                                                             {
-                                                              "kind": "CAPTURE_BINDING_PATTERN",
+                                                              "kind": "WILDCARD_BINDING_PATTERN",
                                                               "children": [
                                                                 {
                                                                   "kind": "IDENTIFIER_TOKEN",

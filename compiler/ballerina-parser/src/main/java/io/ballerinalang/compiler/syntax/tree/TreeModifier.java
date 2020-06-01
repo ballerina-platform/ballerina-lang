@@ -2158,6 +2158,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public WildcardBindingPatternNode transform(
+            WildcardBindingPatternNode wildcardBindingPatternNode) {
+        Token underscoreToken =
+                modifyToken(wildcardBindingPatternNode.underscoreToken());
+        return wildcardBindingPatternNode.modify(
+                underscoreToken);
+    }
+
+    @Override
     public ListBindingPatternNode transform(
             ListBindingPatternNode listBindingPatternNode) {
         Token openBracket =

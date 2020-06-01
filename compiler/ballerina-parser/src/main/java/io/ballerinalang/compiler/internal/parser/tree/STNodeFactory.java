@@ -1595,6 +1595,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 variableName);
     }
 
+    public static STNode createWildcardBindingPatternNode(
+            STNode underscoreToken) {
+
+        return new STWildcardBindingPatternNode(
+                underscoreToken);
+    }
+
     public static STNode createListBindingPatternNode(
             STNode openBracket,
             STNode bindingPatterns,

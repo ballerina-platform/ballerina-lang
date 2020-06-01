@@ -2133,6 +2133,15 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stCaptureBindingPatternNode.createUnlinkedFacade();
     }
 
+    public static WildcardBindingPatternNode createWildcardBindingPatternNode(
+            Token underscoreToken) {
+        Objects.requireNonNull(underscoreToken, "underscoreToken must not be null");
+
+        STNode stWildcardBindingPatternNode = STNodeFactory.createWildcardBindingPatternNode(
+                underscoreToken.internalNode());
+        return stWildcardBindingPatternNode.createUnlinkedFacade();
+    }
+
     public static ListBindingPatternNode createListBindingPatternNode(
             Token openBracket,
             SeparatedNodeList<BindingPatternNode> bindingPatterns,
