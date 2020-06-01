@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.compiler.format;
 import io.ballerinalang.compiler.syntax.tree.AbstractNodeFactory;
 import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
 import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerinalang.compiler.syntax.tree.BindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionListItemNode;
@@ -422,6 +423,17 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withAnnotations(annotationNodes)
                 .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
                 .withTypedBindingPattern(typedBindingPatternNode)
+                .apply();
+    }
+
+    @Override
+    public TypedBindingPatternNode transform(TypedBindingPatternNode typedBindingPatternNode) {
+        BindingPatternNode bindingPatternNode = this.modifyNode(typedBindingPatternNode.bindingPattern());
+        TypeDescriptorNode typeDescriptorNode = this.modifyNode(typedBindingPatternNode.typeDescriptor());
+
+        return typedBindingPatternNode.modify()
+                .withBindingPattern(bindingPatternNode)
+                .withTypeDescriptor(typeDescriptorNode)
                 .apply();
     }
 
