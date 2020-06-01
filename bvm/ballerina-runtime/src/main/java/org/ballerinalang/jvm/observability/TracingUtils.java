@@ -31,7 +31,7 @@ import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERT
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_ERROR_MESSAGE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_ERROR_TRUE_VALUE;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_TRUE_VALUE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_ERROR;
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.KEY_SPAN;
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.LOG_ERROR_KIND_EXCEPTION;
@@ -91,7 +91,7 @@ public class TracingUtils {
         BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
         if (span != null) {
             Tag errorTag = observerContext.getTag(TAG_KEY_ERROR);
-            if (errorTag != null && TAG_ERROR_TRUE_VALUE.equals(errorTag.getValue())) {
+            if (errorTag != null && TAG_TRUE_VALUE.equals(errorTag.getValue())) {
                 StringBuilder errorMessageBuilder = new StringBuilder();
                 String errorMessage = (String) observerContext.getProperty(PROPERTY_ERROR_MESSAGE);
                 if (errorMessage != null) {
