@@ -552,7 +552,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static MappingConstructorExpressionNode createMappingConstructorExpressionNode(
             Token openBrace,
-            NodeList<MappingFieldNode> fields,
+            SeparatedNodeList<MappingFieldNode> fields,
             Token closeBrace) {
         Objects.requireNonNull(openBrace, "openBrace must not be null");
         Objects.requireNonNull(fields, "fields must not be null");
@@ -608,7 +608,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static ComputedNameFieldNode createComputedNameFieldNode(
-            Token leadingComma,
             Token openBracket,
             ExpressionNode fieldNameExpr,
             Token closeBracket,
@@ -621,7 +620,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(valueExpr, "valueExpr must not be null");
 
         STNode stComputedNameFieldNode = STNodeFactory.createComputedNameFieldNode(
-                getOptionalSTNode(leadingComma),
                 openBracket.internalNode(),
                 fieldNameExpr.internalNode(),
                 closeBracket.internalNode(),
@@ -780,7 +778,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static SpecificFieldNode createSpecificFieldNode(
-            Token leadingComma,
             Token fieldName,
             Token colon,
             ExpressionNode valueExpr) {
@@ -789,7 +786,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(valueExpr, "valueExpr must not be null");
 
         STNode stSpecificFieldNode = STNodeFactory.createSpecificFieldNode(
-                getOptionalSTNode(leadingComma),
                 fieldName.internalNode(),
                 colon.internalNode(),
                 valueExpr.internalNode());
@@ -797,14 +793,12 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static SpreadFieldNode createSpreadFieldNode(
-            Token leadingComma,
             Token ellipsis,
             ExpressionNode valueExpr) {
         Objects.requireNonNull(ellipsis, "ellipsis must not be null");
         Objects.requireNonNull(valueExpr, "valueExpr must not be null");
 
         STNode stSpreadFieldNode = STNodeFactory.createSpreadFieldNode(
-                getOptionalSTNode(leadingComma),
                 ellipsis.internalNode(),
                 valueExpr.internalNode());
         return stSpreadFieldNode.createUnlinkedFacade();
@@ -1112,7 +1106,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static RemoteMethodCallActionNode createRemoteMethodCallActionNode(
             ExpressionNode expression,
             Token rightArrowToken,
-            Token methodName,
+            Node methodName,
             Token openParenToken,
             NodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
@@ -2157,6 +2151,47 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 getOptionalSTNode(restBindingPattern),
                 closeBracket.internalNode());
         return stListBindingPatternNode.createUnlinkedFacade();
+    }
+
+    public static MappingBindingPatternNode createMappingBindingPatternNode(
+            Token openBrace,
+            SeparatedNodeList<FieldBindingPatternNode> fieldBindingPatterns,
+            RestBindingPatternNode restBindingPattern,
+            Token closeBrace) {
+        Objects.requireNonNull(openBrace, "openBrace must not be null");
+        Objects.requireNonNull(fieldBindingPatterns, "fieldBindingPatterns must not be null");
+        Objects.requireNonNull(closeBrace, "closeBrace must not be null");
+
+        STNode stMappingBindingPatternNode = STNodeFactory.createMappingBindingPatternNode(
+                openBrace.internalNode(),
+                fieldBindingPatterns.underlyingListNode().internalNode(),
+                getOptionalSTNode(restBindingPattern),
+                closeBrace.internalNode());
+        return stMappingBindingPatternNode.createUnlinkedFacade();
+    }
+
+    public static FieldBindingPatternFullNode createFieldBindingPatternFullNode(
+            SimpleNameReferenceNode variableName,
+            Token colon,
+            BindingPatternNode bindingPattern) {
+        Objects.requireNonNull(variableName, "variableName must not be null");
+        Objects.requireNonNull(colon, "colon must not be null");
+        Objects.requireNonNull(bindingPattern, "bindingPattern must not be null");
+
+        STNode stFieldBindingPatternFullNode = STNodeFactory.createFieldBindingPatternFullNode(
+                variableName.internalNode(),
+                colon.internalNode(),
+                bindingPattern.internalNode());
+        return stFieldBindingPatternFullNode.createUnlinkedFacade();
+    }
+
+    public static FieldBindingPatternVarnameNode createFieldBindingPatternVarnameNode(
+            SimpleNameReferenceNode variableName) {
+        Objects.requireNonNull(variableName, "variableName must not be null");
+
+        STNode stFieldBindingPatternVarnameNode = STNodeFactory.createFieldBindingPatternVarnameNode(
+                variableName.internalNode());
+        return stFieldBindingPatternVarnameNode.createUnlinkedFacade();
     }
 
     public static RestBindingPatternNode createRestBindingPatternNode(

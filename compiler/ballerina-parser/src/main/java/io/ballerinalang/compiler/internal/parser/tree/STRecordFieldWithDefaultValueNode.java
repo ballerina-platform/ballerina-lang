@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -42,7 +45,25 @@ public class STRecordFieldWithDefaultValueNode extends STNode {
             STNode equalsToken,
             STNode expression,
             STNode semicolonToken) {
-        super(SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE);
+        this(
+                metadata,
+                typeName,
+                fieldName,
+                equalsToken,
+                expression,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STRecordFieldWithDefaultValueNode(
+            STNode metadata,
+            STNode typeName,
+            STNode fieldName,
+            STNode equalsToken,
+            STNode expression,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE, diagnostics);
         this.metadata = metadata;
         this.typeName = typeName;
         this.fieldName = fieldName;
@@ -57,6 +78,17 @@ public class STRecordFieldWithDefaultValueNode extends STNode {
                 equalsToken,
                 expression,
                 semicolonToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STRecordFieldWithDefaultValueNode(
+                this.metadata,
+                this.typeName,
+                this.fieldName,
+                this.equalsToken,
+                this.expression,
+                this.semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

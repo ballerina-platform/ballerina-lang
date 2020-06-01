@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,13 +37,30 @@ public class STLockStatementNode extends STStatementNode {
     STLockStatementNode(
             STNode lockKeyword,
             STNode blockStatement) {
-        super(SyntaxKind.LOCK_STATEMENT);
+        this(
+                lockKeyword,
+                blockStatement,
+                Collections.emptyList());
+    }
+
+    STLockStatementNode(
+            STNode lockKeyword,
+            STNode blockStatement,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.LOCK_STATEMENT, diagnostics);
         this.lockKeyword = lockKeyword;
         this.blockStatement = blockStatement;
 
         addChildren(
                 lockKeyword,
                 blockStatement);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STLockStatementNode(
+                this.lockKeyword,
+                this.blockStatement,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

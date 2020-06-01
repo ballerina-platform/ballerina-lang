@@ -20,7 +20,7 @@ import ballerina/test;
 function parseAst(string fileLocation) returns @tainted json {
     PackageNode? pkNode = parseFile(fileLocation);
     if (pkNode is PackageNode) {
-        json | error jsonOut = json.constructFrom(pkNode);
+        json | error jsonOut = pkNode.cloneWithType(json);
         if (jsonOut is json) {
             return jsonOut;
         } else {

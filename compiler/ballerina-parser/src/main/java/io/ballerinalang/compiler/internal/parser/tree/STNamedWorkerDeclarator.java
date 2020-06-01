@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,13 +37,30 @@ public class STNamedWorkerDeclarator extends STNode {
     STNamedWorkerDeclarator(
             STNode workerInitStatements,
             STNode namedWorkerDeclarations) {
-        super(SyntaxKind.NAMED_WORKER_DECLARATOR);
+        this(
+                workerInitStatements,
+                namedWorkerDeclarations,
+                Collections.emptyList());
+    }
+
+    STNamedWorkerDeclarator(
+            STNode workerInitStatements,
+            STNode namedWorkerDeclarations,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.NAMED_WORKER_DECLARATOR, diagnostics);
         this.workerInitStatements = workerInitStatements;
         this.namedWorkerDeclarations = namedWorkerDeclarations;
 
         addChildren(
                 workerInitStatements,
                 namedWorkerDeclarations);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STNamedWorkerDeclarator(
+                this.workerInitStatements,
+                this.namedWorkerDeclarations,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

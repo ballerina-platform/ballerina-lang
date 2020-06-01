@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.ReceiveActionNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,13 +37,30 @@ public class STReceiveActionNode extends STActionNode {
     STReceiveActionNode(
             STNode leftArrow,
             STNode receiveWorkers) {
-        super(SyntaxKind.RECEIVE_ACTION);
+        this(
+                leftArrow,
+                receiveWorkers,
+                Collections.emptyList());
+    }
+
+    STReceiveActionNode(
+            STNode leftArrow,
+            STNode receiveWorkers,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.RECEIVE_ACTION, diagnostics);
         this.leftArrow = leftArrow;
         this.receiveWorkers = receiveWorkers;
 
         addChildren(
                 leftArrow,
                 receiveWorkers);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STReceiveActionNode(
+                this.leftArrow,
+                this.receiveWorkers,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

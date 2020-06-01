@@ -33,6 +33,7 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING_ARRAY
 import static org.ballerinalang.bindgen.utils.BindgenConstants.METHOD_INTEROP_TYPE;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaHandleType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaParamType;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.getJavaType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isStaticMethod;
 
 /**
@@ -54,12 +55,12 @@ public class JMethod {
     private boolean handleException = false;
     private boolean isStringReturn = false;
     private boolean hasPrimitiveParam = false;
-    private boolean isStringArrayReturn = false;
 
     private String methodName;
     private String returnType;
     private String externalType;
     private String exceptionName;
+    private String returnTypeJava;
     private String shortClassName;
     private String javaMethodName;
     private String returnComponentType;
@@ -120,15 +121,17 @@ public class JMethod {
 
     private void setReturnTypeAttributes(Class returnTypeClass) {
         hasReturn = true;
+        returnTypeJava = getJavaType(returnTypeClass);
         externalType = getBallerinaHandleType(returnTypeClass);
         returnType = getBallerinaParamType(returnTypeClass);
         if (returnTypeClass.isArray()) {
+            hasException = true;
+            returnError = true;
             isArrayReturn = true;
             if (returnTypeClass.getComponentType().isPrimitive()) {
                 objectReturn = false;
             } else if (returnTypeClass.getSimpleName().equals(JAVA_STRING_ARRAY)) {
-                objectReturn = true;
-                isStringArrayReturn = true;
+                objectReturn = false;
             } else {
                 returnComponentType = returnTypeClass.getComponentType().getSimpleName();
                 objectReturn = true;

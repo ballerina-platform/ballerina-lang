@@ -78,8 +78,8 @@ function testGroupedTypeDescRef() returns boolean {
         "age": 20,
         "name": "Person Name"
     };
-    PersonRec p1 = <PersonRec>PersonRec.constructFrom(personData);
-    PersonRec p2 = <PersonRec>(PersonRec).constructFrom(personData);
+    PersonRec p1 = <PersonRec> personData.cloneWithType(PersonRec);
+    PersonRec p2 = <PersonRec> (personData).cloneWithType(PersonRec);
     return p1 == p2;
 }
 
@@ -93,7 +93,7 @@ type Bar record {|
 
 function testGroupedTypedescLibInvocation() returns boolean {
     map<anydata> data= { s: "test string" };
-    Foo|Bar|error f = (Foo|Bar).constructFrom(data);
+    Foo|Bar|error f = data.cloneWithType(typedesc<Foo|Bar>);
     return f is Foo && f.s == data["s"];
 }
 
