@@ -72,7 +72,10 @@ public function cloneReadOnly(AnydataType v) returns AnydataType = @java:Method 
 # - numeric values can be converted using the NumericConvert abstract operation
 # - if a record type descriptor specifies default values, these will be used
 #   to supply any missing members
-public function cloneWithType(anydata v, typedesc<AnydataType> t) returns AnydataType|error = external;
+public function cloneWithType(anydata v, typedesc<AnydataType> t) returns AnydataType|error = @java:Method {
+    class: "org.ballerinalang.langlib.value.CloneWithType",
+    name: "cloneWithType"
+} external;
 
 # Tests whether `v` is read-only, i.e. immutable
 # Returns true if read-only, false otherwise.
