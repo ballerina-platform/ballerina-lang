@@ -1,6 +1,3 @@
 function foo() {
-
-    foreach var [fruits] in test {
-    }
-
+    io:println("hello");
 }
