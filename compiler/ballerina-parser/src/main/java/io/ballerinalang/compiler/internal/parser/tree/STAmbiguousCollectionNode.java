@@ -28,16 +28,17 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class STAmbiguousListNode extends STNode {
-    public final STNode openBracket;
+public class STAmbiguousCollectionNode extends STNode {
+    public final STNode collectionStartToken;
     public final List<STNode> members;
-    public final STNode closeBracket;
+    public final STNode collectionEndToken;
 
-    public STAmbiguousListNode(SyntaxKind kind, STNode openBracket, List<STNode> members, STNode closeBracket) {
+    public STAmbiguousCollectionNode(SyntaxKind kind, STNode collectionStartToken, List<STNode> members,
+            STNode collectionEndToken) {
         super(kind);
-        this.openBracket = openBracket;
+        this.collectionStartToken = collectionStartToken;
         this.members = members;
-        this.closeBracket = closeBracket;
+        this.collectionEndToken = collectionEndToken;
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

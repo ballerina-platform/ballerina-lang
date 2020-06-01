@@ -559,8 +559,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             MappingConstructorExpressionNode mappingConstructorExpressionNode) {
         Token openBrace =
                 modifyToken(mappingConstructorExpressionNode.openBrace());
-        NodeList<MappingFieldNode> fields =
-                modifyNodeList(mappingConstructorExpressionNode.fields());
+        SeparatedNodeList<MappingFieldNode> fields =
+                modifySeparatedNodeList(mappingConstructorExpressionNode.fields());
         Token closeBrace =
                 modifyToken(mappingConstructorExpressionNode.closeBrace());
         return mappingConstructorExpressionNode.modify(
@@ -614,8 +614,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public ComputedNameFieldNode transform(
             ComputedNameFieldNode computedNameFieldNode) {
-        Token leadingComma =
-                modifyToken(computedNameFieldNode.leadingComma().orElse(null));
         Token openBracket =
                 modifyToken(computedNameFieldNode.openBracket());
         ExpressionNode fieldNameExpr =
@@ -627,7 +625,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         ExpressionNode valueExpr =
                 modifyNode(computedNameFieldNode.valueExpr());
         return computedNameFieldNode.modify(
-                leadingComma,
                 openBracket,
                 fieldNameExpr,
                 closeBracket,
@@ -797,8 +794,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public SpecificFieldNode transform(
             SpecificFieldNode specificFieldNode) {
-        Token leadingComma =
-                modifyToken(specificFieldNode.leadingComma().orElse(null));
         Token fieldName =
                 modifyToken(specificFieldNode.fieldName());
         Token colon =
@@ -806,7 +801,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         ExpressionNode valueExpr =
                 modifyNode(specificFieldNode.valueExpr());
         return specificFieldNode.modify(
-                leadingComma,
                 fieldName,
                 colon,
                 valueExpr);
@@ -815,14 +809,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public SpreadFieldNode transform(
             SpreadFieldNode spreadFieldNode) {
-        Token leadingComma =
-                modifyToken(spreadFieldNode.leadingComma().orElse(null));
         Token ellipsis =
                 modifyToken(spreadFieldNode.ellipsis());
         ExpressionNode valueExpr =
                 modifyNode(spreadFieldNode.valueExpr());
         return spreadFieldNode.modify(
-                leadingComma,
                 ellipsis,
                 valueExpr);
     }
@@ -1140,8 +1131,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(remoteMethodCallActionNode.expression());
         Token rightArrowToken =
                 modifyToken(remoteMethodCallActionNode.rightArrowToken());
-        Token methodName =
-                modifyToken(remoteMethodCallActionNode.methodName());
+        Node methodName =
+                modifyNode(remoteMethodCallActionNode.methodName());
         Token openParenToken =
                 modifyToken(remoteMethodCallActionNode.openParenToken());
         NodeList<FunctionArgumentNode> arguments =

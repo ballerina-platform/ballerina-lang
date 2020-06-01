@@ -30,8 +30,7 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STComputedNameFieldNode extends STNode {
-    public final STNode leadingComma;
+public class STComputedNameFieldNode extends STMappingFieldNode {
     public final STNode openBracket;
     public final STNode fieldNameExpr;
     public final STNode closeBracket;
@@ -39,14 +38,12 @@ public class STComputedNameFieldNode extends STNode {
     public final STNode valueExpr;
 
     STComputedNameFieldNode(
-            STNode leadingComma,
             STNode openBracket,
             STNode fieldNameExpr,
             STNode closeBracket,
             STNode colonToken,
             STNode valueExpr) {
         this(
-                leadingComma,
                 openBracket,
                 fieldNameExpr,
                 closeBracket,
@@ -56,7 +53,6 @@ public class STComputedNameFieldNode extends STNode {
     }
 
     STComputedNameFieldNode(
-            STNode leadingComma,
             STNode openBracket,
             STNode fieldNameExpr,
             STNode closeBracket,
@@ -64,7 +60,6 @@ public class STComputedNameFieldNode extends STNode {
             STNode valueExpr,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.COMPUTED_NAME_FIELD, diagnostics);
-        this.leadingComma = leadingComma;
         this.openBracket = openBracket;
         this.fieldNameExpr = fieldNameExpr;
         this.closeBracket = closeBracket;
@@ -72,7 +67,6 @@ public class STComputedNameFieldNode extends STNode {
         this.valueExpr = valueExpr;
 
         addChildren(
-                leadingComma,
                 openBracket,
                 fieldNameExpr,
                 closeBracket,
@@ -82,7 +76,6 @@ public class STComputedNameFieldNode extends STNode {
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STComputedNameFieldNode(
-                this.leadingComma,
                 this.openBracket,
                 this.fieldNameExpr,
                 this.closeBracket,

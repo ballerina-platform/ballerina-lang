@@ -22,6 +22,6 @@ package org.ballerinalang.model.types;
  *
  * @since 1.3.0
  */
-public interface TableType extends ReferenceType {
+public interface TableType extends SelectivelyImmutableReferenceType {
 
 }

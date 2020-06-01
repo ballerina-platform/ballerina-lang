@@ -103,7 +103,7 @@ service publisher on publisherServiceEP {
                 allTopics["Topic_" + index.toString()] = topic;
                 index += 1;
             }
-            json j = <json> typedesc<json>.constructFrom(allTopics);
+            json j = <json> allTopics.cloneWithType(typedesc<json>);
             var err = caller->respond(j);
             if (err is error) {
                 log:printError("Error responding on topicInfo request", err);

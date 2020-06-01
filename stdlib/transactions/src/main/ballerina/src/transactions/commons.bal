@@ -157,7 +157,7 @@ function respondToBadRequest(http:Caller ep, string msg) {
     log:printError(msg);
     http:Response res = new;  res.statusCode = http:STATUS_BAD_REQUEST;
     RequestError requestError = {errorMessage:msg};
-    var resPayload = typedesc<json>.constructFrom(requestError);
+    var resPayload = requestError.cloneWithType(typedesc<json>);
     if (resPayload is json) {
         res.setJsonPayload(<@untainted json> resPayload);
         var resResult = ep->respond(res);

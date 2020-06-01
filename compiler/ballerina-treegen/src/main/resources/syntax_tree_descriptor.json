@@ -720,7 +720,7 @@
                 {
                     "name": "fields",
                     "type": "MappingFieldNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeBrace",
@@ -784,14 +784,9 @@
         },
         {
             "name": "ComputedNameFieldNode",
-            "base": "Node",
+            "base": "MappingFieldNode",
             "kind": "COMPUTED_NAME_FIELD",
             "attributes": [
-                {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
                 {
                     "name": "openBracket",
                     "type": "Token"
@@ -1046,11 +1041,6 @@
             "kind": "SPECIFIC_FIELD",
             "attributes": [
                 {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
                     "name": "fieldName",
                     "type": "Token"
                 },
@@ -1069,11 +1059,6 @@
             "base": "MappingFieldNode",
             "kind": "SPREAD_FIELD",
             "attributes": [
-                {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
                 {
                     "name": "ellipsis",
                     "type": "Token"
