@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.api.BString;
 
 import java.nio.ByteBuffer;
@@ -45,7 +44,7 @@ public class EqualsIgnoreCaseAscii {
         decoder = Charset.forName("US-ASCII").newDecoder();
     }
 
-    public static boolean equalsIgnoreCaseAscii(Strand strand, BString s1, BString s2) {
+    public static boolean equalsIgnoreCaseAscii(BString s1, BString s2) {
         if (s1.length() != s2.length()) {
             return false;
         }

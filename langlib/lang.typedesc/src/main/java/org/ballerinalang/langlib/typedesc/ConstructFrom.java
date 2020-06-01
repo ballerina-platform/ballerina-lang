@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.TypeConverter;
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
@@ -70,10 +71,10 @@ public class ConstructFrom {
         BType describingType = t.getDescribingType();
         // typedesc<json>.constructFrom like usage
         if (describingType.getTag() == TypeTags.TYPEDESC_TAG) {
-            return convert(((BTypedescType) t.getDescribingType()).getConstraint(), v, t, strand);
+            return convert(((BTypedescType) t.getDescribingType()).getConstraint(), v, t, Scheduler.getStrand());
         }
         // json.constructFrom like usage
-        return convert(describingType, v, t, strand);
+        return convert(describingType, v, t, Scheduler.getStrand());
     }
 
     public static Object convert(BType convertType, Object inputValue) {

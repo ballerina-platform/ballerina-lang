@@ -19,7 +19,6 @@
 package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.api.BString;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
@@ -39,7 +38,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
 //)
 public class GetCodePoint {
 
-    public static long getCodePoint(Strand strand, BString str, long i) {
+    public static long getCodePoint(BString str, long i) {
         try {
             return str.getCodePoint((int) i);
         } catch (IndexOutOfBoundsException e) {

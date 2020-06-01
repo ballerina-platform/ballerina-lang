@@ -19,29 +19,24 @@
 package org.ballerinalang.langlib.internal;
 
 import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * XML Text constructor function.
  *
  * @since 2.0.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0", functionName = "textCtor",
-        args = {
-                @Argument(name = "characters", type = TypeKind.STRING)
-        },
-        returnType = {@ReturnType(type = TypeKind.XML)}
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0", functionName = "textCtor",
+//        args = {
+//                @Argument(name = "characters", type = TypeKind.STRING)
+//        },
+//        returnType = {@ReturnType(type = TypeKind.XML)}
+//)
 public class TextCtor {
 
-    public static XMLValue textCtor(Strand strand, BString characters) {
+    public static XMLValue textCtor(BString characters) {
         return XMLFactory.createXMLText(characters);
     }
 }

@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langlib.future;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.FutureValue;
 
 /**
@@ -29,7 +28,7 @@ import org.ballerinalang.jvm.values.FutureValue;
 //)
 public class Cancel {
 
-    public static void cancel(Strand strand, FutureValue futureValue) {
+    public static void cancel(FutureValue futureValue) {
         futureValue.cancel();
     }
     

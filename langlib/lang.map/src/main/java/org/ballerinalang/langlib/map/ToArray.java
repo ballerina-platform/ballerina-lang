@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
@@ -48,7 +47,7 @@ import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
 //)
 public class ToArray {
 
-    public static ArrayValue toArray(Strand strand, MapValue<?, ?> m) {
+    public static ArrayValue toArray(MapValue<?, ?> m) {
         BType mapType = m.getType();
         BType arrElemType;
         switch (mapType.getTag()) {

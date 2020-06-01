@@ -19,7 +19,6 @@
 package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 
 /**
@@ -35,7 +34,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 //)
 public class FromCodePointInts {
 
-    public static Object fromCodePointInts(Strand strand, ArrayValue codePoints) {
+    public static Object fromCodePointInts(ArrayValue codePoints) {
         int codePoint = 0;
         try {
             StringBuilder builder = new StringBuilder();

@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.decimal;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.DecimalValue;
 
 import java.math.RoundingMode;
@@ -36,7 +35,7 @@ import java.math.RoundingMode;
 //)
 public class Ceiling {
 
-    public static DecimalValue ceiling(Strand strand, DecimalValue x) {
+    public static DecimalValue ceiling(DecimalValue x) {
         return new DecimalValue(x.value().setScale(0, RoundingMode.CEILING));
     }
 }

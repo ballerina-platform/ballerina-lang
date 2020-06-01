@@ -19,9 +19,7 @@
 package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.langlib.string.utils.StringUtils;
 
 import java.util.Locale;
 
@@ -39,7 +37,7 @@ import java.util.Locale;
 //)
 public class ToLowerAscii {
 
-    public static BString toLowerAscii(Strand strand, BString str) {
+    public static BString toLowerAscii(BString str) {
         if (str == null) {
             throw BallerinaErrors.createNullReferenceError();
         }

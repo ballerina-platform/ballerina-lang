@@ -11,4 +11,5 @@ module io.ballerina.packerina {
     requires io.ballerina.testerina.runtime;
     requires io.ballerina.testerina.core;
     requires gson;
+    requires io.ballerina.maven.resolver;
 }

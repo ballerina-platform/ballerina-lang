@@ -20,7 +20,6 @@ package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 
 import java.nio.charset.StandardCharsets;
@@ -38,7 +37,7 @@ import java.nio.charset.StandardCharsets;
 //)
 public class FromBytes {
 
-    public static Object fromBytes(Strand strand, ArrayValue bytes) {
+    public static Object fromBytes(ArrayValue bytes) {
         try {
             return StringUtils.fromString(new String(bytes.getBytes(), StandardCharsets.UTF_8));
         } catch (Exception e) {

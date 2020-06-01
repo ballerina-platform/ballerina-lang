@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
@@ -45,7 +44,7 @@ import static org.ballerinalang.langlib.map.util.MapLibUtils.getFieldType;
 //)
 public class Entries {
 
-    public static MapValue<?, ?> entries(Strand strand, MapValue<?, ?> m) {
+    public static MapValue<?, ?> entries(MapValue<?, ?> m) {
         BType newFieldType = getFieldType(m.getType(), "entries()");
         BTupleType entryType = new BTupleType(Arrays.asList(BTypes.typeString, newFieldType));
         BMapType entryMapConstraint = new BMapType(entryType);

@@ -18,8 +18,6 @@
 
 package org.ballerinalang.langlib.decimal;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 
 import java.math.BigDecimal;
@@ -35,11 +33,11 @@ import java.math.BigDecimal;
 //)
 public class Sum {
 
-    public static DecimalValue sum(Strand strand, ArrayValue ns) {
+    public static DecimalValue sum(DecimalValue[] ns) {
         DecimalValue sum = new DecimalValue(BigDecimal.ZERO);
-        int size = ns.size();
+        int size = ns.length;
         for (int i = 0; i < size; i++) {
-            sum = sum.add((DecimalValue) ns.getRefValue(i));
+            sum = sum.add(ns[i]);
         }
         return sum;
     }

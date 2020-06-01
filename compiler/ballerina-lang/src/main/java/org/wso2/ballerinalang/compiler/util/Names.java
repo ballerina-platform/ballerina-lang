@@ -122,6 +122,7 @@ public class Names {
 
     // Module Versions
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
+    public static final Name JAVA_VERSION = new Name(BLangCompilerConstants.JAVA_VERSION);
     public static final Name INTERNAL_VERSION = new Name(BLangCompilerConstants.INTERNAL_VERSION);
     public static final Name ANNOTATIONS_VERSION = new Name(BLangCompilerConstants.ANNOTATIONS_VERSION);
     public static final Name ARRAY_VERSION = new Name(BLangCompilerConstants.ARRAY_VERSION);

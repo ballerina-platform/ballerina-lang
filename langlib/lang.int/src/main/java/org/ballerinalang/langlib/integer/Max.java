@@ -18,9 +18,6 @@
 
 package org.ballerinalang.langlib.integer;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-
 /**
  * Native implementation of lang.int:max(int, int...).
  *
@@ -34,11 +31,11 @@ import org.ballerinalang.jvm.values.ArrayValue;
 //)
 public class Max {
 
-    public static long max(Strand strand, long n, ArrayValue ns) {
+    public static long max(long n, long[] ns) {
         long max = n;
-        int size = ns.size();
+        int size = ns.length;
         for (int i = 0; i < size; i++) {
-            long current = ns.getInt(i);
+            long current = ns[i];
             max = current >= max ? current : max;
         }
         return max;

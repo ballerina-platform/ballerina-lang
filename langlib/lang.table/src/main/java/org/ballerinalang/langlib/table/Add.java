@@ -20,22 +20,17 @@ package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.TableValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-
-import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 
 /**
  * Native implementation of lang.table:add(table&lt;Type&gt;, (any|error)...).
  *
  * @since 1.3.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION, functionName = "add",
-        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "val", type = TypeKind.ANYDATA)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION, functionName = "add",
+//        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "val", type = TypeKind.ANYDATA)},
+//        isPublic = true
+//)
 public class Add {
 
     public static void add(Strand strand, TableValueImpl tbl, Object val) {

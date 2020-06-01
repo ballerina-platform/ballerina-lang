@@ -18,8 +18,6 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-
 /**
  * Native implementation of lang.float:acos(float).
  *
@@ -33,7 +31,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 //)
 public class Acos {
 
-    public static double acos(Strand strand, double x) {
+    public static double acos(double x) {
         return Math.acos(x);
     }
 }

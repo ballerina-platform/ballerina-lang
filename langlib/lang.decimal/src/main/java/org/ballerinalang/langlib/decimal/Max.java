@@ -18,8 +18,6 @@
 
 package org.ballerinalang.langlib.decimal;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 
 /**
@@ -35,11 +33,11 @@ import org.ballerinalang.jvm.values.DecimalValue;
 //)
 public class Max {
 
-    public static DecimalValue max(Strand strand, DecimalValue n, ArrayValue ns) {
+    public static DecimalValue max(DecimalValue n, DecimalValue[] ns) {
         DecimalValue max = n;
-        int size = ns.size();
+        int size = ns.length;
         for (int i = 0; i < size; i++) {
-            DecimalValue current = (DecimalValue) ns.get(i);
+            DecimalValue current = ns[i];
             max = current.value().compareTo(max.value()) >= 0 ? current : max;
         }
         return max;

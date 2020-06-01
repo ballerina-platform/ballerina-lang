@@ -18,8 +18,6 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-
 /**
  * Native implementation of lang.float:exp(float).
  *
@@ -33,7 +31,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 //)
 public class Exp {
 
-    public static double exp(Strand strand, double x) {
+    public static double exp(double x) {
         return Math.exp(x);
     }
 }

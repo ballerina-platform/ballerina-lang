@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValue;
 
@@ -35,7 +34,7 @@ import org.ballerinalang.jvm.values.MapValue;
 //)
 public class GetIterator {
 
-    public static IteratorValue iterator(Strand strand, MapValue<?, ?> map) {
+    public static IteratorValue iterator(MapValue<?, ?> map) {
         return map.getIterator();
     }
 }

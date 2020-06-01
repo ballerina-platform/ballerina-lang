@@ -18,8 +18,6 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-
 /**
  * Native implementation of lang.float:pow(float).
  *
@@ -33,7 +31,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 //)
 public class Pow {
 
-    public static double pow(Strand strand, double x, double y) {
+    public static double pow(double x, double y) {
         return Math.pow(x, y);
     }
 }

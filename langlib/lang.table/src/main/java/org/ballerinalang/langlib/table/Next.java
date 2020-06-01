@@ -37,7 +37,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.ITERATOR_MUTABILITY_ERROR;
-import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 
 /**
  * Native implementation of lang.table.TableIterator:next().

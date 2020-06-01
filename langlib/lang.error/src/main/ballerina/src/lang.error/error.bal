@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/java;
+
 # The type to which error detail records must belong.
 #
 # + message - the error message
@@ -47,19 +49,27 @@ type StringType string;
 #
 # + e - the error value
 # + return - error reason
-public function reason(error<StringType> e) returns StringType = external;
-
+public function reason(error<StringType> e) returns StringType = @java:Method {
+    class: "org.ballerinalang.langlib.error.Reason",
+    name: "reason"
+} external;
 # Returns the error's detail record.
 # The returned value will be immutable.
 # + e - the error value
 # + return - error detail value
-public function detail(error<string,DetailType> e) returns DetailType = external;
+public function detail(error<string,DetailType> e) returns DetailType = @java:Method {
+    class: "org.ballerinalang.langlib.error.Detail",
+    name: "detail"
+} external;
 
 # Returns an object representing the stack trace of the error.
 #
 # + e - the error value
 # + return - a new object representing the stack trace of the error value
-public function stackTrace(error e) returns CallStack = external;
+public function stackTrace(error e) returns CallStack = @java:Method {
+    class: "org.ballerinalang.langlib.error.StackTrace",
+    name: "stackTrace"
+} external;
 
 # Representation of `CallStackElement`
 #

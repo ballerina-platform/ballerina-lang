@@ -18,12 +18,12 @@
 
 package org.ballerinalang.messaging.kafka.producer;
 
+import org.ballerinalang.core.model.values.BByte;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.messaging.kafka.utils.KafkaCluster;
-import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;

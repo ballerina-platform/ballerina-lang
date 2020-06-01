@@ -23,7 +23,7 @@
 # + return - The `handle`, which refers to the Java String representation of the Ballerina `string`
 public function fromString(string value) returns handle = @Method {
     class: "org.ballerinalang.nativeimpl.java.FromString",
-    name: "fromString_bstring"
+    name: "fromString"
 } external;
 
 # Returns a Ballerina `string` representation of the Java object referred by the `handle`.
@@ -37,7 +37,7 @@ public function fromString(string value) returns handle = @Method {
 #            returns `()` if the `handle` refers to Java null
 public function toString(handle value) returns string? = @Method {
     class: "org.ballerinalang.nativeimpl.java.ToString",
-    name: "toString_bstring"
+    name: "toString"
 } external;
 
 # Returns `true` if this handle refers to Java null.
@@ -49,7 +49,7 @@ public function toString(handle value) returns string? = @Method {
 # + return - `true` if this handle refers to Java null
 public function isNull(handle value) returns boolean = @Method {
     class: "org.ballerinalang.nativeimpl.java.IsNull",
-    name: "isNull_bstring"
+    name: "isNull"
 } external;
 
 # Returns a `handle`, which refers to Java null.
@@ -60,7 +60,7 @@ public function isNull(handle value) returns boolean = @Method {
 # + return - The `handle`, which refers to Java null
 public function createNull() returns handle = @Method {
     class: "org.ballerinalang.nativeimpl.java.CreateNull",
-    name: "createNull_bstring"
+    name: "createNull"
 } external;
 
 # Returns a `handle`, which refers to the Java Class object associated with the class or interface with the given
@@ -86,6 +86,6 @@ public function createNull() returns handle = @Method {
 # + return - The Java Class object for the class with the given name
 public function getClass(string name) returns handle | error = @Method {
     class: "org.ballerinalang.nativeimpl.java.JavaUtils",
-    name: "getClass_bstring"
+    name: "getClass"
 } external;
 

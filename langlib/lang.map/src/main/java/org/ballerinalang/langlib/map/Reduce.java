@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 
@@ -40,13 +40,13 @@ import java.util.concurrent.atomic.AtomicReference;
 //)
 public class Reduce {
 
-    public static Object reduce(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func, Object initial) {
+    public static Object reduce(MapValue<?, ?> m, FPValue<Object, Object> func, Object initial) {
         int size = m.values().size();
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, size,
-                                                       () -> new Object[]{strand, accum.get(), true,
+                                                       () -> new Object[]{Scheduler.getStrand(), accum.get(), true,
                                                                m.get(m.getKeys()[index.incrementAndGet()]), true},
                                                        accum::set, accum::get);
         return accum.get();

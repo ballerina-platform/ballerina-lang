@@ -19,7 +19,6 @@
 package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.api.BString;
 
@@ -40,7 +39,7 @@ import static org.ballerinalang.jvm.MapUtils.validateRequiredFieldForRecord;
 //)
 public class RemoveIfHasKey {
 
-    public static Object removeIfHasKey(Strand strand, MapValue<?, ?> m, BString k) {
+    public static Object removeIfHasKey(MapValue<?, ?> m, BString k) {
         String op = "removeIfHasKey()";
 
         checkIsMapOnlyOperation(m.getType(), op);

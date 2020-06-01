@@ -36,6 +36,7 @@ import static org.wso2.ballerinalang.compiler.util.Names.FLOAT_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.FUTURE_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.INTERNAL_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.INT_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.JAVA_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.MAP_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.OBJECT_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.QUERY_VERSION;

@@ -19,7 +19,6 @@
 package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 
 import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
@@ -37,7 +36,7 @@ import static org.ballerinalang.jvm.MapUtils.validateRecord;
 //)
 public class RemoveAll {
 
-    public static void removeAll(Strand strand, MapValue<?, ?> m) {
+    public static void removeAll(MapValue<?, ?> m) {
         checkIsMapOnlyOperation(m.getType(), "removeAll()");
         validateRecord(m);
         try {

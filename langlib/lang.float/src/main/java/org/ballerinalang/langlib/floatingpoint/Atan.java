@@ -18,8 +18,6 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-
 /**
  * Native implementation of lang.float:atan(float).
  *
@@ -33,7 +31,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 //)
 public class Atan {
 
-    public static double atan(Strand strand, double x) {
+    public static double atan(double x) {
         return Math.atan(x);
     }
 }

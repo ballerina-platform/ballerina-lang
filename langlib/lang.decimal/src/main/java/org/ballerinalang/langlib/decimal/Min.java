@@ -18,8 +18,6 @@
 
 package org.ballerinalang.langlib.decimal;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 
 /**
@@ -35,11 +33,11 @@ import org.ballerinalang.jvm.values.DecimalValue;
 //)
 public class Min {
 
-    public static DecimalValue min(Strand strand, DecimalValue n, ArrayValue ns) {
+    public static DecimalValue min(DecimalValue n, DecimalValue[] ns) {
         DecimalValue min = n;
-        int size = ns.size();
+        int size = ns.length;
         for (int i = 0; i < size; i++) {
-            DecimalValue current = (DecimalValue) ns.getRefValue(i);
+            DecimalValue current = ns[i];
             min = current.value().compareTo(min.value()) <= 0 ? current : min;
         }
         return min;

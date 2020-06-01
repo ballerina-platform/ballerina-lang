@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.api.BString;
@@ -36,7 +35,7 @@ import org.ballerinalang.jvm.values.api.BString;
 //)
 public class ToCodePointInts {
 
-    public static ArrayValue toCodePointInts(Strand strand, BString str) {
+    public static ArrayValue toCodePointInts(BString str) {
         long[] ints = str.getValue().codePoints().asLongStream().toArray();
         return new ArrayValueImpl(ints);
     }

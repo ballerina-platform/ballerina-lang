@@ -20,7 +20,6 @@ package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.MapUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.api.BString;
@@ -41,7 +40,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
 //)
 public class Remove {
 
-    public static Object remove(Strand strand, MapValue<?, ?> m, BString k) {
+    public static Object remove(MapValue<?, ?> m, BString k) {
         BType type = m.getType();
 
         checkIsMapOnlyOperation(type, REMOVE);

@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.FPValue;
@@ -41,14 +41,14 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.getElementAccessFunc
 //)
 public class ForEach {
 
-    public static void forEach(Strand strand, ArrayValue arr, FPValue<Object, Object> func) {
+    public static void forEach(ArrayValue arr, FPValue<Object, Object> func) {
         int size = arr.size();
         BType arrType = arr.getType();
         GetFunction getFn = getElementAccessFunction(arrType, "forEach()");
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, size,
-                                                       () -> new Object[]{strand,
+                                                       () -> new Object[]{Scheduler.getStrand(),
                                                                getFn.get(arr, index.incrementAndGet()), true},
                                                        result -> {
                                                        }, () -> null);

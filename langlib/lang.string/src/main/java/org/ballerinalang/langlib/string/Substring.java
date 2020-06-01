@@ -17,12 +17,10 @@
 package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.langlib.string.utils.StringUtils;
 
 /**
  * Extern function ballerina.model.arrays:substring(string, int, int).
@@ -38,7 +36,7 @@ import org.ballerinalang.langlib.string.utils.StringUtils;
 //)
 public class Substring {
 
-    public static BString substring(Strand strand, BString value, long startIndex, long endIndex) {
+    public static BString substring(BString value, long startIndex, long endIndex) {
         if (value == null) {
             throw BallerinaErrors.createNullReferenceError();
         }

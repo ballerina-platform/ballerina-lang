@@ -53,7 +53,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_LANG_ERROR_PKG
 //        returnType = {@ReturnType(type = TypeKind.OBJECT)})
 public class StackTrace {
 
-    public static ObjectValue stackTrace(Strand strand, ErrorValue value) {
+    public static ObjectValue stackTrace(ErrorValue value) {
 
         BObjectType callStackObjType = new BObjectType("CallStack", new BPackage("ballerina", "lang.error", null), 0);
         callStackObjType.setAttachedFunctions(new AttachedFunction[]{});

@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.values.FPValue;
@@ -41,14 +41,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 //)
 public class Map {
 
-    public static MapValue map(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func) {
+    public static MapValue map(MapValue<?, ?> m, FPValue<Object, Object> func) {
         BMapType newMapType = new BMapType(((BFunctionType) func.getType()).retType);
         MapValue<Object, Object> newMap = new MapValueImpl<>(newMapType);
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, size,
-                                                       () -> new Object[]{strand,
+                                                       () -> new Object[]{Scheduler.getStrand(),
                                                                m.get(m.getKeys()[index.incrementAndGet()]), true},
                                                        result -> newMap
                                                                .put(m.getKeys()[index.get()], result),

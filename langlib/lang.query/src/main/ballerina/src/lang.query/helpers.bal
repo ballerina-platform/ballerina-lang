@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/java;
+
 public function createPipeline(
         (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection,
         typedesc<Type> resType)
@@ -104,5 +106,8 @@ public function consumeStream(stream<Type, error?> strm) returns error? {
 }
 
 // TODO: This for debugging purposes, remove once completed.
-public function print(any|error? data) = external;
+public function print(any|error? data) = @java:Method {
+    class: "org.ballerinalang.langlib.query.Print"
+    name: "print"
+} external;
 

@@ -18,8 +18,6 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-
 /**
  * Native implementation of lang.float:ceiling(float).
  *
@@ -33,7 +31,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 //)
 public class Ceiling {
 
-    public static double ceiling(Strand strand, double x) {
+    public static double ceiling(double x) {
         return Math.ceil(x);
     }
 }

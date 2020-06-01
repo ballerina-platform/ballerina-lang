@@ -18,8 +18,6 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-
 /**
  * Native implementation of lang.float:tanh(float).
  *
@@ -33,7 +31,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 //)
 public class Tanh {
 
-    public static double tanh(Strand strand, double x) {
+    public static double tanh(double x) {
         return Math.tanh(x);
     }
 }

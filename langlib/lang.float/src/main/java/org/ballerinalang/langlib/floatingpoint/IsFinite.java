@@ -18,8 +18,6 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-
 /**
  * Native implementation of lang.float:isFinite(float).
  *
@@ -33,7 +31,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 //)
 public class IsFinite {
 
-    public static boolean isFinite(Strand strand, double x) {
+    public static boolean isFinite(double x) {
         return Double.isFinite(x);
     }
 }

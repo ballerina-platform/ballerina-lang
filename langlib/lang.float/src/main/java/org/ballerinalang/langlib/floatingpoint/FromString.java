@@ -19,7 +19,6 @@
 package org.ballerinalang.langlib.floatingpoint;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
@@ -42,7 +41,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
 //)
 public class FromString {
 
-    public static Object fromString(Strand strand, BString s) {
+    public static Object fromString(BString s) {
         try {
             return Double.parseDouble(s.getValue());
         } catch (NumberFormatException e) {

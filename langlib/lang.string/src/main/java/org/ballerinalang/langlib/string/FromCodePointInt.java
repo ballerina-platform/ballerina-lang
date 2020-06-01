@@ -20,7 +20,6 @@ package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
 
 /**
  * Extern function lang.string:startsWith(string, string).
@@ -35,7 +34,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 //)
 public class FromCodePointInt {
 
-    public static Object fromCodePointInt(Strand strand, long codePoint) {
+    public static Object fromCodePointInt(long codePoint) {
         try {
             StringBuilder builder = new StringBuilder();
             builder.appendCodePoint(((Long) codePoint).intValue());

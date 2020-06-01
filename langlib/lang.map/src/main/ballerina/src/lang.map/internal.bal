@@ -25,7 +25,12 @@ type MapIterator object {
 
     # Return the next member in map iterator, nil if end of iterator is reached.
     # + return - iterator result
-    public function next() returns record {|
-        Type value;
-    |}? = external;
+    public function next() returns record {| Type value; |}? {
+        return externNext(self);
+    }
 };
+
+function externNext(MapIterator iterator) returns record {| Type value; |}? = @java:Method {
+    class: "org.ballerinalang.langlib.map.Next",
+    name: "next"
+} = external;

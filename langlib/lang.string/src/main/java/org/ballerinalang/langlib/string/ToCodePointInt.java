@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.api.BString;
 
 /**
@@ -34,7 +33,7 @@ import org.ballerinalang.jvm.values.api.BString;
 //)
 public class ToCodePointInt {
 
-    public static long toCodePointInt(Strand strand, BString ch) {
+    public static long toCodePointInt(BString ch) {
         return ch.getCodePoint(0);
     }
 }

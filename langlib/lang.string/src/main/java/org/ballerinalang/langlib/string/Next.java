@@ -20,7 +20,6 @@ package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -45,7 +44,7 @@ import java.text.StringCharacterIterator;
 public class Next {
 
     //TODO: refactor hard coded values
-    public static Object next(Strand strand, ObjectValue m) {
+    public static Object next(ObjectValue m) {
         StringCharacterIterator stringCharacterIterator = (StringCharacterIterator) m.getNativeData("&iterator&");
         if (stringCharacterIterator == null) {
             String s = ((BString) m.get(StringUtils.fromString("m"))).getValue();

@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
@@ -37,7 +36,7 @@ import org.ballerinalang.jvm.values.api.BString;
 //)
 public class GetKeys {
 
-    public static ArrayValue keys(Strand strand, MapValue<?, ?> m) {
+    public static ArrayValue keys(MapValue<?, ?> m) {
         return new ArrayValueImpl((BString[]) m.getKeys());
     }
 }

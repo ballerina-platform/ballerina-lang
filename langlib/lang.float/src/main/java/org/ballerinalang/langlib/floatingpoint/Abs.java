@@ -18,12 +18,6 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
 /**
  * Native implementation of lang.float:abs(float).
  *
@@ -37,7 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 //)
 public class Abs {
 
-    public static double abs(Strand strand, double n) {
+    public static double abs(double n) {
         return Math.abs(n);
     }
 }

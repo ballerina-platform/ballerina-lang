@@ -172,6 +172,9 @@ public class JvmPackageGen {
     }
 
     private static void addBuiltinImports(BIRPackage currentModule, Set<PackageID> dependentModuleArray) {
+        Name ballerinaOrgName = new Name("ballerina");
+        Name builtInVersion = new Name("");
+
         // Add the builtin and utils modules to the imported list of modules
         if (isSameModule(currentModule, PackageID.ANNOTATIONS)) {
             return;
@@ -179,13 +182,11 @@ public class JvmPackageGen {
 
         dependentModuleArray.add(PackageID.ANNOTATIONS);
 
-        PackageID javaInteropModule = new PackageID(ballerinaOrgName, Names.JAVA, builtInVersion);
-
-        if (isSameModule(currentModule, javaInteropModule)) {
+        if (isSameModule(currentModule, PackageID.JAVA)) {
             return;
         }
 
-        dependentModuleArray.add(javaInteropModule);
+        dependentModuleArray.add(PackageID.JAVA);
 
         if (isLangModule(currentModule)) {
             return;
