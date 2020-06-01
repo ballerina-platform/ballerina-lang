@@ -245,7 +245,7 @@ function testUninitializedVarReferrencing() {
     }
 
     // uninitialized var in conversion
-    string|error str = string.constructFrom(a);
+    string|error str = a.cloneWithType(string);
 
     // uninitialized var XML
     xml x1 = xml`<foo id="{{a}}" xmlns:ns0="{{a}}">

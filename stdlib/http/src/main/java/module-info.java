@@ -16,6 +16,6 @@ module io.ballerina.http {
     requires io.netty.transport;
     requires io.netty.common;
     requires io.ballerina.lang;
-    requires io.ballerina.lang.typedesc;
+    requires io.ballerina.lang.value;
 
 }

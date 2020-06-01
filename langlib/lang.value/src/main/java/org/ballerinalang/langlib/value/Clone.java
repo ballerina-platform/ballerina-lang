@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.CloneUtils;
 
 /**
@@ -35,7 +34,7 @@ import org.ballerinalang.jvm.values.CloneUtils;
 //)
 public class Clone {
 
-    public static Object clone(Strand strand, Object value) {
+    public static Object clone(Object value) {
         return CloneUtils.cloneValue(value);
     }
 

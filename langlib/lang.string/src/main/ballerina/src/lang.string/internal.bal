@@ -35,4 +35,4 @@ type StringIterator object {
 function externNext(StringIterator iterator) returns record {| string value; |}? = @java:Method {
     class: "org.ballerinalang.langlib.string.Next"
     name: "next"
-}
+} external;

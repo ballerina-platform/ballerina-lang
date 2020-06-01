@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BType;
@@ -42,7 +41,7 @@ import java.util.Collection;
 //)
 public class ToArray {
 
-    public static ArrayValue toArray(Strand strand, TableValueImpl tbl) {
+    public static ArrayValue toArray(TableValueImpl tbl) {
         BType constrainedType = ((BTableType) tbl.getType()).getConstrainedType();
 
         Collection values = tbl.values();

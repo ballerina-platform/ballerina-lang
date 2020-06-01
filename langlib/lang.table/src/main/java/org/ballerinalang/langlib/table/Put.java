@@ -33,11 +33,11 @@ import org.ballerinalang.jvm.values.TableValueImpl;
 //)
 public class Put {
 
-    public static void put(Strand strand, TableValueImpl tbl, Object val) {
+    public static void put(TableValueImpl tbl, Object val) {
         tbl.put(val);
     }
 
     public static void put_bstring(Strand strand, TableValueImpl tbl, Object val) {
-        put(strand, tbl, val);
+        put(tbl, val);
     }
 }

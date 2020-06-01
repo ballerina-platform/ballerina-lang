@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -42,7 +41,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 //)
 public class GetKeys {
 
-    public static ArrayValue keys(Strand strand, TableValueImpl tbl) {
+    public static ArrayValue keys(TableValueImpl tbl) {
         BType tableKeyType = tbl.getKeyType();
         Object[] keys = tbl.getKeys();
         switch (tableKeyType.getTag()) {

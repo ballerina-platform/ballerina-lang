@@ -18,7 +18,6 @@
 package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -40,8 +39,8 @@ public class GetName {
 
     private static final String OPERATION = "get element name in xml";
 
-    public static BString getName(Strand strand, XMLValue xmlVal) {
-        if (!IsElement.isElement(strand, xmlVal)) {
+    public static BString getName(XMLValue xmlVal) {
+        if (!IsElement.isElement(xmlVal)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "getName", "element");
         }
         try {

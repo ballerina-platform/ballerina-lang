@@ -19,7 +19,6 @@
 package org.ballerinalang.langlib.test;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 
 /**
  * Native implementation of assertFalse(boolean value).
@@ -32,7 +31,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 //        isPublic = true
 //)
 public class AssertFalse {
-    public static void assertFalse(Strand strand, boolean value) {
+    public static void assertFalse(boolean value) {
         if (value) {
             throw BallerinaErrors.createError("{ballerina/lang.test}AssertionError",
                     "expected a false value");

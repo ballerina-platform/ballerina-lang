@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.RefValue;
 
 /**
@@ -35,7 +34,7 @@ import org.ballerinalang.jvm.values.RefValue;
 //)
 public class IsReadOnly {
 
-    public static boolean isReadOnly(Strand strand, Object value) {
+    public static boolean isReadOnly(Object value) {
         return !(value instanceof RefValue) || ((RefValue) value).isFrozen();
     }
 }

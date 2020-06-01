@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
@@ -36,18 +37,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 //        isPublic = true
 //)
 public class Foreach {
-    public static void forEach(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func) {
+    public static void forEach(TableValueImpl tbl, FPValue<Object, Object> func) {
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, size,
-                        () -> new Object[]{strand,
+                        () -> new Object[]{Scheduler.getStrand(),
                                 tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
                         result -> {
                         }, () -> null);
     }
 
     public static void forEach_bstring(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func) {
-        forEach(strand, tbl, func);
+        forEach(tbl, func);
     }
 }

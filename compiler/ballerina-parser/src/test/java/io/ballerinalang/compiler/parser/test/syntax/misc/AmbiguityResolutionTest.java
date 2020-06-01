@@ -40,7 +40,12 @@ public class AmbiguityResolutionTest extends AbstractMiscTest {
     public void testMostlyAmbiguousListOnLHS() {
         testFile("ambiguity/ambiguity_source_03.bal", "ambiguity/ambiguity_assert_03.json");
     }
-    
+
+    @Test
+    public void testAmbiguousMapping() {
+        testFile("ambiguity/ambiguity_source_04.bal", "ambiguity/ambiguity_assert_04.json");
+    }
+
     // Recovery tests
 
 }

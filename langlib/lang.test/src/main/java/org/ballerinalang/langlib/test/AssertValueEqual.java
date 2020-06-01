@@ -20,7 +20,6 @@ package org.ballerinalang.langlib.test;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Strand;
 
 /**
  * Native implementation of assertValueEqual(anydata expected, anydata actual).
@@ -34,7 +33,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 //        isPublic = true
 //)
 public class AssertValueEqual {
-    public static void assertValueEqual(Strand strand, Object expected, Object actual) {
+    public static void assertValueEqual(Object expected, Object actual) {
         if (!TypeChecker.isEqual(expected, actual)) {
             String reason = "{ballerina/lang.test}AssertionError";
             String msg = "expected " + expected.toString() + " but found " + actual.toString();

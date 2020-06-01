@@ -59,6 +59,8 @@ import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
+import static org.ballerinalang.jvm.values.XMLItem.createXMLItemWithDefaultNSAttribute;
+
 /**
  * Common utility methods used for XML manipulation.
  * 
@@ -284,13 +286,9 @@ public class XMLFactory {
 
         if (nsUri == null) {
             return new XMLItem(new QName(defaultNsUri, startTagName.getLocalName(), prefix), readonly);
-        } else {
-            XMLItem xmlItem = new XMLItem(new QName(nsUri, startTagName.getLocalName(), prefix), readonly);
-            if (defaultNsUri != null && !defaultNsUri.isEmpty()) {
-                xmlItem.setAttribute(XMLConstants.XMLNS_ATTRIBUTE, null, null, defaultNsUri);
-            }
-            return xmlItem;
         }
+        return createXMLItemWithDefaultNSAttribute(new QName(nsUri, startTagName.getLocalName(), prefix), readonly,
+                                                   defaultNsUri);
     }
 
     public static XMLValue createXMLElement(XMLQName startTagName, BString defaultNsUriVal, boolean readonly) {

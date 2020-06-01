@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.MapValue;
@@ -39,8 +38,8 @@ import org.ballerinalang.jvm.values.api.BString;
 public class GetAttributes {
 
     @SuppressWarnings("unchecked")
-    public static MapValue<BString, BString> getAttributes(Strand strand, XMLValue xmlVal) {
-        if (!IsElement.isElement(strand, xmlVal)) {
+    public static MapValue<BString, BString> getAttributes(XMLValue xmlVal) {
+        if (!IsElement.isElement(xmlVal)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR,
                     "getAttributes", "element");
         }

@@ -76,7 +76,7 @@ public class ServiceTest {
         }
 
         try {
-            await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+            await().atMost(40000, TimeUnit.MILLISECONDS).until(() -> {
                 BValue[] returnBValues = BRunUtil.invoke(compileResult, "testGetResult");
                 Assert.assertEquals(returnBValues.length, 1);
                 Assert.assertTrue(returnBValues[0] instanceof BInteger);
@@ -94,7 +94,7 @@ public class ServiceTest {
         BRunUtil.invoke(compileResult, "testProduce");
 
         try {
-            await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+            await().atMost(40000, TimeUnit.MILLISECONDS).until(() -> {
                 BValue[] returnBValues = BRunUtil.invoke(compileResult, "testGetResultText");
                 Assert.assertEquals(returnBValues.length, 1);
                 Assert.assertTrue(returnBValues[0] instanceof BBoolean);
@@ -111,7 +111,7 @@ public class ServiceTest {
         compileResult = BCompileUtil.compileOffline(true, getResourcePath(Paths.get(TEST_SRC, TEST_SERVICES, balFile)));
         BRunUtil.invoke(compileResult, "testProduce");
         try {
-            await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+            await().atMost(40000, TimeUnit.MILLISECONDS).until(() -> {
                 BValue[] results = BRunUtil.invoke(compileResult, "testGetResult");
                 Assert.assertEquals(results.length, 1);
                 Assert.assertTrue(results[0] instanceof BBoolean);

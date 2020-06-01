@@ -88,7 +88,7 @@ public class TopicSubscribeWithPartitionRebalanceTest {
         kafkaCluster.createTopic(topic1, 3, 1);
         kafkaCluster.createTopic(topic2, 2, 1);
 
-        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+        await().atMost(40000, TimeUnit.MILLISECONDS).until(() -> {
             produceToKafkaCluster(kafkaCluster, "test", "test-message", 1);
             BValue[] revoked = BRunUtil.invoke(result, "testGetRebalanceInvokedPartitionsCount");
             Assert.assertEquals(revoked.length, 1);

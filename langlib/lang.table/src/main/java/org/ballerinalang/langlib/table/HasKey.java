@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.TableValueImpl;
 
 /**
@@ -36,7 +35,7 @@ import org.ballerinalang.jvm.values.TableValueImpl;
 public class HasKey {
 
     @Deprecated
-    public static boolean hasKey(Strand strand, TableValueImpl tbl, Object key) {
+    public static boolean hasKey(TableValueImpl tbl, Object key) {
         return tbl.containsKey(key);
     }
 }

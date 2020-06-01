@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.CloneUtils;
 
 /**
@@ -35,7 +34,7 @@ import org.ballerinalang.jvm.values.CloneUtils;
 //)
 public class CloneReadOnly {
 
-    public static Object cloneReadOnly(Strand strand, Object value) {
+    public static Object cloneReadOnly(Object value) {
         return CloneUtils.cloneReadOnly(value);
     }
 }

@@ -27,6 +27,7 @@ function testNestedTrxBlocks() returns (string) {
 
 function testCheckExprWithinTransactionBlock() returns error? {
     transaction with retries=2 {
-        var e = check int.constructFrom("five");
+        string five = "five";
+        var e = check five.cloneWithType(int);
     }
 }

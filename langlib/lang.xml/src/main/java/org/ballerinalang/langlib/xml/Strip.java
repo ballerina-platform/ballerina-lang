@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.XMLValue;
 
@@ -41,7 +40,7 @@ public class Strip {
 
     private static final String OPERATION = "strip xml";
 
-    public static XMLValue strip(Strand strand, XMLValue xml) {
+    public static XMLValue strip(XMLValue xml) {
         try {
             return (XMLValue) xml.strip();
         } catch (Throwable e) {

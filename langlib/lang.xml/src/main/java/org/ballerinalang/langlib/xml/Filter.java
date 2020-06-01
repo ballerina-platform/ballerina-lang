@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -44,9 +44,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 //)
 public class Filter {
 
-    public static XMLValue filter(Strand strand, XMLValue x, FPValue<Object, Boolean> func) {
+    public static XMLValue filter(XMLValue x, FPValue<Object, Boolean> func) {
         if (x.isSingleton()) {
-            Object[] args = new Object[]{strand, x, true};
+            Object[] args = new Object[]{Scheduler.getStrand(), x, true};
             func.asyncCall(args,
                       result -> {
                           if ((Boolean) result) {
@@ -62,7 +62,7 @@ public class Filter {
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, size,
-                                                       () -> new Object[]{strand,
+                                                       () -> new Object[]{Scheduler.getStrand(),
                                                                x.getItem(index.incrementAndGet()), true},
                                                        result -> {
                                                            if ((Boolean) result) {

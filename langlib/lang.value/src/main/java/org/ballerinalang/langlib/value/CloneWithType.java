@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.langlib.typedesc;
+package org.ballerinalang.langlib.value;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
@@ -59,15 +59,15 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONSTR
 import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
 /**
- * Extern function lang.typedesc:constructFrom.
+ * Extern function lang.values:cloneWithType.
  *
- * @since 1.0
+ * @since 2.0
  */
-public class ConstructFrom {
+public class CloneWithType {
 
     private static final String AMBIGUOUS_TARGET = "ambiguous target type";
 
-    public static Object constructFrom(TypedescValue t, Object v) {
+    public static Object cloneWithType(Object v, TypedescValue t) {
         BType describingType = t.getDescribingType();
         // typedesc<json>.constructFrom like usage
         if (describingType.getTag() == TypeTags.TYPEDESC_TAG) {
@@ -102,9 +102,9 @@ public class ConstructFrom {
                 return null;
             }
             return createError(StringUtils.fromString(CONSTRUCT_FROM_CONVERSION_ERROR),
-                               StringUtils.fromString(
-                                       BLangExceptionHelper
-                                               .getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, targetType)));
+                    StringUtils.fromString(
+                            BLangExceptionHelper
+                                    .getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, targetType)));
         }
 
         List<BType> convertibleTypes = TypeConverter.getConvertibleTypes(value, targetType);
@@ -142,7 +142,7 @@ public class ConstructFrom {
                 return null;
             }
             return createError(CONSTRUCT_FROM_CONVERSION_ERROR,
-                               BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
+                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
         }
         List<BType> convertibleTypes;
         convertibleTypes = TypeConverter.getConvertibleTypes(value, targetType);
@@ -291,14 +291,14 @@ public class ConstructFrom {
     private static ErrorValue createConversionError(Object inputValue, BType targetType) {
         return createError(StringUtils.fromString(CONSTRUCT_FROM_CONVERSION_ERROR), StringUtils.fromString(
                 BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
-                                                     TypeChecker.getType(inputValue), targetType)));
+                        TypeChecker.getType(inputValue), targetType)));
     }
 
     private static ErrorValue createConversionError(Object inputValue, BType targetType, String detailMessage) {
         return createError(StringUtils.fromString(CONSTRUCT_FROM_CONVERSION_ERROR),
-                           StringUtils.fromString(BLangExceptionHelper.getErrorMessage(
-                                   INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
-                                                          .concat(": ".concat(detailMessage))));
+                StringUtils.fromString(BLangExceptionHelper.getErrorMessage(
+                        INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
+                        .concat(": ".concat(detailMessage))));
     }
 
 }

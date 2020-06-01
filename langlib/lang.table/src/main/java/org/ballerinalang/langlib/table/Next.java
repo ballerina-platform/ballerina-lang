@@ -22,7 +22,6 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
@@ -52,7 +51,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.ITERAT
 //)
 public class Next {
     //TODO: refactor hard coded values
-    public static Object next(Strand strand, ObjectValue t) {
+    public static Object next(ObjectValue t) {
         IteratorValue tableIterator = (IteratorValue) t.getNativeData("&iterator&");
         TableValueImpl table = (TableValueImpl) t.get(StringUtils.fromString("t"));
         ArrayValueImpl keys = (ArrayValueImpl) t.get(StringUtils.fromString("keys"));

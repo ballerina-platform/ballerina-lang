@@ -19,7 +19,6 @@
 package org.ballerinalang.langlib.value;
 
 import org.ballerinalang.jvm.JSONUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
 
 
 /**
@@ -36,7 +35,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 //)
 public class MergeJson {
 
-    public static Object mergeJson(Strand strand, Object j1, Object j2) {
+    public static Object mergeJson(Object j1, Object j2) {
         return JSONUtils.mergeJson(j1, j2, true);
     }
 

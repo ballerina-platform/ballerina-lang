@@ -32,7 +32,6 @@ import org.ballerinalang.bindgen.model.JMethod;
 import org.ballerinalang.bindgen.model.JParameter;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -52,12 +51,9 @@ import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
 
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
@@ -90,8 +86,8 @@ public class BindgenUtils {
     private BindgenUtils() {
     }
 
-    public static PrintStream errStream = System.err;
-    public static PrintStream outStream = System.out;
+    private static PrintStream errStream;
+    private static PrintStream outStream;
 
     public static void writeOutputFile(Object object, String templateDir, String templateName, String outPath,
                                        Boolean append) throws BindgenException {
@@ -259,16 +255,17 @@ public class BindgenUtils {
 
     private static String getParamsHelper(JParameter param) {
         StringBuilder returnString = new StringBuilder();
+        String checkToHandle = "check toHandle(";
         if (param.getIsObjArray()) {
-            returnString.append("check getHandleFromArray(").append(param.getFieldName())
+            returnString.append(checkToHandle).append(param.getFieldName())
                     .append(", \"").append(param.getComponentType()).append("\")");
         } else if (param.getIsPrimitiveArray()) {
-            returnString.append("check getHandleFromArray(").append(param.getFieldName())
+            returnString.append(checkToHandle).append(param.getFieldName())
                     .append(", \"").append(param.getComponentType()).append("\")");
         } else if (param.getIsString()) {
             returnString.append("java:fromString(").append(param.getFieldName()).append(")");
         } else if (param.getIsStringArray()) {
-            returnString.append("check getHandleFromArray(").append(param.getFieldName())
+            returnString.append(checkToHandle).append(param.getFieldName())
                     .append(", \"java.lang.String\")");
         } else {
             returnString.append(param.getFieldName());
@@ -405,30 +402,6 @@ public class BindgenUtils {
         }
     }
 
-    public static Set<String> getClassNamesInJar(String jarPath) throws IOException {
-        JarInputStream jarInputStream = new JarInputStream(new FileInputStream(jarPath));
-        JarEntry jarEntry;
-        Set<String> classes = new HashSet<>();
-        try {
-            while (true) {
-                jarEntry = jarInputStream.getNextJarEntry();
-                if (jarEntry == null) {
-                    break;
-                }
-                if ((jarEntry.getName().endsWith(".class"))) {
-                    String className = jarEntry.getName().replace("/", ".");
-                    classes.add(className.substring(0, className.length() - ".class".length()));
-                }
-            }
-            jarInputStream.close();
-        } catch (IOException e) {
-            throw new IOException("error while accessing the jar: ", e);
-        } finally {
-            jarInputStream.close();
-        }
-        return classes;
-    }
-
     public static boolean isPublicField(Field field) {
         int modifiers = field.getModifiers();
         return Modifier.isPublic(modifiers);
@@ -462,19 +435,6 @@ public class BindgenUtils {
     public static boolean isAbstractClass(Class javaClass) {
         int modifiers = javaClass.getModifiers();
         return Modifier.isAbstract(modifiers) && !javaClass.isInterface();
-    }
-
-    public static String getModuleName(String jarPath) {
-        String name = null;
-        if (jarPath != null) {
-            Path jarName = Paths.get(jarPath).getFileName();
-            if (jarName != null) {
-                name = jarName.toString().substring(0, jarName.toString()
-                        .lastIndexOf('.'));
-                name = name.replace('-', '_');
-            }
-        }
-        return name;
     }
 
     public static void handleOverloadedMethods(List<JMethod> methodList) {
@@ -520,6 +480,19 @@ public class BindgenUtils {
             returnType = HANDLE;
         }
         return returnType;
+    }
+
+    public static String getJavaType(Class javaType) {
+        if (javaType.isArray()) {
+            javaType = javaType.getComponentType();
+        }
+        if (javaType.isPrimitive()) {
+            return javaType.getSimpleName();
+        } else if (javaType.getSimpleName().equals(JAVA_STRING)) {
+            return BALLERINA_STRING;
+        } else {
+            return HANDLE;
+        }
     }
 
     private static String getBalType(String type) {
@@ -650,5 +623,13 @@ public class BindgenUtils {
             return true;
         }
         return false;
+    }
+
+    public static void setErrStream(PrintStream errStream) {
+        BindgenUtils.errStream = errStream;
+    }
+
+    public static void setOutStream(PrintStream outStream) {
+        BindgenUtils.outStream = outStream;
     }
 }

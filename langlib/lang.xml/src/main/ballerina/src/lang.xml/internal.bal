@@ -25,7 +25,12 @@ type XMLIterator object {
 
     # Return next member or nil if end of iteration is reached.
     # + return - iterator result
-    public function next() returns record {|
-        (xml|string) value;
-    |}? = external;
+    public function next() returns record {| (xml|string) value; |}? {
+        return externNext(self);
+    }
 };
+
+function externNext(XMLIterator iterator) returns record {| (xml|string) value; |}? = @java:Method {
+    class: "org.ballerinalang.langlib.xml.Next"
+    name: "next"
+} external;

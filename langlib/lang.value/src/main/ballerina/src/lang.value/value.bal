@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/java;
+
 # A type parameter that is a subtype of `anydata`.
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
@@ -28,7 +30,10 @@ type AnydataType anydata;
 #
 # + v - source value
 # + return - clone of `v`
-public function clone(AnydataType v) returns AnydataType = external;
+public function clone(AnydataType v) returns AnydataType = @java:Method {
+    class: "org.ballerinalang.langlib.value.Clone",
+    name: "clone"
+} external;
 
 # Returns a clone of `v` that is read-only, i.e. immutable.
 # It corresponds to the ImmutableClone(v) abstract operation,
@@ -36,14 +41,51 @@ public function clone(AnydataType v) returns AnydataType = external;
 #
 # + v - source value
 # + return - immutable clone of `v`
-public function cloneReadOnly(AnydataType v) returns AnydataType = external;
+public function cloneReadOnly(AnydataType v) returns AnydataType = @java:Method {
+    class: "org.ballerinalang.langlib.value.CloneReadOnly",
+    name: "cloneReadOnly"
+} external;
+
+# Constructs a value with a specified type by cloning another value.
+# + v - the value to be cloned
+# + t - the type for the cloned to be constructed
+# + return - a new value that belongs to `t`, or an error if this cannot be done
+#
+# When `v` is a structural value, the inherent type of the value to be constructed
+# comes from `t`. When `t` is a union, it must be possible to determine which
+# member of the union to use for the inherent type by following the same rules
+# that are used by list constructor expressions and mapping constructor expressions
+# with the contextually expected type. If not, then an error is returned.
+# The `constructFrom` operation is recursively applied to each member of `v` using
+# the type descriptor that the inherent type requires for that member.
+#
+# Like the Clone abstract operation, this does a deep copy, but differs in
+# the following respects:
+# - the inherent type of any structural values constructed comes from the specified
+#   type descriptor rather than the value being constructed
+# - the read-only bit of values and fields comes from the specified type descriptor
+# - the graph structure of `v` is not preserved; the result will always be a tree;
+#   an error will be returned if `v` has cycles
+# - immutable structural values are copied rather being returned as is; all
+#   structural values in the result will be mutable, except for error values
+#   (which are always immutable)
+# - numeric values can be converted using the NumericConvert abstract operation
+# - if a record type descriptor specifies default values, these will be used
+#   to supply any missing members
+public function cloneWithType(anydata v, typedesc<AnydataType> t) returns AnydataType|error = @java:Method {
+    class: "org.ballerinalang.langlib.value.CloneWithType",
+    name: "cloneWithType"
+} external;
 
 # Tests whether `v` is read-only, i.e. immutable
 # Returns true if read-only, false otherwise.
 #
 # + v - source value
 # + return - true if read-only, false otherwise
-public function isReadOnly(anydata v) returns boolean = external;
+public function isReadOnly(anydata v) returns boolean = @java:Method {
+    class: "org.ballerinalang.langlib.value.IsReadOnly",
+    name: "isReadOnly"
+} external;
 
 # Performs a minimal conversion of a value to a string.
 # The conversion is minimal in particular in the sense
@@ -83,7 +125,10 @@ public function isReadOnly(anydata v) returns boolean = external;
 #
 # Note that `toString` may produce the same string for two Ballerina values
 # that are not equal (in the sense of the `==` operator).
-public function toString((any|error) v) returns string = external;
+public function toString((any|error) v) returns string = @java:Method {
+    class: "org.ballerinalang.langlib.value.ToString",
+    name: "toString"
+} external;
 
 // JSON conversion
 
@@ -91,7 +136,10 @@ public function toString((any|error) v) returns string = external;
 #
 # + v - json value
 # + return - string representation of json
-public function toJsonString(json v) returns string = external;
+public function toJsonString(json v) returns string = @java:Method {
+    class: "org.ballerinalang.langlib.value.ToJsonString",
+    name: "toJsonString"
+} external;
 
 # Parses a string in JSON format and returns the the value that it represents.
 # All numbers in the JSON will be represented as float values.
@@ -99,7 +147,10 @@ public function toJsonString(json v) returns string = external;
 #
 # + str - string representation of json
 # + return - `str` parsed to json or error
-public function fromJsonString(string str) returns json|error = external;
+public function fromJsonString(string str) returns json|error = @java:Method {
+    class: "org.ballerinalang.langlib.value.FromJsonString",
+    name: "fromJsonString"
+} external;
 
 # Merges two json values.
 #
@@ -117,4 +168,7 @@ public function fromJsonString(string str) returns json|error = external;
 #     - otherwise, the result is `j1`.
 # - otherwise, the merge fails
 # If the merge fails, then `j1` is unchanged.
-public function mergeJson(json j1, json j2) returns json|error = external;
+public function mergeJson(json j1, json j2) returns json|error = @java:Method {
+    class: "org.ballerinalang.langlib.value.MergeJson",
+    name: "mergeJson"
+} external;
