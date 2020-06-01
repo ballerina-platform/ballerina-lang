@@ -20,7 +20,6 @@ package org.ballerinalang.langlib.value;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.api.BString;
 
@@ -41,7 +40,7 @@ import java.io.StringReader;
 //)
 public class FromJsonString {
 
-    public static Object fromJsonString(Strand strand, BString value) {
+    public static Object fromJsonString(BString value) {
 
         String str = value.getValue();
         if (str.equals("null")) {

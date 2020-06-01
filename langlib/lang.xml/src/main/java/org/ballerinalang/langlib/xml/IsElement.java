@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLValue;
 
 /**
@@ -34,7 +33,7 @@ import org.ballerinalang.jvm.values.XMLValue;
 //)
 public class IsElement {
 
-    public static boolean isElement(Strand strand, XMLValue xmlValue) {
+    public static boolean isElement(XMLValue xmlValue) {
         return org.ballerinalang.langlib.internal.IsElement.isElement(xmlValue);
     }
 }

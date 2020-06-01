@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -44,19 +44,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 //)
 public class Map {
 
-    public static XMLValue map(Strand strand, XMLValue x, FPValue<Object, Object> func) {
+    public static XMLValue map(XMLValue x, FPValue<Object, Object> func) {
         if (x.isSingleton()) {
-            func.asyncCall(new Object[]{strand, x, true});
+            func.asyncCall(new Object[]{Scheduler.getStrand(), x, true});
             return null;
         }
         List<BXML> elements = new ArrayList<>();
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, x.size(),
-                                                       () -> new Object[]{strand, x.getItem(index.incrementAndGet()),
-                                                               true},
-                                                       result -> elements.add((XMLValue) result),
-                                                       () -> new XMLSequence(elements));
+                        () -> new Object[]{Scheduler.getStrand(), x.getItem(index.incrementAndGet()),
+                                true},
+                        result -> elements.add((XMLValue) result),
+                        () -> new XMLSequence(elements));
         return new XMLSequence(elements);
     }
 }

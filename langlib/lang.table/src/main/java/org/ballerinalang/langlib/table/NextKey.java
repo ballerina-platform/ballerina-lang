@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.TableValueImpl;
 
 /**
@@ -35,7 +34,7 @@ import org.ballerinalang.jvm.values.TableValueImpl;
 //        isPublic = true
 //)
 public class NextKey {
-    public static long nextKey(Strand strand, TableValueImpl tbl) {
+    public static long nextKey(TableValueImpl tbl) {
         return tbl.getNextKey();
     }
 }

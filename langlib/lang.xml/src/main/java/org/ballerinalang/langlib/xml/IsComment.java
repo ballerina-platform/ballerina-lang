@@ -18,7 +18,6 @@
 package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLValue;
 
 /**
@@ -35,7 +34,7 @@ import org.ballerinalang.jvm.values.XMLValue;
 //)
 public class IsComment {
 
-    public static boolean isComment(Strand strand, XMLValue xmlValue) {
+    public static boolean isComment(XMLValue xmlValue) {
         return xmlValue.getNodeType() == XMLNodeType.COMMENT;
     }
 }

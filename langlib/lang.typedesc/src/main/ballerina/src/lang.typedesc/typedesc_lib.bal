@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/java;
+
 # A type parameter that is a subtype of `anydata`.
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
@@ -45,4 +47,7 @@ type AnydataType anydata;
 # - numeric values can be converted using the NumericConvert abstract operation
 # - if a record type descriptor specifies default values, these will be used
 #   to supply any missing members
-public function constructFrom(typedesc<AnydataType> t, anydata v) returns AnydataType|error = external;
+public function constructFrom(typedesc<AnydataType> t, anydata v) returns AnydataType|error = @java:Method {
+    class: "org.ballerinalang.langlib.typedesc.ConstructFrom",
+    name: "constructFrom"
+} external;

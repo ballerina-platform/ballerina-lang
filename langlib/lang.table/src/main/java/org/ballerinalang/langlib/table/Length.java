@@ -34,10 +34,10 @@ import org.ballerinalang.jvm.values.TableValueImpl;
 //)
 public class Length {
 
-    public static long length(Strand strand, TableValueImpl tbl) {
+    public static long length(TableValueImpl tbl) {
         return tbl.size();
     }
     public static long length_bstring(Strand strand, TableValueImpl tbl) {
-        return length(strand, tbl);
+        return length(tbl);
     }
 }

@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.TableValueImpl;
 
 /**
@@ -34,7 +33,7 @@ import org.ballerinalang.jvm.values.TableValueImpl;
 //)
 public class Get {
 
-    public static Object get(Strand strand, TableValueImpl tbl, Object key) {
+    public static Object get(TableValueImpl tbl, Object key) {
         return tbl.getOrThrow(key);
     }
 }

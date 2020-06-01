@@ -19,7 +19,6 @@ package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -43,7 +42,7 @@ import java.util.List;
 //)
 public class Concat {
 
-    public static XMLValue concat(Strand strand, ArrayValue arrayValue) {
+    public static XMLValue concat(ArrayValue arrayValue) {
         List<BXML> backingArray = new ArrayList<>();
         XMLValue lastItem = null;
         for (int i = 0; i < arrayValue.size(); i++) {

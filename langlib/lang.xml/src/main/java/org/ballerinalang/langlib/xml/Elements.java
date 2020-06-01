@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.XMLSequence;
@@ -44,7 +43,7 @@ public class Elements {
 
     private static final String OPERATION = "get elements from xml";
 
-    public static XMLValue elements(Strand strand, XMLValue xml, Object name) {
+    public static XMLValue elements(XMLValue xml, Object name) {
         try {
             if (name instanceof BString) {
                 return (XMLValue) xml.elements(((BString) name).getValue());

@@ -4,4 +4,5 @@ module io.ballerina.lang.xml {
     requires slf4j.api;
     requires io.ballerina.lang.internal;
     requires java.xml;
+    exports org.ballerinalang.langlib.xml;
 }

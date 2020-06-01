@@ -18,7 +18,6 @@
 package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -40,7 +39,7 @@ import java.util.ArrayList;
 //)
 public class Children {
 
-    public static XMLValue children(Strand strand, XMLValue xmlVal) {
+    public static XMLValue children(XMLValue xmlVal) {
         if (xmlVal.getNodeType() == XMLNodeType.ELEMENT) {
             return ((XMLItem) xmlVal).children();
         } else if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE) {

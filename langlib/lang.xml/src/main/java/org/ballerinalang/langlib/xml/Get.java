@@ -18,7 +18,6 @@
 package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.XMLSequence;
@@ -45,7 +44,7 @@ public class Get {
 
     public static final int LENGTH_OF_ONE = 1;
 
-    public static XMLValue get(Strand strand, XMLValue xmlVal, long i) {
+    public static XMLValue get(XMLValue xmlVal, long i) {
         // Handle single xml items
         XMLNodeType nodeType = xmlVal.getNodeType();
         switch (nodeType) {

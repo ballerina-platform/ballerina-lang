@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BType;
@@ -40,7 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 //)
 public class Filter {
 
-    public static TableValueImpl filter(Strand strand, TableValueImpl tbl, FPValue<Object, Boolean> func) {
+    public static TableValueImpl filter(TableValueImpl tbl, FPValue<Object, Boolean> func) {
         BType newTableType = tbl.getType();
         TableValueImpl newTable = new TableValueImpl((BTableType) newTableType);
         int size = tbl.size();
@@ -48,7 +49,7 @@ public class Filter {
 
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, size,
-                        () -> new Object[]{strand,
+                        () -> new Object[]{Scheduler.getStrand(),
                                 tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
                         result -> {
                             if ((Boolean) result) {
@@ -61,6 +62,6 @@ public class Filter {
     }
 
     public static TableValueImpl filter_bstring(Strand strand, TableValueImpl tbl, FPValue<Object, Boolean> func) {
-        return filter(strand, tbl, func);
+        return filter(tbl, func);
     }
 }

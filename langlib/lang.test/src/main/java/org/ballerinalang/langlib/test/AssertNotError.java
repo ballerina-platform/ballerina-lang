@@ -20,7 +20,6 @@ package org.ballerinalang.langlib.test;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.TypeTags;
 
 /**
@@ -34,7 +33,7 @@ import org.ballerinalang.jvm.types.TypeTags;
 //        isPublic = true
 //)
 public class AssertNotError {
-    public static void assertNotError(Strand strand, Object value) {
+    public static void assertNotError(Object value) {
         if (TypeChecker.getType(value).getTag() == TypeTags.ERROR_TAG) {
             throw BallerinaErrors.createError("{ballerina/lang.test}AssertionError",
                     "expected a non-error type");

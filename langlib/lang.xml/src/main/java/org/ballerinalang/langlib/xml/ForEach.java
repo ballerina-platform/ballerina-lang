@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.XMLValue;
 
@@ -39,17 +39,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 //)
 public class ForEach {
 
-    public static void forEach(Strand strand, XMLValue x, FPValue<Object, Object> func) {
+    public static void forEach(XMLValue x, FPValue<Object, Object> func) {
         if (x.isSingleton()) {
-            func.asyncCall(new Object[]{strand, x, true});
+            func.asyncCall(new Object[]{Scheduler.getStrand(), x, true});
             return;
         }
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, x.size(),
-                                                       () -> new Object[]{strand, x.getItem(index.incrementAndGet()),
-                                                               true},
-                                                       result -> {
-                                                       }, () -> null);
+                        () -> new Object[]{Scheduler.getStrand(), x.getItem(index.incrementAndGet()),
+                                true},
+                        result -> {
+                        }, () -> null);
     }
 }

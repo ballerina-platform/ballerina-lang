@@ -19,7 +19,6 @@
 package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.TableValueImpl;
 
 /**
@@ -34,7 +33,7 @@ import org.ballerinalang.jvm.values.TableValueImpl;
 //)
 public class RemoveAll {
 
-    public static void removeAll(Strand strand, TableValueImpl tbl) {
+    public static void removeAll(TableValueImpl tbl) {
         try {
             tbl.clear();
         } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {

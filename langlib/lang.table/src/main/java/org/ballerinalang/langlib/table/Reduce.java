@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
@@ -40,13 +41,13 @@ import java.util.concurrent.atomic.AtomicReference;
 //)
 public class Reduce {
 
-    public static Object reduce(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func, Object initial) {
+    public static Object reduce(TableValueImpl tbl, FPValue<Object, Object> func, Object initial) {
         int size = tbl.values().size();
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, size,
-                        () -> new Object[]{strand, accum.get(), true,
+                        () -> new Object[]{Scheduler.getStrand(), accum.get(), true,
                                 tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
                         accum::set, accum::get);
         return accum.get();
@@ -54,6 +55,6 @@ public class Reduce {
 
     public static Object reduce_bstring(Strand strand, TableValueImpl tbl,
                                         FPValue<Object, Object> func, Object initial) {
-        return reduce(strand, tbl, func, initial);
+        return reduce(tbl, func, initial);
     }
 }

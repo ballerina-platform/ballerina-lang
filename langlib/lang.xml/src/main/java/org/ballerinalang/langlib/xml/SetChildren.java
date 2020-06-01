@@ -20,7 +20,6 @@ package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
@@ -48,8 +47,8 @@ public class SetChildren {
 
     private static final String OPERATION = "set children to xml element";
 
-    public static void setChildren(Strand strand, XMLValue xml, Object children) {
-        if (!IsElement.isElement(strand, xml)) {
+    public static void setChildren(XMLValue xml, Object children) {
+        if (!IsElement.isElement(xml)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "setChildren", "element");
         }
 

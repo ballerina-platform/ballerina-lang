@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.XMLValue;
 
@@ -38,7 +37,7 @@ public class Slice {
 
     private static final String OPERATION = "slice xml";
 
-    public static XMLValue slice(Strand strand, XMLValue xml, long startIndex, long endIndex) {
+    public static XMLValue slice(XMLValue xml, long startIndex, long endIndex) {
         try {
             return (XMLValue) xml.slice(startIndex, endIndex);
         } catch (Throwable e) {

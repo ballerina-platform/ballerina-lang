@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BTableType;
@@ -42,7 +43,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 //)
 public class Map {
 
-    public static TableValueImpl map(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func) {
+    public static TableValueImpl map(TableValueImpl tbl, FPValue<Object, Object> func) {
         BType newConstraintType = ((BFunctionType) func.getType()).retType;
         BTableType newTableType = new BTableType(newConstraintType, ((BTableType) tbl.getType()).getFieldNames());
 
@@ -51,7 +52,7 @@ public class Map {
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, size,
-                        () -> new Object[]{strand,
+                        () -> new Object[]{Scheduler.getStrand(),
                                 tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
                         result -> newTable
                                 .put(tbl.getKeys()[index.get()], result),
@@ -60,6 +61,6 @@ public class Map {
     }
 
     public static TableValue map_bstring(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func) {
-        return map(strand, tbl, func);
+        return map(tbl, func);
     }
 }

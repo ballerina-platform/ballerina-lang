@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 
@@ -35,7 +34,7 @@ import org.ballerinalang.jvm.values.utils.StringUtils;
 //        isPublic = true
 //)
 public class ToString {
-    public static BString toString(Strand strand, Object value) {
+    public static BString toString(Object value) {
         return org.ballerinalang.jvm.StringUtils.fromString(StringUtils.getStringValue(value));
     }
 }
