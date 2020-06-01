@@ -258,4 +258,11 @@ public class LangLibTableTest {
     public void testAddWithKeylessTableAfterIteratorCreation() {
         BRunUtil.invoke(compileResult, "testAddWithKeylessTableAfterIteratorCreation");
     }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IteratorMutabilityError message=Table was " +
+                    "mutated after the iterator was created.*")
+    public void testRemoveAllReturnedRecordsFromIteratorKeylessTbl() {
+        BRunUtil.invoke(compileResult, "testRemoveAllReturnedRecordsFromIteratorKeylessTbl");
+    }
 }

@@ -374,7 +374,6 @@ function testAddWithKeyLessTbl() returns boolean {
 }
 
 function testPutWithKeylessTableAfterIteratorCreation() {
-    boolean testPassed = true;
     CustomerKeyLessTable custTbl = table [
       { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
       { id: 2, firstName: "James", lastName: "Clark" }
@@ -387,7 +386,6 @@ function testPutWithKeylessTableAfterIteratorCreation() {
 }
 
 function testAddWithKeylessTableAfterIteratorCreation() {
-    boolean testPassed = true;
     CustomerKeyLessTable custTbl = table [
       { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
       { id: 2, firstName: "James", lastName: "Clark" }
@@ -397,4 +395,17 @@ function testAddWithKeylessTableAfterIteratorCreation() {
     Customer customer = { id: 3, firstName: "Jane", lastName: "Eyre"};
     custTbl.add(customer);
     var value = itr.next();
+}
+
+function testRemoveAllReturnedRecordsFromIteratorKeylessTbl() {
+    CustomerKeyLessTable custTbl = table [
+      { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
+      { id: 2, firstName: "James", lastName: "Clark" }
+    ];
+
+    var itr = custTbl.iterator();
+    var value = itr.next();
+    value = itr.next();
+    custTbl.removeAll();
+    value = itr.next();
 }
