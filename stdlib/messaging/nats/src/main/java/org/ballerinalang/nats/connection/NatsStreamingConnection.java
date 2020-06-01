@@ -22,6 +22,7 @@ import io.nats.streaming.StreamingConnection;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -42,7 +43,8 @@ public class NatsStreamingConnection {
     public static void createConnection(ObjectValue streamingClientObject, ObjectValue connectionObject,
                                         String clusterId, Object clientIdNillable, Object streamingConfig) {
         Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
-        String clientId = clientIdNillable == null ? UUID.randomUUID().toString() : (String) clientIdNillable;
+        String clientId = clientIdNillable == null ? UUID.randomUUID().toString() :
+                ((BString) clientIdNillable).getValue();
         BallerinaNatsStreamingConnectionFactory streamingConnectionFactory =
                 new BallerinaNatsStreamingConnectionFactory(
                         natsConnection, clusterId, clientId, (MapValue<String, Object>) streamingConfig);

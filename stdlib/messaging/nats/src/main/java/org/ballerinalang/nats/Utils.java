@@ -125,7 +125,7 @@ public class Utils {
         BType dataType = TypeChecker.getType(data);
         int typeTag = dataType.getTag();
         if (typeTag == org.wso2.ballerinalang.compiler.util.TypeTags.STRING) {
-            return ((String) data).getBytes(StandardCharsets.UTF_8);
+            return ((BString) data).getValue().getBytes(StandardCharsets.UTF_8);
         } else {
             return ((ArrayValue) data).getBytes();
         }
