@@ -18,7 +18,10 @@
 
 package org.ballerinalang.observe.trace.extension.choreo.client.secret;
 
+import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoConfigHelper;
+
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -37,6 +40,7 @@ public class AnonymousAppSecretHandler implements AppSecretHandler {
 
     private final String appSecret;
     private final Path propertiesFilePath;
+    private boolean fileDirty = false;
 
     public AnonymousAppSecretHandler() throws IOException {
         propertiesFilePath = getPropertiesFilePath();
@@ -50,17 +54,33 @@ public class AnonymousAppSecretHandler implements AppSecretHandler {
 
     private String getAppSecretForProject(Path propertiesFilePath) throws IOException {
         if (Files.exists(propertiesFilePath)) {
-            return readStoreSecret(propertiesFilePath);
+            return readStoredSecret(propertiesFilePath);
         } else {
+            fileDirty = true;
             return generateSecret();
         }
     }
 
-    private String readStoreSecret(Path propertiesFileLocation) throws IOException {
-        try (InputStream inputStream = Files.newInputStream(propertiesFileLocation)) {
+    private String readStoredSecret(Path propertiesFileLocation) throws IOException {
+        final String obsId = readStoredObsId(propertiesFileLocation);
+        final Path projectSecretPath = getProjectSecretPath(obsId);
+
+        if (!Files.exists(projectSecretPath)) {
+            throw new FileNotFoundException(projectSecretPath.toString() + " is missing");
+        }
+
+        try (InputStream inputStream = Files.newInputStream(projectSecretPath)) {
             Properties props = new Properties();
             props.load(inputStream);
             return props.getProperty(PROJECT_SECRET_CONFIG_KEY);
+        }
+    }
+
+    private String readStoredObsId(Path propertiesFileLocation) throws IOException {
+        try (InputStream inputStream = Files.newInputStream(propertiesFileLocation)) {
+            Properties props = new Properties();
+            props.load(inputStream);
+            return props.getProperty(PROJECT_OBSERVABILITY_ID_CONFIG_KEY);
         }
     }
 
@@ -75,12 +95,37 @@ public class AnonymousAppSecretHandler implements AppSecretHandler {
 
     @Override
     public void associate(String obsId) throws IOException {
-        // TODO store file in .config/choreo
+        if (!fileDirty) {
+            return;
+        }
+
+        persistSecret(obsId);
+    }
+
+    private void persistSecret(String obsId) throws IOException {
         try (OutputStream outputStream = Files.newOutputStream(propertiesFilePath)) {
             Properties props = new Properties();
-            props.setProperty(PROJECT_SECRET_CONFIG_KEY, appSecret);
             props.setProperty(PROJECT_OBSERVABILITY_ID_CONFIG_KEY, obsId);
             props.store(outputStream, null);
         }
+
+        createProjectSecretFile(obsId);
+    }
+
+    private void createProjectSecretFile(String obsId) throws IOException {
+        final Path projectSecretPath = getProjectSecretPath(obsId);
+        projectSecretPath.getParent().toFile().mkdirs();
+
+        try (OutputStream outputStream = Files.newOutputStream(projectSecretPath)) {
+            Properties props = new Properties();
+            props.setProperty(PROJECT_SECRET_CONFIG_KEY, appSecret);
+            props.store(outputStream, null);
+        }
+    }
+
+    private Path getProjectSecretPath(String obsId) {
+        return ChoreoConfigHelper.getGlobalChoreoConfigDir()
+                                 .resolve(obsId)
+                                 .resolve("projectsecret");
     }
 }

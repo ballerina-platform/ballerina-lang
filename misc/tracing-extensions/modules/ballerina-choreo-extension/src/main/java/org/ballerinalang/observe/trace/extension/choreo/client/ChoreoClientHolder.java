@@ -24,12 +24,10 @@ import org.ballerinalang.observe.trace.extension.choreo.client.secret.LinkedAppS
 import org.ballerinalang.observe.trace.extension.choreo.logging.LogFactory;
 import org.ballerinalang.observe.trace.extension.choreo.logging.Logger;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -151,13 +149,8 @@ public class ChoreoClientHolder {
         return getChoreoClient();
     }
 
-    private static Path getGlobalChoreoConfigDir() {
-        final String userHome = System.getProperty("user.home");
-        return Paths.get(userHome + File.separator + ".config" + File.separator + "choreo");
-    }
-
     private static String getNodeId() {
-        Path instanceIdConfigFilePath = getGlobalChoreoConfigDir().resolve("nodeId");
+        Path instanceIdConfigFilePath = ChoreoConfigHelper.getGlobalChoreoConfigDir().resolve("nodeId");
 
         String instanceId;
         if (!Files.exists(instanceIdConfigFilePath)) {
