@@ -50,13 +50,14 @@ public class ChoreoClient implements AutoCloseable {
     private String id;      // ID received from the handshake
     private String nodeId;
     private String version;
+    private String appSecret;
 
     private ManagedChannel channel;
     private HandshakeGrpc.HandshakeBlockingStub registrationClient;
     private TelemetryGrpc.TelemetryBlockingStub telemetryClient;
     private Thread uploadingThread;
 
-    public ChoreoClient(String hostname, int port, boolean useSSL) {
+    public ChoreoClient(String hostname, int port, boolean useSSL, String appSecret) {
         LOGGER.info("initializing connection with observability backend " + hostname + ":" + port);
 
         ManagedChannelBuilder<?> channelBuilder = ManagedChannelBuilder.forAddress(hostname, port);
@@ -66,9 +67,10 @@ public class ChoreoClient implements AutoCloseable {
         channel = channelBuilder.build();
         registrationClient = HandshakeGrpc.newBlockingStub(channel);
         telemetryClient = TelemetryGrpc.newBlockingStub(channel);
+        this.appSecret = appSecret;
     }
 
-    public RegisterResponse register(final MetadataReader metadataReader, String nodeId, String appSecret) throws
+    public RegisterResponse register(final MetadataReader metadataReader, String nodeId) throws
             ChoreoClientException {
         RegisterRequest handshakeRequest = RegisterRequest.newBuilder()
                                                           .setAstHash(metadataReader.getAstHash())
@@ -161,6 +163,7 @@ public class ChoreoClient implements AutoCloseable {
             telemetryClient.publishMetrics(requestBuilder.setObservabilityId(id)
                                                          .setNodeId(nodeId)
                                                          .setVersion(version)
+                                                         .setAppSecret(appSecret)
                                                          .build());
         }
     }
@@ -208,6 +211,7 @@ public class ChoreoClient implements AutoCloseable {
             telemetryClient.publishTraces(requestBuilder.setObservabilityId(id)
                                                         .setNodeId(nodeId)
                                                         .setVersion(version)
+                                                        .setAppSecret(appSecret)
                                                         .build());
         }
     }

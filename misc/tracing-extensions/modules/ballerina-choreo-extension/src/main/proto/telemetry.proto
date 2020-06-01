@@ -17,6 +17,7 @@ message MetricsPublishRequest {
     string observabilityId = 2;  // ID received in the handshake
     string version = 3;
     string nodeId = 4;
+    string appSecret = 5;
 }
 
 message Metric {
@@ -31,6 +32,7 @@ message TracesPublishRequest {
     string observabilityId = 2;  // ID received in the handshake
     string version = 3;
     string nodeId = 4;
+    string appSecret = 5;
 }
 
 message TraceSpan {
