@@ -19,7 +19,7 @@
 package org.ballerinalang.observe.trace.extension.choreo.client.error;
 
 /**
- * Collection of helper methods to creat Choreo specific exceptions.
+ * Collection of helper methods to create Choreo specific exceptions.
  */
 public class ChoreoErrors {
 
