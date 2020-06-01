@@ -189,8 +189,9 @@ public class TransactionDesugar extends BLangNodeVisitor {
     BLangStatement desugar(BLangRollback rollbackNode, SymbolEnv env) {
         // Rollback desugar implementation
         DiagnosticPos pos = rollbackNode.pos;
-        BInvokableSymbol rollbackTransactionInvokableSymbol = (BInvokableSymbol) symResolver.
-                lookupSymbolInMainSpace(symTable.pkgEnvMap.get(desugar.getTransactionSymbol(env)), ROLLBACK_TRANSACTION);
+        BInvokableSymbol rollbackTransactionInvokableSymbol = (BInvokableSymbol) symResolver
+                .lookupSymbolInMainSpace(symTable.pkgEnvMap.get(desugar.getTransactionSymbol(env)),
+                        ROLLBACK_TRANSACTION);
         List<BLangExpression> args = new ArrayList<>();
         args.add(transactionBlockID);
         BLangInvocation rollbackTransactionInvocation = ASTBuilderUtil.
