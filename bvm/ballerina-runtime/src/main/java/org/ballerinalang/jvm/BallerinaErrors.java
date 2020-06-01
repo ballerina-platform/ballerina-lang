@@ -99,15 +99,24 @@ public class BallerinaErrors {
         return new ErrorValue(type, message, null, detailMap);
     }
 
+    public static ErrorValue createDistinctError(String typeIdName, BPackage typeIdPkg, String message) {
+        ErrorValue error = createError(message);
+        setTypeId(typeIdName, typeIdPkg, error);
+        return error;
+    }
 
-    public static ErrorValue createDistinctError(String errorCode, String typeIdName, BPackage typeIdPkg,
+    public static ErrorValue createDistinctError(String typeIdName, BPackage typeIdPkg, String message,
                                                  MapValue<BString, Object> detailRecord) {
-        ErrorValue error = createError(errorCode, detailRecord);
+        ErrorValue error = createError(message, detailRecord);
+        setTypeId(typeIdName, typeIdPkg, error);
+        return error;
+    }
+
+    private static void setTypeId(String typeIdName, BPackage typeIdPkg, ErrorValue error) {
         BErrorType type = (BErrorType) error.getType();
         BTypeIdSet typeIdSet = new BTypeIdSet();
         typeIdSet.add(typeIdPkg, typeIdName, true);
         type.setTypeIdSet(typeIdSet);
-        return error;
     }
 
     @Deprecated
