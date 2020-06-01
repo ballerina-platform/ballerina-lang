@@ -8648,7 +8648,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         // Parse first variable declaration, that has no leading comma
-        STNode varDec = parseLetVarDec(isRhsExpr);
+        STNode varDec = parseLetVarDecl(isRhsExpr);
         varDecls.add(varDec);
 
         // Parse the remaining variable declarations
@@ -8657,7 +8657,7 @@ public class BallerinaParser extends AbstractParser {
         while (!isEndOfLetVarDeclarations(nextToken.kind)) {
             leadingComma = parseComma();
             varDecls.add(leadingComma);
-            varDec = parseLetVarDec(isRhsExpr);
+            varDec = parseLetVarDecl(isRhsExpr);
             varDecls.add(varDec);
             nextToken = peek();
         }
@@ -8685,7 +8685,7 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseLetVarDec(boolean isRhsExpr) {
+    private STNode parseLetVarDecl(boolean isRhsExpr) {
         STNode annot = parseAnnotations();
         STNode typedBindingPattern = parseTypedBindingPattern(ParserRuleContext.LET_EXPR_LET_VAR_DECL);
         STNode assign = parseAssignOp();
@@ -9596,15 +9596,13 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseFromClause(boolean isRhsExpr) {
         STNode fromKeyword = parseFromKeyword();
-        // TODO: Replace type and varName with typed-binding-pattern
-        STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
-        STNode varName = parseVariableName();
+        STNode typedBindingPattern = parseTypedBindingPattern(ParserRuleContext.FROM_CLAUSE);
         STNode inKeyword = parseInKeyword();
 
         // allow-actions flag is always false, since there will not be any actions
         // within the from-clause, due to the precedence.
         STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
-        return STNodeFactory.createFromClauseNode(fromKeyword, type, varName, inKeyword, expression);
+        return STNodeFactory.createFromClauseNode(fromKeyword, typedBindingPattern, inKeyword, expression);
     }
 
     /**
@@ -11847,14 +11845,14 @@ public class BallerinaParser extends AbstractParser {
                         context);
             case IN_KEYWORD:
                 // "in" keyword is only valid for for-each stmt.
-                if (context != ParserRuleContext.FOREACH_STMT) {
+                if (context != ParserRuleContext.FOREACH_STMT && context != ParserRuleContext.FROM_CLAUSE) {
                     break;
                 }
                 return createTypedBindingPattern(typeDescOrExpr, openBracket, member, closeBracket);
             case EQUAL_TOKEN: // T[a] =
-                if (context == ParserRuleContext.FOREACH_STMT) {
+                if (context == ParserRuleContext.FOREACH_STMT || context == ParserRuleContext.FROM_CLAUSE) {
                     // equal and semi-colon are not valid terminators for typed-binding-pattern
-                    // in foreach-stmt. Therefore recover.
+                    // in foreach-stmt and from-clause. Therefore recover.
                     break;
                 }
 
@@ -11866,9 +11864,9 @@ public class BallerinaParser extends AbstractParser {
                 keyExpr = STNodeFactory.createNodeList(member);
                 return STNodeFactory.createIndexedExpressionNode(typeDescOrExpr, openBracket, keyExpr, closeBracket);
             case SEMICOLON_TOKEN: // T[a];
-                if (context == ParserRuleContext.FOREACH_STMT) {
+                if (context == ParserRuleContext.FOREACH_STMT || context == ParserRuleContext.FROM_CLAUSE) {
                     // equal and semi-colon are not valid terminators for typed-binding-pattern
-                    // in foreach-stmt. Therefore recover.
+                    // in foreach-stmt and from-clause. Therefore recover.
                     break;
                 }
 

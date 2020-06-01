@@ -1,3 +1,6 @@
 function foo() {
-    bar(a+b = c+d);
+
+    foreach var [fruits] in test {
+    }
+
 }

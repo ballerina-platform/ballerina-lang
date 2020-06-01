@@ -3461,6 +3461,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 endContext();
                 return getNextRuleForBindingPattern();
             case FOREACH_STMT:
+            case QUERY_EXPRESSION:
                 return ParserRuleContext.IN_KEYWORD;
             case LIST_BINDING_PATTERN:
             case STMT_START_BRACKETED_LIST:

@@ -40,7 +40,7 @@ public class RemoteMethodCallActionNode extends ActionNode {
         return childInBucket(1);
     }
 
-    public SimpleNameReferenceNode methodName() {
+    public Token methodName() {
         return childInBucket(2);
     }
 
@@ -80,7 +80,7 @@ public class RemoteMethodCallActionNode extends ActionNode {
     public RemoteMethodCallActionNode modify(
             ExpressionNode expression,
             Token rightArrowToken,
-            Node methodName,
+            Token methodName,
             Token openParenToken,
             NodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
@@ -116,7 +116,7 @@ public class RemoteMethodCallActionNode extends ActionNode {
         private final RemoteMethodCallActionNode oldNode;
         private ExpressionNode expression;
         private Token rightArrowToken;
-        private SimpleNameReferenceNode methodName;
+        private Token methodName;
         private Token openParenToken;
         private NodeList<FunctionArgumentNode> arguments;
         private Token closeParenToken;
@@ -146,7 +146,7 @@ public class RemoteMethodCallActionNode extends ActionNode {
         }
 
         public RemoteMethodCallActionNodeModifier withMethodName(
-                SimpleNameReferenceNode methodName) {
+                Token methodName) {
             Objects.requireNonNull(methodName, "methodName must not be null");
             this.methodName = methodName;
             return this;

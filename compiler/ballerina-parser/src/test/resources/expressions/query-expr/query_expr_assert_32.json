@@ -43,12 +43,22 @@
               "isMissing": true
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "foo"
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "isMissing": true
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "foo"
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "IN_KEYWORD",

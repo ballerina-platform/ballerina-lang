@@ -1106,7 +1106,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static RemoteMethodCallActionNode createRemoteMethodCallActionNode(
             ExpressionNode expression,
             Token rightArrowToken,
-            Node methodName,
+            Token methodName,
             Token openParenToken,
             NodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
@@ -1504,7 +1504,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static LetExpressionNode createLetExpressionNode(
             Token letKeyword,
-            SeparatedNodeList<Node> letVarDeclarations,
+            SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations,
             Token inKeyword,
             ExpressionNode expression) {
         Objects.requireNonNull(letKeyword, "letKeyword must not be null");
@@ -1929,20 +1929,17 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static FromClauseNode createFromClauseNode(
             Token fromKeyword,
-            Node typeName,
-            Token variableName,
+            TypedBindingPatternNode typedBindingPattern,
             Token inKeyword,
             ExpressionNode expression) {
         Objects.requireNonNull(fromKeyword, "fromKeyword must not be null");
-        Objects.requireNonNull(typeName, "typeName must not be null");
-        Objects.requireNonNull(variableName, "variableName must not be null");
+        Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
         Objects.requireNonNull(inKeyword, "inKeyword must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
 
         STNode stFromClauseNode = STNodeFactory.createFromClauseNode(
                 fromKeyword.internalNode(),
-                typeName.internalNode(),
-                variableName.internalNode(),
+                typedBindingPattern.internalNode(),
                 inKeyword.internalNode(),
                 expression.internalNode());
         return stFromClauseNode.createUnlinkedFacade();
@@ -1962,7 +1959,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static LetClauseNode createLetClauseNode(
             Token letKeyword,
-            SeparatedNodeList<Node> letVarDeclarations) {
+            SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations) {
         Objects.requireNonNull(letKeyword, "letKeyword must not be null");
         Objects.requireNonNull(letVarDeclarations, "letVarDeclarations must not be null");
 
