@@ -13,7 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/test;
 
 type Person1 abstract object {
     public int age;
@@ -186,8 +185,23 @@ type FireAnt object {
 
 public function testNonAbstractObjectInclusion() {
     FireAnt notoriousFireAnt = new FireAnt(7);
-    test:assertEquals(notoriousFireAnt.getId(), 7);
+    assertEquality(notoriousFireAnt.getId(), 7);
 
     FireAnt dullAnt = new FireAnt(0);
-    test:assertEquals(dullAnt.getId(), ());
+    assertEquality(dullAnt.getId(), ());
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
