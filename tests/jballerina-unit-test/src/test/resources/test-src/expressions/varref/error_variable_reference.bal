@@ -18,18 +18,18 @@ type StringRestRec record {|
     string...;
 |};
 
-type SMS error <string, record {| string message?; error cause?; string...; |}>;
-type SMA error <string, record {| string message?; error cause?; string|boolean...; |}>;
-type CMS error <string, record {| string message?; error cause?; string...; |}>;
-type CMA error <string, record {| string message?; error cause?; anydata...; |}>;
+type SMS error <record {| string message?; error cause?; string...; |}>;
+type SMA error <record {| string message?; error cause?; string|boolean...; |}>;
+type CMS error <record {| string message?; error cause?; string...; |}>;
+type CMA error <record {| string message?; error cause?; anydata...; |}>;
 
 const ERROR1 = "Some Error One";
 const ERROR2 = "Some Error Two";
 
 function testBasicErrorVariableWithMapDetails() returns [string, string, string, string, map<string|error>, string?,
                                                             string?, string?, map<any|error>, any, any, any] {
-    SMS err1 = error("Error One", message = "Msg One", detail = "Detail Msg");
-    SMA err2 = error("Error Two", message = "Msg Two", fatal = true );
+    SMS err1 = SMS("Error One", message = "Msg One", detail = "Detail Msg");
+    SMA err2 = SMA("Error Two", message = "Msg Two", fatal = true );
 
     string reason11;
     map<string|error> detail11;
@@ -57,8 +57,8 @@ function testBasicErrorVariableWithMapDetails() returns [string, string, string,
 
 function testBasicErrorVariableWithConstAndMap() returns [string, string, string, string, map<string|error>, string?, string?,
                                                              string?, map<any|error>, any, any, any] {
-    CMS err3 = error(ERROR1, message = "Msg Three", detail = "Detail Msg");
-    CMA err4 = error(ERROR2, message = "Msg Four", fatal = true);
+    CMS err3 = CMS(ERROR1, message = "Msg Three", detail = "Detail Msg");
+    CMA err4 = CMA(ERROR2, message = "Msg Four", fatal = true);
 
     string reason31;
     map<string|error> detail31;
@@ -90,11 +90,11 @@ type Foo record {
     error cause?;
 };
 
-type FooError error <string, Foo>;
+type FooError error <Foo>;
 
 function testBasicErrorVariableWithRecordDetails() returns [string, string, string, boolean, map<anydata|error>] {
-    FooError err1 = error("Error One", message = "Something Wrong", fatal = true);
-    FooError err2 = error("Error One", message = "Something Wrong", fatal = true);
+    FooError err1 = FooError("Error One", message = "Something Wrong", fatal = true);
+    FooError err2 = FooError("Error One", message = "Something Wrong", fatal = true);
 
     string res1;
     map<anydata|error> mapRec;
@@ -108,7 +108,7 @@ function testBasicErrorVariableWithRecordDetails() returns [string, string, stri
     return [res1, res2, message, fatal, mapRec];
 }
 
-function testErrorInTuple() returns [int, string, string, anydata|error, boolean] {
+function testErrorInTuple() returns [int, string, string, anydata|readonly, boolean] {
     Foo f = { message: "fooMsg", fatal: true };
     [int, string, error, [error, Foo]] t1 = [12, "Bal", error("Err", message = "Something Wrong"),
                                                             [error("Err2", message = "Something Wrong2"), f]];
@@ -124,13 +124,13 @@ function testErrorInTuple() returns [int, string, string, anydata|error, boolean
     return [intVar, stringVar, errorVar.message(), errorVar2.detail()["message"], fooVar.fatal];
 }
 
-function testErrorInTupleWithDestructure() returns [int, string, string, map<anydata|error>, boolean] {
+function testErrorInTupleWithDestructure() returns [int, string, string, map<anydata|readonly>, boolean] {
     [int, string, [error, boolean]] t1 = [12, "Bal", [error("Err2", message = "Something Wrong2"), true]];
 
     int intVar;
     string stringVar;
     string reasonVar;
-    map<anydata|error> detailVar;
+    map<anydata|readonly> detailVar;
     boolean booleanVar;
 
     [intVar, stringVar, [error(reasonVar, ...detailVar), booleanVar]] = t1;
@@ -181,25 +181,25 @@ function testErrorInRecordWithDestructure2() returns [int, string, anydata|error
     return [x, reason, message, extra];
 }
 
-function testErrorWithRestParam() returns map<string|error> {
-    error<string, record {| string message?; error cause?; string...; |}> errWithMap
-                                                    = error("Error", message = "Fatal", fatal = "true");
+type StrError error<map<string|readonly>>;
+
+function testErrorWithRestParam() returns map<string|readonly> {
+    StrError errWithMap = StrError("Error", message = "Fatal", fatal = "true");
 
     string reason;
     string? message;
-    map<string|error> detailMap;
+    map<string|readonly> detailMap;
     error(reason, message = message, ...detailMap) = errWithMap;
     detailMap["extra"] = "extra";
 
     return detailMap;
 }
 
-function testErrorWithUnderscore() returns [string, map<string|error>] {
-    error<string, record {| string message?; error cause?; string...; |}> errWithMap
-                                                        = error("Error", message = "Fatal", fatal = "true");
+function testErrorWithUnderscore() returns [string, map<string|readonly>] {
+    StrError errWithMap = StrError("Error", message = "Fatal", fatal = "true");
 
     string reason;
-    map<string|error> detail;
+    map<string|readonly> detail;
 
     error(reason, ... _) = errWithMap;
     error(_, ... detail) = errWithMap;
@@ -233,12 +233,12 @@ type FileOpenErrorDetail record {|
     int errorCode;
     int flags?;
 |};
-type FileOpenError error<FILE_OPN, FileOpenErrorDetail>;
+type FileOpenError error<FileOpenErrorDetail>;
 
 function testIndirectErrorRefMandatoryFields() returns
         [string, string, int, int?, map<anydata|error>,
             string, map<string|int|error>] {
-    FileOpenError e = FileOpenError(message="file open failed",
+    FileOpenError e = FileOpenError(FILE_OPN, message="file open failed",
                                 targetFileName="/usr/bhah/a.log",
                                 errorCode=45221,
                                 flags=128,
@@ -286,7 +286,7 @@ public function testErrorDestructuringInATuppleDestructuring() returns [string, 
 }
 
 function testIndirectErrorVarRefInTuppleRef() returns [string?, string?, int] {
-    SMS err1 = error("Error One", message = "Msg One", detail = "Detail Msg");
+    SMS err1 = SMS("Error One", message = "Msg One", detail = "Detail Msg");
 
     string? message;
     string? detail;
