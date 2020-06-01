@@ -18,6 +18,7 @@ package org.ballerinalang.observe.trace.extension.choreo.client;
 
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
+import org.ballerinalang.observe.trace.extension.choreo.client.error.ChoreoClientException;
 import org.ballerinalang.observe.trace.extension.choreo.client.secret.AnonymousAppSecretHandler;
 import org.ballerinalang.observe.trace.extension.choreo.client.secret.AppSecretHandler;
 import org.ballerinalang.observe.trace.extension.choreo.client.secret.LinkedAppSecretHandler;
@@ -56,7 +57,7 @@ public class ChoreoClientHolder {
      *
      * @return ChoreoClient
      */
-    public static synchronized ChoreoClient getChoreoClient() {
+    public static synchronized ChoreoClient getChoreoClient() throws ChoreoClientException {
         if (choreoClient == null) {
             MetadataReader metadataReader;
             try {
@@ -144,9 +145,10 @@ public class ChoreoClientHolder {
      * @param dependentObj Object to be closed when the Choreo client is closed
      * @return ChoreoClient
      */
-    public static synchronized ChoreoClient getChoreoClient(AutoCloseable dependentObj) {
+    public static synchronized ChoreoClient getChoreoClient(AutoCloseable dependentObj) throws ChoreoClientException {
+        final ChoreoClient client = getChoreoClient();
         choreoClientDependents.add(dependentObj);
-        return getChoreoClient();
+        return client;
     }
 
     private static String getNodeId() {
