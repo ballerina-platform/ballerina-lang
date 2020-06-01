@@ -156,7 +156,7 @@ public class ProducerActions {
      * @param groupId Group ID of the consumers to commit the messages.
      * @return {@code ErrorValue}, if there's any error, null otherwise.
      */
-    public static Object commitConsumerOffsets(ObjectValue producerObject, BArray offsets, String groupId) {
+    public static Object commitConsumerOffsets(ObjectValue producerObject, BArray offsets, BString groupId) {
         Strand strand = Scheduler.getStrand();
         KafkaTracingUtil.traceResourceInvocation(strand, producerObject);
         KafkaProducer kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
@@ -165,7 +165,7 @@ public class ProducerActions {
             if (strand.isInTransaction()) {
                 handleTransactions(strand, producerObject);
             }
-            kafkaProducer.sendOffsetsToTransaction(partitionToMetadataMap, groupId);
+            kafkaProducer.sendOffsetsToTransaction(partitionToMetadataMap, groupId.getValue());
         } catch (IllegalStateException | KafkaException e) {
             KafkaMetricsUtil.reportProducerError(producerObject, KafkaObservabilityConstants.ERROR_TYPE_COMMIT);
             return createKafkaError("Failed to commit consumer offsets: " + e.getMessage(), PRODUCER_ERROR);
@@ -202,15 +202,15 @@ public class ProducerActions {
      * @param topic Topic about which the information is needed.
      * @return Ballerina {@code TopicPartition[]} for the given topic.
      */
-    public static Object getTopicPartitions(ObjectValue producerObject, String topic) {
+    public static Object getTopicPartitions(ObjectValue producerObject, BString topic) {
         Strand strand = Scheduler.getStrand();
-        KafkaTracingUtil.traceResourceInvocation(strand, producerObject, topic);
+        KafkaTracingUtil.traceResourceInvocation(strand, producerObject, topic.getValue());
         KafkaProducer kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
         try {
             if (strand.isInTransaction()) {
                 handleTransactions(strand, producerObject);
             }
-            List<PartitionInfo> partitionInfoList = kafkaProducer.partitionsFor(topic);
+            List<PartitionInfo> partitionInfoList = kafkaProducer.partitionsFor(topic.getValue());
             BArray topicPartitionArray =
                     BValueCreator.createArrayValue(new BArrayType(getTopicPartitionRecord().getType()));
             for (PartitionInfo info : partitionInfoList) {
