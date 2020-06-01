@@ -4332,10 +4332,10 @@ public class BallerinaParser extends AbstractParser {
         STNode openParen = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
         startContext(ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAMS);
         STToken nextToken = peek();
-        STNode expr = STNodeFactory.createEmptyNode();
+        STNode expr;
         // Could be nill literal or empty param-list of an implicit-anon-func-expr'
         if (nextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
-            return parseNilLiteralOrEmptyAnonFuncParamRhs(openParen, expr);
+            return parseNilLiteralOrEmptyAnonFuncParamRhs(openParen);
         }
         if (allowActions) {
             expr = parseExpression(DEFAULT_OP_PRECEDENCE, isRhsExpr, true);
@@ -4356,15 +4356,16 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createBracedExpressionNode(SyntaxKind.BRACED_EXPRESSION, openParen, expr, closeParen);
     }
 
-    private STNode parseNilLiteralOrEmptyAnonFuncParamRhs(STNode openParen, STNode expr) {
+    private STNode parseNilLiteralOrEmptyAnonFuncParamRhs(STNode openParen) {
         STNode closeParen = parseCloseParenthesis();
         STToken nextToken = peek();
         if (nextToken.kind != SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN) {
             endContext();
             return createNilLiteral(openParen, closeParen);
         } else {
-            STNode anonFuncParam =
-                    STNodeFactory.createBracedExpressionNode(SyntaxKind.BRACED_EXPRESSION, openParen, expr, closeParen);
+            STNode params = STNodeFactory.createNodeList();
+            STNode anonFuncParam = STNodeFactory.createImplicitAnonymousFunctionParameters(openParen, params,
+                    closeParen);
             endContext();
             return anonFuncParam;
         }

@@ -1106,7 +1106,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static RemoteMethodCallActionNode createRemoteMethodCallActionNode(
             ExpressionNode expression,
             Token rightArrowToken,
-            Token methodName,
+            Node methodName,
             Token openParenToken,
             NodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {

@@ -18,24 +18,24 @@ import ballerina/auth;
 import ballerina/config;
 import ballerina/http;
 
-auth:InboundBasicAuthProvider basicAuthProvider19 = new;
-http:BasicAuthHandler basicAuthHandler19 = new(basicAuthProvider19);
+auth:InboundBasicAuthProvider basicAuthProvider07 = new;
+http:BasicAuthHandler basicAuthHandler07 = new(basicAuthProvider07);
 
-auth:InboundBasicAuthProvider basicAuthProvider19_1 = new({ tableName: "b7a.group1" });
-http:BasicAuthHandler basicAuthHandler19_1 = new(basicAuthProvider19_1);
+auth:InboundBasicAuthProvider basicAuthProvider07_1 = new({ tableName: "b7a.group1" });
+http:BasicAuthHandler basicAuthHandler07_1 = new(basicAuthProvider07_1);
 
-auth:InboundBasicAuthProvider basicAuthProvider19_2 = new({ tableName: "b7a.group2" });
-http:BasicAuthHandler basicAuthHandler19_2 = new(basicAuthProvider19_2);
+auth:InboundBasicAuthProvider basicAuthProvider07_2 = new({ tableName: "b7a.group2" });
+http:BasicAuthHandler basicAuthHandler07_2 = new(basicAuthProvider07_2);
 
-auth:InboundBasicAuthProvider basicAuthProvider19_3 = new({ tableName: "b7a.group3" });
-http:BasicAuthHandler basicAuthHandler19_3 = new(basicAuthProvider19_3);
+auth:InboundBasicAuthProvider basicAuthProvider07_3 = new({ tableName: "b7a.group3" });
+http:BasicAuthHandler basicAuthHandler07_3 = new(basicAuthProvider07_3);
 
-auth:InboundBasicAuthProvider basicAuthProvider19_4 = new({ tableName: "b7a.group4" });
-http:BasicAuthHandler basicAuthHandler19_4 = new(basicAuthProvider19_4);
+auth:InboundBasicAuthProvider basicAuthProvider07_4 = new({ tableName: "b7a.group4" });
+http:BasicAuthHandler basicAuthHandler07_4 = new(basicAuthProvider07_4);
 
-listener http:Listener listener19 = new(20009, {
+listener http:Listener listener07 = new(20009, {
     auth: {
-        authHandlers: [basicAuthHandler19]
+        authHandlers: [basicAuthHandler07]
     },
     secureSocket: {
         keyStore: {
@@ -48,13 +48,13 @@ listener http:Listener listener19 = new(20009, {
 @http:ServiceConfig {
     basePath: "/echo"
 }
-service echo19 on listener19 {
+service echo07 on listener07 {
 
     @http:ResourceConfig {
         methods: ["GET"],
         auth: {
             enabled: true,
-            authHandlers: [basicAuthHandler19_1]
+            authHandlers: [basicAuthHandler07_1]
         }
     }
     resource function test1(http:Caller caller, http:Request req) {
@@ -65,7 +65,7 @@ service echo19 on listener19 {
         methods: ["GET"],
         auth: {
             enabled: true,
-            authHandlers: [basicAuthHandler19_1, basicAuthHandler19_2]
+            authHandlers: [basicAuthHandler07_1, basicAuthHandler07_2]
         }
     }
     resource function test2(http:Caller caller, http:Request req) {
@@ -76,7 +76,7 @@ service echo19 on listener19 {
         methods: ["GET"],
         auth: {
             enabled: true,
-            authHandlers: [[basicAuthHandler19_1]]
+            authHandlers: [[basicAuthHandler07_1]]
         }
     }
     resource function test3(http:Caller caller, http:Request req) {
@@ -87,7 +87,7 @@ service echo19 on listener19 {
         methods: ["GET"],
         auth: {
             enabled: true,
-            authHandlers: [[basicAuthHandler19_1], [basicAuthHandler19_3]]
+            authHandlers: [[basicAuthHandler07_1], [basicAuthHandler07_3]]
         }
     }
     resource function test4(http:Caller caller, http:Request req) {
@@ -98,7 +98,7 @@ service echo19 on listener19 {
         methods: ["GET"],
         auth: {
             enabled: true,
-            authHandlers: [[basicAuthHandler19_1, basicAuthHandler19_2], [basicAuthHandler19_3, basicAuthHandler19_4]]
+            authHandlers: [[basicAuthHandler07_1, basicAuthHandler07_2], [basicAuthHandler07_3, basicAuthHandler07_4]]
         }
     }
     resource function test5(http:Caller caller, http:Request req) {

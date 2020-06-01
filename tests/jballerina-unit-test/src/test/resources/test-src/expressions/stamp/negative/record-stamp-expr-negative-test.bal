@@ -47,14 +47,14 @@ function stampRecordToXML() returns xml|error {
 
     Employee employeeRecord = { name: "Raja", age: 25, salary: 20000 };
 
-    xml|error xmlValue = xml.constructFrom(employeeRecord);
+    xml|error xmlValue = employeeRecord.cloneWithType(xml);
     return xmlValue;
 }
 
 function stampOpenRecordToClosedRecord() returns Employee|error {
 
     Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    Employee|error employee = Employee.constructFrom(teacher);
+    Employee|error employee = teacher.cloneWithType(Employee);
 
     return employee;
 }
@@ -62,7 +62,7 @@ function stampOpenRecordToClosedRecord() returns Employee|error {
 function stampClosedRecordToClosedRecord() returns Student|error {
 
     Person person = { name: "Raja", age: 25, batch: "LK2014", school: "Hindu College" };
-    Student|error student = Student.constructFrom(person);
+    Student|error student = person.cloneWithType(Student);
 
     return student;
 }
@@ -70,14 +70,14 @@ function stampClosedRecordToClosedRecord() returns Student|error {
 function stampClosedRecordToMap() returns map<string>|error {
 
     Person person = { name: "Raja", age: 25, batch: "LK2014", school: "Hindu College" };
-    map<string>|error mapValue = map<string>.constructFrom(person);
+    map<string>|error mapValue = person.cloneWithType(map<string>);
 
     return mapValue;
 }
 
 function stampRecordToArray() returns string[]|error {
     Employee e1 = { name: "Raja", age: 30, salary: 10000 };
-    string[]|error stringArray = string[].constructFrom(e1);
+    string[]|error stringArray = e1.cloneWithType(string[]);
 
     return stringArray;
 }
@@ -85,7 +85,7 @@ function stampRecordToArray() returns string[]|error {
 function stampRecordToTuple() returns [string, string]|error {
 
     Employee e1 = { name: "Raja", age: 30, salary: 10000 };
-    [string, string]|error tupleValue = [string, string].constructFrom(e1);
+    [string, string]|error tupleValue = e1.cloneWithType([string, string]);
 
     return tupleValue;
 }
