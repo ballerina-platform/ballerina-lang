@@ -395,9 +395,9 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public VariableDeclarationNode transform(VariableDeclarationNode variableDeclarationNode) {
-        Token semicolonToken = this.modifyToken(variableDeclarationNode.semicolonToken());
-        Token equalToken = this.modifyToken(variableDeclarationNode.equalsToken().orElse(null));
-        Token finalToken = this.modifyToken(variableDeclarationNode.finalKeyword().orElse(null));
+        Token semicolonToken = getToken(variableDeclarationNode.semicolonToken());
+        Token equalToken = getToken(variableDeclarationNode.equalsToken().orElse(null));
+        Token finalToken = getToken(variableDeclarationNode.finalKeyword().orElse(null));
         ExpressionNode initializerNode = this.modifyNode(variableDeclarationNode.initializer().orElse(null));
         NodeList<AnnotationNode> annotationNodes = this.modifyNodeList(variableDeclarationNode.annotations());
         TypedBindingPatternNode typedBindingPatternNode = this.modifyNode(
