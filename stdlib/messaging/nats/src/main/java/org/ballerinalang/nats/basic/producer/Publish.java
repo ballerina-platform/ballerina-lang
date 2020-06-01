@@ -75,14 +75,15 @@ public class Publish {
                 }
                 natsMetricsReporter.reportPublish(subject.getValue(), byteContent.length);
             } catch (IllegalArgumentException | IllegalStateException ex) {
-                natsMetricsReporter.reportProducerError(subject.getValue(), NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
+                natsMetricsReporter.reportProducerError(subject.getValue(),
+                                                        NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
                 return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, Constants.PRODUCER_ERROR +
                         subject.getValue() + ". " + ex.getMessage());
             }
         } else {
             NatsMetricsReporter.reportProducerError(NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
-            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, Constants.PRODUCER_ERROR + subject.getValue() +
-                    ". Producer is logically disconnected.");
+            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, Constants.PRODUCER_ERROR +
+                    subject.getValue() + ". Producer is logically disconnected.");
         }
         return null;
     }

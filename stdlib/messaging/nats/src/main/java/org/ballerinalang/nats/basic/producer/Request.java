@@ -81,7 +81,8 @@ public class Request {
                 msgObj.addNativeData(Constants.NATS_MSG, reply);
                 return msgObj;
             } catch (TimeoutException ex) {
-                natsMetricsReporter.reportProducerError(subject.getValue(), NatsObservabilityConstants.ERROR_TYPE_REQUEST);
+                natsMetricsReporter.reportProducerError(subject.getValue(),
+                                                        NatsObservabilityConstants.ERROR_TYPE_REQUEST);
                 return Utils.createNatsError("Request to subject " + subject.getValue() +
                                                      " timed out while waiting for a reply");
             } catch (IllegalArgumentException | IllegalStateException | ExecutionException ex) {
