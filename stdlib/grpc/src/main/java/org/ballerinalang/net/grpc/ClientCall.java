@@ -36,9 +36,7 @@ import java.util.Optional;
 import java.util.concurrent.CancellationException;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.STATUS_CODE_GROUP_SUFFIX;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_PEER_ADDRESS;
 import static org.ballerinalang.net.grpc.GrpcConstants.CONTENT_TYPE_KEY;
@@ -119,7 +117,6 @@ public final class ClientCall {
             // circumstances.
             // HTTP Status code must be a number.
             ctx.addProperty(PROPERTY_KEY_HTTP_STATUS_CODE, 0);
-            ctx.addTag(TAG_KEY_HTTP_STATUS_CODE_GROUP, 0 + STATUS_CODE_GROUP_SUFFIX);
         });
     }
 

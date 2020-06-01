@@ -37,6 +37,9 @@ import java.util.function.Supplier;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.STATUS_CODE_GROUP_SUFFIX;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_RESOURCE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_SERVICE;
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.KEY_SPAN;
@@ -134,6 +137,12 @@ public class ObserveUtils {
             return;
         }
         ObserverContext observerContext = strand.observerContext;
+
+        Integer statusCode = (Integer) observerContext.getProperty(PROPERTY_KEY_HTTP_STATUS_CODE);
+        if (statusCode != null) {
+            observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE_GROUP, (statusCode / 100) + STATUS_CODE_GROUP_SUFFIX);
+        }
+
         if (observerContext.isServer()) {
             observers.forEach(observer -> observer.stopServerObservation(observerContext));
         } else {
