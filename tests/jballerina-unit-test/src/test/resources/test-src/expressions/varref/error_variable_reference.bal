@@ -56,9 +56,9 @@ function testBasicErrorVariableWithMapDetails() returns [string, string, string,
 }
 
 function testBasicErrorVariableWithConstAndMap() returns [string, string, string, string, map<string|error>, string?, string?,
-                                                             string?, map<any|error>, any, any, any] {
+                                                             string?, map<any|error>, any, any, any, error?] {
     CMS err3 = CMS(ERROR1, message = "Msg Three", detail = "Detail Msg");
-    CMA err4 = CMA(ERROR2, message = "Msg Four", fatal = true);
+    CMA err4 = CMA(ERROR2, err3, message = "Msg Four", fatal = true);
 
     string reason31;
     map<string|error> detail31;
@@ -76,12 +76,13 @@ function testBasicErrorVariableWithConstAndMap() returns [string, string, string
     any message42;
     any detail42;
     any extra42;
+    error? cause;
 
-    error (reason41, ... detail41) = err4;
+    error (reason41, cause, ... detail41) = err4;
     error (reason42, message = message42, detail = detail42, extra = extra42) = err4;
 
     return [reason31, reason32, reason41, reason42, detail31, message32, detail32, extra32, detail41, message42,
-    detail42, extra42];
+    detail42, extra42, cause];
 }
 
 type Foo record {
@@ -221,7 +222,7 @@ function testIndirectErrorRefBindingPattern() returns [string?, any|error] {
     string? message;
     any|error other;
     map<anydata|error> rest;
-    SampleError(message=message, other=other, ...rest) = e;
+    SampleError(_, message=message, other=other, ...rest) = e;
     return [message, other];
 }
 
@@ -247,18 +248,18 @@ function testIndirectErrorRefMandatoryFields() returns
     string fileName;
     int errorCode;
     int? flags;
-    FileOpenError(message=message,
+    FileOpenError(_, message=message,
                     targetFileName=fileName,
                     errorCode=errorCode,
                     flags=flags) = e;
 
     error upcast = e;
     map<anydata|error> rest;
-    error(...rest) = upcast;
+    error(_, ...rest) = upcast;
 
     string messageX;
     map<string|int|error> rest2;
-    error(message=messageX, ...rest2) = e;
+    error(_, message=messageX, ...rest2) = e;
 
     return [message, fileName, errorCode, flags,
                 rest, messageX, rest2];
@@ -270,7 +271,7 @@ public function testNoErrorReasonGiven() returns string? {
     string? message;
     anydata|error other;
 
-    error(message = message) = e; // no simple-binding-pattern here
+    error(_, message = message) = e; // no simple-binding-pattern here
     return message;
 }
 
@@ -292,7 +293,7 @@ function testIndirectErrorVarRefInTuppleRef() returns [string?, string?, int] {
     string? detail;
     int i;
 
-    [i, SMS(message = message, detail = detail)] = [1, err1];
+    [i, SMS(_, message = message, detail = detail)] = [1, err1];
     return [message, detail, i];
 }
 

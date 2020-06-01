@@ -1894,6 +1894,19 @@ public class TypeChecker extends BLangNodeVisitor {
         if (varRefExpr.message != null) {
             varRefExpr.message.lhsVar = true;
             checkExpr(varRefExpr.message, env);
+            if (!types.isAssignable(symTable.stringType, varRefExpr.message.type)) {
+                dlog.error(varRefExpr.message.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType,
+                        varRefExpr.message.type);
+            }
+        }
+
+        if (varRefExpr.cause != null) {
+            varRefExpr.cause.lhsVar = true;
+            checkExpr(varRefExpr.cause, env);
+            if (!types.isAssignable(symTable.errorOrNilType, varRefExpr.cause.type)) {
+                dlog.error(varRefExpr.cause.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errorOrNilType,
+                        varRefExpr.cause.type);
+            }
         }
 
         boolean unresolvedReference = false;
@@ -1974,8 +1987,15 @@ public class TypeChecker extends BLangNodeVisitor {
             checkExpr(varRefExpr.restVar, env);
         }
 
-        // Indirect error binding pattern does not have an error reason binding fragment
-        varRefExpr.message.type = symTable.noType;
+        if (varRefExpr.message != null) {
+            varRefExpr.message.lhsVar = true;
+            checkExpr(varRefExpr.message, env);
+        }
+
+        if (varRefExpr.cause != null) {
+            varRefExpr.cause.lhsVar = true;
+            checkExpr(varRefExpr.cause, env);
+        }
     }
 
     private boolean checkErrorRestParamVarRef(BLangErrorVarRef varRefExpr, boolean unresolvedReference) {

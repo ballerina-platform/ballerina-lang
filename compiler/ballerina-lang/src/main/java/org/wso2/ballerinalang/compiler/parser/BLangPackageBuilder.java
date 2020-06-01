@@ -940,7 +940,7 @@ public class BLangPackageBuilder {
 
     void addErrorVariableReference(DiagnosticPos pos, Set<Whitespace> ws,
                                    int numNamedArgs,
-                                   boolean reasonRefAvailable,
+                                   boolean causeRefAvailable,
                                    boolean restPatternAvailable,
                                    boolean indirectErrorRefPattern) {
         BLangErrorVarRef errorVarRef = (BLangErrorVarRef) TreeBuilder.createErrorVariableReferenceNode();
@@ -958,16 +958,18 @@ public class BLangPackageBuilder {
             namedArgs.add(namedArg);
         }
 
-        if (reasonRefAvailable) {
-            ExpressionNode reasonRef = this.exprNodeStack.pop();
-            errorVarRef.message = (BLangVariableReference) reasonRef;
-        } else if (indirectErrorRefPattern) {
-            // Indirect error ref pattern does not allow reason var ref, hence ignore it.
-            errorVarRef.message = createIgnoreVarRef();
-            errorVarRef.typeNode = (BLangType) this.typeNodeStack.pop();
-        } else {
-            errorVarRef.message = createIgnoreVarRef();
+        if (causeRefAvailable) {
+            ExpressionNode causeRef = this.exprNodeStack.pop();
+            errorVarRef.cause = (BLangVariableReference) causeRef;
         }
+
+        ExpressionNode reasonRef = this.exprNodeStack.pop();
+        errorVarRef.message = (BLangVariableReference) reasonRef;
+
+        if (indirectErrorRefPattern) {
+            errorVarRef.typeNode = (BLangType) this.typeNodeStack.pop();
+        }
+
         Collections.reverse(namedArgs);
         errorVarRef.detail.addAll(namedArgs);
 
