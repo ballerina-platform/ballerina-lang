@@ -67,7 +67,7 @@ public class CodeGenerator {
     private PackageCache packageCache;
     private BLangDiagnosticLogHelper dlog;
     private BIREmitter birEmitter;
-    private boolean isBaloGen;
+    private boolean baloGen;
     private CompilerContext compilerContext;
     private boolean skipTests;
     private boolean dumbBIR;
@@ -84,7 +84,7 @@ public class CodeGenerator {
         this.compilerContext = compilerContext;
         CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
         this.skipTests = getBooleanValueIfSet(compilerOptions, CompilerOptionName.SKIP_TESTS);
-        this.isBaloGen = getBooleanValueIfSet(compilerOptions, CompilerOptionName.BALO_GENERATION);
+        this.baloGen = getBooleanValueIfSet(compilerOptions, CompilerOptionName.BALO_GENERATION);
         this.dumbBIR = getBooleanValueIfSet(compilerOptions, CompilerOptionName.DUMP_BIR);
         this.skipModuleDependencies = getBooleanValueIfSet(compilerOptions,
                 CompilerOptionName.SKIP_MODULE_DEPENDENCIES);
@@ -152,7 +152,7 @@ public class CodeGenerator {
             return moduleDependencies;
         }
 
-        if (isBaloGen) {
+        if (baloGen) {
             moduleDependencies.addAll(readInteropDependencies());
         }
 
