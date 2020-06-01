@@ -33,6 +33,9 @@ function actualCode(int failureCutOff, boolean requestRollback) returns (string)
     transaction {
         a = a + " inTrx";
         count = count + 1;
+        if transactional {
+            io:println("Transactional mode");
+        }
         if (count <= failureCutOff) {
             a = a + " blowUp"; // transaction block panic scenario, Set failure cutoff to 0, for not blowing up.
             int bV = blowUp();

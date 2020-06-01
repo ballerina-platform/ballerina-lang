@@ -331,13 +331,6 @@ function isInitiator(string transactionId, string transactionBlockId) returns bo
     return false;
 }
 
-# Checks whether strand is in transactional mode.
-#
-# + return - true or false representing whether strand is in transactional mode.
-function isTransactional() returns boolean {
-    return true;
-}
-
 # Wrapper function used to seperate panic and return error after calling participant function.
 #
 # + trxFunc - Participant logic.
@@ -522,4 +515,9 @@ public function onCommit(CommitHandler handler) = @java:Method {
 public function onRollback(RollbackHandler handler) = @java:Method {
     class: "io.ballerina.transactions.Utils",
     name: "onRollback"
+} external;
+
+public function isTransactional() returns boolean = @java:Method {
+class: "io.ballerina.transactions.Utils",
+name: "isTransactional"
 } external;
