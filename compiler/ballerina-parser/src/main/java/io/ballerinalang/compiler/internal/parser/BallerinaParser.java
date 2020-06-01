@@ -4364,8 +4364,8 @@ public class BallerinaParser extends AbstractParser {
             return createNilLiteral(openParen, closeParen);
         } else {
             STNode params = STNodeFactory.createNodeList();
-            STNode anonFuncParam = STNodeFactory.createImplicitAnonymousFunctionParameters(openParen, params,
-                    closeParen);
+            STNode anonFuncParam =
+                    STNodeFactory.createImplicitAnonymousFunctionParameters(openParen, params, closeParen);
             endContext();
             return anonFuncParam;
         }
@@ -10943,7 +10943,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse rollback keyword.
      *
-     * @return parsed node
+     * @return Rollback keyword node
      */
     private STNode parseRollbackKeyword() {
         STToken token = peek();
@@ -10970,7 +10970,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse transactional keyword.
      *
-     * @return parsed node
+     * @return Transactional keyword node
      */
     private STNode parseTransactionalKeyword() {
         STToken token = peek();
@@ -10984,16 +10984,17 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse service-constructor-expr.
-     *
+     * <p>
+     * <code>
      * service-constructor-expr := [annots] service service-body-block
+     * <br/>
      * service-body-block := { service-method-defn* }
-     * service-method-defn :=
-     * metadata
-     * [resource]
-     * function identifier function-signature method-defn-body
-     *
-     * @param annots Annots
-     * @return Parsed node
+     * <br/>
+     * service-method-defn := metadata [resource] function identifier function-signature method-defn-body
+     * </code>
+     * 
+     * @param annots Annotations
+     * @return Service constructor expression node
      */
     private STNode parseServiceConstructorExpression(STNode annots) {
         startContext(ParserRuleContext.SERVICE_CONSTRUCTOR_EXPRESSION);
@@ -11133,40 +11134,52 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse binding-patterns.
-     *
-     * binding-pattern :=
-     * capture-binding-pattern
-     * | wildcard-binding-pattern
-     * | list-binding-pattern
-     * | mapping-binding-pattern
-     * | functional-binding-pattern
+     * <p>
+     * <code>
+     * binding-pattern := capture-binding-pattern
+     *                      | wildcard-binding-pattern
+     *                      | list-binding-pattern
+     *                      | mapping-binding-pattern
+     *                      | functional-binding-pattern
+     * <br/><br/>
+     * 
      * capture-binding-pattern := variable-name
      * variable-name := identifier
+     * <br/><br/>
+     * 
      * wildcard-binding-pattern := _
      * list-binding-pattern := [ list-member-binding-patterns ]
-     * list-member-binding-patterns :=
-     * binding-pattern (, binding-pattern)* [, rest-binding-pattern]
-     * | [ rest-binding-pattern ]
+     * <br/>
+     * list-member-binding-patterns := binding-pattern (, binding-pattern)* [, rest-binding-pattern]
+     *                                 | [ rest-binding-pattern ]
+     * <br/><br/>
+     * 
      * mapping-binding-pattern := { field-binding-patterns }
-     * field-binding-patterns :=
-     * field-binding-pattern (, field-binding-pattern)* [, rest-binding-pattern]
-     * | [ rest-binding-pattern ]
-     * field-binding-pattern :=
-     * field-name : binding-pattern
-     * | variable-name
+     * field-binding-patterns := field-binding-pattern (, field-binding-pattern)* [, rest-binding-pattern] 
+     *                          | [ rest-binding-pattern ]
+     * <br/>
+     * field-binding-pattern := field-name : binding-pattern | variable-name
+     * <br/>
      * rest-binding-pattern := ... variable-name
+     * 
+     * <br/><br/>
      * functional-binding-pattern := functionally-constructible-type-reference ( arg-list-binding-pattern )
-     * arg-list-binding-pattern :=
-     * positional-arg-binding-patterns [, other-arg-binding-patterns]
-     * | other-arg-binding-patterns
+     * <br/>
+     * arg-list-binding-pattern := positional-arg-binding-patterns [, other-arg-binding-patterns] 
+     *                             | other-arg-binding-patterns
+     * <br/>
      * positional-arg-binding-patterns := positional-arg-binding-pattern (, positional-arg-binding-pattern)*
+     * <br/>
      * positional-arg-binding-pattern := binding-pattern
-     * other-arg-binding-patterns :=
-     * named-arg-binding-patterns [, rest-binding-pattern]
-     * | [rest-binding-pattern]
+     * <br/>
+     * other-arg-binding-patterns := named-arg-binding-patterns [, rest-binding-pattern] 
+     *                              | [rest-binding-pattern]
+     * <br/>
      * named-arg-binding-patterns := named-arg-binding-pattern (, named-arg-binding-pattern)*
+     * <br/>
      * named-arg-binding-pattern := arg-name = binding-pattern
-     *
+     *</code>
+     * 
      * @return binding-pattern node
      */
     private STNode parseBindingPattern() {
@@ -11198,10 +11211,13 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse capture-binding-pattern.
-     *
+     * <p>
+     * <code>
      * capture-binding-pattern := variable-name
+     * <br/>
      * variable-name := identifier
-     *
+     * </code>
+     * 
      * @return capture-binding-pattern node
      */
     private STNode parseCaptureBindingPattern() {
@@ -11221,12 +11237,14 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse list-binding-patterns.
-     *
+     * <p>
+     * <code>
      * list-binding-pattern := [ list-member-binding-patterns ]
-     * list-member-binding-patterns :=
-     * binding-pattern (, binding-pattern)* [, rest-binding-pattern]
-     * | [ rest-binding-pattern ]
-     *
+     * <br/>
+     * list-member-binding-patterns := binding-pattern (, binding-pattern)* [, rest-binding-pattern]
+     *                                | [ rest-binding-pattern ]
+     * </code>
+     * 
      * @return list-binding-pattern node
      */
     private STNode parseListBindingPattern() {
@@ -11312,12 +11330,14 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse list-binding-pattern entry.
-     *
+     * <p>
+     * <code>
      * list-binding-pattern := [ list-member-binding-patterns ]
-     * list-member-binding-patterns :=
-     * binding-pattern (, binding-pattern)* [, rest-binding-pattern]
-     * | [ rest-binding-pattern ]
-     *
+     * <br/>
+     * list-member-binding-patterns := binding-pattern (, binding-pattern)* [, rest-binding-pattern]
+     *                                  | [ rest-binding-pattern ]
+     * </code>
+     * 
      * @return rest-binding-pattern node
      */
     private STNode parseListBindingPatternMember() {
@@ -11343,7 +11363,7 @@ public class BallerinaParser extends AbstractParser {
      * <p>
      * <code>
      * typed-binding-pattern := inferable-type-descriptor binding-pattern
-     * <br/>
+     * <br/><br/>
      * inferable-type-descriptor := type-descriptor | var
      * </code>
      *
@@ -11357,15 +11377,16 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse mapping-binding-patterns.
-     *
+     * <p>
+     * <code>
      * mapping-binding-pattern := { field-binding-patterns }
-     * field-binding-patterns :=
-     * field-binding-pattern (, field-binding-pattern)* [, rest-binding-pattern]
-     * | [ rest-binding-pattern ]
-     * field-binding-pattern :=
-     * field-name : binding-pattern
-     * | variable-name
-     *
+     * <br/><br/>
+     * field-binding-patterns := field-binding-pattern (, field-binding-pattern)* [, rest-binding-pattern]
+     *                          | [ rest-binding-pattern ]
+     * <br/><br/>
+     * field-binding-pattern := field-name : binding-pattern | variable-name
+     * </code>
+     * 
      * @return mapping-binding-pattern node
      */
     private STNode parseMappingBindingPattern() {
@@ -11423,15 +11444,17 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse mapping-binding-pattern entry.
-     *
+     * <p>
+     * <code>
      * mapping-binding-pattern := { field-binding-patterns }
-     * field-binding-patterns :=
-     * field-binding-pattern (, field-binding-pattern)* [, rest-binding-pattern]
-     * | [ rest-binding-pattern ]
-     * field-binding-pattern :=
-     * field-name : binding-pattern
-     * | variable-name
-     *
+     * <br/><br/>
+     * field-binding-patterns := field-binding-pattern (, field-binding-pattern)* [, rest-binding-pattern]
+     *                          | [ rest-binding-pattern ]
+     * <br/><br/>
+     * field-binding-pattern := field-name : binding-pattern
+     *                          | variable-name
+     * </code>
+     * 
      * @return mapping-binding-pattern node
      */
     private STNode parseMappingBindingPatternMember() {
@@ -11474,8 +11497,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse field-binding-pattern.
-     *
-     * field-binding-pattern := field-name : binding-pattern | varname
+     * <code>field-binding-pattern := field-name : binding-pattern | varname</code>
      *
      * @return field-binding-pattern node
      */
@@ -13092,4 +13114,9 @@ public class BallerinaParser extends AbstractParser {
                 return ambiguousNode;
         }
     }
+
+    // ----------------------------------------- ~ End of Parser ~ ----------------------------------------
+
+    // NOTE: Please add any new methods to the relevant section of the class. Binding patterns related code is the
+    // last section of the class.
 }
