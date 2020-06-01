@@ -117,4 +117,9 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
     public void testFuncDefWithMisingOpenParenAndOpenBrace() {
         test("func-definition/func_def_source_17.bal", "func-definition/func_def_assert_17.json");
     }
+
+    @Test
+    public void testFuncDefWithExtraIncomleteTokenAtEnd() {
+        testFile("func-definition/func_def_source_19.bal", "func-definition/func_def_assert_18.json");
+    }
 }

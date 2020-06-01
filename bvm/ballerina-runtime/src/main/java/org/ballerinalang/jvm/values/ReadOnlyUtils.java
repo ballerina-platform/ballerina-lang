@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -147,8 +148,23 @@ class ReadOnlyUtils {
 
                 return immutableRecordType;
             case TypeTags.TABLE_TAG:
-                // TODO: see https://github.com/ballerina-platform/ballerina-lang/issues/23006
-                return type;
+                BTableType origTableType = (BTableType) type;
+
+                BTableType immutableTableType;
+
+                BType origKeyType = origTableType.getKeyType();
+                if (origKeyType != null) {
+                    immutableTableType = new BTableType(setImmutableType(origTableType.getConstrainedType(),
+                                                                         unresolvedTypes),
+                                                        setImmutableType(origKeyType, unresolvedTypes), true, null);
+                } else {
+                    immutableTableType = new BTableType(setImmutableType(origTableType.getConstrainedType(),
+                                                                         unresolvedTypes),
+                                                        origTableType.getFieldNames(), true, null);
+                }
+
+                origTableType.setImmutableType(immutableTableType);
+                return immutableTableType;
             case TypeTags.ANY_TAG:
             case TypeTags.ANYDATA_TAG:
             case TypeTags.JSON_TAG:
