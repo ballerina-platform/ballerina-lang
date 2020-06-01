@@ -1,35 +1,40 @@
 {
-    "kind": "XML_STEP_EXPRESSION",
+    "kind": "XML_FILTER_EXPRESSION",
     "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "XML_NAME_PATTERN_CHAIN",
+            "kind": "XML_FILTER_EXPRESSION",
             "children": [
                 {
-                    "kind": "DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN"
-                },
-                {
-                    "kind": "LIST",
+                    "kind": "METHOD_CALL",
                     "children": [
                         {
-                            "kind": "ASTERISK_TOKEN"
-                        }
-                    ]
-                },
-                {
-                    "kind": "GT_TOKEN"
-                }
-            ]
-        },
-        {
-            "kind": "LIST",
-            "children": [
-                {
-                    "kind": "METHOD_CALL_CHAIN",
-                    "children": [
+                            "kind": "XML_STEP_EXPRESSION",
+                            "children": [
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "a"
+                                },
+                                {
+                                    "kind": "XML_NAME_PATTERN_CHAIN",
+                                    "children": [
+                                        {
+                                            "kind": "DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN"
+                                        },
+                                        {
+                                            "kind": "LIST",
+                                            "children": [
+                                                {
+                                                    "kind": "ASTERISK_TOKEN"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "kind": "GT_TOKEN"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
                         {
                             "kind": "DOT_TOKEN"
                         },
@@ -136,37 +141,37 @@
                             "kind": "GT_TOKEN"
                         }
                     ]
+                }
+            ]
+        },
+        {
+            "kind": "XML_NAME_PATTERN_CHAIN",
+            "children": [
+                {
+                    "kind": "DOT_LT_TOKEN"
                 },
                 {
-                    "kind": "XML_NAME_PATTERN_CHAIN",
+                    "kind": "LIST",
                     "children": [
                         {
-                            "kind": "DOT_LT_TOKEN"
-                        },
-                        {
-                            "kind": "LIST",
+                            "kind": "XML_ATOMIC_NAME_PATTERN",
                             "children": [
                                 {
-                                    "kind": "XML_ATOMIC_NAME_PATTERN",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "d"
-                                        },
-                                        {
-                                            "kind": "COLON_TOKEN"
-                                        },
-                                        {
-                                            "kind": "ASTERISK_TOKEN"
-                                        }
-                                    ]
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "d"
+                                },
+                                {
+                                    "kind": "COLON_TOKEN"
+                                },
+                                {
+                                    "kind": "ASTERISK_TOKEN"
                                 }
                             ]
-                        },
-                        {
-                            "kind": "GT_TOKEN"
                         }
                     ]
+                },
+                {
+                    "kind": "GT_TOKEN"
                 }
             ]
         }

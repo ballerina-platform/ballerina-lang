@@ -1902,13 +1902,11 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createXMLStepExpressionNode(
             STNode expression,
-            STNode xmlStepStart,
-            STNode xmlStepExtend) {
+            STNode xmlStepStart) {
 
         return new STXMLStepExpressionNode(
                 expression,
-                xmlStepStart,
-                xmlStepExtend);
+                xmlStepStart);
     }
 
     public static STNode createXMLNamePatternChainingNode(

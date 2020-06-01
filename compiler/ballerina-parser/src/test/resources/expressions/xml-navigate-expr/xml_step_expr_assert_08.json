@@ -1,53 +1,48 @@
 {
-    "kind": "XML_STEP_EXPRESSION",
+    "kind": "INDEXED_EXPRESSION",
     "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "XML_NAME_PATTERN_CHAIN",
+            "kind": "XML_STEP_EXPRESSION",
             "children": [
                 {
-                    "kind": "SLASH_LT_TOKEN"
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "a"
                 },
                 {
-                    "kind": "LIST",
+                    "kind": "XML_NAME_PATTERN_CHAIN",
                     "children": [
                         {
-                            "kind": "ASTERISK_TOKEN"
-                        }
-                    ]
-                },
-                {
-                    "kind": "GT_TOKEN"
-                }
-            ]
-        },
-        {
-            "kind": "LIST",
-            "children": [
-                {
-                    "kind": "INDEXED_EXPRESSION",
-                    "children": [
-                        {
-                            "kind": "OPEN_BRACKET_TOKEN"
+                            "kind": "SLASH_LT_TOKEN"
                         },
                         {
                             "kind": "LIST",
                             "children": [
                                 {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "b"
+                                    "kind": "ASTERISK_TOKEN"
                                 }
                             ]
                         },
                         {
-                            "kind": "CLOSE_BRACKET_TOKEN"
+                            "kind": "GT_TOKEN"
                         }
                     ]
                 }
             ]
+        },
+        {
+            "kind": "OPEN_BRACKET_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "b"
+                }
+            ]
+        },
+        {
+            "kind": "CLOSE_BRACKET_TOKEN"
         }
     ]
 }

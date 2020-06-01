@@ -4522,7 +4522,7 @@ public class BallerinaParser extends AbstractParser {
             return lhsExpr;
         }
 
-        if (lhsExpr != null && lhsExpr.kind == SyntaxKind.ASYNC_SEND_ACTION) {
+        if (lhsExpr.kind == SyntaxKind.ASYNC_SEND_ACTION) {
             // Async-send action can only exists in an action-statement.
             // It also has to be the right-most action. i.e: Should be
             // followed by a semicolon
@@ -12209,15 +12209,14 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse xml step expression.
      * <p>
-     * <code>xml-step-expr := expression xml-step-start xml-step-extend*</code>
+     * <code>xml-step-expr := expression xml-step-start</code>
      *
      * @param lhsExpr Preceding expression of /*, /<, or /**\/< token
      * @return Parsed node
      */
     private STNode parseXMLStepExpression(STNode lhsExpr) {
         STNode xmlStepStart = parseXMLStepStart();
-        STNode xmlStepExtendList = parseXMLStepExtendList();
-        return STNodeFactory.createXMLStepExpressionNode(lhsExpr, xmlStepStart, xmlStepExtendList);
+        return STNodeFactory.createXMLStepExpressionNode(lhsExpr, xmlStepStart);
     }
 
     /**
@@ -12279,71 +12278,6 @@ public class BallerinaParser extends AbstractParser {
         } else {
             Solution sol = recover(nextToken, ParserRuleContext.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN);
             return sol.recoveredNode;
-        }
-    }
-
-    /**
-     * Parse xml step extend list.
-     * <p>
-     * <code>xml-step-extend-list := xml-step-extend*</code>
-     *
-     * @return Parsed node
-     */
-    private STNode parseXMLStepExtendList() {
-        List<STNode> xmlStepExtendList = new ArrayList<>();
-        STToken nextToken = peek();
-
-        // Return an empty list
-        if (isEndOfXMLStepExtend(nextToken.kind)) {
-            return STNodeFactory.createNodeList(xmlStepExtendList);
-        }
-
-        nextToken = peek();
-        STNode xmlStepExtend;
-        while (!isEndOfXMLNamePattern(nextToken.kind)) {
-            xmlStepExtend = parseXMLStepExtend();
-            xmlStepExtendList.add(xmlStepExtend);
-            nextToken = peek();
-        }
-
-        return STNodeFactory.createNodeList(xmlStepExtendList);
-    }
-
-    private boolean isEndOfXMLStepExtend(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case DOT_LT_TOKEN:
-            case OPEN_BRACKET_TOKEN:
-            case DOT_TOKEN:
-                return false;
-            default:
-                return true;
-        }
-    }
-
-    /**
-     * Parse xml step extend list.
-     * <p>
-     * <code>
-     * xml-step-extend :=
-     *    .< xml-name-pattern >
-     *    | [ expression ]
-     *    | . method-name ( arg-list )
-     * </code>
-     *
-     * @return Parsed node
-     */
-    private STNode parseXMLStepExtend() {
-        STToken token = peek();
-        // token kind is already validated in isEndOfXMLStepExtend and reach here.
-        // therefore, the token kind will be one of following three.
-        switch (token.kind) {
-            case DOT_LT_TOKEN:
-                return parseXMLFilterExpressionRhs();
-            case DOT_TOKEN:
-            case OPEN_BRACKET_TOKEN:
-            default:
-                STNode lhsExpr = STNodeFactory.createEmptyNode();
-                return parseExpressionRhs(token.kind, OperatorPrecedence.ACTION, lhsExpr, true, false);
         }
     }
 }

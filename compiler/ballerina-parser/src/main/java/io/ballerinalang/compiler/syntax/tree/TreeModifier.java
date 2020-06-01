@@ -2581,12 +2581,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(xMLStepExpressionNode.expression());
         Node xmlStepStart =
                 modifyNode(xMLStepExpressionNode.xmlStepStart());
-        NodeList<Node> xmlStepExtend =
-                modifyNodeList(xMLStepExpressionNode.xmlStepExtend());
         return xMLStepExpressionNode.modify(
                 expression,
-                xmlStepStart,
-                xmlStepExtend);
+                xmlStepStart);
     }
 
     @Override

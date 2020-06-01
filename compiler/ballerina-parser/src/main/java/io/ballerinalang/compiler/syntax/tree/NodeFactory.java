@@ -2555,16 +2555,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static XMLStepExpressionNode createXMLStepExpressionNode(
             ExpressionNode expression,
-            Node xmlStepStart,
-            NodeList<Node> xmlStepExtend) {
+            Node xmlStepStart) {
         Objects.requireNonNull(expression, "expression must not be null");
         Objects.requireNonNull(xmlStepStart, "xmlStepStart must not be null");
-        Objects.requireNonNull(xmlStepExtend, "xmlStepExtend must not be null");
 
         STNode stXMLStepExpressionNode = STNodeFactory.createXMLStepExpressionNode(
                 expression.internalNode(),
-                xmlStepStart.internalNode(),
-                xmlStepExtend.underlyingListNode().internalNode());
+                xmlStepStart.internalNode());
         return stXMLStepExpressionNode.createUnlinkedFacade();
     }
 

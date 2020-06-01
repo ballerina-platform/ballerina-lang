@@ -30,21 +30,17 @@ import io.ballerinalang.compiler.syntax.tree.XMLStepExpressionNode;
 public class STXMLStepExpressionNode extends STXMLNavigateExpressionNode {
     public final STNode expression;
     public final STNode xmlStepStart;
-    public final STNode xmlStepExtend;
 
     STXMLStepExpressionNode(
             STNode expression,
-            STNode xmlStepStart,
-            STNode xmlStepExtend) {
+            STNode xmlStepStart) {
         super(SyntaxKind.XML_STEP_EXPRESSION);
         this.expression = expression;
         this.xmlStepStart = xmlStepStart;
-        this.xmlStepExtend = xmlStepExtend;
 
         addChildren(
                 expression,
-                xmlStepStart,
-                xmlStepExtend);
+                xmlStepStart);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

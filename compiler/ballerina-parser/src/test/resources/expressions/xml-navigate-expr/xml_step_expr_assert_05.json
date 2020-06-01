@@ -1,37 +1,32 @@
 {
-    "kind": "XML_STEP_EXPRESSION",
+    "kind": "INDEXED_EXPRESSION",
     "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
+            "kind": "XML_STEP_EXPRESSION",
+            "children": [
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "a"
+                },
+                {
+                    "kind": "SLASH_ASTERISK_TOKEN"
+                }
+            ]
         },
         {
-            "kind": "SLASH_ASTERISK_TOKEN"
+            "kind": "OPEN_BRACKET_TOKEN"
         },
         {
             "kind": "LIST",
             "children": [
                 {
-                    "kind": "INDEXED_EXPRESSION",
-                    "children": [
-                        {
-                            "kind": "OPEN_BRACKET_TOKEN"
-                        },
-                        {
-                            "kind": "LIST",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "b"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "CLOSE_BRACKET_TOKEN"
-                        }
-                    ]
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "b"
                 }
             ]
+        },
+        {
+            "kind": "CLOSE_BRACKET_TOKEN"
         }
     ]
 }

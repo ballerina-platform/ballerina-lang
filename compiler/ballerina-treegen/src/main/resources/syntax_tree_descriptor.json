@@ -3420,11 +3420,6 @@
                 {
                     "name": "xmlStepStart",
                     "type": "Node"
-                },
-                {
-                    "name": "xmlStepExtend",
-                    "type": "Node",
-                    "occurrences": "MULTIPLE"
                 }
             ]
         },
