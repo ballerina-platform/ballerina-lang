@@ -1058,6 +1058,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 memberTypes.add(keyTypeConstraint);
             }
 
+            if (tableConstructorExpr.tableKeySpecifier == null && keyTypeConstraint.tag == TypeTags.NEVER) {
+                return true;
+            }
+
             if (tableConstructorExpr.tableKeySpecifier == null ||
                     tableConstructorExpr.tableKeySpecifier.fieldNameIdentifierList.size() != memberTypes.size()) {
                 dlog.error(tableConstructorExpr.pos, DiagnosticCode.KEY_SPECIFIER_SIZE_MISMATCH_WITH_KEY_CONSTRAINT,
