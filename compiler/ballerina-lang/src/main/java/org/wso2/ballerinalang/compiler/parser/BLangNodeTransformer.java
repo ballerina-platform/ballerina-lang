@@ -1122,13 +1122,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangAnnotation annotationDecl = (BLangAnnotation) TreeBuilder.createAnnotationNode();
         DiagnosticPos pos = getPosition(annotationDeclarationNode);
         annotationDecl.pos = pos;
-        annotationDecl.name = createIdentifier(pos,annotationDeclarationNode.annotationTag().text());
+        annotationDecl.name = createIdentifier(pos, annotationDeclarationNode.annotationTag().text());
 
-        if (annotationDeclarationNode.visibilityQualifier()!= null) {
+        if (annotationDeclarationNode.visibilityQualifier() != null) {
             annotationDecl.addFlag(Flag.PUBLIC);
         }
 
-        if (annotationDeclarationNode.constKeyword()!= null) {
+        if (annotationDeclarationNode.constKeyword() != null) {
             annotationDecl.addFlag(Flag.CONSTANT);
         }
 
@@ -1153,20 +1153,20 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             if (firstIndent == "object") {
                 switch (attachPoint.secondIdent().text().toLowerCase()) {
                     case "function" :
-                        bLAttachPoint = AttachPoint.getAttachmentPoint("objectfunction",source);
+                        bLAttachPoint = AttachPoint.getAttachmentPoint("objectfunction", source);
                         break;
                     case "field" :
-                        bLAttachPoint = AttachPoint.getAttachmentPoint("objectfield",source);
+                        bLAttachPoint = AttachPoint.getAttachmentPoint("objectfield", source);
                         break;
                     default:
-                        bLAttachPoint = AttachPoint.getAttachmentPoint("objecttype",source);
+                        bLAttachPoint = AttachPoint.getAttachmentPoint("objecttype", source);
                 }
-            } else if(firstIndent == "resource") {
-                bLAttachPoint = AttachPoint.getAttachmentPoint("resourcefunction",source);
-            } else if(firstIndent == "record") {
-                bLAttachPoint = AttachPoint.getAttachmentPoint("recordfield",source);
+            } else if (firstIndent == "resource") {
+                bLAttachPoint = AttachPoint.getAttachmentPoint("resourcefunction", source);
+            } else if (firstIndent == "record") {
+                bLAttachPoint = AttachPoint.getAttachmentPoint("recordfield", source);
             } else {
-                bLAttachPoint = AttachPoint.getAttachmentPoint(firstIndent,source);
+                bLAttachPoint = AttachPoint.getAttachmentPoint(firstIndent, source);
             }
             annotationDecl.addAttachPoint(bLAttachPoint);
         }
@@ -2584,7 +2584,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         LinkedList<BLangMarkdownDocumentationLine> docLineList = new LinkedList<>();
         BLangMarkdownDocumentationLine docLine =
-                (BLangMarkdownDocumentationLine)TreeBuilder.createMarkdownDocumentationTextNode();
+                (BLangMarkdownDocumentationLine) TreeBuilder.createMarkdownDocumentationTextNode();
         for (Token docTok : docStringNode.documentationLines()) {
             docLine.text = docTok.text();
             docLineList.add(docLine);
