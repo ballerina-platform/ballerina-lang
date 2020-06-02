@@ -748,10 +748,6 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_NAME_PATTERN_CHAIN;
             case "XML_ATOMIC_NAME_PATTERN":
                 return SyntaxKind.XML_ATOMIC_NAME_PATTERN;
-            case "OPEN_BRACKET_EXPRESSION_CHAIN":
-                return SyntaxKind.OPEN_BRACKET_EXPRESSION_CHAIN;
-            case "METHOD_CALL_CHAIN":
-                return SyntaxKind.METHOD_CALL_CHAIN;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
