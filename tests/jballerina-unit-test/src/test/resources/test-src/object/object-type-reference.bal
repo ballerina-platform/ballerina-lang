@@ -14,9 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'int;
-import ballerina/test;
-
 type Person1 abstract object {
     public int age;
     public string name;
@@ -197,12 +194,12 @@ public function testNonAbstractObjectInclusion() {
 // Type inclusion tests
 
 type AgeDataObject abstract object {
-    'int:Signed8 age;
+    int age;
 };
 
 type DefaultPerson object {
     *AgeDataObject;
-    int age;
+    int|float age;
     string name;
 
     function __init(int age=18, string name = "UNKNOWN") {
@@ -213,10 +210,10 @@ type DefaultPerson object {
 
 function testCreatingObjectWithOverriddenFields() {
     DefaultPerson dummyPerson = new DefaultPerson();
-    test:assertEquals(dummyPerson.age, 18);
+    assertEquality(dummyPerson.age, 18);
     dummyPerson.age = 400;
-    test:assertEquals(dummyPerson.age, 400);
-    test:assertEquals(dummyPerson.name, "UNKNOWN");
+    assertEquality(dummyPerson.age, 400);
+    assertEquality(dummyPerson.name, "UNKNOWN");
 }
 
 type NameInterface abstract object {
@@ -225,16 +222,16 @@ type NameInterface abstract object {
 
 type AgeInterface abstract object {
     *AgeDataObject;
-    public function setAge('int:Signed8 age = 0) returns 'int:Signed8;
+    public function setAge(int|string age = 0) returns int;
 };
 
 type DefaultPersonGreetedName object {
     *NameInterface;
     *AgeInterface;
     string name;
-    'int:Signed16 age;
+    int age;
 
-    function __init('int:Signed16 age = 18, string name = "UNKNOWN") {
+    function __init(int age = 18, string name = "UNKNOWN") {
        self.age = age;
        self.name = name;
     }
@@ -243,7 +240,7 @@ type DefaultPersonGreetedName object {
         return greeting + " " + self.name;
     }
 
-    public function setAge('int:Signed8 age = 0) returns int {
+    public function setAge(int age = 0) returns int {
         self.age = age;
         return self.age;
     }
@@ -251,10 +248,25 @@ type DefaultPersonGreetedName object {
 
 function testCreatingObjectWithOverriddenMethods() {
     DefaultPersonGreetedName dummyPerson = new DefaultPersonGreetedName(name="Doe");
-    test:assertEquals(dummyPerson.age, 18);
+    assertEquality(dummyPerson.age, 18);
     int age = dummyPerson.setAge(80);
-    test:assertEquals(dummyPerson.age, 80);
-    test:assertEquals(dummyPerson.getName(), "Hello Doe");
+    assertEquality(dummyPerson.age, 80);
+    assertEquality(dummyPerson.getName(), "Hello Doe");
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

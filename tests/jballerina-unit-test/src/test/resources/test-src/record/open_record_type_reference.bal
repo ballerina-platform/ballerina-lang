@@ -15,8 +15,6 @@
 // under the License.
 
 import testorg/records;
-import ballerina/lang.'int;
-import ballerina/test;
 
 // TESTS FOR RECORDS WHERE THE REFERENCED TYPE ONLY HAS VALUE TYPE FIELDS
 
@@ -186,25 +184,31 @@ function testDefaultValueInitInBALOs() returns records:BManager {
 
 // Test overriding of referenced fields
 
-type Name record {
-    string name = "";
-};
-
-type AgedPerson record {
-    *Name;
-    'int:Signed8 age = 127;
-};
-
 type DefaultPerson record {
-    *AgedPerson;
-    int age = 18;
+    *records:AgedPerson;
+    int|string|float age = 18;
     string name = "UNKNOWN";
 };
 
 function testCreatingRecordWithOverriddenFields() {
     DefaultPerson dummyPerson = {};
-    test:assertEquals(18, dummyPerson.age);
+    assertEquality(18, dummyPerson.age);
     dummyPerson.age = 400;
-    test:assertEquals(400, dummyPerson.age);
-    test:assertEquals("UNKNOWN", dummyPerson.name);
+    assertEquality(400, dummyPerson.age);
+    assertEquality("UNKNOWN", dummyPerson.name);
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
