@@ -22,29 +22,52 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.XMLAtomicNamePatternNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
  * @since 2.0.0
  */
 public class STXMLAtomicNamePatternNode extends STNode {
-    public final STNode xmlNamespacePrefix;
+    public final STNode prefix;
     public final STNode colon;
-    public final STNode endToken;
+    public final STNode name;
 
     STXMLAtomicNamePatternNode(
-            STNode xmlNamespacePrefix,
+            STNode prefix,
             STNode colon,
-            STNode endToken) {
-        super(SyntaxKind.XML_ATOMIC_NAME_PATTERN);
-        this.xmlNamespacePrefix = xmlNamespacePrefix;
+            STNode name) {
+        this(
+                prefix,
+                colon,
+                name,
+                Collections.emptyList());
+    }
+
+    STXMLAtomicNamePatternNode(
+            STNode prefix,
+            STNode colon,
+            STNode name,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.XML_ATOMIC_NAME_PATTERN, diagnostics);
+        this.prefix = prefix;
         this.colon = colon;
-        this.endToken = endToken;
+        this.name = name;
 
         addChildren(
-                xmlNamespacePrefix,
+                prefix,
                 colon,
-                endToken);
+                name);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STXMLAtomicNamePatternNode(
+                this.prefix,
+                this.colon,
+                this.name,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

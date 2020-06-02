@@ -2611,17 +2611,17 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static XMLAtomicNamePatternNode createXMLAtomicNamePatternNode(
-            Token xmlNamespacePrefix,
+            Token prefix,
             Token colon,
-            Token endToken) {
-        Objects.requireNonNull(xmlNamespacePrefix, "xmlNamespacePrefix must not be null");
+            Token name) {
+        Objects.requireNonNull(prefix, "prefix must not be null");
         Objects.requireNonNull(colon, "colon must not be null");
-        Objects.requireNonNull(endToken, "endToken must not be null");
+        Objects.requireNonNull(name, "name must not be null");
 
         STNode stXMLAtomicNamePatternNode = STNodeFactory.createXMLAtomicNamePatternNode(
-                xmlNamespacePrefix.internalNode(),
+                prefix.internalNode(),
                 colon.internalNode(),
-                endToken.internalNode());
+                name.internalNode());
         return stXMLAtomicNamePatternNode.createUnlinkedFacade();
     }
 }

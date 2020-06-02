@@ -507,7 +507,7 @@ public class BallerinaParser extends AbstractParser {
             case DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN:
                 return parseDoubleSlashDoubleAsteriskLTToken();
             case XML_ATOMIC_NAME_PATTERN_START:
-                return parseXMLAtomicNamePattern();
+                return parseXMLAtomicNamePatternBody();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -11206,24 +11206,17 @@ public class BallerinaParser extends AbstractParser {
         }
 
         // Parse first xml atomic name pattern, that has no leading pipe token
-        startContext(ParserRuleContext.XML_ATOMIC_NAME_PATTERN);
         STNode xmlAtomicNamePattern = parseXMLAtomicNamePattern();
-        endContext();
         xmlAtomicNamePatternList.add(xmlAtomicNamePattern);
 
         // Parse the remaining xml atomic name patterns
-        nextToken = peek();
         STNode leadingPipe;
-        while (!isEndOfXMLNamePattern(nextToken.kind)) {
+        while (!isEndOfXMLNamePattern(peek().kind)) {
             leadingPipe = parsePipeToken();
             xmlAtomicNamePatternList.add(leadingPipe);
 
-            startContext(ParserRuleContext.XML_ATOMIC_NAME_PATTERN);
             xmlAtomicNamePattern = parseXMLAtomicNamePattern();
-            endContext();
-
             xmlAtomicNamePatternList.add(xmlAtomicNamePattern);
-            nextToken = peek();
         }
 
         return STNodeFactory.createNodeList(xmlAtomicNamePatternList);
@@ -11271,6 +11264,13 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseXMLAtomicNamePattern() {
+        startContext(ParserRuleContext.XML_ATOMIC_NAME_PATTERN);
+        STNode atomicNamePattern = parseXMLAtomicNamePatternBody();
+        endContext();
+        return atomicNamePattern;
+    }
+
+    private STNode parseXMLAtomicNamePatternBody() {
         STToken token = peek();
         STNode identifier;
         switch (token.kind) {

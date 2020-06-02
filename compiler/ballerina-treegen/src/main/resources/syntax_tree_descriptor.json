@@ -3512,7 +3512,7 @@
             "kind": "XML_ATOMIC_NAME_PATTERN",
             "attributes": [
                 {
-                    "name": "xmlNamespacePrefix",
+                    "name": "prefix",
                     "type": "Token"
                 },
                 {
@@ -3520,7 +3520,7 @@
                     "type": "Token"
                 },
                 {
-                    "name": "endToken",
+                    "name": "name",
                     "type": "Token"
                 }
             ]

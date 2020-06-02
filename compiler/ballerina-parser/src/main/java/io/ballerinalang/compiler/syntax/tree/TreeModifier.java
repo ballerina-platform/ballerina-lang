@@ -2643,16 +2643,16 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public XMLAtomicNamePatternNode transform(
             XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
-        Token xmlNamespacePrefix =
-                modifyToken(xMLAtomicNamePatternNode.xmlNamespacePrefix());
+        Token prefix =
+                modifyToken(xMLAtomicNamePatternNode.prefix());
         Token colon =
                 modifyToken(xMLAtomicNamePatternNode.colon());
-        Token endToken =
-                modifyToken(xMLAtomicNamePatternNode.endToken());
+        Token name =
+                modifyToken(xMLAtomicNamePatternNode.name());
         return xMLAtomicNamePatternNode.modify(
-                xmlNamespacePrefix,
+                prefix,
                 colon,
-                endToken);
+                name);
     }
 
     // Tokens

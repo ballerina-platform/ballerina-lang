@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.XMLNamePatternChainingNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STXMLNamePatternChainingNode extends STNode {
             STNode startToken,
             STNode xmlNamePattern,
             STNode gtToken) {
-        super(SyntaxKind.XML_NAME_PATTERN_CHAIN);
+        this(
+                startToken,
+                xmlNamePattern,
+                gtToken,
+                Collections.emptyList());
+    }
+
+    STXMLNamePatternChainingNode(
+            STNode startToken,
+            STNode xmlNamePattern,
+            STNode gtToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.XML_NAME_PATTERN_CHAIN, diagnostics);
         this.startToken = startToken;
         this.xmlNamePattern = xmlNamePattern;
         this.gtToken = gtToken;
@@ -45,6 +60,14 @@ public class STXMLNamePatternChainingNode extends STNode {
                 startToken,
                 xmlNamePattern,
                 gtToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STXMLNamePatternChainingNode(
+                this.startToken,
+                this.xmlNamePattern,
+                this.gtToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

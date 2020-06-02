@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.XMLFilterExpressionNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,13 +37,30 @@ public class STXMLFilterExpressionNode extends STXMLNavigateExpressionNode {
     STXMLFilterExpressionNode(
             STNode expression,
             STNode xmlPatternChain) {
-        super(SyntaxKind.XML_FILTER_EXPRESSION);
+        this(
+                expression,
+                xmlPatternChain,
+                Collections.emptyList());
+    }
+
+    STXMLFilterExpressionNode(
+            STNode expression,
+            STNode xmlPatternChain,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.XML_FILTER_EXPRESSION, diagnostics);
         this.expression = expression;
         this.xmlPatternChain = xmlPatternChain;
 
         addChildren(
                 expression,
                 xmlPatternChain);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STXMLFilterExpressionNode(
+                this.expression,
+                this.xmlPatternChain,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

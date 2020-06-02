@@ -1951,14 +1951,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createXMLAtomicNamePatternNode(
-            STNode xmlNamespacePrefix,
+            STNode prefix,
             STNode colon,
-            STNode endToken) {
+            STNode name) {
 
         return new STXMLAtomicNamePatternNode(
-                xmlNamespacePrefix,
+                prefix,
                 colon,
-                endToken);
+                name);
     }
 }
 

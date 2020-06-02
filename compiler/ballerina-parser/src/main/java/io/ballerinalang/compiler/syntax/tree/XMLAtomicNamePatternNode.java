@@ -32,7 +32,7 @@ public class XMLAtomicNamePatternNode extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public Token xmlNamespacePrefix() {
+    public Token prefix() {
         return childInBucket(0);
     }
 
@@ -40,7 +40,7 @@ public class XMLAtomicNamePatternNode extends NonTerminalNode {
         return childInBucket(1);
     }
 
-    public Token endToken() {
+    public Token name() {
         return childInBucket(2);
     }
 
@@ -57,26 +57,26 @@ public class XMLAtomicNamePatternNode extends NonTerminalNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "xmlNamespacePrefix",
+                "prefix",
                 "colon",
-                "endToken"};
+                "name"};
     }
 
     public XMLAtomicNamePatternNode modify(
-            Token xmlNamespacePrefix,
+            Token prefix,
             Token colon,
-            Token endToken) {
+            Token name) {
         if (checkForReferenceEquality(
-                xmlNamespacePrefix,
+                prefix,
                 colon,
-                endToken)) {
+                name)) {
             return this;
         }
 
         return NodeFactory.createXMLAtomicNamePatternNode(
-                xmlNamespacePrefix,
+                prefix,
                 colon,
-                endToken);
+                name);
     }
 
     public XMLAtomicNamePatternNodeModifier modify() {
@@ -90,21 +90,21 @@ public class XMLAtomicNamePatternNode extends NonTerminalNode {
      */
     public static class XMLAtomicNamePatternNodeModifier {
         private final XMLAtomicNamePatternNode oldNode;
-        private Token xmlNamespacePrefix;
+        private Token prefix;
         private Token colon;
-        private Token endToken;
+        private Token name;
 
         public XMLAtomicNamePatternNodeModifier(XMLAtomicNamePatternNode oldNode) {
             this.oldNode = oldNode;
-            this.xmlNamespacePrefix = oldNode.xmlNamespacePrefix();
+            this.prefix = oldNode.prefix();
             this.colon = oldNode.colon();
-            this.endToken = oldNode.endToken();
+            this.name = oldNode.name();
         }
 
-        public XMLAtomicNamePatternNodeModifier withXmlNamespacePrefix(
-                Token xmlNamespacePrefix) {
-            Objects.requireNonNull(xmlNamespacePrefix, "xmlNamespacePrefix must not be null");
-            this.xmlNamespacePrefix = xmlNamespacePrefix;
+        public XMLAtomicNamePatternNodeModifier withPrefix(
+                Token prefix) {
+            Objects.requireNonNull(prefix, "prefix must not be null");
+            this.prefix = prefix;
             return this;
         }
 
@@ -115,18 +115,18 @@ public class XMLAtomicNamePatternNode extends NonTerminalNode {
             return this;
         }
 
-        public XMLAtomicNamePatternNodeModifier withEndToken(
-                Token endToken) {
-            Objects.requireNonNull(endToken, "endToken must not be null");
-            this.endToken = endToken;
+        public XMLAtomicNamePatternNodeModifier withName(
+                Token name) {
+            Objects.requireNonNull(name, "name must not be null");
+            this.name = name;
             return this;
         }
 
         public XMLAtomicNamePatternNode apply() {
             return oldNode.modify(
-                    xmlNamespacePrefix,
+                    prefix,
                     colon,
-                    endToken);
+                    name);
         }
     }
 }

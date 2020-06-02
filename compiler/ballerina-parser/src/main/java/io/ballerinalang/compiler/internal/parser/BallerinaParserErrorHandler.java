@@ -2322,9 +2322,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_CAST:
                 return ParserRuleContext.LT;
             case PIPE:
-                if (getParentContext() == ParserRuleContext.ALTERNATE_WAIT_EXPRS) {
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.ALTERNATE_WAIT_EXPRS) {
                     return ParserRuleContext.EXPRESSION;
-                } else if (getParentContext() == ParserRuleContext.XML_NAME_PATTERN) {
+                } else if (parentCtx == ParserRuleContext.XML_NAME_PATTERN) {
                     return ParserRuleContext.XML_ATOMIC_NAME_PATTERN;
                 }
                 return ParserRuleContext.TYPE_DESCRIPTOR;

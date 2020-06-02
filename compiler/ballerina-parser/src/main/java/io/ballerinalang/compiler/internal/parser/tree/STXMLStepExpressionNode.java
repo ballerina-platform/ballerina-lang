@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.XMLStepExpressionNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,13 +37,30 @@ public class STXMLStepExpressionNode extends STXMLNavigateExpressionNode {
     STXMLStepExpressionNode(
             STNode expression,
             STNode xmlStepStart) {
-        super(SyntaxKind.XML_STEP_EXPRESSION);
+        this(
+                expression,
+                xmlStepStart,
+                Collections.emptyList());
+    }
+
+    STXMLStepExpressionNode(
+            STNode expression,
+            STNode xmlStepStart,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.XML_STEP_EXPRESSION, diagnostics);
         this.expression = expression;
         this.xmlStepStart = xmlStepStart;
 
         addChildren(
                 expression,
                 xmlStepStart);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STXMLStepExpressionNode(
+                this.expression,
+                this.xmlStepStart,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
