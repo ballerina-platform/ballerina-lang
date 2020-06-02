@@ -1,92 +1,96 @@
 {
-  "kind": "MODULE_PART",
-  "children": [
-    {
-      "kind": "LIST",
-      "children": []
-    },
-    {
-      "kind": "LIST",
-      "children": [
+    "kind": "MODULE_PART",
+    "children": [
         {
-          "kind": "ANNOTATION_DECLARATION",
-          "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
-              "kind": "ANNOTATION_KEYWORD"
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "MyType"
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "MyAnnot1"
-            },
-            {
-              "kind": "SEMICOLON_TOKEN"
-            }
-          ]
+            "kind": "LIST",
+            "children": []
         },
         {
-          "kind": "ANNOTATION_DECLARATION",
-          "children": [
-            {
-              "kind": "METADATA",
-              "children": [
+            "kind": "LIST",
+            "children": [
                 {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
-              "kind": "ANNOTATION_KEYWORD"
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "MyType"
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "MyAnnot1"
-            },
-            {
-              "kind": "ON_KEYWORD"
-            },
-            {
-              "kind": "LIST",
-              "children": [
+                    "kind": "ANNOTATION_DECLARATION",
+                    "children": [
+                        {
+                            "kind": "METADATA",
+                            "children": [
+                                {
+                                    "kind": "LIST",
+                                    "children": []
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "ANNOTATION_KEYWORD"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "MyType"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "MyAnnot1"
+                        },
+                        {
+                            "kind": "LIST",
+                            "children": []
+                        },
+                        {
+                            "kind": "SEMICOLON_TOKEN"
+                        }
+                    ]
+                },
                 {
-                  "kind": "ANNOTATION_ATTACH_POINT",
-                  "children": [
-                    {
-                      "kind": "SOURCE_KEYWORD"
-                    },
-                    {
-                      "kind": "ANNOTATION_KEYWORD"
-                    }
-                  ]
+                    "kind": "ANNOTATION_DECLARATION",
+                    "children": [
+                        {
+                            "kind": "METADATA",
+                            "children": [
+                                {
+                                    "kind": "LIST",
+                                    "children": []
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "ANNOTATION_KEYWORD"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "MyType"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "MyAnnot1"
+                        },
+                        {
+                            "kind": "ON_KEYWORD"
+                        },
+                        {
+                            "kind": "LIST",
+                            "children": [
+                                {
+                                    "kind": "ANNOTATION_ATTACH_POINT",
+                                    "children": [
+                                        {
+                                            "kind": "SOURCE_KEYWORD"
+                                        },
+                                        {
+                                            "kind": "ANNOTATION_KEYWORD"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "SEMICOLON_TOKEN"
+                        }
+                    ]
                 }
-              ]
-            },
-            {
-              "kind": "SEMICOLON_TOKEN"
-            }
-          ]
+            ]
+        },
+        {
+            "kind": "EOF_TOKEN"
         }
-      ]
-    },
-    {
-      "kind": "EOF_TOKEN"
-    }
-  ]
+    ]
 }
