@@ -564,6 +564,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(captureBindingPatternNode);
     }
 
+    public T transform(WildcardBindingPatternNode wildcardBindingPatternNode) {
+        return transformSyntaxNode(wildcardBindingPatternNode);
+    }
+
     public T transform(ListBindingPatternNode listBindingPatternNode) {
         return transformSyntaxNode(listBindingPatternNode);
     }

@@ -32,21 +32,18 @@ import java.util.Collections;
  */
 public class STFromClauseNode extends STClauseNode {
     public final STNode fromKeyword;
-    public final STNode typeName;
-    public final STNode variableName;
+    public final STNode typedBindingPattern;
     public final STNode inKeyword;
     public final STNode expression;
 
     STFromClauseNode(
             STNode fromKeyword,
-            STNode typeName,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode inKeyword,
             STNode expression) {
         this(
                 fromKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 inKeyword,
                 expression,
                 Collections.emptyList());
@@ -54,22 +51,19 @@ public class STFromClauseNode extends STClauseNode {
 
     STFromClauseNode(
             STNode fromKeyword,
-            STNode typeName,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode inKeyword,
             STNode expression,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.FROM_CLAUSE, diagnostics);
         this.fromKeyword = fromKeyword;
-        this.typeName = typeName;
-        this.variableName = variableName;
+        this.typedBindingPattern = typedBindingPattern;
         this.inKeyword = inKeyword;
         this.expression = expression;
 
         addChildren(
                 fromKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 inKeyword,
                 expression);
     }
@@ -77,8 +71,7 @@ public class STFromClauseNode extends STClauseNode {
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STFromClauseNode(
                 this.fromKeyword,
-                this.typeName,
-                this.variableName,
+                this.typedBindingPattern,
                 this.inKeyword,
                 this.expression,
                 diagnostics);

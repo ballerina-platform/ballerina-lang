@@ -3084,7 +3084,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.BRACKETED_LIST_MEMBER_END;
             case MAPPING_BINDING_PATTERN:
                 endContext();
-                return getNextRuleForTypedBindingPattern();
+                return getNextRuleForBindingPattern();
             case FORK_STMT:
                 endContext(); // end fork-statement
                 return ParserRuleContext.STATEMENT;
@@ -3167,18 +3167,18 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         } else if (parentCtx == ParserRuleContext.FOREACH_STMT) {
             return ParserRuleContext.IN_KEYWORD;
         } else if (parentCtx == ParserRuleContext.TYPED_BINDING_PATTERN) {
-            return getNextRuleForTypedBindingPattern();
+            return getNextRuleForBindingPattern();
         } else if (parentCtx == ParserRuleContext.CAPTURE_BINDING_PATTERN) {
-            return getNextRuleForTypedBindingPattern();
+            return getNextRuleForBindingPattern();
         } else if (parentCtx == ParserRuleContext.LIST_BINDING_PATTERN ||
                 parentCtx == ParserRuleContext.STMT_START_BRACKETED_LIST_MEMBER) {
-            return getNextRuleForTypedBindingPattern();
+            return getNextRuleForBindingPattern();
         } else if (parentCtx == ParserRuleContext.REST_BINDING_PATTERN) {
-            return getNextRuleForTypedBindingPattern();
+            return getNextRuleForBindingPattern();
         } else if (parentCtx == ParserRuleContext.FIELD_BINDING_PATTERN) {
-            return getNextRuleForTypedBindingPattern();
+            return getNextRuleForBindingPattern();
         } else if (parentCtx == ParserRuleContext.MAPPING_BINDING_PATTERN) {
-            return getNextRuleForTypedBindingPattern();
+            return getNextRuleForBindingPattern();
         }  else if (isStatement(parentCtx) || parentCtx == ParserRuleContext.LISTENER_DECL ||
                 parentCtx == ParserRuleContext.CONSTANT_DECL) {
             return ParserRuleContext.VAR_DECL_STMT_RHS;
@@ -3351,7 +3351,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.COLON;
             case LIST_BINDING_PATTERN:
                 endContext(); // end list-binding-pattern context
-                return getNextRuleForTypedBindingPattern();
+                return getNextRuleForBindingPattern();
             case LIST_CONSTRUCTOR:
             case TABLE_CONSTRUCTOR:
             case MEMBER_ACCESS_KEY_EXPR:
@@ -3449,18 +3449,19 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     }
 
     /**
-     * Get the next parser context to visit after a typed-binding-pattern.
+     * Get the next parser context to visit after a binding-pattern.
      *
      * @return Next parser context
      */
-    private ParserRuleContext getNextRuleForTypedBindingPattern() {
+    private ParserRuleContext getNextRuleForBindingPattern() {
         ParserRuleContext parentCtx = getParentContext();
         switch (parentCtx) {
             case CAPTURE_BINDING_PATTERN:
             case TYPED_BINDING_PATTERN:
                 endContext();
-                return getNextRuleForTypedBindingPattern();
+                return getNextRuleForBindingPattern();
             case FOREACH_STMT:
+            case QUERY_EXPRESSION:
                 return ParserRuleContext.IN_KEYWORD;
             case LIST_BINDING_PATTERN:
             case STMT_START_BRACKETED_LIST:
@@ -3481,6 +3482,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.VAR_DECL_STMT_RHS;
             case LET_CLAUSE_LET_VAR_DECL:
             case LET_EXPR_LET_VAR_DECL:
+            case ASSIGNMENT_STMT:
                 return ParserRuleContext.ASSIGN_OP;
             default:
                 throw new IllegalStateException(parentCtx.toString());

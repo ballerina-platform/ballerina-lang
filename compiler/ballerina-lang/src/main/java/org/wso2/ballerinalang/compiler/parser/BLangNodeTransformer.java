@@ -299,8 +299,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private BLangCompilationUnit currentCompilationUnit;
     private static final Pattern UNICODE_PATTERN = Pattern.compile(Constants.UNICODE_REGEX);
     private BLangAnonymousModelHelper anonymousModelHelper;
-    /* To keep track of additional top-level nodes produced from multi-BLangNode resultant transformations */
-    private Stack<TopLevelNode> additionalTopLevelNodes = new Stack<>();
     /* To keep track of additional statements produced from multi-BLangNode resultant transformations */
     private Stack<BLangStatement> additionalStatements = new Stack<>();
     /* To keep track if we are inside a block statment for the use of type definition creation */
@@ -316,10 +314,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public List<org.ballerinalang.model.tree.Node> accept(Node node) {
         BLangNode bLangNode = node.apply(this);
         List<org.ballerinalang.model.tree.Node> nodes = new ArrayList<>();
-        // if not already consumed, add left-over top-level nodes
-        while (!additionalTopLevelNodes.empty()) {
-            nodes.add(additionalTopLevelNodes.pop());
-        }
         // if not already consumed, add left-over statements
         while (!additionalStatements.empty()) {
             nodes.add(additionalStatements.pop());
@@ -361,11 +355,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         // Generate other module-level declarations
         for (ModuleMemberDeclarationNode member : modulePart.members()) {
             compilationUnit.addTopLevelNode((TopLevelNode) member.apply(this));
-        }
-
-        // Consume additional top-level nodes generated
-        while (!this.additionalTopLevelNodes.empty()) {
-            compilationUnit.addTopLevelNode(this.additionalTopLevelNodes.pop());
         }
 
         compilationUnit.pos = pos;
@@ -575,7 +564,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         bLTypeDef.typeNode = toIndirect;
         bLTypeDef.pos = pos;
-        currentCompilationUnit.addTopLevelNode(bLTypeDef);
+        addToTop(bLTypeDef);
 
         return createUserDefinedType(pos, (BLangIdentifier) TreeBuilder.createIdentifierNode(), bLTypeDef.name);
     }
@@ -724,7 +713,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
         }
         // We add all service nodes to top level, only for future reference.
-        this.additionalTopLevelNodes.add(bLService);
+        addToTop(bLService);
 
         // 1) Define type nodeDefinition for service type.
         BLangTypeDefinition bLTypeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
@@ -759,7 +748,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
             var.typeNode = bLUserDefinedType;
             bLService.variableNode = var;
-            this.additionalTopLevelNodes.add(bLTypeDef);
+            addToTop(bLTypeDef);
             return var;
         } else {
             return bLTypeDef;
@@ -932,7 +921,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         bLFunction.addFlag(Flag.LAMBDA);
         bLFunction.addFlag(Flag.ANONYMOUS);
-        this.currentCompilationUnit.addTopLevelNode(bLFunction);
+        addToTop(bLFunction);
 
         BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaExpr.function = bLFunction;
@@ -1040,7 +1029,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             bLFunction.setReturnTypeNode(bLValueType);
         }
 
-        this.currentCompilationUnit.addTopLevelNode(bLFunction);
+        addToTop(bLFunction);
 
         BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaExpr.function = bLFunction;
@@ -2504,7 +2493,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (type.kind() == SyntaxKind.NIL_TYPE_DESC) {
             typeText = "()";
         } else if (type instanceof BuiltinSimpleNameReferenceNode) {
-            typeText = ((BuiltinSimpleNameReferenceNode) type).name().text();
+            BuiltinSimpleNameReferenceNode simpleNameRef = (BuiltinSimpleNameReferenceNode) type;
+            if (simpleNameRef.kind() == SyntaxKind.VAR_TYPE_DESC) {
+                return null;
+            }
+            typeText = simpleNameRef.name().text();
         } else {
             typeText = ((Token) type).text(); // TODO: Remove this once map<string> returns Nodes for `map`
         }
@@ -2759,7 +2752,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         typeDef.typeNode = recordTypeNode;
         typeDef.pos = pos;
-        this.additionalTopLevelNodes.add(typeDef);
+        addToTop(typeDef);
         return createUserDefinedType(pos, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name);
     }
 
@@ -2882,6 +2875,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         public SimpleVarBuilder isWorkerVar() {
             this.flags.add(Flag.WORKER);
             return this;
+        }
+    }
+
+    private void addToTop(TopLevelNode topLevelNode) {
+        if (currentCompilationUnit != null) {
+            currentCompilationUnit.addTopLevelNode(topLevelNode);
         }
     }
 }
