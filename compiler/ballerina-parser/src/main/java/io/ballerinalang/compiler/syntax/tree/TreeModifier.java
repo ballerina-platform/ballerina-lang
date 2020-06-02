@@ -75,13 +75,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ImportDeclarationNode importDeclarationNode) {
         Token importKeyword =
                 modifyToken(importDeclarationNode.importKeyword());
-        Node orgName =
+        ImportOrgNameNode orgName =
                 modifyNode(importDeclarationNode.orgName().orElse(null));
         SeparatedNodeList<IdentifierToken> moduleName =
                 modifySeparatedNodeList(importDeclarationNode.moduleName());
-        Node version =
+        ImportVersionNode version =
                 modifyNode(importDeclarationNode.version().orElse(null));
-        Node prefix =
+        ImportPrefixNode prefix =
                 modifyNode(importDeclarationNode.prefix().orElse(null));
         Token semicolon =
                 modifyToken(importDeclarationNode.semicolon());
@@ -1452,7 +1452,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(keySpecifierNode.keyKeyword());
         Token openParenToken =
                 modifyToken(keySpecifierNode.openParenToken());
-        SeparatedNodeList<Node> fieldNames =
+        SeparatedNodeList<IdentifierToken> fieldNames =
                 modifySeparatedNodeList(keySpecifierNode.fieldNames());
         Token closeParenToken =
                 modifyToken(keySpecifierNode.closeParenToken());
