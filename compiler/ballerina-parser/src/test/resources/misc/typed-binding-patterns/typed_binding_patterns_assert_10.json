@@ -74,11 +74,21 @@
                                       "kind": "FROM_KEYWORD"
                                     },
                                     {
-                                      "kind": "INT_KEYWORD"
-                                    },
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "a"
+                                      "kind": "TYPED_BINDING_PATTERN",
+                                      "children": [
+                                        {
+                                          "kind": "INT_KEYWORD"
+                                        },
+                                        {
+                                          "kind": "CAPTURE_BINDING_PATTERN",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "a"
+                                            }
+                                          ]
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "IN_KEYWORD"
@@ -176,7 +186,7 @@
                                                               "kind": "COMMA_TOKEN"
                                                             },
                                                             {
-                                                              "kind": "CAPTURE_BINDING_PATTERN",
+                                                              "kind": "WILDCARD_BINDING_PATTERN",
                                                               "children": [
                                                                 {
                                                                   "kind": "IDENTIFIER_TOKEN",
@@ -252,11 +262,21 @@
                                       "kind": "FROM_KEYWORD"
                                     },
                                     {
-                                      "kind": "INT_KEYWORD"
-                                    },
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "a"
+                                      "kind": "TYPED_BINDING_PATTERN",
+                                      "children": [
+                                        {
+                                          "kind": "INT_KEYWORD"
+                                        },
+                                        {
+                                          "kind": "CAPTURE_BINDING_PATTERN",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "a"
+                                            }
+                                          ]
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "IN_KEYWORD"
@@ -355,7 +375,7 @@
                                                               "kind": "COMMA_TOKEN"
                                                             },
                                                             {
-                                                              "kind": "CAPTURE_BINDING_PATTERN",
+                                                              "kind": "WILDCARD_BINDING_PATTERN",
                                                               "children": [
                                                                 {
                                                                   "kind": "IDENTIFIER_TOKEN",
@@ -431,11 +451,21 @@
                                       "kind": "FROM_KEYWORD"
                                     },
                                     {
-                                      "kind": "INT_KEYWORD"
-                                    },
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "a"
+                                      "kind": "TYPED_BINDING_PATTERN",
+                                      "children": [
+                                        {
+                                          "kind": "INT_KEYWORD"
+                                        },
+                                        {
+                                          "kind": "CAPTURE_BINDING_PATTERN",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "a"
+                                            }
+                                          ]
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "IN_KEYWORD"

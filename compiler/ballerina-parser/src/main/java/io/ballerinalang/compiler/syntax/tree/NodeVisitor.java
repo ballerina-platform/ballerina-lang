@@ -563,6 +563,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(captureBindingPatternNode);
     }
 
+    public void visit(WildcardBindingPatternNode wildcardBindingPatternNode) {
+        visitSyntaxNode(wildcardBindingPatternNode);
+    }
+
     public void visit(ListBindingPatternNode listBindingPatternNode) {
         visitSyntaxNode(listBindingPatternNode);
     }
