@@ -523,6 +523,19 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
+    @Override
+    public BracedExpressionNode transform(BracedExpressionNode bracedExpressionNode) {
+        Token openParen = getToken(bracedExpressionNode.openParen());
+        Token closeParen = getToken(bracedExpressionNode.closeParen());
+        ExpressionNode expression = this.modifyNode(bracedExpressionNode.expression());
+
+        return bracedExpressionNode.modify()
+                .withOpenParen(formatToken(openParen, 0, 0, 0, 0))
+                .withCloseParen(formatToken(closeParen, 0, 0, 0, 0))
+                .withExpression(expression)
+                .apply();
+    }
+
     private Token formatToken(Token token, int leadingSpaces, int trailingSpaces, int leadingNewLines,
                               int trailingNewLines) {
         MinutiaeList leadingMinutiaeList = token.leadingMinutiae();
