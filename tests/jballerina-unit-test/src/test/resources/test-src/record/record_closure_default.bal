@@ -12,12 +12,13 @@ function recordWithClosureInDefaults() returns error? {
 
     var personType = typeof person;
     x = 26;
-    check createUsingConstructFrom(personType);
+    check createUsingCloneWithType(personType);
 
 }
 
-function createUsingConstructFrom(typedesc<record { string name; int age; }> personType) returns error? {
-    var person2 = check personType.constructFrom({ name: "Manu" });
+function createUsingCloneWithType(typedesc<record { string name; int age; }> personType) returns error? {
+    var rec = { name: "Manu" };
+    var person2 = check rec.cloneWithType(personType);
     assertEquality(26, person2.age);
 }
 

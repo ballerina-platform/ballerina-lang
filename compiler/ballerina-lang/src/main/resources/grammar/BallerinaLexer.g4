@@ -107,6 +107,7 @@ WHERE       : {inQueryExpression}? 'where' ;
 LET         : 'let' ;
 CONFLICT    : 'conflict' ;
 JOIN_EQUALS : 'equals';
+LIMIT       : 'limit' ;
 DEPRECATED  : 'Deprecated';
 KEY         : {inTableType}? 'key' { inTableType = false; };
 DEPRECATED_PARAMETERS  : 'Deprecated parameters';

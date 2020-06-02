@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -44,7 +47,27 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
             STNode openBraceToken,
             STNode enumMemberList,
             STNode closeBraceToken) {
-        super(SyntaxKind.ENUM_DECLARATION);
+        this(
+                metadata,
+                qualifier,
+                enumKeywordToken,
+                identifier,
+                openBraceToken,
+                enumMemberList,
+                closeBraceToken,
+                Collections.emptyList());
+    }
+
+    STEnumDeclarationNode(
+            STNode metadata,
+            STNode qualifier,
+            STNode enumKeywordToken,
+            STNode identifier,
+            STNode openBraceToken,
+            STNode enumMemberList,
+            STNode closeBraceToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.ENUM_DECLARATION, diagnostics);
         this.metadata = metadata;
         this.qualifier = qualifier;
         this.enumKeywordToken = enumKeywordToken;
@@ -61,6 +84,18 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
                 openBraceToken,
                 enumMemberList,
                 closeBraceToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STEnumDeclarationNode(
+                this.metadata,
+                this.qualifier,
+                this.enumKeywordToken,
+                this.identifier,
+                this.openBraceToken,
+                this.enumMemberList,
+                this.closeBraceToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

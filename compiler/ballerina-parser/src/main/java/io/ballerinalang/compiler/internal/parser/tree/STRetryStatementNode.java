@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.RetryStatementNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STRetryStatementNode extends STStatementNode {
             STNode typeParameter,
             STNode arguments,
             STNode retryBody) {
-        super(SyntaxKind.ROLLBACK_STATEMENT);
+        this(
+                retryKeyword,
+                typeParameter,
+                arguments,
+                retryBody,
+                Collections.emptyList());
+    }
+
+    STRetryStatementNode(
+            STNode retryKeyword,
+            STNode typeParameter,
+            STNode arguments,
+            STNode retryBody,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.ROLLBACK_STATEMENT, diagnostics);
         this.retryKeyword = retryKeyword;
         this.typeParameter = typeParameter;
         this.arguments = arguments;
@@ -49,6 +66,15 @@ public class STRetryStatementNode extends STStatementNode {
                 typeParameter,
                 arguments,
                 retryBody);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STRetryStatementNode(
+                this.retryKeyword,
+                this.typeParameter,
+                this.arguments,
+                this.retryBody,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

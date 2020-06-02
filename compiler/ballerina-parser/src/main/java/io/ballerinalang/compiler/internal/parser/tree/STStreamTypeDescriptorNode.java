@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.StreamTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,13 +37,30 @@ public class STStreamTypeDescriptorNode extends STTypeDescriptorNode {
     STStreamTypeDescriptorNode(
             STNode streamKeywordToken,
             STNode streamTypeParamsNode) {
-        super(SyntaxKind.STREAM_TYPE_DESC);
+        this(
+                streamKeywordToken,
+                streamTypeParamsNode,
+                Collections.emptyList());
+    }
+
+    STStreamTypeDescriptorNode(
+            STNode streamKeywordToken,
+            STNode streamTypeParamsNode,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.STREAM_TYPE_DESC, diagnostics);
         this.streamKeywordToken = streamKeywordToken;
         this.streamTypeParamsNode = streamTypeParamsNode;
 
         addChildren(
                 streamKeywordToken,
                 streamTypeParamsNode);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STStreamTypeDescriptorNode(
+                this.streamKeywordToken,
+                this.streamTypeParamsNode,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

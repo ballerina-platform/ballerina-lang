@@ -101,6 +101,12 @@ public abstract class STNode {
         return bucketCount;
     }
 
+    // Modification methods
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return null;
+    }
+
     @SuppressWarnings("unchecked")
     public <T extends Node> T createUnlinkedFacade() {
         return (T) createFacade(0, null);

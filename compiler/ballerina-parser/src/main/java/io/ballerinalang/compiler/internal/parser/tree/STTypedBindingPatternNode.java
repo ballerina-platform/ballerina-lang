@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,13 +37,30 @@ public class STTypedBindingPatternNode extends STNode {
     STTypedBindingPatternNode(
             STNode typeDescriptor,
             STNode bindingPattern) {
-        super(SyntaxKind.TYPED_BINDING_PATTERN);
+        this(
+                typeDescriptor,
+                bindingPattern,
+                Collections.emptyList());
+    }
+
+    STTypedBindingPatternNode(
+            STNode typeDescriptor,
+            STNode bindingPattern,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.TYPED_BINDING_PATTERN, diagnostics);
         this.typeDescriptor = typeDescriptor;
         this.bindingPattern = bindingPattern;
 
         addChildren(
                 typeDescriptor,
                 bindingPattern);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STTypedBindingPatternNode(
+                this.typeDescriptor,
+                this.bindingPattern,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

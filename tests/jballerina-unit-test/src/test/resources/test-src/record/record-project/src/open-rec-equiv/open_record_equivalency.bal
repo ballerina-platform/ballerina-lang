@@ -172,7 +172,7 @@ function testRuntimeEqPublicStructsInSamePackage () returns string|error {
     // This is a safe cast
     userPA uA = uFoo;
 
-    var uB = check userPB.constructFrom(uA);
+    var uB = check uA.cloneWithType(userPB);
     return uB.name;
 }
 
@@ -183,7 +183,7 @@ function testRuntimeEqPublicStructs () returns string|error {
     userPA uA = uFoo;
 
     // This is a unsafe cast
-    var uB  = check userPB.constructFrom(uA);
+    var uB  = check uA.cloneWithType(userPB);
     return uB.name;
 }
 
@@ -193,7 +193,7 @@ function testRuntimeEqPublicStructs1 () returns string|error {
     // This is a safe cast
     userPA uA = uFoo;
 
-    var uB  = check req2:userPB.constructFrom(uA);
+    var uB  = check uA.cloneWithType(req2:userPB);
     return uB.name;
 }
 

@@ -65,11 +65,11 @@
                                   ]
                                 },
                                 {
+                                  "kind": "COMMA_TOKEN"
+                                },
+                                {
                                   "kind": "SPECIFIC_FIELD",
                                   "children": [
-                                    {
-                                      "kind": "COMMA_TOKEN"
-                                    },
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
                                       "value": "description"
@@ -84,11 +84,11 @@
                                   ]
                                 },
                                 {
+                                  "kind": "COMMA_TOKEN"
+                                },
+                                {
                                   "kind": "SPECIFIC_FIELD",
                                   "children": [
-                                    {
-                                      "kind": "COMMA_TOKEN"
-                                    },
                                     {
                                       "kind": "STRING_LITERAL",
                                       "value": "info"
@@ -122,11 +122,11 @@
                                               ]
                                             },
                                             {
+                                              "kind": "COMMA_TOKEN"
+                                            },
+                                            {
                                               "kind": "SPECIFIC_FIELD",
                                               "children": [
-                                                {
-                                                  "kind": "COMMA_TOKEN"
-                                                },
                                                 {
                                                   "kind": "IDENTIFIER_TOKEN",
                                                   "value": "status"

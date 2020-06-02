@@ -31,22 +31,31 @@ public class BTableType extends BType {
     private BType keyType;
     private String[] fieldNames;
 
-    public BTableType(BType constraint, String[] fieldNames) {
+    private final boolean readonly;
+    private BTableType immutableType;
+
+    public BTableType(BType constraint, String[] fieldNames, boolean readonly, BTableType immutableType) {
         super(TypeConstants.TABLE_TNAME, null, TableValue.class);
         this.constraint = constraint;
         this.fieldNames = fieldNames;
         this.keyType = null;
+        this.readonly = readonly;
+        this.immutableType = immutableType;
     }
 
-    public BTableType(BType constraint, BType keyType) {
+    public BTableType(BType constraint, BType keyType, boolean readonly, BTableType immutableType) {
         super(TypeConstants.TABLE_TNAME, null, TableValue.class);
         this.constraint = constraint;
         this.keyType = keyType;
+        this.readonly = readonly;
+        this.immutableType = immutableType;
     }
 
-    public BTableType(BType constraint) {
+    public BTableType(BType constraint, boolean readonly, BTableType immutableType) {
         super(TypeConstants.TABLE_TNAME, null, TableValue.class);
         this.constraint = constraint;
+        this.readonly = readonly;
+        this.immutableType = immutableType;
     }
 
     public BType getConstrainedType() {
@@ -63,7 +72,7 @@ public class BTableType extends BType {
 
     @Override
     public <V> V getZeroValue() {
-        return (V) new TableValueImpl<BAnydataType, V>(new BTableType(constraint));
+        return (V) new TableValueImpl<BAnydataType, V>(new BTableType(constraint, readonly, immutableType));
     }
 
     @Override
@@ -117,5 +126,20 @@ public class BTableType extends BType {
         }
 
         return constraint.equals(other.constraint) && keyType.equals(other.keyType);
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return this.readonly;
+    }
+
+    @Override
+    public BType getImmutableType() {
+        return this.immutableType;
+    }
+
+    @Override
+    public void setImmutableType(BType immutableType) {
+        this.immutableType = (BTableType) immutableType;
     }
 }

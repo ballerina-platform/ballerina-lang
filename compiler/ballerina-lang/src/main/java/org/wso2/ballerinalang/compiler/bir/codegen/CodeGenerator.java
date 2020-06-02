@@ -18,31 +18,42 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarFile;
+import org.ballerinalang.compiler.CompilerOptionName;
+import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.NativeDependencyResolver;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
+import org.wso2.ballerinalang.util.RepoUtils;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.jar.Attributes;
-import java.util.jar.JarEntry;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
+
+import static org.wso2.ballerinalang.compiler.NativeDependencyResolver.JAR_RESOLVER_KEY;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
  * JVM byte code generator from BIR model.
@@ -52,18 +63,31 @@ import java.util.jar.Manifest;
 public class CodeGenerator {
 
     private static final CompilerContext.Key<CodeGenerator> CODE_GEN = new CompilerContext.Key<>();
-
     private SymbolTable symbolTable;
+    private PackageCache packageCache;
+    private BLangDiagnosticLogHelper dlog;
+    private BIREmitter birEmitter;
+    private boolean baloGen;
+    private CompilerContext compilerContext;
+    private boolean skipTests;
+    private boolean dumbBIR;
+    private boolean skipModuleDependencies;
+    private Path ballerinaHome = Paths.get(System.getProperty(BALLERINA_HOME));
 
-    private Map<String, BIRNode.BIRPackage> compiledPkgCache = new HashMap<>();
+    private CodeGenerator(CompilerContext compilerContext) {
 
-    private JvmPackageGen jvmPackageGen;
-
-    private CodeGenerator(CompilerContext context) {
-
-        context.put(CODE_GEN, this);
-        symbolTable = SymbolTable.getInstance(context);
-        jvmPackageGen = JvmPackageGen.getInstance(context);
+        compilerContext.put(CODE_GEN, this);
+        this.symbolTable = SymbolTable.getInstance(compilerContext);
+        this.packageCache = PackageCache.getInstance(compilerContext);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(compilerContext);
+        this.birEmitter = BIREmitter.getInstance(compilerContext);
+        this.compilerContext = compilerContext;
+        CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
+        this.skipTests = getBooleanValueIfSet(compilerOptions, CompilerOptionName.SKIP_TESTS);
+        this.baloGen = getBooleanValueIfSet(compilerOptions, CompilerOptionName.BALO_GENERATION);
+        this.dumbBIR = getBooleanValueIfSet(compilerOptions, CompilerOptionName.DUMP_BIR);
+        this.skipModuleDependencies = getBooleanValueIfSet(compilerOptions,
+                CompilerOptionName.SKIP_MODULE_DEPENDENCIES);
     }
 
     public static CodeGenerator getInstance(CompilerContext context) {
@@ -76,25 +100,110 @@ public class CodeGenerator {
         return codeGenerator;
     }
 
-    public void generate(BIRNode.BIRPackage entryMod, Path target, Set<Path> moduleDependencies) {
+    private boolean getBooleanValueIfSet(CompilerOptions compilerOptions, CompilerOptionName optionName) {
 
-        if (compiledPkgCache.containsValue(entryMod)) {
-            return;
+        return compilerOptions.isSet(optionName) && Boolean.parseBoolean(compilerOptions.get(optionName));
+    }
+
+    public BLangPackage generate(BLangPackage bLangPackage) {
+
+        if (dumbBIR) {
+            birEmitter.emit(bLangPackage.symbol.bir);
         }
 
-        compiledPkgCache.put(entryMod.org.value + entryMod.name.value, entryMod);
+        // find module dependencies path
+        Set<Path> moduleDependencies = findDependencies(bLangPackage.packageID);
 
-        populateExternalMap();
+        // generate module jar
+        generate(bLangPackage.symbol, moduleDependencies);
 
-        ClassLoader classLoader = makeClassLoader(moduleDependencies);
-        InteropValidator interopValidator = new InteropValidator(classLoader, symbolTable);
-        JarFile jarFile = jvmPackageGen.generate(entryMod, interopValidator, true);
-        writeJarFile(jarFile, target);
+        if (skipTests || !bLangPackage.hasTestablePackage()) {
+            return bLangPackage;
+        }
+
+        bLangPackage.getTestablePkgs().forEach(testablePackage -> {
+
+            // find module dependencies path
+            Set<Path> testDependencies = findTestDependencies(testablePackage.packageID, moduleDependencies);
+
+            // generate test module jar
+            generate(testablePackage.symbol, testDependencies);
+        });
+
+        return bLangPackage;
+    }
+
+    private void generate(BPackageSymbol packageSymbol, Set<Path> moduleDependencies) {
+
+        final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog);
+
+        populateExternalMap(jvmPackageGen);
+
+        ClassLoader interopValidationClassLoader = makeClassLoader(moduleDependencies);
+        InteropValidator interopValidator = new InteropValidator(interopValidationClassLoader, symbolTable);
+        packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, interopValidator, true);
+    }
+
+    private Set<Path> findDependencies(PackageID packageID) {
+
+        Set<Path> moduleDependencies = new HashSet<>();
+
+        if (skipModuleDependencies) {
+            return moduleDependencies;
+        }
+
+        if (baloGen) {
+            moduleDependencies.addAll(readInteropDependencies());
+        }
+
+        NativeDependencyResolver nativeDependencyResolver = compilerContext.get(JAR_RESOLVER_KEY);
+
+        if (nativeDependencyResolver != null) {
+            moduleDependencies.addAll(nativeDependencyResolver.nativeDependencies(packageID));
+            moduleDependencies.add(getRuntimeAllJarPath());
+        }
+
+        return moduleDependencies;
+    }
+
+    private Set<Path> findTestDependencies(PackageID testPackageId, Set<Path> moduleDependencies) {
+
+        Set<Path> testDependencies = new HashSet<>(moduleDependencies);
+
+        NativeDependencyResolver nativeDependencyResolver = compilerContext.get(JAR_RESOLVER_KEY);
+
+        if (nativeDependencyResolver != null) {
+            testDependencies.addAll(nativeDependencyResolver.nativeDependenciesForTests(testPackageId));
+        }
+
+        return testDependencies;
+    }
+
+    private HashSet<Path> readInteropDependencies() {
+
+        HashSet<Path> interopDependencies = new HashSet<>();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                new FileInputStream("build/interopJars.txt"), Charset.forName("UTF-8")))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                interopDependencies.add(Paths.get(line));
+            }
+        } catch (IOException e) {
+            throw new BLangCompilerException("error reading interop jar file names", e);
+        }
+        return interopDependencies;
+    }
+
+    private Path getRuntimeAllJarPath() {
+
+        String ballerinaVersion = RepoUtils.getBallerinaVersion();
+        String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
+        return Paths.get(ballerinaHome.toString(), BALLERINA_HOME_BRE, BALLERINA_HOME_LIB, runtimeJarName);
     }
 
     private ClassLoader makeClassLoader(Set<Path> moduleDependencies) {
 
-        if (moduleDependencies == null) {
+        if (moduleDependencies == null || moduleDependencies.size() == 0) {
             return Thread.currentThread().getContextClassLoader();
         }
         List<URL> dependentJars = new ArrayList<>();
@@ -109,7 +218,7 @@ public class CodeGenerator {
         return new URLClassLoader(dependentJars.toArray(new URL[]{}), null);
     }
 
-    private void populateExternalMap() {
+    private void populateExternalMap(JvmPackageGen jvmPackageGen) {
 
         String nativeMap = System.getenv("BALLERINA_NATIVE_MAP");
         if (nativeMap == null) {
@@ -132,29 +241,6 @@ public class CodeGenerator {
             }
         } catch (IOException e) {
             //ignore because this is only important in langlibs users shouldn't see this error
-        }
-    }
-
-    private void writeJarFile(JarFile jarFile, Path targetPath) {
-
-        Manifest manifest = new Manifest();
-        Attributes mainAttributes = manifest.getMainAttributes();
-        mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
-        jarFile.getMainClassName().ifPresent(mainClassName ->
-                mainAttributes.put(Attributes.Name.MAIN_CLASS, mainClassName));
-
-        try (JarOutputStream target = new JarOutputStream(new BufferedOutputStream(
-                new FileOutputStream(targetPath.toString())), manifest)) {
-            Map<String, byte[]> jarEntries = jarFile.getJarEntries();
-            for (Map.Entry<String, byte[]> keyVal : jarEntries.entrySet()) {
-                byte[] entryContent = keyVal.getValue();
-                JarEntry entry = new JarEntry(keyVal.getKey());
-                target.putNextEntry(entry);
-                target.write(entryContent);
-                target.closeEntry();
-            }
-        } catch (IOException e) {
-            throw new BLangCompilerException("jar file generation failed: " + e.getMessage(), e);
         }
     }
 }

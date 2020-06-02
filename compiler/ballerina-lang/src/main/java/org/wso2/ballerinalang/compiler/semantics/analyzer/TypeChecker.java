@@ -83,6 +83,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -3443,6 +3444,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
         resultType = checkXmlSubTypeLiteralCompatibility(bLangXMLElementLiteral.pos, symTable.xmlElementType,
                                                          this.expType);
+
+        if (Symbols.isFlagOn(resultType.flags, Flags.READONLY)) {
+            markChildrenAsImmutable(bLangXMLElementLiteral);
+        }
     }
 
     private boolean isXmlNamespaceAttribute(BLangXMLAttribute attribute) {
@@ -3557,8 +3562,8 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         BLangExpression collectionNode = (BLangExpression) ((BLangFromClause) clauses.get(0)).getCollection();
         clauses.forEach(clause -> clause.accept(this));
-        BType actualType = findAssignableType(narrowedQueryEnv, selectClause.expression, collectionNode.type, expType,
-                queryExpr.isStream, queryExpr.isTable);
+        BType actualType = findAssignableType(narrowedQueryEnv, selectClause.expression, collectionNode.type,
+                expType, queryExpr);
         if (actualType != symTable.semanticError) {
             resultType = types.checkType(queryExpr.pos, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
         } else {
@@ -3567,7 +3572,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType findAssignableType(SymbolEnv env, BLangExpression selectExp, BType collectionType, BType targetType,
-                                     boolean isStream, boolean isTable) {
+                                     BLangQueryExpr queryExpr) {
         List<BType> assignableSelectTypes = new ArrayList<>();
         BType actualType = symTable.semanticError;
 
@@ -3599,7 +3604,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (assignableSelectTypes.size() == 1) {
             actualType = assignableSelectTypes.get(0);
-            if (!isStream && !isTable) {
+            if (!queryExpr.isStream && !queryExpr.isTable) {
                 actualType = new BArrayType(actualType);
             }
         } else if (assignableSelectTypes.size() > 1) {
@@ -3639,10 +3644,16 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        if (isStream) {
+        if (queryExpr.isStream) {
             return new BStreamType(TypeTags.STREAM, actualType, errorType, symTable.streamType.tsymbol);
-        } else if (isTable) {
-            return new BTableType(TypeTags.TABLE, actualType, symTable.tableType.tsymbol);
+        } else if (queryExpr.isTable) {
+            final BTableType tableType = new BTableType(TypeTags.TABLE, actualType, symTable.tableType.tsymbol);
+            if (!queryExpr.fieldNameIdentifierList.isEmpty()) {
+                tableType.fieldNameList = queryExpr.fieldNameIdentifierList.stream()
+                        .map(identifier -> identifier.value).collect(Collectors.toList());
+                return BUnionType.create(null, tableType, symTable.errorType);
+            }
+            return tableType;
         } else if (errorType != null) {
             return BUnionType.create(null, actualType, errorType);
         }
@@ -3708,6 +3719,15 @@ public class TypeChecker extends BLangNodeVisitor {
         if (!types.isAssignable(exprType, symTable.errorType)) {
             dlog.error(onConflictClause.expression.pos, DiagnosticCode.ERROR_TYPE_EXPECTED,
                     symTable.errorType, exprType);
+        }
+    }
+
+    @Override
+    public void visit(BLangLimitClause limitClause) {
+        BType exprType = checkExpr(limitClause.expression, narrowedQueryEnv);
+        if (!types.isAssignable(exprType, symTable.intType)) {
+            dlog.error(limitClause.expression.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                    symTable.intType, exprType);
         }
     }
 
@@ -6416,6 +6436,21 @@ public class TypeChecker extends BLangNodeVisitor {
 
         dlog.error(pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
         return symTable.semanticError;
+    }
+
+    private void markChildrenAsImmutable(BLangXMLElementLiteral bLangXMLElementLiteral) {
+        for (BLangExpression modifiedChild : bLangXMLElementLiteral.modifiedChildren) {
+            BType childType = modifiedChild.type;
+            if (Symbols.isFlagOn(childType.flags, Flags.READONLY) || !types.isSelectivelyImmutableType(childType)) {
+                continue;
+            }
+            modifiedChild.type = ImmutableTypeCloner.setImmutableType(modifiedChild.pos, types, childType, env,
+                                                                      symTable, anonymousModelHelper, names);
+
+            if (modifiedChild.getKind() == NodeKind.XML_ELEMENT_LITERAL) {
+                markChildrenAsImmutable((BLangXMLElementLiteral) modifiedChild);
+            }
+        }
     }
 
     private static class FieldInfo {

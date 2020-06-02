@@ -29,10 +29,11 @@ returns DeptPersonValue? {
     }
 }
 
+function condition(string name) returns boolean{
+    return name == "Alex";
+}
 
-function testSimpleJoinClause() returns DeptPerson[]{
-    boolean testPassed = true;
-
+function testSimpleJoinClauseWithRecordVariable() returns DeptPerson[]{
     Person p1 = {id: 1, fname: "Alex", lname: "George"};
     Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
 
@@ -45,11 +46,57 @@ function testSimpleJoinClause() returns DeptPerson[]{
     DeptPerson[] deptPersonList =
        from var person in personList
        join Department dept in deptList
-       on person.id == dept.id
+       on person.id equals dept.id
        select {
            fname : person.fname,
            lname : person.lname,
            dept : dept.name
+       };
+
+    return deptPersonList;
+}
+
+function testSimpleJoinClauseWithRecordVariable2() returns DeptPerson[]{
+    Person p1 = {id: 1, fname: "Alex", lname: "George"};
+    Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
+
+    Department d1 = {id: 1, name:"HR"};
+    Department d2 = {id: 2, name:"Operations"};
+
+    Person[] personList = [p1, p2];
+    Department[] deptList = [d1, d2];
+
+    DeptPerson[] deptPersonList =
+       from var person in personList
+       join var {id: deptId, name: deptName} in deptList
+       on person.id equals deptId
+       select {
+           fname : person.fname,
+           lname : person.lname,
+           dept : deptName
+       };
+
+    return deptPersonList;
+}
+
+function testSimpleJoinClauseWithRecordVariable3() returns DeptPerson[]{
+    Person p1 = {id: 1, fname: "Alex", lname: "George"};
+    Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
+
+    Department d1 = {id: 1, name:"HR"};
+    Department d2 = {id: 2, name:"Operations"};
+
+    Person[] personList = [p1, p2];
+    Department[] deptList = [d1, d2];
+
+    DeptPerson[] deptPersonList =
+       from var person in personList
+       join var {id,name} in deptList
+       on person.id equals id
+       select {
+           fname : person.fname,
+           lname : person.lname,
+           dept : name
        };
 
     return deptPersonList;
@@ -73,7 +120,7 @@ function testJoinClauseWithStream() returns boolean {
     stream<DeptPerson> deptPersonStream =
        stream from var person in personStream
        join var dept in deptStream
-       on person.id == dept.id
+       on person.id equals dept.id
        select {
            fname : person.fname,
            lname : person.lname,
@@ -87,9 +134,54 @@ function testJoinClauseWithStream() returns boolean {
     return testPassed;
 }
 
-function testSimpleOuterJoinClause() returns DeptPerson[]{
-    boolean testPassed = true;
+function testJoinClauseWithLimit() returns DeptPerson[]{
+    Person p1 = {id: 1, fname: "Alex", lname: "George"};
+    Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
 
+    Department d1 = {id: 1, name:"HR"};
+    Department d2 = {id: 2, name:"Operations"};
+
+    Person[] personList = [p1, p2];
+    Department[] deptList = [d1, d2];
+
+    DeptPerson[] deptPersonList =
+       from var person in personList
+       join Department dept in deptList
+       on person.id equals dept.id
+       select {
+           fname : person.fname,
+           lname : person.lname,
+           dept : dept.name
+       }
+       limit 1;
+
+    return deptPersonList;
+}
+
+function testOnClauseWithFunction() returns DeptPerson[]{
+    Person p1 = {id: 1, fname: "Alex", lname: "George"};
+    Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
+
+    Department d1 = {id: 1, name:"HR"};
+    Department d2 = {id: 2, name:"Operations"};
+
+    Person[] personList = [p1, p2];
+    Department[] deptList = [d1, d2];
+
+    DeptPerson[] deptPersonList =
+       from var person in personList
+       join Department dept in deptList
+       on condition(person.fname)
+       select {
+           fname : person.fname,
+           lname : person.lname,
+           dept : dept.name
+       };
+
+    return deptPersonList;
+}
+
+function testSimpleOuterJoinClause() returns DeptPerson[]{
     Person p1 = {id: 1, fname: "Alex", lname: "George"};
     Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
 
@@ -102,7 +194,7 @@ function testSimpleOuterJoinClause() returns DeptPerson[]{
     DeptPerson[] deptPersonList =
        from var person in personList
        outer join var dept in deptList
-       on person.id == 1
+       on person.id equals 1
        select {
            fname : person.fname,
            lname : person.lname,
@@ -111,5 +203,3 @@ function testSimpleOuterJoinClause() returns DeptPerson[]{
 
     return deptPersonList;
 }
-
-
