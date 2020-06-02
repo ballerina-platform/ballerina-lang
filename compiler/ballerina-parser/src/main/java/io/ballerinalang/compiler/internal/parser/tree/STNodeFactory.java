@@ -1444,15 +1444,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createFromClauseNode(
             STNode fromKeyword,
-            STNode typeName,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode inKeyword,
             STNode expression) {
 
         return new STFromClauseNode(
                 fromKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 inKeyword,
                 expression);
     }
@@ -1595,6 +1593,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STCaptureBindingPatternNode(
                 variableName);
+    }
+
+    public static STNode createWildcardBindingPatternNode(
+            STNode underscoreToken) {
+
+        return new STWildcardBindingPatternNode(
+                underscoreToken);
     }
 
     public static STNode createListBindingPatternNode(

@@ -32,8 +32,14 @@ public class DestructuringAssignmentStatementTest extends AbstractStatementTest 
                 "destructuring-assignment/list_binding_pattern_assert_01.json");
     }
 
+    @Test
+    public void testMappingBindingPattern() {
+        testFile("destructuring-assignment/mapping_binding_pattern_source_01.bal",
+                "destructuring-assignment/mapping_binding_pattern_assert_01.json");
+    }
+
     // Recovery tests
-    
+
     @Test
     public void testListBindingPatternRecovery() {
         testFile("destructuring-assignment/list_binding_pattern_source_02.bal",

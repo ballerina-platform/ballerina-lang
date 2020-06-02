@@ -322,7 +322,7 @@ public class ParserTestUtils {
             try {
                 String jsonString = SyntaxTreeJSONGenerator.generateJSON(sourceFilePath, context);
                 try (BufferedWriter writer =
-                             new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
+                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
                     writer.write(jsonString);
                 }
             } catch (Exception e) {
@@ -337,7 +337,7 @@ public class ParserTestUtils {
             try {
                 String jsonString = SyntaxTreeJSONGenerator.generateJSON(source, context);
                 try (BufferedWriter writer =
-                             new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
+                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
                     writer.write(jsonString);
                 }
             } catch (Exception e) {
@@ -988,6 +988,8 @@ public class ParserTestUtils {
                 return SyntaxKind.WAIT_FIELD;
             case "ENUM_MEMBER":
                 return SyntaxKind.ENUM_MEMBER;
+            case "WILDCARD_BINDING_PATTERN":
+                return SyntaxKind.WILDCARD_BINDING_PATTERN;
 
             // XML template
             case "XML_ELEMENT":
