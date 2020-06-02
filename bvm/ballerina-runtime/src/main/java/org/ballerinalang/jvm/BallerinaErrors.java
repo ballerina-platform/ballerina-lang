@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypeIdSet;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
@@ -100,14 +101,22 @@ public class BallerinaErrors {
     }
 
     public static ErrorValue createDistinctError(String typeIdName, BPackage typeIdPkg, String message) {
-        ErrorValue error = createError(message);
-        setTypeId(typeIdName, typeIdPkg, error);
-        return error;
+        return createDistinctError(typeIdName, typeIdPkg, message, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
     public static ErrorValue createDistinctError(String typeIdName, BPackage typeIdPkg, String message,
                                                  MapValue<BString, Object> detailRecord) {
         ErrorValue error = createError(message, detailRecord);
+        setTypeId(typeIdName, typeIdPkg, error);
+        return error;
+    }
+
+    public static ErrorValue createDistinctError(String typeIdName, BPackage typeIdPkg, String message,
+                                                 ErrorValue cause) {
+        MapValueImpl<Object, Object> details = new MapValueImpl<>(BTypes.typeErrorDetail);
+        ErrorValue error = new ErrorValue(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(),
+                                                         TypeChecker.getType(details)),
+                                          StringUtils.fromString(message), cause, details);
         setTypeId(typeIdName, typeIdPkg, error);
         return error;
     }
