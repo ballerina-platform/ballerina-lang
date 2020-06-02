@@ -69,8 +69,6 @@ public class ChoreoClientHolder {
             }
 
             ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-            final ChoreoClient newChoreoClient = initializeChoreoClient(configRegistry);
-
             AppSecretHandler appSecretHandler;
             try {
                 appSecretHandler = getAppSecretHandler(configRegistry);
@@ -79,10 +77,13 @@ public class ChoreoClientHolder {
                 return null;
             }
 
+            final ChoreoClient newChoreoClient =
+                    initializeChoreoClient(configRegistry, appSecretHandler.getAppSecret());
+
             String nodeId = getNodeId();
 
             ChoreoClient.RegisterResponse registerResponse =
-                    newChoreoClient.register(metadataReader, nodeId, appSecretHandler.getAppSecret());
+                    newChoreoClient.register(metadataReader, nodeId);
             try {
                 appSecretHandler.associate(registerResponse.getObsId());
             } catch (IOException e) {
@@ -117,14 +118,14 @@ public class ChoreoClientHolder {
         Runtime.getRuntime().addShutdownHook(shutdownHook);
     }
 
-    private static ChoreoClient initializeChoreoClient(ConfigRegistry configRegistry) {
+    private static ChoreoClient initializeChoreoClient(ConfigRegistry configRegistry, String projectSecret) {
         String hostname = configRegistry.getConfigOrDefault(getFullQualifiedConfig(REPORTER_HOST_NAME_CONFIG),
                 DEFAULT_REPORTER_HOSTNAME);
         int port = Integer.parseInt(configRegistry.getConfigOrDefault(getFullQualifiedConfig(REPORTER_PORT_CONFIG),
                 String.valueOf(DEFAULT_REPORTER_PORT)));
         boolean useSSL = Boolean.parseBoolean(configRegistry.getConfigOrDefault(
                 getFullQualifiedConfig(REPORTER_USE_SSL_CONFIG), String.valueOf(DEFAULT_REPORTER_USE_SSL)));
-        return new ChoreoClient(hostname, port, useSSL);
+        return new ChoreoClient(hostname, port, useSSL, projectSecret);
     }
 
     private static AppSecretHandler getAppSecretHandler(ConfigRegistry configRegistry) throws IOException {
