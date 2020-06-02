@@ -536,6 +536,19 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
+    @Override
+    public TypeTestExpressionNode transform(TypeTestExpressionNode typeTestExpressionNode) {
+        ExpressionNode expression = this.modifyNode(typeTestExpressionNode.expression());
+        Node typeDescriptor = this.modifyNode(typeTestExpressionNode.typeDescriptor());
+        Token isToken = getToken(typeTestExpressionNode.isKeyword());
+
+        return typeTestExpressionNode.modify()
+                .withExpression(expression)
+                .withIsKeyword(formatToken(isToken, 1, 1, 0, 0))
+                .withTypeDescriptor(typeDescriptor)
+                .apply();
+    }
+
     private Token formatToken(Token token, int leadingSpaces, int trailingSpaces, int leadingNewLines,
                               int trailingNewLines) {
         MinutiaeList leadingMinutiaeList = token.leadingMinutiae();
