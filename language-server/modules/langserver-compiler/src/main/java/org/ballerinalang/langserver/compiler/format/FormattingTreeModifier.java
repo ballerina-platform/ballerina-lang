@@ -496,6 +496,15 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
+    @Override
+    public SimpleNameReferenceNode transform(SimpleNameReferenceNode simpleNameReferenceNode) {
+        Token name = getToken(simpleNameReferenceNode.name());
+
+        return simpleNameReferenceNode.modify()
+                .withName(formatToken(name, 0, 0, 0, 0))
+                .apply();
+    }
+
     private Token formatToken(Token token, int leadingSpaces, int trailingSpaces, int leadingNewLines,
                               int trailingNewLines) {
         MinutiaeList leadingMinutiaeList = token.leadingMinutiae();
