@@ -206,7 +206,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
         return functionBodyBlockNode.modify()
                 .withOpenBraceToken(formatToken(functionBodyOpenBrace, 1, 0, 0, 1))
-                .withCloseBraceToken(formatToken(functionBodyCloseBrace, 0, 0, 0, 0))
+                .withCloseBraceToken(formatToken(functionBodyCloseBrace, 0, 0, 1, 0))
                 .withStatements(statements)
                 .apply();
     }
@@ -530,7 +530,7 @@ public class FormattingTreeModifier extends TreeModifier {
         ExpressionNode expression = this.modifyNode(bracedExpressionNode.expression());
 
         return bracedExpressionNode.modify()
-                .withOpenParen(formatToken(openParen, 0, 0, 0, 0))
+                .withOpenParen(formatToken(openParen, 1, 0, 0, 0))
                 .withCloseParen(formatToken(closeParen, 0, 0, 0, 0))
                 .withExpression(expression)
                 .apply();
@@ -561,6 +561,19 @@ public class FormattingTreeModifier extends TreeModifier {
 
         return errorTypeDescriptorNode.modify()
                 .withErrorKeywordToken(formatToken(errorKeywordToken, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public BlockStatementNode transform(BlockStatementNode blockStatementNode) {
+        Token openBraceToken = getToken(blockStatementNode.openBraceToken());
+        Token closeBraceToken = getToken(blockStatementNode.closeBraceToken());
+        NodeList<StatementNode> statements = this.modifyNodeList(blockStatementNode.statements());
+
+        return blockStatementNode.modify()
+                .withOpenBraceToken(formatToken(openBraceToken, 1, 0, 0, 1))
+                .withCloseBraceToken(formatToken(closeBraceToken, 0, 0, 0, 0))
+                .withStatements(statements)
                 .apply();
     }
 
