@@ -1,4 +1,5 @@
 import testorg/foo;
+import testorg/utils;
 
 public function testSimpleObjectAsStruct () returns [int, string, int, string] {
     foo:Man p = new ();
@@ -238,4 +239,15 @@ type Manager3 object {
 public function testObjectReferingTypeFromBalo_3() returns [string, float] {
     Manager3 mgr3 = new("Jane");
     return [mgr3.getName(), mgr3.getBonus(0.1)];
+}
+
+public function testObjectReferingNonAbstractObjFromBalo() {
+    foo:CorronifiedEmployee cemp1 = new (true, 100.0, 200.3, 20, "John");
+    utils:assertEquality("Engineering", cemp1.dpt);
+    utils:assertEquality(500.3, cemp1.setWorkingFromHomeAllowance(500.3));
+    utils:assertEquality(600.3, cemp1.getBonus(1.0, 1));
+    cemp1.setWorkingFromHome(false);
+    utils:assertEquality(100.0, cemp1.getBonus(1.0, 1));
+    utils:assertEquality((), cemp1.setWorkingFromHomeAllowance(50));
+    utils:assertEquality("Contactless hello! John", cemp1.getName());
 }
