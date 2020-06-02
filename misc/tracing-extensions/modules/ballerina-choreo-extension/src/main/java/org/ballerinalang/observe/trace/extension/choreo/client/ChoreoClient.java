@@ -50,14 +50,14 @@ public class ChoreoClient implements AutoCloseable {
     private String id;      // ID received from the handshake
     private String nodeId;
     private String version;
-    private String appSecret;
+    private String projectSecret;
 
     private ManagedChannel channel;
     private HandshakeGrpc.HandshakeBlockingStub registrationClient;
     private TelemetryGrpc.TelemetryBlockingStub telemetryClient;
     private Thread uploadingThread;
 
-    public ChoreoClient(String hostname, int port, boolean useSSL, String appSecret) {
+    public ChoreoClient(String hostname, int port, boolean useSSL, String projectSecret) {
         LOGGER.info("initializing connection with observability backend " + hostname + ":" + port);
 
         ManagedChannelBuilder<?> channelBuilder = ManagedChannelBuilder.forAddress(hostname, port);
@@ -67,14 +67,14 @@ public class ChoreoClient implements AutoCloseable {
         channel = channelBuilder.build();
         registrationClient = HandshakeGrpc.newBlockingStub(channel);
         telemetryClient = TelemetryGrpc.newBlockingStub(channel);
-        this.appSecret = appSecret;
+        this.projectSecret = projectSecret;
     }
 
     public RegisterResponse register(final MetadataReader metadataReader, String nodeId) throws
             ChoreoClientException {
         RegisterRequest handshakeRequest = RegisterRequest.newBuilder()
                                                           .setAstHash(metadataReader.getAstHash())
-                                                          .setProjectSecret(appSecret)
+                                                          .setProjectSecret(projectSecret)
                                                           .setNodeId(nodeId)
                                                           .build();
 
@@ -98,7 +98,7 @@ public class ChoreoClient implements AutoCloseable {
                 PublishAstRequest programRequest = PublishAstRequest.newBuilder()
                                                                     .setAst(metadataReader.getAstData())
                                                                     .setObsId(id)
-                                                                    .setProjectSecret(appSecret)
+                                                                    .setProjectSecret(projectSecret)
                                                                     .build();
                 registrationClient.withCompression("gzip").publishAst(programRequest);
                 // TODO add debug log to indicate success
@@ -163,7 +163,7 @@ public class ChoreoClient implements AutoCloseable {
             telemetryClient.publishMetrics(requestBuilder.setObservabilityId(id)
                                                          .setNodeId(nodeId)
                                                          .setVersion(version)
-                                                         .setAppSecret(appSecret)
+                                                         .setProjectSecret(projectSecret)
                                                          .build());
         }
     }
@@ -211,7 +211,7 @@ public class ChoreoClient implements AutoCloseable {
             telemetryClient.publishTraces(requestBuilder.setObservabilityId(id)
                                                         .setNodeId(nodeId)
                                                         .setVersion(version)
-                                                        .setAppSecret(appSecret)
+                                                        .setProjectSecret(projectSecret)
                                                         .build());
         }
     }

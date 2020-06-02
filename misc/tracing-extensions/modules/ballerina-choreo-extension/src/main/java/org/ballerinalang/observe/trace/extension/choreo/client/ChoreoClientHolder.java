@@ -118,14 +118,14 @@ public class ChoreoClientHolder {
         Runtime.getRuntime().addShutdownHook(shutdownHook);
     }
 
-    private static ChoreoClient initializeChoreoClient(ConfigRegistry configRegistry, String appSecret) {
+    private static ChoreoClient initializeChoreoClient(ConfigRegistry configRegistry, String projectSecret) {
         String hostname = configRegistry.getConfigOrDefault(getFullQualifiedConfig(REPORTER_HOST_NAME_CONFIG),
                 DEFAULT_REPORTER_HOSTNAME);
         int port = Integer.parseInt(configRegistry.getConfigOrDefault(getFullQualifiedConfig(REPORTER_PORT_CONFIG),
                 String.valueOf(DEFAULT_REPORTER_PORT)));
         boolean useSSL = Boolean.parseBoolean(configRegistry.getConfigOrDefault(
                 getFullQualifiedConfig(REPORTER_USE_SSL_CONFIG), String.valueOf(DEFAULT_REPORTER_USE_SSL)));
-        return new ChoreoClient(hostname, port, useSSL, appSecret);
+        return new ChoreoClient(hostname, port, useSSL, projectSecret);
     }
 
     private static AppSecretHandler getAppSecretHandler(ConfigRegistry configRegistry) throws IOException {
