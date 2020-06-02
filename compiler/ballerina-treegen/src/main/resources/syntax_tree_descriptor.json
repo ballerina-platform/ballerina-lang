@@ -81,7 +81,7 @@
                 },
                 {
                     "name": "orgName",
-                    "type": "Node",
+                    "type": "ImportOrgNameNode",
                     "isOptional": true
                 },
                 {
@@ -91,12 +91,12 @@
                 },
                 {
                     "name": "version",
-                    "type": "Node",
+                    "type": "ImportVersionNode",
                     "isOptional": true
                 },
                 {
                     "name": "prefix",
-                    "type": "Node",
+                    "type": "ImportPrefixNode",
                     "isOptional": true
                 },
                 {
@@ -1920,7 +1920,7 @@
                 },
                 {
                     "name": "fieldNames",
-                    "type": "Node",
+                    "type": "IdentifierToken",
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {

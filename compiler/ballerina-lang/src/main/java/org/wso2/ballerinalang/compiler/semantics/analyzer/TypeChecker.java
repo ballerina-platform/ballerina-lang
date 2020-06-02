@@ -33,6 +33,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
+import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
 import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -219,6 +220,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private int letCount = 0;
     private SymbolEnv narrowedQueryEnv;
     private BLangSelectClause selectClause;
+    private BLangMissingNodesHelper missingNodesHelper;
 
     /**
      * Expected types or inherited types.
@@ -258,6 +260,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
+        this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env) {
@@ -1811,7 +1814,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     dlog.error(varRefExpr.pos, DiagnosticCode.CANNOT_UPDATE_CONSTANT_VALUE);
                 }
             } else {
-                dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
+                logUndefinedSymbolError(varRefExpr.pos, varName.value);
             }
         }
 
@@ -3317,7 +3320,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (!prefix.isEmpty() && xmlnsSymbol == symTable.notFoundSymbol) {
-            dlog.error(bLangXMLQName.pos, DiagnosticCode.UNDEFINED_SYMBOL, prefix);
+            logUndefinedSymbolError(bLangXMLQName.pos, prefix);
             bLangXMLQName.type = symTable.semanticError;
             return;
         }
@@ -3342,7 +3345,9 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol constSymbol = symResolver.lookupMemberSymbol(pos, pkgSymbol.scope, env,
                 names.fromString(localname), SymTag.CONSTANT);
         if (constSymbol == symTable.notFoundSymbol) {
-            dlog.error(pos, DiagnosticCode.UNDEFINED_SYMBOL, prefix + ":" + localname);
+            if (!missingNodesHelper.isMissingNode(prefix) && !missingNodesHelper.isMissingNode(localname)) {
+                dlog.error(pos, DiagnosticCode.UNDEFINED_SYMBOL, prefix + ":" + localname);
+            }
             return null;
         }
 
@@ -6450,6 +6455,12 @@ public class TypeChecker extends BLangNodeVisitor {
             if (modifiedChild.getKind() == NodeKind.XML_ELEMENT_LITERAL) {
                 markChildrenAsImmutable((BLangXMLElementLiteral) modifiedChild);
             }
+        }
+    }
+
+    private void logUndefinedSymbolError(DiagnosticPos pos, String name) {
+        if (!missingNodesHelper.isMissingNode(name)) {
+            dlog.error(pos, DiagnosticCode.UNDEFINED_SYMBOL, name);
         }
     }
 
