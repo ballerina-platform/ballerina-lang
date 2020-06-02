@@ -220,7 +220,7 @@ public class BallerinaLexer extends AbstractLexer {
                 break;
             case LexerTerminals.BACKTICK:
                 startMode(ParserMode.TEMPLATE);
-                token = getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
+                token = getBacktickToken();
                 break;
             case LexerTerminals.SINGLE_QUOTE:
                 token = processQuotedIdentifier();
@@ -1318,6 +1318,15 @@ public class BallerinaLexer extends AbstractLexer {
         return STNodeFactory.createDocumentationLineToken(lexeme, leadingTrivia, trailingTrivia);
     }
 
+    private STToken getBacktickToken() {
+        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        // Trivia after the back-tick including whitespace belongs to the content of the back-tick.
+        // Therefore do not process trailing trivia for starting back-tick. We reach here only for
+        // starting back-tick. Ending back-tick is processed by the template mode.
+        STNode trailingTrivia = STNodeFactory.createEmptyNodeList();
+        return STNodeFactory.createToken(SyntaxKind.BACKTICK_TOKEN, leadingTrivia, trailingTrivia);
+    }
+
     private STToken readTemplateToken() {
         reader.mark();
         if (reader.isEOF()) {
@@ -1528,7 +1537,7 @@ public class BallerinaLexer extends AbstractLexer {
      * @param content the string surrounded by the backticks
      * @return <code>true</code>, if the string content is valid. <code>false</code> otherwise.
      */
-    static boolean isValidBase16LiteralContent (String content) {
+    static boolean isValidBase16LiteralContent(String content) {
         char[] charArray = content.toCharArray();
         int hexDigitCount = 0;
 
@@ -1575,7 +1584,7 @@ public class BallerinaLexer extends AbstractLexer {
      * @param content the string surrounded by the backticks
      * @return <code>true</code>, if the string content is valid. <code>false</code> otherwise.
      */
-    static boolean isValidBase64LiteralContent (String content) {
+    static boolean isValidBase64LiteralContent(String content) {
         char[] charArray = content.toCharArray();
         int base64CharCount = 0;
         int paddingCharCount = 0;
