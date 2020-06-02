@@ -1,5 +1,5 @@
 syntax = "proto3";
-package v0_3_0;
+package v0_1_2;
 
 option java_package = "org.ballerinalang.observe.trace.extension.choreo.gen";
 
@@ -37,17 +37,20 @@ message PublishAstRequest {
 }
 
 service Negotiator {
-    rpc getAst(GetAstRequest)
+    rpc getAst(GetAstRequest) 
             returns (GetAstResponse);
 
-    rpc validateProjectSecret(ValidateProjectSecretRequest)
+    rpc validateProjectSecret(ValidateProjectSecretRequest) 
             returns (ValidateProjectSecretResponse);
+
+    rpc getObsIdAndProjectSecret(GetObsIdAndProjectSecretRequest) returns (GetObsIdAndProjectSecretResponse);
+
+    rpc getProjectSecret(GetProjectSecretRequest) returns (GetProjectSecretResponse);
 
     rpc getObservabilityUrl(GetObservabilityUrlRequest)
             returns (GetObservabilityUrlResponse);
 
-    rpc getApplicationId(GetAppIdRequest)
-            returns (GetAppIdResponse);
+    rpc getApplicationId(GetAppIdRequest) returns (GetAppIdResponse);
 
     rpc getObservabilityIDs(GetObservabilityIDsRequest)
             returns (GetObservabilityIDsResponse);
@@ -76,8 +79,25 @@ message ValidateProjectSecretResponse {
     bool isValid = 1;
 }
 
+message GetObsIdAndProjectSecretRequest {
+    string appId = 1;
+}
+
+message GetObsIdAndProjectSecretResponse {
+    string obsId = 1;
+    string projectSecret = 2;
+}
+
+message GetProjectSecretRequest {
+    string appId = 1;
+}
+
+message GetProjectSecretResponse {
+    string projectSecret = 1;
+}
+
 message GetObservabilityUrlRequest {
-    string applicationId = 1;
+    string appId = 1;
 }
 
 message GetObservabilityUrlResponse {
@@ -85,7 +105,7 @@ message GetObservabilityUrlResponse {
 }
 
 message GetAppIdRequest {
-    string observabilityId = 1;
+    string obsId = 1;
 }
 
 message GetObservabilityIDsRequest {
@@ -97,7 +117,7 @@ message GetObservabilityIDsResponse {
 }
 
 message AppIdToObservabilityIdMapping {
-    string applicationId = 1;
+    string appId = 1;
     oneof id {
         string observabilityId = 2;
         bool notFound = 3;
@@ -106,12 +126,13 @@ message AppIdToObservabilityIdMapping {
 
 message GetAppIdResponse {
     oneof id {
-        string applicationId = 1;
+        string appId = 1;
         bool notFound = 2;
     }
 }
 
 message LinkApplicationRequest {
-    string observabilityId = 1;
-    string applicationId = 2;
+    string obsId = 1;
+    string projectSecret = 2;
+    string appId = 3;
 }
