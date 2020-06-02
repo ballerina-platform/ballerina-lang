@@ -1,4 +1,5 @@
 syntax = "proto3";
+package v0_1_2;
 
 option java_package = "org.ballerinalang.observe.trace.extension.choreo.gen";
 
