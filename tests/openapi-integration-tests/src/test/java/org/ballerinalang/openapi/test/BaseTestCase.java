@@ -49,8 +49,6 @@ public class BaseTestCase {
 
         basicTestsProjectPath = tempProjectDirectory.resolve("openapi-validator");
         FileUtils.copyFolder(openapiValidatorProj, basicTestsProjectPath);
-
-
     }
     @AfterSuite(alwaysRun = true)
     public void destroy() {
