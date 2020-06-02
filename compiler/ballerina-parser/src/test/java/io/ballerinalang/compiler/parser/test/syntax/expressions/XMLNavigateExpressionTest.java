@@ -71,4 +71,45 @@ public class XMLNavigateExpressionTest extends AbstractExpressionsTest {
         test("a /**/<*> .foo(5, a, age = 18, ...subjects) .<b:c> .<d:*>",
                 "xml-navigate-expr/xml_step_expr_assert_15.json");
     }
+
+    // Recovery tests
+
+    @Test
+    public void testXMLNavigateWithMissingNamePattern() {
+        test("a .<>", "xml-navigate-expr/xml_filter_expr_assert_07.json");
+        test("a /<>", "xml-navigate-expr/xml_step_expr_assert_16.json");
+        test("a /**/<>", "xml-navigate-expr/xml_step_expr_assert_17.json");
+    }
+
+    @Test
+    public void testXMLNavigateWithMissingGtToken() {
+        test("a .<*", "xml-navigate-expr/xml_filter_expr_assert_08.json");
+        test("a .<b:c", "xml-navigate-expr/xml_filter_expr_assert_09.json");
+        test("a .<b:*", "xml-navigate-expr/xml_filter_expr_assert_10.json");
+        test("a /<*", "xml-navigate-expr/xml_step_expr_assert_18.json");
+        test("a /**/<*", "xml-navigate-expr/xml_step_expr_assert_19.json");
+    }
+
+    @Test
+    public void testXMLNavigateWithMissingPipeTokens() {
+        test("a .<* * *>", "xml-navigate-expr/xml_filter_expr_assert_11.json");
+        test("a .<b c:d *>", "xml-navigate-expr/xml_filter_expr_assert_12.json");
+        test("a /<* * *>", "xml-navigate-expr/xml_step_expr_assert_20.json");
+        test("a /**/<* * *>", "xml-navigate-expr/xml_step_expr_assert_21.json");
+    }
+
+    @Test
+    public void testXMLNavigateWithMissingAtomicNamePattern() {
+        test("a .< | >", "xml-navigate-expr/xml_filter_expr_assert_13.json");
+        test("a .< :b | :c >", "xml-navigate-expr/xml_filter_expr_assert_14.json");
+        test("a /< | >", "xml-navigate-expr/xml_step_expr_assert_22.json");
+        test("a /**/< | >", "xml-navigate-expr/xml_step_expr_assert_23.json");
+    }
+
+    @Test
+    public void testXMLNavigateWithExtraTokenIntheAtomicNamePattern() {
+        test("a .< key * >", "xml-navigate-expr/xml_filter_expr_assert_15.json");
+        test("a /< * | key b:c >", "xml-navigate-expr/xml_step_expr_assert_24.json");
+        test("a /**/< b key :c >", "xml-navigate-expr/xml_step_expr_assert_25.json");
+    }
 }
