@@ -47,7 +47,7 @@ public class ErrorGenerator {
     }
 
     public static ErrorValue getSQLApplicationError(String detailedErrorMessage) {
-        return BallerinaErrors.createDistinctError(Constants.APPLICATION_ERROR_CODE, Constants.SQL_PACKAGE_ID,
+        return BallerinaErrors.createDistinctError(Constants.APPLICATION_ERROR, Constants.SQL_PACKAGE_ID,
                 detailedErrorMessage);
     }
 
@@ -57,7 +57,7 @@ public class ErrorGenerator {
         valueMap.put(Constants.ErrorRecordFields.SQL_STATE, sqlState);
         MapValue<BString, Object> sqlClientErrorDetailRecord = BallerinaValues.
                 createRecordValue(Constants.SQL_PACKAGE_ID, Constants.DATABASE_ERROR_DATA, valueMap);
-        return BallerinaErrors.createDistinctError(Constants.DATABASE_ERROR_CODE, Constants.SQL_PACKAGE_ID,
+        return BallerinaErrors.createDistinctError(Constants.DATABASE_ERROR, Constants.SQL_PACKAGE_ID,
                 message, sqlClientErrorDetailRecord);
     }
 }
