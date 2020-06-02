@@ -15,27 +15,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.internal;
+package org.wso2.ballerinalang.compiler;
 
 import java.util.Map;
 import java.util.Optional;
 
 /**
- * A wrapper class for keeping metadata of jar file.
+ * A wrapper class for keeping code generated binary content and metadata of a program jar file.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
-public class JarFile {
+public class CompiledJarFile {
 
     private String mainClassName;
     private Map<String, byte[]> jarEntries;
 
-    public JarFile(Map<String, byte[]> jarEntries) {
+    public CompiledJarFile(Map<String, byte[]> jarEntries) {
 
         this.jarEntries = jarEntries;
     }
 
-    public JarFile(String mainClassName, Map<String, byte[]> jarEntries) {
+    public CompiledJarFile(String mainClassName, Map<String, byte[]> jarEntries) {
 
         this.mainClassName = mainClassName;
         this.jarEntries = jarEntries;

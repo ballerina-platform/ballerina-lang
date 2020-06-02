@@ -22,8 +22,8 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.packerina.writer.JarFileWriter;
 import org.wso2.ballerinalang.compiler.PackageCache;
-import org.wso2.ballerinalang.compiler.bir.BackendDriver;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -46,18 +46,14 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DIST_BIR_
  */
 public class CreateJarTask implements Task {
 
-    private boolean dumpBir;
-
     private boolean skipCopyLibsFromDist = false;
 
-    public CreateJarTask(boolean dumpBir) {
+    public CreateJarTask() {
 
-        this.dumpBir = dumpBir;
     }
 
-    public CreateJarTask(boolean dumpBir, boolean skipCopyLibsFromDist) {
+    public CreateJarTask(boolean skipCopyLibsFromDist) {
 
-        this.dumpBir = dumpBir;
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
     }
 
@@ -72,7 +68,7 @@ public class CreateJarTask implements Task {
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
         PackageCache packageCache = PackageCache.getInstance(context);
 
-        BackendDriver backendDriver = BackendDriver.getInstance(context);
+        JarFileWriter jarFileWriter = JarFileWriter.getInstance(context);
 
         List<BLangPackage> moduleBirMap = buildContext.getModules();
         Set<PackageID> alreadyImportedModuleSet = new HashSet<>();
@@ -90,13 +86,13 @@ public class CreateJarTask implements Task {
                 moduleDependencies.add(runtimeJar);
             }
             // write module child imports jars
-            writeImportJar(backendDriver, bLangPackage.symbol.imports, sourceRoot, buildContext, runtimeJar,
-                           alreadyImportedModuleSet, balHomePath);
+            writeImportJar(jarFileWriter, bLangPackage.symbol.imports, sourceRoot, buildContext, runtimeJar,
+                    alreadyImportedModuleSet, balHomePath);
 
             // get the jar path of the module.
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
             if (!Files.exists(jarOutput)) {
-                backendDriver.execute(bLangPackage.symbol.bir, dumpBir, jarOutput, moduleDependencies);
+                jarFileWriter.write(bLangPackage, jarOutput);
                 alreadyImportedModuleSet.add(module.packageID);
             }
 
@@ -104,15 +100,13 @@ public class CreateJarTask implements Task {
             if (!buildContext.skipTests() && bLangPackage.hasTestablePackage()) {
                 for (BLangPackage testPkg : bLangPackage.getTestablePkgs()) {
                     // write its child imports jar file to cache
-                    writeImportJar(backendDriver, testPkg.symbol.imports, sourceRoot, buildContext,
-                                   runtimeJar, alreadyImportedModuleSet, balHomePath);
+                    writeImportJar(jarFileWriter, testPkg.symbol.imports, sourceRoot, buildContext,
+                            runtimeJar, alreadyImportedModuleSet, balHomePath);
 
                     // get the jar path of the module.
                     Path testJarOutput = buildContext.getTestJarPathFromTargetCache(testPkg.packageID);
                     if (!Files.exists(testJarOutput)) {
-                        HashSet<Path> testLibs = new HashSet<>(moduleDependencies);
-                        testLibs.addAll(buildContext.moduleDependencyPathMap.get(packageID).testLibs);
-                        backendDriver.execute(testPkg.symbol.bir, dumpBir, testJarOutput, testLibs);
+                        jarFileWriter.write(testPkg, testJarOutput);
                         alreadyImportedModuleSet.add(testPkg.packageID);
                     }
                 }
@@ -121,9 +115,10 @@ public class CreateJarTask implements Task {
         ConfigRegistry.getInstance().setInitialized(false);
     }
 
-    private void writeImportJar(BackendDriver backendDriver, List<BPackageSymbol> imports, Path sourceRoot,
+    private void writeImportJar(JarFileWriter jarFileWriter, List<BPackageSymbol> imports, Path sourceRoot,
                                 BuildContext buildContext, Path runtimeJar, Set<PackageID> alreadyImportedModuleSet,
                                 String balHomePath) {
+
         for (BPackageSymbol bimport : imports) {
             PackageID id = bimport.pkgID;
             String version = BLANG_PKG_DEFAULT_VERSION;
@@ -133,7 +128,7 @@ public class CreateJarTask implements Task {
             // Skip ballerina and ballerinax for cached modules
             if (alreadyImportedModuleSet.contains(id) ||
                     Paths.get(balHomePath, DIST_BIR_CACHE_DIR_NAME, id.orgName.value,
-                              id.name.value, version).toFile().exists()) {
+                            id.name.value, version).toFile().exists()) {
                 continue;
             }
             alreadyImportedModuleSet.add(id);
@@ -147,14 +142,14 @@ public class CreateJarTask implements Task {
             } else {
                 jarFilePath = buildContext.getJarPathFromHomeCache(id);
             }
-            writeImportJar(backendDriver, bimport.imports, sourceRoot,
-                           buildContext, runtimeJar, alreadyImportedModuleSet, balHomePath);
+            writeImportJar(jarFileWriter, bimport.imports, sourceRoot,
+                    buildContext, runtimeJar, alreadyImportedModuleSet, balHomePath);
             if (bimport.bir != null && buildContext.moduleDependencyPathMap.containsKey(id)) {
                 HashSet<Path> moduleDependencySet = buildContext.moduleDependencyPathMap.get(id).moduleLibs;
                 if (!skipCopyLibsFromDist) {
                     moduleDependencySet.add(runtimeJar);
                 }
-                backendDriver.execute(bimport.bir, dumpBir, jarFilePath, moduleDependencySet);
+                jarFileWriter.write(bimport, jarFilePath);
             }
         }
     }
