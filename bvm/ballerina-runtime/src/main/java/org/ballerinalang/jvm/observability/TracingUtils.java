@@ -31,8 +31,8 @@ import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERT
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_ERROR_MESSAGE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_TRUE_VALUE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_ERROR;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_TRUE_VALUE;
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.KEY_SPAN;
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.LOG_ERROR_KIND_EXCEPTION;
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.LOG_EVENT_TYPE_ERROR;

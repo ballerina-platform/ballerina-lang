@@ -52,7 +52,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
@@ -119,7 +119,7 @@ class JvmObservabilityGen {
     public void rewriteObservableFunctions(BIRPackage pkg) {
         for (int i = 0; i < pkg.functions.size(); i++) {
             BIRFunction func = pkg.functions.get(i);
-            rewriteAsyncInvocations(func, null, pkg);
+            rewriteAsyncInvocations(func, pkg);
             rewriteObservableFunctionInvocations(func, pkg);
             if (ENTRY_POINT_MAIN_METHOD_NAME.equals(func.name.value)) {
                 rewriteObservableFunctionBody(func, pkg, false, true, false, func.workerName.value,
@@ -136,7 +136,7 @@ class JvmObservabilityGen {
             boolean isService = typeDef.type instanceof BServiceType;
             for (int i = 0; i < typeDef.attachedFuncs.size(); i++) {
                 BIRFunction func = typeDef.attachedFuncs.get(i);
-                rewriteAsyncInvocations(func, typeDef, pkg);
+                rewriteAsyncInvocations(func, pkg);
                 rewriteObservableFunctionInvocations(func, pkg);
                 if (isService && (func.flags & Flags.RESOURCE) == Flags.RESOURCE) {
                     rewriteObservableFunctionBody(func, pkg, true, false, false,
@@ -154,20 +154,10 @@ class JvmObservabilityGen {
      * invocation to the scheduler. However, we require the actual time it took for the invocation.
      *
      * @param func The function of which the instructions in the body should be rewritten
-     * @param attachedTypeDef The type definition to which the function was attached to or null
      * @param pkg The package containing the function
      */
-    public void rewriteAsyncInvocations(BIRFunction func, BIRTypeDefinition attachedTypeDef, BIRPackage pkg) {
+    public void rewriteAsyncInvocations(BIRFunction func, BIRPackage pkg) {
         PackageID currentPkgId = new PackageID(pkg.org, pkg.name, pkg.version);
-        BSymbol functionOwner;
-        List<BIRFunction> scopeFunctionsList;
-        if (attachedTypeDef == null) {
-            functionOwner = packageCache.getSymbol(currentPkgId);
-            scopeFunctionsList = pkg.functions;
-        } else {
-            functionOwner = attachedTypeDef.type.tsymbol;
-            scopeFunctionsList = attachedTypeDef.attachedFuncs;
-        }
         for (BIRBasicBlock currentBB : func.basicBlocks) {
             if (currentBB.terminator.kind == InstructionKind.ASYNC_CALL
                     && isObservable((AsyncCall) currentBB.terminator)) {
@@ -190,7 +180,7 @@ class JvmObservabilityGen {
                 BIRFunction desugaredFunc = new BIRFunction(asyncCallIns.pos, lambdaName, 0, bInvokableType,
                         func.workerName, 0, null);
                 desugaredFunc.receiver = func.receiver;
-                scopeFunctionsList.add(desugaredFunc);
+                pkg.functions.add(desugaredFunc);
 
                 // Creating the return variable
                 BIRVariableDcl funcReturnVariableDcl = new BIRVariableDcl(returnType,
@@ -200,8 +190,9 @@ class JvmObservabilityGen {
                 desugaredFunc.returnVariable = funcReturnVariableDcl;
 
                 // Creating and adding invokable symbol to the relevant scope
+                BPackageSymbol pkgSymbol = packageCache.getSymbol(currentPkgId);
                 BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.FUNCTION, 0, lambdaName,
-                        currentPkgId, bInvokableType, functionOwner);
+                        currentPkgId, bInvokableType, pkgSymbol);
                 invokableSymbol.retType = funcReturnVariableDcl.type;
                 invokableSymbol.kind = SymbolKind.FUNCTION;
                 invokableSymbol.params = asyncCallIns.args.stream()
@@ -210,17 +201,15 @@ class JvmObservabilityGen {
                         .collect(Collectors.toList());
                 invokableSymbol.scope = new Scope(invokableSymbol);
                 invokableSymbol.params.forEach(param -> invokableSymbol.scope.define(param.name, param));
-                if (attachedTypeDef == null) {
-                    functionOwner.scope.define(lambdaName, invokableSymbol);
-                }
+                pkgSymbol.scope.define(lambdaName, invokableSymbol);
 
                 // Creating and adding function parameters
                 List<BIROperand> funcParamOperands = new ArrayList<>();
-                Name selfArgName = new Name("%self");
                 for (int i = 0; i < asyncCallIns.args.size(); i++) {
                     BIROperand arg = asyncCallIns.args.get(i);
                     BIRFunctionParameter funcParam;
                     if (arg.variableDcl.kind == VarKind.SELF) {
+                        Name selfArgName = new Name("%self");
                         funcParam = new BIRFunctionParameter(asyncCallIns.pos, arg.variableDcl.type, selfArgName,
                                 VarScope.FUNCTION, VarKind.SELF, selfArgName.value, false);
                     } else {
@@ -246,11 +235,7 @@ class JvmObservabilityGen {
                 // Updating terminator to call the generated lambda asynchronously
                 asyncCallIns.name = lambdaName;
                 asyncCallIns.calleePkg = currentPkgId;
-                asyncCallIns.isVirtual = attachedTypeDef != null;
-                if (attachedTypeDef != null) {
-                    asyncCallIns.args.add(0, new BIROperand(new BIRVariableDcl(attachedTypeDef.type,
-                            selfArgName, VarScope.FUNCTION, VarKind.SELF)));
-                }
+                asyncCallIns.isVirtual = false;
             }
         }
     }
@@ -431,9 +416,7 @@ class JvmObservabilityGen {
                                 null, func.localVars, currentBB, desugaredInsPosition);
                         action = callIns.name.value;
                     }
-                    if (currentBB.terminator == null) {
-                        currentBB.terminator = new GOTO(desugaredInsPosition, observeStartBB);
-                    }
+                    currentBB.terminator = new GOTO(desugaredInsPosition, observeStartBB);
 
                     BIRBasicBlock observeEndBB;
                     boolean isRemote = callIns.calleeFlags.contains(Flag.REMOTE);
@@ -457,7 +440,6 @@ class JvmObservabilityGen {
                         errorReportBB.terminator.thenBB = observeEndBB;
                         newCurrentBB.terminator.thenBB = errorCheckBB;
                         observeStartBB.terminator.thenBB = newCurrentBB;
-                        currentBB.terminator.thenBB = observeStartBB; // Current BB now contains the type fetch call
                         i += 5; // Number of inserted BBs
                     } else {
                         observeEndBB = insertBasicBlock(func, i + 3);
@@ -471,7 +453,6 @@ class JvmObservabilityGen {
                         observeEndBB.terminator.thenBB = newCurrentBB.terminator.thenBB;
                         newCurrentBB.terminator.thenBB = observeEndBB;
                         observeStartBB.terminator.thenBB = newCurrentBB;
-                        currentBB.terminator.thenBB = observeStartBB; // Current BB now contains the type fetch call
                         i += 3; // Number of inserted BBs
                     }
                     fixErrorTable(func, currentBB, observeEndBB);
