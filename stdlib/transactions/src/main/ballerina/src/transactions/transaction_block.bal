@@ -33,6 +33,21 @@ public type Info record {|
 public type CommitHandler function(Info? info);
 public type RollbackHandler function(Info? info, error? cause, boolean willRetry);
 
+
+public function startTransaction(string transactionBlockId) returns string {
+    string transactionId = "";
+    TransactionContext|error txnContext =  beginTransaction((), transactionBlockId, "", TWO_PHASE_COMMIT);
+    if (txnContext is error) {
+        panic txnContext;
+    } else {
+        transactionId = txnContext.transactionId;
+        setTransactionContext(txnContext);
+    }
+
+    log:printInfo("It is done");
+    return transactionId;
+}
+
 # Handles the transaction initiator block.
 # Transaction initiator block will be desugared to following method.
 #
@@ -500,4 +515,9 @@ public function onCommit(CommitHandler handler) = @java:Method {
 public function onRollback(RollbackHandler handler) = @java:Method {
     class: "io.ballerina.transactions.Utils",
     name: "onRollback"
+} external;
+
+public function isTransactional() returns boolean = @java:Method {
+class: "io.ballerina.transactions.Utils",
+name: "isTransactional"
 } external;

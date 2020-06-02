@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLPi;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLText;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 
 import java.io.IOException;
@@ -136,7 +137,10 @@ public class BallerinaXMLSerializer extends OutputStream {
     }
 
     private void writeXMLText(XMLText xmlValue) throws XMLStreamException {
-        xmlStreamWriter.writeCharacters(xmlValue.getTextValue());
+        String textValue = xmlValue.getTextValue();
+        if (!textValue.isEmpty()) {
+            xmlStreamWriter.writeCharacters(textValue);
+        }
     }
 
     private void writeElement(XMLItem xmlValue) throws XMLStreamException {
@@ -318,17 +322,17 @@ public class BallerinaXMLSerializer extends OutputStream {
                                               Map<String, String> nsPrefixMap,
                                               Map<String, String> attributeMap) {
         // Extract namespace entries
-        for (Map.Entry<String, String> attributeEntry : xmlValue.getAttributesMap().entrySet()) {
-            String key = attributeEntry.getKey();
+        for (Map.Entry<BString, BString> attributeEntry : xmlValue.getAttributesMap().entrySet()) {
+            String key = attributeEntry.getKey().getValue();
             if (key.startsWith(XMLItem.XMLNS_URL_PREFIX)) {
                 int closingCurly = key.indexOf('}');
                 String prefix = key.substring(closingCurly + 1);
                 if (prefix.equals(XML)) {
                     continue;
                 }
-                nsPrefixMap.put(prefix, attributeEntry.getValue());
+                nsPrefixMap.put(prefix, attributeEntry.getValue().getValue());
             } else {
-                attributeMap.put(key, attributeEntry.getValue());
+                attributeMap.put(key, attributeEntry.getValue().getValue());
             }
         }
 

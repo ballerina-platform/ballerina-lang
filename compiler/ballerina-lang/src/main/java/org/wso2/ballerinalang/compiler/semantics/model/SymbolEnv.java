@@ -75,6 +75,8 @@ public class SymbolEnv {
 
     public int relativeEnvCount;
 
+    public boolean isModuleInit;
+
     public SymbolEnv(BLangNode node, Scope scope) {
         this.scope = scope;
         this.node = node;
@@ -86,6 +88,7 @@ public class SymbolEnv {
         this.enclVarSym = null;
         this.logErrors = true;
         this.typeParamsEntries = null;
+        this.isModuleInit = false;
     }
 
     public void copyTo(SymbolEnv target) {
@@ -122,6 +125,12 @@ public class SymbolEnv {
         funcEnv.envCount = env.envCount + 1;
         funcEnv.relativeEnvCount = 0;
         funcEnv.enclInvokable = node;
+        return funcEnv;
+    }
+
+    public static SymbolEnv createModuleInitFunctionEnv(BLangFunction node, Scope scope, SymbolEnv env) {
+        SymbolEnv funcEnv = createFunctionEnv(node, scope, env);
+        funcEnv.isModuleInit = true;
         return funcEnv;
     }
 

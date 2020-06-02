@@ -27,6 +27,7 @@ import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.transactions.TransactionResourceManager;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -109,8 +110,8 @@ public class Utils {
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
         transactionResourceManager.registerParticipation(transactionLocalContext.getGlobalTransactionId(),
                 transactionBlockId, fpCommitted, fpAborted, strand);
-        MapValue<String, Object> trxContext = BallerinaValues.createRecordValue(TRANSACTION_PACKAGE_ID,
-                STRUCT_TYPE_TRANSACTION_CONTEXT);
+        MapValue<BString, Object> trxContext = BallerinaValues.createRecordValue(TRANSACTION_PACKAGE_ID,
+                                                                                 STRUCT_TYPE_TRANSACTION_CONTEXT);
         Object[] trxContextData = new Object[] {
                 TransactionConstants.DEFAULT_CONTEXT_VERSION, transactionLocalContext.getGlobalTransactionId(),
                 transactionBlockId, transactionLocalContext.getProtocol(), transactionLocalContext.getURL()
@@ -132,7 +133,7 @@ public class Utils {
         // Register committed and aborted function handler if exists.
         transactionResourceManager.registerParticipation(transactionLocalContext.getGlobalTransactionId(),
                 transactionBlockId, fpCommitted, fpAborted, strand);
-        MapValue<String, Object> trxContext = BallerinaValues.createRecordValue(TRANSACTION_PACKAGE_ID,
+        MapValue<BString, Object> trxContext = BallerinaValues.createRecordValue(TRANSACTION_PACKAGE_ID,
                 STRUCT_TYPE_TRANSACTION_CONTEXT);
         Object[] trxContextData = new Object[] {
                 TransactionConstants.DEFAULT_CONTEXT_VERSION, transactionLocalContext.getGlobalTransactionId(),
@@ -202,6 +203,11 @@ public class Utils {
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
         transactionResourceManager.registerAbortedFunction(transactionLocalContext.getCurrentTransactionBlockId(),
                 fpValue);
+    }
+
+    public static boolean isTransactional() {
+        Strand strand = Scheduler.getStrand();
+        return strand.isInTransaction();
     }
 
     private static int findFreePort() {

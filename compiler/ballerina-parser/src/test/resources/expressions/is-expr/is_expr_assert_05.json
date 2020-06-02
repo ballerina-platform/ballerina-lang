@@ -1,0 +1,15 @@
+{
+    "kind": "TYPE_TEST_EXPRESSION",
+    "children": [
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "isMissing": true
+        },
+        {
+            "kind": "IS_KEYWORD"
+        },
+        {
+            "kind": "INT_KEYWORD"
+        }
+    ]
+}

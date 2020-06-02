@@ -29,6 +29,7 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.grpc.DataContext;
 import org.ballerinalang.net.grpc.Message;
@@ -55,6 +56,7 @@ import org.wso2.transport.http.netty.message.HttpConnectorUtil;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.BLOCKING_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_CONNECTOR;
@@ -86,7 +88,7 @@ public class FunctionUtils extends AbstractExecute {
      * @param endpointObject client endpoint instance.
      * @param globalPoolConfig global pool configuration.
      */
-    public static void externInitGlobalPool(ObjectValue endpointObject, MapValue<String, Long> globalPoolConfig) {
+    public static void externInitGlobalPool(ObjectValue endpointObject, MapValue<BString, Long> globalPoolConfig) {
         PoolConfiguration globalPool = new PoolConfiguration();
         populatePoolingConfig(globalPoolConfig, globalPool);
         ConnectionManager connectionManager = new ConnectionManager(globalPool);
@@ -103,16 +105,16 @@ public class FunctionUtils extends AbstractExecute {
      * @return Error if there is an error while initializing the client endpoint, else returns nil
      */
     @SuppressWarnings("unchecked")
-    public static Object externInit(ObjectValue clientEndpoint, String urlString,
+    public static Object externInit(ObjectValue clientEndpoint, BString urlString,
                                     MapValue clientEndpointConfig, MapValue globalPoolConfig) {
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
         URL url;
         try {
-            url = new URL(urlString);
+            url = new URL(urlString.getValue());
         } catch (MalformedURLException e) {
             return MessageUtils.getConnectorError(new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Malformed URL: "
-                            + urlString)));
+                            + urlString.getValue())));
         }
 
         String scheme = url.getProtocol();
@@ -138,7 +140,7 @@ public class FunctionUtils extends AbstractExecute {
                     .createHttpClientConnector(properties, senderConfiguration, poolManager);
 
             clientEndpoint.addNativeData(CLIENT_CONNECTOR, clientConnector);
-            clientEndpoint.addNativeData(ENDPOINT_URL, urlString);
+            clientEndpoint.addNativeData(ENDPOINT_URL, urlString.getValue());
         } catch (ErrorValue ex) {
             return ex;
         } catch (RuntimeException ex) {
@@ -158,8 +160,8 @@ public class FunctionUtils extends AbstractExecute {
      * @param descriptorMap dependent descriptor map.
      * @return Error if there is an error while initializing the stub, else returns nil
      */
-    public static Object externInitStub(ObjectValue genericEndpoint, ObjectValue clientEndpoint, String stubType,
-                                        String rootDescriptor, MapValue<String, Object> descriptorMap) {
+    public static Object externInitStub(ObjectValue genericEndpoint, ObjectValue clientEndpoint, BString stubType,
+                                        BString rootDescriptor, MapValue<BString, Object> descriptorMap) {
         HttpClientConnector clientConnector = (HttpClientConnector) genericEndpoint.getNativeData(CLIENT_CONNECTOR);
         String urlString = (String) genericEndpoint.getNativeData(ENDPOINT_URL);
 
@@ -170,15 +172,15 @@ public class FunctionUtils extends AbstractExecute {
         }
 
         try {
-            ServiceDefinition serviceDefinition = new ServiceDefinition(rootDescriptor, descriptorMap);
+            ServiceDefinition serviceDefinition = new ServiceDefinition(rootDescriptor.getValue(), descriptorMap);
             Map<String, MethodDescriptor> methodDescriptorMap =
                     serviceDefinition.getMethodDescriptors(clientEndpoint.getType());
 
             genericEndpoint.addNativeData(METHOD_DESCRIPTORS, methodDescriptorMap);
-            if (BLOCKING_TYPE.equalsIgnoreCase(stubType)) {
+            if (BLOCKING_TYPE.equalsIgnoreCase(stubType.getValue())) {
                 BlockingStub blockingStub = new BlockingStub(clientConnector, urlString);
                 genericEndpoint.addNativeData(SERVICE_STUB, blockingStub);
-            } else if (NON_BLOCKING_TYPE.equalsIgnoreCase(stubType)) {
+            } else if (NON_BLOCKING_TYPE.equalsIgnoreCase(stubType.getValue())) {
                 NonBlockingStub nonBlockingStub = new NonBlockingStub(clientConnector, urlString);
                 genericEndpoint.addNativeData(SERVICE_STUB, nonBlockingStub);
             } else {
@@ -202,7 +204,7 @@ public class FunctionUtils extends AbstractExecute {
      * @return Error if there is an error while calling remote method, else returns response message.
      */
     @SuppressWarnings("unchecked")
-    public static Object externBlockingExecute(ObjectValue clientEndpoint, String methodName,
+    public static Object externBlockingExecute(ObjectValue clientEndpoint, BString methodName,
                                                Object payloadBValue, Object headerValues) {
         if (clientEndpoint == null) {
             return notifyErrorReply(INTERNAL, "Error while getting connector. gRPC client connector " +
@@ -226,10 +228,11 @@ public class FunctionUtils extends AbstractExecute {
                     "doesn't set properly");
         }
 
-        com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = methodDescriptors.get(methodName) != null
-                ? methodDescriptors.get(methodName).getSchemaDescriptor() : null;
+        com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = methodDescriptors
+                .get(methodName.getValue()) != null ? methodDescriptors.get(methodName.getValue()).getSchemaDescriptor()
+                        : null;
         if (methodDescriptor == null) {
-            return notifyErrorReply(INTERNAL, "No registered method descriptor for '" + methodName + "'");
+            return notifyErrorReply(INTERNAL, "No registered method descriptor for '" + methodName.getValue() + "'");
         }
 
         if (connectionStub instanceof BlockingStub) {
@@ -250,7 +253,7 @@ public class FunctionUtils extends AbstractExecute {
 
                     dataContext = new DataContext(Scheduler.getStrand(),
                             new NonBlockingCallback(Scheduler.getStrand()));
-                    blockingStub.executeUnary(requestMsg, methodDescriptors.get(methodName), dataContext);
+                    blockingStub.executeUnary(requestMsg, methodDescriptors.get(methodName.getValue()), dataContext);
                 } else {
                     return notifyErrorReply(INTERNAL, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");
@@ -286,7 +289,7 @@ public class FunctionUtils extends AbstractExecute {
      * @return Error if there is an error while initializing the stub, else returns nil
      */
     @SuppressWarnings("unchecked")
-    public static Object externNonBlockingExecute(ObjectValue clientEndpoint, String methodName,
+    public static Object externNonBlockingExecute(ObjectValue clientEndpoint, BString methodName,
                                                   Object payload, ObjectValue callbackService, Object headerValues) {
         if (clientEndpoint == null) {
             return notifyErrorReply(INTERNAL, "Error while getting connector. gRPC Client connector is " +
@@ -311,10 +314,11 @@ public class FunctionUtils extends AbstractExecute {
                     "doesn't set properly");
         }
 
-        com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = methodDescriptors.get(methodName) != null
-                ? methodDescriptors.get(methodName).getSchemaDescriptor() : null;
+        com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = methodDescriptors
+                .get(methodName.getValue()) != null ? methodDescriptors.get(methodName.getValue()).getSchemaDescriptor()
+                        : null;
         if (methodDescriptor == null) {
-            return notifyErrorReply(INTERNAL, "No registered method descriptor for '" + methodName + "'");
+            return notifyErrorReply(INTERNAL, "No registered method descriptor for '" + methodName.getValue() + "'");
         }
 
         if (connectionStub instanceof NonBlockingStub) {
@@ -332,13 +336,14 @@ public class FunctionUtils extends AbstractExecute {
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
                 DataContext context = new DataContext(Scheduler.getStrand(), null);
+                Semaphore semaphore = new Semaphore(1, true);
                 if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
                     nonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(BRuntime.getCurrentRuntime(),
-                            callbackService), methodDescriptors.get(methodName), context);
+                            callbackService, semaphore), methodDescriptors.get(methodName.getValue()), context);
                 } else if (methodType.equals(MethodDescriptor.MethodType.SERVER_STREAMING)) {
                     nonBlockingStub.executeServerStreaming(requestMsg,
-                            new DefaultStreamObserver(BRuntime.getCurrentRuntime(), callbackService),
-                            methodDescriptors.get(methodName), context);
+                            new DefaultStreamObserver(BRuntime.getCurrentRuntime(), callbackService, semaphore),
+                            methodDescriptors.get(methodName.getValue()), context);
                 } else {
                     return notifyErrorReply(INTERNAL, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");
@@ -363,7 +368,7 @@ public class FunctionUtils extends AbstractExecute {
      * @return Error if there is an error while initializing the stub, else returns nil
      */
     @SuppressWarnings("unchecked")
-    public static Object externStreamingExecute(ObjectValue clientEndpoint, String methodName,
+    public static Object externStreamingExecute(ObjectValue clientEndpoint, BString methodName,
                                                 ObjectValue callbackService, Object headerValues) {
         if (clientEndpoint == null) {
             return notifyErrorReply(INTERNAL, "Error while getting connector. gRPC Client connector " +
@@ -388,10 +393,11 @@ public class FunctionUtils extends AbstractExecute {
                     "doesn't set properly");
         }
 
-        com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = methodDescriptors.get(methodName) != null
-                ? methodDescriptors.get(methodName).getSchemaDescriptor() : null;
+        com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = methodDescriptors
+                .get(methodName.getValue()) != null ? methodDescriptors.get(methodName.getValue()).getSchemaDescriptor()
+                        : null;
         if (methodDescriptor == null) {
-            return notifyErrorReply(INTERNAL, "No registered method descriptor for '" + methodName + "'");
+            return notifyErrorReply(INTERNAL, "No registered method descriptor for '" + methodName.getValue() + "'");
         }
 
         if (connectionStub instanceof NonBlockingStub) {
@@ -403,16 +409,17 @@ public class FunctionUtils extends AbstractExecute {
 
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
+                Semaphore semaphore = new Semaphore(1, true);
                 DefaultStreamObserver responseObserver = new DefaultStreamObserver(BRuntime.getCurrentRuntime(),
-                        callbackService);
+                        callbackService, semaphore);
                 StreamObserver requestSender;
                 DataContext context = new DataContext(Scheduler.getStrand(), null);
                 if (methodType.equals(MethodDescriptor.MethodType.CLIENT_STREAMING)) {
                     requestSender = nonBlockingStub.executeClientStreaming(headers, responseObserver,
-                            methodDescriptors.get(methodName), context);
+                            methodDescriptors.get(methodName.getValue()), context);
                 } else if (methodType.equals(MethodDescriptor.MethodType.BIDI_STREAMING)) {
                     requestSender = nonBlockingStub.executeBidiStreaming(headers, responseObserver, methodDescriptors
-                            .get(methodName), context);
+                            .get(methodName.getValue()), context);
                 } else {
                     return notifyErrorReply(INTERNAL, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");

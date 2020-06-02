@@ -19,6 +19,7 @@
 package org.ballerinalang.stdlib.config;
 
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * Extern function ballerina.config:contains.
@@ -27,7 +28,7 @@ import org.ballerinalang.config.ConfigRegistry;
  */
 public class Contains {
 
-    public static boolean contains(String configKey) {
-        return ConfigRegistry.getInstance().contains(configKey);
+    public static boolean contains(BString configKey) {
+        return ConfigRegistry.getInstance().contains(configKey.getValue());
     }
 }

@@ -21,12 +21,14 @@ package org.ballerinalang.mime.util;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,14 +129,14 @@ public class MultipartDataSource implements RefValue {
         if (MimeUtil.isNestedPartsAvailable(childPart)) {
             childBoundaryString = MimeUtil.getNewMultipartDelimiter();
             ObjectValue mediaType = (ObjectValue) childPart.get(MEDIA_TYPE_FIELD);
-            MapValue paramMap;
+            MapValue<BString, BString> paramMap;
             if (mediaType.get(PARAMETER_MAP_FIELD) != null) {
-                paramMap = (MapValue) mediaType.get(PARAMETER_MAP_FIELD);
+                paramMap = (MapValue<BString, BString>) mediaType.get(PARAMETER_MAP_FIELD);
             } else {
                 paramMap = new MapValueImpl<>(new org.ballerinalang.jvm.types.BMapType(BTypes.typeString));
             }
 
-            paramMap.put(BOUNDARY, childBoundaryString);
+            paramMap.put(StringUtils.fromString(BOUNDARY), StringUtils.fromString(childBoundaryString));
             mediaType.set(PARAMETER_MAP_FIELD, paramMap);
         }
         writeBodyPartHeaders(writer, childPart);

@@ -1,5 +1,0 @@
-# To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run object_initializer.bal
-John
-The age should be between 0-100

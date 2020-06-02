@@ -51,6 +51,7 @@ dependencies {
     testRuntime project(':ballerina-lang:bool')
     testRuntime project(':ballerina-runtime')
     testRuntime project(':ballerina-lang:internal')
+    testRuntime project(':ballerina-lang:query')
     testRuntime 'org.slf4j:slf4j-jdk14'
 
     baloTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
@@ -69,6 +70,7 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:bool', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:query', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
 }
 

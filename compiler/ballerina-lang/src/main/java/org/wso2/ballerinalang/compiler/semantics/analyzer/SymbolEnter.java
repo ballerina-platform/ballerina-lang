@@ -32,6 +32,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
+import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -107,6 +108,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -118,12 +120,16 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -138,6 +144,7 @@ import static org.ballerinalang.model.elements.PackageID.FUTURE;
 import static org.ballerinalang.model.elements.PackageID.INT;
 import static org.ballerinalang.model.elements.PackageID.MAP;
 import static org.ballerinalang.model.elements.PackageID.OBJECT;
+import static org.ballerinalang.model.elements.PackageID.QUERY;
 import static org.ballerinalang.model.elements.PackageID.STREAM;
 import static org.ballerinalang.model.elements.PackageID.STRING;
 import static org.ballerinalang.model.elements.PackageID.TABLE;
@@ -166,6 +173,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private List<PackageID> importedPackages;
     private int typePrecedence;
     private final TypeParamAnalyzer typeParamAnalyzer;
+    private BLangAnonymousModelHelper anonymousModelHelper;
 
     private SymbolEnv env;
 
@@ -190,6 +198,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.types = Types.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
+        this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.sourceDirectory = context.get(SourceDirectory.class);
         this.importedPackages = new ArrayList<>();
     }
@@ -441,7 +450,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         PackageID pkgId = new PackageID(orgName, nameComps, version);
 
         // Built-in Annotation module is not allowed to import.
-        if (pkgId.equals(PackageID.ANNOTATIONS) || pkgId.equals(PackageID.INTERNAL)) {
+        if (pkgId.equals(PackageID.ANNOTATIONS) || pkgId.equals(PackageID.INTERNAL) || pkgId.equals(PackageID.QUERY)) {
             // Only peer lang.* modules able to see these two modules.
             // Spec allows to annotation model to be imported, but implementation not support this.
             if (!(enclPackageID.orgName.equals(Names.BALLERINA_ORG)
@@ -817,7 +826,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineErrorConstructorSymbol(DiagnosticPos pos, BTypeSymbol typeDefSymbol) {
         BErrorType errorType = (BErrorType) typeDefSymbol.type;
-        BConstructorSymbol symbol = new BConstructorSymbol(SymTag.CONSTRUCTOR, typeDefSymbol.flags, typeDefSymbol.name,
+        BConstructorSymbol symbol = new BConstructorSymbol(typeDefSymbol.flags, typeDefSymbol.name,
                 typeDefSymbol.pkgID, errorType, typeDefSymbol.owner);
         symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
         symbol.scope = new Scope(symbol);
@@ -1120,7 +1129,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         .peek(field -> defineNode(field, env))
                         .filter(field -> field.symbol.type != symTable.semanticError) // filter out erroneous fields
                         .map(field -> new BField(names.fromIdNode(field.name), field.pos, field.symbol))
-                        .collect(Collectors.toList());
+                        .collect(getFieldCollector());
 
         recordType.sealed = recordTypeNode.sealed;
         if (recordTypeNode.sealed && recordTypeNode.restFieldType != null) {
@@ -1138,6 +1147,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, env);
+    }
+
+    private Collector<BField, ?, LinkedHashMap<String, BField>> getFieldCollector() {
+        BinaryOperator<BField> mergeFunc = (u, v) -> {
+            throw new IllegalStateException(String.format("Duplicate key %s", u));
+        };
+        return Collectors.toMap(field -> field.name.value, Function.identity(), mergeFunc, LinkedHashMap::new);
     }
 
     // Private methods
@@ -1203,6 +1219,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         if (langLib.equals(BOOLEAN)) {
             symTable.langBooleanModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(QUERY)) {
+            symTable.langQueryModuleSymbol = packageSymbol;
             return;
         }
     }
@@ -1334,7 +1354,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineFields(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
-        for (BLangTypeDefinition typeDef : typeDefNodes) {
+        int originalSize = typeDefNodes.size();
+
+        for (int i = 0; i < originalSize; i++) {
+            BLangTypeDefinition typeDef = typeDefNodes.get(i);
             NodeKind nodeKind = typeDef.typeNode.getKind();
             if (nodeKind != NodeKind.OBJECT_TYPE && nodeKind != NodeKind.RECORD_TYPE) {
                 continue;
@@ -1354,7 +1377,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                             .peek(field -> defineNode(field, typeDefEnv))
                             .filter(field -> field.symbol.type != symTable.semanticError) // filter out erroneous fields
                             .map(field -> new BField(names.fromIdNode(field.name), field.pos, field.symbol))
-                            .collect(Collectors.toList());
+                            .collect(getFieldCollector());
 
             if (typeDef.symbol.kind != SymbolKind.RECORD) {
                 continue;
@@ -1378,6 +1401,16 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, typeDefEnv);
+        }
+
+        // Any newly added typedefs are due to `T & readonly` typed fields. Once the fields are set for all
+        // type-definitions we can revisit the newly added type-definitions and define the fields for them.
+        int newSize = typeDefNodes.size();
+
+        for (int i = originalSize; i < newSize; i++) {
+            BLangTypeDefinition typeDefinition = typeDefNodes.get(i);
+            ImmutableTypeCloner.defineUndefinedImmutableRecordFields(typeDefinition, types, pkgEnv, symTable,
+                                                                     anonymousModelHelper, names);
         }
     }
 
@@ -1794,12 +1827,22 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                 BObjectType objectType = (BObjectType) referredType;
                 if (structureTypeNode.type.tsymbol.owner != referredType.tsymbol.owner) {
-                    if (objectType.fields.stream().anyMatch(field -> !Symbols.isPublic(field.symbol)) ||
-                            ((BObjectTypeSymbol) objectType.tsymbol).attachedFuncs.stream()
-                                    .anyMatch(func -> !Symbols.isPublic(func.symbol))) {
-                        dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_TYPE_REFERENCE_NON_PUBLIC_MEMBERS, typeRef);
-                        invalidTypeRefs.add(typeRef);
-                        return Stream.empty();
+                    for (BField field : objectType.fields.values()) {
+                        if (!Symbols.isPublic(field.symbol)) {
+                            dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_TYPE_REFERENCE_NON_PUBLIC_MEMBERS,
+                                       typeRef);
+                            invalidTypeRefs.add(typeRef);
+                            return Stream.empty();
+                        }
+                    }
+
+                    for (BAttachedFunction func : ((BObjectTypeSymbol) objectType.tsymbol).attachedFuncs) {
+                        if (!Symbols.isPublic(func.symbol)) {
+                            dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_TYPE_REFERENCE_NON_PUBLIC_MEMBERS,
+                                       typeRef);
+                            invalidTypeRefs.add(typeRef);
+                            return Stream.empty();
+                        }
                     }
                 }
             }
@@ -1815,7 +1858,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             // by the time we reach here. It is achieved by ordering the typeDefs according
             // to the precedence.
             // Default values of fields are not inherited.
-            return ((BStructureType) referredType).fields.stream().map(field -> {
+            return ((BStructureType) referredType).fields.values().stream().map(field -> {
                 BLangSimpleVariable var = ASTBuilderUtil.createVariable(typeRef.pos, field.name.value, field.type);
                 var.flagSet = field.symbol.getFlags();
                 return var;

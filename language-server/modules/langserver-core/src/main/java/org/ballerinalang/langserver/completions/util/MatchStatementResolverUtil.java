@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -65,8 +66,8 @@ public class MatchStatementResolverUtil {
                     .append(String.join(", ", defaultValues))
                     .append(CommonKeys.CLOSE_BRACKET_KEY);
         } else if (bType instanceof BRecordType) {
-            List<BField> fields = ((BRecordType) bType).fields;
-            List<String> defaultValues = fields.stream()
+            Map<String, BField> fields = ((BRecordType) bType).fields;
+            List<String> defaultValues = fields.values().stream()
                     .map(field -> field.getName().getValue() + ":" + getStructuredFixedValueMatch(field.getType()))
                     .collect(Collectors.toList());
             fixedValPattern

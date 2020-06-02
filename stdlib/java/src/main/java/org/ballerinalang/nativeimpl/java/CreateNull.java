@@ -35,7 +35,4 @@ public class CreateNull {
     public static HandleValue createNull(Strand strand) {
         return new HandleValue(null);
     }
-    public static HandleValue createNull_bstring(Strand strand) {
-        return createNull(strand);
-    }
 }

@@ -35,8 +35,8 @@ public class BByteArrayValueNegativeTest {
         Assert.assertEquals(result.getErrorCount(), 21);
 
         int index = 0;
-        String msg1 = "expecting {'is', ';', '.', '[', '?', '?.', '+', '-', '*', '/', '%', '==', '!=', '>', '<', " +
-                "'>=', '<=', '&&', '||', '===', '!==', '&', '^', '@', '...', '|', '?:', '->>', '..<', '.@'}";
+        String msg1 = "expecting {'is', 'equals', ';', '.', '[', '?', '?.', '+', '-', '*', '/', '%', '==', '!=', '>'," +
+                " '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '@', '...', '|', '?:', '->>', '..<', '.@'}";
         
         BAssertUtil.validateError(result, index++, "mismatched input '6'. " + msg1, 2, 22);
         BAssertUtil.validateError(result, index++, "mismatched input '16'. " + msg1, 3, 21);

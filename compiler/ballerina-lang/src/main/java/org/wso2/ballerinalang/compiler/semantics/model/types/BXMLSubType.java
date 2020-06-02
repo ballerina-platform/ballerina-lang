@@ -18,20 +18,30 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.Name;
+import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
+import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
  * Represents Builtin Subtype of integer.
  *
  * @since 1.2.0
  */
-public class BXMLSubType extends BType {
+public class BXMLSubType extends BType implements SelectivelyImmutableReferenceType {
+
+    public BXMLSubType immutableType;
 
     public BXMLSubType(int tag, Name name) {
 
         super(tag, null, name, 0);
+    }
+
+    public BXMLSubType(int tag, Name name, int flags) {
+
+        super(tag, null, name, flags);
     }
 
     public boolean isNullable() {
@@ -70,5 +80,10 @@ public class BXMLSubType extends BType {
 
     public boolean isAnydata() {
         return true;
+    }
+
+    @Override
+    public Type getImmutableType() {
+        return tag == TypeTags.XML_TEXT ? this : this.immutableType;
     }
 }

@@ -1,0 +1,136 @@
+/*
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+package {{packageName}};
+
+{{#imports}}
+import {{name}};
+{{/imports}}
+{{^isAbstract}}
+
+import java.util.Objects;
+{{#optionalFieldExists}}
+import java.util.Optional;
+{{/optionalFieldExists}}
+{{/isAbstract}}
+
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 2.0.0
+ */
+public{{#isAbstract}} abstract{{/isAbstract}} class {{externalClassName}} extends {{#extendFromNode}}NonTerminalNode{{/extendFromNode}}{{^extendFromNode}}{{externalSuperClassName}}{{/extendFromNode}} {
+
+    public {{externalClassName}}(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
+    }
+    {{^isAbstract}}
+
+    {{#fields}}
+    {{#isList}}
+    public {{listClassName}}<{{fieldClassName}}> {{fieldName}}() {
+        return new {{listClassName}}<>(childInBucket({{index}}));
+    }
+
+    {{/isList}}
+    {{^isList}}
+    {{#isOptional}}
+    public Optional<{{fieldClassName}}> {{fieldName}}() {
+        return optionalChildInBucket({{index}});
+    }
+
+    {{/isOptional}}
+    {{^isOptional}}
+    public {{fieldClassName}} {{fieldName}}() {
+        return childInBucket({{index}});
+    }
+
+    {{/isOptional}}
+    {{/isList}}
+    {{/fields}}
+    @Override
+    public void accept(NodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(NodeTransformer<T> visitor) {
+        return visitor.transform(this);
+    }
+
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+        {{#fields}}
+                {{^isLast}}"{{fieldName}}",{{/isLast}}{{#isLast}}"{{fieldName}}"};{{/isLast}}
+        {{/fields}}
+    }
+
+    public {{externalClassName}} modify(
+            {{^syntaxKind}}SyntaxKind kind, &#10;            {{/syntaxKind}}{{#fields}}{{#isList}}{{listClassName}}<{{fieldClassName}}>{{/isList}}{{^isList}}{{fieldClassName}}{{/isList}} {{fieldName}}{{^isLast}}, &#10;            {{/isLast}}{{/fields}}) {
+        if (checkForReferenceEquality(
+                {{#fields}}{{#isList}}{{fieldName}}.underlyingListNode(){{/isList}}{{^isList}}{{fieldName}}{{/isList}}{{^isLast}}, &#10;                {{/isLast}}{{/fields}})) {
+            return this;
+        }
+
+        return NodeFactory.create{{externalClassName}}(
+                {{^syntaxKind}}kind, &#10;                {{/syntaxKind}}{{#fields}}{{fieldName}}{{^isLast}}, &#10;                {{/isLast}}{{/fields}});
+    }
+
+    public {{externalClassName}}Modifier modify() {
+        return new {{externalClassName}}Modifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class {{externalClassName}}Modifier {
+        private final {{externalClassName}} oldNode;
+        {{#fields}}
+        {{#isList}}
+        private {{listClassName}}<{{fieldClassName}}> {{fieldName}};
+        {{/isList}}
+        {{^isList}}
+        private {{fieldClassName}} {{fieldName}};
+        {{/isList}}
+        {{/fields}}
+
+        public {{externalClassName}}Modifier({{externalClassName}} oldNode) {
+            this.oldNode = oldNode;
+            {{#fields}}
+            this.{{fieldName}} = oldNode.{{fieldName}}(){{#isOptional}}.orElse(null){{/isOptional}};
+            {{/fields}}
+        }
+
+        {{#fields}}
+        public {{externalClassName}}Modifier with{{titleCaseFieldName}}(
+                {{#isList}}{{listClassName}}<{{fieldClassName}}>{{/isList}}{{^isList}}{{fieldClassName}}{{/isList}} {{fieldName}}) {
+            Objects.requireNonNull({{fieldName}}, "{{fieldName}} must not be null");
+            this.{{fieldName}} = {{fieldName}};
+            return this;
+        }
+
+        {{/fields}}
+        public {{externalClassName}} apply() {
+            return oldNode.modify(
+                    {{^syntaxKind}}oldNode.kind(), &#10;                    {{/syntaxKind}}{{#fields}}{{fieldName}}{{^isLast}}, &#10;                    {{/isLast}}{{/fields}});
+        }
+    }
+    {{/isAbstract}}
+}

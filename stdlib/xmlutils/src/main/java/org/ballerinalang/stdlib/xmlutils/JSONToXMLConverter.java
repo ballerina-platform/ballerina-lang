@@ -134,7 +134,7 @@ public class JSONToXMLConverter {
         if (json == null) {
             currentRoot.setAttribute(NIL, XSI_NAMESPACE, XSI_PREFIX, "true");
         } else {
-            LinkedHashMap<String, Object> map;
+            LinkedHashMap<BString, Object> map;
 
             BType type = TypeChecker.getType(json);
             switch (type.getTag()) {
@@ -143,10 +143,10 @@ public class JSONToXMLConverter {
                     if (((BMapType) type).getConstrainedType().getTag() != TypeTags.JSON_TAG) {
                         throw BallerinaErrors.createError("error in converting map<non-json> to xml");
                     }
-                    map = (MapValueImpl) json;
-                    for (Entry<String, Object> entry : map.entrySet()) {
-                        currentRoot = traverseJsonNode(entry.getValue(), entry.getKey(), currentRoot,
-                                xmlElemList, attributePrefix, arrayEntryTag);
+                    map = (MapValueImpl<BString, Object>) json;
+                    for (Entry<BString, Object> entry : map.entrySet()) {
+                        currentRoot = traverseJsonNode(entry.getValue(), entry.getKey().getValue(),
+                                currentRoot, xmlElemList, attributePrefix, arrayEntryTag);
                         if (nodeName == null) { // Outermost object
                             xmlElemList.add(currentRoot);
                             currentRoot = null;
@@ -155,8 +155,8 @@ public class JSONToXMLConverter {
                     break;
                 case TypeTags.JSON_TAG:
                     map = (MapValueImpl) json;
-                    for (Entry<String, Object> entry : map.entrySet()) {
-                        currentRoot = traverseJsonNode(entry.getValue(), entry.getKey(), currentRoot,
+                    for (Entry<BString, Object> entry : map.entrySet()) {
+                        currentRoot = traverseJsonNode(entry.getValue(), entry.getKey().getValue(), currentRoot,
                                 xmlElemList, attributePrefix, arrayEntryTag);
                         if (nodeName == null) { // Outermost object
                             xmlElemList.add(currentRoot);

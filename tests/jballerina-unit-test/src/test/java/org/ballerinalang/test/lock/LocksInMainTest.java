@@ -188,7 +188,7 @@ public class LocksInMainTest {
         assertSame(returns[0].getClass(), BBoolean.class);
         assertSame(returns[1].getClass(), BValueArray.class);
 
-        assertEquals(((BBoolean) returns[0]).booleanValue(), true);
+        assertTrue(((BBoolean) returns[0]).booleanValue());
         ByteArrayUtils.assertJBytesWithBBytes(((BValueArray) returns[1]).getBytes(), "sample blob output".getBytes());
 
     }
@@ -256,7 +256,7 @@ public class LocksInMainTest {
                 18, 9);
     }
 
-    @Test(description = "Test for parallel run using locks")
+    @Test(description = "Test for parallel run using locks", enabled = false)
     public void testParallelRunUsingLocks() {
         BValue[] returns = BRunUtil.invoke(parallelCompileResult, "runParallelUsingLocks");
     }

@@ -15,11 +15,13 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.ballerinalang.sql.utils;
 
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.datasource.SQLDatasource;
 
@@ -47,8 +49,8 @@ public class ClientUtils {
         }
     }
 
-    public static Object createSqlClient(ObjectValue client, MapValue<String, Object> sqlDatasourceParams,
-                                         MapValue<String, Object> globalConnectionPool) {
+    public static Object createSqlClient(ObjectValue client, MapValue<BString, Object> sqlDatasourceParams,
+                                         MapValue<BString, Object> globalConnectionPool) {
         return createClient(client, createSQLDatasourceParams(sqlDatasourceParams, globalConnectionPool));
     }
 
@@ -64,24 +66,30 @@ public class ClientUtils {
     }
 
     private static SQLDatasource.SQLDatasourceParams createSQLDatasourceParams
-            (MapValue<String, Object> sqlDatasourceParams, MapValue<String, Object> globalConnectionPool) {
-        MapValue<String, Object> connPoolProps = (MapValue<String, Object>) sqlDatasourceParams
+            (MapValue<BString, Object> sqlDatasourceParams, MapValue<BString, Object> globalConnectionPool) {
+        MapValue<BString, Object> connPoolProps = (MapValue<BString, Object>) sqlDatasourceParams
                 .getMapValue(Constants.SQLParamsFields.CONNECTION_POOL_OPTIONS);
         Properties poolProperties = null;
         if (connPoolProps != null) {
             poolProperties = new Properties();
-            for (String key : connPoolProps.getKeys()) {
-                poolProperties.setProperty(key, connPoolProps.getStringValue(key));
+            for (BString key : connPoolProps.getKeys()) {
+                poolProperties.setProperty(key.getValue(), connPoolProps.getStringValue(key).getValue());
             }
         }
+        BString userVal = sqlDatasourceParams.getStringValue(Constants.SQLParamsFields.USER);
+        String user = userVal == null ? null : userVal.getValue();
+        BString passwordVal = sqlDatasourceParams.getStringValue(Constants.SQLParamsFields.PASSWORD);
+        String password = passwordVal == null ? null : passwordVal.getValue();
+        BString dataSourceNamVal = sqlDatasourceParams.getStringValue(Constants.SQLParamsFields.DATASOURCE_NAME);
+        String datasourceName = dataSourceNamVal == null ? null : dataSourceNamVal.getValue();
         return new SQLDatasource.SQLDatasourceParams()
-                .setUrl(sqlDatasourceParams.getStringValue(Constants.SQLParamsFields.URL))
-                .setUser(sqlDatasourceParams.getStringValue(Constants.SQLParamsFields.USER))
-                .setPassword(sqlDatasourceParams.getStringValue(Constants.SQLParamsFields.PASSWORD))
-                .setDatasourceName(sqlDatasourceParams.getStringValue(Constants.SQLParamsFields.DATASOURCE_NAME))
+                .setUrl(sqlDatasourceParams.getStringValue(Constants.SQLParamsFields.URL).getValue())
+                .setUser(user)
+                .setPassword(password)
+                .setDatasourceName(datasourceName)
                 .setOptions(sqlDatasourceParams.getMapValue(Constants.SQLParamsFields.OPTIONS))
                 .setConnectionPool(sqlDatasourceParams.getMapValue(Constants.SQLParamsFields.CONNECTION_POOL),
-                        globalConnectionPool)
+                                   globalConnectionPool)
                 .setPoolProperties(poolProperties);
     }
 

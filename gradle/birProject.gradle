@@ -146,7 +146,6 @@ test {
 artifacts {
     bir file("$buildDir/generated-bir/"), { builtBy(createCacheEntries) }
     birJar file("$buildDir/generated-bir-jar/" + project.ext.orgName + '.' + moduleName + ".jar"), { builtBy(createBalo) }
-    bStringBirJar file('build/generated-bir-jar/' + project.ext.orgName + '.' + moduleName + "-bstring" + '.jar'), {builtBy(createBStringBalo)}
 }
 
 def getJarCreationCommand(it, generatedBirDir, mapPath, jarsToBeLoaded) {
@@ -156,9 +155,6 @@ def getJarCreationCommand(it, generatedBirDir, mapPath, jarsToBeLoaded) {
     } else {
         def classPath = fileTree(new File(it, '/bre/lib/')).filter{ it.isFile() }.files.path.join(':')
         commands = [ 'java', '-cp', classPath];
-    }
-    if (project.name == 'string' || project.name == "error" || project.name == "value" || project.name == "map") {
-        commands.add('-Dballerina.bstring=true')
     }
     commands.addAll(getCompilerBackendArgs(it, generatedBirDir, mapPath))
     commands.add("$buildDir/classpath/" + project.ext.moduleName + ".jar")

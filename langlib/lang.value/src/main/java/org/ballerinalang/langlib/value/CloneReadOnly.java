@@ -42,8 +42,4 @@ public class CloneReadOnly {
     public static Object cloneReadOnly(Strand strand, Object value) {
         return CloneUtils.cloneReadOnly(value);
     }
-
-    public static Object cloneReadOnly_bstring(Strand strand, Object value) {
-        return cloneReadOnly(strand, value);
-    }
 }

@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerina/transactions as trx;
+import ballerina/transactions;
 
 function testRollback() returns string|error {
     string|error x =  trap desugaredCode(0, true);
@@ -38,7 +38,7 @@ function testPanic() returns string|error {
 //            rollback;
 //        } else {
 //            a = a + " Commit";
-//            commit;
+//            var i = commit;
 //        }
 //        a = a + " endTrx";
 //        a = (a + " end");
@@ -53,31 +53,24 @@ function desugaredCode(int failureCutOff, boolean requestRollBack, int retryCoun
     a = a + " fc-" + failureCutOff.toString();
     int count = 0;
 
-    string transactionId = "";
     string transactionBlockId = "";
-    trx:TransactionContext|error txnContext =  trx:beginTransaction((), transactionBlockId, "", trx:TWO_PHASE_COMMIT);
-    if (txnContext is error) {
-        panic txnContext;
-    } else {
-        transactionId = txnContext.transactionId;
-        trx:setTransactionContext(txnContext);
-    }
+    string transactionId = transactions:startTransaction(transactionBlockId);
 
     var trxFunc = function () returns error? {
-        var zz = function(trx:Info? info, error? cause, boolean willTry) {
+        var zz = function(transactions:Info? info, error? cause, boolean willTry) {
             io:println("######----RollbackedZZ-----#####");
         };
-        trx:onRollback(zz);
+        transactions:onRollback(zz);
 
-        var xx = function (trx:Info? info) {
+        var xx = function (transactions:Info? info) {
             io:println("#########----CommitedXX----###########");
         };
-        var yy = function (trx:Info? info) {
+        var yy = function (transactions:Info? info) {
             io:println("#########----CommitedYY----###########");
         };
-        trx:onCommit(xx);
-        trx:onCommit(xx);
-        trx:onCommit(yy);
+        transactions:onCommit(xx);
+        transactions:onCommit(xx);
+        transactions:onCommit(yy);
 
         a = a + " inTrx";
         count = count + 1;
@@ -89,7 +82,7 @@ function desugaredCode(int failureCutOff, boolean requestRollBack, int retryCoun
 
         if (requestRollBack) {
             a = a + " Rollback";
-            error? rollbackResult = trap trx:rollbackTransaction(transactionBlockId);
+            error? rollbackResult = trap transactions:rollbackTransaction(transactionBlockId);
             if (rollbackResult is error) {
                 io:println("rollback failed ",rollbackResult.reason());
             } else {
@@ -97,11 +90,11 @@ function desugaredCode(int failureCutOff, boolean requestRollBack, int retryCoun
             }
         } else {
             a = a + " Commit";
-            boolean isFailed = trx:getAndClearFailure();
+            boolean isFailed = transactions:getAndClearFailure();
             if (!isFailed) {
-                var endSuccess = trap trx:endTransaction(transactionId, transactionBlockId);
+                var endSuccess = trap transactions:endTransaction(transactionId, transactionBlockId);
                 if (endSuccess is string) {
-                    if (endSuccess == trx:OUTCOME_COMMITTED) {
+                    if (endSuccess == transactions:OUTCOME_COMMITTED) {
                         io:println("Commit success");
                     }
                 }

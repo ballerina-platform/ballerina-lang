@@ -80,7 +80,7 @@ public type Caller client object {
 # + headers - Optional headers parameter. The header values are passed only if needed. The default value is `()`
 # + return - A `grpc:Error` if an error occurs while sending the response or else `()`
     public remote function sendError(int statusCode, string message, Headers? headers = ()) returns Error? {
-        return externSendError(self, statusCode, java:fromString(message), headers);
+        return externSendError(self, statusCode, message, headers);
     }
 };
 
@@ -99,7 +99,7 @@ function externIsCancelled(Caller endpointClient) returns boolean =
     class: "org.ballerinalang.net.grpc.nativeimpl.caller.FunctionUtils"
 } external;
 
-function externSendError(Caller endpointClient, int statusCode, handle message, Headers? headers) returns Error? =
+function externSendError(Caller endpointClient, int statusCode, string message, Headers? headers) returns Error? =
 @java:Method {
     class: "org.ballerinalang.net.grpc.nativeimpl.caller.FunctionUtils"
 } external;
