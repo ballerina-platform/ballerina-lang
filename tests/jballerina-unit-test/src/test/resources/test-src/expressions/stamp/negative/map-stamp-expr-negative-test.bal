@@ -20,21 +20,21 @@
 
 function stampMapToXML() returns xml|error {
     map<anydata> m = { "firstName": "mohan", "lastName": "raj" };
-    xml|error xmlValue = xml.constructFrom(m);
+    xml|error xmlValue = m.cloneWithType(xml);
 
     return xmlValue;
 }
 
 function stampMapToArray() returns string[]|error {
     map<anydata> m = { "firstName": "mohan", "lastName": "raj" };
-    string[]|error arrayValue = string[].constructFrom(m);
+    string[]|error arrayValue = m.cloneWithType(string[]);
 
     return arrayValue;
 }
 
 function stampMapToTuple() returns [string,string]|error {
     map<anydata> m = { "firstName": "mohan", "lastName": "raj" };
-    [string,string]|error tupleValue = [string,string].constructFrom(m);
+    [string,string]|error tupleValue = m.cloneWithType([string,string]);
 
     return tupleValue;
 }

@@ -5,7 +5,7 @@
     }
     resource function {{methodName}}(http:Caller caller, http:Request req{{#paramSet}}{{#equals paramSource "path"}}, {{fieldType}} {{fieldName}}{{/equals}}{{/paramSet}}{{#not_equal httpBody ""}}, json requestBody{{/not_equal}}) {
         {{#isNotNull inputType}}{{#if primitiveInput}}{{inputType}} new{{inputType}};{{else}}{{inputType}} new{{inputType}} = {};{{/if}}
-        {{#equals httpBody "*"}}{{inputType}} | error bodyExtracted{{inputType}} = {{inputType}}.constructFrom(requestBody);
+        {{#equals httpBody "*"}}{{inputType}} | error bodyExtracted{{inputType}} = requestBody.cloneWithType({{inputType}});
         if bodyExtracted{{inputType}} is error {
             sendResponse(caller, bodyExtracted{{inputType}});
             return;
@@ -33,7 +33,7 @@
             sendResponse(caller, paramReader);
             return;
         }{{/if}}
-        {{/equals}}{{#equals paramSource "body"}}{{fieldType}} | error {{fieldName}} = {{fieldType}}.constructFrom(requestBody);
+        {{/equals}}{{#equals paramSource "body"}}{{fieldType}} | error {{fieldName}} = requestBody.cloneWithType({{fieldType}});
         if {{fieldName}} is {{fieldType}} {
             {{#if ../primitiveInput}}new{{../inputType}}{{else}}{{parentName}}.{{fieldName}}{{/if}} = {{fieldName}};
         } else {

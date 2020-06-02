@@ -563,8 +563,24 @@ public abstract class NodeVisitor {
         visitSyntaxNode(captureBindingPatternNode);
     }
 
+    public void visit(WildcardBindingPatternNode wildcardBindingPatternNode) {
+        visitSyntaxNode(wildcardBindingPatternNode);
+    }
+
     public void visit(ListBindingPatternNode listBindingPatternNode) {
         visitSyntaxNode(listBindingPatternNode);
+    }
+
+    public void visit(MappingBindingPatternNode mappingBindingPatternNode) {
+        visitSyntaxNode(mappingBindingPatternNode);
+    }
+
+    public void visit(FieldBindingPatternFullNode fieldBindingPatternFullNode) {
+        visitSyntaxNode(fieldBindingPatternFullNode);
+    }
+
+    public void visit(FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
+        visitSyntaxNode(fieldBindingPatternVarnameNode);
     }
 
     public void visit(RestBindingPatternNode restBindingPatternNode) {

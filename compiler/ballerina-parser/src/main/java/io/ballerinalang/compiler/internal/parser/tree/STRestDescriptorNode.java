@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.RestDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,13 +37,30 @@ public class STRestDescriptorNode extends STNode {
     STRestDescriptorNode(
             STNode typeDescriptor,
             STNode ellipsisToken) {
-        super(SyntaxKind.REST_TYPE);
+        this(
+                typeDescriptor,
+                ellipsisToken,
+                Collections.emptyList());
+    }
+
+    STRestDescriptorNode(
+            STNode typeDescriptor,
+            STNode ellipsisToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.REST_TYPE, diagnostics);
         this.typeDescriptor = typeDescriptor;
         this.ellipsisToken = ellipsisToken;
 
         addChildren(
                 typeDescriptor,
                 ellipsisToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STRestDescriptorNode(
+                this.typeDescriptor,
+                this.ellipsisToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
