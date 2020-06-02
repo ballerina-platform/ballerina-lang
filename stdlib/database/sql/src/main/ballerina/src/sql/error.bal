@@ -14,38 +14,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public const DATABASE_ERROR_REASON = "{ballerina/sql}DatabaseError";
-
 # Represents the properties belonging to a `DatabaseError`.
 #
 # + message - Error message
 # + errorCode - SQL error code
 # + sqlState - SQL state
 # + cause - Cause of the error
-public type DatabaseErrorData record {|
-    string message?;
+public type DatabaseErrorDetail record {|
     int errorCode;
     string sqlState;
-    error cause?;
-|};
-
-public const APPLICATION_ERROR_REASON = "{ballerina/sql}ApplicationError";
-
-# Represents the properties belonging to an `ApplicationError`.
-#
-# + message - Error message
-# + cause - Cause of the error
-public type ApplicationErrorData record {|
-    string message?;
-    error cause?;
 |};
 
 # Represents an error caused by an issue related to database accessibility, erroneous queries, constraint violations,
 # database resource clean-up, and other similar scenarios.
-public type DatabaseError error<DATABASE_ERROR_REASON, DatabaseErrorData>;
+public type DatabaseError distinct error<DatabaseErrorDetail>;
 
 # Represents an error originating from application-level causes.
-public type ApplicationError error<APPLICATION_ERROR_REASON, ApplicationErrorData>;
+public type ApplicationError distinct error;
 
 # Represents a database or application level error returned from JDBC client remote functions.
 public type Error DatabaseError|ApplicationError;

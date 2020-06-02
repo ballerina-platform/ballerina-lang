@@ -37,10 +37,9 @@ public final class Constants {
     public static final String CONNECTOR_ID_KEY = UUID.randomUUID().toString();
 
     public static final String DATABASE_ERROR_DATA = "DatabaseErrorData";
-    public static final String DATABASE_ERROR_CODE = "{ballerina/sql}DatabaseError";
+    public static final String DATABASE_ERROR_CODE = "DatabaseError";
 
-    public static final String APPLICATION_ERROR_DATA = "ApplicationErrorData";
-    public static final String APPLICATION_ERROR_CODE = "{ballerina/sql}ApplicationError";
+    public static final String APPLICATION_ERROR_CODE = "ApplicationError";
 
     public static final String DATABASE_ERROR_MESSAGE = "Database Error Occurred";
 

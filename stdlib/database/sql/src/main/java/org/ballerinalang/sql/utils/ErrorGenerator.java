@@ -47,20 +47,17 @@ public class ErrorGenerator {
     }
 
     public static ErrorValue getSQLApplicationError(String detailedErrorMessage) {
-        Map<String, Object> valueMap = new HashMap<>();
-        valueMap.put(Constants.ErrorRecordFields.MESSAGE, detailedErrorMessage);
-        MapValue<BString, Object> sqlClientErrorDetailRecord = BallerinaValues.
-                createRecordValue(Constants.SQL_PACKAGE_ID, Constants.APPLICATION_ERROR_DATA, valueMap);
-        return BallerinaErrors.createError(Constants.APPLICATION_ERROR_CODE, sqlClientErrorDetailRecord);
+        return BallerinaErrors.createDistinctError(Constants.APPLICATION_ERROR_CODE, Constants.SQL_PACKAGE_ID,
+                detailedErrorMessage);
     }
 
     private static ErrorValue getSQLDatabaseError(String message, int vendorCode, String sqlState) {
         Map<String, Object> valueMap = new HashMap<>();
-        valueMap.put(Constants.ErrorRecordFields.MESSAGE, message);
         valueMap.put(Constants.ErrorRecordFields.ERROR_CODE, vendorCode);
         valueMap.put(Constants.ErrorRecordFields.SQL_STATE, sqlState);
         MapValue<BString, Object> sqlClientErrorDetailRecord = BallerinaValues.
                 createRecordValue(Constants.SQL_PACKAGE_ID, Constants.DATABASE_ERROR_DATA, valueMap);
-        return BallerinaErrors.createError(Constants.DATABASE_ERROR_CODE, sqlClientErrorDetailRecord);
+        return BallerinaErrors.createDistinctError(Constants.DATABASE_ERROR_CODE, Constants.SQL_PACKAGE_ID,
+                message, sqlClientErrorDetailRecord);
     }
 }
