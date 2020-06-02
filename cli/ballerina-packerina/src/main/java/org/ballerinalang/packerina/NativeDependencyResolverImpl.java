@@ -60,7 +60,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DIST_BIR_
  * @since 2.0.0
  */
 public class NativeDependencyResolverImpl implements NativeDependencyResolver {
-    private static final CompilerContext.Key<NativeDependencyResolver> JAR_RESOLVER_KEY = new CompilerContext.Key<>();
+
     private List<String> supportedPlatforms = Arrays.stream(ProgramFileConstants.SUPPORTED_PLATFORMS)
             .collect(Collectors.toList());
     private final BuildContext buildContext;

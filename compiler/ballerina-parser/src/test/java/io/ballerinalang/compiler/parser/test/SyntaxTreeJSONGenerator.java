@@ -63,7 +63,7 @@ public class SyntaxTreeJSONGenerator {
     private static final ParserRuleContext PARSER_CONTEXT = ParserRuleContext.TOP_LEVEL_NODE;
 
     private static final PrintStream STANDARD_OUT = System.out;
-    private static final Path RESOURCE_DIRECTORY = Paths.get("compiler/ballerina-parser/src/test/resources/");
+    private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
 
     public static void main(String[] args) throws IOException {
         // Using a string source as input

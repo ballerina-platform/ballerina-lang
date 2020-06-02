@@ -231,7 +231,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = typedesc<int>.constructFrom(result);
+        var value = result.cloneWithType(typedesc<int>);
         if (value is int) {
             return [value, resHeaders];
         } else {
@@ -252,7 +252,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = typedesc<float>.constructFrom(result);
+        var value = result.cloneWithType(typedesc<float>);
         if (value is float) {
             return [value, resHeaders];
         } else {
@@ -265,7 +265,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = typedesc<boolean>.constructFrom(result);
+        var value = result.cloneWithType(typedesc<boolean>);
         if (value is boolean) {
             return [value, resHeaders];
         } else {
@@ -287,7 +287,7 @@ public type HelloWorldBlockingClient client object {
         anydata result =();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = typedesc<TestInt>.constructFrom(result);
+        var value = result.cloneWithType(typedesc<TestInt>);
         if (value is TestInt) {
             return [value, resHeaders];
         } else {
@@ -301,7 +301,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = typedesc<TestString>.constructFrom(result);
+        var value = result.cloneWithType(typedesc<TestString>);
         if (value is TestString) {
             return [value, resHeaders];
         } else {
@@ -315,7 +315,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = typedesc<TestFloat>.constructFrom(result);
+        var value = result.cloneWithType(typedesc<TestFloat>);
         if (value is TestFloat) {
             return [value, resHeaders];
         } else {
@@ -329,7 +329,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = typedesc<TestBoolean>.constructFrom(result);
+        var value = result.cloneWithType(typedesc<TestBoolean>);
         if (value is TestBoolean) {
             return [value, resHeaders];
         } else {
@@ -343,7 +343,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = typedesc<TestStruct>.constructFrom(result);
+        var value = result.cloneWithType(typedesc<TestStruct>);
         if (value is TestStruct) {
             return [value, resHeaders];
         } else {

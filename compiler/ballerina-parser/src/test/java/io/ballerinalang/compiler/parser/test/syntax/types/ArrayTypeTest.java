@@ -111,7 +111,7 @@ public class ArrayTypeTest extends AbstractTypesTest {
 
     @Test
     public void testInvalidArrayTypeInvalidArrayLength() {
-        test("int[{%] a;", "array-type/array_type_assert_01.json");
+        test("int[&%] a;", "array-type/array_type_assert_01.json");
     }
 
     @Test

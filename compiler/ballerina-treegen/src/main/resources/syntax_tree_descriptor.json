@@ -720,7 +720,7 @@
                 {
                     "name": "fields",
                     "type": "MappingFieldNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeBrace",
@@ -784,14 +784,9 @@
         },
         {
             "name": "ComputedNameFieldNode",
-            "base": "Node",
+            "base": "MappingFieldNode",
             "kind": "COMPUTED_NAME_FIELD",
             "attributes": [
-                {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
                 {
                     "name": "openBracket",
                     "type": "Token"
@@ -1046,11 +1041,6 @@
             "kind": "SPECIFIC_FIELD",
             "attributes": [
                 {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
                     "name": "fieldName",
                     "type": "Token"
                 },
@@ -1069,11 +1059,6 @@
             "base": "MappingFieldNode",
             "kind": "SPREAD_FIELD",
             "attributes": [
-                {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
                 {
                     "name": "ellipsis",
                     "type": "Token"
@@ -1512,7 +1497,7 @@
                 },
                 {
                     "name": "methodName",
-                    "type": "Token"
+                    "type": "SimpleNameReferenceNode"
                 },
                 {
                     "name": "openParenToken",
@@ -2032,7 +2017,7 @@
                 },
                 {
                     "name": "letVarDeclarations",
-                    "type": "Node",
+                    "type": "LetVariableDeclarationNode",
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
@@ -2626,12 +2611,8 @@
                     "type": "Token"
                 },
                 {
-                    "name": "typeName",
-                    "type": "Node"
-                },
-                {
-                    "name": "variableName",
-                    "type": "Token"
+                    "name": "typedBindingPattern",
+                    "type": "TypedBindingPatternNode"
                 },
                 {
                     "name": "inKeyword",
@@ -2669,7 +2650,7 @@
                 },
                 {
                     "name": "letVarDeclarations",
-                    "type": "Node",
+                    "type": "LetVariableDeclarationNode",
                     "occurrences": "MULTIPLE_SEPARATED"
                 }
             ]
@@ -2887,6 +2868,17 @@
             "attributes": [
                 {
                     "name": "variableName",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "WildcardBindingPatternNode",
+            "base": "BindingPatternNode",
+            "kind": "WILDCARD_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "underscoreToken",
                     "type": "Token"
                 }
             ]

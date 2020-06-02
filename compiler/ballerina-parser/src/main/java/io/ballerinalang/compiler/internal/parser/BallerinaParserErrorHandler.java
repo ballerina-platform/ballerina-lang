@@ -370,7 +370,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] QUERY_EXPRESSION_RHS =
             { ParserRuleContext.SELECT_CLAUSE, ParserRuleContext.WHERE_CLAUSE, ParserRuleContext.FROM_CLAUSE,
-                    ParserRuleContext.LET_CLAUSE, ParserRuleContext.DO_CLAUSE, ParserRuleContext.SEMICOLON };
+                    ParserRuleContext.LET_CLAUSE, ParserRuleContext.DO_CLAUSE, ParserRuleContext.QUERY_EXPRESSION_END };
 
     private static final ParserRuleContext[] BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS =
             { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.COMMA };
@@ -561,9 +561,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MAPPING_FIELD_END:
             case ENUM_MEMBER_START:
             case ENUM_MEMBER_RHS:
+            case STMT_START_BRACKETED_LIST_MEMBER:
+            case STMT_START_BRACKETED_LIST_RHS:
             case ENUM_MEMBER_END:
-            case LIST_BP_OR_TUPLE_TYPE_MEMBER:
-            case LIST_BP_OR_TUPLE_TYPE_DESC_RHS:
             case STMT_START_IDENTIFIER_RHS:
             case BRACKETED_LIST_RHS:
             case BRACKETED_LIST_MEMBER:
@@ -1208,8 +1208,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RETRY_KEYWORD_RHS:
             case RETRY_TYPE_PARAM_RHS:
             case RETRY_BODY:
-            case LIST_BP_OR_TUPLE_TYPE_MEMBER:
-            case LIST_BP_OR_TUPLE_TYPE_DESC_RHS:
+            case STMT_START_BRACKETED_LIST_MEMBER:
+            case STMT_START_BRACKETED_LIST_RHS:
             case STMT_START_IDENTIFIER_RHS:
             case BRACKETED_LIST_RHS:
             case BRACKETED_LIST_MEMBER:
@@ -1596,10 +1596,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RETRY_BODY:
                 alternativeRules = RETRY_BODY;
                 break;
-            case LIST_BP_OR_TUPLE_TYPE_MEMBER:
+            case STMT_START_BRACKETED_LIST_MEMBER:
                 alternativeRules = LIST_BP_OR_TUPLE_TYPE_MEMBER;
                 break;
-            case LIST_BP_OR_TUPLE_TYPE_DESC_RHS:
+            case STMT_START_BRACKETED_LIST_RHS:
                 alternativeRules = LIST_BP_OR_TUPLE_TYPE_DESC_RHS;
                 break;
             case BRACKETED_LIST_MEMBER_END:
@@ -1634,7 +1634,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
      */
     private Result seekInStatements(ParserRuleContext currentCtx, int lookahead, int currentDepth, int currentMatches,
                                     boolean isEntryPoint) {
-        STToken nextToken = this.tokenReader.peek(lookahead);;
+        STToken nextToken = this.tokenReader.peek(lookahead);
         if (nextToken.kind == SyntaxKind.SEMICOLON_TOKEN) {
             // Semicolon at the start of a statement is a special case. This is equivalent to an empty
             // statement. So assume the fix for this is a REMOVE operation and continue from the next token.
@@ -1736,6 +1736,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LIST_CONSTRUCTOR:
             case MEMBER_ACCESS_KEY_EXPR:
             case BRACKETED_LIST:
+            case STMT_START_BRACKETED_LIST:
                 next = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
                         ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
                         ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
@@ -1927,7 +1928,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 }
 
                 if (parentCtx == ParserRuleContext.TYPE_DESC_IN_TUPLE ||
-                        parentCtx == ParserRuleContext.LIST_BP_OR_TUPLE_TYPE_DESC ||
+                        parentCtx == ParserRuleContext.STMT_START_BRACKETED_LIST ||
                         parentCtx == ParserRuleContext.BRACKETED_LIST) {
                     return ParserRuleContext.CLOSE_BRACKET;
                 }
@@ -2330,6 +2331,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ARG_LIST_START:
                 return ParserRuleContext.ARG_LIST;
             case ARG_LIST_END:
+            case QUERY_EXPRESSION_END:
                 endContext();
                 return ParserRuleContext.EXPRESSION_RHS;
             case ARG_LIST:
@@ -2796,8 +2798,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ENUM_MEMBER_START;
             case MEMBER_ACCESS_KEY_EXPR:
                 return ParserRuleContext.MEMBER_ACCESS_KEY_EXPR_END;
-            case LIST_BP_OR_TUPLE_TYPE_DESC:
-                return ParserRuleContext.LIST_BP_OR_TUPLE_TYPE_MEMBER;
+            case STMT_START_BRACKETED_LIST:
+                return ParserRuleContext.STMT_START_BRACKETED_LIST_MEMBER;
             case BRACKETED_LIST:
                 return ParserRuleContext.BRACKETED_LIST_MEMBER;
             default:
@@ -2917,7 +2919,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 }
                 return ParserRuleContext.ARG_LIST_START;
             case TYPE_DESC_IN_TUPLE:
-            case LIST_BP_OR_TUPLE_TYPE_DESC:
+            case STMT_START_BRACKETED_LIST:
                 return ParserRuleContext.TYPE_DESC_IN_TUPLE_RHS;
             default:
                 // If none of the above that means we reach here via, anonymous-func-or-func-type context.
@@ -2941,7 +2943,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_PARENTHESIS:
             case TYPE_DESC_IN_NEW_EXPR:
             case TYPE_DESC_IN_TUPLE:
-            case LIST_BP_OR_TUPLE_TYPE_DESC:
+            case STMT_START_BRACKETED_LIST:
             case BRACKETED_LIST:
                 return true;
             default:
@@ -3078,11 +3080,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 }
 
                 return getNextRuleForExpr();
-            case LIST_BP_OR_TUPLE_TYPE_DESC:
+            case STMT_START_BRACKETED_LIST:
                 return ParserRuleContext.BRACKETED_LIST_MEMBER_END;
             case MAPPING_BINDING_PATTERN:
                 endContext();
-                return getNextRuleForTypedBindingPattern();
+                return getNextRuleForBindingPattern();
             case FORK_STMT:
                 endContext(); // end fork-statement
                 return ParserRuleContext.STATEMENT;
@@ -3165,18 +3167,18 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         } else if (parentCtx == ParserRuleContext.FOREACH_STMT) {
             return ParserRuleContext.IN_KEYWORD;
         } else if (parentCtx == ParserRuleContext.TYPED_BINDING_PATTERN) {
-            return getNextRuleForTypedBindingPattern();
+            return getNextRuleForBindingPattern();
         } else if (parentCtx == ParserRuleContext.CAPTURE_BINDING_PATTERN) {
-            return getNextRuleForTypedBindingPattern();
+            return getNextRuleForBindingPattern();
         } else if (parentCtx == ParserRuleContext.LIST_BINDING_PATTERN ||
-                parentCtx == ParserRuleContext.LIST_BP_OR_TUPLE_TYPE_MEMBER) {
-            return getNextRuleForTypedBindingPattern();
+                parentCtx == ParserRuleContext.STMT_START_BRACKETED_LIST_MEMBER) {
+            return getNextRuleForBindingPattern();
         } else if (parentCtx == ParserRuleContext.REST_BINDING_PATTERN) {
-            return getNextRuleForTypedBindingPattern();
+            return getNextRuleForBindingPattern();
         } else if (parentCtx == ParserRuleContext.FIELD_BINDING_PATTERN) {
-            return getNextRuleForTypedBindingPattern();
+            return getNextRuleForBindingPattern();
         } else if (parentCtx == ParserRuleContext.MAPPING_BINDING_PATTERN) {
-            return getNextRuleForTypedBindingPattern();
+            return getNextRuleForBindingPattern();
         }  else if (isStatement(parentCtx) || parentCtx == ParserRuleContext.LISTENER_DECL ||
                 parentCtx == ParserRuleContext.CONSTANT_DECL) {
             return ParserRuleContext.VAR_DECL_STMT_RHS;
@@ -3349,20 +3351,20 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.COLON;
             case LIST_BINDING_PATTERN:
                 endContext(); // end list-binding-pattern context
-                return getNextRuleForTypedBindingPattern();
+                return getNextRuleForBindingPattern();
             case LIST_CONSTRUCTOR:
             case TABLE_CONSTRUCTOR:
             case MEMBER_ACCESS_KEY_EXPR:
                 endContext();
                 return getNextRuleForExpr();
-            case LIST_BP_OR_TUPLE_TYPE_DESC:
+            case STMT_START_BRACKETED_LIST:
                 endContext();
                 parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.LIST_BP_OR_TUPLE_TYPE_DESC) {
+                if (parentCtx == ParserRuleContext.STMT_START_BRACKETED_LIST) {
                     return ParserRuleContext.BRACKETED_LIST_MEMBER_END;
                 }
 
-                return ParserRuleContext.LIST_BP_OR_TUPLE_TYPE_DESC_RHS;
+                return ParserRuleContext.STMT_START_BRACKETED_LIST_RHS;
             case BRACKETED_LIST:
                 endContext();
                 return ParserRuleContext.BRACKETED_LIST_RHS;
@@ -3447,21 +3449,22 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     }
 
     /**
-     * Get the next parser context to visit after a typed-binding-pattern.
+     * Get the next parser context to visit after a binding-pattern.
      *
      * @return Next parser context
      */
-    private ParserRuleContext getNextRuleForTypedBindingPattern() {
+    private ParserRuleContext getNextRuleForBindingPattern() {
         ParserRuleContext parentCtx = getParentContext();
         switch (parentCtx) {
             case CAPTURE_BINDING_PATTERN:
             case TYPED_BINDING_PATTERN:
                 endContext();
-                return getNextRuleForTypedBindingPattern();
+                return getNextRuleForBindingPattern();
             case FOREACH_STMT:
+            case QUERY_EXPRESSION:
                 return ParserRuleContext.IN_KEYWORD;
             case LIST_BINDING_PATTERN:
-            case LIST_BP_OR_TUPLE_TYPE_DESC:
+            case STMT_START_BRACKETED_LIST:
             case BRACKETED_LIST:
                 return ParserRuleContext.LIST_BINDING_PATTERN_END_OR_CONTINUE;
             case MAPPING_BINDING_PATTERN:
@@ -3479,6 +3482,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.VAR_DECL_STMT_RHS;
             case LET_CLAUSE_LET_VAR_DECL:
             case LET_EXPR_LET_VAR_DECL:
+            case ASSIGNMENT_STMT:
                 return ParserRuleContext.ASSIGN_OP;
             default:
                 throw new IllegalStateException(parentCtx.toString());

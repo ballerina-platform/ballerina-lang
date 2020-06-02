@@ -76,7 +76,7 @@
                       "kind": "EXPRESSION_FUNCTION_BODY",
                       "children": [
                         {
-                          "kind": "RIGHT_DOUBLE_ARROW"
+                          "kind": "RIGHT_DOUBLE_ARROW_TOKEN"
                         },
                         {
                           "kind": "BINARY_EXPRESSION",
@@ -128,7 +128,7 @@
                                   "kind": "EXPRESSION_FUNCTION_BODY",
                                   "children": [
                                     {
-                                      "kind": "RIGHT_DOUBLE_ARROW"
+                                      "kind": "RIGHT_DOUBLE_ARROW_TOKEN"
                                     },
                                     {
                                       "kind": "BINARY_EXPRESSION",
