@@ -15,50 +15,7 @@
  */
 package org.ballerinalang.langserver.compiler.format;
 
-import io.ballerinalang.compiler.syntax.tree.AbstractNodeFactory;
-import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
-import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
-import io.ballerinalang.compiler.syntax.tree.BindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ExpressionListItemNode;
-import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionBodyNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
-import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
-import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.ImportOrgNameNode;
-import io.ballerinalang.compiler.syntax.tree.ImportPrefixNode;
-import io.ballerinalang.compiler.syntax.tree.ImportSubVersionNode;
-import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
-import io.ballerinalang.compiler.syntax.tree.MetadataNode;
-import io.ballerinalang.compiler.syntax.tree.Minutiae;
-import io.ballerinalang.compiler.syntax.tree.MinutiaeList;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NodeFactory;
-import io.ballerinalang.compiler.syntax.tree.NodeList;
-import io.ballerinalang.compiler.syntax.tree.ParameterNode;
-import io.ballerinalang.compiler.syntax.tree.ParenthesizedArgList;
-import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.RemoteMethodCallActionNode;
-import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
-import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
-import io.ballerinalang.compiler.syntax.tree.ServiceBodyNode;
-import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.StatementNode;
-import io.ballerinalang.compiler.syntax.tree.Token;
-import io.ballerinalang.compiler.syntax.tree.TreeModifier;
-import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.*;
 import io.ballerinalang.compiler.text.LinePosition;
 import io.ballerinalang.compiler.text.LineRange;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -401,7 +358,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token semicolonToken = getToken(variableDeclarationNode.semicolonToken());
         Token equalToken = getToken(variableDeclarationNode.equalsToken().orElse(null));
         Token finalToken = getToken(variableDeclarationNode.finalKeyword().orElse(null));
-        ExpressionNode initializerNode = this.modifyNode(variableDeclarationNode.initializer().orElse(null));
+        ExpressionNode initializerNode = variableDeclarationNode.initializer().orElse(null);
         NodeList<AnnotationNode> annotationNodes = this.modifyNodeList(variableDeclarationNode.annotations());
         TypedBindingPatternNode typedBindingPatternNode = this.modifyNode(
                 variableDeclarationNode.typedBindingPattern());
@@ -434,6 +391,89 @@ public class FormattingTreeModifier extends TreeModifier {
         return typedBindingPatternNode.modify()
                 .withBindingPattern(bindingPatternNode)
                 .withTypeDescriptor(typeDescriptorNode)
+                .apply();
+    }
+
+    @Override
+    public CaptureBindingPatternNode transform(CaptureBindingPatternNode captureBindingPatternNode) {
+        Token variableName = getToken(captureBindingPatternNode.variableName());
+
+        return captureBindingPatternNode.modify()
+                .withVariableName(formatToken(variableName, 1, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public ListBindingPatternNode transform(ListBindingPatternNode listBindingPatternNode) {
+        SeparatedNodeList<BindingPatternNode> bindingPatternNodes = this.modifySeparatedNodeList(
+                listBindingPatternNode.bindingPatterns());
+        Token openBracket = getToken(listBindingPatternNode.openBracket());
+        Token closeBracket = getToken(listBindingPatternNode.closeBracket());
+        RestBindingPatternNode restBindingPatternNode = listBindingPatternNode.restBindingPattern().orElse(null);
+
+        if (restBindingPatternNode != null) {
+            listBindingPatternNode = listBindingPatternNode.modify().withRestBindingPattern(
+                    this.modifyNode(restBindingPatternNode)).apply();
+        }
+
+        return listBindingPatternNode.modify()
+                .withBindingPatterns(bindingPatternNodes)
+                .withOpenBracket(formatToken(openBracket, 0, 0, 0, 0))
+                .withCloseBracket(formatToken(closeBracket, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public MappingBindingPatternNode transform(MappingBindingPatternNode mappingBindingPatternNode) {
+        Token openBraceToken = getToken(mappingBindingPatternNode.openBrace());
+        Token closeBraceToken = getToken(mappingBindingPatternNode.closeBrace());
+        SeparatedNodeList<FieldBindingPatternNode> fieldBindingPatternNodes =
+                this.modifySeparatedNodeList(mappingBindingPatternNode.fieldBindingPatterns());
+        RestBindingPatternNode restBindingPatternNode = mappingBindingPatternNode.restBindingPattern().orElse(null);
+
+        if (restBindingPatternNode != null) {
+            mappingBindingPatternNode = mappingBindingPatternNode.modify()
+                    .withRestBindingPattern(
+                            this.modifyNode(mappingBindingPatternNode.restBindingPattern().orElse(null))).apply();
+        }
+
+        return mappingBindingPatternNode.modify()
+                .withOpenBrace(formatToken(openBraceToken, 1, 0, 0, 1))
+                .withCloseBrace(formatToken(closeBraceToken, 0, 0, 1, 0))
+                .withFieldBindingPatterns(fieldBindingPatternNodes)
+                .apply();
+    }
+
+    @Override
+    public FieldBindingPatternFullNode transform(FieldBindingPatternFullNode fieldBindingPatternFullNode) {
+        Token colon = getToken(fieldBindingPatternFullNode.colon());
+        BindingPatternNode bindingPatternNode = this.modifyNode(fieldBindingPatternFullNode.bindingPattern());
+        SimpleNameReferenceNode variableName = this.modifyNode(fieldBindingPatternFullNode.variableName());
+
+        return fieldBindingPatternFullNode.modify()
+                .withBindingPattern(bindingPatternNode)
+                .withColon(formatToken(colon, 0, 0, 0, 0))
+                .withVariableName(variableName)
+                .apply();
+    }
+
+    @Override
+    public FieldBindingPatternVarnameNode transform(FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
+        SimpleNameReferenceNode variableName = this.modifyNode(fieldBindingPatternVarnameNode.variableName());
+
+        return fieldBindingPatternVarnameNode.modify()
+                .withVariableName(variableName)
+                .apply();
+    }
+
+    @Override
+    public RestBindingPatternNode transform(RestBindingPatternNode restBindingPatternNode) {
+        Token ellipsisToken = getToken(restBindingPatternNode.ellipsisToken());
+        SimpleNameReferenceNode variableName = restBindingPatternNode.variableName();
+
+        return restBindingPatternNode.modify()
+                .withEllipsisToken(formatToken(ellipsisToken, 0, 0, 0, 0))
+                .withVariableName(variableName)
                 .apply();
     }
 
