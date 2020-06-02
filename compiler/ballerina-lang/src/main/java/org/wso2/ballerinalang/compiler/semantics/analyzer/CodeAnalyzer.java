@@ -640,12 +640,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 independentBlocks = true;
                 commitRollbackAllowed = true;
         }
+        boolean prevTxMode = this.withinTransactionScope;
         if (ifStmt.expr.getKind() == NodeKind.TRANSACTIONAL_EXPRESSION) {
             this.withinTransactionScope = true;
         }
         analyzeNode(ifStmt.body, env);
         if (ifStmt.expr.getKind() == NodeKind.TRANSACTIONAL_EXPRESSION) {
-            this.withinTransactionScope = false;
+            this.withinTransactionScope = prevTxMode;
         }
         boolean ifStmtReturns = this.statementReturns;
         this.resetStatementReturns();

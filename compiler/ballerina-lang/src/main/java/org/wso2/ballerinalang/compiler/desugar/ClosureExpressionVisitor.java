@@ -73,6 +73,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -717,6 +718,9 @@ public class ClosureExpressionVisitor extends BLangNodeVisitor {
 
     public void visit(BLangTransaction transactionNode) {
         transactionNode.transactionBody.accept(this);
+    }
+
+    public void visit(BLangTransactionalExpr transactionalExpr) {
     }
 
     public void visit(BLangTryCatchFinally tryNode) {

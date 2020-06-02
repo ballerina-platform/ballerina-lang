@@ -205,6 +205,11 @@ public class Utils {
                 fpValue);
     }
 
+    public static boolean isTransactional() {
+        Strand strand = Scheduler.getStrand();
+        return strand.isInTransaction();
+    }
+
     private static int findFreePort() {
         ServerSocket socket = null;
         try {

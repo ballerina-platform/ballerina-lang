@@ -516,3 +516,8 @@ public function onRollback(RollbackHandler handler) = @java:Method {
     class: "io.ballerina.transactions.Utils",
     name: "onRollback"
 } external;
+
+public function isTransactional() returns boolean = @java:Method {
+class: "io.ballerina.transactions.Utils",
+name: "isTransactional"
+} external;

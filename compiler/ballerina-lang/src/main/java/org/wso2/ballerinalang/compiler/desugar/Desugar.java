@@ -268,6 +268,7 @@ import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVaria
 import static org.wso2.ballerinalang.compiler.util.Constants.INIT_METHOD_SPLIT_SIZE;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
+import static org.wso2.ballerinalang.compiler.util.Names.IS_TRANSACTIONAL;
 
 /**
  * @since 0.94
@@ -4138,7 +4139,12 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransactionalExpr transactionalExpr) {
-        result = transactionalExpr;
+        BInvokableSymbol isTransactionalSymbol = (BInvokableSymbol) symResolver.
+                lookupSymbolInMainSpace(symTable.pkgEnvMap.get(getTransactionSymbol(env)), IS_TRANSACTIONAL);
+        BLangInvocation isTransactional = ASTBuilderUtil
+                .createInvocationExprMethod(transactionalExpr.pos, isTransactionalSymbol, Collections.emptyList(),
+                        Collections.emptyList(), symResolver);
+        result = isTransactional;
     }
 
     @Override
@@ -6567,5 +6573,13 @@ public class Desugar extends BLangNodeVisitor {
         fields.clear();
         return type.tag == TypeTags.RECORD ? new BLangStructLiteral(pos, type, rewrittenFields) :
                 new BLangMapLiteral(pos, type, rewrittenFields);
+    }
+
+    public BSymbol getTransactionSymbol(SymbolEnv env) {
+        return env.enclPkg.imports
+                .stream()
+                .filter(importPackage -> importPackage.symbol.pkgID.orgName.value.equals(Names.TRANSACTION_ORG.value) &&
+                        importPackage.symbol.pkgID.name.value.equals(Names.TRANSACTION_PACKAGE.value))
+                .findAny().get().symbol;
     }
 }
