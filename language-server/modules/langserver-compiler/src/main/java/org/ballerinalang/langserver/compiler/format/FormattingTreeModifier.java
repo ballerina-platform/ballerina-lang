@@ -378,7 +378,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
         return variableDeclarationNode.modify()
                 .withAnnotations(annotationNodes)
-                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
                 .withTypedBindingPattern(typedBindingPatternNode)
                 .apply();
     }
