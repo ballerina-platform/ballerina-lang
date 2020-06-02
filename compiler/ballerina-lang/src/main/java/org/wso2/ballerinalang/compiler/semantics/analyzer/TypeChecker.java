@@ -5939,6 +5939,9 @@ public class TypeChecker extends BLangNodeVisitor {
                         if (actualType == symTable.semanticError) {
                             return actualType;
                         }
+                        if (actualType == symTable.neverType) {
+                            return actualType;
+                        }
                         return addNilForNillableAccessType(actualType);
                     }
 
