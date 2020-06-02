@@ -505,6 +505,24 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
+    @Override
+    public IfElseStatementNode transform(IfElseStatementNode ifElseStatementNode) {
+        Token ifKeyword = getToken(ifElseStatementNode.ifKeyword());
+        BlockStatementNode ifBody = this.modifyNode(ifElseStatementNode.ifBody());
+        ExpressionNode condition = this.modifyNode(ifElseStatementNode.condition());
+        Node elseBody = ifElseStatementNode.elseBody().orElse(null);
+
+        if (elseBody != null) {
+            ifElseStatementNode = ifElseStatementNode.modify().withElseBody(this.modifyNode(elseBody)).apply();
+        }
+
+        return ifElseStatementNode.modify()
+                .withIfKeyword(formatToken(ifKeyword, 0, 0, 0, 0))
+                .withIfBody(ifBody)
+                .withCondition(condition)
+                .apply();
+    }
+
     private Token formatToken(Token token, int leadingSpaces, int trailingSpaces, int leadingNewLines,
                               int trailingNewLines) {
         MinutiaeList leadingMinutiaeList = token.leadingMinutiae();
