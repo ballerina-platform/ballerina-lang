@@ -486,7 +486,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseSlashLTToken();
             case DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN:
                 return parseDoubleSlashDoubleAsteriskLTToken();
-            case XML_ATOMIC_NAME_PATTERN:
+            case XML_ATOMIC_NAME_PATTERN_START:
                 return parseXMLAtomicNamePattern();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
@@ -12092,8 +12092,10 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseXMLNamePatternChain(STNode startToken) {
+        startContext(ParserRuleContext.XML_NAME_PATTERN);
         STNode xmlNamePattern = parseXMLNamePattern();
         STNode gtToken = parseGTToken();
+        endContext();
         return STNodeFactory.createXMLNamePatternChainingNode(startToken, xmlNamePattern, gtToken);
     }
 
@@ -12120,13 +12122,11 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseXMLNamePattern() {
-        startContext(ParserRuleContext.XML_NAME_PATTERN);
         List<STNode> xmlAtomicNamePatternList = new ArrayList<>();
         STToken nextToken = peek();
 
         // Return an empty list
         if (isEndOfXMLNamePattern(nextToken.kind)) {
-            endContext();
             this.errorHandler.reportMissingTokenError("missing xml atomic name pattern");
             return STNodeFactory.createNodeList(xmlAtomicNamePatternList);
         }
@@ -12152,7 +12152,6 @@ public class BallerinaParser extends AbstractParser {
             nextToken = peek();
         }
 
-        endContext();
         return STNodeFactory.createNodeList(xmlAtomicNamePatternList);
     }
 
@@ -12207,7 +12206,7 @@ public class BallerinaParser extends AbstractParser {
                 identifier = consume();
                 break;
             default:
-                Solution sol = recover(token, ParserRuleContext.XML_ATOMIC_NAME_PATTERN);
+                Solution sol = recover(token, ParserRuleContext.XML_ATOMIC_NAME_PATTERN_START);
                 if (sol.action == Action.REMOVE) {
                     return sol.recoveredNode;
                 }

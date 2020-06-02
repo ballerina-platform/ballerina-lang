@@ -280,6 +280,8 @@ public abstract class AbstractParserErrorHandler {
                 return DiagnosticErrorCode.ERROR_MISSING_BACKTICK_TOKEN;
             case ASTERISK_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_ASTERISK_TOKEN;
+            case PIPE_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_ASTERISK_TOKEN;
 
 
             case DEFAULT_KEYWORD:

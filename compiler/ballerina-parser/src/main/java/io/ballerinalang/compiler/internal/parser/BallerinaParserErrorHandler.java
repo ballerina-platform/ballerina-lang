@@ -478,7 +478,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] XML_NAME_PATTERN_RHS =
             { ParserRuleContext.GT, ParserRuleContext.PIPE };
 
-    private static final ParserRuleContext[] XML_ATOMIC_NAME_PATTERN =
+    private static final ParserRuleContext[] XML_ATOMIC_NAME_PATTERN_START =
             { ParserRuleContext.ASTERISK, ParserRuleContext.XML_ATOMIC_NAME_IDENTIFIER };
 
     private static final ParserRuleContext[] XML_ATOMIC_NAME_IDENTIFIER_RHS =
@@ -1230,7 +1230,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LIST_BINDING_MEMBER_OR_ARRAY_LENGTH:
             case XML_NAVIGATE_EXPR:
             case XML_NAME_PATTERN_RHS:
-            case XML_ATOMIC_NAME_PATTERN:
+            case XML_ATOMIC_NAME_PATTERN_START:
             case XML_ATOMIC_NAME_IDENTIFIER_RHS:
             case XML_STEP_START:
                 return true;
@@ -1629,8 +1629,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case XML_NAME_PATTERN_RHS:
                 alternativeRules = XML_NAME_PATTERN_RHS;
                 break;
-            case XML_ATOMIC_NAME_PATTERN:
-                alternativeRules = XML_ATOMIC_NAME_PATTERN;
+            case XML_ATOMIC_NAME_PATTERN_START:
+                alternativeRules = XML_ATOMIC_NAME_PATTERN_START;
                 break;
             case XML_ATOMIC_NAME_IDENTIFIER_RHS:
                 alternativeRules = XML_ATOMIC_NAME_IDENTIFIER_RHS;
@@ -1731,8 +1731,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ARG_LIST:
                 next = new ParserRuleContext[] { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
                         ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPTIONAL_CHAINING_TOKEN,
-                        ParserRuleContext.CONDITIONAL_EXPRESSION,
-//                        ParserRuleContext.XML_NAVIGATE_EXPR,
+                        ParserRuleContext.CONDITIONAL_EXPRESSION, ParserRuleContext.XML_NAVIGATE_EXPR,
                         ParserRuleContext.MEMBER_ACCESS_KEY_EXPR, ParserRuleContext.COMMA,
                         ParserRuleContext.ARG_LIST_START, ParserRuleContext.ARG_LIST_END };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
@@ -1741,8 +1740,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 next = new ParserRuleContext[] { ParserRuleContext.CLOSE_BRACE, ParserRuleContext.BINARY_OPERATOR,
                         ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
                         ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
-//                        ParserRuleContext.XML_NAVIGATE_EXPR,
-                        ParserRuleContext.MEMBER_ACCESS_KEY_EXPR,
+                        ParserRuleContext.XML_NAVIGATE_EXPR, ParserRuleContext.MEMBER_ACCESS_KEY_EXPR,
                         ParserRuleContext.COMMA, ParserRuleContext.ARG_LIST_START };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             case COMPUTED_FIELD_NAME:
@@ -1750,16 +1748,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 next = new ParserRuleContext[] { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.BINARY_OPERATOR,
                         ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
                         ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
-//                        ParserRuleContext.XML_NAVIGATE_EXPR,
-                        ParserRuleContext.OPEN_BRACKET,
+                        ParserRuleContext.XML_NAVIGATE_EXPR, ParserRuleContext.OPEN_BRACKET,
                         ParserRuleContext.ARG_LIST_START };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             case LISTENERS_LIST:
                 next = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
                         ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
                         ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
-//                        ParserRuleContext.XML_NAVIGATE_EXPR,
-                        ParserRuleContext.MEMBER_ACCESS_KEY_EXPR,
+                        ParserRuleContext.XML_NAVIGATE_EXPR, ParserRuleContext.MEMBER_ACCESS_KEY_EXPR,
                         ParserRuleContext.OPEN_BRACE, ParserRuleContext.ARG_LIST_START };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             case LIST_CONSTRUCTOR:
@@ -2257,6 +2253,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.XML_NAME_PATTERN;
             case XML_NAME_PATTERN:
                 return ParserRuleContext.XML_ATOMIC_NAME_PATTERN;
+            case XML_ATOMIC_NAME_PATTERN:
+                return ParserRuleContext.XML_ATOMIC_NAME_PATTERN_START;
             case XML_STEP_EXPR:
                 return ParserRuleContext.XML_STEP_START;
             case SLASH_ASTERISK_TOKEN:

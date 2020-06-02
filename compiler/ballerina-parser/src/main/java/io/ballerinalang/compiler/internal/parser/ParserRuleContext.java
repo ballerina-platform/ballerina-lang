@@ -424,6 +424,7 @@ public enum ParserRuleContext {
     XML_NAME_PATTERN("xml-name-pattern"),
     XML_NAME_PATTERN_RHS("xml-name-pattern-rhs"),
     XML_ATOMIC_NAME_PATTERN("xml-atomic_name-pattern"),
+    XML_ATOMIC_NAME_PATTERN_START("xml-atomic_name-pattern-start"),
     XML_ATOMIC_NAME_IDENTIFIER("xml-atomic_name-identifier"),
     XML_ATOMIC_NAME_IDENTIFIER_RHS("xml-atomic_name-identifier-rhs"),
     XML_STEP_START("xml-step-start"),
