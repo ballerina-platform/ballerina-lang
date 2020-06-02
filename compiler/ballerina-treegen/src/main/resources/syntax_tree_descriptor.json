@@ -2873,6 +2873,17 @@
             ]
         },
         {
+            "name": "WildcardBindingPatternNode",
+            "base": "BindingPatternNode",
+            "kind": "WILDCARD_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "underscoreToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
             "name": "ListBindingPatternNode",
             "base": "BindingPatternNode",
             "kind": "LIST_BINDING_PATTERN",
