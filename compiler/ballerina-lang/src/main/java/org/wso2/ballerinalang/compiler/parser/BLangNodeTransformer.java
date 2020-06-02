@@ -145,6 +145,7 @@ import io.ballerinalang.compiler.syntax.tree.XMLComment;
 import io.ballerinalang.compiler.syntax.tree.XMLElementNode;
 import io.ballerinalang.compiler.syntax.tree.XMLEndTagNode;
 import io.ballerinalang.compiler.syntax.tree.XMLNameNode;
+import io.ballerinalang.compiler.syntax.tree.XMLNamespaceDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.XMLProcessingInstruction;
 import io.ballerinalang.compiler.syntax.tree.XMLQualifiedNameNode;
 import io.ballerinalang.compiler.syntax.tree.XMLSimpleNameNode;
@@ -191,6 +192,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -249,6 +251,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -1978,7 +1981,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ParameterizedTypeDescriptorNode parameterizedTypeDescNode) {
         BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
-        BLangValueType typeNode = (BLangValueType) createBuiltInTypeNode(parameterizedTypeDescNode.parameterizedType());
+        BLangBuiltInRefTypeNode typeNode =
+                (BLangBuiltInRefTypeNode) createBuiltInTypeNode(parameterizedTypeDescNode.parameterizedType());
         refType.typeKind = typeNode.typeKind;
         refType.pos = typeNode.pos;
 
@@ -2116,6 +2120,27 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         xmlTextLiteral.pos = getPosition(xmlTextNode);
         return xmlTextLiteral;
     }
+
+    @Override
+    public BLangNode transform(XMLNamespaceDeclarationNode xmlnsDeclNode) {
+        BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
+        BLangIdentifier prefixIdentifier = createIdentifier(getPosition(xmlnsDeclNode.namespacePrefix()), xmlnsDeclNode.namespacePrefix().text());
+
+        xmlns.namespaceURI = createSimpleLiteral(xmlnsDeclNode.namespaceuri());
+        xmlns.prefix = prefixIdentifier;
+        xmlns.pos = getPosition(xmlnsDeclNode);
+
+        if (xmlnsDeclNode.parent() instanceof ModuleMemberDeclarationNode) {
+            this.currentCompilationUnit.addTopLevelNode(xmlns);
+            return xmlns;
+        }
+
+        BLangXMLNSStatement xmlnsStmt = (BLangXMLNSStatement) TreeBuilder.createXMLNSDeclrStatementNode();
+        xmlnsStmt.xmlnsDecl = xmlns;
+        xmlnsStmt.pos = getPosition(xmlnsDeclNode);
+        return xmlnsStmt;
+    }
+
 
     @Override
     public BLangNode transform(RemoteMethodCallActionNode remoteMethodCallActionNode) {
@@ -2619,20 +2644,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         } else {
             typeText = ((Token) type).text(); // TODO: Remove this once map<string> returns Nodes for `map`
         }
-        TypeKind typeKind = TreeUtils.stringToTypeKind(typeText.replaceAll("\\s+", ""));
 
-        if (typeKind == TypeKind.JSON) { //TODO: add full list of types
-            BLangBuiltInRefTypeNode bLValueType =
-                    (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
-            bLValueType.typeKind = typeKind;
-            bLValueType.pos = getPosition(type);
-            return bLValueType;
-        } else {
-            BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
-            bLValueType.typeKind = typeKind;
-            bLValueType.pos = getPosition(type);
-            return bLValueType;
-        }
+        BLangBuiltInRefTypeNode bLValueType =
+                (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
+        bLValueType.typeKind = TreeUtils.stringToTypeKind(typeText.replaceAll("\\s+", ""));
+        bLValueType.pos = getPosition(type);
+        return bLValueType;
     }
 
     private VariableNode createBasicVarNodeWithoutType(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
@@ -2838,6 +2855,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             case TYPE_TEST_EXPRESSION:
             case TUPLE_TYPE_DESC:
             case TYPED_BINDING_PATTERN:
+            case RECORD_FIELD:
                 return true;
             default:
                 return false;
