@@ -322,7 +322,8 @@ class ValidatorUtil {
      * @param openAPIComponentSummary openAPI component summary
      * @param dLog                    diagnostic logger
      */
-    public static void validateOpenApiAgainstResources(ServiceNode serviceNode, List<String> tags, List<String> operations,
+    public static void validateOpenApiAgainstResources(ServiceNode serviceNode, List<String> tags,
+                                                List<String> operations,
                                                 Diagnostic.Kind kind,
                                                 List<String> excludeTags,
                                                 List<String> excludeOperations,
