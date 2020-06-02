@@ -1433,7 +1433,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     defineNode(f, objMethodsEnv);
                 });
 
-                Set<String> alreadyIncludedFunctionSymbols = new HashSet<>();
+                Set<String> includedFunctionNames = new HashSet<>();
                 // Add the attached functions of the referenced types to this object.
                 // Here it is assumed that all the attached functions of the referred type are
                 // resolved by the time we reach here. It is achieved by ordering the typeDefs
@@ -1445,7 +1445,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                     List<BAttachedFunction> functions = ((BObjectTypeSymbol) typeRef.type.tsymbol).attachedFuncs;
                     for (BAttachedFunction function : functions) {
-                        defineReferencedFunction(typeDef, objMethodsEnv, typeRef, function, alreadyIncludedFunctionSymbols);
+                        defineReferencedFunction(typeDef, objMethodsEnv, typeRef, function, includedFunctionNames);
                     }
                 }
             }
@@ -1869,14 +1869,14 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineReferencedFunction(BLangTypeDefinition typeDef, SymbolEnv objEnv, BLangType typeRef,
-                                          BAttachedFunction referencedFunc, Set<String> alreadyIncludedFunctionSymbols) {
+                                          BAttachedFunction referencedFunc, Set<String> includedFunctionNames) {
         String referencedFuncName = referencedFunc.funcName.value;
         Name funcName = names.fromString(
                 Symbols.getAttachedFuncSymbolName(typeDef.symbol.name.value, referencedFuncName));
         BSymbol matchingObjFuncSym = symResolver.lookupSymbolInMainSpace(objEnv, funcName);
 
         if (matchingObjFuncSym != symTable.notFoundSymbol) {
-            if (!alreadyIncludedFunctionSymbols.add(referencedFuncName)) {
+            if (!includedFunctionNames.add(referencedFuncName)) {
                 dlog.error(typeRef.pos, DiagnosticCode.REDECLARED_SYMBOL, referencedFuncName);
                 return;
             }
