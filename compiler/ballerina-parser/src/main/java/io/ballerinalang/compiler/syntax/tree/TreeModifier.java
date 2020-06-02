@@ -1131,7 +1131,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(remoteMethodCallActionNode.expression());
         Token rightArrowToken =
                 modifyToken(remoteMethodCallActionNode.rightArrowToken());
-        Node methodName =
+        SimpleNameReferenceNode methodName =
                 modifyNode(remoteMethodCallActionNode.methodName());
         Token openParenToken =
                 modifyToken(remoteMethodCallActionNode.openParenToken());
@@ -1528,7 +1528,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             LetExpressionNode letExpressionNode) {
         Token letKeyword =
                 modifyToken(letExpressionNode.letKeyword());
-        SeparatedNodeList<Node> letVarDeclarations =
+        SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations =
                 modifySeparatedNodeList(letExpressionNode.letVarDeclarations());
         Token inKeyword =
                 modifyToken(letExpressionNode.inKeyword());
@@ -1955,18 +1955,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             FromClauseNode fromClauseNode) {
         Token fromKeyword =
                 modifyToken(fromClauseNode.fromKeyword());
-        Node typeName =
-                modifyNode(fromClauseNode.typeName());
-        Token variableName =
-                modifyToken(fromClauseNode.variableName());
+        TypedBindingPatternNode typedBindingPattern =
+                modifyNode(fromClauseNode.typedBindingPattern());
         Token inKeyword =
                 modifyToken(fromClauseNode.inKeyword());
         ExpressionNode expression =
                 modifyNode(fromClauseNode.expression());
         return fromClauseNode.modify(
                 fromKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 inKeyword,
                 expression);
     }
@@ -1988,7 +1985,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             LetClauseNode letClauseNode) {
         Token letKeyword =
                 modifyToken(letClauseNode.letKeyword());
-        SeparatedNodeList<Node> letVarDeclarations =
+        SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations =
                 modifySeparatedNodeList(letClauseNode.letVarDeclarations());
         return letClauseNode.modify(
                 letKeyword,
@@ -2158,6 +2155,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(captureBindingPatternNode.variableName());
         return captureBindingPatternNode.modify(
                 variableName);
+    }
+
+    @Override
+    public WildcardBindingPatternNode transform(
+            WildcardBindingPatternNode wildcardBindingPatternNode) {
+        Token underscoreToken =
+                modifyToken(wildcardBindingPatternNode.underscoreToken());
+        return wildcardBindingPatternNode.modify(
+                underscoreToken);
     }
 
     @Override

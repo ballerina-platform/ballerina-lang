@@ -1497,7 +1497,7 @@
                 },
                 {
                     "name": "methodName",
-                    "type": "Token"
+                    "type": "SimpleNameReferenceNode"
                 },
                 {
                     "name": "openParenToken",
@@ -2017,7 +2017,7 @@
                 },
                 {
                     "name": "letVarDeclarations",
-                    "type": "Node",
+                    "type": "LetVariableDeclarationNode",
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
@@ -2611,12 +2611,8 @@
                     "type": "Token"
                 },
                 {
-                    "name": "typeName",
-                    "type": "Node"
-                },
-                {
-                    "name": "variableName",
-                    "type": "Token"
+                    "name": "typedBindingPattern",
+                    "type": "TypedBindingPatternNode"
                 },
                 {
                     "name": "inKeyword",
@@ -2654,7 +2650,7 @@
                 },
                 {
                     "name": "letVarDeclarations",
-                    "type": "Node",
+                    "type": "LetVariableDeclarationNode",
                     "occurrences": "MULTIPLE_SEPARATED"
                 }
             ]
@@ -2872,6 +2868,17 @@
             "attributes": [
                 {
                     "name": "variableName",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "WildcardBindingPatternNode",
+            "base": "BindingPatternNode",
+            "kind": "WILDCARD_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "underscoreToken",
                     "type": "Token"
                 }
             ]

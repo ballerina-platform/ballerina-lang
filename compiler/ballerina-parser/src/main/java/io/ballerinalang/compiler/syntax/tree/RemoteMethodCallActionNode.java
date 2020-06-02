@@ -80,7 +80,7 @@ public class RemoteMethodCallActionNode extends ActionNode {
     public RemoteMethodCallActionNode modify(
             ExpressionNode expression,
             Token rightArrowToken,
-            Node methodName,
+            SimpleNameReferenceNode methodName,
             Token openParenToken,
             NodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
