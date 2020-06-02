@@ -482,6 +482,12 @@ public class BallerinaParser extends AbstractParser {
                 return parseBase64Keyword();
             case DOT_LT_TOKEN:
                 return parseDotLTToken();
+            case SLASH_LT_TOKEN:
+                return parseSlashLTToken();
+            case DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN:
+                return parseDoubleSlashDoubleAsteriskLTToken();
+            case XML_ATOMIC_NAME_PATTERN:
+                return parseXMLAtomicNamePattern();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -12114,17 +12120,21 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseXMLNamePattern() {
+        startContext(ParserRuleContext.XML_NAME_PATTERN);
         List<STNode> xmlAtomicNamePatternList = new ArrayList<>();
         STToken nextToken = peek();
 
         // Return an empty list
         if (isEndOfXMLNamePattern(nextToken.kind)) {
+            endContext();
             this.errorHandler.reportMissingTokenError("missing xml atomic name pattern");
             return STNodeFactory.createNodeList(xmlAtomicNamePatternList);
         }
 
         // Parse first xml atomic name pattern, that has no leading pipe token
+        startContext(ParserRuleContext.XML_ATOMIC_NAME_PATTERN);
         STNode xmlAtomicNamePattern = parseXMLAtomicNamePattern();
+        endContext();
         xmlAtomicNamePatternList.add(xmlAtomicNamePattern);
 
         // Parse the remaining xml atomic name patterns
@@ -12133,11 +12143,16 @@ public class BallerinaParser extends AbstractParser {
         while (!isEndOfXMLNamePattern(nextToken.kind)) {
             leadingPipe = parsePipeToken();
             xmlAtomicNamePatternList.add(leadingPipe);
+
+            startContext(ParserRuleContext.XML_ATOMIC_NAME_PATTERN);
             xmlAtomicNamePattern = parseXMLAtomicNamePattern();
+            endContext();
+
             xmlAtomicNamePatternList.add(xmlAtomicNamePattern);
             nextToken = peek();
         }
 
+        endContext();
         return STNodeFactory.createNodeList(xmlAtomicNamePatternList);
     }
 
@@ -12184,13 +12199,28 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseXMLAtomicNamePattern() {
         STToken token = peek();
-        if (token.kind == SyntaxKind.ASTERISK_TOKEN) {
-            return consume();
-        } else if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
-            STNode identifier = consume();
-            return parseXMLAtomicNameIdentifier(identifier);
+        STNode identifier;
+        switch (token.kind) {
+            case ASTERISK_TOKEN:
+                return consume();
+            case IDENTIFIER_TOKEN:
+                identifier = consume();
+                break;
+            default:
+                Solution sol = recover(token, ParserRuleContext.XML_ATOMIC_NAME_PATTERN);
+                if (sol.action == Action.REMOVE) {
+                    return sol.recoveredNode;
+                }
+
+                if (sol.recoveredNode.kind == SyntaxKind.ASTERISK_TOKEN) {
+                    return sol.recoveredNode;
+                }
+
+                identifier = sol.recoveredNode;
+                break;
         }
-        return STNodeFactory.createEmptyNode();
+
+        return parseXMLAtomicNameIdentifier(identifier);
     }
 
     private STNode parseXMLAtomicNameIdentifier(STNode identifier) {
