@@ -60,7 +60,7 @@ public class Publish {
                 if (TypeChecker.getType(replyTo).getTag() == TypeTags.STRING_TAG) {
                     natsConnection.publish(subject.getValue(), ((BString) replyTo).getValue(), byteContent);
                 } else if (TypeChecker.getType(replyTo).getTag() == TypeTags.SERVICE_TAG) {
-                    MapValue<String, Object> subscriptionConfig =
+                    MapValue<BString, Object> subscriptionConfig =
                             getSubscriptionConfig(((ObjectValue) replyTo).getType().getAnnotation(
                                     Constants.NATS_PACKAGE, Constants.SUBSCRIPTION_CONFIG));
                     if (subscriptionConfig == null) {
@@ -89,7 +89,7 @@ public class Publish {
     }
 
     @SuppressWarnings("unchecked")
-    private static MapValue<String, Object> getSubscriptionConfig(Object annotationData) {
+    private static MapValue<BString, Object> getSubscriptionConfig(Object annotationData) {
         MapValue annotationRecord = null;
         if (TypeChecker.getType(annotationData).getTag() == TypeTags.RECORD_TYPE_TAG) {
             annotationRecord = (MapValue) annotationData;

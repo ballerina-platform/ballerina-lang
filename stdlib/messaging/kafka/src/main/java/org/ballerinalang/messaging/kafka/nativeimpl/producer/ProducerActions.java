@@ -135,7 +135,7 @@ public class ProducerActions {
             partitionToMetadataMap.put(new TopicPartition(topicPartition.topic(), topicPartition.partition()),
                                        new OffsetAndMetadata(position));
         }
-        MapValue<String, Object> consumerConfig = consumer.getMapValue(CONSUMER_CONFIG_FIELD_NAME);
+        MapValue<BString, Object> consumerConfig = consumer.getMapValue(CONSUMER_CONFIG_FIELD_NAME);
         String groupId = consumerConfig.getStringValue(CONSUMER_GROUP_ID_CONFIG).getValue();
         try {
             if (strand.isInTransaction()) {

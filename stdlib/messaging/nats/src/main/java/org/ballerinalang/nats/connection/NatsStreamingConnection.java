@@ -47,7 +47,7 @@ public class NatsStreamingConnection {
                 ((BString) clientIdNillable).getValue();
         BallerinaNatsStreamingConnectionFactory streamingConnectionFactory =
                 new BallerinaNatsStreamingConnectionFactory(
-                        natsConnection, clusterId, clientId, (MapValue<String, Object>) streamingConfig);
+                        natsConnection, clusterId, clientId, (MapValue<BString, Object>) streamingConfig);
         try {
             io.nats.streaming.StreamingConnection streamingConnection = streamingConnectionFactory.createConnection();
             streamingClientObject.addNativeData(Constants.NATS_STREAMING_CONNECTION, streamingConnection);

@@ -68,7 +68,7 @@ public class ChannelUtils {
                 return StringUtils.fromString(channel.queueDeclare().getQueue());
             }
             @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-            MapValue<String, Object> config = (MapValue<String, Object>) queueConfig;
+            MapValue<BString, Object> config = (MapValue<BString, Object>) queueConfig;
             String queueName = config.getStringValue(RabbitMQConstants.QUEUE_NAME).getValue();
             boolean durable = config.getBooleanValue(RabbitMQConstants.QUEUE_DURABLE);
             boolean exclusive = config.getBooleanValue(RabbitMQConstants.QUEUE_EXCLUSIVE);
@@ -88,7 +88,7 @@ public class ChannelUtils {
         return null;
     }
 
-    public static Object exchangeDeclare(MapValue<String, Object> exchangeConfig, Channel channel) {
+    public static Object exchangeDeclare(MapValue<BString, Object> exchangeConfig, Channel channel) {
         RabbitMQTracingUtil.traceResourceInvocation(channel);
         try {
             String exchangeName = exchangeConfig.getStringValue(RabbitMQConstants.EXCHANGE_NAME).getValue();
@@ -135,7 +135,7 @@ public class ChannelUtils {
             AMQP.BasicProperties.Builder builder = new AMQP.BasicProperties.Builder();
             if (properties != null) {
                 @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-                MapValue<String, Object> basicPropsMap = (MapValue) properties;
+                MapValue<BString, Object> basicPropsMap = (MapValue) properties;
                 String replyTo = basicPropsMap.getStringValue(RabbitMQConstants.ALIAS_REPLY_TO).getValue();
                 String contentType = basicPropsMap.getStringValue(RabbitMQConstants.ALIAS_CONTENT_TYPE).getValue();
                 String contentEncoding = basicPropsMap.getStringValue(RabbitMQConstants.ALIAS_CONTENT_ENCODING)
