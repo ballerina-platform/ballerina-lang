@@ -54,7 +54,7 @@ public class SystemConstants {
 
     static final String PROCESS_FIELD = "ProcessField";
 
-    // System error type IDs
+    // System error type names
     public static final String PROCESS_EXEC_ERROR = "ProcessExecError";
 
     // System constant fields
