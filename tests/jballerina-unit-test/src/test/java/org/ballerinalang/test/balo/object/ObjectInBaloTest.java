@@ -570,6 +570,11 @@ public class ObjectInBaloTest {
     }
 
     @Test
+    public void testObjectReferingNonAbstractObjLoadedFromBalo() {
+        BRunUtil.invoke(result, "testObjectReferingNonAbstractObjLoadedFromBalo");
+    }
+
+    @Test
     public void testObjectReferingTypeFromBaloNegative() {
         CompileResult result =
                 BCompileUtil.compile("test-src/balo/test_balo/object/test_objects_type_reference_negative.bal");

@@ -72,6 +72,10 @@ public type CorronifiedEmployee object {
         self.dpt                        = "Engineering";
     }
 
+    public function Age() returns int {
+        return self.age;
+    }
+
     public function setWorkingFromHomeAllowance(float allowance) returns float|() {
         self.workingFromHomeAllowance = allowance;
         if (self.workingFromHome) {
