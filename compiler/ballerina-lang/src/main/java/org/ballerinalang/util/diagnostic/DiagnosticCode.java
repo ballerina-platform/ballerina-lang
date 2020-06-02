@@ -357,7 +357,7 @@ public enum DiagnosticCode {
     OPERATOR_NOT_ALLOWED_VARIABLE("operator.not.allowed.variable"),
     NEVER_TYPE_NOT_ALLOWED_FOR_REQUIRED_FIELDS("never.type.not.allowed.for.required.fields"),
     INVALID_NEVER_RETURN_TYPED_FUNCTION_INVOCATION("invalid.never.return.typed.function.invocation"),
-    NEVER_TYPE_NOT_ALLOWED_AS_VARIABLE_TYPE("never.type.not.allowed.as.variable.type"),
+    NEVER_TYPED_VAR_DEF_NOT_ALLOWED("never.typed.var.def.not.allowed"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("iterable.not.supported.collection"),

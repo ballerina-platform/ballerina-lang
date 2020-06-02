@@ -104,9 +104,9 @@ public class NeverTypeTest {
         Assert.assertEquals(negativeCompileResult.getErrorCount(), 19);
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "'never'-typed variable definitions not allowed", 2, 5);
+                "cannot define a variable of type 'never'", 2, 5);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "'never'-typed variable definitions not allowed", 12, 5);
+                "cannot define a variable of type 'never'", 12, 5);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected '()', found 'never'", 16, 12);
         BAssertUtil.validateError(negativeCompileResult, i++,
@@ -118,7 +118,8 @@ public class NeverTypeTest {
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'never', found '()'", 41, 20);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "never typed required fields not allowed, define 'y' as an optional field instead", 49, 5);
+                "a required field cannot be of type 'never', define 'y' as an optional field instead",
+                49, 5);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'never', found 'string'", 58, 23);
         BAssertUtil.validateError(negativeCompileResult, i++,
