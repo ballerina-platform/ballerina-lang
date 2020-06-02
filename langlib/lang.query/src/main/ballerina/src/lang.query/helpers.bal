@@ -75,6 +75,32 @@ public function toArray(stream<Type, error?> strm) returns Type[]|error {
     return arr;
 }
 
+public function toXML(stream<Type, error?> strm) returns xml {
+    xml result = xml ` `;
+    record {| Type value; |}|error? v = strm.next();
+    while (v is record {| Type value; |}) {
+        Type value = v.value;
+        if (value is xml) {
+            result = result + value;
+        }
+        v = strm.next();
+    }
+    return result;
+}
+
+public function toString(stream<Type, error?> strm) returns string {
+    string result = "";
+    record {| Type value; |}|error? v = strm.next();
+    while (v is record {| Type value; |}) {
+        Type value = v.value;
+        if (value is string) {
+            result += value;
+        }
+        v = strm.next();
+    }
+    return result;
+}
+
 public function addToTable(stream<Type, error?> strm, table<map<Type>> tbl, error? err) returns table<map<Type>>|error {
     record {| Type value; |}|error? v = strm.next();
     while (v is record {| Type value; |}) {
