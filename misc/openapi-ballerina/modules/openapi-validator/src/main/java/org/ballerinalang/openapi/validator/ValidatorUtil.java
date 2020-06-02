@@ -830,10 +830,7 @@ class ValidatorUtil {
         }
         dLog.logDiagnostic(kind, getServiceNamePosition(serviceNode),
                 ErrorMessages.unimplementedOpenAPIPath(openApiSummary.getPath()));
-
-
     }
-
 
     private static void validateUnmatchedMethods(List<String> unmatchedMethods, ServiceNode serviceNode,
                                                  Diagnostic.Kind kind, OpenAPIPathSummary openApiSummary,
