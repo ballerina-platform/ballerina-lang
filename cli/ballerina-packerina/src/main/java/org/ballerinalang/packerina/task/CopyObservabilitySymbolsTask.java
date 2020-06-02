@@ -31,6 +31,7 @@ import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,7 +62,7 @@ public class CopyObservabilitySymbolsTask implements Task {
                 try (FileSystem toFs = FileSystems.newFileSystem(uberJarUri, Collections.emptyMap())) {
                     Path jarRoot = toFs.getRootDirectories().iterator().next();
                     observabilitySymbolCollector.writeCollectedSymbols(module, jarRoot);
-                } catch (IOException e) {
+                } catch (IOException | NoSuchAlgorithmException e) {
                     throw createLauncherException("error while adding observability symbols to module jar :"
                             + e.getMessage());
                 }
