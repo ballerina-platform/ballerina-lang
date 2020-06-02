@@ -549,6 +549,21 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
+    @Override
+    public ErrorTypeDescriptorNode transform(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
+        Token errorKeywordToken = getToken(errorTypeDescriptorNode.errorKeywordToken());
+        ErrorTypeParamsNode errorTypeParamsNode = errorTypeDescriptorNode.errorTypeParamsNode().orElse(null);
+
+        if (errorTypeParamsNode != null) {
+            errorTypeDescriptorNode = errorTypeDescriptorNode.modify().withErrorTypeParamsNode(
+                    this.modifyNode(errorTypeParamsNode)).apply();
+        }
+
+        return errorTypeDescriptorNode.modify()
+                .withErrorKeywordToken(formatToken(errorKeywordToken, 0, 0, 0, 0))
+                .apply();
+    }
+
     private Token formatToken(Token token, int leadingSpaces, int trailingSpaces, int leadingNewLines,
                               int trailingNewLines) {
         MinutiaeList leadingMinutiaeList = token.leadingMinutiae();
