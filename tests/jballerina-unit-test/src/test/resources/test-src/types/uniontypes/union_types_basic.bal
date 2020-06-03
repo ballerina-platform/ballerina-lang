@@ -166,3 +166,22 @@ function testUnionLhsWithDiscriminatedFloatDecimalLiterals() returns [(float|dec
     float|decimal c = 1.0d;
     return [a, b, c];
 }
+
+type Employee object {
+    int age = 20;
+};
+
+type Manager object {
+    int age = 20;
+};
+
+function testUnionTypeWithFunctionPointerAccess() returns int {
+    Employee e = new;
+    Employee|Manager person = e;
+    person.age = 25;
+    var setMinAge = function () {
+        person.age = 30;
+    };
+    setMinAge();
+    return person.age;
+}

@@ -139,4 +139,10 @@ public class UnionTypeTest {
             Assert.fail("Nullable check in Union type failed");
         }
     }
+
+    @Test(description = "Test union type with a function pointer accessing")
+    public void testUnionTypeWithFunctionPointerAccess() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnionTypeWithFunctionPointerAccess");
+        Assert.assertEquals(returns[0], new BInteger(30));
+    }
 }
