@@ -24,6 +24,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaMetadata;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
@@ -105,6 +106,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_OBJECT_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_RECORD_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_TYPE;
@@ -134,6 +137,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_T
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_DETAIL_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
@@ -149,6 +153,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.loadConstantValue;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getObjectField;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getRecordField;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getStrandMetaDataVarName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDef;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getModuleLevelClassName;
@@ -317,7 +322,7 @@ class JvmTypeGen {
 
     static void generateValueCreatorMethods(ClassWriter cw, List<BIRTypeDefinition> typeDefs,
                                             BIRNode.BIRPackage moduleId, String typeOwnerClass,
-                                            SymbolTable symbolTable) {
+                                            SymbolTable symbolTable, LambdaMetadata lambdaMetadata) {
 
         List<BIRTypeDefinition> recordTypeDefs = new ArrayList<>();
         List<BIRTypeDefinition> objectTypeDefs = new ArrayList<>();
@@ -343,14 +348,14 @@ class JvmTypeGen {
             }
         }
 
-        generateRecordValueCreateMethod(cw, recordTypeDefs, moduleId, typeOwnerClass);
-        generateObjectValueCreateMethod(cw, objectTypeDefs, moduleId, typeOwnerClass, symbolTable);
+        generateRecordValueCreateMethod(cw, recordTypeDefs, moduleId, typeOwnerClass, lambdaMetadata);
+        generateObjectValueCreateMethod(cw, objectTypeDefs, moduleId, typeOwnerClass, symbolTable, lambdaMetadata);
     }
 
     private static void generateRecordValueCreateMethod(ClassWriter cw, List<BIRTypeDefinition> recordTypeDefs,
-                                                        BIRNode.BIRPackage moduleId, String typeOwnerClass) {
-
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "createRecordValue",
+                                                        BIRNode.BIRPackage moduleId, String typeOwnerClass,
+                                                        LambdaMetadata lambdaMetadata) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, CREATE_RECORD_VALUE,
                 String.format("(L%s;)L%s;", STRING_VALUE, MAP_VALUE),
                 String.format("(L%s;)L%s<L%s;L%s;>;", STRING_VALUE, MAP_VALUE, STRING_VALUE, OBJECT), null);
 
@@ -384,7 +389,15 @@ class JvmTypeGen {
             mv.visitTypeInsn(NEW, STRAND);
             mv.visitInsn(DUP);
             mv.visitInsn(ACONST_NULL);
-            mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>", String.format("(L%s;)V", SCHEDULER), false);
+            lambdaMetadata.getStrandMetaData()
+                    .putIfAbsent(getStrandMetaDataVarName(CREATE_RECORD_VALUE), CREATE_RECORD_VALUE);
+            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, JvmMethodGen.getStrandMetaDataVarName(CREATE_RECORD_VALUE),
+                              String.format("L%s;", STRAND_METADATA));
+            mv.visitInsn(ACONST_NULL);
+            mv.visitInsn(ACONST_NULL);
+            mv.visitInsn(ACONST_NULL);
+            mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>", String.format("(L%s;L%s;L%s;L%s;L%s;)V", STRING_VALUE
+                    , STRAND_METADATA, SCHEDULER, STRAND, MAP), false);
             mv.visitInsn(SWAP);
             mv.visitMethodInsn(INVOKESTATIC, className, "$init", String.format("(L%s;L%s;)V", STRAND, MAP_VALUE),
                                false);
@@ -400,9 +413,9 @@ class JvmTypeGen {
 
     private static void generateObjectValueCreateMethod(ClassWriter cw, List<BIRTypeDefinition> objectTypeDefs,
                                                         BIRNode.BIRPackage moduleId, String typeOwnerClass,
-                                                        SymbolTable symbolTable) {
+                                                        SymbolTable symbolTable, LambdaMetadata lambdaMetadata) {
 
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "createObjectValue",
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, CREATE_OBJECT_VALUE,
                 String.format("(L%s;L%s;L%s;L%s;[L%s;)L%s;", STRING_VALUE, SCHEDULER, STRAND, MAP, OBJECT,
                         OBJECT_VALUE), null, null);
 
@@ -475,11 +488,16 @@ class JvmTypeGen {
             mv.visitLabel(parentNullLabel);
             mv.visitTypeInsn(NEW, STRAND);
             mv.visitInsn(DUP);
+            mv.visitInsn(ACONST_NULL);
+            lambdaMetadata.getStrandMetaData()
+                    .putIfAbsent(getStrandMetaDataVarName(CREATE_OBJECT_VALUE), CREATE_OBJECT_VALUE);
+            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, JvmMethodGen.getStrandMetaDataVarName(CREATE_OBJECT_VALUE),
+                              String.format("L%s;", STRAND_METADATA));
             mv.visitVarInsn(ALOAD, schedulerIndex);
             mv.visitVarInsn(ALOAD, parentIndex);
             mv.visitVarInsn(ALOAD, propertiesIndex);
-            mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>",
-                    String.format("(L%s;L%s;L%s;)V", SCHEDULER, STRAND, MAP), false);
+            mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>", String.format("(L%s;L%s;L%s;L%s;L%s;)V", STRING_VALUE
+                    , STRAND_METADATA, SCHEDULER, STRAND, MAP), false);
             mv.visitVarInsn(ASTORE, strandVarIndex);
             Label endConditionLabel = new Label();
             mv.visitJumpInsn(GOTO, endConditionLabel);

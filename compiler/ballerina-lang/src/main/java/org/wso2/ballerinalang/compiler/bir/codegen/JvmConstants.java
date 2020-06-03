@@ -193,6 +193,8 @@ public class JvmConstants {
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";
     public static final String SCHEDULE_LOCAL_METHOD = "scheduleLocal";
     public static final String SCHEDULER_START_METHOD = "start";
+    public static final String CREATE_RECORD_VALUE = "createRecordValue";
+    public static final String CREATE_OBJECT_VALUE = "createObjectValue";
 
     // strand data related constants
     public static final String STRAND_ANNOTATION = "strand";

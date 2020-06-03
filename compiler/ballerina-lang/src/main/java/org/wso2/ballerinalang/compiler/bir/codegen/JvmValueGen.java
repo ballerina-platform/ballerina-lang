@@ -1389,7 +1389,6 @@ class JvmValueGen {
         this.createObjectGetMethod(cw, fields, className);
         this.createObjectSetMethod(cw, fields, className);
         this.createLambdas(cw, lambdaGenMetadata);
-        this.createObjectInit(cw, fields, className);
         visitStrandMetaDataField(cw, lambdaGenMetadata);
         this.generateStaticInitializer(cw, className, module, lambdaGenMetadata);
 
