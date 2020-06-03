@@ -377,9 +377,8 @@ public class ImmutableTypeCloner {
         if (origRecordType.fields.size() != immutableRecordType.fields.size()) {
 
             populateImmutableStructureFields(null, types, symTable, anonymousModelHelper, names,
-                                             (BLangRecordTypeNode) immutableTypeDefinition.typeNode, immutableRecordType,
-                                             origRecordType,
-                                             pos, env, pkgID, new HashSet<>());
+                                             (BLangRecordTypeNode) immutableTypeDefinition.typeNode,
+                                             immutableRecordType, origRecordType, pos, env, pkgID, new HashSet<>());
         }
 
         BType currentRestFieldType = immutableRecordType.restFieldType;

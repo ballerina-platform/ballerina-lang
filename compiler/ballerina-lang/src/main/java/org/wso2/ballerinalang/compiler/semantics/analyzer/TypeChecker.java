@@ -2183,7 +2183,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         (fieldAccessExpr.lhsVar || fieldAccessExpr.compoundAssignmentLhsVar)) {
                     if (isAllReadonlyTypes(varRefType)) {
                         if (varRefType.tag != TypeTags.OBJECT ||
-                                !isInvalidObjectFieldUpdate(varRefType, fieldAccessExpr.field.value)) {
+                                isInvalidObjectFieldUpdate(varRefType, fieldAccessExpr.field.value)) {
                             dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_VALUE_OF_TYPE,
                                        varRefType);
                             resultType = symTable.semanticError;

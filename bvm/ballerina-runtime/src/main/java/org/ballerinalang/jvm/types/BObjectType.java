@@ -49,11 +49,6 @@ public class BObjectType extends BStructureType {
         this.readonly = Flags.isFlagOn(flags, Flags.READONLY);
     }
 
-    public BObjectType(String typeName, BPackage pkg, int flags, BIntersectionType immutableType) {
-        this(typeName, pkg, flags);
-        this.immutableType = immutableType;
-    }
-
     @Override
     public <V extends Object> V getZeroValue() {
         return (V) BallerinaValues.createObjectValue(this.pkg, this.typeName);

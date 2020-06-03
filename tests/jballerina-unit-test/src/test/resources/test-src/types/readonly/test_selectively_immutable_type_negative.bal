@@ -153,3 +153,13 @@ function testInvalidNeverReadOnlyConstraint() {
         {name: "Jo", id: new}
     ];
 }
+
+type Baz abstract object {
+    future<()> ft;
+
+    function getFt();
+};
+
+function testNeverReadOnlyObject() {
+    Baz & readonly bz;
+}

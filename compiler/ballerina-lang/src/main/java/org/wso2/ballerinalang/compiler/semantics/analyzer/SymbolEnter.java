@@ -1410,7 +1410,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         int newSize = typeDefNodes.size();
 
         for (int i = originalSize; i < newSize; i++) {
-            ImmutableTypeCloner.defineUndefinedImmutableFields(typeDefNodes.get(i), types, pkgEnv, symTable,
+            BLangTypeDefinition immutableTypeDefinition = typeDefNodes.get(i);
+            SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(immutableTypeDefinition.typeNode,
+                                                           immutableTypeDefinition.symbol.scope, pkgEnv);
+            ImmutableTypeCloner.defineUndefinedImmutableFields(immutableTypeDefinition, types, typeDefEnv, symTable,
                                                                anonymousModelHelper, names);
         }
 
@@ -1453,7 +1456,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineMembers(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
-        for (BLangTypeDefinition typeDef : typeDefNodes) {
+        int originalSize = typeDefNodes.size();
+
+        for (int i = 0; i < originalSize; i++) {
+            BLangTypeDefinition typeDef = typeDefNodes.get(i);
             if (typeDef.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
                 continue;
             }
@@ -1485,6 +1491,20 @@ public class SymbolEnter extends BLangNodeVisitor {
                     }
                 }
             }
+        }
+
+        int newSize = typeDefNodes.size();
+        for (int i = originalSize; i < newSize; i++) {
+            BLangTypeDefinition immutableTypeDefinition = typeDefNodes.get(i);
+
+            if (immutableTypeDefinition.typeNode.getKind() != NodeKind.OBJECT_TYPE) {
+                continue;
+            }
+
+            BObjectType immutableObjectType = (BObjectType) immutableTypeDefinition.type;
+            ImmutableTypeCloner.defineObjectFunctions((BObjectTypeSymbol) immutableObjectType.tsymbol,
+                                                      (BObjectTypeSymbol) immutableObjectType.mutableType.tsymbol,
+                                                      names);
         }
     }
 

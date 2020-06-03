@@ -41,7 +41,7 @@ import ballerina/lang.'xml;
 // - mapping
 // - table
 
-function testReadonlyType() {
+function testImmutableTypes() {
     testSimpleInitializationForSelectivelyImmutableTypes();
     testRuntimeIsTypeForSelectivelyImmutableBasicTypes();
     testRuntimeIsTypeNegativeForSelectivelyImmutableTypes();
@@ -49,6 +49,7 @@ function testReadonlyType() {
     testImmutableTypedRecordFields();
     testImmutabilityForSelfReferencingType();
     testImmutableRecordWithDefaultValues();
+    testImmutableObjects();
 }
 
 function testSimpleInitializationForSelectivelyImmutableTypes() {
@@ -435,7 +436,33 @@ function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
     assertFalse(an9 is table<Identifier> & readonly);
     assertFalse(an9 is readonly);
     assertFalse(a9.isReadOnly());
+
+    MyMutableController mmc = new (new MyOwner(), new MyMutablePrinter());
+    Controller k = mmc;
+    any an10 = k;
+    assertTrue(an10 is Controller);
+    assertFalse(an10 is Controller & readonly);
+    assertTrue(k.owner is Owner & readonly);
+    assertFalse(k.printer is Printer & readonly);
 }
+
+type MyMutableController object {
+    Owner owner;
+    Printer printer;
+
+    function __init(Owner & readonly owner, Printer printer) {
+        self.owner = owner;
+        self.printer = printer;
+    }
+};
+
+type MyMutablePrinter object {
+    int id = 1234;
+
+    function getPrintString(string s) returns string {
+        return string `ID[${self.id}]: ${s}`;
+    }
+};
 
 function testImmutabilityOfNestedXmlWithAttributes() {
     xml x1 = xml `<book status="available" count="5">Book One<name lang="english">Great Expectations</name><!-- This is a classic--><author gender="male"><?action concat?><firstName index="C">Charles</firstName><lastName>Dickens</lastName></author></book>`;
@@ -648,6 +675,66 @@ function testImmutableRecordWithDefaultValues() {
     assertTrue(ad2.isReadOnly());
     assertEquality(q2.name, "abc");
     assertEquality(q2.id, 2);
+}
+
+type MyOwner object {
+    readonly int id = 238475;
+
+    function getId() returns int {
+        return self.id;
+    }
+};
+
+type MyController object {
+    readonly Owner owner;
+    readonly Printer printer;
+
+    function __init(Owner & readonly ow, Printer pr) {
+        self.owner = ow;
+        self.printer = <Printer & readonly> pr;
+    }
+};
+
+type Printer abstract object {
+    function getPrintString(string s) returns string;
+};
+
+type Controller abstract object {
+    Owner owner;
+    Printer printer;
+};
+
+type Owner abstract object {
+    function getId() returns int;
+};
+
+type MyPrinter object {
+    readonly int id;
+
+    function __init(int id) {
+        self.id = id;
+    }
+
+    function getPrintString(string s) returns string {
+        return string `ID[${self.id}]: ${s}`;
+    }
+};
+
+function testImmutableObjects() {
+    Controller & readonly cr = new MyController(new MyOwner(), new MyPrinter(1234));
+
+    any x = cr;
+    assertTrue(x is Controller);
+    assertTrue(x is MyController);
+    assertTrue(x is Controller & readonly);
+
+    Controller cr2 = cr;
+    assertTrue(cr2.owner is Owner & readonly);
+    assertTrue(cr2.owner is MyOwner);
+    assertTrue(cr2.printer is Printer & readonly);
+    assertTrue(cr2.printer is MyPrinter);
+    assertEquality(238475, cr.owner.getId());
+    assertEquality("ID[1234]: str to print", cr.printer.getPrintString("str to print"));
 }
 
 type AssertionError error<ASSERTION_ERROR_REASON>;

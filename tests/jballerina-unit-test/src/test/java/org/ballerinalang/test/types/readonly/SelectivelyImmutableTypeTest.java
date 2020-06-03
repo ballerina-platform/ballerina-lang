@@ -43,7 +43,7 @@ public class SelectivelyImmutableTypeTest {
 
     @Test
     public void testReadonlyType() {
-        BRunUtil.invoke(result, "testReadonlyType");
+        BRunUtil.invoke(result, "testImmutableTypes");
     }
 
     @Test
@@ -78,6 +78,8 @@ public class SelectivelyImmutableTypeTest {
                       17);
         validateError(result, index++, "invalid intersection type with 'readonly', 'table<Bar> key(name)' can never " +
                               "be 'readonly'", 152, 5);
+        validateError(result, index++, "invalid intersection type with 'readonly', 'Baz' can never be 'readonly'", 164,
+                      5);
 
         assertEquals(result.getErrorCount(), index);
     }

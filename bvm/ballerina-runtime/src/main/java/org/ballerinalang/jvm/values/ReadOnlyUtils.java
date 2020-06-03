@@ -253,6 +253,11 @@ public class ReadOnlyUtils {
     }
 
     private static BIntersectionType createAndSetImmutableIntersectionType(BType originalType, BType effectiveType) {
+        return createAndSetImmutableIntersectionType(originalType.getPackage(), originalType, effectiveType);
+    }
+
+    private static BIntersectionType createAndSetImmutableIntersectionType(BPackage pkg, BType originalType,
+                                                                           BType effectiveType) {
         int typeFlags = 0;
 
         if (effectiveType.isAnydata()) {
@@ -267,7 +272,9 @@ public class ReadOnlyUtils {
             typeFlags |= TypeFlags.NILABLE;
         }
 
-        BIntersectionType intersectionType = new BIntersectionType(new BType[]{ originalType, BTypes.typeReadonly },
+        BIntersectionType intersectionType = new BIntersectionType(pkg, // TODO: 6/3/20 Fix to use current package
+                                                                   // for records and objects
+                                                                   new BType[]{ originalType, BTypes.typeReadonly },
                                                                    effectiveType, typeFlags, true);
         originalType.setImmutableType(intersectionType);
         return intersectionType;

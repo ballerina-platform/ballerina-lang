@@ -44,7 +44,7 @@ public class BObjectType extends BStructureType implements ObjectType {
     private static final String SEMI_COLON = ";";
 
     public BIntersectionType immutableType;
-    public BObjectType mutableType;
+    public BObjectType mutableType = null;
 
     public BObjectType(BTypeSymbol tSymbol) {
         super(TypeTags.OBJECT, tSymbol);
