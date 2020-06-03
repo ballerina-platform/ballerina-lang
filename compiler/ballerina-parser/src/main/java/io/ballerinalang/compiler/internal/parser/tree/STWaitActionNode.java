@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.WaitActionNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,13 +37,30 @@ public class STWaitActionNode extends STActionNode {
     STWaitActionNode(
             STNode waitKeyword,
             STNode waitFutureExpr) {
-        super(SyntaxKind.WAIT_ACTION);
+        this(
+                waitKeyword,
+                waitFutureExpr,
+                Collections.emptyList());
+    }
+
+    STWaitActionNode(
+            STNode waitKeyword,
+            STNode waitFutureExpr,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.WAIT_ACTION, diagnostics);
         this.waitKeyword = waitKeyword;
         this.waitFutureExpr = waitFutureExpr;
 
         addChildren(
                 waitKeyword,
                 waitFutureExpr);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STWaitActionNode(
+                this.waitKeyword,
+                this.waitFutureExpr,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

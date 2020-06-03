@@ -25,7 +25,7 @@ function stampJSONToXML() returns xml|error {
 
     json jsonValue = { name: "Raja", age: 25, salary: 20000 };
 
-    xml|error xmlValue = xml.constructFrom(jsonValue);
+    xml|error xmlValue = jsonValue.cloneWithType(xml);
     return xmlValue;
 }
 
@@ -34,7 +34,7 @@ function stampJSONToXML() returns xml|error {
 function stampJSONToTuple() returns [string, string]|error {
 
     json jsonValue = { name: "Raja", status: "single" };
-    [string, string]|error tupleValue = [string, string].constructFrom(jsonValue);
+    [string, string]|error tupleValue = jsonValue.cloneWithType([string, string]);
 
     return tupleValue;
 }

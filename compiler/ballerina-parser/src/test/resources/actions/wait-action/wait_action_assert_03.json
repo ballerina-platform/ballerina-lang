@@ -71,23 +71,18 @@
                       "kind": "WAIT_KEYWORD"
                     },
                     {
-                      "kind": "LIST",
+                      "kind": "BINARY_EXPRESSION",
                       "children": [
                         {
-                          "kind": "BINARY_EXPRESSION",
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "a"
-                            },
-                            {
-                              "kind": "PIPE_TOKEN"
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true
-                            }
-                          ]
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        },
+                        {
+                          "kind": "PIPE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "isMissing": true
                         }
                       ]
                     }
@@ -142,23 +137,18 @@
                       "kind": "WAIT_KEYWORD"
                     },
                     {
-                      "kind": "LIST",
+                      "kind": "BINARY_EXPRESSION",
                       "children": [
                         {
-                          "kind": "BINARY_EXPRESSION",
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "a"
-                            },
-                            {
-                              "kind": "PIPE_TOKEN"
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true
-                            }
-                          ]
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        },
+                        {
+                          "kind": "PIPE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "isMissing": true
                         }
                       ]
                     }

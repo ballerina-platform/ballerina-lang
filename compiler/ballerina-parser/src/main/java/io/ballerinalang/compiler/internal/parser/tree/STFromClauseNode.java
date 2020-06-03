@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -40,7 +43,23 @@ public class STFromClauseNode extends STClauseNode {
             STNode variableName,
             STNode inKeyword,
             STNode expression) {
-        super(SyntaxKind.FROM_CLAUSE);
+        this(
+                fromKeyword,
+                typeName,
+                variableName,
+                inKeyword,
+                expression,
+                Collections.emptyList());
+    }
+
+    STFromClauseNode(
+            STNode fromKeyword,
+            STNode typeName,
+            STNode variableName,
+            STNode inKeyword,
+            STNode expression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.FROM_CLAUSE, diagnostics);
         this.fromKeyword = fromKeyword;
         this.typeName = typeName;
         this.variableName = variableName;
@@ -53,6 +72,16 @@ public class STFromClauseNode extends STClauseNode {
                 variableName,
                 inKeyword,
                 expression);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STFromClauseNode(
+                this.fromKeyword,
+                this.typeName,
+                this.variableName,
+                this.inKeyword,
+                this.expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

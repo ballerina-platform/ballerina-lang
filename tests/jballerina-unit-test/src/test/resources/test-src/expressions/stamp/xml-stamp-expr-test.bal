@@ -19,13 +19,13 @@
 function stampXMLToXML() returns xml|error {
     xml xmlValue = xml `<book>The Lost World</book>`;
 
-    xml|error returnValue = xml.constructFrom(xmlValue);
+    xml|error returnValue = xmlValue.cloneWithType(xml);
     return returnValue;
 }
 
 function stampXMLToAnydata() returns anydata|error {
     xml xmlValue = xml `<book>The Lost World</book>`;
 
-    anydata|error anydataValue = anydata.constructFrom(xmlValue);
+    anydata|error anydataValue = xmlValue.cloneWithType(anydata);
     return anydataValue;
 }

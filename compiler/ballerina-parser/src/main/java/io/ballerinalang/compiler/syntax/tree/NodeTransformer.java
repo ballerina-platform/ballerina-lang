@@ -568,6 +568,18 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(listBindingPatternNode);
     }
 
+    public T transform(MappingBindingPatternNode mappingBindingPatternNode) {
+        return transformSyntaxNode(mappingBindingPatternNode);
+    }
+
+    public T transform(FieldBindingPatternFullNode fieldBindingPatternFullNode) {
+        return transformSyntaxNode(fieldBindingPatternFullNode);
+    }
+
+    public T transform(FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
+        return transformSyntaxNode(fieldBindingPatternVarnameNode);
+    }
+
     public T transform(RestBindingPatternNode restBindingPatternNode) {
         return transformSyntaxNode(restBindingPatternNode);
     }
@@ -658,6 +670,14 @@ public abstract class NodeTransformer<T> {
 
     public T transform(TransactionalExpressionNode transactionalExpressionNode) {
         return transformSyntaxNode(transactionalExpressionNode);
+    }
+
+    public T transform(ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
+        return transformSyntaxNode(serviceConstructorExpressionNode);
+    }
+
+    public T transform(ByteArrayLiteralNode byteArrayLiteralNode) {
+        return transformSyntaxNode(byteArrayLiteralNode);
     }
 
     // Tokens
