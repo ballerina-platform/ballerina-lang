@@ -7715,7 +7715,8 @@ public class BallerinaParser extends AbstractParser {
         return parseXMLDeclRhs(peek().kind, xmlnsKeyword, namespaceUri, isModuleVar);
     }
 
-    private STNode parseXMLDeclRhs(SyntaxKind nextTokenKind, STNode xmlnsKeyword, STNode namespaceUri, boolean isModuleVar) {
+    private STNode parseXMLDeclRhs(SyntaxKind nextTokenKind, STNode xmlnsKeyword, STNode namespaceUri,
+                                   boolean isModuleVar) {
         STNode asKeyword = STNodeFactory.createEmptyNode();
         STNode namespacePrefix = STNodeFactory.createEmptyNode();
 
@@ -7729,7 +7730,8 @@ public class BallerinaParser extends AbstractParser {
             default:
                 STToken token = peek();
                 Solution solution =
-                        recover(token, ParserRuleContext.XML_NAMESPACE_PREFIX_DECL, xmlnsKeyword, namespaceUri);
+                        recover(token, ParserRuleContext.XML_NAMESPACE_PREFIX_DECL, xmlnsKeyword, namespaceUri,
+                                isModuleVar);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
