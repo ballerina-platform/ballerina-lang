@@ -19,6 +19,7 @@
 package org.ballerinalang.test.service.websocket;
 
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import org.awaitility.Awaitility;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServer;
@@ -146,6 +147,7 @@ public class FailoverClientTest extends WebSocketTestCommons {
     private WebSocketTestClient initiateClient(String url) throws InterruptedException, URISyntaxException {
         WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
+        Awaitility.await().atMost(TIMEOUT_IN_SECS, TimeUnit.SECONDS).until(() -> client.isOpen());
         return client;
     }
 
@@ -156,6 +158,8 @@ public class FailoverClientTest extends WebSocketTestCommons {
     }
 
     private void sendTextDataAndAssert(WebSocketTestClient client) throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+        latch.await(6, TimeUnit.SECONDS);
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
         client.sendText(MESSAGE);
@@ -164,6 +168,8 @@ public class FailoverClientTest extends WebSocketTestCommons {
     }
 
     private void sendBinaryDataAndAssert(WebSocketTestClient client) throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+        latch.await(6, TimeUnit.SECONDS);
         ByteBuffer data = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 6});
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
