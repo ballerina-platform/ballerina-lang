@@ -139,6 +139,14 @@ public function fromJsonString(string str) returns json|error = external;
 public function fromJsonWithType(json v, typedesc<anydata> t)
     returns t|error = external;
 
+# Converts a string in JSON format to a user-specified type.
+# This is a combination of `fromJsonString` followed by
+# `fromJsonWithType`.
+# + str - string in JSON format
+# + t - type to convert to
+# + return - value belonging to `t`, or error if this cannot be done
+public function fromJsonStringWithType(string str, typedesc<anydata> t) returns t|error = external;
+
 # Merges two json values.
 #
 # + j1 - json value
