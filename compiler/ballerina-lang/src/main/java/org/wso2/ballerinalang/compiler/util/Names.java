@@ -96,6 +96,7 @@ public class Names {
     public static final Name DETAIL_CAUSE = new Name("cause");
 
     public static final Name NEVER = new Name("never");
+    public static final Name RAW_TEMPLATE = new Name("RawTemplate");
 
     // Subtypes
     public static final Name SIGNED32 = new Name(STRING_SIGNED32);
