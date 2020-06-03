@@ -76,7 +76,7 @@ public class FailoverClientTest extends WebSocketTestCommons {
     @Test(description = "Tests the failover webSocket client by not starting any of the servers in the targets URLs")
     public void testFailingFailover() throws URISyntaxException, InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        WebSocketTestClient client = initiateClient(URL);
+        WebSocketTestClient client = initiateClient("ws://localhost:21035");
         client.setCountDownLatch(countDownLatch);
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         CloseWebSocketFrame closeWebSocketFrame = client.getReceivedCloseFrame();
