@@ -14,6 +14,7 @@ plugins {
     id "com.github.spotbugs" version "1.6.10"
     id "de.undercouch.download" version "3.4.3"
     id 'base'
+    id 'maven-publish'
 }
 
 group 'DataMapper'
@@ -64,4 +65,44 @@ apply plugin: 'checkstyle'
 checkstyle {
     toolVersion '8.18'
     configFile rootProject.file("build-config/checkstyle/checkstyle.xml")
+}
+
+subprojects {
+apply plugin: 'maven-publish'
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId project.group
+            artifactId project.name
+            version = project.version
+        }
+    }
+    repositories {
+        maven {
+            if(project.version.endsWith('-SNAPSHOT')) {
+                url "https://maven.wso2.org/nexus/content/repositories/snapshots/"
+            } else {
+                url "https://maven.wso2.org/nexus/service/local/staging/deploy/maven2/"
+            }
+            credentials {
+                username System.getenv("NEXUS_USERNAME")
+                password System.getenv("NEXUS_PASSWORD")
+            }
+        }
+    }
+}
+
+release {
+    // Disable check snapshots temporarily
+    failOnSnapshotDependencies = false
+    failOnCommitNeeded = false
+    tagTemplate = 'v${version}'
+    git {
+        // To release from any branch
+        requireBranch = null
+    }
+}
+
+afterReleaseBuild.dependsOn publishToMavenLocal
+afterReleaseBuild.dependsOn publish
 }
