@@ -173,7 +173,7 @@ public class BallerinaLexer extends AbstractLexer {
                 token = getSyntaxToken(SyntaxKind.ASTERISK_TOKEN);
                 break;
             case LexerTerminals.SLASH:
-                token = getSyntaxToken(SyntaxKind.SLASH_TOKEN);
+                token = processSlashToken();
                 break;
             case LexerTerminals.PERCENT:
                 token = getSyntaxToken(SyntaxKind.PERCENT_TOKEN);
@@ -464,6 +464,9 @@ public class BallerinaLexer extends AbstractLexer {
         } else if (nexChar == LexerTerminals.AT) {
             reader.advance();
             return getSyntaxToken(SyntaxKind.ANNOT_CHAINING_TOKEN);
+        } else if (nexChar == LexerTerminals.LT) {
+            reader.advance();
+            return getSyntaxToken(SyntaxKind.DOT_LT_TOKEN);
         }
 
         if (this.mode != ParserMode.IMPORT && isDigit(nexChar)) {
@@ -1275,6 +1278,31 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.LOGICAL_OR_TOKEN);
             default:
                 return getSyntaxToken(SyntaxKind.PIPE_TOKEN);
+        }
+    }
+
+    /**
+     * Process any token that starts with '/'.
+     *
+     * @return One of the tokens: <code>'/', '/<', '/*', '/**\/<' </code>
+     */
+    private STToken processSlashToken() {
+        switch (peek()) { // check for the second char
+            case LexerTerminals.LT:
+                reader.advance();
+                return getSyntaxToken(SyntaxKind.SLASH_LT_TOKEN);
+            case LexerTerminals.ASTERISK:
+                reader.advance();
+                if (peek() != LexerTerminals.ASTERISK) { // check for the third char
+                    return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
+                } else if (reader.peek(1) == LexerTerminals.SLASH && reader.peek(2) == LexerTerminals.LT) {
+                    reader.advance(3);
+                    return getSyntaxToken(SyntaxKind.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN);
+                } else {
+                    return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
+                }
+            default:
+                return getSyntaxToken(SyntaxKind.SLASH_TOKEN);
         }
     }
 

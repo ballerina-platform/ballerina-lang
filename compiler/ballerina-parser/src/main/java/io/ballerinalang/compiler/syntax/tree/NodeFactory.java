@@ -2570,5 +2570,59 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 endBacktick.internalNode());
         return stByteArrayLiteralNode.createUnlinkedFacade();
     }
+
+    public static XMLFilterExpressionNode createXMLFilterExpressionNode(
+            ExpressionNode expression,
+            XMLNamePatternChainingNode xmlPatternChain) {
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(xmlPatternChain, "xmlPatternChain must not be null");
+
+        STNode stXMLFilterExpressionNode = STNodeFactory.createXMLFilterExpressionNode(
+                expression.internalNode(),
+                xmlPatternChain.internalNode());
+        return stXMLFilterExpressionNode.createUnlinkedFacade();
+    }
+
+    public static XMLStepExpressionNode createXMLStepExpressionNode(
+            ExpressionNode expression,
+            Node xmlStepStart) {
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(xmlStepStart, "xmlStepStart must not be null");
+
+        STNode stXMLStepExpressionNode = STNodeFactory.createXMLStepExpressionNode(
+                expression.internalNode(),
+                xmlStepStart.internalNode());
+        return stXMLStepExpressionNode.createUnlinkedFacade();
+    }
+
+    public static XMLNamePatternChainingNode createXMLNamePatternChainingNode(
+            Token startToken,
+            SeparatedNodeList<Node> xmlNamePattern,
+            Token gtToken) {
+        Objects.requireNonNull(startToken, "startToken must not be null");
+        Objects.requireNonNull(xmlNamePattern, "xmlNamePattern must not be null");
+        Objects.requireNonNull(gtToken, "gtToken must not be null");
+
+        STNode stXMLNamePatternChainingNode = STNodeFactory.createXMLNamePatternChainingNode(
+                startToken.internalNode(),
+                xmlNamePattern.underlyingListNode().internalNode(),
+                gtToken.internalNode());
+        return stXMLNamePatternChainingNode.createUnlinkedFacade();
+    }
+
+    public static XMLAtomicNamePatternNode createXMLAtomicNamePatternNode(
+            Token prefix,
+            Token colon,
+            Token name) {
+        Objects.requireNonNull(prefix, "prefix must not be null");
+        Objects.requireNonNull(colon, "colon must not be null");
+        Objects.requireNonNull(name, "name must not be null");
+
+        STNode stXMLAtomicNamePatternNode = STNodeFactory.createXMLAtomicNamePatternNode(
+                prefix.internalNode(),
+                colon.internalNode(),
+                name.internalNode());
+        return stXMLAtomicNamePatternNode.createUnlinkedFacade();
+    }
 }
 

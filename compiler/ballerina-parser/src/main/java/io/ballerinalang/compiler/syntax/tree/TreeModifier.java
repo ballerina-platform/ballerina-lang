@@ -2601,6 +2601,60 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 endBacktick);
     }
 
+    @Override
+    public XMLFilterExpressionNode transform(
+            XMLFilterExpressionNode xMLFilterExpressionNode) {
+        ExpressionNode expression =
+                modifyNode(xMLFilterExpressionNode.expression());
+        XMLNamePatternChainingNode xmlPatternChain =
+                modifyNode(xMLFilterExpressionNode.xmlPatternChain());
+        return xMLFilterExpressionNode.modify(
+                expression,
+                xmlPatternChain);
+    }
+
+    @Override
+    public XMLStepExpressionNode transform(
+            XMLStepExpressionNode xMLStepExpressionNode) {
+        ExpressionNode expression =
+                modifyNode(xMLStepExpressionNode.expression());
+        Node xmlStepStart =
+                modifyNode(xMLStepExpressionNode.xmlStepStart());
+        return xMLStepExpressionNode.modify(
+                expression,
+                xmlStepStart);
+    }
+
+    @Override
+    public XMLNamePatternChainingNode transform(
+            XMLNamePatternChainingNode xMLNamePatternChainingNode) {
+        Token startToken =
+                modifyToken(xMLNamePatternChainingNode.startToken());
+        SeparatedNodeList<Node> xmlNamePattern =
+                modifySeparatedNodeList(xMLNamePatternChainingNode.xmlNamePattern());
+        Token gtToken =
+                modifyToken(xMLNamePatternChainingNode.gtToken());
+        return xMLNamePatternChainingNode.modify(
+                startToken,
+                xmlNamePattern,
+                gtToken);
+    }
+
+    @Override
+    public XMLAtomicNamePatternNode transform(
+            XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
+        Token prefix =
+                modifyToken(xMLAtomicNamePatternNode.prefix());
+        Token colon =
+                modifyToken(xMLAtomicNamePatternNode.colon());
+        Token name =
+                modifyToken(xMLAtomicNamePatternNode.name());
+        return xMLAtomicNamePatternNode.modify(
+                prefix,
+                colon,
+                name);
+    }
+
     // Tokens
 
     @Override
