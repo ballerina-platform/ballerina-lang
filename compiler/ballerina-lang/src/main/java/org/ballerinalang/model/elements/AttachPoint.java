@@ -131,4 +131,20 @@ public class AttachPoint {
         }
         return null;
     }
+
+    public static Point fromString(String text) {
+        if (text.equals("object")) {
+            text = "objecttype";
+        } else if (text.equals("record")) {
+            text = "recordfield";
+        } else if (text.equals("resource")) {
+            text = "resourcefunction";
+        }
+        for (Point point : Point.values()) {
+            if (point.value.equals(text)) {
+                return point;
+            }
+        }
+        return null;
+    }
 }
