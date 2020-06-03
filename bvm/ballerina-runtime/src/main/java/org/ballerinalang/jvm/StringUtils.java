@@ -65,7 +65,7 @@ public class StringUtils {
      * @param in Input stream to be converted to string
      * @return Converted string
      */
-    public static String getStringFromInputStream(InputStream in) {
+    public static BString getStringFromInputStream(InputStream in) {
         BufferedInputStream bis = new BufferedInputStream(in);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         String result;
@@ -83,10 +83,10 @@ public class StringUtils {
             } catch (IOException ignored) {
             }
         }
-        return result;
+        return StringUtils.fromString(result);
     }
 
-    public static String getStringFromInputStream(InputStream inputStream, String charset) {
+    public static BString getStringFromInputStream(InputStream inputStream, String charset) {
         StringBuilder textBuilder = new StringBuilder();
         try (Reader reader = new InputStreamReader(inputStream, Charset.forName(charset))) {
             int character;
@@ -96,7 +96,7 @@ public class StringUtils {
         } catch (IOException e) {
             throw new BallerinaException("Error occurred when reading input stream with the charset" + charset, e);
         }
-        return textBuilder.toString();
+        return StringUtils.fromString(textBuilder.toString());
     }
 
     public static String getStringAt(String s, long index) {

@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.email.util;
 
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
@@ -215,18 +214,14 @@ public class SmtpUtil {
             throws MessagingException {
         ArrayValue headerNamesArrayValue = EntityHeaders.getHeaderNames(mimeEntity,
                 StringUtils.fromString(MimeConstants.LEADING_HEADER));
-        HandleValue[] handleValues = (HandleValue[]) headerNamesArrayValue.getValues();
-        String[] headerNames = new String[handleValues.length];
-        for (int j = 0; j < handleValues.length; j++) {
-            headerNames[j] = handleValues[j].stringValue();
-        }
-        if (headerNames.length > 0) {
-            for (String headerName : headerNames) {
-                String headerValue = EntityHeaders.getHeader(mimeEntity, headerName,
+        if (headerNamesArrayValue.size() > 0) {
+            for (int i = 0; i < headerNamesArrayValue.size(); i++) {
+                BString headerName = (BString) headerNamesArrayValue.get(i);
+                BString headerValue = EntityHeaders.getHeader(mimeEntity, headerName,
                         StringUtils.fromString(MimeConstants.LEADING_HEADER));
-                if (isNotEmpty(headerValue)) {
+                if (isNotEmpty(headerName.getValue())) {
                     log.debug("Added a MIME body part header " + headerName + " with value " + headerValue);
-                    attachmentBodyPart.setHeader(headerName, headerValue);
+                    attachmentBodyPart.setHeader(headerName.getValue(), headerValue.getValue());
                 }
             }
         }
