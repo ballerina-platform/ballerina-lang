@@ -137,6 +137,7 @@ import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.WaitActionNode;
 import io.ballerinalang.compiler.syntax.tree.WhileStatementNode;
+import io.ballerinalang.compiler.syntax.tree.WildcardBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.XMLComment;
 import io.ballerinalang.compiler.syntax.tree.XMLElementNode;
 import io.ballerinalang.compiler.syntax.tree.XMLEndTagNode;
@@ -1584,11 +1585,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return bLAssignmentDesc;
     }
 
+
     public void addListBindingPattern(BLangTupleVarRef bLangTupleVarRef,
                                       ListBindingPatternNode listBindingPatternNode) {
         Optional restBindingPatternNode =
                 listBindingPatternNode.restBindingPattern();
-        if (restBindingPatternNode != null) {
+        if (restBindingPatternNode.isPresent()) {
             bLangTupleVarRef.restParam =
                     createExpression(
                             ((RestBindingPatternNode) restBindingPatternNode.get()).
@@ -1608,6 +1610,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     bLangTupleVarRef.expressions.add(
                             createExpression(
                                     ((CaptureBindingPatternNode) expr).children().get(0))
+                    );
+                    break;
+                case WILDCARD_BINDING_PATTERN:
+                    bLangTupleVarRef.expressions.add(
+                            createExpression(
+                                    ((WildcardBindingPatternNode) expr).children().get(0))
                     );
                     break;
                 default:
