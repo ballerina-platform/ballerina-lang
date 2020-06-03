@@ -74,10 +74,10 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ImportDeclarationNode createImportDeclarationNode(
             Token importKeyword,
-            Node orgName,
+            ImportOrgNameNode orgName,
             SeparatedNodeList<IdentifierToken> moduleName,
-            Node version,
-            Node prefix,
+            ImportVersionNode version,
+            ImportPrefixNode prefix,
             Token semicolon) {
         Objects.requireNonNull(importKeyword, "importKeyword must not be null");
         Objects.requireNonNull(moduleName, "moduleName must not be null");
@@ -1428,7 +1428,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static KeySpecifierNode createKeySpecifierNode(
             Token keyKeyword,
             Token openParenToken,
-            SeparatedNodeList<Node> fieldNames,
+            SeparatedNodeList<IdentifierToken> fieldNames,
             Token closeParenToken) {
         Objects.requireNonNull(keyKeyword, "keyKeyword must not be null");
         Objects.requireNonNull(openParenToken, "openParenToken must not be null");
