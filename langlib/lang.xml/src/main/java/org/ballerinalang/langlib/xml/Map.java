@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.StrandMetaData;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -33,6 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
 import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
@@ -50,15 +53,18 @@ import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 )
 public class Map {
 
+    private static StrandMetaData
+            metaData = new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, XML_VERSION, "filter");
+
     public static XMLValue map(Strand strand, XMLValue x, FPValue<Object, Object> func) {
         if (x.isSingleton()) {
-            func.asyncCall(new Object[]{strand, x, true});
+            func.asyncCall(new Object[]{strand, x, true}, metaData);
             return null;
         }
         List<BXML> elements = new ArrayList<>();
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, x.size(),
+                .invokeFunctionPointerAsyncIteratively(func, null, metaData, x.size(),
                                                        () -> new Object[]{strand, x.getItem(index.incrementAndGet()),
                                                                true},
                                                        result -> elements.add((XMLValue) result),

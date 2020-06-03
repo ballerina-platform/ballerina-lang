@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.StrandMetaData;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.FPValue;
@@ -30,6 +31,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.getElementAccessFunction;
 import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 
@@ -45,13 +48,17 @@ import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 )
 public class ForEach {
 
+    private static StrandMetaData
+            metaData = new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB, ARRAY_VERSION, "forEach");
+
+
     public static void forEach(Strand strand, ArrayValue arr, FPValue<Object, Object> func) {
         int size = arr.size();
         BType arrType = arr.getType();
         GetFunction getFn = getElementAccessFunction(arrType, "forEach()");
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, size,
+                .invokeFunctionPointerAsyncIteratively(func, null, metaData, size,
                                                        () -> new Object[]{strand,
                                                                getFn.get(arr, index.incrementAndGet()), true},
                                                        result -> {

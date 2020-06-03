@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.StrandMetaData;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -33,6 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
 import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
@@ -50,6 +53,9 @@ import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 )
 public class Filter {
 
+    private static StrandMetaData
+            metaData = new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, XML_VERSION, "filter");
+
     public static XMLValue filter(Strand strand, XMLValue x, FPValue<Object, Boolean> func) {
         if (x.isSingleton()) {
             Object[] args = new Object[]{strand, x, true};
@@ -59,7 +65,7 @@ public class Filter {
                               return new XMLSequence(x);
                           }
                           return new XMLSequence();
-                      });
+                      }, metaData);
             return new XMLSequence();
         }
 
@@ -67,7 +73,7 @@ public class Filter {
         int size = x.size();
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, size,
+                .invokeFunctionPointerAsyncIteratively(func, null, metaData, size,
                                                        () -> new Object[]{strand,
                                                                x.getItem(index.incrementAndGet()), true},
                                                        result -> {

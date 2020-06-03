@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.StrandMetaData;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.values.FPValue;
@@ -32,6 +33,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.MAP_LANG_LIB;
 import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 
 /**
@@ -47,13 +50,16 @@ import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 )
 public class Map {
 
+    private static StrandMetaData
+            metaData = new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB, MAP_VERSION, "map");
+
     public static MapValue map(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func) {
         BMapType newMapType = new BMapType(((BFunctionType) func.getType()).retType);
         MapValue<Object, Object> newMap = new MapValueImpl<>(newMapType);
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, size,
+                .invokeFunctionPointerAsyncIteratively(func, null, metaData, size,
                                                        () -> new Object[]{strand,
                                                                m.get(m.getKeys()[index.incrementAndGet()]), true},
                                                        result -> newMap
