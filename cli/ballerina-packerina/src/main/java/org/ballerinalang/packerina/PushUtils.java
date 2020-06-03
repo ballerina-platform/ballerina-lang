@@ -130,14 +130,14 @@ public class PushUtils {
     }
     
     /**
-     * Push a balo file to remote repository.
+     * Push a .balo file to remote repository.
      *
-     * @param baloPath Path to the balo file.
+     * @param baloPath Path to the .balo file.
      */
     private static void pushBaloToRemote(Path baloPath) {
         Path baloFileName = baloPath.getFileName();
         if (null != baloFileName) {
-            // get the manifest from balo file
+            // get the manifest from .balo file
             Manifest manifest = RepoUtils.getManifestFromBalo(baloPath.toAbsolutePath());
             String moduleName = baloFileName.toString().split("-")[0];
             String orgName = manifest.getProject().getOrgName();
@@ -171,11 +171,11 @@ public class PushUtils {
     }
     
     /**
-     * Perform validations on the balo files to be pushed.
+     * Perform validations on the .balo files to be pushed.
      *
      * @param moduleNames    The list of modules to push.
      * @param sourceRootPath The path to the project root.
-     * @return A map of balo files along with their unresolved dependencies.
+     * @return A map of .balo files along with their unresolved dependencies.
      * @throws IOException When trying to access remote repository
      */
     private static Map<Path, List<Dependency>> validateBalos(List<String> moduleNames, Path sourceRootPath)
@@ -183,13 +183,14 @@ public class PushUtils {
         Map<Path, List<Dependency>> balos = new HashMap<>();
         
         for (String moduleName : moduleNames) {
-            // Get balo output path
+            // Get .balo output path
             Path baloOutputDir = Paths.get(sourceRootPath.toString(), ProjectDirConstants.TARGET_DIR_NAME,
                     ProjectDirConstants.TARGET_BALO_DIRECTORY);
     
             if (Files.notExists(baloOutputDir)) {
-                throw createLauncherException("cannot find balo file for the module: " + moduleName + ". Run " +
-                                              "'ballerina build -c <module_name>' to compile and generate the balo.");
+                throw createLauncherException("cannot find .balo file for the module: " + moduleName + ". Run " +
+                                              "'ballerina build -c <module_name>' to compile and generate the .balo " +
+                                              "file.");
             }
     
             Optional<Path> moduleBaloFile;
@@ -201,11 +202,12 @@ public class PushUtils {
             }
 
             if (!moduleBaloFile.isPresent()) {
-                throw createLauncherException("cannot find balo file for the module: " + moduleName + ". Run " +
-                                              "'ballerina build -c <module_name>' to compile and generate the balo.");
+                throw createLauncherException("cannot find .balo file for the module: " + moduleName + ". Run " +
+                                              "'ballerina build -c <module_name>' to compile and generate the .balo " +
+                                              "file.");
             }
     
-            // get the manifest from balo file
+            // get the manifest from .balo file
             Path baloFilePath = moduleBaloFile.get();
             Manifest manifest = RepoUtils.getManifestFromBalo(baloFilePath.toAbsolutePath());
             
@@ -230,7 +232,7 @@ public class PushUtils {
                                               "and the maximum length is 256 characters");
             }
     
-            // check if there are any dependencies with balo path
+            // check if there are any dependencies with .balo file path
             List<String> dependenciesWithBaloPath =
                     manifest.getDependencies().stream()
                             .filter(dep -> dep.getMetadata().getPath() != null)
@@ -292,9 +294,9 @@ public class PushUtils {
     }
     
     /**
-     * Push balos to remote repository in the order of there dependencies are resolved.
+     * Push .balo files to remote repository in the order of there dependencies are resolved.
      *
-     * @param balos The remaining balos to be pushed.
+     * @param balos The remaining .balo files to be pushed.
      * @throws IOException When trying to access remote repository
      */
     private static void recursivelyPushBalos(Map<Path, List<Dependency>> balos) throws IOException {
@@ -303,7 +305,7 @@ public class PushUtils {
             return;
         }
     
-        // go through the dependencies of balos and see if they are available in remote repository. if they are
+        // go through the dependencies of .balo files and see if they are available in remote repository. if they are
         // available remove them from the list.
         for (List<Dependency> deps : balos.values()) {
             Iterator<Dependency> depsIterator = deps.iterator();
@@ -319,12 +321,12 @@ public class PushUtils {
             }
         }
         
-        // check if there are balos where their dependencies are already available in remote repository
+        // check if there are .balo files where their dependencies are already available in remote repository
         Optional<List<Dependency>> baloWithAllDependenciesAvailableInCentral = balos.values().stream()
                 .filter(depList -> depList.size() == 0)
                 .findAny();
     
-        // if there isn't any balos where dependencies are resolved, then throw an error.
+        // if there isn't any .balo files where dependencies are resolved, then throw an error.
         if (!baloWithAllDependenciesAvailableInCentral.isPresent()) {
             Set<String> unresolvedDependencies = balos.values().stream()
                     .flatMap(List::stream)

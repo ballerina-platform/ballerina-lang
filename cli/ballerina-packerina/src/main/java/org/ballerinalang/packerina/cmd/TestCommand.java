@@ -62,7 +62,7 @@ import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.
 import static org.ballerinalang.packerina.cmd.Constants.TEST_COMMAND;
 
 /**
- * Compile Ballerina modules in to balo.
+ * Compile Ballerina modules in to .balo.
  *
  * @since 0.992.0
  */
@@ -365,7 +365,7 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
                 .addTask(new CreateTargetDirTask()) // create target directory.
                 .addTask(new CompileTask()) // compile the modules
-                .addTask(new CreateBaloTask(), isSingleFileBuild || listGroups) // create the balos for modules
+                .addTask(new CreateBaloTask(), isSingleFileBuild || listGroups) // create the .balo files for modules
                 // (projects only)
                 .addTask(new CreateBirTask(), listGroups)   // create the bir
                 .addTask(new CopyNativeLibTask(skipCopyLibsFromDist), listGroups) // copy the native libs(projects only)
@@ -394,7 +394,7 @@ public class TestCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Compiles Ballerina modules and create balo files. \n");
+        out.append("Compiles Ballerina modules and create .balo files. \n");
     }
 
     @Override

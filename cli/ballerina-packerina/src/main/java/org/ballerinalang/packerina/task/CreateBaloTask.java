@@ -26,18 +26,18 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- * Task for creating balo file. Balo file writer is meant for modules only and not for single files.
+ * Task for creating .balo file. Balo file writer is meant for modules only and not for single files.
  */
 public class CreateBaloTask implements Task {
     @Override
     public void execute(BuildContext buildContext) {
         buildContext.out().println();
-        buildContext.out().println("Creating balos");
+        buildContext.out().println("Creating .balo files");
         List<BLangPackage> modules = buildContext.getModules();
         for (BLangPackage module : modules) {
             Path baloPath = buildContext.getBaloFromTarget(module.packageID);
     
-            // generate balo for each module.
+            // generate .balo file for each module.
             BaloFileWriter baloWriter = BaloFileWriter.getInstance(buildContext);
             baloWriter.write(module, baloPath);
         }

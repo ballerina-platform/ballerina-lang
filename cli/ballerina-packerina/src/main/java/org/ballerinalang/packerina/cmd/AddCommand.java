@@ -126,7 +126,7 @@ public class AddCommand implements BLauncherCmd {
             for (String template : getTemplates()) {
                 errStream.println("    - " + template);
             }
-            // Get templates from balos
+            // Get templates from .balo files
             for (String template : getBaloTemplates()) {
                 errStream.println("    - " + template);
             }
@@ -257,7 +257,7 @@ public class AddCommand implements BLauncherCmd {
     }
 
     private void applyBaloTemplate(Path modulePath, String template) {
-        // find all balos matching org and module name.
+        // find all .balo files matching org and module name.
         Path baloTemplate = findBaloTemplate(template);
         if (baloTemplate != null) {
             String moduleName = getModuleName(baloTemplate);
@@ -365,7 +365,7 @@ public class AddCommand implements BLauncherCmd {
     }
 
     /**
-     * Iterate home cache and search for template balos.
+     * Iterate home cache and search for .balo file templates.
      *
      * @return list of templates
      */
@@ -423,7 +423,7 @@ public class AddCommand implements BLauncherCmd {
             return new String(Files.readAllBytes(metaDataToml), Charset.forName("UTF-8"))
                     .contains("template = \"true\"");
         } catch (IOException e) {
-            // we simply ignore the balo file
+            // we simply ignore the .balo file
         }
         return false;
     }

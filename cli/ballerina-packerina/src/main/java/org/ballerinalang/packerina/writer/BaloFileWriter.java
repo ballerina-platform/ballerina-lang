@@ -63,7 +63,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Generator and writer for module balo file.
+ * Generator and writer for module .balo file.
  *
  * @since 1.0
  */
@@ -95,10 +95,10 @@ public class BaloFileWriter {
     }
 
     /**
-     * Generate balo file for the given module.
+     * Generate .balo file for the given module.
      *
      * @param module ballerina module
-     * @param baloFilePath path to the balo file
+     * @param baloFilePath path to the .balo file
      */
     public void write(BLangPackage module, Path baloFilePath) {
         // Get the project directory
@@ -117,7 +117,7 @@ public class BaloFileWriter {
             buildContext.out().println("\t" + projectDirectory.relativize(baloFilePath));
         } catch (IOException e) {
             // todo Check for permission
-            throw new BLangCompilerException("Failed to create balo :" + e.getMessage(), e);
+            throw new BLangCompilerException("Failed to create .balo file :" + e.getMessage(), e);
         } catch (BLangCompilerException be) {
             // clean up if an error occur
             try {
@@ -295,7 +295,7 @@ public class BaloFileWriter {
     }
 
     private void addPlatformLibs(Path root, Path projectDirectory, String moduleName) throws IOException {
-        //If platform libs are defined add them to balo
+        //If platform libs are defined add them to .balo file
         List<Library> platformLibs = manifest.getPlatform().libraries;
         if (platformLibs == null) {
             return;

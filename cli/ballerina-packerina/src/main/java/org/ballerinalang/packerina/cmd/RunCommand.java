@@ -273,7 +273,7 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
                 .addTask(new CreateTargetDirTask()) // create target directory.
                 .addTask(new CompileTask()) // compile the modules
-                .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
+                .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the .balo files for modules(projects only)
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask())    // copy the native libs(projects only)
                 // create the jar.
