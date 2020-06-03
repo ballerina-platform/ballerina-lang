@@ -451,8 +451,8 @@ public class BallerinaLexer extends AbstractLexer {
      * @return Dot, ellipsis or decimal floating point token
      */
     private STToken processDot() {
-        int nexChar = reader.peek();
-        if (nexChar == LexerTerminals.DOT) {
+        int nextChar = reader.peek();
+        if (nextChar == LexerTerminals.DOT) {
             int nextNextChar = reader.peek(1);
             if (nextNextChar == LexerTerminals.DOT) {
                 reader.advance(2);
@@ -461,15 +461,15 @@ public class BallerinaLexer extends AbstractLexer {
                 reader.advance(2);
                 return getSyntaxToken(SyntaxKind.DOUBLE_DOT_LT_TOKEN);
             }
-        } else if (nexChar == LexerTerminals.AT) {
+        } else if (nextChar == LexerTerminals.AT) {
             reader.advance();
             return getSyntaxToken(SyntaxKind.ANNOT_CHAINING_TOKEN);
-        } else if (nexChar == LexerTerminals.LT) {
+        } else if (nextChar == LexerTerminals.LT) {
             reader.advance();
             return getSyntaxToken(SyntaxKind.DOT_LT_TOKEN);
         }
 
-        if (this.mode != ParserMode.IMPORT && isDigit(nexChar)) {
+        if (this.mode != ParserMode.IMPORT && isDigit(nextChar)) {
             return processDecimalFloatLiteral();
         }
         return getSyntaxToken(SyntaxKind.DOT_TOKEN);
@@ -565,6 +565,11 @@ public class BallerinaLexer extends AbstractLexer {
                 case 'F':
                 case 'd':
                 case 'D':
+                    // If there's more than one dot, only capture the integer
+                    if (reader.peek(1) == LexerTerminals.DOT) {
+                        break;
+                    }
+
                     // In sem-var mode, only decimal integer literals are supported
                     if (this.mode == ParserMode.IMPORT) {
                         break;
@@ -572,7 +577,7 @@ public class BallerinaLexer extends AbstractLexer {
 
                     // Integer part of the float cannot have a leading zero
                     if (startChar == '0' && len > 1) {
-                        break;
+                        reportLexerError("extra leading zero");
                     }
 
                     // Code would not reach here if the floating point starts with a dot
@@ -589,11 +594,9 @@ public class BallerinaLexer extends AbstractLexer {
             break;
         }
 
-        // Integer or integer part of the float cannot have a leading zero
+        // Integer cannot have a leading zero
         if (startChar == '0' && len > 1) {
             reportLexerError("extra leading zero");
-            processInvalidToken();
-            return readToken();
         }
 
         return getLiteral(SyntaxKind.DECIMAL_INTEGER_LITERAL);
@@ -685,9 +688,7 @@ public class BallerinaLexer extends AbstractLexer {
 
         // Make sure at least one digit is present after the indicator
         if (!isDigit(nextChar)) {
-            reportLexerError("missing digit");
-            processInvalidToken();
-            return readToken();
+            reportLexerError("missing digit after exponent indicator");
         }
 
         while (isDigit(nextChar)) {
@@ -758,10 +759,7 @@ public class BallerinaLexer extends AbstractLexer {
 
         // Make sure at least one hex-digit present if processing started from a dot
         if (peek() == LexerTerminals.DOT && !isHexDigit(reader.peek(1))) {
-            reader.advance();
-            reportLexerError("missing hex-digit");
-            processInvalidToken();
-            return readToken();
+            reportLexerError("missing hex-digit after dot");
         }
 
         int nextChar;
