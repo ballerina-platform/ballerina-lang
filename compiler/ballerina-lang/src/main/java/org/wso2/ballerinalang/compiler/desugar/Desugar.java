@@ -330,6 +330,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangMatchTypedBindingPatternClause successPattern;
     private BLangAssignment safeNavigationAssignment;
     static boolean isJvmTarget = false;
+    static CompilerContext context;
 
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
@@ -343,22 +344,23 @@ public class Desugar extends BLangNodeVisitor {
     private Desugar(CompilerContext context) {
         // This is a temporary flag to differentiate desugaring to BVM vs BIR
         // TODO: remove this once bootstraping is added.
+        this.context = context;
         isJvmTarget = true;
 
-        context.put(DESUGAR_KEY, this);
-        this.symTable = SymbolTable.getInstance(context);
-        this.symResolver = SymbolResolver.getInstance(context);
-        this.symbolEnter = SymbolEnter.getInstance(context);
-        this.closureDesugar = ClosureDesugar.getInstance(context);
-        this.queryDesugar = QueryDesugar.getInstance(context);
-        this.transactionDesugar = TransactionDesugar.getInstance(context);
-        this.annotationDesugar = AnnotationDesugar.getInstance(context);
-        this.types = Types.getInstance(context);
-        this.names = Names.getInstance(context);
-        this.names = Names.getInstance(context);
-        this.serviceDesugar = ServiceDesugar.getInstance(context);
-        this.nodeCloner = NodeCloner.getInstance(context);
-        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
+        this.context.put(DESUGAR_KEY, this);
+        this.symTable = SymbolTable.getInstance(this.context);
+        this.symResolver = SymbolResolver.getInstance(this.context);
+        this.symbolEnter = SymbolEnter.getInstance(this.context);
+        this.closureDesugar = ClosureDesugar.getInstance(this.context);
+        this.queryDesugar = QueryDesugar.getInstance(this.context);
+        this.transactionDesugar = TransactionDesugar.getInstance(this.context);
+        this.annotationDesugar = AnnotationDesugar.getInstance(this.context);
+        this.types = Types.getInstance(this.context);
+        this.names = Names.getInstance(this.context);
+        this.names = Names.getInstance(this.context);
+        this.serviceDesugar = ServiceDesugar.getInstance(this.context);
+        this.nodeCloner = NodeCloner.getInstance(this.context);
+        this.semanticAnalyzer = SemanticAnalyzer.getInstance(this.context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -2352,13 +2354,100 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
-        //TODO Transaction
-        if (retryNode.retrySpec != null) {
-            rewriteExprs(retryNode.retrySpec.argExprs);
+        BLangBlockStmt retryBlockStmt = ASTBuilderUtil.createBlockStmt(retryNode.pos);
+        BType retryManagerType = null;
+        if (retryNode.getRetrySpec() != null) {
+            retryManagerType = retryNode.retrySpec.type;
         }
 
-        rewriteStmt(retryNode.retryBody.stmts, env);
-        result = retryNode;
+        //<RetryManagerType> $retryManager$ = new;
+        BVarSymbol retryMangerSymbol = new BVarSymbol(0, names.fromString("$retryManager$"),
+                env.scope.owner.pkgID, retryManagerType, this.env.scope.owner);
+        BLangTypeInit managerInit = ASTBuilderUtil.createEmptyTypeInit(retryNode.pos, retryManagerType);
+        BLangSimpleVariable retryManagerVariable = ASTBuilderUtil.createVariable(retryNode.pos, "$retryManager$",
+                retryManagerType, managerInit, retryMangerSymbol);
+        BLangSimpleVariableDef retryManagerVarDef = ASTBuilderUtil.createVariableDef(retryNode.pos, retryManagerVariable);
+        BLangSimpleVarRef retryManagerVarRef = new BLangSimpleVarRef.BLangLocalVarRef(retryMangerSymbol);
+        retryManagerVarRef.type = retryMangerSymbol.type;
+        retryBlockStmt.stmts.add(retryManagerVarDef);
+
+        BLangBlockFunctionBody retryBody = ASTBuilderUtil.createBlockFunctionBody(retryNode.retryBody.pos);
+        BLangType transactionLambdaReturnType = ASTBuilderUtil.createTypeNode(symTable.errorOrNilType);
+        BLangLambdaFunction retryFunc = createLambdaFunction(retryNode.pos, "$retryFunc$",
+                Collections.emptyList(), transactionLambdaReturnType, retryBody);
+        retryBody.stmts.addAll(retryNode.retryBody.stmts);
+        BVarSymbol retryFuncVarSymbol = new BVarSymbol(0, names.fromString("$retryFunc$"),
+                env.scope.owner.pkgID, retryFunc.type, retryFunc.function.symbol);
+        BLangSimpleVariable retryLambdaVariable = ASTBuilderUtil.createVariable(retryNode.pos, "retryFunc",
+                retryFunc.type, retryFunc, retryFuncVarSymbol);
+        BLangSimpleVariableDef retryLambdaVariableDef = ASTBuilderUtil.createVariableDef(retryNode.pos,
+                retryLambdaVariable);
+        BLangSimpleVarRef retryLambdaVarRef = new BLangSimpleVarRef.BLangLocalVarRef(retryLambdaVariable.symbol);
+        retryBlockStmt.stmts.add(retryLambdaVariableDef);
+
+        // Add lambda function call
+        BLangInvocation retryLambdaInvocation = new BLangInvocation.BFunctionPointerInvocation(retryNode.pos,
+                retryLambdaVarRef, retryLambdaVariable.symbol, symTable.errorOrNilType);
+        retryLambdaInvocation.argExprs = new ArrayList<>();
+        BLangTrapExpr retryFunctionTrapExpression = (BLangTrapExpr) TreeBuilder.createTrapExpressionNode();
+        retryFunctionTrapExpression.type = BUnionType.create(null, symTable.errorType, symTable.nilType);
+        retryFunctionTrapExpression.expr = retryLambdaInvocation;
+
+        retryFunc.capturedClosureEnv = env;
+
+        BVarSymbol retryFunctionVarSymbol = new BVarSymbol(0, new Name("$result$"),
+                env.scope.owner.pkgID, symTable.errorOrNilType, env.scope.owner);
+        BLangSimpleVariable retryFunctionVariable = ASTBuilderUtil.createVariable(retryNode.pos, "$result$",
+                symTable.errorOrNilType, retryFunctionTrapExpression, retryFunctionVarSymbol);
+        BLangSimpleVariableDef retryFunctionVariableDef = ASTBuilderUtil.createVariableDef(retryNode.pos,
+                retryFunctionVariable);
+        BLangSimpleVarRef retryFunctionVariableRef = new BLangSimpleVarRef.BLangLocalVarRef(retryFunctionVariable.symbol);
+        retryFunctionVariableRef.type = retryFunctionVariable.symbol.type;
+        retryBlockStmt.stmts.add(retryFunctionVariableDef);
+
+        ClosureExpressionVisitor closureExpressionVisitor
+                = new ClosureExpressionVisitor(this.context, env, true);
+        retryFunc.accept(closureExpressionVisitor);
+
+        rewrite(retryBlockStmt, this.env);
+        // create while loop: while ($retryManager$.shouldRetry($result$))
+        BLangWhile whileNode = (BLangWhile) TreeBuilder.createWhileNode();
+        whileNode.pos = retryNode.pos;
+        whileNode.expr = createRetryManagerShouldRetryInvocation(retryNode.pos, retryManagerVarRef,
+                retryFunctionVariableRef);
+        BLangBlockStmt whileBlockStmnt = ASTBuilderUtil.createBlockStmt(retryNode.pos);
+        BLangAssignment assignment = ASTBuilderUtil.createAssignmentStmt(retryNode.pos, retryFunctionVariableRef,
+                retryFunctionTrapExpression);
+        whileBlockStmnt.stmts.add(assignment);
+        whileNode.body = whileBlockStmnt;
+        retryBlockStmt.stmts.add(whileNode);
+
+        rewriteStmt(retryBlockStmt.stmts, env);
+        result = retryBlockStmt;
+    }
+
+    BLangInvocation createRetryManagerShouldRetryInvocation(DiagnosticPos pos, BLangSimpleVarRef managerVarRef,
+                                                            BLangSimpleVarRef trapResultRef) {
+        BInvokableSymbol shouldRetryFuncSymbol = getShouldRetryFunc((BVarSymbol) managerVarRef.symbol).symbol;
+        BLangInvocation shouldRetryInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
+        shouldRetryInvocation.pos = pos;
+        shouldRetryInvocation.expr = managerVarRef;
+        shouldRetryInvocation.requiredArgs = Lists.of(trapResultRef);
+        shouldRetryInvocation.argExprs = shouldRetryInvocation.requiredArgs;
+        shouldRetryInvocation.symbol = shouldRetryFuncSymbol;
+        shouldRetryInvocation.type = shouldRetryFuncSymbol.retType;
+        shouldRetryInvocation.langLibInvocation = false;
+        return shouldRetryInvocation;
+    }
+
+    private BAttachedFunction getShouldRetryFunc(BVarSymbol retryManagerSymbol) {
+        BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) retryManagerSymbol.type.tsymbol;
+        for (BAttachedFunction bAttachedFunction : typeSymbol.attachedFuncs) {
+            if (bAttachedFunction.funcName.value.equals("shouldRetry")) {
+                return bAttachedFunction;
+            }
+        }
+        return null;
     }
 
     @Override
