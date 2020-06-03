@@ -1562,20 +1562,20 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 simpleContExprNode);
     }
 
-    public static STNode createFunctionDeclarationNode(
+    public static STNode createMethodDeclarationNode(
             STNode metadata,
             STNode visibilityQualifier,
             STNode functionKeyword,
-            STNode functionName,
-            STNode functionSignature,
+            STNode methodName,
+            STNode methodSignature,
             STNode semicolon) {
 
-        return new STFunctionDeclarationNode(
+        return new STMethodDeclarationNode(
                 metadata,
                 visibilityQualifier,
                 functionKeyword,
-                functionName,
-                functionSignature,
+                methodName,
+                methodSignature,
                 semicolon);
     }
 

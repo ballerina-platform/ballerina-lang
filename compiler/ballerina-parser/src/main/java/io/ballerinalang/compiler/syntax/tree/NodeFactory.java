@@ -2089,27 +2089,27 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stSingletonTypeDescriptorNode.createUnlinkedFacade();
     }
 
-    public static FunctionDeclarationNode createFunctionDeclarationNode(
+    public static MethodDeclarationNode createMethodDeclarationNode(
             MetadataNode metadata,
             Token visibilityQualifier,
             Token functionKeyword,
-            IdentifierToken functionName,
-            FunctionSignatureNode functionSignature,
+            IdentifierToken methodName,
+            FunctionSignatureNode methodSignature,
             Token semicolon) {
         Objects.requireNonNull(metadata, "metadata must not be null");
         Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
-        Objects.requireNonNull(functionName, "functionName must not be null");
-        Objects.requireNonNull(functionSignature, "functionSignature must not be null");
+        Objects.requireNonNull(methodName, "methodName must not be null");
+        Objects.requireNonNull(methodSignature, "methodSignature must not be null");
         Objects.requireNonNull(semicolon, "semicolon must not be null");
 
-        STNode stFunctionDeclarationNode = STNodeFactory.createFunctionDeclarationNode(
+        STNode stMethodDeclarationNode = STNodeFactory.createMethodDeclarationNode(
                 metadata.internalNode(),
                 getOptionalSTNode(visibilityQualifier),
                 functionKeyword.internalNode(),
-                functionName.internalNode(),
-                functionSignature.internalNode(),
+                methodName.internalNode(),
+                methodSignature.internalNode(),
                 semicolon.internalNode());
-        return stFunctionDeclarationNode.createUnlinkedFacade();
+        return stMethodDeclarationNode.createUnlinkedFacade();
     }
 
     public static TypedBindingPatternNode createTypedBindingPatternNode(

@@ -2113,26 +2113,26 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public FunctionDeclarationNode transform(
-            FunctionDeclarationNode functionDeclarationNode) {
+    public MethodDeclarationNode transform(
+            MethodDeclarationNode methodDeclarationNode) {
         MetadataNode metadata =
-                modifyNode(functionDeclarationNode.metadata());
+                modifyNode(methodDeclarationNode.metadata());
         Token visibilityQualifier =
-                modifyToken(functionDeclarationNode.visibilityQualifier().orElse(null));
+                modifyToken(methodDeclarationNode.visibilityQualifier().orElse(null));
         Token functionKeyword =
-                modifyToken(functionDeclarationNode.functionKeyword());
-        IdentifierToken functionName =
-                modifyNode(functionDeclarationNode.functionName());
-        FunctionSignatureNode functionSignature =
-                modifyNode(functionDeclarationNode.functionSignature());
+                modifyToken(methodDeclarationNode.functionKeyword());
+        IdentifierToken methodName =
+                modifyNode(methodDeclarationNode.methodName());
+        FunctionSignatureNode methodSignature =
+                modifyNode(methodDeclarationNode.methodSignature());
         Token semicolon =
-                modifyToken(functionDeclarationNode.semicolon());
-        return functionDeclarationNode.modify(
+                modifyToken(methodDeclarationNode.semicolon());
+        return methodDeclarationNode.modify(
                 metadata,
                 visibilityQualifier,
                 functionKeyword,
-                functionName,
-                functionSignature,
+                methodName,
+                methodSignature,
                 semicolon);
     }
 

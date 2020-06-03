@@ -975,7 +975,7 @@ public class ParserTestUtils {
             case "INFER_PARAM_LIST":
                 return SyntaxKind.INFER_PARAM_LIST;
             case "FUNCTION_DECLARATION":
-                return SyntaxKind.FUNCTION_DECLARATION;
+                return SyntaxKind.METHOD_DECLARATION;
             case "TYPED_BINDING_PATTERN":
                 return SyntaxKind.TYPED_BINDING_PATTERN;
             case "BINDING_PATTERN":
