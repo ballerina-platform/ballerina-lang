@@ -85,6 +85,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
@@ -1390,6 +1391,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
+        analyzeExprList(rawTemplateLiteral.strings);
+        analyzeExprList(rawTemplateLiteral.insertions);
+    }
+
+    @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         bLangLambdaFunction.function.accept(this);
         getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
@@ -1675,7 +1682,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
      *
      * @param exprs List of expressions to analyze.
      */
-    private void analyzeExprList(List<BLangExpression> exprs) {
+    private void analyzeExprList(List<? extends BLangExpression> exprs) {
         for (BLangExpression expr : exprs) {
             expr.accept(this);
             if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
