@@ -81,7 +81,7 @@
                 },
                 {
                     "name": "orgName",
-                    "type": "Node",
+                    "type": "ImportOrgNameNode",
                     "isOptional": true
                 },
                 {
@@ -91,12 +91,12 @@
                 },
                 {
                     "name": "version",
-                    "type": "Node",
+                    "type": "ImportVersionNode",
                     "isOptional": true
                 },
                 {
                     "name": "prefix",
-                    "type": "Node",
+                    "type": "ImportPrefixNode",
                     "isOptional": true
                 },
                 {
@@ -1920,7 +1920,7 @@
                 },
                 {
                     "name": "fieldNames",
-                    "type": "Node",
+                    "type": "IdentifierToken",
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
@@ -3447,6 +3447,80 @@
                 },
                 {
                     "name": "endBacktick",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "XMLNavigateExpressionNode",
+            "base": "ExpressionNode",
+            "isAbstract": true
+        },
+        {
+            "name": "XMLFilterExpressionNode",
+            "base": "XMLNavigateExpressionNode",
+            "kind": "XML_FILTER_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "xmlPatternChain",
+                    "type": "XMLNamePatternChainingNode"
+                }
+            ]
+        },
+        {
+            "name": "XMLStepExpressionNode",
+            "base": "XMLNavigateExpressionNode",
+            "kind": "XML_STEP_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "xmlStepStart",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "XMLNamePatternChainingNode",
+            "base": "Node",
+            "kind": "XML_NAME_PATTERN_CHAIN",
+            "attributes": [
+                {
+                    "name": "startToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "xmlNamePattern",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "gtToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "XMLAtomicNamePatternNode",
+            "base": "Node",
+            "kind": "XML_ATOMIC_NAME_PATTERN",
+            "attributes": [
+                {
+                    "name": "prefix",
+                    "type": "Token"
+                },
+                {
+                    "name": "colon",
+                    "type": "Token"
+                },
+                {
+                    "name": "name",
                     "type": "Token"
                 }
             ]

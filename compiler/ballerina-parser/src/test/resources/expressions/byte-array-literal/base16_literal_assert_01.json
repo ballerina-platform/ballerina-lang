@@ -211,7 +211,7 @@
                                         },
                                         {
                                             "kind": "TEMPLATE_STRING",
-                                            "value": "5 A "
+                                            "value": " 5 A "
                                         },
                                         {
                                             "kind": "BACKTICK_TOKEN"
@@ -272,7 +272,7 @@
                                         },
                                         {
                                             "kind": "TEMPLATE_STRING",
-                                            "value": "5A B C3 4 "
+                                            "value": " 5A B C3 4 "
                                         },
                                         {
                                             "kind": "BACKTICK_TOKEN"
