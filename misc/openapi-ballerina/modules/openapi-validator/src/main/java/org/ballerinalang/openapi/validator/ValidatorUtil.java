@@ -803,7 +803,7 @@ class ValidatorUtil {
     private static Diagnostic.DiagnosticPosition getServiceNamePosition(ServiceNode serviceNode) {
         return serviceNode.getName().getPosition();
     }
-
+// For tag filter
     private static void tagsFilter (ServiceNode serviceNode,
                                     OpenAPIPathSummary openApiSummary,
                                     List<String> tags,
