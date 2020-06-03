@@ -79,7 +79,6 @@ import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ModuleXMLNamespaceDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.NameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.NamedWorkerDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.NamedWorkerDeclarator;
@@ -1334,7 +1333,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangFieldBasedAccess bLFieldBasedAccess;
         Node fieldName = fieldAccessExprNode.fieldName();
         if (fieldName.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            QualifiedNameReferenceNode qualifiedFieldName = (QualifiedNameReferenceNode)fieldName;
+            QualifiedNameReferenceNode qualifiedFieldName = (QualifiedNameReferenceNode) fieldName;
             BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess accessWithPrefixNode =
                     (BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess)
                             TreeBuilder.createFieldBasedAccessWithPrefixNode();
@@ -1344,7 +1343,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         } else {
             bLFieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
             bLFieldBasedAccess.field =
-                    createIdentifier(getPosition(fieldName), ((SimpleNameReferenceNode) fieldName).name());
+                    createIdentifier(((SimpleNameReferenceNode) fieldName).name());
         }
         bLFieldBasedAccess.pos = getPosition(fieldAccessExprNode);
         bLFieldBasedAccess.field.pos = getPosition(fieldAccessExprNode);
@@ -2162,8 +2161,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(XMLNamespaceDeclarationNode xmlnsDeclNode) {
         BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
-        BLangIdentifier prefixIdentifier = createIdentifier(getPosition(xmlnsDeclNode.namespacePrefix()),
-                xmlnsDeclNode.namespacePrefix().text());
+        BLangIdentifier prefixIdentifier = createIdentifier(xmlnsDeclNode.namespacePrefix());
 
         xmlns.namespaceURI = createSimpleLiteral(xmlnsDeclNode.namespaceuri());
         xmlns.prefix = prefixIdentifier;
@@ -2178,8 +2176,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ModuleXMLNamespaceDeclarationNode xmlnsDeclNode) {
         BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
-        BLangIdentifier prefixIdentifier = createIdentifier(getPosition(xmlnsDeclNode.namespacePrefix()),
-                xmlnsDeclNode.namespacePrefix().text());
+        BLangIdentifier prefixIdentifier = createIdentifier(xmlnsDeclNode.namespacePrefix());
 
         xmlns.namespaceURI = createSimpleLiteral(xmlnsDeclNode.namespaceuri());
         xmlns.prefix = prefixIdentifier;
