@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.util;
 
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
@@ -57,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -519,20 +521,10 @@ public class ImmutableTypeCloner {
                                            getImmutableTypeName(names, origObjectTSymbol),
                                            pkgID, null, env.scope.owner);
 
-        BAttachedFunction origInitializerFunc = origObjectTSymbol.initializerFunc;
         objectSymbol.scope = new Scope(objectSymbol);
+        objectSymbol.methodScope = new Scope(objectSymbol);
 
-        if (origInitializerFunc != null) {
-            BInvokableSymbol initFuncSymbol =
-                    ASTBuilderUtil.duplicateInvokableSymbol(origInitializerFunc.symbol, env.scope.owner,
-                                                            Names.EMPTY, env.enclPkg.symbol.pkgID);
-            objectSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFuncSymbol,
-                                                                 (BInvokableType) initFuncSymbol.type);
-
-            objectSymbol.scope.define(names.fromString(objectSymbol.name.value + "." +
-                                                               objectSymbol.initializerFunc.funcName.value),
-                                      objectSymbol.initializerFunc.symbol);
-        }
+        defineObjectFunctions(objectSymbol, origObjectTSymbol, names);
 
         BObjectType immutableObjectType = new BObjectType(objectSymbol, origObjectType.flags | Flags.READONLY);
 
@@ -548,17 +540,48 @@ public class ImmutableTypeCloner {
 
         BLangObjectTypeNode objectTypeNode = TypeDefBuilderHelper.createObjectTypeNode(new ArrayList<>(),
                                                                                        immutableObjectType, pos);
+        objectTypeNode.flagSet.add(Flag.ABSTRACT);
+        if (origTypeNode != null) {
+            NodeKind kind = origTypeNode.getKind();
+            if (kind == NodeKind.OBJECT_TYPE) {
+                objectTypeNode.flagSet.addAll(((BLangObjectTypeNode) origTypeNode).flagSet);
+            } else {
+                objectTypeNode.flagSet.addAll(((BLangUserDefinedType) origTypeNode).flagSet);
+            }
+        }
 
         populateImmutableStructureFields(origTypeNode, types, symTable, anonymousModelHelper, names,
                                          objectTypeNode, immutableObjectType, origObjectType, pos, env,
                                          pkgID, unresolvedTypes);
 
-        TypeDefBuilderHelper.createInitFunctionForStructureType(objectTypeNode, objectSymbol.initializerFunc, env,
-                                                                names, symTable);
         BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.addTypeDefinition(immutableObjectType, objectSymbol,
                                                                                     objectTypeNode, env);
         typeDefinition.pos = pos;
         return immutableObjectIntersectionType;
+    }
+
+    public static void defineObjectFunctions(BObjectTypeSymbol immutableObjectSymbol,
+                                             BObjectTypeSymbol originalObjectSymbol, Names names) {
+        List<BAttachedFunction> originalObjectAttachedFuncs = originalObjectSymbol.attachedFuncs;
+        List<BAttachedFunction> immutableObjectAttachedFuncs = immutableObjectSymbol.attachedFuncs;
+
+        if (originalObjectAttachedFuncs.isEmpty() ||
+                immutableObjectAttachedFuncs.size() == originalObjectAttachedFuncs.size()) {
+            return;
+        }
+
+        List<BAttachedFunction> immutableFuncs = new ArrayList<>();
+        for (BAttachedFunction origFunc : originalObjectAttachedFuncs) {
+            Name funcName = names.fromString(Symbols.getAttachedFuncSymbolName(immutableObjectSymbol.name.value,
+                                                                               origFunc.funcName.value));
+            BInvokableSymbol immutableFuncSymbol =
+                    ASTBuilderUtil.duplicateInvokableSymbol(origFunc.symbol, immutableObjectSymbol, // change
+                                                            funcName, immutableObjectSymbol.pkgID);
+            immutableFuncs.add(new BAttachedFunction(origFunc.funcName, immutableFuncSymbol,
+                                                     (BInvokableType) immutableFuncSymbol.type));
+            immutableObjectSymbol.methodScope.define(funcName, immutableFuncSymbol);
+        }
+        immutableObjectSymbol.attachedFuncs = immutableFuncs;
     }
 
     private static BTypeSymbol getReadonlyTSymbol(Names names, BTypeSymbol originalTSymbol, SymbolEnv env) {

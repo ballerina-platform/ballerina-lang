@@ -1011,6 +1011,11 @@ public class Types {
                         isSelectivelyImmutableType(constraintType, unresolvedTypes);
             case TypeTags.OBJECT:
                 BObjectType objectType = (BObjectType) type;
+
+                if (!Symbols.isFlagOn(objectType.tsymbol.flags, Flags.ABSTRACT)) {
+                    return false;
+                }
+
                 for (BField field : objectType.fields.values()) {
                     BType fieldType = field.type;
                     if (!isInherentlyImmutableType(fieldType) &&

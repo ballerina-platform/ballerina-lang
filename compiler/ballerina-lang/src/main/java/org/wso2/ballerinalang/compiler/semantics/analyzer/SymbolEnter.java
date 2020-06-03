@@ -117,6 +117,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -1411,6 +1412,43 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (int i = originalSize; i < newSize; i++) {
             ImmutableTypeCloner.defineUndefinedImmutableFields(typeDefNodes.get(i), types, pkgEnv, symTable,
                                                                anonymousModelHelper, names);
+        }
+
+        for (BLangTypeDefinition typeDef : typeDefNodes) {
+            NodeKind nodeKind = typeDef.typeNode.getKind();
+            if (nodeKind != NodeKind.OBJECT_TYPE && nodeKind != NodeKind.RECORD_TYPE) {
+                continue;
+            }
+
+            BStructureType structureType = (BStructureType) typeDef.symbol.type;
+
+            if (Symbols.isFlagOn(structureType.tsymbol.flags, Flags.READONLY)) {
+                continue;
+            }
+
+            if (nodeKind == NodeKind.RECORD_TYPE && !(((BRecordType) structureType).sealed)) {
+                continue;
+            }
+
+            boolean allReadOnlyFields = true;
+
+            Collection<BField> fields = structureType.fields.values();
+
+            if (fields.isEmpty()) {
+                continue;
+            }
+
+            for (BField field : fields) {
+                if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
+                    allReadOnlyFields = false;
+                    break;
+                }
+            }
+
+            if (allReadOnlyFields) {
+                structureType.tsymbol.flags |= Flags.READONLY;
+                structureType.flags |= Flags.READONLY;
+            }
         }
     }
 

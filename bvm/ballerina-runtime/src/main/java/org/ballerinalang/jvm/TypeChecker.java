@@ -1289,6 +1289,11 @@ public class TypeChecker {
                         isSelectivelyImmutableType(recordRestType, unresolvedTypes);
             case TypeTags.OBJECT_TYPE_TAG:
                 BObjectType objectType = (BObjectType) type;
+
+                if (!Flags.isFlagOn(objectType.flags, Flags.ABSTRACT)) {
+                    return false;
+                }
+
                 for (BField field : objectType.getFields().values()) {
                     BType fieldType = field.type;
                     if (!isInherentlyImmutableType(fieldType) &&
