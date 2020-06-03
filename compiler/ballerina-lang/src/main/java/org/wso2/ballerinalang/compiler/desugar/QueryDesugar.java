@@ -1058,7 +1058,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation invocationExpr) {
         List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
-        if (invocationExpr.langLibInvocation) {
+        if (invocationExpr.langLibInvocation && !requiredArgs.isEmpty()) {
             requiredArgs = requiredArgs.subList(1, requiredArgs.size());
         }
         requiredArgs.forEach(arg -> arg.accept(this));
