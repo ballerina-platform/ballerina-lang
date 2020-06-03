@@ -1130,7 +1130,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangAnnotation annotationDecl = (BLangAnnotation) TreeBuilder.createAnnotationNode();
         DiagnosticPos pos = getPosition(annotationDeclarationNode);
         annotationDecl.pos = pos;
-        annotationDecl.name = createIdentifier(pos, annotationDeclarationNode.annotationTag().text());
+        annotationDecl.name = createIdentifier(annotationDeclarationNode.annotationTag());
 
         if (annotationDeclarationNode.visibilityQualifier() != null) {
             annotationDecl.addFlag(Flag.PUBLIC);
@@ -1157,30 +1157,33 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             AnnotationAttachPointNode attachPoint = (AnnotationAttachPointNode) child;
             boolean source = attachPoint.sourceKeyword() != null;
             AttachPoint bLAttachPoint;
-            AttachPoint.Point firstIndent = AttachPoint.fromString(attachPoint.firstIdent().text().toLowerCase());
-            switch (firstIndent) {
-                case OBJECT:
-                    AttachPoint.Point secondIdent =
-                            AttachPoint.fromString(attachPoint.firstIdent().text().toLowerCase());
-                    switch (secondIdent) {
-                        case FUNCTION:
-                            bLAttachPoint = AttachPoint.getAttachmentPoint("objectfunction", source);
+            Token firstIndent =  attachPoint.firstIdent();
+
+            switch (firstIndent.kind()) {
+                case OBJECT_KEYWORD:
+                    Token secondIndent = attachPoint.secondIdent();
+                    switch (secondIndent.kind()) {
+                        case FUNCTION_KEYWORD:
+                            bLAttachPoint =
+                                    AttachPoint.getAttachmentPoint(AttachPoint.Point.OBJECT_METHOD.getValue(), source);
                             break;
-                        case FIELD:
-                            bLAttachPoint = AttachPoint.getAttachmentPoint("objectfield", source);
+                        case FIELD_KEYWORD:
+                            bLAttachPoint =
+                                    AttachPoint.getAttachmentPoint(AttachPoint.Point.OBJECT_FIELD.getValue(), source);
                             break;
                         default:
-                            bLAttachPoint = AttachPoint.getAttachmentPoint("objecttype", source);
+                            bLAttachPoint =
+                                    AttachPoint.getAttachmentPoint(AttachPoint.Point.OBJECT.getValue(), source);
                     }
                     break;
-                case RESOURCE:
-                    bLAttachPoint = AttachPoint.getAttachmentPoint("resourcefunction", source);
+                case RESOURCE_KEYWORD:
+                    bLAttachPoint = AttachPoint.getAttachmentPoint(AttachPoint.Point.RESOURCE.getValue(), source);
                     break;
-                case RECORD_FIELD:
-                    bLAttachPoint = AttachPoint.getAttachmentPoint("recordfield", source);
+                case RECORD_KEYWORD:
+                    bLAttachPoint = AttachPoint.getAttachmentPoint(AttachPoint.Point.RECORD_FIELD.getValue(), source);
                     break;
                 default:
-                    bLAttachPoint = AttachPoint.getAttachmentPoint(firstIndent.getValue(), source);
+                    bLAttachPoint = AttachPoint.getAttachmentPoint(firstIndent.text(), source);
             }
             annotationDecl.addAttachPoint(bLAttachPoint);
         }
