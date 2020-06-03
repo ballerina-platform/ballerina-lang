@@ -85,7 +85,8 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
     }
 
     @Override
-    public void writeCollectedSymbols(BLangPackage module, Path destination) throws IOException, NoSuchAlgorithmException {
+    public void writeCollectedSymbols(BLangPackage module, Path destination)
+            throws IOException, NoSuchAlgorithmException {
         Path targetDirPath = destination.resolve(AST);
         if (Files.notExists(targetDirPath)) {
             Files.createDirectory(targetDirPath);
@@ -120,7 +121,9 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
         StringBuilder hexString = new StringBuilder();
         for (int i = 0; i < hash.length; i++) {
             String hex = Integer.toHexString(0xff & hash[i]);
-            if(hex.length() == 1) hexString.append('0');
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
             hexString.append(hex);
         }
         return hexString.toString();
