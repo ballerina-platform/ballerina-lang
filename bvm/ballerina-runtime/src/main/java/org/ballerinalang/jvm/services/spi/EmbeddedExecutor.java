@@ -18,6 +18,8 @@
  */
 package org.ballerinalang.jvm.services.spi;
 
+import org.ballerinalang.jvm.scheduling.StrandMetaData;
+
 import java.util.Optional;
 
 /**
@@ -31,17 +33,23 @@ public interface EmbeddedExecutor {
      *
      * @param moduleName Name of the module.
      * @param moduleVersion Version of the module.
+     * @param strandName name for newly creating strand which is used to execute the function pointer.
+     * @param metaData   meta data of new strand.
      * @param args       The arguments for the function.
      * @return Program execution output.
      */
-    Optional<RuntimeException> executeMainFunction(String moduleName, String moduleVersion, String... args);
+    Optional<RuntimeException> executeMainFunction(String moduleName, String moduleVersion, String strandName,
+                                                   StrandMetaData metaData, String... args);
     
     /**
      * Executes a service of a module.
      *
      * @param moduleName Name of the module.
      * @param moduleVersion Version of the module.
+     * @param strandName name for newly creating strand which is used to execute the function pointer.
+     * @param metaData   meta data of new strand.
      * @return Program execution output.
      */
-    Optional<RuntimeException> executeService(String moduleName, String moduleVersion);
+    Optional<RuntimeException> executeService(String moduleName, String moduleVersion, String strandName,
+                                              StrandMetaData metaData);
 }

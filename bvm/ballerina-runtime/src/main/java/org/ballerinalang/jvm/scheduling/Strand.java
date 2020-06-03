@@ -32,7 +32,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -49,11 +51,17 @@ import static org.ballerinalang.jvm.scheduling.State.YIELD;
 
 public class Strand {
 
+    private static AtomicInteger nextStrandId = new AtomicInteger(0);
+
+    private int id;
+    private String name;
+    private StrandMetaData metaData;
+
     public Object[] frames;
     public int resumeIndex;
     public Object returnValue;
     public Scheduler scheduler;
-    public Strand parent = null;
+    public Strand parent;
     public WDChannels wdChannels;
     public FlushDetail flushDetail;
     public boolean blockedOnExtern;
@@ -61,7 +69,6 @@ public class Strand {
     public Set<SchedulerItem> dependants;
     public ObserverContext observerContext;
     public boolean cancel;
-    public int threadId;
 
     SchedulerItem schedulerItem;
     List<WaitContext> waitingContexts;
@@ -73,7 +80,9 @@ public class Strand {
     private State state;
     private final ReentrantLock strandLock;
 
-    public Strand(Scheduler scheduler) {
+    public Strand(String name, StrandMetaData metaData, Scheduler scheduler, Strand parent,
+                  Map<String, Object> properties) {
+        this.id = nextStrandId.incrementAndGet();
         this.scheduler = scheduler;
         this.wdChannels = new WDChannels();
         this.channelDetails = new HashSet<>();
@@ -82,10 +91,8 @@ public class Strand {
         this.dependants = new HashSet<>();
         this.strandLock = new ReentrantLock();
         this.waitingContexts = new ArrayList<>();
-    }
-
-    public Strand(Scheduler scheduler, Strand parent, Map<String, Object> properties) {
-        this(scheduler);
+        this.name = name;
+        this.metaData = metaData;
         this.parent = parent;
         this.globalProps = properties != null ? properties : new HashMap<>();
     }
@@ -303,6 +310,18 @@ public class Strand {
 
     public void unlock() {
         this.strandLock.unlock();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
+    }
+
+    public Optional<StrandMetaData> getMetaData() {
+        return Optional.ofNullable(metaData);
     }
 
     /**

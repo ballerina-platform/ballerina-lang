@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.transactions;
 
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.StrandMetaData;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.FPValue;
 import org.slf4j.Logger;
@@ -37,6 +38,10 @@ import javax.transaction.xa.Xid;
 
 import static javax.transaction.xa.XAResource.TMNOFLAGS;
 import static javax.transaction.xa.XAResource.TMSUCCESS;
+import static org.ballerinalang.jvm.transactions.TransactionConstants.TRANSACTION_PACKAGE_NAME;
+import static org.ballerinalang.jvm.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+
 
 /**
  * {@code TransactionResourceManager} registry for transaction contexts.
@@ -56,6 +61,9 @@ public class TransactionResourceManager {
     private ConcurrentSkipListSet<String> failedResourceParticipantSet = new ConcurrentSkipListSet<>();
     private ConcurrentSkipListSet<String> failedLocalParticipantSet = new ConcurrentSkipListSet<>();
     private ConcurrentHashMap<String, ConcurrentSkipListSet<String>> localParticipants = new ConcurrentHashMap<>();
+
+    public StrandMetaData trxMetaData = new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, TRANSACTION_PACKAGE_NAME,
+                                                           TRANSACTION_PACKAGE_VERSION, "onCommit");
 
     private TransactionResourceManager() {
         resourceRegistry = new HashMap<>();
@@ -314,7 +322,7 @@ public class TransactionResourceManager {
         FPValue fp = committedFuncRegistry.get(transactionBlockId);
         Object[] args = {strand, StringUtils.fromString(transactionId + ":" + transactionBlockId), true};
         if (fp != null) {
-            strand.scheduler.schedule(args, fp.getFunction(), strand, null);
+            strand.scheduler.schedule(args, fp.getFunction(), strand, null, "trx", trxMetaData);
         }
     }
 

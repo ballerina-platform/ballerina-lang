@@ -204,6 +204,7 @@ import javax.xml.namespace.QName;
          return new ErrorValue((StringValue) reason, details);
      }
 
+
      /**
       * Create function pointer to the given function with given {@code BType}.
       *
@@ -212,7 +213,19 @@ import javax.xml.namespace.QName;
       * @return function pointer
       */
      public static BFunctionPointer createFPValue(Function function, BFunctionType type) {
-         return new FPValue(function, type, false);
+         return new FPValue(function, type, null, false);
+     }
+
+     /**
+      * Create function pointer to the given function with given {@code BType}.
+      *
+      * @param function pointing function
+      * @param type {@code BFunctionType} of the function pointer
+      * @param strandName name for newly creating strand which is used to run the function pointer
+      * @return function pointer
+      */
+     public static BFunctionPointer createFPValue(Function function, BFunctionType type, String strandName) {
+         return new FPValue(function, type, strandName, false);
      }
 
      /**

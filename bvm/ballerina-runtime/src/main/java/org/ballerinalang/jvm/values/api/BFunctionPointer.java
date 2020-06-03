@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm.values.api;
 
+import org.ballerinalang.jvm.scheduling.StrandMetaData;
 import org.ballerinalang.jvm.values.FutureValue;
 
 import java.util.function.Function;
@@ -47,10 +48,11 @@ public interface BFunctionPointer<T, R> extends BRefValue {
      * Schedule and asynchronously execute the {@code Function} with given parameter array. Method can be used to
      * call function pointer from native function. This supports function pointers with async ballerina code.
      *
-     * @param args Function arguments.
+     * @param args  Function arguments.
+     * @param metaData  meta data for newly creating strand which is used to execute the function pointer.
      * @return Future value received from invoking asynchronous function.
      */
-    FutureValue asyncCall(Object[] args);
+    FutureValue asyncCall(Object[] args, StrandMetaData metaData);
 
     /**
      * Schedule and asynchronously execute the {@code Function} with given parameter array. Method can be used to
@@ -58,9 +60,10 @@ public interface BFunctionPointer<T, R> extends BRefValue {
      *
      * @param args                 Function arguments.
      * @param resultHandleFunction Function used to process the result received after execution of function.
+     * @param metaData             meta data for newly creating strand which is used to execute the function pointer.
      * @return Future value received from invoking asynchronous function.
      */
-    FutureValue asyncCall(Object[] args, Function<Object, Object> resultHandleFunction);
+    FutureValue asyncCall(Object[] args, Function<Object, Object> resultHandleFunction, StrandMetaData metaData);
 
     /**
      * Returns the {@code Function} the FP is pointed to.
