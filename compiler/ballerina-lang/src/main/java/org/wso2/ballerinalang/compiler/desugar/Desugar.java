@@ -139,6 +139,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLa
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
@@ -4265,6 +4266,55 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
         result = rewriteExpr(constructStringTemplateConcatExpression(stringTemplateLiteral.exprs));
+    }
+
+    @Override
+    public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
+        DiagnosticPos pos = rawTemplateLiteral.pos;
+        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(pos);
+
+        // RawTemplate $template$ = new;
+        BObjectType objType = (BObjectType) rawTemplateLiteral.type;
+        BLangTypeInit typeNewExpr = ASTBuilderUtil.createEmptyTypeInit(pos, objType);
+        BLangSimpleVariableDef objVarDef = createVarDef("$template$", objType, typeNewExpr, pos);
+        BLangSimpleVarRef objVarRef = ASTBuilderUtil.createVariableRef(pos, objVarDef.var.symbol);
+        blockStmt.addStatement(objVarDef);
+
+        // $template$.strings = ["hello", "world"];
+        BLangFieldBasedAccess strings = ASTBuilderUtil
+                .createFieldAccessExpr(objVarRef, ASTBuilderUtil.createIdentifier(pos, "strings"));
+        strings.symbol = objType.fields.get("strings").symbol;
+        strings.type = strings.expectedType = strings.originalType = symTable.arrayStringType;
+        strings.lhsVar = true;
+
+        BLangListConstructorExpr stringsList = ASTBuilderUtil.createEmptyArrayLiteral(pos, symTable.arrayStringType);
+        stringsList.exprs.addAll(rawTemplateLiteral.strings);
+        stringsList.expectedType = symTable.arrayStringType;
+
+        BLangAssignment stringsAssignment = ASTBuilderUtil.createAssignmentStmt(pos, strings, stringsList);
+        blockStmt.addStatement(stringsAssignment);
+
+        // $template$.insertions = [x];
+        BLangFieldBasedAccess insertions = ASTBuilderUtil
+                .createFieldAccessExpr(objVarRef, ASTBuilderUtil.createIdentifier(pos, "insertions"));
+        insertions.symbol = objType.fields.get("insertions").symbol;
+        insertions.type = insertions.expectedType = insertions.originalType = symTable.arrayAllType;
+        insertions.lhsVar = true;
+
+        BLangListConstructorExpr insertionsList = ASTBuilderUtil.createEmptyArrayLiteral(pos, symTable.arrayAllType);
+        insertionsList.exprs.addAll(rawTemplateLiteral.insertions);
+        insertionsList.expectedType = symTable.arrayAllType;
+
+        BLangAssignment insertionsAssignment = ASTBuilderUtil.createAssignmentStmt(pos, insertions, insertionsList);
+        blockStmt.addStatement(insertionsAssignment);
+
+        // Add it all to a statement expression
+        BLangSimpleVarRef resultVarRef =
+                ASTBuilderUtil.createVariableRef(pos, objVarDef.var.symbol);
+        BLangStatementExpression stmtExpr = createStatementExpression(blockStmt, resultVarRef);
+        stmtExpr.type = resultVarRef.symbol.type;
+
+        result = rewriteExpr(stmtExpr);
     }
 
     @Override
