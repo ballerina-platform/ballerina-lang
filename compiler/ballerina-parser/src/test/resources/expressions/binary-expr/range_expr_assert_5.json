@@ -2,15 +2,15 @@
     "kind": "BINARY_EXPRESSION",
     "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
+            "kind": "DECIMAL_INTEGER_LITERAL",
+            "value": "1"
         },
         {
             "kind": "ELLIPSIS_TOKEN"
         },
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "b"
+            "kind": "DECIMAL_INTEGER_LITERAL",
+            "value": "10"
         }
     ]
 }
