@@ -20,6 +20,7 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
@@ -37,7 +38,7 @@ import java.nio.ByteBuffer;
 public class WebSocketConnector {
     private static final Logger log = LoggerFactory.getLogger(WebSocketConnector.class);
 
-    public static Object externPushText(ObjectValue wsConnection, String text, boolean finalFrame) {
+    public static Object externPushText(ObjectValue wsConnection, BString text, boolean finalFrame) {
         Strand strand = Scheduler.getStrand();
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnection
@@ -45,7 +46,7 @@ public class WebSocketConnector {
         WebSocketObservabilityUtil.observeResourceInvocation(strand, connectionInfo,
                                                              WebSocketConstants.RESOURCE_NAME_PUSH_TEXT);
         try {
-            ChannelFuture future = connectionInfo.getWebSocketConnection().pushText(text, finalFrame);
+            ChannelFuture future = connectionInfo.getWebSocketConnection().pushText(text.getValue(), finalFrame);
             WebSocketUtil.handleWebSocketCallback(callback, future, log, connectionInfo);
             WebSocketObservabilityUtil.observeSend(WebSocketObservabilityConstants.MESSAGE_TYPE_TEXT,
                                                    connectionInfo);

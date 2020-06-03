@@ -30,6 +30,7 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
@@ -150,6 +151,16 @@ public class StringUtils {
         BString[] bStringArray = new BString[s.length];
         for (int i = 0; i < s.length; i++) {
             bStringArray[i] = StringUtils.fromString(s[i]);
+        }
+        return bStringArray;
+    }
+
+    public static BString[] fromStringSet(Set<String> set) {
+        BString[] bStringArray = new BString[set.size()];
+        int i = 0;
+        for (String s : set) {
+            bStringArray[i] = StringUtils.fromString(s);
+            i++;
         }
         return bStringArray;
     }
