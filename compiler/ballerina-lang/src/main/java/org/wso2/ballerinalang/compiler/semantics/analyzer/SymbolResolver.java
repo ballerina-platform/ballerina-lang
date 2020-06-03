@@ -859,6 +859,19 @@ public class SymbolResolver extends BLangNodeVisitor {
         throw new IllegalStateException("built-in Integer Range type not found ?");
     }
 
+    public void loadRawTemplateType() {
+        ScopeEntry entry = symTable.langObjectModuleSymbol.scope.lookup(Names.RAW_TEMPLATE);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
+                entry = entry.next;
+                continue;
+            }
+            symTable.rawTemplateType = (BObjectType) entry.symbol.type;
+            return;
+        }
+        throw new IllegalStateException("'lang.object:RawTemplate' type not found");
+    }
+
     // visit type nodes
 
     public void visit(BLangValueType valueTypeNode) {
