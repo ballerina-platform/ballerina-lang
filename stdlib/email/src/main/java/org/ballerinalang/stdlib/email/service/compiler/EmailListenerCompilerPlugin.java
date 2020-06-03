@@ -42,12 +42,12 @@ import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
  * @since 1.3.0
  */
 @SupportedResourceParamTypes(
-        expectedListenerType = @SupportedResourceParamTypes.Type(packageName = EmailConstants.CONNECTOR_NAME,
+        expectedListenerType = @SupportedResourceParamTypes.Type(packageName = EmailConstants.MODULE_NAME,
                 name = EmailConstants.LISTENER),
         paramTypes = {
-                @SupportedResourceParamTypes.Type(packageName = EmailConstants.CONNECTOR_NAME,
+                @SupportedResourceParamTypes.Type(packageName = EmailConstants.MODULE_NAME,
                         name = EmailConstants.EMAIL),
-                @SupportedResourceParamTypes.Type(packageName = EmailConstants.CONNECTOR_NAME,
+                @SupportedResourceParamTypes.Type(packageName = EmailConstants.MODULE_NAME,
                         name = EmailConstants.ERROR)
         }
 )
@@ -71,7 +71,7 @@ public class EmailListenerCompilerPlugin extends AbstractCompilerPlugin {
         switch (resource.getName().getValue()) {
             case ON_MESSAGE:
                 String onMessageErrorMessage = "Invalid resource signature for %s in service %s. "
-                        + "The parameter should be a " + EmailConstants.CONNECTOR_NAME + ":" + EmailConstants.EMAIL +
+                        + "The parameter should be a " + EmailConstants.MODULE_NAME + ":" + EmailConstants.EMAIL +
                         " with no returns.";
                 onMessageErrorMessage = String.format(onMessageErrorMessage, resource.getName().getValue(),
                         serviceName);
@@ -83,7 +83,7 @@ public class EmailListenerCompilerPlugin extends AbstractCompilerPlugin {
                 if (emailEvent.getKind().equals(TypeKind.OBJECT)) {
                     if (emailEvent instanceof BStructureType) {
                         BStructureType event = (BStructureType) emailEvent;
-                        if (!EmailConstants.CONNECTOR_NAME.equals(event.tsymbol.pkgID.name.value) ||
+                        if (!EmailConstants.MODULE_NAME.equals(event.tsymbol.pkgID.name.value) ||
                                 !EmailConstants.EMAIL.equals(event.tsymbol.name.value)) {
                             dlog.logDiagnostic(ERROR, resource.getPosition(), onMessageErrorMessage);
                             return;
@@ -93,7 +93,7 @@ public class EmailListenerCompilerPlugin extends AbstractCompilerPlugin {
                 break;
             case ON_ERROR:
                 String onErrorErrorMessage = "Invalid resource signature for %s in service %s. " +
-                        "The parameter should be a " + EmailConstants.CONNECTOR_NAME + ":" + EmailConstants.ERROR +
+                        "The parameter should be a " + EmailConstants.MODULE_NAME + ":" + EmailConstants.ERROR +
                         " with no returns.";
                 onErrorErrorMessage = String.format(onErrorErrorMessage, resource.getName().getValue(), serviceName);
                 if (parameters.size() != 1) {
@@ -104,7 +104,7 @@ public class EmailListenerCompilerPlugin extends AbstractCompilerPlugin {
                 if (errorEvent.getKind().equals(TypeKind.OBJECT)) {
                     if (errorEvent instanceof BStructureType) {
                         BStructureType event = (BStructureType) errorEvent;
-                        if (!EmailConstants.CONNECTOR_NAME.equals(event.tsymbol.pkgID.name.value) ||
+                        if (!EmailConstants.MODULE_NAME.equals(event.tsymbol.pkgID.name.value) ||
                                 !EmailConstants.EMAIL.equals(event.tsymbol.name.value)) {
                             dlog.logDiagnostic(ERROR, resource.getPosition(), onErrorErrorMessage);
                             return;

@@ -44,6 +44,8 @@ import java.util.Map;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CALLER_ID;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
+import static org.ballerinalang.net.grpc.GrpcConstants.META_DATA_ON_ERROR;
+import static org.ballerinalang.net.grpc.GrpcConstants.META_DATA_ON_MESSAGE;
 import static org.ballerinalang.net.grpc.MessageUtils.getHeaderObject;
 
 /**
@@ -188,8 +190,8 @@ public abstract class ServerCallHandler {
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, context);
         }
         CallableUnitCallback callback = new StreamingCallableUnitCallBack(null, context);
-        resource.getRuntime().invokeMethodAsync(resource.getService(), resource.getFunctionName(), callback,
-                properties, paramValues);
+        resource.getRuntime().invokeMethodAsync(resource.getService(), resource.getFunctionName(), callback, null,
+                                                META_DATA_ON_ERROR,  properties, paramValues);
     }
 
     void onMessageInvoke(ServiceResource resource, Message request, StreamObserver responseObserver,
@@ -200,8 +202,8 @@ public abstract class ServerCallHandler {
         if (ObserveUtils.isObservabilityEnabled()) {
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, context);
         }
-        resource.getRuntime().invokeMethodAsync(resource.getService(), resource.getFunctionName(), callback,
-                properties, requestParams);
+        resource.getRuntime().invokeMethodAsync(resource.getService(), resource.getFunctionName(), callback, null,
+                                                META_DATA_ON_MESSAGE, properties, requestParams);
     }
 
     Object[] computeMessageParams(ServiceResource resource, Message request, StreamObserver responseObserver) {

@@ -19,6 +19,7 @@
 package org.ballerinalang.stdlib.email.server;
 
 import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.scheduling.StrandMetaData;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.stdlib.email.util.EmailConstants;
@@ -28,6 +29,12 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static org.ballerinalang.stdlib.email.util.EmailConstants.MODULE_NAME;
+import static org.ballerinalang.stdlib.email.util.EmailConstants.MODULE_VERSION;
+import static org.ballerinalang.stdlib.email.util.EmailConstants.ON_ERROR;
+import static org.ballerinalang.stdlib.email.util.EmailConstants.ON_MESSAGE;
 
 /**
  * Email connector listener for Ballerina.
@@ -41,6 +48,12 @@ public class EmailListener {
     private final BRuntime runtime;
 
     private Map<String, ObjectValue> registeredServices = new HashMap<>();
+
+    private StrandMetaData metaDataOnMessage = new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, MODULE_NAME,
+                                                                  MODULE_VERSION, ON_MESSAGE);
+
+    private StrandMetaData metaDataOnError = new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, MODULE_NAME,
+                                                                MODULE_VERSION, ON_ERROR);
 
     /**
      * Constructor for listener class for email.
@@ -60,8 +73,7 @@ public class EmailListener {
         if (runtime != null) {
             Set<Map.Entry<String, ObjectValue>> services = registeredServices.entrySet();
             for (Map.Entry<String, ObjectValue> service : services) {
-                runtime.invokeMethodSync(service.getValue(), EmailConstants.ON_MESSAGE,
-                        email, true);
+                runtime.invokeMethodSync(service.getValue(), ON_MESSAGE, null, metaDataOnMessage, email, true);
             }
         } else {
             log.error("Runtime should not be null.");
@@ -78,8 +90,8 @@ public class EmailListener {
         if (runtime != null) {
             Set<Map.Entry<String, ObjectValue>> services = registeredServices.entrySet();
             for (Map.Entry<String, ObjectValue> service : services) {
-                runtime.invokeMethodSync(service.getValue(), EmailConstants.ON_ERROR,
-                        error, true);
+                runtime.invokeMethodSync(service.getValue(), EmailConstants.ON_ERROR, null,
+                                         metaDataOnError, error, true);
             }
         } else {
             log.error("Runtime should not be null.");

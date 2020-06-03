@@ -27,6 +27,7 @@ import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
+import org.ballerinalang.jvm.scheduling.StrandMetaData;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -65,6 +66,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.net.http.websocket.WebSocketConstants.META_DATA_ON_BINARY;
+import static org.ballerinalang.net.http.websocket.WebSocketConstants.META_DATA_ON_CLOSE;
+import static org.ballerinalang.net.http.websocket.WebSocketConstants.META_DATA_ON_ERROR;
+import static org.ballerinalang.net.http.websocket.WebSocketConstants.META_DATA_ON_OPEN;
+import static org.ballerinalang.net.http.websocket.WebSocketConstants.META_DATA_ON_PING;
+import static org.ballerinalang.net.http.websocket.WebSocketConstants.META_DATA_ON_PONG;
+import static org.ballerinalang.net.http.websocket.WebSocketConstants.META_DATA_ON_TEXT;
+import static org.ballerinalang.net.http.websocket.WebSocketConstants.META_DATA_ON_TIMEOUT;
+import static org.ballerinalang.net.http.websocket.WebSocketConstants.RESOURCE_NAME_ON_BINARY;
+import static org.ballerinalang.net.http.websocket.WebSocketConstants.RESOURCE_NAME_ON_OPEN;
+import static org.ballerinalang.net.http.websocket.WebSocketConstants.RESOURCE_NAME_ON_TEXT;
+
 /**
  * {@code WebSocketDispatcher} This is the web socket request dispatcher implementation which finds best matching
  * resource for incoming web socket request.
@@ -93,15 +106,15 @@ public class WebSocketResourceDispatcher {
         httpCaller.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
         httpCaller.addNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER, connectionManager);
 
-        Executor.submit(
-                wsService.getScheduler(), onUpgradeResource.getParentService().getBalService(),
-                balResource.getName(), new OnUpgradeResourceCallback(
-                        webSocketHandshaker, wsService, connectionManager), new HashMap<>(), signatureParams);
+        Executor.submit(wsService.getScheduler(), onUpgradeResource.getParentService().getBalService(),
+                        balResource.getName(),
+                        new OnUpgradeResourceCallback(webSocketHandshaker, wsService, connectionManager),
+                        null, META_DATA_ON_OPEN, new HashMap<>(), signatureParams);
     }
 
     public static void dispatchOnOpen(WebSocketConnection webSocketConnection, ObjectValue webSocketCaller,
                                        WebSocketServerService wsService) {
-        AttachedFunction onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
+        AttachedFunction onOpenResource = wsService.getResourceByName(RESOURCE_NAME_ON_OPEN);
         if (onOpenResource != null) {
             executeOnOpenResource(wsService, onOpenResource, webSocketCaller, webSocketConnection);
         } else {
@@ -129,11 +142,11 @@ public class WebSocketResourceDispatcher {
                 WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
                 WebSocketObservabilityUtil.observeError(connectionInfo,
                                                         WebSocketObservabilityConstants.ERROR_TYPE_RESOURCE_INVOCATION,
-                                                        WebSocketConstants.RESOURCE_NAME_ON_OPEN, error.getMessage());
+                                                        RESOURCE_NAME_ON_OPEN, error.getMessage());
             }
         };
         executeResource(wsService, onOpenCallableUnitCallback, bValues, connectionInfo,
-                        WebSocketConstants.RESOURCE_NAME_ON_OPEN);
+                        RESOURCE_NAME_ON_OPEN, META_DATA_ON_OPEN);
     }
     public static void dispatchOnText(WebSocketConnectionInfo connectionInfo, WebSocketTextMessage textMessage) {
         WebSocketObservabilityUtil.observeOnMessage(WebSocketObservabilityConstants.MESSAGE_TYPE_TEXT, connectionInfo);
@@ -141,7 +154,7 @@ public class WebSocketResourceDispatcher {
             WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
             WebSocketService wsService = connectionInfo.getService();
             AttachedFunction onTextMessageResource = wsService.getResourceByName(
-                    WebSocketConstants.RESOURCE_NAME_ON_TEXT);
+                    RESOURCE_NAME_ON_TEXT);
             if (onTextMessageResource == null) {
                 webSocketConnection.readNextFrame();
                 return;
@@ -163,8 +176,8 @@ public class WebSocketResourceDispatcher {
                     bValues[5] = true;
                 }
                 executeResource(wsService, new WebSocketResourceCallback(connectionInfo,
-                                                                         WebSocketConstants.RESOURCE_NAME_ON_TEXT),
-                                bValues, connectionInfo, WebSocketConstants.RESOURCE_NAME_ON_TEXT);
+                                                                         RESOURCE_NAME_ON_TEXT),
+                                bValues, connectionInfo, RESOURCE_NAME_ON_TEXT, META_DATA_ON_TEXT);
             } else if (isDataBindingSupported(dataTypeTag)) {
                 // During data binding the string is aggregated before it is dispatched to the resource
                 WebSocketConnectionInfo.StringAggregator stringAggregator =
@@ -177,8 +190,8 @@ public class WebSocketResourceDispatcher {
                         bValues[2] = aggregate;
                         bValues[3] = true;
                         executeResource(wsService, new WebSocketResourceCallback(
-                                connectionInfo, WebSocketConstants.RESOURCE_NAME_ON_TEXT), bValues, connectionInfo,
-                                        WebSocketConstants.RESOURCE_NAME_ON_TEXT);
+                                connectionInfo, RESOURCE_NAME_ON_TEXT), bValues, connectionInfo,
+                                        RESOURCE_NAME_ON_TEXT, META_DATA_ON_TEXT);
                     }
                     stringAggregator.resetAggregateString();
                 } else {
@@ -254,7 +267,7 @@ public class WebSocketResourceDispatcher {
             WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
             WebSocketService wsService = connectionInfo.getService();
             AttachedFunction onBinaryMessageResource = wsService.getResourceByName(
-                    WebSocketConstants.RESOURCE_NAME_ON_BINARY);
+                    RESOURCE_NAME_ON_BINARY);
             if (onBinaryMessageResource == null) {
                 webSocketConnection.readNextFrame();
                 return;
@@ -270,8 +283,8 @@ public class WebSocketResourceDispatcher {
                 bValues[5] = true;
             }
             executeResource(wsService, new WebSocketResourceCallback(
-                    connectionInfo, WebSocketConstants.RESOURCE_NAME_ON_BINARY), bValues, connectionInfo,
-                            WebSocketConstants.RESOURCE_NAME_ON_BINARY);
+                    connectionInfo, RESOURCE_NAME_ON_BINARY), bValues, connectionInfo,
+                            RESOURCE_NAME_ON_BINARY, META_DATA_ON_BINARY);
         } catch (Exception e) {
             WebSocketObservabilityUtil.observeError(connectionInfo,
                                                     WebSocketObservabilityConstants.ERROR_TYPE_MESSAGE_RECEIVED,
@@ -308,7 +321,7 @@ public class WebSocketResourceDispatcher {
             bValues[3] = true;
             executeResource(wsService, new WebSocketResourceCallback(
                     connectionInfo, WebSocketConstants.RESOURCE_NAME_ON_PING),
-                            bValues, connectionInfo, WebSocketConstants.RESOURCE_NAME_ON_PING);
+                            bValues, connectionInfo, WebSocketConstants.RESOURCE_NAME_ON_PING, META_DATA_ON_PING);
         } catch (Exception e) {
             //Observe error
             WebSocketObservabilityUtil.observeError(connectionInfo,
@@ -338,7 +351,7 @@ public class WebSocketResourceDispatcher {
             bValues[3] = true;
             executeResource(wsService, new WebSocketResourceCallback(
                     connectionInfo, WebSocketConstants.RESOURCE_NAME_ON_PONG),
-                            bValues, connectionInfo, WebSocketConstants.RESOURCE_NAME_ON_PONG);
+                            bValues, connectionInfo, WebSocketConstants.RESOURCE_NAME_ON_PONG, META_DATA_ON_PONG);
         } catch (Exception e) {
             WebSocketObservabilityUtil.observeError(connectionInfo,
                                                     WebSocketObservabilityConstants.ERROR_TYPE_MESSAGE_RECEIVED,
@@ -389,7 +402,7 @@ public class WebSocketResourceDispatcher {
                 }
             };
             executeResource(wsService, onCloseCallback,
-                            bValues, connectionInfo, WebSocketConstants.RESOURCE_NAME_ON_CLOSE);
+                            bValues, connectionInfo, WebSocketConstants.RESOURCE_NAME_ON_CLOSE, META_DATA_ON_CLOSE);
         } catch (Exception e) {
             WebSocketObservabilityUtil.observeError(connectionInfo,
                                                     WebSocketObservabilityConstants.ERROR_TYPE_MESSAGE_RECEIVED,
@@ -452,7 +465,7 @@ public class WebSocketResourceDispatcher {
             }
         };
         executeResource(webSocketService, onErrorCallback,
-                        bValues, connectionInfo, WebSocketConstants.RESOURCE_NAME_ON_ERROR);
+                        bValues, connectionInfo, WebSocketConstants.RESOURCE_NAME_ON_ERROR, META_DATA_ON_ERROR);
     }
 
     private static boolean isUnexpectedError(Throwable throwable) {
@@ -486,7 +499,8 @@ public class WebSocketResourceDispatcher {
                 }
             };
             executeResource(wsService, onIdleTimeoutCallback,
-                            bValues, connectionInfo, WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT);
+                            bValues, connectionInfo, WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT,
+                            META_DATA_ON_TIMEOUT);
         } catch (Exception e) {
             log.error("Error on idle timeout", e);
             WebSocketObservabilityUtil.observeError(connectionInfo,
@@ -508,16 +522,17 @@ public class WebSocketResourceDispatcher {
     }
 
     private static void executeResource(WebSocketService wsService, CallableUnitCallback callback, Object[] bValues,
-                                        WebSocketConnectionInfo connectionInfo, String resource) {
+                                        WebSocketConnectionInfo connectionInfo, String resource,
+                                        StrandMetaData metaData) {
         if (ObserveUtils.isTracingEnabled()) {
             Map<String, Object> properties = new HashMap<>();
             WebSocketObserverContext observerContext = new WebSocketObserverContext(connectionInfo);
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
-            Executor.submit(wsService.getScheduler(), wsService.getBalService(), resource, callback,
+            Executor.submit(wsService.getScheduler(), wsService.getBalService(), resource, callback, null, metaData,
                             properties, bValues);
         } else {
-            Executor.submit(wsService.getScheduler(), wsService.getBalService(), resource,
-                            callback, null, bValues);
+            Executor.submit(wsService.getScheduler(), wsService.getBalService(), resource, callback, null, metaData,
+                            null, bValues);
         }
         WebSocketObservabilityUtil.observeResourceInvocation(connectionInfo, resource);
     }

@@ -19,6 +19,7 @@
 package org.ballerinalang.net.http.websocket;
 
 import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.scheduling.StrandMetaData;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.values.api.BString;
@@ -125,7 +126,25 @@ public class WebSocketConstants {
     public static final String THE_WEBSOCKET_CONNECTION_HAS_NOT_BEEN_MADE =
             "The WebSocket connection has not been made";
 
-    private WebSocketConstants() {
+    // Strand meta data
+    public static final StrandMetaData META_DATA_ON_OPEN =
+            new StrandMetaData(BALLERINA_ORG, PACKAGE_HTTP, HTTP_MODULE_VERSION, RESOURCE_NAME_ON_OPEN);
+    public static final StrandMetaData META_DATA_ON_TEXT =
+            new StrandMetaData(BALLERINA_ORG, PACKAGE_HTTP, HTTP_MODULE_VERSION, RESOURCE_NAME_ON_TEXT);
+    public static final StrandMetaData META_DATA_ON_BINARY =
+            new StrandMetaData(BALLERINA_ORG, PACKAGE_HTTP, HTTP_MODULE_VERSION, RESOURCE_NAME_ON_BINARY);
+    public static final StrandMetaData META_DATA_ON_PING =
+            new StrandMetaData(BALLERINA_ORG, PACKAGE_HTTP, HTTP_MODULE_VERSION, RESOURCE_NAME_ON_PING);
+    public static final StrandMetaData META_DATA_ON_PONG =
+            new StrandMetaData(BALLERINA_ORG, PACKAGE_HTTP, HTTP_MODULE_VERSION, RESOURCE_NAME_ON_PONG);
+    public static final StrandMetaData META_DATA_ON_CLOSE =
+            new StrandMetaData(BALLERINA_ORG, PACKAGE_HTTP, HTTP_MODULE_VERSION, RESOURCE_NAME_ON_CLOSE);
+    public static final StrandMetaData META_DATA_ON_ERROR =
+            new StrandMetaData(BALLERINA_ORG, PACKAGE_HTTP, HTTP_MODULE_VERSION, RESOURCE_NAME_ON_ERROR);
+    public static final StrandMetaData META_DATA_ON_TIMEOUT =
+            new StrandMetaData(BALLERINA_ORG, PACKAGE_HTTP, HTTP_MODULE_VERSION, RESOURCE_NAME_ON_IDLE_TIMEOUT);
+
+    public WebSocketConstants() {
     }
 
     /**

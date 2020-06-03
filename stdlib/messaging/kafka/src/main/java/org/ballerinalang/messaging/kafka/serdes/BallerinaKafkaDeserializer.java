@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.BALLERINA_STRAND;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.META_DATA_ON_CLOSE;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.META_DATA_ON_DESERIALIZE;
 
 /**
  * Represents a deserializer class for ballerina kafka module.
@@ -58,11 +60,12 @@ public class BallerinaKafkaDeserializer implements Deserializer {
         BArray bData = BValueCreator.createArrayValue(data);
         Object[] args = new Object[]{bData, false};
         return this.runtime.getSyncMethodInvokeResult(this.deserializerObject, KafkaConstants.FUNCTION_DESERIALIZE,
-                                                      this.timeout, args);
+                                                      null, META_DATA_ON_DESERIALIZE, this.timeout, args);
     }
 
     @Override
     public void close() {
-        this.runtime.getSyncMethodInvokeResult(this.deserializerObject, KafkaConstants.FUNCTION_CLOSE, this.timeout);
+        this.runtime.getSyncMethodInvokeResult(this.deserializerObject, KafkaConstants.FUNCTION_CLOSE,
+                                               null, META_DATA_ON_CLOSE, this.timeout);
     }
 }

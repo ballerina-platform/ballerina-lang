@@ -19,6 +19,7 @@
 package org.ballerinalang.net.websub;
 
 import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.scheduling.StrandMetaData;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.api.BString;
 
@@ -91,6 +92,7 @@ public class WebSubSubscriberConstants {
 
     public static final String RESOURCE_NAME_ON_INTENT_VERIFICATION = "onIntentVerification";
     public static final String RESOURCE_NAME_ON_NOTIFICATION = "onNotification";
+    public static final String RESOURCE_NAME_ON_MESSAGE = "onMessage";
 
     static final BString PATH_FIELD = StringUtils.fromString("path");
 
@@ -129,8 +131,17 @@ public class WebSubSubscriberConstants {
 
     public static final String SERVICE_CONFIG_TOPIC_PAYLOAD_KEYS = "topicPayloadKeys";
     public static final String SERVICE_CONFIG_TOPIC_RESOURCE_MAP = "topicResourceMap";
+    public static final String ON_SEND = "send";
 
     // WebSub error types related constants
     public static final String ERROR_DETAIL_RECORD = "Detail";
     public static final String WEBSUB_LISTENER_STARTUP_FAILURE = "{ballerina/websub}ListenerStartupError";
+
+    // Strand meta data
+    public static final StrandMetaData META_DATA_ON_MESSAGE = new StrandMetaData(BALLERINA, WEBSUB, MODULE_VERSION,
+                                                                           RESOURCE_NAME_ON_MESSAGE);
+    public static final StrandMetaData META_DATA_ON_SEND = new StrandMetaData(BALLERINA, WEBSUB, MODULE_VERSION,
+                                                                             ON_SEND);
+    public static final StrandMetaData META_DATA_ON_START_UP_HUB = new StrandMetaData(BALLERINA, WEBSUB, MODULE_VERSION,
+                                                                                "startUpHubService");
 }

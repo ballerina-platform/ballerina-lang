@@ -44,6 +44,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.META_DATA_ON_PARTITION_ASSIGNED;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.META_DATA_ON_PARTITION_REVOKED;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getStringListFromStringBArray;
@@ -185,7 +187,8 @@ public class SubscriptionHandler {
         @Override
         public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
             Object[] inputArgs = {null, consumer, true, getPartitionsArray(partitions), true};
-            this.scheduler.schedule(inputArgs, onPartitionsRevoked.getConsumer(), strand, null);
+            this.scheduler.schedule(inputArgs, onPartitionsRevoked.getConsumer(), strand, null, null,
+                                    META_DATA_ON_PARTITION_REVOKED);
         }
 
         /**
@@ -194,7 +197,8 @@ public class SubscriptionHandler {
         @Override
         public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
             Object[] inputArgs = {null, consumer, true, getPartitionsArray(partitions), true};
-            this.scheduler.schedule(inputArgs, onPartitionsAssigned.getConsumer(), strand, null);
+            this.scheduler.schedule(inputArgs, onPartitionsAssigned.getConsumer(), strand, null, null,
+                                    META_DATA_ON_PARTITION_ASSIGNED);
         }
 
         private BArray getPartitionsArray(Collection<TopicPartition> partitions) {

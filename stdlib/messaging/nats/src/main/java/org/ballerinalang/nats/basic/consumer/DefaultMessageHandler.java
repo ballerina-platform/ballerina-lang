@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
+import static org.ballerinalang.nats.Constants.META_DATA_ON_MESSAGE;
 import static org.ballerinalang.nats.Constants.ON_MESSAGE_RESOURCE;
 import static org.ballerinalang.nats.Utils.bindDataToIntendedType;
 import static org.ballerinalang.nats.Utils.getAttachedFunction;
@@ -142,11 +143,11 @@ public class DefaultMessageHandler implements MessageHandler {
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
             runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE,
                                       new ResponseCallback(countDownLatch, subject, natsMetricsReporter),
-                                      properties, msgObj, Boolean.TRUE);
+                                      null, META_DATA_ON_MESSAGE, properties, msgObj, Boolean.TRUE);
         } else {
             runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE,
                                       new ResponseCallback(countDownLatch, subject, natsMetricsReporter),
-                                      msgObj, Boolean.TRUE);
+                                      null, META_DATA_ON_MESSAGE, msgObj, Boolean.TRUE);
         }
     }
 
@@ -160,11 +161,11 @@ public class DefaultMessageHandler implements MessageHandler {
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
             runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE,
                                       new ResponseCallback(countDownLatch, subject, natsMetricsReporter),
-                                      properties, msgObj, true, typeBoundData, true);
+                                      null, META_DATA_ON_MESSAGE, properties, msgObj, true, typeBoundData, true);
         } else {
             runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE,
                                       new ResponseCallback(countDownLatch, subject, natsMetricsReporter),
-                                      msgObj, true, typeBoundData, true);
+                                      null, META_DATA_ON_MESSAGE, msgObj, true, typeBoundData, true);
         }
     }
 

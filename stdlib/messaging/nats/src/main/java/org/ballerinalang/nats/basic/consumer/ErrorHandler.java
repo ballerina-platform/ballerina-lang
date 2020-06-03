@@ -31,6 +31,7 @@ import org.ballerinalang.nats.observability.NatsObservabilityConstants;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 
+import static org.ballerinalang.nats.Constants.META_DATA_ON_ERROR;
 import static org.ballerinalang.nats.Constants.ON_ERROR_RESOURCE;
 
 /**
@@ -56,7 +57,7 @@ public class ErrorHandler {
             CountDownLatch countDownLatch = new CountDownLatch(1);
             runtime.invokeMethodAsync(serviceObject, ON_ERROR_RESOURCE, new ResponseCallback(
                                               countDownLatch, msgObj.getStringValue(Constants.SUBJECT).getValue(),
-                                              natsMetricsReporter), msgObj, true, e, true);
+                                              natsMetricsReporter), null, META_DATA_ON_ERROR, msgObj, true, e, true);
             try {
                 countDownLatch.await();
             } catch (InterruptedException ex) {

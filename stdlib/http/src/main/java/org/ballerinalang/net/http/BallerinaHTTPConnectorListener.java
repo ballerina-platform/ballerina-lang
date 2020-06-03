@@ -40,6 +40,7 @@ import static org.ballerinalang.jvm.observability.ObservabilityConstants.SERVER_
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_PROTOCOL;
+import static org.ballerinalang.net.http.HttpConstants.META_DATA_ON_MESSAGE;
 
 /**
  * HTTP connector listener for Ballerina.
@@ -113,8 +114,8 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         }
         CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
         ObjectValue service = httpResource.getParentService().getBalService();
-        Executor.submit(httpServicesRegistry.getScheduler(), service, httpResource.getName(), callback, properties,
-                        signatureParams);
+        Executor.submit(httpServicesRegistry.getScheduler(), service, httpResource.getName(), callback, null,
+                        META_DATA_ON_MESSAGE, properties, signatureParams);
     }
 
     protected boolean accessed(HttpCarbonMessage inboundMessage) {

@@ -34,7 +34,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.VERSION_SEPARATOR;
 public class RabbitMQConstants {
 
     // RabbitMQ package name constant fields
-    private static final String ORG_NAME = "ballerina";
+    static final String ORG_NAME = "ballerina";
     static final String RABBITMQ = "rabbitmq";
     static final String RABBITMQ_VERSION = "1.0.0";
     public static final String PACKAGE_RABBITMQ =

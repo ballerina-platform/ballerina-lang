@@ -36,6 +36,10 @@ import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.META_DATA_ON_COMPLETE;
+import static org.ballerinalang.net.grpc.GrpcConstants.META_DATA_ON_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.META_DATA_ON_OPEN;
+
 /**
  * Interface to initiate processing of incoming remote calls for streaming services.
  * This is used in client and bidirectional streaming services.
@@ -66,8 +70,9 @@ public class StreamingServerCallHandler extends ServerCallHandler {
         if (ObserveUtils.isObservabilityEnabled()) {
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, context);
         }
-        onOpen.getRuntime().invokeMethodAsync(onOpen.getService(), onOpen.getFunctionName(), callback, properties,
-                computeMessageParams(onOpen, null, responseObserver));
+        onOpen.getRuntime().invokeMethodAsync(onOpen.getService(), onOpen.getFunctionName(), callback, null,
+                                              META_DATA_ON_OPEN, properties, computeMessageParams(onOpen, null,
+                                                                                                  responseObserver));
         callback.available.acquireUninterruptibly();
 
         return new StreamObserver() {
@@ -77,7 +82,8 @@ public class StreamingServerCallHandler extends ServerCallHandler {
 
                 CallableUnitCallback callback = new StreamingCallableUnitCallBack(responseObserver, context);
                 onMessage.getRuntime().invokeMethodAsync(onMessage.getService(), onMessage.getFunctionName(),
-                        callback, properties, computeMessageParams(onMessage, value, responseObserver));
+                        callback, null, META_DATA_ON_MESSAGE, properties, computeMessageParams(onMessage, value,
+                                                                                       responseObserver));
             }
 
             @Override
@@ -91,7 +97,8 @@ public class StreamingServerCallHandler extends ServerCallHandler {
                 ServiceResource onCompleted = resourceMap.get(GrpcConstants.ON_COMPLETE_RESOURCE);
                 CallableUnitCallback callback = new UnaryCallableUnitCallBack(responseObserver, Boolean.FALSE, context);
                 onCompleted.getRuntime().invokeMethodAsync(onCompleted.getService(), onCompleted.getFunctionName(),
-                        callback, properties, computeMessageParams(onCompleted, null, responseObserver));
+                        callback, null, META_DATA_ON_COMPLETE, properties, computeMessageParams(onCompleted, null,
+                                                                                       responseObserver));
             }
         };
     }

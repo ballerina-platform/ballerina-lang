@@ -65,6 +65,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANNOTATED_T
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.BALLERINA;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENTITY_ACCESSED_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.GENERATED_PACKAGE_VERSION;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.META_DATA_ON_MESSAGE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.PARAM_HUB_CHALLENGE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.PARAM_HUB_LEASE_SECONDS;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.PARAM_HUB_MODE;
@@ -216,7 +217,7 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
         CallableUnitCallback callback = new WebSubEmptyCallableUnitCallback();
         //TODO handle BallerinaConnectorException
         ObjectValue service = httpResource.getParentService().getBalService();
-        Executor.submit(scheduler, service, balResource.getName(), callback, null,
+        Executor.submit(scheduler, service, balResource.getName(), callback, null, META_DATA_ON_MESSAGE, null,
                         signatureParams);
     }
 
@@ -227,7 +228,8 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
         Object returnValue;
         try {
             Object[] args = {request, httpResource.getParentService().getBalService()};
-            returnValue = Executor.executeFunction(scheduler, this.getClass().getClassLoader(), BALLERINA,
+            returnValue = Executor.executeFunction(scheduler, null, HttpConstants.META_DATA_ON_MESSAGE,
+                                                   this.getClass().getClassLoader(), BALLERINA,
                                                    WEBSUB, GENERATED_PACKAGE_VERSION, "commons",
                                                    "processWebSubNotification", args);
         } catch (BallerinaException ex) {
