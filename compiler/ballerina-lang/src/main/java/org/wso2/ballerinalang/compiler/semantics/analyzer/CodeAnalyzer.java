@@ -110,6 +110,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
@@ -2432,6 +2433,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
         analyzeExprs(stringTemplateLiteral.exprs);
+    }
+
+    public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
+        analyzeExprs(rawTemplateLiteral.strings);
+        analyzeExprs(rawTemplateLiteral.insertions);
     }
 
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
