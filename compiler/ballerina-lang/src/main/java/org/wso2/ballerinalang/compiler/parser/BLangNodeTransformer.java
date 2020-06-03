@@ -1705,10 +1705,29 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLVarDef.pos = getPosition(varDeclaration);
 
         TypedBindingPatternNode typedBindingPattern = varDeclaration.typedBindingPattern();
-        CaptureBindingPatternNode bindingPattern = (CaptureBindingPatternNode) typedBindingPattern.bindingPattern();
+        DiagnosticPos pos = null;
+        String text = null;
+
+        switch (typedBindingPattern.bindingPattern().kind()) {
+            case CAPTURE_BINDING_PATTERN:
+                CaptureBindingPatternNode captureBindingPattern =
+                        (CaptureBindingPatternNode) typedBindingPattern.bindingPattern();
+                pos = getPosition(captureBindingPattern.variableName());
+                text = captureBindingPattern.variableName().text();
+                break;
+            case WILDCARD_BINDING_PATTERN:
+                WildcardBindingPatternNode wildcardBindingPatternNode =
+                        (WildcardBindingPatternNode) typedBindingPattern.bindingPattern();
+                pos = getPosition(wildcardBindingPatternNode.underscoreToken());
+                text = wildcardBindingPatternNode.underscoreToken().text();
+                break;
+            default:
+                throw new RuntimeException("Syntax kind is not a valid binding pattern " +
+                        typedBindingPattern.bindingPattern().kind());
+        }
 
         BLangSimpleVariable simpleVar = new SimpleVarBuilder()
-                .with(bindingPattern.variableName().text(), getPosition(bindingPattern.variableName()))
+                .with(text, pos)
                 .setTypeByNode(typedBindingPattern.typeDescriptor())
                 .setExpressionByNode(varDeclaration.initializer().orElse(null))
                 .setFinal(varDeclaration.finalKeyword().isPresent())
