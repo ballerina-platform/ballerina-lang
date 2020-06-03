@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -175,8 +176,33 @@ public class ImmutableTypeCloner {
                                                                 anonymousModelHelper, names, types, unresolvedTypes);
                 return immutableRecordType;
             case TypeTags.TABLE:
-                // TODO: see https://github.com/ballerina-platform/ballerina-lang/issues/23006
-                return type;
+                BTableType origTableType = (BTableType) type;
+                BTableType immutableTableType = origTableType.immutableType;
+                if (immutableTableType != null) {
+                    return immutableTableType;
+                }
+
+                BTypeSymbol immutableTableTSymbol = getReadonlyTSymbol(names, origTableType.tsymbol, env);
+                immutableTableType = new BTableType(origTableType.tag, setImmutableType(pos, types,
+                                                                                        origTableType.constraint, env,
+                                                                                        symTable, anonymousModelHelper,
+                                                                                        names, unresolvedTypes),
+                                                immutableTableTSymbol, origTableType.flags | Flags.READONLY);
+
+                BType origKeyTypeConstraint = origTableType.keyTypeConstraint;
+                if (origKeyTypeConstraint != null) {
+                    immutableTableType.keyTypeConstraint = setImmutableType(pos, types, origKeyTypeConstraint,
+                                                                            env, symTable, anonymousModelHelper, names,
+                                                                            unresolvedTypes);
+                }
+
+                immutableTableType.keyPos = origTableType.keyPos;
+                immutableTableType.constraintPos = origTableType.constraintPos;
+                immutableTableType.fieldNameList = origTableType.fieldNameList;
+
+                immutableTableTSymbol.type = immutableTableType;
+                origTableType.immutableType = immutableTableType;
+                return immutableTableType;
             case TypeTags.ANY:
                 BAnyType origAnyType = (BAnyType) type;
                 BAnyType immutableAnyType = origAnyType.immutableType;

@@ -173,7 +173,7 @@ public class BallerinaLexer extends AbstractLexer {
                 token = getSyntaxToken(SyntaxKind.ASTERISK_TOKEN);
                 break;
             case LexerTerminals.SLASH:
-                token = getSyntaxToken(SyntaxKind.SLASH_TOKEN);
+                token = processSlashToken();
                 break;
             case LexerTerminals.PERCENT:
                 token = getSyntaxToken(SyntaxKind.PERCENT_TOKEN);
@@ -220,7 +220,7 @@ public class BallerinaLexer extends AbstractLexer {
                 break;
             case LexerTerminals.BACKTICK:
                 startMode(ParserMode.TEMPLATE);
-                token = getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
+                token = getBacktickToken();
                 break;
             case LexerTerminals.SINGLE_QUOTE:
                 token = processQuotedIdentifier();
@@ -464,6 +464,9 @@ public class BallerinaLexer extends AbstractLexer {
         } else if (nexChar == LexerTerminals.AT) {
             reader.advance();
             return getSyntaxToken(SyntaxKind.ANNOT_CHAINING_TOKEN);
+        } else if (nexChar == LexerTerminals.LT) {
+            reader.advance();
+            return getSyntaxToken(SyntaxKind.DOT_LT_TOKEN);
         }
 
         if (this.mode != ParserMode.IMPORT && isDigit(nexChar)) {
@@ -1279,6 +1282,31 @@ public class BallerinaLexer extends AbstractLexer {
     }
 
     /**
+     * Process any token that starts with '/'.
+     *
+     * @return One of the tokens: <code>'/', '/<', '/*', '/**\/<' </code>
+     */
+    private STToken processSlashToken() {
+        switch (peek()) { // check for the second char
+            case LexerTerminals.LT:
+                reader.advance();
+                return getSyntaxToken(SyntaxKind.SLASH_LT_TOKEN);
+            case LexerTerminals.ASTERISK:
+                reader.advance();
+                if (peek() != LexerTerminals.ASTERISK) { // check for the third char
+                    return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
+                } else if (reader.peek(1) == LexerTerminals.SLASH && reader.peek(2) == LexerTerminals.LT) {
+                    reader.advance(3);
+                    return getSyntaxToken(SyntaxKind.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN);
+                } else {
+                    return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
+                }
+            default:
+                return getSyntaxToken(SyntaxKind.SLASH_TOKEN);
+        }
+    }
+
+    /**
      * Process and return documentation line.
      * <p>
      * <code>
@@ -1316,6 +1344,15 @@ public class BallerinaLexer extends AbstractLexer {
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
         return STNodeFactory.createDocumentationLineToken(lexeme, leadingTrivia, trailingTrivia);
+    }
+
+    private STToken getBacktickToken() {
+        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        // Trivia after the back-tick including whitespace belongs to the content of the back-tick.
+        // Therefore do not process trailing trivia for starting back-tick. We reach here only for
+        // starting back-tick. Ending back-tick is processed by the template mode.
+        STNode trailingTrivia = STNodeFactory.createEmptyNodeList();
+        return STNodeFactory.createToken(SyntaxKind.BACKTICK_TOKEN, leadingTrivia, trailingTrivia);
     }
 
     private STToken readTemplateToken() {
@@ -1528,7 +1565,7 @@ public class BallerinaLexer extends AbstractLexer {
      * @param content the string surrounded by the backticks
      * @return <code>true</code>, if the string content is valid. <code>false</code> otherwise.
      */
-    static boolean isValidBase16LiteralContent (String content) {
+    static boolean isValidBase16LiteralContent(String content) {
         char[] charArray = content.toCharArray();
         int hexDigitCount = 0;
 
@@ -1575,7 +1612,7 @@ public class BallerinaLexer extends AbstractLexer {
      * @param content the string surrounded by the backticks
      * @return <code>true</code>, if the string content is valid. <code>false</code> otherwise.
      */
-    static boolean isValidBase64LiteralContent (String content) {
+    static boolean isValidBase64LiteralContent(String content) {
         char[] charArray = content.toCharArray();
         int base64CharCount = 0;
         int paddingCharCount = 0;

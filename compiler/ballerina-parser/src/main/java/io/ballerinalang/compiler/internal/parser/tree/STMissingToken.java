@@ -41,6 +41,10 @@ public class STMissingToken extends STToken {
         super(kind, 0, new STNodeList(new ArrayList<>(0)), new STNodeList(new ArrayList<>(0)), diagnostics);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STMissingToken(kind, diagnostics);
+    }
+
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         switch (kind) {

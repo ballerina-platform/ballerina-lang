@@ -201,4 +201,12 @@ public abstract class XMLNonElementItem extends XMLValue {
 
     @Override
     public abstract boolean equals(Object obj);
+
+    @Override
+    protected void setAttributesOnInitialization(BMap<BString, ?> attributes) {
+    }
+
+    @Override
+    protected void setAttributeOnInitialization(String localName, String namespace, String prefix, String value) {
+    }
 }

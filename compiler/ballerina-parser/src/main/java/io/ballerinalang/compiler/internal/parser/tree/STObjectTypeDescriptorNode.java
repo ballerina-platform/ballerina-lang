@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -40,7 +43,23 @@ public class STObjectTypeDescriptorNode extends STTypeDescriptorNode {
             STNode openBrace,
             STNode members,
             STNode closeBrace) {
-        super(SyntaxKind.OBJECT_TYPE_DESC);
+        this(
+                objectTypeQualifiers,
+                objectKeyword,
+                openBrace,
+                members,
+                closeBrace,
+                Collections.emptyList());
+    }
+
+    STObjectTypeDescriptorNode(
+            STNode objectTypeQualifiers,
+            STNode objectKeyword,
+            STNode openBrace,
+            STNode members,
+            STNode closeBrace,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.OBJECT_TYPE_DESC, diagnostics);
         this.objectTypeQualifiers = objectTypeQualifiers;
         this.objectKeyword = objectKeyword;
         this.openBrace = openBrace;
@@ -53,6 +72,16 @@ public class STObjectTypeDescriptorNode extends STTypeDescriptorNode {
                 openBrace,
                 members,
                 closeBrace);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STObjectTypeDescriptorNode(
+                this.objectTypeQualifiers,
+                this.objectKeyword,
+                this.openBrace,
+                this.members,
+                this.closeBrace,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

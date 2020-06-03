@@ -20,6 +20,7 @@ package org.ballerinalang.bindgen.command;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.bindgen.model.JClass;
 import org.ballerinalang.bindgen.model.JError;
+import org.ballerinalang.bindgen.utils.BindgenMvnResolver;
 import org.ballerinalang.toml.model.Library;
 import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.util.TomlParserUtils;
@@ -57,7 +58,6 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.getUpdatedConstantsLi
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicClass;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.notifyExistingDependencies;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.writeOutputFile;
-import static org.ballerinalang.bindgen.utils.MvnResolverUtils.mavenResolver;
 
 /**
  * Class for generating Ballerina bindings for Java APIs.
@@ -88,9 +88,9 @@ public class BindingsGenerator {
     private static Set<JError> exceptionList = new HashSet<>();
     private static Map<String, String> failedClassGens = new HashMap<>();
 
-    public BindingsGenerator(PrintStream stream) {
-        this.outStream = stream;
-        this.errStream = stream;
+    BindingsGenerator(PrintStream out, PrintStream err) {
+        this.outStream = out;
+        this.errStream = err;
     }
 
     void generateJavaBindings() throws BindgenException {
@@ -100,7 +100,7 @@ public class BindingsGenerator {
         // Resolve the maven dependency received through the tool and update the Ballerina.toml file
         // with the direct and transitive platform.libraries
         if ((mvnGroupId != null) && (mvnArtifactId != null) && (mvnVersion != null)) {
-            mavenResolver(mvnGroupId, mvnArtifactId, mvnVersion, projectRoot, true);
+            new BindgenMvnResolver(outStream).mavenResolver(mvnGroupId, mvnArtifactId, mvnVersion, projectRoot, true);
         }
 
         ClassLoader classLoader = setClassLoader();
@@ -146,7 +146,8 @@ public class BindingsGenerator {
                         if (library.path != null) {
                             classPaths.add(Paths.get(projectRoot.toString(), library.path).toString());
                         } else if (library.groupId != null && library.artifactId != null && library.version != null) {
-                            mavenResolver(library.groupId, library.artifactId, library.version, projectRoot, false);
+                            new BindgenMvnResolver(outStream).mavenResolver(library.groupId, library.artifactId,
+                                    library.version, projectRoot, false);
                         }
                     }
                 }
@@ -278,10 +279,6 @@ public class BindingsGenerator {
 
     public static void setAllClasses(String allClasses) {
         BindingsGenerator.allClasses.add(allClasses);
-    }
-
-    public static Set<JError> getExceptionList() {
-        return exceptionList;
     }
 
     public static void setExceptionList(JError exception) {

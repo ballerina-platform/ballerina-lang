@@ -80,6 +80,10 @@ public class STToken extends STNode {
         return lookback;
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STToken(kind, width, leadingMinutiae, trailingMinutiae, diagnostics);
+    }
+
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new Token(this, position, parent);
