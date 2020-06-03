@@ -23,8 +23,6 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.net.grpc.StreamObserver;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.STATUS_CODE_GROUP_SUFFIX;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP;
 
 /**
  * Call back class registered for streaming gRPC service in B7a executor.
@@ -54,8 +52,6 @@ public class StreamingCallableUnitCallBack extends AbstractCallableUnitCallBack 
         }
         if (observerContext != null) {
             observerContext.addProperty(PROPERTY_KEY_HTTP_STATUS_CODE, HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
-            observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE_GROUP,
-                    HttpResponseStatus.INTERNAL_SERVER_ERROR.code() / 100 + STATUS_CODE_GROUP_SUFFIX);
         }
         super.notifyFailure(error);
     }

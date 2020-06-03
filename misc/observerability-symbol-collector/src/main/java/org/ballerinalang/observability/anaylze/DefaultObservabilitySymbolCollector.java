@@ -42,6 +42,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -83,7 +85,8 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
     }
 
     @Override
-    public void writeCollectedSymbols(BLangPackage module, Path destination) throws IOException {
+    public void writeCollectedSymbols(BLangPackage module, Path destination)
+            throws IOException, NoSuchAlgorithmException {
         Path targetDirPath = destination.resolve(AST);
         if (Files.notExists(targetDirPath)) {
             Files.createDirectory(targetDirPath);
@@ -101,10 +104,29 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
         Files.write(targetDirPath.resolve(AST + JSON), astDataString.getBytes(StandardCharsets.UTF_8));
 
         Properties props = new Properties();
-        props.setProperty(PROGRAM_HASH_KEY, String.valueOf(astDataString.hashCode()));
+        props.setProperty(PROGRAM_HASH_KEY, getAstHash(astDataString));
         try (OutputStream outputStream = Files.newOutputStream(targetDirPath.resolve(AST_META_FILENAME))) {
             props.store(outputStream, null);
         }
+    }
+
+    private String getAstHash(String astDataString) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] encodedHash = digest.digest(astDataString.getBytes(StandardCharsets.UTF_8));
+
+        return bytesToHex(encodedHash);
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuilder hexString = new StringBuilder();
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 
     private Set<String> getUserPackages() {

@@ -118,7 +118,7 @@ public class OpenTracerBallerinaWrapper {
             return startSpan(observerContext, true, spanName);
         }
 
-        return startSpan(observerContext, false, spanName);
+        return startSpan(observerContext, true, spanName);
     }
 
     /**

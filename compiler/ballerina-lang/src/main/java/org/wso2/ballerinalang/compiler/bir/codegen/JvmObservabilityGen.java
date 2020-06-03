@@ -96,7 +96,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPacka
 /**
  * BIR desugar to inject observations class.
  *
- * @since 1.2.0
+ * @since 2.0.0
  */
 class JvmObservabilityGen {
     private static final String ENTRY_POINT_MAIN_METHOD_NAME = "main";
@@ -175,6 +175,10 @@ class JvmObservabilityGen {
     /**
      * Add the type information method to a type definition.
      *
+     * This is required as objects which are different, but has structural equivalence to the variable type, can be
+     * assigned at runtime. Since the instrumentation is done at the caller side, we can only check the variable type
+     * at compile time. The actual type assigned is fetched using the type information method generated.
+     *
      * @param typeDef The type definition to which type information function should be added
      * @param pkg The package containing the type definition
      */
@@ -185,6 +189,10 @@ class JvmObservabilityGen {
             if (hasTypeFunction) {
                 return;
             }
+            /*
+             * The function generated below is responsible for returning the actual type of the type definition.
+             * The function simply returns a constant value in the format <org>/<module>/<TypeName>
+             */
 
             // Creating a function to return the type information
             Name typeFuncName = new Name(OBJECT_TYPE_FUNCTION_NAME);
@@ -233,6 +241,9 @@ class JvmObservabilityGen {
      * Rewrite the invocations in the function bodies to call a lambda asynchronously which in turn calls the
      * actual function synchronously. This is done so that the actual invocation can be observed accurately.
      *
+     * Without this wrapper, the start and end time recorded would only reflect the time it took to give the the async
+     * invocation to the scheduler. However, we require the actual time it took for the invocation.
+     *
      * @param func The function of which the instructions in the body should be rewritten
      * @param attachedTypeDef The type definition to which the function was attached to or null
      * @param pkg The package containing the function
@@ -252,6 +263,11 @@ class JvmObservabilityGen {
             if (currentBB.terminator.kind == InstructionKind.ASYNC_CALL
                     && isObservable((AsyncCall) currentBB.terminator)) {
                 AsyncCall asyncCallIns = (AsyncCall) currentBB.terminator;
+                /*
+                 * The wrapper function generated below invokes the actual function synchronously, allowing the
+                 * instrumentation to record the actual start and end times of the function. The wrapper function
+                 * is invoked asynchronously preserving the asynchronous behaviour.
+                 */
 
                 // Creating the lambda for this async call
                 BType returnType = ((BFutureType) asyncCallIns.lhsOp.variableDcl.type).constraint;
@@ -336,6 +352,11 @@ class JvmObservabilityGen {
      *
      * This is only to be used in service resource functions, workers and main method.
      *
+     * This method expects that Observable invocations had already been instrumented properly before this method is
+     * called. This is because the uncaught panics thrown from such observable invocations are reported to the
+     * observation covering the function body by using the re-panic terminators which gets added in
+     * rewriteObservableFunctionInvocations method.
+     *
      * @param func The function to instrument
      * @param pkg The package which contains the function
      * @param isResourceObservation True if the function is a service resource
@@ -410,6 +431,16 @@ class JvmObservabilityGen {
             } else if (currentBB.terminator.kind == InstructionKind.CALL
                     || (currentBB.terminator.kind == InstructionKind.FP_CALL
                     && !((FPCall) currentBB.terminator).isAsync)) {
+                /*
+                 * Traps for errors needs to be injected for each call and fp call separately to avoid messing up the
+                 * line numbers in the stack trace shown when a panic is thrown.
+                 *
+                 * These panic traps are different from the traps added in rewriteObservableFunctionInvocations method,
+                 * in the sense that these report the error to the Observation covering the current function this body
+                 * belongs to. Also these do not cover the observable calls and fp calls (they are handled using the
+                 * panic terminator handling logic)
+                 */
+
                 // If a panic is captured, it does not need to be reported
                 Optional<BIRErrorEntry> existingEE = func.errorTable.stream()
                         .filter(errorEntry -> isBBCoveredInErrorEntry(errorEntry, currentBB))
@@ -465,7 +496,7 @@ class JvmObservabilityGen {
                 int newCurrentIndex = i + 2;
                 BIRBasicBlock newCurrentBB = insertBasicBlock(func, newCurrentIndex);
                 swapBasicBlockTerminator(currentBB, newCurrentBB);
-                {
+                {   // Injecting the instrumentation points for invocations
                     BIROperand objectTypeOperand;
                     String action;
                     if (callIns.isVirtual) {
@@ -473,10 +504,7 @@ class JvmObservabilityGen {
                         BIROperand selfArgOperand = callIns.args.get(0);
                         BIRVariableDcl selfArg = getVariableDcl(selfArgOperand.variableDcl);
                         if (selfArg.type instanceof BObjectType) {
-                            /*
-                             * Invoking the type info method (added in addTypeInfoFunction method)
-                             * which returns the actual type
-                             */
+                            // Invoking the type info method (added in addTypeInfoFunction method)
                             BIRVariableDcl objectTypeVariableDcl = new BIRVariableDcl(symbolTable.stringType,
                                     new Name(String.format("$%s$%s$objectType", INVOCATION_INSTRUMENTATION_TYPE,
                                             currentBB.id.value)), VarScope.FUNCTION, VarKind.TEMP);
@@ -554,6 +582,10 @@ class JvmObservabilityGen {
                     fixErrorTable(func, currentBB, observeEndBB);
                 }
                 {
+                    /*
+                     * Adding panic traps for the invocations. These report the error to the Observation covering
+                     * the invocation.
+                     */
                     Optional<BIRErrorEntry> existingEE = func.errorTable.stream()
                             .filter(errorEntry -> isBBCoveredInErrorEntry(errorEntry, newCurrentBB))
                             .findAny();
