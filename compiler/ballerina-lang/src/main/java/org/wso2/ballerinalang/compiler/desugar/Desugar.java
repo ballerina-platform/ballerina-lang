@@ -257,7 +257,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createBlockStmt;
@@ -2355,8 +2354,10 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRetry retryNode) {
         BLangBlockStmt retryBlockStmt = ASTBuilderUtil.createBlockStmt(retryNode.pos);
-        BType retryManagerType = null;
-        if (retryNode.getRetrySpec() != null) {
+        //todo @chiran check standard
+        BType retryManagerType = ((BTypedescType)((BInvokableSymbol)symResolver.lookupLangLibMethod(
+                symTable.typeDesc, names.fromString("defaultRetryManager"))).retType).constraint;
+        if (retryNode.getRetrySpec().retryManagerType != null) {
             retryManagerType = retryNode.retrySpec.type;
         }
 
@@ -2366,11 +2367,15 @@ public class Desugar extends BLangNodeVisitor {
         BLangTypeInit managerInit = ASTBuilderUtil.createEmptyTypeInit(retryNode.pos, retryManagerType);
         BLangSimpleVariable retryManagerVariable = ASTBuilderUtil.createVariable(retryNode.pos, "$retryManager$",
                 retryManagerType, managerInit, retryMangerSymbol);
-        BLangSimpleVariableDef retryManagerVarDef = ASTBuilderUtil.createVariableDef(retryNode.pos, retryManagerVariable);
+        BLangSimpleVariableDef retryManagerVarDef =
+                ASTBuilderUtil.createVariableDef(retryNode.pos, retryManagerVariable);
         BLangSimpleVarRef retryManagerVarRef = new BLangSimpleVarRef.BLangLocalVarRef(retryMangerSymbol);
         retryManagerVarRef.type = retryMangerSymbol.type;
         retryBlockStmt.stmts.add(retryManagerVarDef);
 
+        //  var $retryFunc$ = function ()  {
+        //    <"Content in retry block goes here">
+        //  };
         BLangBlockFunctionBody retryBody = ASTBuilderUtil.createBlockFunctionBody(retryNode.retryBody.pos);
         BLangType transactionLambdaReturnType = ASTBuilderUtil.createTypeNode(symTable.errorOrNilType);
         BLangLambdaFunction retryFunc = createLambdaFunction(retryNode.pos, "$retryFunc$",
@@ -2386,6 +2391,7 @@ public class Desugar extends BLangNodeVisitor {
         retryBlockStmt.stmts.add(retryLambdaVariableDef);
 
         // Add lambda function call
+        //error|() $result$ = trap $retryFunc$();
         BLangInvocation retryLambdaInvocation = new BLangInvocation.BFunctionPointerInvocation(retryNode.pos,
                 retryLambdaVarRef, retryLambdaVariable.symbol, symTable.errorOrNilType);
         retryLambdaInvocation.argExprs = new ArrayList<>();
@@ -2401,7 +2407,8 @@ public class Desugar extends BLangNodeVisitor {
                 symTable.errorOrNilType, retryFunctionTrapExpression, retryFunctionVarSymbol);
         BLangSimpleVariableDef retryFunctionVariableDef = ASTBuilderUtil.createVariableDef(retryNode.pos,
                 retryFunctionVariable);
-        BLangSimpleVarRef retryFunctionVariableRef = new BLangSimpleVarRef.BLangLocalVarRef(retryFunctionVariable.symbol);
+        BLangSimpleVarRef retryFunctionVariableRef =
+                new BLangSimpleVarRef.BLangLocalVarRef(retryFunctionVariable.symbol);
         retryFunctionVariableRef.type = retryFunctionVariable.symbol.type;
         retryBlockStmt.stmts.add(retryFunctionVariableDef);
 
@@ -2409,7 +2416,6 @@ public class Desugar extends BLangNodeVisitor {
                 = new ClosureExpressionVisitor(this.context, env, true);
         retryFunc.accept(closureExpressionVisitor);
 
-        rewrite(retryBlockStmt, this.env);
         // create while loop: while ($retryManager$.shouldRetry($result$))
         BLangWhile whileNode = (BLangWhile) TreeBuilder.createWhileNode();
         whileNode.pos = retryNode.pos;
@@ -2422,6 +2428,16 @@ public class Desugar extends BLangNodeVisitor {
         whileNode.body = whileBlockStmnt;
         retryBlockStmt.stmts.add(whileNode);
 
+        //  at this point;
+        //  RetryManager $retryManager$ = new();
+        //  var $retryFunc$ = function ()  {
+        //    <"Content in retry block goes here">
+        //  };
+        //  error|() $result$ = trap $retryFunc$();
+        //
+        //  while ($retryManager$.shouldRetry($result$)) {
+        //       $result$ = trap $retryFunc$();
+        //  }
         rewriteStmt(retryBlockStmt.stmts, env);
         result = retryBlockStmt;
     }
