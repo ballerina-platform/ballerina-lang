@@ -2570,5 +2570,14 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 endBacktick.internalNode());
         return stByteArrayLiteralNode.createUnlinkedFacade();
     }
+
+    public static TypeReferenceTypeDescNode createTypeReferenceTypeDescNode(
+            NameReferenceNode typeRef) {
+        Objects.requireNonNull(typeRef, "typeRef must not be null");
+
+        STNode stTypeReferenceTypeDescNode = STNodeFactory.createTypeReferenceTypeDescNode(
+                typeRef.internalNode());
+        return stTypeReferenceTypeDescNode.createUnlinkedFacade();
+    }
 }
 

@@ -2601,6 +2601,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 endBacktick);
     }
 
+    @Override
+    public TypeReferenceTypeDescNode transform(
+            TypeReferenceTypeDescNode typeReferenceTypeDescNode) {
+        NameReferenceNode typeRef =
+                modifyNode(typeReferenceTypeDescNode.typeRef());
+        return typeReferenceTypeDescNode.modify(
+                typeRef);
+    }
+
     // Tokens
 
     @Override

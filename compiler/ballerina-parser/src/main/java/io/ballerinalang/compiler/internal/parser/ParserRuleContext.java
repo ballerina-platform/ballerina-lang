@@ -206,10 +206,10 @@ public enum ParserRuleContext {
     LIST_BINDING_MEMBER_OR_ARRAY_LENGTH("list-binding-member-or-array-length"),
     TYPED_BINDING_PATTERN_TYPE_RHS("type-binding-pattern-type-rhs"),
     UNION_OR_INTERSECTION_TOKEN("union-or-intersection"),
-
     MAPPING_BP_OR_MAPPING_CONSTRUCTOR("mapping-bp-or-mapping-cons"),
     MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER("mapping-bp-or-mapping-cons-member"),
     LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER("list-bp-or-list-cons-member"),
+    VAR_REF_OR_TYPE_REF("var-ref"),
 
     // Statements
     STATEMENT("statement"),
@@ -217,7 +217,7 @@ public enum ParserRuleContext {
     ASSIGNMENT_STMT("assignment-stmt"),
     VAR_DECL_STMT("var-decl-stmt"),
     VAR_DECL_STMT_RHS("var-decl-rhs"),
-    STATEMENT_START_IDENTIFIER("type-or-var-name"),
+    TYPE_NAME_OR_VAR_NAME("type-or-var-name"),
     ASSIGNMENT_OR_VAR_DECL_STMT("assign-or-var-decl"),
     ASSIGNMENT_OR_VAR_DECL_STMT_RHS("assign-or-var-decl-rhs"),
     IF_BLOCK("if-block"),

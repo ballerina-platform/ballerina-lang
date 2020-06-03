@@ -1920,5 +1920,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 content,
                 endBacktick);
     }
+
+    public static STNode createTypeReferenceTypeDescNode(
+            STNode typeRef) {
+
+        return new STTypeReferenceTypeDescNode(
+                typeRef);
+    }
 }
 

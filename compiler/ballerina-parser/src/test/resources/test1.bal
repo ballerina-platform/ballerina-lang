@@ -1,3 +1,3 @@
 function foo() {
-    io:println("hello");
+    T1[a] & T2[b] = y;
 }

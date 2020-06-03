@@ -251,7 +251,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.RESOURCE_KEYWORD, ParserRuleContext.FUNC_DEF, ParserRuleContext.CLOSE_BRACE };
 
     private static final ParserRuleContext[] CONST_DECL_RHS =
-            { ParserRuleContext.STATEMENT_START_IDENTIFIER, ParserRuleContext.ASSIGN_OP };
+            { ParserRuleContext.TYPE_NAME_OR_VAR_NAME, ParserRuleContext.ASSIGN_OP };
 
     private static final ParserRuleContext[] ARRAY_LENGTH =
             { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.DECIMAL_INTEGER_LITERAL,
@@ -1102,7 +1102,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case STATEMENT_WITHOUT_ANNOTS:
             case PARAM_LIST:
             case REQUIRED_PARAM_NAME_RHS:
-            case STATEMENT_START_IDENTIFIER:
+            case TYPE_NAME_OR_VAR_NAME:
             case ASSIGNMENT_OR_VAR_DECL_STMT_RHS:
             case FIELD_DESCRIPTOR_RHS:
             case FIELD_OR_REST_DESCIPTOR_RHS:
@@ -1281,7 +1281,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case REQUIRED_PARAM_NAME_RHS:
                 alternativeRules = REQUIRED_PARAM_NAME_RHS;
                 break;
-            case STATEMENT_START_IDENTIFIER:
+            case TYPE_NAME_OR_VAR_NAME:
                 alternativeRules = TYPE_OR_VAR_NAME;
                 break;
             case ASSIGNMENT_OR_VAR_DECL_STMT_RHS:
@@ -2162,7 +2162,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.EXPRESSION;
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
-            case STATEMENT_START_IDENTIFIER:
+            case TYPE_NAME_OR_VAR_NAME:
                 return getNextRuleForDecimalIntegerLiteral();
             case EXPRESSION_STATEMENT:
                 return ParserRuleContext.EXPRESSION_STATEMENT_START;
@@ -3476,9 +3476,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     return ParserRuleContext.CLOSE_BRACKET;
                 }
                 return ParserRuleContext.CLOSE_BRACE; // for mapping binding pattern
+            case AMBIGUOUS_STMT:
+                switchContext(ParserRuleContext.VAR_DECL_STMT);
+                return ParserRuleContext.VAR_DECL_STMT_RHS;
             case ASSIGNMENT_OR_VAR_DECL_STMT:
             case VAR_DECL_STMT:
-            case AMBIGUOUS_STMT:
                 return ParserRuleContext.VAR_DECL_STMT_RHS;
             case LET_CLAUSE_LET_VAR_DECL:
             case LET_EXPR_LET_VAR_DECL:
@@ -3624,7 +3626,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case SEMICOLON:
                 return SyntaxKind.SEMICOLON_TOKEN;
             case VARIABLE_NAME:
-            case STATEMENT_START_IDENTIFIER:
+            case TYPE_NAME_OR_VAR_NAME:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case PUBLIC_KEYWORD:
                 return SyntaxKind.PUBLIC_KEYWORD;

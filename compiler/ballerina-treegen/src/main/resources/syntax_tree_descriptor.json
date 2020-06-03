@@ -3450,6 +3450,17 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "TypeReferenceTypeDescNode",
+            "base": "TypeDescriptorNode",
+            "kind": "TYPE_REFERENCE_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "typeRef",
+                    "type": "NameReferenceNode"
+                }
+            ]
         }
     ]
 }

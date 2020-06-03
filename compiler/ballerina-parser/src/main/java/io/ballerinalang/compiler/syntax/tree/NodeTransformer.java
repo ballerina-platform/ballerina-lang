@@ -684,6 +684,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(byteArrayLiteralNode);
     }
 
+    public T transform(TypeReferenceTypeDescNode typeReferenceTypeDescNode) {
+        return transformSyntaxNode(typeReferenceTypeDescNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {
