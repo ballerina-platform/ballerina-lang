@@ -1,4 +1,5 @@
 import testorg/foo;
+import testorg/utils;
 
 public function testSimpleObjectAsStruct () returns [int, string, int, string] {
     foo:Man p = new ();
@@ -238,4 +239,68 @@ type Manager3 object {
 public function testObjectReferingTypeFromBalo_3() returns [string, float] {
     Manager3 mgr3 = new("Jane");
     return [mgr3.getName(), mgr3.getBonus(0.1)];
+}
+
+public function testObjectReferingNonAbstractObjFromBalo() {
+    foo:CorronifiedEmployee cemp1 = new (true, 100.0, 200.3, 20, "John");
+    utils:assertEquality("Engineering", cemp1.dpt);
+    utils:assertEquality(500.3, cemp1.setWorkingFromHomeAllowance(500.3));
+    utils:assertEquality(600.3, cemp1.getBonus(1.0, 1));
+    cemp1.setWorkingFromHome(false);
+    utils:assertEquality(100.0, cemp1.getBonus(1.0, 1));
+    utils:assertEquality((), cemp1.setWorkingFromHomeAllowance(50));
+    utils:assertEquality("Contactless hello! John", cemp1.getName());
+    utils:assertEquality(20, cemp1.Age());
+}
+
+public type PostPandemicEmployee object {
+    *foo:CorronifiedEmployee;
+
+    public function __init(boolean workingFromHome, float salary, float workingFromHomeAllowance, int age, string name) {
+        self.age                        = age;
+        self.name                       = name;
+        self.workingFromHome            = workingFromHome;
+        self.salary                     = salary;
+        self.workingFromHomeAllowance   = workingFromHomeAllowance;
+        self.dpt                        = "Engineering";
+    }
+
+    public function setWorkingFromHomeAllowance(float allowance) returns float|() {
+        self.workingFromHomeAllowance = allowance;
+        if (self.workingFromHome) {
+            return self.workingFromHomeAllowance;
+        }
+        return ();
+    }
+
+    public function setWorkingFromHome(boolean workingFromHome) {
+        self.workingFromHome = workingFromHome;
+    }
+
+    public function getBonus(float ratio, int months=12) returns float {
+        if (self.workingFromHome) {
+            return self.salary * ratio * months + self.workingFromHomeAllowance;
+        }
+        return self.salary * ratio * months;
+    }
+
+    public function getName(string greeting = "Contactless hello!") returns string {
+        return greeting + " " + self.name;
+    }
+
+    public function Age() returns int {
+        return self.age;
+    }
+};
+
+public function testObjectReferingNonAbstractObjLoadedFromBalo() {
+    PostPandemicEmployee cemp1 = new (true, 100.0, 200.3, 20, "John");
+    utils:assertEquality("Engineering", cemp1.dpt);
+    utils:assertEquality(500.3, cemp1.setWorkingFromHomeAllowance(500.3));
+    utils:assertEquality(600.3, cemp1.getBonus(1.0, 1));
+    cemp1.setWorkingFromHome(false);
+    utils:assertEquality(100.0, cemp1.getBonus(1.0, 1));
+    utils:assertEquality((), cemp1.setWorkingFromHomeAllowance(50));
+    utils:assertEquality("Contactless hello! John", cemp1.getName());
+    utils:assertEquality(20, cemp1.Age());
 }

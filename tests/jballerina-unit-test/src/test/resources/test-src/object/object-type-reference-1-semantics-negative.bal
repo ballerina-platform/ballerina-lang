@@ -19,8 +19,8 @@ type Person1 abstract object {
     public string name;
 };
 
-type Employee1 object {
-    public float salary = 0.0;
+type Employee1 record {
+    float salary = 0.0;
 };
 
 type Manager1 object {
@@ -28,7 +28,7 @@ type Manager1 object {
 
     string dpt = "HR";
 
-    // refering a non-abstarct object
+    // refering a non-object
     *Employee1;
 };
 

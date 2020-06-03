@@ -69,4 +69,4 @@ createBalo {
     jvmTarget = 'true'
 }
 
-description = 'Ballerina - jdbc2'
+description = 'Ballerina - jdbc'

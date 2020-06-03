@@ -40,7 +40,7 @@ public class KeySpecifierNode extends NonTerminalNode {
         return childInBucket(1);
     }
 
-    public SeparatedNodeList<Node> fieldNames() {
+    public SeparatedNodeList<IdentifierToken> fieldNames() {
         return new SeparatedNodeList<>(childInBucket(2));
     }
 
@@ -70,7 +70,7 @@ public class KeySpecifierNode extends NonTerminalNode {
     public KeySpecifierNode modify(
             Token keyKeyword,
             Token openParenToken,
-            SeparatedNodeList<Node> fieldNames,
+            SeparatedNodeList<IdentifierToken> fieldNames,
             Token closeParenToken) {
         if (checkForReferenceEquality(
                 keyKeyword,
@@ -100,7 +100,7 @@ public class KeySpecifierNode extends NonTerminalNode {
         private final KeySpecifierNode oldNode;
         private Token keyKeyword;
         private Token openParenToken;
-        private SeparatedNodeList<Node> fieldNames;
+        private SeparatedNodeList<IdentifierToken> fieldNames;
         private Token closeParenToken;
 
         public KeySpecifierNodeModifier(KeySpecifierNode oldNode) {
@@ -126,7 +126,7 @@ public class KeySpecifierNode extends NonTerminalNode {
         }
 
         public KeySpecifierNodeModifier withFieldNames(
-                SeparatedNodeList<Node> fieldNames) {
+                SeparatedNodeList<IdentifierToken> fieldNames) {
             Objects.requireNonNull(fieldNames, "fieldNames must not be null");
             this.fieldNames = fieldNames;
             return this;
