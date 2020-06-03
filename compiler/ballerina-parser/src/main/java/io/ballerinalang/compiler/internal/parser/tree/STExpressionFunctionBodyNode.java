@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STExpressionFunctionBodyNode extends STFunctionBodyNode {
             STNode rightDoubleArrow,
             STNode expression,
             STNode semicolon) {
-        super(SyntaxKind.EXPRESSION_FUNCTION_BODY);
+        this(
+                rightDoubleArrow,
+                expression,
+                semicolon,
+                Collections.emptyList());
+    }
+
+    STExpressionFunctionBodyNode(
+            STNode rightDoubleArrow,
+            STNode expression,
+            STNode semicolon,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.EXPRESSION_FUNCTION_BODY, diagnostics);
         this.rightDoubleArrow = rightDoubleArrow;
         this.expression = expression;
         this.semicolon = semicolon;
@@ -45,6 +60,14 @@ public class STExpressionFunctionBodyNode extends STFunctionBodyNode {
                 rightDoubleArrow,
                 expression,
                 semicolon);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STExpressionFunctionBodyNode(
+                this.rightDoubleArrow,
+                this.expression,
+                this.semicolon,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -40,7 +43,23 @@ public class STRequiredParameterNode extends STParameterNode {
             STNode visibilityQualifier,
             STNode typeName,
             STNode paramName) {
-        super(SyntaxKind.REQUIRED_PARAM);
+        this(
+                leadingComma,
+                annotations,
+                visibilityQualifier,
+                typeName,
+                paramName,
+                Collections.emptyList());
+    }
+
+    STRequiredParameterNode(
+            STNode leadingComma,
+            STNode annotations,
+            STNode visibilityQualifier,
+            STNode typeName,
+            STNode paramName,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.REQUIRED_PARAM, diagnostics);
         this.leadingComma = leadingComma;
         this.annotations = annotations;
         this.visibilityQualifier = visibilityQualifier;
@@ -53,6 +72,16 @@ public class STRequiredParameterNode extends STParameterNode {
                 visibilityQualifier,
                 typeName,
                 paramName);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STRequiredParameterNode(
+                this.leadingComma,
+                this.annotations,
+                this.visibilityQualifier,
+                this.typeName,
+                this.paramName,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

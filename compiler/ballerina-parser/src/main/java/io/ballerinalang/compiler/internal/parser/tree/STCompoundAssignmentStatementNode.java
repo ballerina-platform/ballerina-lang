@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -40,7 +43,23 @@ public class STCompoundAssignmentStatementNode extends STStatementNode {
             STNode equalsToken,
             STNode rhsExpression,
             STNode semicolonToken) {
-        super(SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT);
+        this(
+                lhsExpression,
+                binaryOperator,
+                equalsToken,
+                rhsExpression,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STCompoundAssignmentStatementNode(
+            STNode lhsExpression,
+            STNode binaryOperator,
+            STNode equalsToken,
+            STNode rhsExpression,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT, diagnostics);
         this.lhsExpression = lhsExpression;
         this.binaryOperator = binaryOperator;
         this.equalsToken = equalsToken;
@@ -53,6 +72,16 @@ public class STCompoundAssignmentStatementNode extends STStatementNode {
                 equalsToken,
                 rhsExpression,
                 semicolonToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STCompoundAssignmentStatementNode(
+                this.lhsExpression,
+                this.binaryOperator,
+                this.equalsToken,
+                this.rhsExpression,
+                this.semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

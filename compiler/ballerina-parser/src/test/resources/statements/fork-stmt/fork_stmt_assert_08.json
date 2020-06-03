@@ -103,11 +103,21 @@
                                       "children": []
                                     },
                                     {
-                                      "kind": "INT_KEYWORD"
-                                    },
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "i"
+                                      "kind": "TYPED_BINDING_PATTERN",
+                                      "children": [
+                                        {
+                                          "kind": "INT_KEYWORD"
+                                        },
+                                        {
+                                          "kind": "CAPTURE_BINDING_PATTERN",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "i"
+                                            }
+                                          ]
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "EQUAL_TOKEN"
@@ -191,11 +201,21 @@
                                       "children": []
                                     },
                                     {
-                                      "kind": "INT_KEYWORD"
-                                    },
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "f"
+                                      "kind": "TYPED_BINDING_PATTERN",
+                                      "children": [
+                                        {
+                                          "kind": "INT_KEYWORD"
+                                        },
+                                        {
+                                          "kind": "CAPTURE_BINDING_PATTERN",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "f"
+                                            }
+                                          ]
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "EQUAL_TOKEN"

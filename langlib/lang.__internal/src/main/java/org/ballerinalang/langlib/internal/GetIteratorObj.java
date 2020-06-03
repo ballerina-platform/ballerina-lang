@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", functionName = "getIteratorObj",
+        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0", functionName = "getIteratorObj",
         args = {@Argument(name = "strm", type = TypeKind.STREAM)},
         returnType = {@ReturnType(type = TypeKind.OBJECT)},
         isPublic = true

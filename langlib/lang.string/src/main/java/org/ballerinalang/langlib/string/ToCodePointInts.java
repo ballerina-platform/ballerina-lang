@@ -27,13 +27,15 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
+
 /**
  * Extern function lang.string:toCodePointInts(string).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "toCodePointInts",
+        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "toCodePointInts",
         args = {@Argument(name = "str", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.ARRAY)},
         isPublic = true

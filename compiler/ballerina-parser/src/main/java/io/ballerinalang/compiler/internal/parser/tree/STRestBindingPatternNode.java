@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.RestBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,13 +37,30 @@ public class STRestBindingPatternNode extends STNode {
     STRestBindingPatternNode(
             STNode ellipsisToken,
             STNode variableName) {
-        super(SyntaxKind.REST_BINDING_PATTERN);
+        this(
+                ellipsisToken,
+                variableName,
+                Collections.emptyList());
+    }
+
+    STRestBindingPatternNode(
+            STNode ellipsisToken,
+            STNode variableName,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.REST_BINDING_PATTERN, diagnostics);
         this.ellipsisToken = ellipsisToken;
         this.variableName = variableName;
 
         addChildren(
                 ellipsisToken,
                 variableName);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STRestBindingPatternNode(
+                this.ellipsisToken,
+                this.variableName,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

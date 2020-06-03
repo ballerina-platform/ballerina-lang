@@ -18,6 +18,7 @@
 package io.ballerinalang.compiler.parser.test.tree;
 
 import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
@@ -30,6 +31,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.syntax.tree.TreeModifier;
+import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -54,14 +56,16 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
         FunctionDefinitionNode oldFuncNode = (FunctionDefinitionNode) oldRoot.members().get(0);
         FunctionBodyBlockNode oldFuncBody = (FunctionBodyBlockNode) oldFuncNode.functionBody();
         VariableDeclarationNode oldStmt = (VariableDeclarationNode) oldFuncBody.statements().get(0);
+        Token oldVarName = ((CaptureBindingPatternNode) oldStmt.typedBindingPattern().bindingPattern()).variableName();
 
         FunctionDefinitionNode newFuncNode = (FunctionDefinitionNode) newRoot.members().get(0);
         FunctionBodyBlockNode newFuncBody = (FunctionBodyBlockNode) newFuncNode.functionBody();
         VariableDeclarationNode newStmt = (VariableDeclarationNode) newFuncBody.statements().get(0);
+        Token newVarName = ((CaptureBindingPatternNode) newStmt.typedBindingPattern().bindingPattern()).variableName();
 
         Assert.assertNotEquals(newFuncNode, oldFuncNode);
         Assert.assertNotEquals(newStmt, oldStmt);
-        Assert.assertEquals(newStmt.variableName().text(), oldStmt.variableName().text() + "new");
+        Assert.assertEquals(newVarName.text(), oldVarName.text() + "new");
         Assert.assertEquals(newStmt.textRangeWithMinutiae().length(), oldStmt.textRangeWithMinutiae().length() + 2);
     }
 
@@ -92,11 +96,11 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
         // // There are no '+' or '*' tokens here in the new tree
         BinaryExpressionModifier binaryExprModifier = new BinaryExpressionModifier();
         ModulePartNode newRoot = binaryExprModifier.transform(oldRoot);
-        
-        Predicate<SyntaxKind> plusOrAsteriskTokenPredicate = syntaxKind -> SyntaxKind.PLUS_TOKEN == syntaxKind ||
-                SyntaxKind.ASTERISK_TOKEN == syntaxKind;
-        Predicate<SyntaxKind> minusOrSlashTokenPredicate = syntaxKind -> SyntaxKind.MINUS_TOKEN == syntaxKind ||
-                SyntaxKind.SLASH_TOKEN == syntaxKind;
+
+        Predicate<SyntaxKind> plusOrAsteriskTokenPredicate =
+                syntaxKind -> SyntaxKind.PLUS_TOKEN == syntaxKind || SyntaxKind.ASTERISK_TOKEN == syntaxKind;
+        Predicate<SyntaxKind> minusOrSlashTokenPredicate =
+                syntaxKind -> SyntaxKind.MINUS_TOKEN == syntaxKind || SyntaxKind.SLASH_TOKEN == syntaxKind;
 
         TokenCounter plusOrAsteriskCounter = new TokenCounter(plusOrAsteriskTokenPredicate);
         TokenCounter minusOrSlashCounter = new TokenCounter(minusOrSlashTokenPredicate);
@@ -112,13 +116,16 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
 
         @Override
         public VariableDeclarationNode transform(VariableDeclarationNode varDeclStmt) {
-            Token varNameToken = varDeclStmt.variableName();
+            TypedBindingPatternNode typedBindingPattern = varDeclStmt.typedBindingPattern();
+            Token varNameToken = ((CaptureBindingPatternNode) typedBindingPattern.bindingPattern()).variableName();
             // Create a new identifier that does not inherit minutiae from the old one.
             IdentifierToken newVarName = NodeFactory.createIdentifierToken(varNameToken.text() + "new");
+            CaptureBindingPatternNode newCaptureBP = NodeFactory.createCaptureBindingPatternNode(newVarName);
+            TypedBindingPatternNode newTypedBP =
+                    NodeFactory.createTypedBindingPatternNode(typedBindingPattern.typeDescriptor(), newCaptureBP);
             return NodeFactory.createVariableDeclarationNode(varDeclStmt.annotations(),
-                    varDeclStmt.finalKeyword().orElse(null), varDeclStmt.typeName(), newVarName,
-                    varDeclStmt.equalsToken().orElse(null), varDeclStmt.initializer().orElse(null),
-                    varDeclStmt.semicolonToken());
+                    varDeclStmt.finalKeyword().orElse(null), newTypedBP, varDeclStmt.equalsToken().orElse(null),
+                    varDeclStmt.initializer().orElse(null), varDeclStmt.semicolonToken());
         }
     }
 
@@ -149,21 +156,18 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
             Token oldOperator = binaryExprNode.operator();
             switch (oldOperator.kind()) {
                 case PLUS_TOKEN:
-                    newOperator = NodeFactory.createToken(SyntaxKind.MINUS_TOKEN,
-                            oldOperator.leadingMinutiae(), oldOperator.trailingMinutiae());
+                    newOperator = NodeFactory.createToken(SyntaxKind.MINUS_TOKEN, oldOperator.leadingMinutiae(),
+                            oldOperator.trailingMinutiae());
                     break;
                 case ASTERISK_TOKEN:
-                    newOperator = NodeFactory.createToken(SyntaxKind.SLASH_TOKEN,
-                            oldOperator.leadingMinutiae(), oldOperator.trailingMinutiae());
+                    newOperator = NodeFactory.createToken(SyntaxKind.SLASH_TOKEN, oldOperator.leadingMinutiae(),
+                            oldOperator.trailingMinutiae());
                     break;
                 default:
                     newOperator = oldOperator;
             }
 
-            return binaryExprNode.modify()
-                    .withOperator(newOperator)
-                    .withLhsExpr(newLHSExpr)
-                    .withRhsExpr(newRHSExpr)
+            return binaryExprNode.modify().withOperator(newOperator).withLhsExpr(newLHSExpr).withRhsExpr(newRHSExpr)
                     .apply();
         }
     }

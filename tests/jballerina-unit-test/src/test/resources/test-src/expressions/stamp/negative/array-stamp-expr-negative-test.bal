@@ -31,7 +31,7 @@ type EmployeeObject object {
 function stampAnyArrayToRecord() returns Employee|error {
 
     anydata[] anyArray = ["Mohan", "Single", "LK2014"];
-    Employee|error employee = Employee.constructFrom(anyArray);
+    Employee|error employee = anyArray.cloneWithType(Employee);
 
     return employee;
 }
@@ -39,7 +39,7 @@ function stampAnyArrayToRecord() returns Employee|error {
 function stampAnyArrayToXML() returns xml|error {
 
     anydata[] anyArray = ["Mohan", "Single", "LK2014"];
-    xml|error xmlValue = xml.constructFrom(anyArray);
+    xml|error xmlValue = anyArray.cloneWithType(xml);
 
     return xmlValue;
 }

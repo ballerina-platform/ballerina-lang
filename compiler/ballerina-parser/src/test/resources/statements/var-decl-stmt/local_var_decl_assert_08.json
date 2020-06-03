@@ -1,20 +1,29 @@
 {
-    "kind": "LOCAL_VAR_DECL",
-    "children": [
+  "kind": "LOCAL_VAR_DECL",
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "TYPED_BINDING_PATTERN",
+      "children": [
         {
-            "kind": "LIST",
-            "children": [
-            ]
+          "kind": "INT_KEYWORD"
         },
         {
-            "kind": "INT_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "isMissing": true
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "isMissing": true
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

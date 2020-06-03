@@ -30,6 +30,7 @@ import java.lang.annotation.Target;
 public @interface BallerinaAction {
     String orgName() default "";
     String packageName() default "";
+    String version() default "0.0.0";
     String actionName() default "";
     String connectorName() default "";
     Argument[] args() default {};

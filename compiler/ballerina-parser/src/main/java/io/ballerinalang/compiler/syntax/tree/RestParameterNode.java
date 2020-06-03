@@ -33,8 +33,8 @@ public class RestParameterNode extends ParameterNode {
         super(internalNode, position, parent);
     }
 
-    public Token leadingComma() {
-        return childInBucket(0);
+    public Optional<Token> leadingComma() {
+        return optionalChildInBucket(0);
     }
 
     public NodeList<AnnotationNode> annotations() {
@@ -115,7 +115,7 @@ public class RestParameterNode extends ParameterNode {
 
         public RestParameterNodeModifier(RestParameterNode oldNode) {
             this.oldNode = oldNode;
-            this.leadingComma = oldNode.leadingComma();
+            this.leadingComma = oldNode.leadingComma().orElse(null);
             this.annotations = oldNode.annotations();
             this.typeName = oldNode.typeName();
             this.ellipsisToken = oldNode.ellipsisToken();

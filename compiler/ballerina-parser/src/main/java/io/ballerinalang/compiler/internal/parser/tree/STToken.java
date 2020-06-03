@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * Represents a terminal node in the internal syntax tree.
  * <p>
@@ -42,16 +45,23 @@ public class STToken extends STNode {
         this(kind, kind.stringValue().length(), leadingMinutiae, trailingMinutiae);
     }
 
-    STToken(SyntaxKind kind, int width, STNode leadingMinutiae, STNode trailingMinutiae) {
-        super(kind);
-        this.leadingMinutiae = leadingMinutiae;
-        this.trailingMinutiae = trailingMinutiae;
+    STToken(SyntaxKind kind, int width, STNode leadingTrivia, STNode trailingTrivia) {
+        this(kind, width, leadingTrivia, trailingTrivia, Collections.emptyList());
+    }
+
+    STToken(SyntaxKind kind,
+            int width,
+            STNode leadingTrivia,
+            STNode trailingTrivia,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(kind, diagnostics);
+        this.leadingMinutiae = leadingTrivia;
+        this.trailingMinutiae = trailingTrivia;
 
         this.width = width;
-        this.widthWithLeadingMinutiae = this.width + leadingMinutiae.width;
-        this.widthWithTrailingMinutiae = this.width + trailingMinutiae.width;
-        this.widthWithMinutiae = this.width + leadingMinutiae.width + trailingMinutiae.width;
-
+        this.widthWithLeadingMinutiae = this.width + leadingTrivia.width;
+        this.widthWithTrailingMinutiae = this.width + trailingTrivia.width;
+        this.widthWithMinutiae = this.width + leadingTrivia.width + trailingTrivia.width;
     }
 
     public String text() {
@@ -68,6 +78,10 @@ public class STToken extends STNode {
 
     public int lookbackTokenCount() {
         return lookback;
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STToken(kind, width, leadingMinutiae, trailingMinutiae, diagnostics);
     }
 
     @Override

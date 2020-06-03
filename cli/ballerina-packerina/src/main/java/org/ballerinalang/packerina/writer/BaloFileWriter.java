@@ -264,13 +264,14 @@ public class BaloFileWriter {
             Platform platform = manifest.getPlatform();
             if (platform.libraries != null) {
                 for (Library platformLib : platform.libraries) {
-                    if (platformLib.getPath() == null) {
-                        throw new BLangCompilerException("path is not specified for given platform library " +
-                                "dependency.");
+                    if (platformLib.getPath() == null && (platformLib.getArtifactId() == null
+                            || platformLib.getGroupId() == null || platformLib.getVersion() == null)) {
+                        throw new BLangCompilerException("path or maven dependency properties are not specified for " +
+                                "given platform library dependency.");
                     }
                 }
             }
-    
+
             if (dependenciesToAdd.size() > 0) {
                 try (ByteArrayInputStream tomlStreamToUpdate = new ByteArrayInputStream(manifestBytes)) {
                     return ManifestProcessor.addDependenciesToManifest(tomlStreamToUpdate, dependenciesToAdd);

@@ -7,8 +7,8 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "rabbitmq"
-    version = "@project.version@"
-    path = "./lib/ballerina-rabbitmq-@project.version@.jar"
+    version = "1.0.0"
+    path = "./lib/ballerina-rabbitmq-1.0.0-java.jar"
     groupId = "ballerina"
     modules = ["rabbitmq"]
 

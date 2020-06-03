@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TransactionalExpressionNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -32,11 +35,25 @@ public class STTransactionalExpressionNode extends STExpressionNode {
 
     STTransactionalExpressionNode(
             STNode transactionalKeyword) {
-        super(SyntaxKind.TRANSACTIONAL_EXPRESSION);
+        this(
+                transactionalKeyword,
+                Collections.emptyList());
+    }
+
+    STTransactionalExpressionNode(
+            STNode transactionalKeyword,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.TRANSACTIONAL_EXPRESSION, diagnostics);
         this.transactionalKeyword = transactionalKeyword;
 
         addChildren(
                 transactionalKeyword);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STTransactionalExpressionNode(
+                this.transactionalKeyword,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

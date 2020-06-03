@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.UnaryExpressionNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,13 +37,30 @@ public class STUnaryExpressionNode extends STExpressionNode {
     STUnaryExpressionNode(
             STNode unaryOperator,
             STNode expression) {
-        super(SyntaxKind.UNARY_EXPRESSION);
+        this(
+                unaryOperator,
+                expression,
+                Collections.emptyList());
+    }
+
+    STUnaryExpressionNode(
+            STNode unaryOperator,
+            STNode expression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.UNARY_EXPRESSION, diagnostics);
         this.unaryOperator = unaryOperator;
         this.expression = expression;
 
         addChildren(
                 unaryOperator,
                 expression);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STUnaryExpressionNode(
+                this.unaryOperator,
+                this.expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

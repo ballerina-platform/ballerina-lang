@@ -564,8 +564,24 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(captureBindingPatternNode);
     }
 
+    public T transform(WildcardBindingPatternNode wildcardBindingPatternNode) {
+        return transformSyntaxNode(wildcardBindingPatternNode);
+    }
+
     public T transform(ListBindingPatternNode listBindingPatternNode) {
         return transformSyntaxNode(listBindingPatternNode);
+    }
+
+    public T transform(MappingBindingPatternNode mappingBindingPatternNode) {
+        return transformSyntaxNode(mappingBindingPatternNode);
+    }
+
+    public T transform(FieldBindingPatternFullNode fieldBindingPatternFullNode) {
+        return transformSyntaxNode(fieldBindingPatternFullNode);
+    }
+
+    public T transform(FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
+        return transformSyntaxNode(fieldBindingPatternVarnameNode);
     }
 
     public T transform(RestBindingPatternNode restBindingPatternNode) {
@@ -658,6 +674,30 @@ public abstract class NodeTransformer<T> {
 
     public T transform(TransactionalExpressionNode transactionalExpressionNode) {
         return transformSyntaxNode(transactionalExpressionNode);
+    }
+
+    public T transform(ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
+        return transformSyntaxNode(serviceConstructorExpressionNode);
+    }
+
+    public T transform(ByteArrayLiteralNode byteArrayLiteralNode) {
+        return transformSyntaxNode(byteArrayLiteralNode);
+    }
+
+    public T transform(XMLFilterExpressionNode xMLFilterExpressionNode) {
+        return transformSyntaxNode(xMLFilterExpressionNode);
+    }
+
+    public T transform(XMLStepExpressionNode xMLStepExpressionNode) {
+        return transformSyntaxNode(xMLStepExpressionNode);
+    }
+
+    public T transform(XMLNamePatternChainingNode xMLNamePatternChainingNode) {
+        return transformSyntaxNode(xMLNamePatternChainingNode);
+    }
+
+    public T transform(XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
+        return transformSyntaxNode(xMLAtomicNamePatternNode);
     }
 
     // Tokens

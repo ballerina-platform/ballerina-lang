@@ -28,6 +28,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupportedError;
+import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 
 /**
  * Native implementation of lang.array:push((any|error)[], (any|error)...).
@@ -35,7 +36,7 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupported
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "push",
+        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "push",
         args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "vals", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.ANY)},
         isPublic = true

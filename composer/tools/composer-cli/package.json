@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@ballerina/composer-cli",
-  "version": "2.0.0-Preview1-M1",
+  "version": "2.0.0-Preview1-M3",
   "description": "Includes a CLI util to help with composer packages development",
   "bin": {
     "composer": "./bin/composer"

@@ -56,6 +56,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_STRING_MESSAGE;
 import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_UINT32_MESSAGE;
 import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_UINT64_MESSAGE;
 import static org.ballerinalang.net.grpc.MessageUtils.setNestedMessages;
+import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.ANN_SERVICE_CONFIG_FQN;
 
 /**
  * This is the gRPC server implementation for registering service and start/stop server.
@@ -80,8 +81,7 @@ public class ServicesBuilderUtils {
     }
 
     private static String getServiceName(ObjectValue service) {
-        Object serviceConfigData = service.getType().getAnnotation(
-                StringUtils.fromString("ballerina/grpc:ServiceConfig"));
+        Object serviceConfigData = service.getType().getAnnotation(StringUtils.fromString(ANN_SERVICE_CONFIG_FQN));
         if (serviceConfigData != null) {
             MapValue configMap = (MapValue) serviceConfigData;
             BString providedName = configMap.getStringValue(StringUtils.fromString("name"));

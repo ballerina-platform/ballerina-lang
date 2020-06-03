@@ -1,121 +1,131 @@
 {
-    "kind": "QUERY_EXPRESSION",
-    "children": [
+  "kind": "QUERY_EXPRESSION",
+  "children": [
+    {
+      "kind": "QUERY_CONSTRUCT_TYPE",
+      "children": [
         {
-            "kind": "QUERY_CONSTRUCT_TYPE",
-            "children": [
-                {
-                    "kind": "TABLE_KEYWORD"
-                },
-                {
-                    "kind": "KEY_SPECIFIER",
-                    "children": [
-                        {
-                            "kind": "KEY_KEYWORD"
-                        },
-                        {
-                            "kind": "OPEN_PAREN_TOKEN"
-                        },
-                        {
-                            "kind": "LIST",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "CLOSE_PAREN_TOKEN"
-                        }
-                    ]
-                }
-            ]
+          "kind": "TABLE_KEYWORD"
         },
         {
-            "kind": "QUERY_PIPELINE",
-            "children": [
+          "kind": "KEY_SPECIFIER",
+          "children": [
+            {
+              "kind": "KEY_KEYWORD"
+            },
+            {
+              "kind": "OPEN_PAREN_TOKEN"
+            },
+            {
+              "kind": "LIST",
+              "children": [
                 {
-                    "kind": "FROM_CLAUSE",
-                    "children": [
-                        {
-                            "kind": "FROM_KEYWORD",
-                            "isMissing": true
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "foo"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "isMissing": true
-                        },
-                        {
-                            "kind": "IN_KEYWORD",
-                            "isMissing": true
-                        },
-                        {
-                            "kind": "TABLE_CONSTRUCTOR",
-                            "children": [
-                                {
-                                    "kind": "TABLE_KEYWORD",
-                                    "isMissing": true
-                                },
-                                {
-                                    "kind": "KEY_SPECIFIER",
-                                    "children": [
-                                        {
-                                            "kind": "KEY_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "OPEN_PAREN_TOKEN"
-                                        },
-                                        {
-                                            "kind": "LIST",
-                                            "children": [
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "b"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "CLOSE_PAREN_TOKEN"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "OPEN_BRACKET_TOKEN"
-                                },
-                                {
-                                    "kind": "LIST",
-                                    "children": []
-                                },
-                                {
-                                    "kind": "CLOSE_BRACKET_TOKEN"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "kind": "LIST",
-                    "children": []
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
                 }
-            ]
-        },
-        {
-            "kind": "SELECT_CLAUSE",
-            "children": [
-                {
-                    "kind": "SELECT_KEYWORD",
-                    "isMissing": true
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "isMissing": true
-                }
-            ]
+              ]
+            },
+            {
+              "kind": "CLOSE_PAREN_TOKEN"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "QUERY_PIPELINE",
+      "children": [
+        {
+          "kind": "FROM_CLAUSE",
+          "children": [
+            {
+              "kind": "FROM_KEYWORD",
+              "isMissing": true
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "foo"
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "IN_KEYWORD",
+              "isMissing": true
+            },
+            {
+              "kind": "TABLE_CONSTRUCTOR",
+              "children": [
+                {
+                  "kind": "TABLE_KEYWORD",
+                  "isMissing": true
+                },
+                {
+                  "kind": "KEY_SPECIFIER",
+                  "children": [
+                    {
+                      "kind": "KEY_KEYWORD"
+                    },
+                    {
+                      "kind": "OPEN_PAREN_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "b"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CLOSE_PAREN_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "OPEN_BRACKET_TOKEN"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "CLOSE_BRACKET_TOKEN"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "SELECT_CLAUSE",
+      "children": [
+        {
+          "kind": "SELECT_KEYWORD",
+          "isMissing": true
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true
+        }
+      ]
+    }
+  ]
 }

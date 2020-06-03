@@ -48,6 +48,13 @@ public @interface BallerinaFunction {
     String packageName() default "";
 
     /**
+     * Package version of the {@code AbstractNativeFunction}.
+     *
+     * @return package version of the function.
+     */
+    String version() default "0.0.0";
+
+    /**
      * Function name of the {@code AbstractNativeFunction}.
      *
      * @return function name.

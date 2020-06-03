@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.BIRGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
@@ -91,6 +92,7 @@ public class CompilerDriver {
     private final CompilerPluginRunner compilerPluginRunner;
     private final Desugar desugar;
     private final BIRGen birGenerator;
+    private final CodeGenerator codeGenerator;
     private final CompilerPhase compilerPhase;
     private final DataflowAnalyzer dataflowAnalyzer;
     private boolean isToolingCompilation;
@@ -122,6 +124,7 @@ public class CompilerDriver {
         this.compilerPluginRunner = CompilerPluginRunner.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.birGenerator = BIRGen.getInstance(context);
+        this.codeGenerator = CodeGenerator.getInstance(context);
         this.compilerPhase = this.options.getCompilerPhase();
         this.dataflowAnalyzer = DataflowAnalyzer.getInstance(context);
         this.isToolingCompilation = this.options.isSet(TOOLING_COMPILATION)
@@ -274,6 +277,15 @@ public class CompilerDriver {
         }
 
         birGen(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.CODE_GEN)) {
+            return;
+        }
+
+        codeGen(pkgNode);
+    }
+
+    private BLangPackage codeGen(BLangPackage pkgNode) {
+        return this.codeGenerator.generate(pkgNode);
     }
 
     public BLangPackage define(BLangPackage pkgNode) {
@@ -338,7 +350,7 @@ public class CompilerDriver {
             return null;
         }
 
-        return birGen(desugar(pkg)).symbol;
+        return codeGen(birGen(desugar(pkg))).symbol;
     }
 
 }

@@ -24,13 +24,15 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.FLOAT_VERSION;
+
 /**
  * Native implementation of lang.float:toBitsInt(float).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.float", functionName = "toBitsInt",
+        orgName = "ballerina", packageName = "lang.float", version = FLOAT_VERSION, functionName = "toBitsInt",
         args = {@Argument(name = "x", type = TypeKind.FLOAT)},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true

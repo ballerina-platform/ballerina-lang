@@ -48,6 +48,7 @@ public class JField {
     private boolean isString;
     private boolean isObject = true;
     private boolean isSetter = false;
+    private boolean returnError = false;
 
     private JParameter fieldObj;
 
@@ -68,6 +69,7 @@ public class JField {
         }
         if (type.isArray()) {
             isArray = true;
+            returnError = true;
             if (!type.getComponentType().isPrimitive()) {
                 isObject = false;
             }
