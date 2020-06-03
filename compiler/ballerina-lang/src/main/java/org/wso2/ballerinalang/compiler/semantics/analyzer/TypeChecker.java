@@ -2182,10 +2182,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (actualType != symTable.semanticError &&
                         (fieldAccessExpr.lhsVar || fieldAccessExpr.compoundAssignmentLhsVar)) {
                     if (isAllReadonlyTypes(varRefType)) {
-                        dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_VALUE_OF_TYPE,
-                                   varRefType);
-                        resultType = symTable.semanticError;
-                        return;
+                        if (varRefType.tag != TypeTags.OBJECT ||
+                                !isInvalidObjectFieldUpdate(varRefType, fieldAccessExpr.field.value)) {
+                            dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_VALUE_OF_TYPE,
+                                       varRefType);
+                            resultType = symTable.semanticError;
+                            return;
+                        }
                     } else if (types.isSubTypeOfBaseType(varRefType, TypeTags.RECORD) &&
                             isInvalidReadonlyFieldUpdate(varRefType, fieldAccessExpr.field.value)) {
                         dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_RECORD_FIELD,

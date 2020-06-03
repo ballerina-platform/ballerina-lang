@@ -28,7 +28,7 @@ function testReadonlyObjectFields() {
 public type Student object {
     readonly string name;
     readonly int id;
-
+    float avg = 80.0;
     public function __init(string n, int i) {
         self.name = n;
         self.id = i;
