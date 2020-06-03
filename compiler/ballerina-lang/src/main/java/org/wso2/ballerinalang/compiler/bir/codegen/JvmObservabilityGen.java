@@ -35,9 +35,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ConstantLoad;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FieldAccess;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTypeDesc;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeCast;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeTest;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
@@ -55,13 +52,12 @@ import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -73,9 +69,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -83,14 +77,13 @@ import java.util.stream.Collectors;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVABLE_ANNOTATION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVE_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REPORT_ERROR_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_CALLABLE_OBSERVATION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_RESOURCE_OBSERVATION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_OBSERVATION_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariableDcl;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 
 /**
@@ -100,33 +93,21 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPacka
  */
 class JvmObservabilityGen {
     private static final String ENTRY_POINT_MAIN_METHOD_NAME = "main";
-    private static final String NEW_BB_PREFIX = "obsDesugaredBB";
+    private static final String NEW_BB_PREFIX = "observabilityDesugaredBB";
     private static final String SERVICE_IDENTIFIER = "$$service$";
     private static final String ANONYMOUS_SERVICE_IDENTIFIER = "$anonService$";
     private static final String INVOCATION_INSTRUMENTATION_TYPE = "invocation";
     private static final String FUNC_BODY_INSTRUMENTATION_TYPE = "funcBody";
-    private static final String OBJECT_TYPE_FUNCTION_NAME = "$obs$getTypeName";
-
-    // Observability tags related constants
-    private static final String SRC_TAG_KEYS_PREFIX = "src.";
-    private static final String ENTRY_POINT_TAG_KEYS_PREFIX = SRC_TAG_KEYS_PREFIX + "entry_point.";
-    private static final String IS_MAIN_ENTRY_POINT_TAG_KEY = ENTRY_POINT_TAG_KEYS_PREFIX + "main";
-    private static final String IS_RESOURCE_ENTRY_POINT_TAG_KEY = ENTRY_POINT_TAG_KEYS_PREFIX + "resource";
-    private static final String IS_REMOTE_TAG_KEY = SRC_TAG_KEYS_PREFIX + "remote";
-    private static final String IS_WORKER_TAG_KEY = SRC_TAG_KEYS_PREFIX + "worker";
-    private static final String MODULE_TAG_KEY = SRC_TAG_KEYS_PREFIX + "module";
-    private static final String INVOCATION_POSITION_TAG_KEY = SRC_TAG_KEYS_PREFIX + "position";
-    private static final String TAG_VALUE_TRUE = "true";
 
     private final PackageCache packageCache;
     private final SymbolTable symbolTable;
-    private int obsLambdaIndex;
+    private int lambdaIndex;
     private int desugaredBBIndex;
 
     public JvmObservabilityGen(JvmPackageGen pkgGen) {
         packageCache = pkgGen.packageCache;
         symbolTable = pkgGen.symbolTable;
-        obsLambdaIndex = 0;
+        lambdaIndex = 0;
         desugaredBBIndex = 0;
     }
 
@@ -138,101 +119,29 @@ class JvmObservabilityGen {
     public void rewriteObservableFunctions(BIRPackage pkg) {
         for (int i = 0; i < pkg.functions.size(); i++) {
             BIRFunction func = pkg.functions.get(i);
-            rewriteAsyncInvocations(func, null, pkg);
+            rewriteAsyncInvocations(func, pkg);
             rewriteObservableFunctionInvocations(func, pkg);
             if (ENTRY_POINT_MAIN_METHOD_NAME.equals(func.name.value)) {
-                Map<String, String> tags = new HashMap<>();
-                tags.put(IS_MAIN_ENTRY_POINT_TAG_KEY, TAG_VALUE_TRUE);
-                rewriteObservableFunctionBody(func, pkg, false, StringUtils.EMPTY,
-                        func.name.value, tags);
+                rewriteObservableFunctionBody(func, pkg, false, true, false, func.workerName.value,
+                        StringUtils.EMPTY, func.name.value);
             } else if ((func.flags & Flags.WORKER) == Flags.WORKER) {   // Identifying lambdas generated for workers
-                Map<String, String> tags = new HashMap<>();
-                tags.put(IS_WORKER_TAG_KEY, func.workerName.value);
-                rewriteObservableFunctionBody(func, pkg, false, StringUtils.EMPTY,
-                        func.workerName.value, tags);
+                rewriteObservableFunctionBody(func, pkg, false, false, true, func.workerName.value,
+                        StringUtils.EMPTY, func.workerName.value);
             }
         }
         for (BIRTypeDefinition typeDef : pkg.typeDefs) {
-            addTypeInfoFunction(typeDef, pkg);
             if ((typeDef.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
                 continue;
             }
             boolean isService = typeDef.type instanceof BServiceType;
             for (int i = 0; i < typeDef.attachedFuncs.size(); i++) {
                 BIRFunction func = typeDef.attachedFuncs.get(i);
-                rewriteAsyncInvocations(func, typeDef, pkg);
+                rewriteAsyncInvocations(func, pkg);
                 rewriteObservableFunctionInvocations(func, pkg);
                 if (isService && (func.flags & Flags.RESOURCE) == Flags.RESOURCE) {
-                    Map<String, String> tags = new HashMap<>();
-                    tags.put(IS_RESOURCE_ENTRY_POINT_TAG_KEY, TAG_VALUE_TRUE);
-                    rewriteObservableFunctionBody(func, pkg, true, cleanUpServiceName(typeDef.name.value),
-                            func.name.value, tags);
+                    rewriteObservableFunctionBody(func, pkg, true, false, false,
+                            func.workerName.value, cleanUpServiceName(typeDef.name.value), func.name.value);
                 }
-            }
-        }
-    }
-
-    /**
-     * Add the type information method to a type definition.
-     *
-     * This is required as objects which are different, but has structural equivalence to the variable type, can be
-     * assigned at runtime. Since the instrumentation is done at the caller side, we can only check the variable type
-     * at compile time. The actual type assigned is fetched using the type information method generated.
-     *
-     * @param typeDef The type definition to which type information function should be added
-     * @param pkg The package containing the type definition
-     */
-    private void addTypeInfoFunction(BIRTypeDefinition typeDef, BIRPackage pkg) {
-        if (typeDef.type instanceof BObjectType) {
-            boolean hasTypeFunction = typeDef.attachedFuncs.stream()
-                    .anyMatch(func -> Objects.equals(func.name.value, OBJECT_TYPE_FUNCTION_NAME));
-            if (hasTypeFunction) {
-                return;
-            }
-            /*
-             * The function generated below is responsible for returning the actual type of the type definition.
-             * The function simply returns a constant value in the format <org>/<module>/<TypeName>
-             */
-
-            // Creating a function to return the type information
-            Name typeFuncName = new Name(OBJECT_TYPE_FUNCTION_NAME);
-            BType returnType = symbolTable.stringType;
-            BType selfArgType = typeDef.type;
-            BInvokableType bInvokableType = new BInvokableType(Collections.emptyList(), null, returnType, null);
-            BIRFunction typeFunc = new BIRFunction(null, typeFuncName, 0, bInvokableType, new Name("default"),
-                    0, null);
-            Name selfArgName = new Name("%self");
-            typeFunc.receiver = new BIRVariableDcl(null, selfArgType, selfArgName, VarScope.FUNCTION, VarKind.SELF,
-                    null);
-            typeDef.attachedFuncs.add(typeFunc);
-
-            // Creating and adding invokable symbol to the package symbol
-            PackageID currentPkgId = new PackageID(pkg.org, pkg.name, pkg.version);
-            BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.FUNCTION, 0, typeFuncName,
-                    currentPkgId, bInvokableType, typeDef.type.tsymbol);
-            invokableSymbol.retType = returnType;
-            invokableSymbol.kind = SymbolKind.FUNCTION;
-            invokableSymbol.params = Collections.singletonList(new BVarSymbol(0, typeFuncName, currentPkgId,
-                    selfArgType, invokableSymbol));
-            invokableSymbol.scope = new Scope(invokableSymbol);
-
-            if (!((typeDef.flags & Flags.ABSTRACT) == Flags.ABSTRACT)) {
-                String type = getPackageName(typeDef.type.tsymbol.pkgID.orgName, typeDef.type.tsymbol.pkgID.name)
-                        + cleanUpServiceName(typeDef.name.value);
-
-                // Creating the return variable
-                BIRVariableDcl funcReturnVariableDcl = new BIRVariableDcl(returnType,
-                        new Name(String.format("$%s$retVal", typeFuncName.value)), VarScope.FUNCTION,
-                        VarKind.RETURN);
-                typeFunc.localVars.add(funcReturnVariableDcl);
-                typeFunc.returnVariable = funcReturnVariableDcl;
-
-                // Generating function body
-                BIRBasicBlock returnInsBB = insertBasicBlock(typeFunc, 0);
-                BIROperand funcReturnOperand = new BIROperand(funcReturnVariableDcl);
-                ConstantLoad constLoadIns = new ConstantLoad(null, type, returnType, funcReturnOperand);
-                returnInsBB.instructions.add(constLoadIns);
-                returnInsBB.terminator = new Return(null);
             }
         }
     }
@@ -245,20 +154,10 @@ class JvmObservabilityGen {
      * invocation to the scheduler. However, we require the actual time it took for the invocation.
      *
      * @param func The function of which the instructions in the body should be rewritten
-     * @param attachedTypeDef The type definition to which the function was attached to or null
      * @param pkg The package containing the function
      */
-    public void rewriteAsyncInvocations(BIRFunction func, BIRTypeDefinition attachedTypeDef, BIRPackage pkg) {
+    public void rewriteAsyncInvocations(BIRFunction func, BIRPackage pkg) {
         PackageID currentPkgId = new PackageID(pkg.org, pkg.name, pkg.version);
-        BSymbol functionOwner;
-        List<BIRFunction> scopeFunctionsList;
-        if (attachedTypeDef == null) {
-            functionOwner = packageCache.getSymbol(currentPkgId);
-            scopeFunctionsList = pkg.functions;
-        } else {
-            functionOwner = attachedTypeDef.type.tsymbol;
-            scopeFunctionsList = attachedTypeDef.attachedFuncs;
-        }
         for (BIRBasicBlock currentBB : func.basicBlocks) {
             if (currentBB.terminator.kind == InstructionKind.ASYNC_CALL
                     && isObservable((AsyncCall) currentBB.terminator)) {
@@ -274,14 +173,14 @@ class JvmObservabilityGen {
                 List<BType> argTypes = asyncCallIns.args.stream()
                         .map(arg -> arg.variableDcl.type)
                         .collect(Collectors.toList());
-                Name lambdaName = new Name(String.format("$obsDesugaredFunc%d$%s", obsLambdaIndex++,
+                Name lambdaName = new Name(String.format("$lambda$observability%d$%s", lambdaIndex++,
                         asyncCallIns.name.value));
                 BInvokableType bInvokableType = new BInvokableType(argTypes, null,
                         returnType, null);
                 BIRFunction desugaredFunc = new BIRFunction(asyncCallIns.pos, lambdaName, 0, bInvokableType,
                         func.workerName, 0, null);
                 desugaredFunc.receiver = func.receiver;
-                scopeFunctionsList.add(desugaredFunc);
+                pkg.functions.add(desugaredFunc);
 
                 // Creating the return variable
                 BIRVariableDcl funcReturnVariableDcl = new BIRVariableDcl(returnType,
@@ -290,9 +189,10 @@ class JvmObservabilityGen {
                 desugaredFunc.localVars.add(funcReturnVariableDcl);
                 desugaredFunc.returnVariable = funcReturnVariableDcl;
 
-                // Creating and adding invokable symbol to the package symbol
+                // Creating and adding invokable symbol to the relevant scope
+                BPackageSymbol pkgSymbol = packageCache.getSymbol(currentPkgId);
                 BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.FUNCTION, 0, lambdaName,
-                        currentPkgId, bInvokableType, functionOwner);
+                        currentPkgId, bInvokableType, pkgSymbol);
                 invokableSymbol.retType = funcReturnVariableDcl.type;
                 invokableSymbol.kind = SymbolKind.FUNCTION;
                 invokableSymbol.params = asyncCallIns.args.stream()
@@ -301,17 +201,15 @@ class JvmObservabilityGen {
                         .collect(Collectors.toList());
                 invokableSymbol.scope = new Scope(invokableSymbol);
                 invokableSymbol.params.forEach(param -> invokableSymbol.scope.define(param.name, param));
-                if (attachedTypeDef == null) {
-                    functionOwner.scope.define(lambdaName, invokableSymbol);
-                }
+                pkgSymbol.scope.define(lambdaName, invokableSymbol);
 
                 // Creating and adding function parameters
                 List<BIROperand> funcParamOperands = new ArrayList<>();
-                Name selfArgName = new Name("%self");
                 for (int i = 0; i < asyncCallIns.args.size(); i++) {
                     BIROperand arg = asyncCallIns.args.get(i);
                     BIRFunctionParameter funcParam;
                     if (arg.variableDcl.kind == VarKind.SELF) {
+                        Name selfArgName = new Name("%self");
                         funcParam = new BIRFunctionParameter(asyncCallIns.pos, arg.variableDcl.type, selfArgName,
                                 VarScope.FUNCTION, VarKind.SELF, selfArgName.value, false);
                     } else {
@@ -337,11 +235,7 @@ class JvmObservabilityGen {
                 // Updating terminator to call the generated lambda asynchronously
                 asyncCallIns.name = lambdaName;
                 asyncCallIns.calleePkg = currentPkgId;
-                asyncCallIns.isVirtual = attachedTypeDef != null;
-                if (attachedTypeDef != null) {
-                    asyncCallIns.args.add(0, new BIROperand(new BIRVariableDcl(attachedTypeDef.type,
-                            selfArgName, VarScope.FUNCTION, VarKind.SELF)));
-                }
+                asyncCallIns.isVirtual = false;
             }
         }
     }
@@ -359,24 +253,32 @@ class JvmObservabilityGen {
      *
      * @param func The function to instrument
      * @param pkg The package which contains the function
-     * @param isResourceObservation True if the function is a service resource
+     * @param isResource True if the function is a service resource
+     * @param isMainEntryPoint True if the function is the main entry point
+     * @param isWorker True if the function was a worker
+     * @param workerName Name of the worker if this was from a worker function
      * @param serviceName The name of the service
      * @param resourceOrAction The name of the resource or action which will be observed
-     * @param additionalTags The map of additional tags to be added to the observation
      */
-    private void rewriteObservableFunctionBody(BIRFunction func, BIRPackage pkg, boolean isResourceObservation,
-                                               String serviceName, String resourceOrAction,
-                                               Map<String, String> additionalTags) {
+    private void rewriteObservableFunctionBody(BIRFunction func, BIRPackage pkg, boolean isResource,
+                                               boolean isMainEntryPoint, boolean isWorker, String workerName,
+                                               String serviceName, String resourceOrAction) {
         // Injecting observe start call at the start of the function body
         {
             BIRBasicBlock startBB = func.basicBlocks.get(0);    // Every non-abstract function should have function body
             BIRBasicBlock newStartBB = insertBasicBlock(func, 1);
             swapBasicBlockContent(startBB, newStartBB);
 
-            Map<String, String> tags = generatePositionTags(pkg, func.pos);
-            tags.putAll(additionalTags);
-            injectObserveStartCall(startBB, func.localVars, null, isResourceObservation,
-                    serviceName, resourceOrAction, tags, FUNC_BODY_INSTRUMENTATION_TYPE);
+            if (isResource) {
+                injectStartResourceObservationCall(startBB, func.localVars, serviceName, resourceOrAction, pkg,
+                        func.pos);
+            } else {
+                BIROperand objectTypeOperand = generateConstantOperand(String.format("%s$%s$objectType",
+                        INVOCATION_INSTRUMENTATION_TYPE, startBB.id.value), symbolTable.nilType, null,
+                        func.localVars, startBB, null);
+                injectStartCallableObservationCall(startBB, func.localVars, null, false, isMainEntryPoint, isWorker,
+                        workerName, objectTypeOperand, resourceOrAction, pkg, func.pos, FUNC_BODY_INSTRUMENTATION_TYPE);
+            }
 
             // Fix the Basic Blocks links
             startBB.terminator.thenBB = newStartBB;
@@ -398,7 +300,7 @@ class JvmObservabilityGen {
                             returnValOperand, FUNC_BODY_INSTRUMENTATION_TYPE);
                     injectReportErrorCall(errorReportBB, func.localVars, null, returnValOperand,
                             FUNC_BODY_INSTRUMENTATION_TYPE);
-                    injectObserveEndCall(observeEndBB, null);
+                    injectStopObservationCall(observeEndBB, null);
 
                     // Fix the Basic Blocks links
                     observeEndBB.terminator.thenBB = newCurrentBB;
@@ -408,7 +310,7 @@ class JvmObservabilityGen {
                     BIRBasicBlock newCurrentBB = insertBasicBlock(func, i + 1);
                     swapBasicBlockTerminator(currentBB, newCurrentBB);
 
-                    injectObserveEndCall(currentBB, null);
+                    injectStopObservationCall(currentBB, null);
 
                     // Fix the Basic Blocks links
                     currentBB.terminator.thenBB = newCurrentBB;
@@ -422,7 +324,7 @@ class JvmObservabilityGen {
 
                 injectReportErrorCall(currentBB, func.localVars, newCurrentBB.terminator.pos, panicCall.errorOp,
                         FUNC_BODY_INSTRUMENTATION_TYPE);
-                injectObserveEndCall(observeEndBB, newCurrentBB.terminator.pos);
+                injectStopObservationCall(observeEndBB, newCurrentBB.terminator.pos);
 
                 // Fix the Basic Blocks links
                 currentBB.terminator.thenBB = observeEndBB;
@@ -461,7 +363,7 @@ class JvmObservabilityGen {
                             currentBB.terminator.pos, trappedErrorOperand, FUNC_BODY_INSTRUMENTATION_TYPE);
                     injectReportErrorCall(errorReportBB, func.localVars, currentBB.terminator.pos, trappedErrorOperand,
                             FUNC_BODY_INSTRUMENTATION_TYPE);
-                    injectObserveEndCall(observeEndBB, currentBB.terminator.pos);
+                    injectStopObservationCall(observeEndBB, currentBB.terminator.pos);
                     rePanicBB.terminator = new Panic(currentBB.terminator.pos, trappedErrorOperand);
 
                     BIRErrorEntry errorEntry = new BIRErrorEntry(currentBB, currentBB, trappedErrorOperand,
@@ -501,29 +403,7 @@ class JvmObservabilityGen {
                     String action;
                     if (callIns.isVirtual) {
                         // Every virtual call instruction has self as the first argument
-                        BIROperand selfArgOperand = callIns.args.get(0);
-                        BIRVariableDcl selfArg = getVariableDcl(selfArgOperand.variableDcl);
-                        if (selfArg.type instanceof BObjectType) {
-                            // Invoking the type info method (added in addTypeInfoFunction method)
-                            BIRVariableDcl objectTypeVariableDcl = new BIRVariableDcl(symbolTable.stringType,
-                                    new Name(String.format("$%s$%s$objectType", INVOCATION_INSTRUMENTATION_TYPE,
-                                            currentBB.id.value)), VarScope.FUNCTION, VarKind.TEMP);
-                            func.localVars.add(objectTypeVariableDcl);
-                            objectTypeOperand = new BIROperand(objectTypeVariableDcl);
-
-                            currentBB.terminator = new Call(desugaredInsPosition, InstructionKind.CALL,
-                                    true, callIns.calleePkg, new Name(OBJECT_TYPE_FUNCTION_NAME),
-                                    Collections.singletonList(selfArgOperand), objectTypeOperand, observeStartBB,
-                                    callIns.calleeAnnotAttachments, callIns.calleeFlags);
-                        } else {
-                            String objectType = getPackageName(selfArg.type.tsymbol.pkgID.orgName,
-                                    selfArg.type.tsymbol.pkgID.name)
-                                    + cleanUpServiceName(selfArg.type.tsymbol.name.value);
-                            objectTypeOperand = generateConstantOperand(
-                                    String.format("%s$%s$objectType", INVOCATION_INSTRUMENTATION_TYPE,
-                                            currentBB.id.value),
-                                    objectType, func.localVars, currentBB, desugaredInsPosition);
-                        }
+                        objectTypeOperand = callIns.args.get(0);
                         if (callIns.name.value.contains(".")) {
                             String[] split = callIns.name.value.split("\\.");
                             action = split[1];
@@ -532,51 +412,47 @@ class JvmObservabilityGen {
                         }
                     } else {
                         objectTypeOperand = generateConstantOperand(String.format("%s$%s$objectType",
-                                INVOCATION_INSTRUMENTATION_TYPE, currentBB.id.value), "", func.localVars,
-                                currentBB, desugaredInsPosition);
+                                INVOCATION_INSTRUMENTATION_TYPE, currentBB.id.value), symbolTable.nilType,
+                                null, func.localVars, currentBB, desugaredInsPosition);
                         action = callIns.name.value;
                     }
-                    if (currentBB.terminator == null) {
-                        currentBB.terminator = new GOTO(desugaredInsPosition, observeStartBB);
-                    }
-                    Map<String, String> tags = generatePositionTags(pkg, callIns.pos);
-                    if (callIns.calleeFlags.contains(Flag.REMOTE)) {
-                        tags.put(IS_REMOTE_TAG_KEY, TAG_VALUE_TRUE);
-                    }
+                    currentBB.terminator = new GOTO(desugaredInsPosition, observeStartBB);
 
                     BIRBasicBlock observeEndBB;
+                    boolean isRemote = callIns.calleeFlags.contains(Flag.REMOTE);
+                    DiagnosticPos originalInsPos = callIns.pos;
                     if (isErrorAssignable(callIns.lhsOp.variableDcl)) {
                         BIRBasicBlock errorCheckBB = insertBasicBlock(func, i + 3);
                         BIRBasicBlock errorReportBB = insertBasicBlock(func, i + 4);
                         observeEndBB = insertBasicBlock(func, i + 5);
 
-                        injectObserveStartCall(observeStartBB, func.localVars, desugaredInsPosition,
-                                false, objectTypeOperand, action, tags, INVOCATION_INSTRUMENTATION_TYPE);
+                        injectStartCallableObservationCall(observeStartBB, func.localVars, desugaredInsPosition,
+                                isRemote, false, false, func.workerName.value, objectTypeOperand,
+                                action, pkg, originalInsPos, INVOCATION_INSTRUMENTATION_TYPE);
                         injectCheckErrorCalls(errorCheckBB, errorReportBB, observeEndBB, func.localVars,
                                 desugaredInsPosition, callIns.lhsOp, INVOCATION_INSTRUMENTATION_TYPE);
                         injectReportErrorCall(errorReportBB, func.localVars, desugaredInsPosition, callIns.lhsOp,
                                 INVOCATION_INSTRUMENTATION_TYPE);
-                        injectObserveEndCall(observeEndBB, desugaredInsPosition);
+                        injectStopObservationCall(observeEndBB, desugaredInsPosition);
 
                         // Fix the Basic Blocks links
                         observeEndBB.terminator.thenBB = newCurrentBB.terminator.thenBB;
                         errorReportBB.terminator.thenBB = observeEndBB;
                         newCurrentBB.terminator.thenBB = errorCheckBB;
                         observeStartBB.terminator.thenBB = newCurrentBB;
-                        currentBB.terminator.thenBB = observeStartBB; // Current BB now contains the type fetch call
                         i += 5; // Number of inserted BBs
                     } else {
                         observeEndBB = insertBasicBlock(func, i + 3);
 
-                        injectObserveStartCall(observeStartBB, func.localVars, desugaredInsPosition,
-                                false, objectTypeOperand, action, tags, INVOCATION_INSTRUMENTATION_TYPE);
-                        injectObserveEndCall(observeEndBB, desugaredInsPosition);
+                        injectStartCallableObservationCall(observeStartBB, func.localVars, desugaredInsPosition,
+                                isRemote, false, false, func.workerName.value,
+                                objectTypeOperand, action, pkg, originalInsPos, INVOCATION_INSTRUMENTATION_TYPE);
+                        injectStopObservationCall(observeEndBB, desugaredInsPosition);
 
                         // Fix the Basic Blocks links
                         observeEndBB.terminator.thenBB = newCurrentBB.terminator.thenBB;
                         newCurrentBB.terminator.thenBB = observeEndBB;
                         observeStartBB.terminator.thenBB = newCurrentBB;
-                        currentBB.terminator.thenBB = observeStartBB; // Current BB now contains the type fetch call
                         i += 3; // Number of inserted BBs
                     }
                     fixErrorTable(func, currentBB, observeEndBB);
@@ -607,7 +483,7 @@ class JvmObservabilityGen {
                                 desugaredInsPos, errorEntry.errorOp, INVOCATION_INSTRUMENTATION_TYPE);
                         injectReportErrorCall(errorReportBB, func.localVars, desugaredInsPos, errorEntry.errorOp,
                                 INVOCATION_INSTRUMENTATION_TYPE);
-                        injectObserveEndCall(observeEndBB, desugaredInsPos);
+                        injectStopObservationCall(observeEndBB, desugaredInsPos);
 
                         // Fix the Basic Blocks links
                         errorReportBB.terminator.thenBB = observeEndBB;
@@ -630,7 +506,7 @@ class JvmObservabilityGen {
                                 INVOCATION_INSTRUMENTATION_TYPE);
                         injectReportErrorCall(errorReportBB, func.localVars, newCurrentBB.terminator.pos,
                                 trappedErrorOperand, INVOCATION_INSTRUMENTATION_TYPE);
-                        injectObserveEndCall(observeEndBB, newCurrentBB.terminator.pos);
+                        injectStopObservationCall(observeEndBB, newCurrentBB.terminator.pos);
                         rePanicBB.terminator = new Panic(newCurrentBB.terminator.pos, trappedErrorOperand);
 
                         BIRErrorEntry errorEntry = new BIRErrorEntry(newCurrentBB, newCurrentBB,
@@ -651,25 +527,39 @@ class JvmObservabilityGen {
 
     /**
      * Inject start observation call to a basic block.
-     *
      * @param observeStartBB The basic block to which the start observation call should be injected
      * @param scopeVarList The variables list in the scope
-     * @param desugaredInsPos The position of all instructions, variables declarations, terminators to be generated
-     * @param isResourceObservation True if a service resource will be observed by the observation
-     * @param serviceOrObject The service or object name to which the instruction was attached to
-     * @param resourceOrAction The name of the resource or action which will be observed
-     * @param tags The map of tags to be added to the observation
-     * @param uniqueId A unique ID to identify the observe start call
+     * @param serviceName The service to which the instruction was attached to
+     * @param resource The name of the resource which will be observed
+     * @param pkg The package the invocation belongs to
+     * @param originalInsPosition The source code position of the invocation
      */
-    private void injectObserveStartCall(BIRBasicBlock observeStartBB, Collection<BIRVariableDcl> scopeVarList,
-                                        DiagnosticPos desugaredInsPos, boolean isResourceObservation,
-                                        String serviceOrObject, String resourceOrAction, Map<String, String> tags,
-                                        String uniqueId) {
-        BIROperand serviceOrObjectOperand = generateConstantOperand(
-                String.format("%s$%s$serviceOrObject", uniqueId, observeStartBB.id.value), serviceOrObject,
-                scopeVarList, observeStartBB, desugaredInsPos);
-        injectObserveStartCall(observeStartBB, scopeVarList, desugaredInsPos, isResourceObservation,
-                serviceOrObjectOperand, resourceOrAction, tags, uniqueId);
+    private void injectStartResourceObservationCall(BIRBasicBlock observeStartBB,
+                                                    Collection<BIRVariableDcl> scopeVarList, String serviceName,
+                                                    String resource, BIRPackage pkg,
+                                                    DiagnosticPos originalInsPosition) {
+        String pkgId = generatePackageId(pkg);
+        String position = generatePositionId(originalInsPosition);
+
+        String type = FUNC_BODY_INSTRUMENTATION_TYPE;
+        BIROperand serviceNameOperand = generateConstantOperand(String.format("%s$%s$service", type,
+                observeStartBB.id.value), symbolTable.stringType, serviceName, scopeVarList, observeStartBB, null);
+        BIROperand resourceOperand = generateConstantOperand(String.format("%s$%s$resource", type,
+                observeStartBB.id.value), symbolTable.stringType, resource, scopeVarList, observeStartBB, null);
+        BIROperand pkgOperand = generateConstantOperand(String.format("%s$%s$pkgId", type,
+                observeStartBB.id.value), symbolTable.stringType, pkgId, scopeVarList, observeStartBB, null);
+        BIROperand originalInsPosOperand = generateConstantOperand(String.format("%s$%s$position", type,
+                observeStartBB.id.value), symbolTable.stringType, position, scopeVarList, observeStartBB, null);
+
+        JIMethodCall observeStartCallTerminator = new JIMethodCall(null);
+        observeStartCallTerminator.invocationType = INVOKESTATIC;
+        observeStartCallTerminator.jClassName = OBSERVE_UTILS;
+        observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;L%s;)V", B_STRING_VALUE, B_STRING_VALUE,
+                B_STRING_VALUE, B_STRING_VALUE);
+        observeStartCallTerminator.name = START_RESOURCE_OBSERVATION_METHOD;
+        observeStartCallTerminator.args = Arrays.asList(serviceNameOperand, resourceOperand, pkgOperand,
+                originalInsPosOperand);
+        observeStartBB.terminator = observeStartCallTerminator;
     }
 
     /**
@@ -678,45 +568,55 @@ class JvmObservabilityGen {
      * @param observeStartBB The basic block to which the start observation call should be injected
      * @param scopeVarList The variables list in the scope
      * @param desugaredInsPos The position of all instructions, variables declarations, terminators to be generated
-     * @param isResourceObservation True if a service resource will be observed by the observation
-     * @param serviceOrObjectOperand The service or object name to which the instruction was attached to
-     * @param resourceOrAction The name of the resource or action which will be observed
-     * @param tags The map of tags to be added to the observation
+     * @param isRemote True if a remote function will be observed by the observation
+     * @param isMainEntryPoint True if the main function will be observed by the observation
+     * @param isWorker True if a worker function will be observed by the observation
+     * @param workerName The name of the worker if this observes a worker
+     * @param objectOperand The object the function was attached to
+     * @param action The name of the action which will be observed
+     * @param pkg The package the invocation belongs to
+     * @param originalInsPosition The source code position of the invocation
      * @param uniqueId A unique ID to identify the observe start call
      */
-    private void injectObserveStartCall(BIRBasicBlock observeStartBB, Collection<BIRVariableDcl> scopeVarList,
-                                        DiagnosticPos desugaredInsPos, boolean isResourceObservation,
-                                        BIROperand serviceOrObjectOperand, String resourceOrAction,
-                                        Map<String, String> tags, String uniqueId) {
-        BIROperand resourceOrActionOperand = generateConstantOperand(String.format("%s$%s$resourceOrAction", uniqueId,
-                observeStartBB.id.value), resourceOrAction, scopeVarList, observeStartBB, desugaredInsPos);
-        BIROperand tagsMapOperand = generateMapOperand(String.format("%s$%s$tags", uniqueId, observeStartBB.id.value),
-                tags, scopeVarList, observeStartBB, desugaredInsPos);
-        injectObserveStartCall(observeStartBB, desugaredInsPos, isResourceObservation, serviceOrObjectOperand,
-                resourceOrActionOperand, tagsMapOperand);
-    }
+    private void injectStartCallableObservationCall(BIRBasicBlock observeStartBB,
+                                                    Collection<BIRVariableDcl> scopeVarList,
+                                                    DiagnosticPos desugaredInsPos, boolean isRemote,
+                                                    boolean isMainEntryPoint, boolean isWorker, String workerName,
+                                                    BIROperand objectOperand, String action, BIRPackage pkg,
+                                                    DiagnosticPos originalInsPosition, String uniqueId) {
+        String pkgId = generatePackageId(pkg);
+        String position = generatePositionId(originalInsPosition);
 
-    /**
-     * Inject start observation call to a basic block.
-     *
-     * @param observeStartBB The basic block to which the start observation call should be injected
-     * @param desugaredInsPos The position of all instructions, variables declarations, terminators to be generated
-     * @param isResourceObservation True if a service resource will be observed by the observation
-     * @param serviceOrObjectOperand The service or object name to which the instruction was attached to
-     * @param resourceOrActionOperand The name of the resource or action which will be observed
-     * @param tagsOperand The operand for passing tags to the observe start call
-     */
-    private void injectObserveStartCall(BIRBasicBlock observeStartBB, DiagnosticPos desugaredInsPos,
-                                        boolean isResourceObservation, BIROperand serviceOrObjectOperand,
-                                        BIROperand resourceOrActionOperand, BIROperand tagsOperand) {
+        BIROperand isRemoteOperand = generateConstantOperand(String.format("%s$%s$isRemote", uniqueId,
+                observeStartBB.id.value), symbolTable.booleanType, isRemote, scopeVarList, observeStartBB,
+                desugaredInsPos);
+        BIROperand isMainEntryPointOperand = generateConstantOperand(String.format("%s$%s$isMainEntryPoint", uniqueId,
+                observeStartBB.id.value), symbolTable.booleanType, isMainEntryPoint, scopeVarList, observeStartBB,
+                desugaredInsPos);
+        BIROperand isWorkerOperand = generateConstantOperand(String.format("%s$%s$isWorker", uniqueId,
+                observeStartBB.id.value), symbolTable.booleanType, isWorker, scopeVarList, observeStartBB,
+                desugaredInsPos);
+        BIROperand pkgOperand = generateConstantOperand(String.format("%s$%s$pkgId", uniqueId,
+                observeStartBB.id.value), symbolTable.stringType, pkgId, scopeVarList, observeStartBB,
+                desugaredInsPos);
+        BIROperand originalInsPosOperand = generateConstantOperand(String.format("%s$%s$position", uniqueId,
+                observeStartBB.id.value), symbolTable.stringType, position, scopeVarList, observeStartBB,
+                desugaredInsPos);
+        BIROperand workerNameOperand = generateConstantOperand(String.format("%s$%s$workerName", uniqueId,
+                observeStartBB.id.value), symbolTable.stringType, workerName, scopeVarList, observeStartBB,
+                desugaredInsPos);
+        BIROperand actionOperand = generateConstantOperand(String.format("%s$%s$action", uniqueId,
+                observeStartBB.id.value), symbolTable.stringType, action, scopeVarList, observeStartBB,
+                desugaredInsPos);
+
         JIMethodCall observeStartCallTerminator = new JIMethodCall(desugaredInsPos);
         observeStartCallTerminator.invocationType = INVOKESTATIC;
         observeStartCallTerminator.jClassName = OBSERVE_UTILS;
-        observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;)V", B_STRING_VALUE, B_STRING_VALUE,
-                MAP_VALUE);
-        observeStartCallTerminator.name = isResourceObservation
-                ? START_RESOURCE_OBSERVATION_METHOD : START_CALLABLE_OBSERVATION_METHOD;
-        observeStartCallTerminator.args = Arrays.asList(serviceOrObjectOperand, resourceOrActionOperand, tagsOperand);
+        observeStartCallTerminator.jMethodVMSig = String.format("(ZZZL%s;L%s;L%s;L%s;L%s;)V", B_STRING_VALUE,
+                OBJECT_VALUE, B_STRING_VALUE, B_STRING_VALUE, B_STRING_VALUE);
+        observeStartCallTerminator.name = START_CALLABLE_OBSERVATION_METHOD;
+        observeStartCallTerminator.args = Arrays.asList(isRemoteOperand, isMainEntryPointOperand, isWorkerOperand,
+                workerNameOperand, objectOperand, actionOperand, pkgOperand, originalInsPosOperand);
         observeStartBB.terminator = observeStartCallTerminator;
     }
 
@@ -779,7 +679,7 @@ class JvmObservabilityGen {
      * @param observeEndBB The basic block to which the stop observation call should be injected
      * @param pos The position of all instructions, variables declarations, terminators, etc.
      */
-    private void injectObserveEndCall(BIRBasicBlock observeEndBB, DiagnosticPos pos) {
+    private void injectStopObservationCall(BIRBasicBlock observeEndBB, DiagnosticPos pos) {
         JIMethodCall observeEndCallTerminator = new JIMethodCall(pos);
         observeEndCallTerminator.invocationType = INVOKESTATIC;
         observeEndCallTerminator.jClassName = OBSERVE_UTILS;
@@ -790,81 +690,26 @@ class JvmObservabilityGen {
     }
 
     /**
-     * Generate a constant operand from a string value.
+     * Generate a constant operand from a value.
      *
      * @param uniqueId A unique ID to identify this constant value
+     * @param constantType The type of the constant
      * @param constantValue The constant value which should end up being passed in the operand
      * @param scopeVarList The variables list in the scope
      * @param basicBlock The basic block to which additional instructions should be added
      * @param pos The position of all instructions, variables declarations, terminators, etc.
      * @return The generated operand which will pass the constant
      */
-    private BIROperand generateConstantOperand(String uniqueId, String constantValue,
+    private BIROperand generateConstantOperand(String uniqueId, BType constantType, Object constantValue,
                                                Collection<BIRVariableDcl> scopeVarList, BIRBasicBlock basicBlock,
                                                DiagnosticPos pos) {
-        BIRVariableDcl constLoadVariableDcl = new BIRVariableDcl(symbolTable.stringType,
+        BIRVariableDcl constLoadVariableDcl = new BIRVariableDcl(constantType,
                 new Name(String.format("$%s$const", uniqueId)), VarScope.FUNCTION, VarKind.TEMP);
         scopeVarList.add(constLoadVariableDcl);
         BIROperand operand = new BIROperand(constLoadVariableDcl);
-        ConstantLoad constLoadIns = new ConstantLoad(pos, constantValue, symbolTable.stringType, operand);
+        ConstantLoad constLoadIns = new ConstantLoad(pos, constantValue, constantType, operand);
         basicBlock.instructions.add(constLoadIns);
         return operand;
-    }
-
-    /**
-     * Generate a Map type operand for a map of string keys and string values.
-     *
-     * @param uniqueId A unique ID to identify this map
-     * @param map The map of which entries should end up being passed in the operand
-     * @param scopeVarList The variables list in the scope
-     * @param basicBlock The basic block to which additional instructions should be added
-     * @param pos The position of all instructions, variables declarations, etc.
-     * @return The generated operand which will pass the map
-     */
-    private BIROperand generateMapOperand(String uniqueId, Map<String, String> map,
-                                          Collection<BIRVariableDcl> scopeVarList, BIRBasicBlock basicBlock,
-                                          DiagnosticPos pos) {
-        BIRVariableDcl tagsMapTypeDescVariableDcl = new BIRVariableDcl(symbolTable.typeDesc,
-                new Name(String.format("$%s$mapTypeDesc", uniqueId)), VarScope.FUNCTION, VarKind.TEMP);
-        scopeVarList.add(tagsMapTypeDescVariableDcl);
-        BIROperand tagsMapTypeDescOperand = new BIROperand(tagsMapTypeDescVariableDcl);
-        NewTypeDesc mapNewTypeDescIns = new NewTypeDesc(pos, tagsMapTypeDescOperand, symbolTable.mapStringType,
-                Collections.emptyList());
-        basicBlock.instructions.add(mapNewTypeDescIns);
-
-        BIRVariableDcl tagsMapVariableDcl = new BIRVariableDcl(symbolTable.mapStringType,
-                new Name(String.format("$%s$map", uniqueId)), VarScope.FUNCTION, VarKind.TEMP);
-        scopeVarList.add(tagsMapVariableDcl);
-        BIROperand tagsMapOperand = new BIROperand(tagsMapVariableDcl);
-        NewStructure mapNewStructureIns = new NewStructure(pos, tagsMapOperand, tagsMapTypeDescOperand);
-        basicBlock.instructions.add(mapNewStructureIns);
-
-        int entryIndex = 0;
-        for (Map.Entry<String, String> tagEntry: map.entrySet()) {
-            BIROperand keyOperand = generateConstantOperand(String.format("%s$mapKey%d", uniqueId, entryIndex),
-                    tagEntry.getKey(), scopeVarList, basicBlock, pos);
-            BIROperand valueOperand = generateConstantOperand(String.format("%s$mapValue%d", uniqueId, entryIndex),
-                    tagEntry.getValue(), scopeVarList, basicBlock, pos);
-            FieldAccess fieldAccessIns = new FieldAccess(pos, InstructionKind.MAP_STORE, tagsMapOperand, keyOperand,
-                    valueOperand);
-            basicBlock.instructions.add(fieldAccessIns);
-            entryIndex++;
-        }
-        return tagsMapOperand;
-    }
-
-    /**
-     * Create the invocation position based tags.
-     *
-     * @param pkg The package containing the position which should be included in the tags
-     * @param pos The position in the source which should be included in the tags
-     * @return The position based tags map
-     */
-    private Map<String, String> generatePositionTags(BIRPackage pkg, DiagnosticPos pos) {
-        Map<String, String> tags = new HashMap<>();
-        tags.put(MODULE_TAG_KEY, String.format("%s/%s:%s", pkg.org.value, pkg.name.value, pkg.version.value));
-        tags.put(INVOCATION_POSITION_TAG_KEY, String.format("%s:%d:%d", pos.src.cUnitName, pos.sLine, pos.sCol));
-        return tags;
     }
 
     /**
@@ -1000,5 +845,25 @@ class JvmObservabilityGen {
             }
         }
         return serviceName;
+    }
+
+    /**
+     * Generate a ID for a source code position.
+     *
+     * @param pos The position for which the ID should be generated
+     * @return The generated ID
+     */
+    private String generatePositionId(DiagnosticPos pos) {
+        return String.format("%s:%d:%d", pos.src.cUnitName, pos.sLine, pos.sCol);
+    }
+
+    /**
+     * Generate a ID for a ballerina module.
+     *
+     * @param pkg The module for which the ID should be generated
+     * @return The generated ID
+     */
+    private String generatePackageId(BIRPackage pkg) {
+        return String.format("%s/%s:%s", pkg.org.value, pkg.name.value, pkg.version.value);
     }
 }

@@ -18,13 +18,13 @@
 
 package org.ballerinalang.jvm.observability;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.observability.tracer.BSpan;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Collections;
@@ -40,6 +40,13 @@ import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.STATUS_CODE_GROUP_SUFFIX;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_INVOCATION_POSITION;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_IS_MAIN_ENTRY_POINT;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_IS_REMOTE;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_IS_RESOURCE_ENTRY_POINT;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_MODULE;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_WORKER;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_TRUE_VALUE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_RESOURCE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_SERVICE;
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.KEY_SPAN;
@@ -76,31 +83,13 @@ public class ObserveUtils {
      * Start observation of a resource invocation.
      * This is used in the BString mode in the compiler.
      *
-     * @param serviceName name of the service to which the observer context belongs.
-     * @param resourceName name of the resource being invoked.
-     * @param tags tags to be used in the observation
+     * @param serviceName name of the service to which the observer context belongs
+     * @param resourceName name of the resource being invoked
+     * @param pkg The package the resource belongs to
+     * @param position The source code position the resource in defined in
      */
-    public static void startResourceObservation(BString serviceName, BString resourceName,
-                                                MapValue<BString, BString> tags) {
-        if (!enabled) {
-            return;
-        }
-        MapValue<String, String> stringTags = new MapValueImpl<>();
-        for (Map.Entry<BString, BString> tagEntry : tags.entrySet()) {
-            stringTags.put(tagEntry.getKey().getValue(), tagEntry.getValue().getValue());
-        }
-        startResourceObservation(serviceName.getValue(), resourceName.getValue(), stringTags);
-    }
-
-    /**
-     * Start observation of a resource invocation.
-     *
-     * @param serviceName name of the service to which the observer context belongs.
-     * @param resourceName name of the resource being invoked.
-     * @param tags tags to be used in the observation
-     */
-    public static void startResourceObservation(String serviceName, String resourceName,
-                                                MapValue<String, String> tags) {
+    public static void startResourceObservation(BString serviceName, BString resourceName, BString pkg,
+                                                BString position) {
         if (!enabled) {
             return;
         }
@@ -113,19 +102,18 @@ public class ObserveUtils {
             observerContext = new ObserverContext();
             setObserverContextToCurrentFrame(strand, observerContext);
         }
-        if (serviceName == null) {
-            serviceName = UNKNOWN_SERVICE;
-            strand.setProperty(ObservabilityConstants.SERVICE_NAME, serviceName);
-        }
-        observerContext.setServiceName(serviceName);
-        observerContext.setResourceName(resourceName);
+        String service = serviceName.getValue() == null ? UNKNOWN_SERVICE : serviceName.getValue();
+        observerContext.setServiceName(service);
+        observerContext.setResourceName(resourceName.getValue());
         observerContext.setServer();
         observerContext.setStarted();
-        for (Map.Entry<String, String> tagEntry : tags.entrySet()) {
-            observerContext.addMainTag(tagEntry.getKey(), tagEntry.getValue());
-        }
+
+        observerContext.addMainTag(TAG_KEY_MODULE, pkg.getValue());
+        observerContext.addMainTag(TAG_KEY_INVOCATION_POSITION, position.getValue());
+        observerContext.addMainTag(TAG_KEY_IS_RESOURCE_ENTRY_POINT, TAG_TRUE_VALUE);
+
         observers.forEach(observer -> observer.startServerObservation(strand.observerContext));
-        strand.setProperty(ObservabilityConstants.SERVICE_NAME, serviceName);
+        strand.setProperty(ObservabilityConstants.SERVICE_NAME, service);
     }
 
     /**
@@ -155,7 +143,7 @@ public class ObserveUtils {
     /**
      * Report an error to an observer context.
      *
-     * @param errorValue the error value to be attached to the observer context.
+     * @param errorValue the error value to be attached to the observer context
      */
     public static void reportError(ErrorValue errorValue) {
         Strand strand = Scheduler.getStrand();
@@ -164,7 +152,7 @@ public class ObserveUtils {
         }
         ObserverContext observerContext = strand.observerContext;
         observers.forEach(observer -> {
-            observerContext.addTag(ObservabilityConstants.TAG_KEY_ERROR, ObservabilityConstants.TAG_ERROR_TRUE_VALUE);
+            observerContext.addTag(ObservabilityConstants.TAG_KEY_ERROR, TAG_TRUE_VALUE);
             observerContext.addProperty(ObservabilityConstants.PROPERTY_BSTRUCT_ERROR, errorValue);
         });
     }
@@ -173,31 +161,18 @@ public class ObserveUtils {
      * Start observability for the synchronous function/action invocations.
      * This is used in the BString mode in the compiler.
      *
-     * @param serviceName name of the service to which the observer context belongs.
-     * @param resourceName name of the resource being invoked.
-     * @param tags tags to be used in the observation
+     * @param isRemote True if this was a remove function invocation
+     * @param isMainEntryPoint True if this was a main entry point invocation
+     * @param isWorker True if this was a worker start
+     * @param workerName name of the worker if this was a worker function
+     * @param typeDef The type definition the function was attached to
+     * @param functionName name of the function being invoked
+     * @param pkg The package the resource belongs to
+     * @param position The source code position the resource in defined in
      */
-    public static void startCallableObservation(BString serviceName, BString resourceName,
-                                                MapValue<BString, BString> tags) {
-        if (!enabled) {
-            return;
-        }
-        MapValue<String, String> stringTags = new MapValueImpl<>();
-        for (Map.Entry<BString, BString> tagEntry : tags.entrySet()) {
-            stringTags.put(tagEntry.getKey().getValue(), tagEntry.getValue().getValue());
-        }
-        startCallableObservation(serviceName.getValue(), resourceName.getValue(), stringTags);
-    }
-
-    /**
-     * Start observability for the synchronous function/action invocations.
-     *
-     * @param connectorName name of the connector to which the observer context belongs.
-     * @param actionName name of the action/function being invoked.
-     * @param tags tags to be used in the observation
-     */
-    public static void startCallableObservation(String connectorName, String actionName,
-                                                MapValue<String, String> tags) {
+    public static void startCallableObservation(boolean isRemote, boolean isMainEntryPoint, boolean isWorker,
+                                                BString workerName, ObjectValue typeDef, BString functionName,
+                                                BString pkg, BString position) {
         if (!enabled) {
             return;
         }
@@ -209,11 +184,29 @@ public class ObserveUtils {
         newObContext.setStarted();
         newObContext.setServiceName(observerCtx == null ? UNKNOWN_SERVICE : observerCtx.getServiceName());
         newObContext.setResourceName(observerCtx == null ? UNKNOWN_RESOURCE : observerCtx.getResourceName());
-        newObContext.setConnectorName(connectorName);
-        newObContext.setActionName(actionName);
-        for (Map.Entry<String, String> tagEntry : tags.entrySet()) {
-            newObContext.addMainTag(tagEntry.getKey(), tagEntry.getValue());
+        if (typeDef == null) {
+            newObContext.setConnectorName(StringUtils.EMPTY);
+        } else {
+            String className = typeDef.getClass().getCanonicalName();
+            String[] classNameSplit = className.split("\\.");
+            int lastIndexOfDollar = classNameSplit[2].lastIndexOf('$');
+            newObContext.setConnectorName(classNameSplit[0] + "/" + classNameSplit[1] + "/"
+                    + classNameSplit[2].substring(lastIndexOfDollar + 1));
         }
+        newObContext.setActionName(functionName.getValue());
+
+        newObContext.addMainTag(TAG_KEY_MODULE, pkg.getValue());
+        newObContext.addMainTag(TAG_KEY_INVOCATION_POSITION, position.getValue());
+        if (isRemote) {
+            newObContext.addMainTag(TAG_KEY_IS_REMOTE, TAG_TRUE_VALUE);
+        }
+        if (isMainEntryPoint) {
+            newObContext.addMainTag(TAG_KEY_IS_MAIN_ENTRY_POINT, TAG_TRUE_VALUE);
+        }
+        if (isWorker) {
+            newObContext.addMainTag(TAG_KEY_WORKER, workerName.getValue());
+        }
+
         setObserverContextToCurrentFrame(strand, newObContext);
         observers.forEach(observer -> observer.startClientObservation(newObContext));
     }

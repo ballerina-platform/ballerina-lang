@@ -53,6 +53,12 @@ public class ObservabilityConstants {
     public static final String TAG_KEY_DB_STATEMENT = "db.statement";
     public static final String TAG_KEY_DB_TYPE = "db.type";
     public static final String TAG_KEY_ERROR = "error";
+    public static final String TAG_KEY_WORKER = "worker";
+    public static final String TAG_KEY_MODULE = "src.module";
+    public static final String TAG_KEY_INVOCATION_POSITION = "src.position";
+    public static final String TAG_KEY_IS_RESOURCE_ENTRY_POINT = "src.entry_point.resource";
+    public static final String TAG_KEY_IS_MAIN_ENTRY_POINT = "src.entry_point.main";
+    public static final String TAG_KEY_IS_REMOTE = "src.remote";
 
     public static final String TAG_DB_TYPE_SQL = "sql";
 
@@ -61,7 +67,7 @@ public class ObservabilityConstants {
     public static final String PROPERTY_ERROR_MESSAGE = "error_message";
     public static final String PROPERTY_BSTRUCT_ERROR = "bstruct_error";
 
-    public static final String TAG_ERROR_TRUE_VALUE = "true";
+    public static final String TAG_TRUE_VALUE = "true";
     public static final String STATUS_CODE_GROUP_SUFFIX = "xx";
 
     // TOML Configs
