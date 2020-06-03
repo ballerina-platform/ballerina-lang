@@ -57,7 +57,7 @@ class ValidatorUtil {
      * @return {@link OpenAPI} OpenAPI model
      * @throws OpenApiValidatorException in case of exception
      */
-    static OpenAPI parseOpenAPIFile(String definitionURI) throws OpenApiValidatorException {
+    public static OpenAPI parseOpenAPIFile(String definitionURI) throws OpenApiValidatorException {
         Path contractPath = Paths.get(definitionURI);
         if (!Files.exists(contractPath)) {
             throw new OpenApiValidatorException(ErrorMessages.invalidFilePath(definitionURI));
@@ -82,7 +82,7 @@ class ValidatorUtil {
      * @param contract                openAPI contract
      * @param openAPIComponentSummary list of openAPI components
      */
-    static void summarizeOpenAPI(List<OpenAPIPathSummary> openAPISummaries, OpenAPI contract
+    public static void summarizeOpenAPI(List<OpenAPIPathSummary> openAPISummaries, OpenAPI contract
             , OpenAPIComponentSummary openAPIComponentSummary) {
         io.swagger.v3.oas.models.Paths paths = contract.getPaths();
         for (Map.Entry pathItem : paths.entrySet()) {
@@ -143,7 +143,7 @@ class ValidatorUtil {
      * @param resourceSummaryList list of resource summaries
      * @param serviceNode         service node
      */
-    static void summarizeResources(List<ResourceSummary> resourceSummaryList, ServiceNode serviceNode) {
+    public static void summarizeResources(List<ResourceSummary> resourceSummaryList, ServiceNode serviceNode) {
         // Iterate resources available in a service and extract details to be validated.
         for (FunctionNode resource : serviceNode.getResources()) {
             AnnotationAttachmentNode annotation = null;
@@ -234,7 +234,7 @@ class ValidatorUtil {
      * @param openAPIComponentSummary component summaries
      * @param dLog                    diagnostic logger
      */
-    static void validateResourcesAgainstOpenApi(List<String> tags, List<String> operations,
+    public static void validateResourcesAgainstOpenApi(List<String> tags, List<String> operations,
                                                 Diagnostic.Kind kind,
                                                 List<String> excludeTags,
                                                 List<String> excludeOperations,
@@ -333,7 +333,8 @@ class ValidatorUtil {
      * @param openAPIComponentSummary openAPI component summary
      * @param dLog                    diagnostic logger
      */
-    static void validateOpenApiAgainstResources(ServiceNode serviceNode, List<String> tags, List<String> operations,
+    public static void validateOpenApiAgainstResources(ServiceNode serviceNode, List<String> tags,
+                                                List<String> operations,
                                                 Diagnostic.Kind kind,
                                                 List<String> excludeTags,
                                                 List<String> excludeOperations,
