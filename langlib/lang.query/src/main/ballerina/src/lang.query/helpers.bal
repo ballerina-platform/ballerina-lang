@@ -76,7 +76,7 @@ public function toArray(stream<Type, error?> strm) returns Type[]|error {
 }
 
 public function toXML(stream<Type, error?> strm) returns xml {
-    xml result = xml ` `;
+    xml result = 'xml:concat();
     record {| Type value; |}|error? v = strm.next();
     while (v is record {| Type value; |}) {
         Type value = v.value;
