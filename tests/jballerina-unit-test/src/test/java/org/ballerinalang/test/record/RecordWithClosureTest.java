@@ -37,7 +37,7 @@ public class RecordWithClosureTest {
         compileResult = BCompileUtil.compile("test-src/record/record_closure_default.bal");
     }
 
-    @Test(description = "Test record type with closure variable in default value", enabled = false)
+    @Test(description = "Test record type with closure variable in default value")
     public void testRecordWithClosureInDefaults() {
         BValue[] returns = BRunUtil.invoke(compileResult, "recordWithClosureInDefaults");
         Assert.assertEquals(returns.length, 1);

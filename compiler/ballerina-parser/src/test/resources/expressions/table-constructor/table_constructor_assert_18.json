@@ -1,57 +1,57 @@
 {
-    "kind": "TABLE_CONSTRUCTOR",
-    "children": [
+  "kind": "TABLE_CONSTRUCTOR",
+  "children": [
+    {
+      "kind": "TABLE_KEYWORD"
+    },
+    {
+      "kind": "KEY_SPECIFIER",
+      "children": [
         {
-            "kind": "TABLE_KEYWORD"
+          "kind": "KEY_KEYWORD"
         },
         {
-            "kind": "KEY_SPECIFIER",
-            "children": [
-                {
-                    "kind": "KEY_KEYWORD"
-                },
-                {
-                    "kind": "OPEN_PAREN_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "nic"
-                        },
-                        {
-                            "kind": "COMMA_TOKEN",
-                            "isMissing": true
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "dob"
-                        },
-                        {
-                            "kind": "COMMA_TOKEN",
-                            "isMissing": true
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "email"
-                        }
-                    ]
-                },
-                {
-                    "kind": "CLOSE_PAREN_TOKEN"
-                }
-            ]
+          "kind": "OPEN_PAREN_TOKEN"
         },
         {
-            "kind": "OPEN_BRACKET_TOKEN"
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "nic"
+            },
+            {
+              "kind": "COMMA_TOKEN",
+              "isMissing": true
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "dob"
+            },
+            {
+              "kind": "COMMA_TOKEN",
+              "isMissing": true
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "email"
+            }
+          ]
         },
         {
-            "kind": "LIST",
-            "children": []
-        },
-        {
-            "kind": "CLOSE_BRACKET_TOKEN"
+          "kind": "CLOSE_PAREN_TOKEN"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "OPEN_BRACKET_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "CLOSE_BRACKET_TOKEN"
+    }
+  ]
 }

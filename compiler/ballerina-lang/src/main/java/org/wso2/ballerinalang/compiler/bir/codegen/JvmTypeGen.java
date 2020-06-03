@@ -957,7 +957,7 @@ class JvmTypeGen {
 
     private static String typeRefToClassName(PackageID typeRef, String className) {
 
-        return getModuleLevelClassName(typeRef.orgName.value, typeRef.name.value, className);
+        return getModuleLevelClassName(typeRef.orgName.value, typeRef.name.value, typeRef.version.value, className);
     }
 
     // -------------------------------------------------------
@@ -1240,14 +1240,30 @@ class JvmTypeGen {
                 mv.visitInsn(AASTORE);
                 i += 1;
             }
-            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;[L%s;)V",
-                    BTYPE, STRING_VALUE), false);
+
+            loadReadOnlyFlagAndType(mv, bType);
+            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;[L%s;ZL%s;)V",
+                    BTYPE, STRING_VALUE, TABLE_TYPE), false);
         } else if (bType.keyTypeConstraint != null) {
             loadType(mv, bType.keyTypeConstraint);
-            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;L%s;)V",
-                    BTYPE, BTYPE), false);
+            loadReadOnlyFlagAndType(mv, bType);
+            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;L%s;ZL%s;)V",
+                    BTYPE, BTYPE, TABLE_TYPE), false);
         } else {
-            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;)V", BTYPE), false);
+            loadReadOnlyFlagAndType(mv, bType);
+            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;ZL%s;)V", BTYPE, TABLE_TYPE),
+                               false);
+        }
+    }
+
+    private static void loadReadOnlyFlagAndType(MethodVisitor mv, BTableType bType) {
+        loadReadonlyFlag(mv, bType);
+
+        BType immutableType = bType.immutableType;
+        if (immutableType == null) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            loadType(mv, immutableType);
         }
     }
 
@@ -1278,7 +1294,9 @@ class JvmTypeGen {
             mv.visitFieldInsn(GETSTATIC, BTYPES, TYPES_ERROR, String.format("L%s;", ERROR_TYPE));
             return;
         }
-        String typeOwner = getPackageName(packageID.orgName.value, packageID.name.value) + MODULE_INIT_CLASS_NAME;
+        String typeOwner =
+                getPackageName(packageID.orgName.value, packageID.name.value, packageID.version.value) +
+                        MODULE_INIT_CLASS_NAME;
         String fieldName = getTypeFieldName(toNameString(errorType));
         mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, String.format("L%s;", BTYPE));
     }
@@ -1388,7 +1406,9 @@ class JvmTypeGen {
 
         PackageID packageID = bType.tsymbol.pkgID;
 
-        String typeOwner = getPackageName(packageID.orgName.value, packageID.name.value) + MODULE_INIT_CLASS_NAME;
+        String typeOwner =
+                getPackageName(packageID.orgName.value, packageID.name.value, packageID.version.value) +
+                        MODULE_INIT_CLASS_NAME;
         String fieldName = getTypeFieldName(toNameString(bType));
 
         mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, String.format("L%s;", BTYPE));

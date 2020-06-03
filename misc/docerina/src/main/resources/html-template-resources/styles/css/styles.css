@@ -1,6 +1,9 @@
 /*-------------------------------
            API Method Colors 
 --------------------------------*/
+.hidden {
+	display: none;
+}
 body {
   background: #fff;
   color: #464646;
@@ -576,6 +579,41 @@ body .content-wrapper .stab {
 }
 body .content-wrapper .strike {
   text-decoration: line-through;
+}
+body .content-wrapper .main-wrapper .search-bar {
+  padding-bottom: 10px;
+}
+body .content-wrapper .main-wrapper .search-list .search-title {
+  font-weight: 400;
+  max-width: 240px;
+  width: 240px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+body .content-wrapper .main-wrapper .search-list h1 {
+	border-bottom: none;
+	margin-bottom: 5px;
+}
+body .content-wrapper .main-wrapper .search-list h3 {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+body .content-wrapper .main-wrapper .search-list tr:hover {
+  background-color: #f1f1f1;
+}
+body .content-wrapper .main-wrapper .search-list table {
+  border-collapse: collapse;
+}
+body .content-wrapper .main-wrapper .search-list .search-title a:hover {
+  font-weight: bold;
+}
+
+body .content-wrapper .main-wrapper .search-list .search-desc {
+  color: #555;
 }
 .navi-wrapper,
 .navi-wrapper-sidebar {

@@ -30,16 +30,18 @@ public interface EmbeddedExecutor {
      * Executes the main function of a module.
      *
      * @param moduleName Name of the module.
+     * @param moduleVersion Version of the module.
      * @param args       The arguments for the function.
      * @return Program execution output.
      */
-    Optional<RuntimeException> executeMainFunction(String moduleName, String... args);
+    Optional<RuntimeException> executeMainFunction(String moduleName, String moduleVersion, String... args);
     
     /**
      * Executes a service of a module.
      *
      * @param moduleName Name of the module.
+     * @param moduleVersion Version of the module.
      * @return Program execution output.
      */
-    Optional<RuntimeException> executeService(String moduleName);
+    Optional<RuntimeException> executeService(String moduleName, String moduleVersion);
 }

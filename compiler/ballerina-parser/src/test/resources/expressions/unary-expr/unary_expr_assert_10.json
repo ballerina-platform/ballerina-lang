@@ -1,20 +1,20 @@
 {
-    "kind": "UNARY_EXPRESSION",
-    "children": [
+  "kind": "UNARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "NEGATION_TOKEN"
+    },
+    {
+      "kind": "UNARY_EXPRESSION",
+      "children": [
         {
-            "kind": "NEGATION_TOKEN"
+          "kind": "PLUS_TOKEN"
         },
         {
-            "kind": "UNARY_EXPRESSION",
-            "children": [
-                {
-                    "kind": "PLUS_TOKEN"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "isMissing": true
-                }
-            ]
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true
         }
-    ]
+      ]
+    }
+  ]
 }

@@ -23,6 +23,8 @@ import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.api.BString;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static org.ballerinalang.jvm.util.BLangConstants.VERSION_SEPARATOR;
 
 /**
  * Constants for WebSubSubscriber Services.
@@ -39,8 +41,12 @@ public class WebSubSubscriberConstants {
     public static final String ANN_NAME_WEBSUB_SPECIFIC_SUBSCRIBER = "SpecificSubscriber";
     public static final String BALLERINA = "ballerina";
     public static final String WEBSUB = "websub";
-    public static final String WEBSUB_PACKAGE = "ballerina/websub";
-    public static final BPackage WEBSUB_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "websub");
+    public static final String MODULE_VERSION = "1.0.0";
+    public static final String GENERATED_PACKAGE_VERSION = MODULE_VERSION.replace(".", "_");
+    public static final String WEBSUB_PACKAGE = BALLERINA + ORG_NAME_SEPARATOR + WEBSUB;
+    public static final String WEBSUB_PACKAGE_FULL_QUALIFIED_NAME = WEBSUB_PACKAGE + VERSION_SEPARATOR + MODULE_VERSION;
+
+    public static final BPackage WEBSUB_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, WEBSUB, MODULE_VERSION);
     public static final String WEBSUB_SERVICE_LISTENER = "Listener";
     public static final String WEBSUB_SERVICE_CALLER = "Caller";
     public static final String WEBSUB_HTTP_ENDPOINT = "serviceEndpoint";

@@ -41,24 +41,20 @@ public class VariableDeclarationNode extends StatementNode {
         return optionalChildInBucket(1);
     }
 
-    public Node typeName() {
+    public TypedBindingPatternNode typedBindingPattern() {
         return childInBucket(2);
     }
 
-    public Token variableName() {
-        return childInBucket(3);
-    }
-
     public Optional<Token> equalsToken() {
-        return optionalChildInBucket(4);
+        return optionalChildInBucket(3);
     }
 
     public Optional<ExpressionNode> initializer() {
-        return optionalChildInBucket(5);
+        return optionalChildInBucket(4);
     }
 
     public Token semicolonToken() {
-        return childInBucket(6);
+        return childInBucket(5);
     }
 
     @Override
@@ -76,8 +72,7 @@ public class VariableDeclarationNode extends StatementNode {
         return new String[]{
                 "annotations",
                 "finalKeyword",
-                "typeName",
-                "variableName",
+                "typedBindingPattern",
                 "equalsToken",
                 "initializer",
                 "semicolonToken"};
@@ -86,16 +81,14 @@ public class VariableDeclarationNode extends StatementNode {
     public VariableDeclarationNode modify(
             NodeList<AnnotationNode> annotations,
             Token finalKeyword,
-            Node typeName,
-            Token variableName,
+            TypedBindingPatternNode typedBindingPattern,
             Token equalsToken,
             ExpressionNode initializer,
             Token semicolonToken) {
         if (checkForReferenceEquality(
                 annotations.underlyingListNode(),
                 finalKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 initializer,
                 semicolonToken)) {
@@ -105,8 +98,7 @@ public class VariableDeclarationNode extends StatementNode {
         return NodeFactory.createVariableDeclarationNode(
                 annotations,
                 finalKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 initializer,
                 semicolonToken);
@@ -125,8 +117,7 @@ public class VariableDeclarationNode extends StatementNode {
         private final VariableDeclarationNode oldNode;
         private NodeList<AnnotationNode> annotations;
         private Token finalKeyword;
-        private Node typeName;
-        private Token variableName;
+        private TypedBindingPatternNode typedBindingPattern;
         private Token equalsToken;
         private ExpressionNode initializer;
         private Token semicolonToken;
@@ -135,8 +126,7 @@ public class VariableDeclarationNode extends StatementNode {
             this.oldNode = oldNode;
             this.annotations = oldNode.annotations();
             this.finalKeyword = oldNode.finalKeyword().orElse(null);
-            this.typeName = oldNode.typeName();
-            this.variableName = oldNode.variableName();
+            this.typedBindingPattern = oldNode.typedBindingPattern();
             this.equalsToken = oldNode.equalsToken().orElse(null);
             this.initializer = oldNode.initializer().orElse(null);
             this.semicolonToken = oldNode.semicolonToken();
@@ -156,17 +146,10 @@ public class VariableDeclarationNode extends StatementNode {
             return this;
         }
 
-        public VariableDeclarationNodeModifier withTypeName(
-                Node typeName) {
-            Objects.requireNonNull(typeName, "typeName must not be null");
-            this.typeName = typeName;
-            return this;
-        }
-
-        public VariableDeclarationNodeModifier withVariableName(
-                Token variableName) {
-            Objects.requireNonNull(variableName, "variableName must not be null");
-            this.variableName = variableName;
+        public VariableDeclarationNodeModifier withTypedBindingPattern(
+                TypedBindingPatternNode typedBindingPattern) {
+            Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
+            this.typedBindingPattern = typedBindingPattern;
             return this;
         }
 
@@ -195,8 +178,7 @@ public class VariableDeclarationNode extends StatementNode {
             return oldNode.modify(
                     annotations,
                     finalKeyword,
-                    typeName,
-                    variableName,
+                    typedBindingPattern,
                     equalsToken,
                     initializer,
                     semicolonToken);

@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.WhereClauseNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,13 +37,30 @@ public class STWhereClauseNode extends STClauseNode {
     STWhereClauseNode(
             STNode whereKeyword,
             STNode expression) {
-        super(SyntaxKind.WHERE_CLAUSE);
+        this(
+                whereKeyword,
+                expression,
+                Collections.emptyList());
+    }
+
+    STWhereClauseNode(
+            STNode whereKeyword,
+            STNode expression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.WHERE_CLAUSE, diagnostics);
         this.whereKeyword = whereKeyword;
         this.expression = expression;
 
         addChildren(
                 whereKeyword,
                 expression);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STWhereClauseNode(
+                this.whereKeyword,
+                this.expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

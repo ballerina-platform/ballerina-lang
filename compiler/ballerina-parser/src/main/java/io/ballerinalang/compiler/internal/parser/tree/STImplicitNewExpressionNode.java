@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,13 +37,30 @@ public class STImplicitNewExpressionNode extends STNewExpressionNode {
     STImplicitNewExpressionNode(
             STNode newKeyword,
             STNode parenthesizedArgList) {
-        super(SyntaxKind.IMPLICIT_NEW_EXPRESSION);
+        this(
+                newKeyword,
+                parenthesizedArgList,
+                Collections.emptyList());
+    }
+
+    STImplicitNewExpressionNode(
+            STNode newKeyword,
+            STNode parenthesizedArgList,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.IMPLICIT_NEW_EXPRESSION, diagnostics);
         this.newKeyword = newKeyword;
         this.parenthesizedArgList = parenthesizedArgList;
 
         addChildren(
                 newKeyword,
                 parenthesizedArgList);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STImplicitNewExpressionNode(
+                this.newKeyword,
+                this.parenthesizedArgList,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -74,20 +74,26 @@ public class StampInbuiltFunctionNegativeTest {
     public void testStampNegativeTest() {
 
         int index = 0;
-        Assert.assertEquals(compileResult.getErrorCount(), 7);
-        BAssertUtil.validateError(compileResult, index++, "too many arguments in call to 'constructFrom()'", 50, 24);
+        Assert.assertEquals(compileResult.getErrorCount(), 10);
+        BAssertUtil.validateError(compileResult, index++, "too many arguments in call to 'cloneWithType()'", 50, 24);
         BAssertUtil.validateError(compileResult, index++,
-                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc'", 64, 26);
-        BAssertUtil
-                .validateError(compileResult, index++, "incompatible types: expected 'anydata', found 'any'", 71, 54);
-        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'TestType'", 79, 30);
+                "incompatible types: expected 'typedesc<anydata>', found 'typedesc'", 64, 52);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'anydata', found 'any'",
+                71, 33);
+        BAssertUtil.validateError(compileResult, index++,
+                "incompatible types: expected '(json|error)', found '(anydata|error)'", 79, 30);
+        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'TestType'", 79, 54);
+        BAssertUtil.validateError(compileResult, index++,
+                "incompatible types: expected '(EmployeeObject|error)', found '(anydata|error)'", 87, 40);
         BAssertUtil.validateError(compileResult, index++,
                                   "incompatible types: expected 'typedesc<anydata>', found 'typedesc<EmployeeObject>'",
-                                  87, 40);
+                87, 63);
         BAssertUtil.validateError(compileResult, index++,
-                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc<map>'", 95, 31);
+                "incompatible types: expected '(map|error)', found '(anydata|error)'", 95, 31);
+        BAssertUtil.validateError(compileResult, index++,
+                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc<map>'", 95, 54);
         BAssertUtil.validateError(compileResult, index,
-                                  "incompatible types: expected 'anydata', found 'ExtendedEmployee'", 103, 56);
+                                  "incompatible types: expected 'anydata', found 'ExtendedEmployee'", 103, 34);
     }
 
     //----------------------------- Object NegativeTest cases ------------------------------------------------------
@@ -96,47 +102,90 @@ public class StampInbuiltFunctionNegativeTest {
     public void testObjectNegativeTest() {
         int index = 0;
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                                  "incompatible types: expected 'anydata', found 'PersonObj'", 85, 54);
+                "incompatible types: expected '(Employee|error)', found '(anydata|error)'", 85, 31);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                                  "incompatible types: expected 'anydata', found 'PersonObj'", 92, 47);
+                "incompatible types: expected 'anydata', found 'PersonObj'", 85, 31);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                                  "incompatible types: expected 'anydata', found 'PersonObj'", 99, 44);
+                "incompatible types: expected 'anydata', found 'PersonObj'", 85, 31);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc<map>'", 106, 31);
+                "incompatible types: expected '(json|error)', found '(anydata|error)'", 92, 28);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                                  "incompatible types: expected 'anydata', found 'PersonObj'", 106, 54);
+                "incompatible types: expected 'anydata', found 'PersonObj'", 92, 28);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc<any[]>'", 113, 28);
+                "incompatible types: expected 'anydata', found 'PersonObj'", 92, 28);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                                  "incompatible types: expected 'anydata', found 'PersonObj'", 113, 48);
+                "incompatible types: expected '(xml|error)', found '(anydata|error)'", 99, 26);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                                  "incompatible types: expected 'anydata', found 'PersonObj'", 120, 65);
+                "incompatible types: expected 'anydata', found 'PersonObj'", 99, 26);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                "incompatible types: expected 'anydata', found 'PersonObj'", 99, 26);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                "incompatible types: expected '(map|error)', found '(anydata|error)'", 106, 31);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                "incompatible types: expected '(map|error)', found '(anydata|error)'", 106, 31);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                "incompatible types: expected 'anydata', found 'PersonObj'", 106, 31);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                "incompatible types: expected 'anydata', found 'PersonObj'", 106, 31);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                "incompatible types: expected 'typedesc<anydata>', found 'typedesc<map>'", 106, 47);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                "incompatible types: expected '(any[]|error)', found '(anydata|error)'", 113, 28);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                "incompatible types: expected '(any[]|error)', found '(anydata|error)'", 113, 28);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                "incompatible types: expected 'anydata', found 'PersonObj'", 113, 28);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                "incompatible types: expected 'anydata', found 'PersonObj'", 113, 28);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                "incompatible types: expected 'typedesc<anydata>', found 'typedesc<any[]>'", 113, 44);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                "incompatible types: expected '([int,string]|error)', found '(anydata|error)'", 120, 38);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                "incompatible types: expected 'anydata', found 'PersonObj'", 120, 38);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                "incompatible types: expected 'anydata', found 'PersonObj'", 120, 38);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
                                   "incompatible types: expected 'anydata', found 'PersonObj'", 127, 28);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc<PersonObj>'", 128,
-                                  33);
+                "incompatible types: expected '(PersonObj|error)', found '(anydata|error)'", 128,
+                33);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                "incompatible types: expected 'typedesc<anydata>', found 'typedesc<PersonObj>'", 128,
+                60);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                "incompatible types: expected '(EmployeeObject|error)', found '(anydata|error)'", 136, 40);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
                                   "incompatible types: expected 'typedesc<anydata>', found 'typedesc<EmployeeObject>'",
-                                  136, 40);
+                136, 63);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                "incompatible types: expected '(EmployeeObject|error)', found '(anydata|error)'", 144, 40);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
                                   "incompatible types: expected 'typedesc<anydata>', found 'typedesc<EmployeeObject>'",
-                                  144, 40);
+                144, 63);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
                                   "incompatible types: expected '(EmployeeObj|error)', found '(EmployeeObject|error)'",
                                   145, 12);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                "incompatible types: expected '(BookObject|error)', found '(anydata|error)'", 152, 36);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
                                   "incompatible types: expected 'typedesc<anydata>', found 'typedesc<BookObject>'", 152,
-                                  36);
+                59);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                "incompatible types: expected '(IntObject|error)', found '(anydata|error)'", 158, 35);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
                                   "incompatible types: expected 'typedesc<anydata>', found 'typedesc<IntObject>'", 158,
-                                  35);
+                51);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                "incompatible types: expected '(TeacherObj|error)', found '(anydata|error)'", 166, 36);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
                                   "incompatible types: expected 'typedesc<anydata>', found 'typedesc<TeacherObj>'", 166,
-                                  36);
+                58);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                "incompatible types: expected '(EmployeeObj|error)', found '(anydata|error)'", 174, 37);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index,
                                   "incompatible types: expected 'typedesc<anydata>', found 'typedesc<EmployeeObj>'",
-                                  174, 37);
+                174, 62);
     }
 
     //----------------------------- Record NegativeTest cases ------------------------------------------------------

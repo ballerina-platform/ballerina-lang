@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -42,7 +45,25 @@ public class STRemoteMethodCallActionNode extends STActionNode {
             STNode openParenToken,
             STNode arguments,
             STNode closeParenToken) {
-        super(SyntaxKind.REMOTE_METHOD_CALL_ACTION);
+        this(
+                expression,
+                rightArrowToken,
+                methodName,
+                openParenToken,
+                arguments,
+                closeParenToken,
+                Collections.emptyList());
+    }
+
+    STRemoteMethodCallActionNode(
+            STNode expression,
+            STNode rightArrowToken,
+            STNode methodName,
+            STNode openParenToken,
+            STNode arguments,
+            STNode closeParenToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.REMOTE_METHOD_CALL_ACTION, diagnostics);
         this.expression = expression;
         this.rightArrowToken = rightArrowToken;
         this.methodName = methodName;
@@ -57,6 +78,17 @@ public class STRemoteMethodCallActionNode extends STActionNode {
                 openParenToken,
                 arguments,
                 closeParenToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STRemoteMethodCallActionNode(
+                this.expression,
+                this.rightArrowToken,
+                this.methodName,
+                this.openParenToken,
+                this.arguments,
+                this.closeParenToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

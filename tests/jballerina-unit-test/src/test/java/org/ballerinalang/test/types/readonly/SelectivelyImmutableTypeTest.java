@@ -76,6 +76,8 @@ public class SelectivelyImmutableTypeTest {
                       14);
         validateError(result, index++, "incompatible types: expected 'Department & readonly', found 'Department'", 139,
                       17);
+        validateError(result, index++, "invalid intersection type with 'readonly', 'table<Bar> key(name)' can never " +
+                              "be 'readonly'", 152, 5);
 
         assertEquals(result.getErrorCount(), index);
     }

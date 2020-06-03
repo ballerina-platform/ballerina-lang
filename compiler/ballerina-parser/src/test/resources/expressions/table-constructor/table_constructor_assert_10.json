@@ -1,19 +1,19 @@
 {
-    "kind": "TABLE_CONSTRUCTOR",
-    "children": [
-        {
-            "kind": "TABLE_KEYWORD"
-        },
-        {
-            "kind": "OPEN_BRACKET_TOKEN",
-            "isMissing": true
-        },
-        {
-            "kind": "LIST",
-            "children": []
-        },
-        {
-            "kind": "CLOSE_BRACKET_TOKEN"
-        }
-    ]
+  "kind": "TABLE_CONSTRUCTOR",
+  "children": [
+    {
+      "kind": "TABLE_KEYWORD"
+    },
+    {
+      "kind": "OPEN_BRACKET_TOKEN",
+      "isMissing": true
+    },
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "CLOSE_BRACKET_TOKEN"
+    }
+  ]
 }

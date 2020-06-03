@@ -1,0 +1,25 @@
+{
+  "name": "@ballerina/doc-search",
+  "version": "2.0.0-Preview1-M3",
+  "description": "Search implementation in API Docs",
+  "main": "lib/search.js",
+  "scripts": {
+    "test": "echo 'No tests specified'",
+    "start": "webpack-dev-server --open --mode development",
+    "build": "webpack --mode production"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@types/react": "^16.9.17",
+    "@types/react-dom": "^16.9.4",
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2"
+  },
+  "devDependencies": {
+    "source-map-loader": "^0.2.4",
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.7.4",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
+  }
+}

@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STNamedArgumentNode extends STFunctionArgumentNode {
             STNode argumentName,
             STNode equalsToken,
             STNode expression) {
-        super(SyntaxKind.NAMED_ARG);
+        this(
+                leadingComma,
+                argumentName,
+                equalsToken,
+                expression,
+                Collections.emptyList());
+    }
+
+    STNamedArgumentNode(
+            STNode leadingComma,
+            STNode argumentName,
+            STNode equalsToken,
+            STNode expression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.NAMED_ARG, diagnostics);
         this.leadingComma = leadingComma;
         this.argumentName = argumentName;
         this.equalsToken = equalsToken;
@@ -49,6 +66,15 @@ public class STNamedArgumentNode extends STFunctionArgumentNode {
                 argumentName,
                 equalsToken,
                 expression);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STNamedArgumentNode(
+                this.leadingComma,
+                this.argumentName,
+                this.equalsToken,
+                this.expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

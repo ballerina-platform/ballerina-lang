@@ -189,9 +189,9 @@ public class ObserveUtils {
         } else {
             String className = typeDef.getClass().getCanonicalName();
             String[] classNameSplit = className.split("\\.");
-            int lastIndexOfDollar = classNameSplit[2].lastIndexOf('$');
+            int lastIndexOfDollar = classNameSplit[3].lastIndexOf('$');
             newObContext.setConnectorName(classNameSplit[0] + "/" + classNameSplit[1] + "/"
-                    + classNameSplit[2].substring(lastIndexOfDollar + 1));
+                    + classNameSplit[3].substring(lastIndexOfDollar + 1));
         }
         newObContext.setActionName(functionName.getValue());
 
