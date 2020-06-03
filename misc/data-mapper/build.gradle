@@ -15,6 +15,7 @@ plugins {
     id "de.undercouch.download" version "3.4.3"
     id 'base'
     id 'maven-publish'
+    id 'net.researchgate.release' version '2.6.0'
 }
 
 group 'DataMapper'
