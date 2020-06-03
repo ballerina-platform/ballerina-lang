@@ -1896,14 +1896,14 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineReferencedFunction(BLangTypeDefinition typeDef, SymbolEnv objEnv, BLangType typeRef,
-                                          BAttachedFunction referencedFunc, Set<String> referencedFunctions) {
+                                          BAttachedFunction referencedFunc, Set<String> includedFunctionNames) {
         String referencedFuncName = referencedFunc.funcName.value;
         Name funcName = names.fromString(
                 Symbols.getAttachedFuncSymbolName(typeDef.symbol.name.value, referencedFuncName));
         BSymbol matchingObjFuncSym = symResolver.lookupSymbolInMainSpace(objEnv, funcName);
 
         if (matchingObjFuncSym != symTable.notFoundSymbol) {
-            if (!referencedFunctions.add(referencedFuncName)) {
+            if (!includedFunctionNames.add(referencedFuncName)) {
                 dlog.error(typeRef.pos, DiagnosticCode.REDECLARED_SYMBOL, referencedFuncName);
                 return;
             }
@@ -1917,7 +1917,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                            referencedFunc.funcName, typeRef);
             }
 
-            if (!isFunctionAssignable((BInvokableSymbol) matchingObjFuncSym, referencedFunc.symbol)) {
+            if (!hasSameFunctionSignature((BInvokableSymbol) matchingObjFuncSym, referencedFunc.symbol)) {
                 Optional<BLangFunction> matchingFunc = ((BLangObjectTypeNode) typeDef.typeNode)
                         .functions.stream().filter(fn -> fn.symbol == matchingObjFuncSym).findFirst();
                 DiagnosticPos pos = matchingFunc.isPresent() ? matchingFunc.get().pos : typeRef.pos;
@@ -1956,7 +1956,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         ((BObjectTypeSymbol) typeDef.symbol).referencedFunctions.add(attachedFunc);
     }
 
-    private boolean isFunctionAssignable(BInvokableSymbol attachedFuncSym, BInvokableSymbol referencedFuncSym) {
+    private boolean hasSameFunctionSignature(BInvokableSymbol attachedFuncSym, BInvokableSymbol referencedFuncSym) {
         if (!hasSameVisibilityModifier(referencedFuncSym.flags, attachedFuncSym.flags)) {
             return false;
         }
