@@ -200,7 +200,7 @@ public class SmtpUtil {
             attachmentBodyPart.setDataHandler(new DataHandler(ds));
         } else {
             if (CommonUtil.isTextBased(contentType)) {
-                attachmentBodyPart.setText((String) MimeDataSourceBuilder.getText(mimeEntity));
+                attachmentBodyPart.setText(((BString) MimeDataSourceBuilder.getText(mimeEntity)).getValue());
             } else {
                 ArrayValue binaryContent = (ArrayValue) MimeDataSourceBuilder.getByteArray(mimeEntity);
                 attachmentBodyPart.setContent(binaryContent.getBytes(), MimeConstants.OCTET_STREAM);
