@@ -274,6 +274,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordSpreadOperatorField;
@@ -1841,6 +1842,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 return expressionNode.content().get(0).apply(this);
             case STRING_TEMPLATE_EXPRESSION:
                 return createStringTemplateLiteral(expressionNode.content(), getPosition(expressionNode));
+            case RAW_TEMPLATE_EXPRESSION:
+                return createRawTemplateLiteral(expressionNode.content(), getPosition(expressionNode));
             default:
                 throw new RuntimeException("Syntax kind is not supported: " + kind);
         }
@@ -3413,6 +3416,21 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
         stringTemplateLiteral.pos = pos;
         return stringTemplateLiteral;
+    }
+
+    private BLangRawTemplateLiteral createRawTemplateLiteral(NodeList<TemplateMemberNode> members, DiagnosticPos pos) {
+        BLangRawTemplateLiteral literal = (BLangRawTemplateLiteral) TreeBuilder.createRawTemplateLiteralNode();
+        literal.pos = pos;
+
+        for (Node member : members) {
+            if (member.kind() == SyntaxKind.INTERPOLATION) {
+                literal.insertions.add((BLangExpression) member.apply(this));
+            } else {
+                literal.strings.add((BLangLiteral) member.apply(this));
+            }
+        }
+
+        return literal;
     }
 
     private BLangSimpleVariable createSimpleVar(Optional<Token> name, Node type, NodeList<AnnotationNode> annotations) {
