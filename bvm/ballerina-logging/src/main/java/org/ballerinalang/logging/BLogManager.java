@@ -119,6 +119,24 @@ public class BLogManager extends LogManager {
     }
 
     /**
+     * Get the global log level.
+     *
+     * @return ballerinaUserLogLevel
+     */
+    public BLogLevel getGlobalLogLevel() {
+        return ballerinaUserLogLevel;
+    }
+
+    /**
+     * Checks if module log level has been enabled.
+     *
+     * @return true if module log level has been enabled, false if not.
+     */
+    public boolean isModuleLogLevelEnabled() {
+        return loggerLevels.size() > 1;
+    }
+
+    /**
      * Initializes the HTTP trace logger.
      */
     public void setHttpTraceLogHandler() {

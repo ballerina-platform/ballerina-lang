@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
 /**
  * Util methods needed for Packaging test cases.
  *
@@ -134,5 +136,29 @@ public class PackerinaTestUtils {
         Files.write(tomlPath, replaced);
         lines.close();
     }
-    
+
+    /**
+     * Copy directory to target directory.
+     *
+     * @param src  source file
+     * @param dest destination path to copy.
+     * @throws IOException throw if there is any error occur while copying directories.
+     */
+    public static void copyFolder(Path src, Path dest) throws IOException {
+        Files.walk(src).forEach(source -> copy(source, dest.resolve(src.relativize(source))));
+    }
+
+    /**
+     * Copy a file to a target file.
+     *
+     * @param src  source file
+     * @param dest destination path to copy.
+     */
+    public static void copy(Path src, Path dest) {
+        try {
+            Files.copy(src, dest, REPLACE_EXISTING);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
 }

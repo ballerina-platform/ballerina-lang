@@ -1,0 +1,72 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}
+
+dependencies {
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+
+
+    interopImports project(':ballerina-io')
+    interopImports project(':ballerina-system')
+    interopImports project(':ballerina-config-api')
+    interopImports project(':ballerina-sql')
+
+    baloCreat project(':lib-creator')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-lang:annotations')
+    implementation project(':ballerina-runtime')
+    implementation project(':ballerina-test-utils')
+    implementation project(':ballerina-java')
+    implementation project(':ballerina-sql')
+
+    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
+    testCompile project(':ballerina-io')
+    testCompile project(':ballerina-sql')
+    testCompile project(':ballerina-log-api')
+    testCompile project(':ballerina-runtime-api')
+    testCompile project(':ballerina-core')
+    testCompile project(':ballerina-java')
+    testCompile project(':ballerina-transactions')
+
+    testCompile 'org.testng:testng'
+    testCompile 'org.slf4j:slf4j-jdk14'
+    testCompile 'com.h2database:h2:1.4.200'
+}
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+}
+
+createBalo {
+    jvmTarget = 'true'
+}
+
+description = 'Ballerina - jdbc'

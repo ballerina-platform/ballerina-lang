@@ -19,6 +19,9 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * Represents a literal value in the Ballerina internal syntax tree.
  *
@@ -28,12 +31,24 @@ public class STLiteralValueToken extends STToken {
     private final String text;
 
     STLiteralValueToken(SyntaxKind kind, String text, STNode leadingTrivia, STNode trailingTrivia) {
-        super(kind, text.length(), leadingTrivia, trailingTrivia);
+        this(kind, text, leadingTrivia, trailingTrivia, Collections.emptyList());
+    }
+
+    STLiteralValueToken(SyntaxKind kind,
+                        String text,
+                        STNode leadingTrivia,
+                        STNode trailingTrivia,
+                        Collection<STNodeDiagnostic> diagnostics) {
+        super(kind, text.length(), leadingTrivia, trailingTrivia, diagnostics);
         this.text = text;
     }
 
     public String text() {
         return text;
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STLiteralValueToken(kind, text, leadingMinutiae, trailingMinutiae, diagnostics);
     }
 
     @Override

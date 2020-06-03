@@ -51,18 +51,18 @@ public class WebSubCompilationTest {
     public void testInvalidOnIntentVerificationSignatureParams() {
         BAssertUtil.validateError(negativeCompilationResult, 0,
                                   "invalid resource signature for 'onIntentVerification', expected "
-                                                + "'ballerina/websub:Caller' as first parameter", 43, 45);
+                                                + "'ballerina/websub:1.0.0:Caller' as first parameter", 43, 45);
         BAssertUtil.validateError(negativeCompilationResult, 1,
-                                  "invalid resource signature for 'onIntentVerification', expected "
-                                                + "'ballerina/websub:IntentVerificationRequest' as second parameter",
-                                  43, 67);
+                                  "invalid resource signature for 'onIntentVerification', expected " +
+                                          "'ballerina/websub:1.0.0:IntentVerificationRequest' as second " +
+                                          "parameter", 43, 67);
     }
 
     @Test(description = "Test invalid onNotification signature params")
     public void testInvalidOnNotificationSignatureParams() {
         BAssertUtil.validateError(negativeCompilationResult, 2,
                                   "invalid resource signature for 'onNotification', expected "
-                                          + "'ballerina/websub:Notification' as first parameter", 46, 39);
+                                          + "'ballerina/websub:1.0.0:Notification' as first parameter", 46, 39);
     }
 
     @Test(description = "Test invalid resource")

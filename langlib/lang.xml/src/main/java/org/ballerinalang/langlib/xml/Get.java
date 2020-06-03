@@ -31,6 +31,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.List;
 
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+
 /**
  * Returns the item of `x` with index `i`.
  * This differs from `x[i]` in that it panics if `x` does not have an item with index `i`.
@@ -38,7 +40,7 @@ import java.util.List;
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
         functionName = "get",
         args = {@Argument(name = "xmlValue", type = TypeKind.XML),
                 @Argument(name = "i", type = TypeKind.INT)},

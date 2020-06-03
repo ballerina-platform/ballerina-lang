@@ -6,9 +6,9 @@ import ballerina/test;
 }
 function testInvalidDataProvider2(string fValue, string sValue, string result) {
 
-    int|error fErr = trap int.constructFrom(fValue);
-    int|error sErr = trap int.constructFrom(sValue);
-    int|error resultErr = trap int.constructFrom(result);
+    int|error fErr = trap fValue.cloneWithType(int);
+    int|error sErr = trap sValue.cloneWithType(int);
+    int|error resultErr = trap result.cloneWithType(int);
 }
 
 function invalidDataGen2() returns (int[][]) {

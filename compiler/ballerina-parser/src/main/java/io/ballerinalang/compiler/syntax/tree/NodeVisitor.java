@@ -563,8 +563,24 @@ public abstract class NodeVisitor {
         visitSyntaxNode(captureBindingPatternNode);
     }
 
+    public void visit(WildcardBindingPatternNode wildcardBindingPatternNode) {
+        visitSyntaxNode(wildcardBindingPatternNode);
+    }
+
     public void visit(ListBindingPatternNode listBindingPatternNode) {
         visitSyntaxNode(listBindingPatternNode);
+    }
+
+    public void visit(MappingBindingPatternNode mappingBindingPatternNode) {
+        visitSyntaxNode(mappingBindingPatternNode);
+    }
+
+    public void visit(FieldBindingPatternFullNode fieldBindingPatternFullNode) {
+        visitSyntaxNode(fieldBindingPatternFullNode);
+    }
+
+    public void visit(FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
+        visitSyntaxNode(fieldBindingPatternVarnameNode);
     }
 
     public void visit(RestBindingPatternNode restBindingPatternNode) {
@@ -657,6 +673,30 @@ public abstract class NodeVisitor {
 
     public void visit(TransactionalExpressionNode transactionalExpressionNode) {
         visitSyntaxNode(transactionalExpressionNode);
+    }
+
+    public void visit(ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
+        visitSyntaxNode(serviceConstructorExpressionNode);
+    }
+
+    public void visit(ByteArrayLiteralNode byteArrayLiteralNode) {
+        visitSyntaxNode(byteArrayLiteralNode);
+    }
+
+    public void visit(XMLFilterExpressionNode xMLFilterExpressionNode) {
+        visitSyntaxNode(xMLFilterExpressionNode);
+    }
+
+    public void visit(XMLStepExpressionNode xMLStepExpressionNode) {
+        visitSyntaxNode(xMLStepExpressionNode);
+    }
+
+    public void visit(XMLNamePatternChainingNode xMLNamePatternChainingNode) {
+        visitSyntaxNode(xMLNamePatternChainingNode);
+    }
+
+    public void visit(XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
+        visitSyntaxNode(xMLAtomicNamePatternNode);
     }
 
     // Tokens

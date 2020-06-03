@@ -54,15 +54,25 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "a"
+                          "kind": "CAPTURE_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "a"
+                            }
+                          ]
                         },
                         {
                           "kind": "COMMA_TOKEN"
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "b"
+                          "kind": "CAPTURE_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "b"
+                            }
+                          ]
                         }
                       ]
                     },
@@ -97,14 +107,19 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "a"
+                          "kind": "CAPTURE_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "a"
+                            }
+                          ]
                         },
                         {
                           "kind": "COMMA_TOKEN"
                         },
                         {
-                          "kind": "CAPTURE_BINDING_PATTERN",
+                          "kind": "WILDCARD_BINDING_PATTERN",
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
@@ -202,14 +217,19 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "a"
+                          "kind": "CAPTURE_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "a"
+                            }
+                          ]
                         },
                         {
                           "kind": "COMMA_TOKEN"
                         },
                         {
-                          "kind": "CAPTURE_BINDING_PATTERN",
+                          "kind": "WILDCARD_BINDING_PATTERN",
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",

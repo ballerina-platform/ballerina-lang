@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,13 +37,30 @@ public class STKeyTypeConstraintNode extends STNode {
     STKeyTypeConstraintNode(
             STNode keyKeywordToken,
             STNode typeParameterNode) {
-        super(SyntaxKind.KEY_TYPE_CONSTRAINT);
+        this(
+                keyKeywordToken,
+                typeParameterNode,
+                Collections.emptyList());
+    }
+
+    STKeyTypeConstraintNode(
+            STNode keyKeywordToken,
+            STNode typeParameterNode,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.KEY_TYPE_CONSTRAINT, diagnostics);
         this.keyKeywordToken = keyKeywordToken;
         this.typeParameterNode = typeParameterNode;
 
         addChildren(
                 keyKeywordToken,
                 typeParameterNode);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STKeyTypeConstraintNode(
+                this.keyKeywordToken,
+                this.typeParameterNode,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

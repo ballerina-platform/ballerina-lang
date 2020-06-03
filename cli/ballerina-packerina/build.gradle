@@ -42,6 +42,7 @@ dependencies {
     implementation project(':testerina:testerina-runtime')
     implementation project(':docerina')
     implementation project(':ballerina-cli-module')
+    implementation project(':maven-resolver')
     implementation 'com.moandjiezana.toml:toml4j'
     implementation 'info.picocli:picocli'
     implementation 'org.apache.commons:commons-compress:1.18'

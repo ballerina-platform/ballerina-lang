@@ -1718,7 +1718,6 @@ public class HttpUtil {
 
     public static ErrorValue createHttpError(String reason, String errorName, String reasonType, String errorMsg) {
         Object detail = createHttpErrorDetailRecord(errorMsg, BallerinaErrors.createError(reasonType, errorMsg));
-
         return new ErrorValue(
                 new BErrorType(errorName, new BPackage(PACKAGE, MODULE, HTTP_MODULE_VERSION), BTypes.typeString,
                                TypeChecker.getType(detail)), org.ballerinalang.jvm.StringUtils.fromString(reason),

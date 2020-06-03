@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TypeTestExpressionNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STTypeTestExpressionNode extends STExpressionNode {
             STNode expression,
             STNode isKeyword,
             STNode typeDescriptor) {
-        super(SyntaxKind.TYPE_TEST_EXPRESSION);
+        this(
+                expression,
+                isKeyword,
+                typeDescriptor,
+                Collections.emptyList());
+    }
+
+    STTypeTestExpressionNode(
+            STNode expression,
+            STNode isKeyword,
+            STNode typeDescriptor,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.TYPE_TEST_EXPRESSION, diagnostics);
         this.expression = expression;
         this.isKeyword = isKeyword;
         this.typeDescriptor = typeDescriptor;
@@ -45,6 +60,14 @@ public class STTypeTestExpressionNode extends STExpressionNode {
                 expression,
                 isKeyword,
                 typeDescriptor);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STTypeTestExpressionNode(
+                this.expression,
+                this.isKeyword,
+                this.typeDescriptor,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

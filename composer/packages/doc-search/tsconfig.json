@@ -1,0 +1,11 @@
+{
+    "extends": "../../configs/common.tsconfig.json",
+    "compilerOptions": {
+        "outDir": "lib",
+        "allowJs": true
+    },
+    "include": ["src"],
+    "exclude": [
+        "**/*-spec.ts"
+    ]
+}

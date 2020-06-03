@@ -53,7 +53,7 @@ public class TracingTestCase extends BaseTest {
     private static final String RESOURCE_LOCATION = "src" + File.separator + "test" + File.separator +
             "resources" + File.separator + "observability" + File.separator + "tracing" + File.separator;
     private static final String TEST_NATIVES_JAR = "observability-test-natives.jar";
-    private static final String TEST_OBSERVE_JAR = "ballerina.testobserve.jar";
+    private static final String TEST_OBSERVE_JAR = "ballerina-testobserve-0.0.0.jar";
 
     private static final String DEST_FUNCTIONS_JAR = File.separator + "bre" + File.separator + "lib"
             + File.separator + TEST_NATIVES_JAR;
@@ -169,7 +169,7 @@ public class TracingTestCase extends BaseTest {
             Assert.assertEquals(span.getOperationName(), "ballerina/http/HttpClient:get");
             Assert.assertEquals(span.getTags().size(), 9);
             Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina/http:");
+            Assert.assertEquals(span.getTags().get("src.module"), "ballerina/http:1.0.0");
             Assert.assertEquals(span.getTags().get("src.remote"), "true");
             Assert.assertEquals(span.getTags().get("http.status_code"), "200");
             Assert.assertEquals(span.getTags().get("http.status_code_group"), "2xx");

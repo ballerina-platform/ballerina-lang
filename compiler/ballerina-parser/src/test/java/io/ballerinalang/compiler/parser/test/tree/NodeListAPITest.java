@@ -18,6 +18,7 @@
 package io.ballerinalang.compiler.parser.test.tree;
 
 import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
@@ -29,6 +30,7 @@ import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.StatementNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -112,8 +114,12 @@ public class NodeListAPITest extends AbstractSyntaxTreeAPITest {
     }
 
     private StatementNode dupLocalVarDeclStmt(VariableDeclarationNode srcDeclNode, String varName) {
-        BuiltinSimpleNameReferenceNode srcTypeNameNode = (BuiltinSimpleNameReferenceNode) srcDeclNode.typeName();
-        IdentifierToken srcVariableNameToken = (IdentifierToken) srcDeclNode.variableName();
+        TypedBindingPatternNode typedBindingPattern = srcDeclNode.typedBindingPattern();
+        BuiltinSimpleNameReferenceNode srcTypeNameNode =
+                (BuiltinSimpleNameReferenceNode) typedBindingPattern.typeDescriptor();
+        CaptureBindingPatternNode bindingPattern = (CaptureBindingPatternNode) typedBindingPattern.bindingPattern();
+        IdentifierToken srcVariableNameToken = (IdentifierToken) (bindingPattern).variableName();
+
         // Create new typename with the same formatting as the original one
         BuiltinSimpleNameReferenceNode typeNameNode = srcTypeNameNode.modify()
                 .withName(NodeFactory.createToken(SyntaxKind.STRING_KEYWORD))
@@ -121,9 +127,11 @@ public class NodeListAPITest extends AbstractSyntaxTreeAPITest {
         // Create a variable name token
         IdentifierToken variableNameToken = srcVariableNameToken.modify(varName);
 
+        CaptureBindingPatternNode newCaptureBP = NodeFactory.createCaptureBindingPatternNode(variableNameToken);
+        TypedBindingPatternNode newTypedBP = NodeFactory.createTypedBindingPatternNode(typeNameNode, newCaptureBP);
+
         return srcDeclNode.modify()
-                .withTypeName(typeNameNode)
-                .withVariableName(variableNameToken)
+                .withTypedBindingPattern(newTypedBP)
                 .apply();
     }
 

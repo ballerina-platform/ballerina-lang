@@ -1,0 +1,56 @@
+{
+    "kind": "XML_FILTER_EXPRESSION",
+    "children": [
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "a"
+        },
+        {
+            "kind": "XML_NAME_PATTERN_CHAIN",
+            "children": [
+                {
+                    "kind": "DOT_LT_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "b"
+                        },
+                        {
+                            "kind": "PIPE_TOKEN",
+                            "isMissing": true
+                        },
+                        {
+                            "kind": "XML_ATOMIC_NAME_PATTERN",
+                            "children": [
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "c"
+                                },
+                                {
+                                    "kind": "COLON_TOKEN"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "d"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "PIPE_TOKEN",
+                            "isMissing": true
+                        },
+                        {
+                            "kind": "ASTERISK_TOKEN"
+                        }
+                    ]
+                },
+                {
+                    "kind": "GT_TOKEN"
+                }
+            ]
+        }
+    ]
+}

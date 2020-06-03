@@ -35,4 +35,9 @@
         <Method name="parseFunctionBodyBlock" />
         <Bug pattern="SF_SWITCH_FALLTHROUGH" />
     </Match>
+    <Match>
+        <Class name="io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler" />
+        <Method name="getNextRuleForComma" />
+        <Bug pattern="SF_SWITCH_FALLTHROUGH" />
+    </Match>
 </FindBugsFilter>

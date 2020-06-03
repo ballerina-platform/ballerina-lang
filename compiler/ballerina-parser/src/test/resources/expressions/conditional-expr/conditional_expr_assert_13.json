@@ -1,54 +1,54 @@
 {
-    "kind": "BINARY_EXPRESSION",
-    "children": [
+  "kind": "BINARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "FUNCTION_CALL",
+      "children": [
         {
-            "kind": "FUNCTION_CALL",
-            "children": [
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "a"
-                },
-                {
-                    "kind": "OPEN_PAREN_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                        {
-                            "kind": "POSITIONAL_ARG",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "b"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "kind": "CLOSE_PAREN_TOKEN"
-                }
-            ]
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a"
         },
         {
-            "kind": "PLUS_TOKEN",
-            "isMissing": true
+          "kind": "OPEN_PAREN_TOKEN"
         },
         {
-            "kind": "QUALIFIED_NAME_REFERENCE",
-            "children": [
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "POSITIONAL_ARG",
+              "children": [
                 {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "isMissing": true
-                },
-                {
-                    "kind": "COLON_TOKEN"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "c"
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b"
                 }
-            ]
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "PLUS_TOKEN",
+      "isMissing": true
+    },
+    {
+      "kind": "QUALIFIED_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true
+        },
+        {
+          "kind": "COLON_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "c"
+        }
+      ]
+    }
+  ]
 }
