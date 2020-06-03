@@ -50,6 +50,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.objectweb.asm.Opcodes.AASTORE;
+import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ARETURN;
@@ -113,7 +114,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_LOCAL_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_ANNOTATION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_DATA_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_POLICY_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_THREAD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_VALUE_ANY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
@@ -126,6 +129,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupFu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupPathSeperators;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.createFunctionPointer;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMethodDesc;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getStrandMetaDataVarName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariableDcl;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.loadDefaultValue;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.emitStopObservationInvocation;
@@ -223,9 +227,9 @@ public class JvmTerminatorGen {
         return t.tsymbol.name.value;
     }
 
-    void genTerminator(BIRTerminator terminator, BIRNode.BIRFunction func, String funcName,
-                       int localVarOffset, int returnVarRefIndex, BType attachedType,
-                       boolean isObserved, LambdaMetadata lambdaMetadata) {
+    void genTerminator(BIRTerminator terminator, String moduleClassName, BIRNode.BIRFunction func,
+                       String funcName, int localVarOffset, int returnVarRefIndex,
+                       BType attachedType, boolean isObserved, LambdaMetadata lambdaMetadata) {
 
         switch (terminator.kind) {
             case LOCK:
@@ -241,7 +245,8 @@ public class JvmTerminatorGen {
                 this.genCallTerm((BIRTerminator.Call) terminator, funcName, localVarOffset);
                 return;
             case ASYNC_CALL:
-                this.genAsyncCallTerm((BIRTerminator.AsyncCall) terminator, localVarOffset, lambdaMetadata);
+                this.genAsyncCallTerm((BIRTerminator.AsyncCall) terminator, localVarOffset, moduleClassName,
+                                      funcName, lambdaMetadata);
                 return;
             case BRANCH:
                 this.genBranchTerm((BIRTerminator.Branch) terminator, funcName);
@@ -260,7 +265,8 @@ public class JvmTerminatorGen {
                 this.genWaitAllIns((BIRTerminator.WaitAll) terminator, funcName, localVarOffset);
                 return;
             case FP_CALL:
-                this.genFPCallIns((BIRTerminator.FPCall) terminator, funcName, localVarOffset);
+                this.genFPCallIns((BIRTerminator.FPCall) terminator, moduleClassName, funcName, lambdaMetadata,
+                                  localVarOffset);
                 return;
             case WK_SEND:
                 this.genWorkerSendIns((BIRTerminator.WorkerSend) terminator, funcName, localVarOffset);
@@ -759,8 +765,8 @@ public class JvmTerminatorGen {
         return true;
     }
 
-    private void genAsyncCallTerm(BIRTerminator.AsyncCall callIns, int localVarOffset,
-                                  LambdaMetadata lambdaMetadata) {
+    private void genAsyncCallTerm(BIRTerminator.AsyncCall callIns, int localVarOffset, String moduleClassName,
+                                  String parentFunction, LambdaMetadata lambdaMetadata) {
 
         PackageID calleePkgId = callIns.calleePkg;
 
@@ -816,6 +822,7 @@ public class JvmTerminatorGen {
         lambdaMetadata.incrementLambdaIndex();
 
         boolean concurrent = false;
+        String strandName = null;
         // check for concurrent annotation
         if (callIns.annotAttachments.size() > 0) {
             for (BIRNode.BIRAnnotationAttachment annotationAttachment : callIns.annotAttachments) {
@@ -841,8 +848,14 @@ public class JvmTerminatorGen {
                         }
                     }
 
-                    if (recordValue.annotValueEntryMap.containsKey(STRAND_DATA_NAME)) {
-                        BIRNode.BIRAnnotationValue mapVal = recordValue.annotValueEntryMap.get(STRAND_DATA_NAME);
+                    if (recordValue.annotValueEntryMap.containsKey(STRAND_NAME)) {
+                        strandName = ((BIRNode.BIRAnnotationLiteralValue) recordValue.
+                                annotValueEntryMap.get(STRAND_NAME)).value.toString();
+
+                    }
+
+                    if (recordValue.annotValueEntryMap.containsKey(STRAND_POLICY_NAME)) {
+                        BIRNode.BIRAnnotationValue mapVal = recordValue.annotValueEntryMap.get(STRAND_POLICY_NAME);
                         if (mapVal instanceof BIRNode.BIRAnnotationLiteralValue &&
                                 !DEFAULT_STRAND_DISPATCHER.equals(((BIRNode.BIRAnnotationLiteralValue) mapVal).value)) {
                             throw new BLangCompilerException("Unsupported policy. Only 'DEFAULT' policy is " +
@@ -853,8 +866,21 @@ public class JvmTerminatorGen {
                 break;
             }
         }
+        this.mv.visitVarInsn(ALOAD, localVarOffset);
+        loadFpReturnType(callIns.lhsOp);
+        String workerName =  strandName;
+        if (workerName == null) {
+            if (callIns.lhsOp.variableDcl.metaVarName != null) {
+                this.mv.visitLdcInsn(callIns.lhsOp.variableDcl.metaVarName);
+            } else {
+                mv.visitInsn(ACONST_NULL);
+            }
+        } else {
+            this.mv.visitLdcInsn(workerName);
+        }
 
-        this.submitToScheduler(callIns.lhsOp, localVarOffset, concurrent);
+        this.submitToScheduler(callIns.lhsOp, moduleClassName, parentFunction,
+                               lambdaMetadata, concurrent);
     }
 
     private void generateWaitIns(BIRTerminator.Wait waitInst, String funcName, int localVarOffset) {
@@ -923,7 +949,8 @@ public class JvmTerminatorGen {
                 MAP, MAP_VALUE), false);
     }
 
-    private void genFPCallIns(BIRTerminator.FPCall fpCall, String funcName, int localVarOffset) {
+    private void genFPCallIns(BIRTerminator.FPCall fpCall, String moduleClassName, String funcName,
+                              LambdaMetadata lambdaMetadata, int localVarOffset) {
 
         if (fpCall.isAsync) {
             // Check if already locked before submitting to scheduler.
@@ -976,6 +1003,8 @@ public class JvmTerminatorGen {
         // if async, we submit this to sceduler (worker scenario)
 
         if (fpCall.isAsync) {
+            String workerName = fpCall.lhsOp.variableDcl.metaVarName;
+
             // load function ref now
             this.loadVar(fpCall.fp.variableDcl);
             this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "isConcurrent", String.format("(L%s;)Z",
@@ -985,12 +1014,34 @@ public class JvmTerminatorGen {
             Label concurrent = new Label();
             this.mv.visitLabel(concurrent);
             this.loadVar(fpCall.fp.variableDcl);
-            this.submitToScheduler(fpCall.lhsOp, localVarOffset, true);
+            this.mv.visitVarInsn(ALOAD, localVarOffset);
+            loadFpReturnType(fpCall.lhsOp);
+            this.loadVar(fpCall.fp.variableDcl);
+            if (workerName == null) {
+                this.mv.visitInsn(ACONST_NULL);
+            } else {
+                this.mv.visitLdcInsn(workerName);
+            }
+            this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "getStrandName",
+                                    String.format("(L%s;L%s;)L%s;", FUNCTION_POINTER, STRING_VALUE, STRING_VALUE),
+                                    false);
+            this.submitToScheduler(fpCall.lhsOp, moduleClassName, funcName, lambdaMetadata, true);
             Label afterSubmit = new Label();
             this.mv.visitJumpInsn(GOTO, afterSubmit);
             this.mv.visitLabel(notConcurrent);
             this.loadVar(fpCall.fp.variableDcl);
-            this.submitToScheduler(fpCall.lhsOp, localVarOffset, false);
+            this.mv.visitVarInsn(ALOAD, localVarOffset);
+            loadFpReturnType(fpCall.lhsOp);
+            this.loadVar(fpCall.fp.variableDcl);
+            if (workerName == null) {
+                this.mv.visitInsn(ACONST_NULL);
+            } else {
+                this.mv.visitLdcInsn(workerName);
+            }
+            this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "getStrandName",
+                                    String.format("(L%s;L%s;)L%s;", FUNCTION_POINTER, STRING_VALUE, STRING_VALUE),
+                                    false);
+            this.submitToScheduler(fpCall.lhsOp, moduleClassName, funcName, lambdaMetadata, false);
             this.mv.visitLabel(afterSubmit);
         } else {
             this.mv.visitMethodInsn(INVOKEINTERFACE, FUNCTION, "apply",
@@ -1088,33 +1139,37 @@ public class JvmTerminatorGen {
         this.storeToVar(ins.lhsOp.variableDcl);
     }
 
-    private void submitToScheduler(BIROperand lhsOp, int localVarOffset, boolean concurrent) {
+    private void submitToScheduler(BIROperand lhsOp, String moduleClassName, String parentFunction,
+                                   LambdaMetadata lambdaMetadata, boolean concurrent) {
 
-        BType futureType = lhsOp.variableDcl.type;
-        BType returnType = symbolTable.anyType;
-        if (futureType.tag == TypeTags.FUTURE) {
-            returnType = ((BFutureType) futureType).constraint;
-        }
-
-        // load strand
-        this.mv.visitVarInsn(ALOAD, localVarOffset);
-        loadType(this.mv, returnType);
+        lambdaMetadata.getStrandMetaData().putIfAbsent(getStrandMetaDataVarName(parentFunction), parentFunction);
+        this.mv.visitFieldInsn(GETSTATIC, moduleClassName, JvmMethodGen.getStrandMetaDataVarName(parentFunction),
+                               String.format("L%s;", STRAND_METADATA));
         if (concurrent) {
-            this.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
-                    String.format("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE),
-                    false);
+            mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
+                               String.format("([L%s;L%s;L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND,
+                                             BTYPE, STRING_VALUE, STRAND_METADATA, FUTURE_VALUE), false);
         } else {
-            this.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_LOCAL_METHOD,
-                    String.format("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE),
-                    false);
+            mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_LOCAL_METHOD,
+                               String.format("([L%s;L%s;L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND,
+                                             BTYPE, STRING_VALUE, STRAND_METADATA, FUTURE_VALUE), false);
         }
-
         // store return
         if (lhsOp.variableDcl != null) {
             BIRNode.BIRVariableDcl lhsOpVarDcl = lhsOp.variableDcl;
             // store the returned strand as the future
             this.storeToVar(getVariableDcl(lhsOpVarDcl));
         }
+    }
+
+    private void loadFpReturnType(BIROperand lhsOp) {
+        BType futureType = lhsOp.variableDcl.type;
+        BType returnType = symbolTable.anyType;
+        if (futureType.tag == TypeTags.FUTURE) {
+            returnType = ((BFutureType) futureType).constraint;
+        }
+        // load strand
+        loadType(this.mv, returnType);
     }
 
     private int getJVMIndexOfVarRef(BIRNode.BIRVariableDcl varDcl) {

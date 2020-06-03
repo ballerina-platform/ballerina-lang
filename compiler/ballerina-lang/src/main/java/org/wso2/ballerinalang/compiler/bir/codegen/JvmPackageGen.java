@@ -101,12 +101,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupBa
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupPathSeperators;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateDefaultConstructor;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateField;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateStrandMetadata;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getFunction;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getFunctions;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMainFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMethodDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDef;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.visitStrandMetaDataField;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateCreateTypesMethod;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateUserDefinedTypeFields;
@@ -237,19 +239,23 @@ public class JvmPackageGen {
         fv.visitEnd();
     }
 
-    private static void generateStaticInitializer(ClassWriter cw, String className,
-                                                  boolean serviceEPAvailable) {
+    private static void generateStaticInitializer(ClassWriter cw, String moduleClass,
+                                                  BIRPackage module, boolean isInitClass,
+                                                  boolean serviceEPAvailable, LambdaMetadata lambdaMetadata) {
 
+        if (!isInitClass && lambdaMetadata.getStrandMetaData().isEmpty()) {
+            return;
+        }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
-
-        String lockStoreClass = "L" + LOCK_STORE + ";";
-        mv.visitTypeInsn(NEW, LOCK_STORE);
-        mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, LOCK_STORE, "<init>", "()V", false);
-        mv.visitFieldInsn(PUTSTATIC, className, "LOCK_STORE", lockStoreClass);
-
-        setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
-
+        if (isInitClass) {
+            String lockStoreClass = "L" + LOCK_STORE + ";";
+            mv.visitTypeInsn(NEW, LOCK_STORE);
+            mv.visitInsn(DUP);
+            mv.visitMethodInsn(INVOKESPECIAL, LOCK_STORE, "<init>", "()V", false);
+            mv.visitFieldInsn(PUTSTATIC, moduleClass, "LOCK_STORE", lockStoreClass);
+            setServiceEPAvailableField(cw, mv, serviceEPAvailable, moduleClass);
+        }
+        generateStrandMetadata(mv, moduleClass, module, lambdaMetadata);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -483,8 +489,9 @@ public class JvmPackageGen {
             JavaClass javaClass = entry.getValue();
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             LambdaMetadata lambdaMetadata = new LambdaMetadata(moduleClass);
-
-            if (Objects.equals(moduleClass, moduleInitClass)) {
+            boolean serviceEPAvailable = false;
+            boolean isInitClass = Objects.equals(moduleClass, moduleInitClass);
+            if (isInitClass) {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
                 generateDefaultConstructor(cw, VALUE_CREATOR);
                 generateUserDefinedTypeFields(cw, module.typeDefs);
@@ -503,20 +510,18 @@ public class JvmPackageGen {
                             cleanupPathSeperators(cleanupBalExt(mainFunc.pos.getSource().cUnitName)));
                 }
 
-                boolean serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
+                serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
 
-                jvmMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable);
+                jvmMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable, lambdaMetadata);
                 if (mainFunc != null) {
                     jvmMethodGen.generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
                 }
                 jvmMethodGen.generateLambdaForPackageInits(cw, module, mainClass, moduleClass, moduleImports);
 
                 generateLockForVariable(cw);
-                generateStaticInitializer(cw, moduleClass, serviceEPAvailable);
                 generateCreateTypesMethod(cw, module.typeDefs, moduleInitClass, symbolTable);
                 jvmMethodGen.generateModuleInitializer(cw, module, moduleInitClass);
-                jvmMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, moduleImports,
-                        moduleInitClass);
+                jvmMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, moduleImports, lambdaMetadata);
             } else {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
                 generateDefaultConstructor(cw, OBJECT);
@@ -525,7 +530,8 @@ public class JvmPackageGen {
             // generate methods
             for (BIRFunction func : javaClass.functions) {
                 String workerName = getFunction(func).workerName == null ? null : func.workerName.value;
-                jvmMethodGen.generateMethod(getFunction(func), cw, module, null, false, workerName, lambdaMetadata);
+                jvmMethodGen.generateMethod(getFunction(func), cw, module, null, false, moduleClass, workerName,
+                                            lambdaMetadata);
             }
             // generate lambdas created during generating methods
             for (Map.Entry<String, BIRInstruction> lambda : lambdaMetadata.getLambdas().entrySet()) {
@@ -533,6 +539,8 @@ public class JvmPackageGen {
                 BIRInstruction call = lambda.getValue();
                 jvmMethodGen.generateLambdaMethod(call, cw, name);
             }
+            visitStrandMetaDataField(cw, lambdaMetadata);
+            generateStaticInitializer(cw, moduleClass, module, isInitClass, serviceEPAvailable, lambdaMetadata);
             cw.visitEnd();
 
             byte[] bytes = getBytes(cw, module);

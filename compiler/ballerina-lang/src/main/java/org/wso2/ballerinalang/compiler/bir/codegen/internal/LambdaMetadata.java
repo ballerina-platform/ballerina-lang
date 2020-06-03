@@ -30,6 +30,7 @@ import java.util.Map;
 public class LambdaMetadata {
 
     private Map<String, BIRInstruction> lambdas;
+    private Map<String, String> strandMetaDataMap;
     private int lambdaIndex = 0;
     private String enclosingClass;
 
@@ -37,6 +38,7 @@ public class LambdaMetadata {
 
         this.enclosingClass = enclosingClass;
         lambdas = new HashMap<>();
+        strandMetaDataMap = new HashMap<>();
     }
 
     public void incrementLambdaIndex() {
@@ -62,5 +64,9 @@ public class LambdaMetadata {
     public Map<String, BIRInstruction> getLambdas() {
 
         return lambdas;
+    }
+
+    public Map<String, String> getStrandMetaData() {
+        return strandMetaDataMap;
     }
 }

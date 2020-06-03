@@ -1588,13 +1588,19 @@ public class JvmInstructionGen {
 
         visitInvokeDyn(mv, lambdaMetadata.getEnclosingClass(), lambdaName, inst.closureMaps.size());
         loadType(this.mv, returnType);
+        if (inst.strandName != null) {
+            mv.visitLdcInsn(inst.strandName);
+        } else {
+            mv.visitInsn(ACONST_NULL);
+        }
+
         if (inst.schedulerPolicy == SchedulerPolicy.ANY) {
             mv.visitInsn(ICONST_1);
         } else {
             mv.visitInsn(ICONST_0);
         }
         this.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
-                String.format("(L%s;L%s;Z)V", FUNCTION, BTYPE), false);
+                                String.format("(L%s;L%s;L%s;Z)V", FUNCTION, BTYPE, STRING_VALUE), false);
 
         // Set annotations if available.
         this.mv.visitInsn(DUP);

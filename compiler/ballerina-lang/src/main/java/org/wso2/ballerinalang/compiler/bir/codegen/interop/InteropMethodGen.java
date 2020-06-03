@@ -122,6 +122,8 @@ public class InteropMethodGen {
                                          BIRPackage birModule,
                                          JvmPackageGen jvmPackageGen,
                                          JvmMethodGen jvmMethodGen,
+                                         String moduleClassName,
+                                         String serviceName,
                                          LambdaMetadata lambdaGenMetadata) {
 
         String currentPackageName = getPackageName(birModule.org.value, birModule.name.value, birModule.version.value);
@@ -186,7 +188,8 @@ public class InteropMethodGen {
 
             List<BIRBasicBlock> basicBlocks = birFunc.parameters.get(birFuncParam);
             jvmMethodGen.generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, birFunc, -1, -1,
-                    strandParamIndex, true, birModule, null, false, false, null, lambdaGenMetadata);
+                    strandParamIndex, true, birModule, null, false, false, moduleClassName, serviceName,
+                                             lambdaGenMetadata);
             mv.visitLabel(paramNextLabel);
 
             birFuncParamIndex += 1;

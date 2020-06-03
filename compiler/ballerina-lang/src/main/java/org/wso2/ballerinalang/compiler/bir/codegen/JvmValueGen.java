@@ -120,6 +120,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addB
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addUnboxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupFunctionName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupTypeName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateStrandMetadata;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getFunctions;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMethodDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getObjectField;
@@ -127,6 +128,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getRecord
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDef;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.visitStrandMetaDataField;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.computeLockNameFromString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNameString;
@@ -333,14 +335,15 @@ class JvmValueGen {
     }
 
     private void createObjectMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs, boolean isService,
-                                     String typeName, BObjectType currentObjectType,
+                                     String moduleClassName, String typeName, BObjectType currentObjectType,
                                      LambdaMetadata lambdaGenMetadata) {
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
                 continue;
             }
-            jvmMethodGen.generateMethod(func, cw, module, currentObjectType, isService, typeName, lambdaGenMetadata);
+            jvmMethodGen.generateMethod(func, cw, module, currentObjectType, isService, moduleClassName, typeName,
+                                        lambdaGenMetadata);
         }
     }
 
@@ -547,7 +550,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
         }
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, TYPEDESC_VALUE_IMPL, new String[]{TYPEDESC_VALUE});
 
-        this.createTypeDescConstructor(cw, className);
+        this.createTypeDescConstructor(cw);
         this.createInstantiateMethod(cw, recordType, typeDef);
 
         cw.visitEnd();
@@ -664,7 +667,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
 
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
-            this.createRecordMethods(cw, attachedFuncs, lambdaGenMetadata);
+            this.createRecordMethods(cw, attachedFuncs, className, lambdaGenMetadata);
         }
 
         Map<String, BField> fields = recordType.fields;
@@ -684,23 +687,25 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
         this.createRecordConstructor(cw, BTYPE);
         this.createRecordInitWrapper(cw, className, typeDef);
         this.createLambdas(cw, lambdaGenMetadata);
+        visitStrandMetaDataField(cw, lambdaGenMetadata);
+        this.generateStaticInitializer(cw, className, module, lambdaGenMetadata);
         cw.visitEnd();
 
         return jvmPackageGen.getBytes(cw, typeDef);
     }
 
-    private void createRecordMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs,
+    private void createRecordMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs, String moduleClassName,
                                      LambdaMetadata lambdaGenMetadata) {
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
                 continue;
             }
-            jvmMethodGen.generateMethod(func, cw, this.module, null, false, "", lambdaGenMetadata);
+            jvmMethodGen.generateMethod(func, cw, this.module, null, false, moduleClassName, "", lambdaGenMetadata);
         }
     }
 
-    private void createTypeDescConstructor(ClassWriter cw, String className) {
+    private void createTypeDescConstructor(ClassWriter cw) {
 
         String descriptor = String.format("(L%s;[L%s;)V", BTYPE, MAP_VALUE);
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", descriptor, null, null);
@@ -731,6 +736,19 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
         // invoke `super(type)`;
         mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "<init>", String.format("(L%s;)V", argumentClass), false);
 
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void generateStaticInitializer(ClassWriter cw, String moduleClass, BIRNode.BIRPackage module,
+                                                  LambdaMetadata lambdaMetadata) {
+
+        if (lambdaMetadata.getStrandMetaData().isEmpty()) {
+            return;
+        }
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
+        generateStrandMetadata(mv, moduleClass, module, lambdaMetadata);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -1362,7 +1380,8 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
 
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
-            this.createObjectMethods(cw, attachedFuncs, isService, typeDef.name.value, objectType, lambdaGenMetadata);
+            this.createObjectMethods(cw, attachedFuncs, isService, className, typeDef.name.value, objectType,
+                                     lambdaGenMetadata);
         }
 
         this.createObjectInit(cw, fields, className);
@@ -1370,6 +1389,9 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
         this.createObjectGetMethod(cw, fields, className);
         this.createObjectSetMethod(cw, fields, className);
         this.createLambdas(cw, lambdaGenMetadata);
+        this.createObjectInit(cw, fields, className);
+        visitStrandMetaDataField(cw, lambdaGenMetadata);
+        this.generateStaticInitializer(cw, className, module, lambdaGenMetadata);
 
         cw.visitEnd();
         return jvmPackageGen.getBytes(cw, typeDef);

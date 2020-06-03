@@ -121,6 +121,7 @@ import static org.objectweb.asm.Opcodes.LSTORE;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
+import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SIPUSH;
 import static org.objectweb.asm.Opcodes.V1_8;
@@ -136,6 +137,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COMPATIBILITY_CHECKER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTRUCTOR_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULTABLE_ARGS_ANOT_FIELD;
@@ -165,6 +167,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER_START_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_FUNCTION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
@@ -780,7 +783,7 @@ public class JvmMethodGen {
     }
 
     private static void scheduleStopMethod(MethodVisitor mv, String initClass, String stopFuncName,
-                                           int schedulerIndex, int futureIndex) {
+                                           int schedulerIndex, int futureIndex, LambdaMetadata lambdaMetadata) {
 
         String lambdaFuncName = "$lambda$" + stopFuncName;
         // Create a schedular. A new schedular is used here, to make the stop function to not to
@@ -796,11 +799,8 @@ public class JvmMethodGen {
 
         // no parent strand
         mv.visitInsn(ACONST_NULL);
-
         loadType(mv, new BNilType());
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
-                String.format("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
-
+        submitToScheduler(mv, initClass, "stop", lambdaMetadata);
         mv.visitVarInsn(ASTORE, futureIndex);
 
         mv.visitVarInsn(ALOAD, futureIndex);
@@ -1159,9 +1159,10 @@ public class JvmMethodGen {
 
         // load null here for type, since these are fp's created for internal usages.
         mv.visitInsn(ACONST_NULL);
+        mv.visitInsn(ACONST_NULL);
         mv.visitInsn(ICONST_0); // mark as not-concurrent ie: 'parent'
         mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
-                String.format("(L%s;L%s;Z)V", FUNCTION, BTYPE), false);
+                           String.format("(L%s;L%s;L%s;Z)V", FUNCTION, BTYPE, STRING_VALUE), false);
     }
 
     private static String getFrameClassName(String pkgName, String funcName, BType attachedType) {
@@ -1283,6 +1284,44 @@ public class JvmMethodGen {
             mv.visitLabel(label);
             mv.visitLineNumber(pos.sLine, label);
         }
+    }
+
+    static void generateStrandMetadata(MethodVisitor mv, String moduleClass,
+                                       BIRPackage module, LambdaMetadata lambdaMetadata) {
+        lambdaMetadata.getStrandMetaData().forEach((varName, parentFunction) -> {
+            genStrandMetaDataField(mv, moduleClass, module, varName, parentFunction);
+        });
+    }
+
+
+    static void genStrandMetaDataField(MethodVisitor mv, String moduleClass, BIRPackage module,
+                                               String varName, String parentFunction) {
+        mv.visitTypeInsn(NEW, STRAND_METADATA);
+        mv.visitInsn(DUP);
+        mv.visitLdcInsn(module.org.value);
+        mv.visitLdcInsn(module.name.value);
+        mv.visitLdcInsn(module.version.value);
+        mv.visitLdcInsn(parentFunction);
+        mv.visitMethodInsn(INVOKESPECIAL, STRAND_METADATA,
+                           CONSTRUCTOR_INIT_METHOD, String.format("(L%s;L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE,
+                                                                  STRING_VALUE, STRING_VALUE), false);
+        mv.visitFieldInsn(PUTSTATIC, moduleClass, varName, String.format("L%s;", STRAND_METADATA));
+    }
+
+    static void visitStrandMetaDataField(ClassWriter cw, LambdaMetadata lambdaMetadata) {
+        lambdaMetadata.getStrandMetaData().keySet().forEach(varName -> {
+            visitStrandMetaDataField(cw, varName);
+        });
+
+    }
+
+    static void visitStrandMetaDataField(ClassWriter cw, String varName) {
+        FieldVisitor fv = cw.visitField(ACC_STATIC, varName, String.format("L%s;", STRAND_METADATA), null, null);
+        fv.visitEnd();
+    }
+
+    static String getStrandMetaDataVarName(String parentFunction) {
+        return "$strandMetaData$" + parentFunction + "$";
     }
 
     static String cleanupFunctionName(String functionName) {
@@ -1422,12 +1461,14 @@ public class JvmMethodGen {
     }
 
     void generateMethod(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule, BType attachedType,
-                        boolean isService, String serviceName, LambdaMetadata lambdaMetadata) {
+                        boolean isService, String moduleClassName, String serviceName, LambdaMetadata lambdaMetadata) {
 
         if (isExternFunc(birFunc)) {
-            genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType, this, jvmPackageGen, lambdaMetadata);
+            genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType, this, jvmPackageGen,
+                                       moduleClassName, serviceName, lambdaMetadata);
         } else {
-            genJMethodForBFunc(birFunc, cw, birModule, isService, serviceName, attachedType, lambdaMetadata);
+            genJMethodForBFunc(birFunc, cw, birModule, isService, moduleClassName, serviceName, attachedType,
+                               lambdaMetadata);
         }
     }
 
@@ -1435,6 +1476,7 @@ public class JvmMethodGen {
                                    ClassWriter cw,
                                    BIRPackage module,
                                    boolean isService,
+                                   String moduleClassName,
                                    String serviceName,
                                    BType attachedType,
                                    LambdaMetadata lambdaMetadata) {
@@ -1580,7 +1622,7 @@ public class JvmMethodGen {
         mv.visitLookupSwitchInsn(yieldLable, toIntArray(states), lables.toArray(new Label[0]));
 
         generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex,
-                stateVarIndex, localVarOffset, false, module, attachedType, isObserved, isService,
+                stateVarIndex, localVarOffset, false, module, attachedType, isObserved, isService, moduleClassName,
                 serviceName, lambdaMetadata);
 
         String frameName = getFrameClassName(currentPackageName, funcName, attachedType);
@@ -1724,7 +1766,7 @@ public class JvmMethodGen {
                                     JvmInstructionGen instGen, JvmTerminatorGen termGen,
                                     BIRFunction func, int returnVarRefIndex, int stateVarIndex,
                                     int localVarOffset, boolean isArg, BIRPackage module, BType attachedType,
-                                    boolean isObserved, boolean isService, String serviceName,
+                                    boolean isObserved, boolean isService, String moduleClassName, String serviceName,
                                     LambdaMetadata lambdaMetadata) {
 
         int j = 0;
@@ -1918,8 +1960,8 @@ public class JvmMethodGen {
                     generateAnnotLoad(mv, module.typeDefs, getPackageName(module.org.value, module.name.value,
                                                                           module.version.value));
                 }
-                termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType,
-                        isObserved, lambdaMetadata);
+                termGen.genTerminator(terminator, moduleClassName, func, funcName,
+                                      localVarOffset, returnVarRefIndex, attachedType, isObserved, lambdaMetadata);
             }
 
             errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen);
@@ -2197,7 +2239,7 @@ public class JvmMethodGen {
     }
 
     void generateMainMethod(BIRFunction userMainFunc, ClassWriter cw, BIRPackage pkg,
-                            String initClass, boolean serviceEPAvailable) {
+                            String initClass, boolean serviceEPAvailable, LambdaMetadata lambdaMetadata) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
         mv.visitCode();
@@ -2249,9 +2291,8 @@ public class JvmMethodGen {
             mv.visitInsn(ACONST_NULL);
             BType anyType = symbolTable.anyType;
             loadType(mv, anyType);
-            mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
-                    String.format("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE),
-                    false);
+            // submit to scheduler
+            submitToScheduler(mv, initClass, "<init>", lambdaMetadata);
             mv.visitInsn(DUP);
             mv.visitInsn(DUP);
             mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", String.format("L%s;", STRAND));
@@ -2284,10 +2325,9 @@ public class JvmMethodGen {
             mv.visitInsn(ACONST_NULL);
 
             //submit to the scheduler
-            loadType(mv, userMainFunc.type.retType);
-            mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
-                    String.format("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE),
-                    false);
+            BType anyType = symbolTable.anyType;
+            loadType(mv, anyType);
+            submitToScheduler(mv, initClass, "main", lambdaMetadata);
             mv.visitInsn(DUP);
 
             mv.visitInsn(DUP);
@@ -2313,7 +2353,7 @@ public class JvmMethodGen {
         }
 
         if (hasInitFunction(pkg)) {
-            scheduleStartMethod(mv, initClass, serviceEPAvailable, indexMap, schedulerVarIndex);
+            scheduleStartMethod(mv, initClass, serviceEPAvailable, indexMap, schedulerVarIndex, lambdaMetadata);
         }
 
         // stop all listeners
@@ -2335,7 +2375,8 @@ public class JvmMethodGen {
     }
 
     private void scheduleStartMethod(MethodVisitor mv, String initClass, boolean serviceEPAvailable,
-                                     BIRVarToJVMIndexMap indexMap, int schedulerVarIndex) {
+                                     BIRVarToJVMIndexMap indexMap, int schedulerVarIndex,
+                                     LambdaMetadata lambdaMetadata) {
 
         mv.visitVarInsn(ALOAD, schedulerVarIndex);
         // schedule the start method
@@ -2351,8 +2392,7 @@ public class JvmMethodGen {
         mv.visitInsn(ACONST_NULL);
         BType anyType = symbolTable.anyType;
         loadType(mv, anyType);
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
-                String.format("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
+        submitToScheduler(mv, initClass, "start", lambdaMetadata);
 
         mv.visitInsn(DUP);
         mv.visitInsn(DUP);
@@ -2736,7 +2776,7 @@ public class JvmMethodGen {
     }
 
     void generateExecutionStopMethod(ClassWriter cw, String initClass, BIRPackage module, List<PackageID> imprtMods,
-                                     String typeOwnerClass) {
+                                     LambdaMetadata lambdaMetadata) {
 
         String orgName = module.org.value;
         String moduleName = module.name.value;
@@ -2767,8 +2807,8 @@ public class JvmMethodGen {
         PackageID currentModId = packageToModuleId(module);
         String fullFuncName = calculateModuleSpecialFuncName(currentModId, stopFuncName);
 
-        scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), schedulerIndex,
-                futureIndex);
+        scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), schedulerIndex, futureIndex,
+                           lambdaMetadata);
 
         int i = imprtMods.size() - 1;
         while (i >= 0) {
@@ -2776,8 +2816,8 @@ public class JvmMethodGen {
             i -= 1;
             fullFuncName = calculateModuleSpecialFuncName(id, stopFuncName);
 
-            scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), schedulerIndex,
-                    futureIndex);
+            scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName),  schedulerIndex, futureIndex,
+                               lambdaMetadata);
         }
 
         mv.visitInsn(RETURN);
@@ -2785,4 +2825,14 @@ public class JvmMethodGen {
         mv.visitEnd();
     }
 
+    private static void submitToScheduler(MethodVisitor mv, String moduleClassName,
+                                          String workerName, LambdaMetadata lambdaMetadata) {
+        String metaDataVarName = getStrandMetaDataVarName("main");
+        lambdaMetadata.getStrandMetaData().putIfAbsent(metaDataVarName, "main");
+        mv.visitLdcInsn(workerName);
+        mv.visitFieldInsn(GETSTATIC, moduleClassName, metaDataVarName, String.format("L%s;", STRAND_METADATA));
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
+                           String.format("([L%s;L%s;L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE,
+                                         STRING_VALUE, STRAND_METADATA, FUTURE_VALUE), false);
+    }
 }

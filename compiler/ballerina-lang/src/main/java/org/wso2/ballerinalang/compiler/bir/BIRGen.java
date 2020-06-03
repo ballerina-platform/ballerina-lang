@@ -788,7 +788,9 @@ public class BIRGen extends BLangNodeVisitor {
             params.add(birVarDcl);
         }
         emit(new BIRNonTerminator.FPLoad(lambdaExpr.pos, lambdaExpr.function.symbol.pkgID, funcName, lhsOp, params,
-                getClosureMapOperands(lambdaExpr), lambdaExpr.type, lambdaExpr.function.symbol.schedulerPolicy));
+                                         getClosureMapOperands(lambdaExpr), lambdaExpr.type,
+                                         lambdaExpr.function.symbol.strandName,
+                                         lambdaExpr.function.symbol.schedulerPolicy));
         this.env.targetOperand = lhsOp;
     }
 
@@ -2488,7 +2490,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         emit(new BIRNonTerminator.FPLoad(fpVarRef.pos, funcSymbol.pkgID, funcName, lhsOp, params, new ArrayList<>(),
-                                         funcSymbol.retType, funcSymbol.schedulerPolicy));
+                                         funcSymbol.retType, funcSymbol.strandName, funcSymbol.schedulerPolicy));
         this.env.targetOperand = lhsOp;
     }
 
