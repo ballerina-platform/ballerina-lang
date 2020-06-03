@@ -101,7 +101,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 }
             };
             final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
-                    BTypes.typeNull);
+                    BTypes.typeNull, null, null);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
@@ -155,7 +155,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 }
             };
             final FutureValue out = scheduler.schedule(entryFuncArgs, func, null, null, null,
-                    BTypes.typeNull);
+                    BTypes.typeNull, null, null);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
@@ -199,7 +199,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 }
             };
             final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
-                    BTypes.typeNull);
+                    BTypes.typeNull, null, null);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
