@@ -5655,8 +5655,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
 
                 for (int i = 0; i < multiKeyExpressionList.size(); i++) {
-                    BLangExpression keyExpr = multiKeyExpressionList.get(0);
-                    checkExpr(keyExpr, this.env, keyConstraintTypes.get(0));
+                    BLangExpression keyExpr = multiKeyExpressionList.get(i);
+                    checkExpr(keyExpr, this.env, keyConstraintTypes.get(i));
                     if (keyExpr.type == symTable.semanticError) {
                         dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.INVALID_KEY_CONSTRAINT_PROVIDED_FOR_ACCESS,
                                 keyTypeConstraint);
