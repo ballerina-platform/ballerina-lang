@@ -1728,6 +1728,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         BLangSimpleVariable simpleVar = new SimpleVarBuilder()
                 .with(text, pos)
+                .setPos(bLVarDef.pos)
                 .setTypeByNode(typedBindingPattern.typeDescriptor())
                 .setExpressionByNode(varDeclaration.initializer().orElse(null))
                 .setFinal(varDeclaration.finalKeyword().isPresent())
@@ -2798,6 +2799,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         private Set<Flag> flags = new HashSet<>();
         private boolean isFinal;
         private ExpressionNode expr;
+        private DiagnosticPos pos;
 
         public BLangSimpleVariable build() {
             BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
@@ -2810,6 +2812,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 markVariableAsFinal(bLSimpleVar);
             }
             bLSimpleVar.setInitialExpression(this.expr);
+            bLSimpleVar.pos = pos;
             return bLSimpleVar;
         }
 
@@ -2899,6 +2902,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         public SimpleVarBuilder isWorkerVar() {
             this.flags.add(Flag.WORKER);
+            return this;
+        }
+
+        public SimpleVarBuilder setPos(DiagnosticPos pos) {
+            this.pos = pos;
             return this;
         }
     }
