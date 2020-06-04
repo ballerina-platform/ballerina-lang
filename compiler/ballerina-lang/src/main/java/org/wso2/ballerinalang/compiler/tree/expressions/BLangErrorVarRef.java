@@ -38,6 +38,7 @@ public class BLangErrorVarRef extends BLangVariableReference implements ErrorVar
     public BVarSymbol varSymbol;
     public BLangIdentifier pkgAlias;
     public BLangVariableReference message;
+    public BLangVariableReference cause;
     public List<BLangNamedArgsExpression> detail;
     public BLangVariableReference restVar;
     public BLangType typeNode;
@@ -73,7 +74,7 @@ public class BLangErrorVarRef extends BLangVariableReference implements ErrorVar
 
     @Override
     public String toString() {
-        return "error (" + message + ", " + detail + ")";
+        return "error (" + message + ", " + (cause != null ? cause.toString() : "") + detail + ")";
     }
 
     @Override

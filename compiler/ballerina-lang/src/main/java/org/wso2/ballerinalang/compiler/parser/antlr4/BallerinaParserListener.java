@@ -1290,6 +1290,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitErrorRefBindingPattern(BallerinaParser.ErrorRefBindingPatternContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#errorRefArgsPattern}.
+	 * @param ctx the parse tree
+	 */
+	void enterErrorRefArgsPattern(BallerinaParser.ErrorRefArgsPatternContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#errorRefArgsPattern}.
+	 * @param ctx the parse tree
+	 */
+	void exitErrorRefArgsPattern(BallerinaParser.ErrorRefArgsPatternContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#errorNamedArgRefPattern}.
 	 * @param ctx the parse tree
 	 */
