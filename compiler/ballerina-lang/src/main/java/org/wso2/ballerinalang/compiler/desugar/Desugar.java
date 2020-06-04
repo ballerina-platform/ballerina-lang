@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -2354,9 +2355,9 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRetry retryNode) {
         BLangBlockStmt retryBlockStmt = ASTBuilderUtil.createBlockStmt(retryNode.pos);
-        //todo @chiran check standard
-        BType retryManagerType = ((BTypedescType)((BInvokableSymbol)symResolver.lookupLangLibMethod(
-                symTable.typeDesc, names.fromString("defaultRetryManager"))).retType).constraint;
+        BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) symTable.langInternalModuleSymbol
+                .scope.lookup(names.fromString("DefaultRetryManager")).symbol;
+        BType retryManagerType = retryManagerTypeSymbol.type;
         if (retryNode.getRetrySpec().retryManagerType != null) {
             retryManagerType = retryNode.retrySpec.type;
         }

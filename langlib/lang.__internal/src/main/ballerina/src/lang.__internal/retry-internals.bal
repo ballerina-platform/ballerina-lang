@@ -35,7 +35,3 @@ public type DefaultRetryManager object {
         }
     }
 };
-
-public function defaultRetryManager() returns typedesc<DefaultRetryManager> {
-    return DefaultRetryManager;
-}
