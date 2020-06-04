@@ -27,8 +27,26 @@ public type GenericMimeError error;
 # Represents a `SetHeaderError` with the message and the cause.
 public type SetHeaderError error;
 
-# Represents a `ReadingHeaderFailed` error with the message and the cause.
-public type ReadingHeaderFailed error;
+# Represents a `HeaderReadError` error with the message and the cause.
+public type HeaderReadError error;
+
+# Represents a `InvalidHeaderValueError` error with the message and the cause.
+public type InvalidHeaderValueError error;
+
+# Represents a `InvalidHeaderParamError` error with the message and the cause.
+public type InvalidHeaderParamError error;
+
+# Represents a `InvalidContentLengthError` error with the message and the cause.
+public type InvalidContentLengthError error;
+
+# Represents a `HeaderNotFoundError` error with the message and the cause.
+public type HeaderNotFoundError error;
+
+# Represents a `InvalidHeaderOperationError` error with the message and the cause.
+public type InvalidHeaderOperationError error;
+
+# Represents a `SerializationError` error with the message and the cause.
+public type SerializationError error;
 
 # Represents a `ParserError` with the message and the cause.
 public type ParserError error;
@@ -47,8 +65,9 @@ public type NoContentError error;
 
 # Represents MIME related errors.
 public type Error ParserError|EncodeError|DecodeError|GenericMimeError|SetHeaderError|InvalidContentTypeError
-                |ReadingHeaderFailed|InvalidContentTypeError|HeaderUnavailableError|IdleTimeoutTriggeredError
-                |NoContentError;
+                |HeaderReadError|HeaderUnavailableError|IdleTimeoutTriggeredError|NoContentError
+                |InvalidHeaderValueError|InvalidHeaderParamError|InvalidContentLengthError
+                |HeaderNotFoundError|InvalidHeaderOperationError|SerializationError;
 
 # Constructs an `EncodeError` with the given details.
 #

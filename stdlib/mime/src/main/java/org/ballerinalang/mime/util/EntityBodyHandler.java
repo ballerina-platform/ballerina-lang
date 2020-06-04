@@ -35,6 +35,7 @@ import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.stdlib.io.channels.TempFileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
+import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.jvnet.mimepull.MIMEPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,7 +102,7 @@ public class EntityBodyHandler {
         try {
             fileChannel = (FileChannel) Files.newByteChannel(path, options);
         } catch (IOException e) {
-            throw BallerinaErrors.createError(IOConstants.ErrorCode.GenericError.errorCode(),
+            throw IOUtils.createDistinctError(IOConstants.ErrorCode.GenericError,
                                               "Error occurred while creating a file channel from a temporary file");
         }
         return new TempFileIOChannel(fileChannel, temporaryFilePath);
