@@ -21,15 +21,14 @@ package org.ballerinalang.stdlib.encoding;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
 
+import static org.ballerinalang.stdlib.encoding.Constants.ENCODING_PACKAGE_ID;
+
 /**
  * Utility functions relevant to encoding operations.
  *
  * @since 0.990.3
  */
 public class EncodingUtil {
-
-    // Error code for encoding error
-    public static final String ENCODING_ERROR_CODE = "{ballerina/encoding}Error";
 
     private EncodingUtil() {
 
@@ -38,10 +37,11 @@ public class EncodingUtil {
     /**
      * Create encoding error.
      *
+     * @param typeId Error type ID
      * @param errMsg Error description
      * @return conversion error
      */
-    public static ErrorValue createError(String errMsg) {
-        return BallerinaErrors.createError(ENCODING_ERROR_CODE, errMsg);
+    public static ErrorValue createError(String errMsg, String typeId) {
+        return BallerinaErrors.createDistinctError(typeId, ENCODING_PACKAGE_ID, errMsg);
     }
 }
