@@ -54,6 +54,9 @@ public class BLangErrorType extends BLangType implements ErrorTypeNode {
             val.append(detailType.toString());
             val.append(">");
         }
+        if (this.inferErrorType) {
+            val.append("<*>");
+        }
         return val.toString();
     }
 

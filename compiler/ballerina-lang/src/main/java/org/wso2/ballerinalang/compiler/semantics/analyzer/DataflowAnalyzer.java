@@ -1470,6 +1470,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
         analyzeNode(varRefExpr.message, env);
+        if (varRefExpr.cause != null) {
+            analyzeNode(varRefExpr.cause, env);
+        }
         for (BLangNamedArgsExpression args : varRefExpr.detail) {
             analyzeNode(args.expr, env);
         }
@@ -1654,6 +1657,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 BLangErrorVarRef errorVarRef = (BLangErrorVarRef) varRef;
                 if (errorVarRef.message != null) {
                     checkAssignment(errorVarRef.message);
+                }
+                if (errorVarRef.cause != null) {
+                    checkAssignment(errorVarRef.cause);
                 }
                 for (BLangNamedArgsExpression expression : errorVarRef.detail) {
                     checkAssignment(expression);

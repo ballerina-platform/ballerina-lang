@@ -67,7 +67,7 @@ public class ErrorVariableReferenceTest {
     @Test(description = "Test simple error var def with const and map")
     public void testBasicErrorVariableWithConstAndMap() {
         BValue[] returns = BRunUtil.invoke(result, "testBasicErrorVariableWithConstAndMap");
-        Assert.assertEquals(returns.length, 12);
+        Assert.assertEquals(returns.length, 13);
         Assert.assertEquals(returns[0].stringValue(), "Some Error One");
         Assert.assertEquals(returns[1].stringValue(), "Some Error One");
         Assert.assertEquals(returns[2].stringValue(), "Some Error Two");
@@ -81,6 +81,7 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(returns[9].stringValue(), "Msg Four");
         Assert.assertNull(returns[10]);
         Assert.assertNull(returns[11]);
+        Assert.assertEquals(returns[12].stringValue(), "Some Error One {message:\"Msg Three\", detail:\"Detail Msg\"}");
     }
 
     @Test(description = "Test simple error var def with record as detail")

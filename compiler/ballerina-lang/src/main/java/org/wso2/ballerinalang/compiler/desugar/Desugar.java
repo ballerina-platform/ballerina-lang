@@ -2497,12 +2497,20 @@ public class Desugar extends BLangNodeVisitor {
                                              BVarSymbol errorVarySymbol, BLangIndexBasedAccess parentIndexAccessExpr) {
         if (parentErrorVarRef.message.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
                 names.fromIdNode(((BLangSimpleVarRef) parentErrorVarRef.message).variableName) != Names.IGNORE) {
-            BLangAssignment message = ASTBuilderUtil
-                    .createAssignmentStmt(parentBlockStmt.pos, parentBlockStmt);
+            BLangAssignment message = ASTBuilderUtil.createAssignmentStmt(parentBlockStmt.pos, parentBlockStmt);
             message.expr = generateErrorMessageBuiltinFunction(parentErrorVarRef.message.pos,
                     symTable.stringType, errorVarySymbol, parentIndexAccessExpr);
             message.expr = addConversionExprIfRequired(message.expr, parentErrorVarRef.message.type);
             message.varRef = parentErrorVarRef.message;
+        }
+
+        if (parentErrorVarRef.cause != null && (parentErrorVarRef.cause.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
+                names.fromIdNode(((BLangSimpleVarRef) parentErrorVarRef.cause).variableName) != Names.IGNORE)) {
+            BLangAssignment cause = ASTBuilderUtil.createAssignmentStmt(parentBlockStmt.pos, parentBlockStmt);
+            cause.expr = generateErrorCauseLanglibFunction(parentErrorVarRef.cause.pos,
+                    symTable.errorType, errorVarySymbol, parentIndexAccessExpr);
+            cause.expr = addConversionExprIfRequired(cause.expr, parentErrorVarRef.cause.type);
+            cause.varRef = parentErrorVarRef.cause;
         }
 
         // When no detail nor rest detail are to be destructured, we don't need to generate the detail invocation.

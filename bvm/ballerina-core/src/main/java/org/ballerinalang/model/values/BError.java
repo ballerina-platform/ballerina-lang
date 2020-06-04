@@ -31,21 +31,21 @@ import java.util.Map;
 public class BError implements BRefType {
 
     BType type;
-    private String reason;
+    private String message;
     private BRefType details;
     public List<BMap<String, BValue>> callStack;
     public BError cause;
 
-    public BError(BType type, String reason, BRefType details) {
+    public BError(BType type, String message, BRefType details) {
         this.type = type;
-        this.reason = reason;
+        this.message = message;
         this.details = details;
         callStack = new ArrayList<>();
     }
 
     @Override
     public String stringValue() {
-        return reason + " " + details.stringValue();
+        return message + " " + details.stringValue();
     }
 
     @Override
@@ -59,8 +59,13 @@ public class BError implements BRefType {
         return this;
     }
 
+    @Deprecated
     public String getReason() {
-        return reason;
+        return message;
+    }
+
+    public String getMessage() {
+        return message;
     }
 
     public BRefType getDetails() {

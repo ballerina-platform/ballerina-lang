@@ -1698,16 +1698,27 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorDestructure errorDeStmt) {
-        if (errorDeStmt.varRef.message.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
-                names.fromIdNode(((BLangSimpleVarRef) errorDeStmt.varRef.message).variableName) != Names.IGNORE) {
-            setTypeOfVarRefInErrorBindingAssignment(errorDeStmt.varRef.message);
+        BLangErrorVarRef varRef = errorDeStmt.varRef;
+        if (varRef.message.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
+                names.fromIdNode(((BLangSimpleVarRef) varRef.message).variableName) != Names.IGNORE) {
+            setTypeOfVarRefInErrorBindingAssignment(varRef.message);
         } else {
-            // set reason var refs type to no type if the variable name is '_'
-            errorDeStmt.varRef.message.type = symTable.noType;
+            // set message var refs type to no type if the variable name is '_'
+            varRef.message.type = symTable.noType;
+        }
+
+        if (varRef.cause != null) {
+            if (varRef.cause.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
+                    names.fromIdNode(((BLangSimpleVarRef) varRef.cause).variableName) != Names.IGNORE) {
+                setTypeOfVarRefInErrorBindingAssignment(varRef.cause);
+            } else {
+                // set cause var refs type to no type if the variable name is '_'
+                varRef.cause.type = symTable.noType;
+            }
         }
 
         typeChecker.checkExpr(errorDeStmt.expr, this.env);
-        checkErrorVarRefEquivalency(errorDeStmt.varRef, errorDeStmt.expr.type, errorDeStmt.expr.pos);
+        checkErrorVarRefEquivalency(varRef, errorDeStmt.expr.type, errorDeStmt.expr.pos);
     }
 
     /**
@@ -2772,6 +2783,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case ERROR_VARIABLE_REF:
                 BLangErrorVarRef errorVarRef = (BLangErrorVarRef) expr;
                 setTypeOfVarRefForBindingPattern(errorVarRef.message);
+                if (errorVarRef.cause != null) {
+                    setTypeOfVarRefForBindingPattern(errorVarRef.cause);
+                    if (!types.isAssignable(symTable.errorOrNilType, errorVarRef.cause.type)) {
+                        dlog.error(errorVarRef.cause.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errorOrNilType,
+                                errorVarRef.cause.type);
+                    }
+                }
                 errorVarRef.detail.forEach(namedArgExpr -> setTypeOfVarRefForBindingPattern(namedArgExpr.expr));
                 if (errorVarRef.restVar != null) {
                     setTypeOfVarRefForBindingPattern(errorVarRef.restVar);
