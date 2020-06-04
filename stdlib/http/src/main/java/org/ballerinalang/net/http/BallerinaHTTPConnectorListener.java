@@ -102,7 +102,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
         if (ObserveUtils.isObservabilityEnabled()) {
             ObserverContext observerContext = new ObserverContext();
-            observerContext.setConnectorName(SERVER_CONNECTOR_HTTP);
+            observerContext.setObjectName(SERVER_CONNECTOR_HTTP);
             Map<String, String> httpHeaders = new HashMap<>();
             inboundMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
             observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);

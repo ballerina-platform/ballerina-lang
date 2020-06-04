@@ -34,7 +34,7 @@ public class WebSocketObserverContext extends ObserverContext {
     private String servicePathOrClientUrl = WebSocketObservabilityConstants.UNKNOWN;
 
     WebSocketObserverContext() {
-        setConnectorName(ObservabilityConstants.SERVER_CONNECTOR_WEBSOCKET);
+        setObjectName(ObservabilityConstants.SERVER_CONNECTOR_WEBSOCKET);
     }
 
     public WebSocketObserverContext(WebSocketConnectionInfo connectionInfo) {

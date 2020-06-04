@@ -30,8 +30,8 @@ public class TraceConstants {
     private TraceConstants() {
     }
 
-    static final String DEFAULT_CONNECTOR_NAME = "BallerinaConnector";
-    static final String DEFAULT_ACTION_NAME = "BallerinaAction";
+    static final String DEFAULT_SERVICE_NAME = "BallerinaService";
+    static final String DEFAULT_OPERATION_NAME = "BallerinaOperation";
     public static final String KEY_SPAN = "_span_";
 
     public static final String TAG_KEY_SPAN_KIND = "span.kind";

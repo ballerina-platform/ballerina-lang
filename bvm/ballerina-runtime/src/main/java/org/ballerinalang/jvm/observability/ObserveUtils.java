@@ -39,13 +39,19 @@ import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.STATUS_CODE_GROUP_SUFFIX;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_ACTION;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_CONNECTOR_NAME;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_FUNCTION;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_INVOCATION_POSITION;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_IS_MAIN_ENTRY_POINT;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_IS_REMOTE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_IS_RESOURCE_ENTRY_POINT;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_IS_WORKER;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_MODULE;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_WORKER;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_OBJECT_NAME;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_RESOURCE;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_SERVICE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_TRUE_VALUE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_RESOURCE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_SERVICE;
@@ -111,6 +117,9 @@ public class ObserveUtils {
         observerContext.addMainTag(TAG_KEY_MODULE, pkg.getValue());
         observerContext.addMainTag(TAG_KEY_INVOCATION_POSITION, position.getValue());
         observerContext.addMainTag(TAG_KEY_IS_RESOURCE_ENTRY_POINT, TAG_TRUE_VALUE);
+        observerContext.addMainTag(TAG_KEY_SERVICE, observerContext.getServiceName());
+        observerContext.addMainTag(TAG_KEY_RESOURCE, observerContext.getResourceName());
+        observerContext.addMainTag(TAG_KEY_CONNECTOR_NAME, observerContext.getObjectName());
 
         observers.forEach(observer -> observer.startServerObservation(strand.observerContext));
         strand.setProperty(ObservabilityConstants.SERVICE_NAME, service);
@@ -164,15 +173,14 @@ public class ObserveUtils {
      * @param isRemote True if this was a remove function invocation
      * @param isMainEntryPoint True if this was a main entry point invocation
      * @param isWorker True if this was a worker start
-     * @param workerName name of the worker if this was a worker function
      * @param typeDef The type definition the function was attached to
      * @param functionName name of the function being invoked
      * @param pkg The package the resource belongs to
      * @param position The source code position the resource in defined in
      */
     public static void startCallableObservation(boolean isRemote, boolean isMainEntryPoint, boolean isWorker,
-                                                BString workerName, ObjectValue typeDef, BString functionName,
-                                                BString pkg, BString position) {
+                                                ObjectValue typeDef, BString functionName, BString pkg,
+                                                BString position) {
         if (!enabled) {
             return;
         }
@@ -185,26 +193,39 @@ public class ObserveUtils {
         newObContext.setServiceName(observerCtx == null ? UNKNOWN_SERVICE : observerCtx.getServiceName());
         newObContext.setResourceName(observerCtx == null ? UNKNOWN_RESOURCE : observerCtx.getResourceName());
         if (typeDef == null) {
-            newObContext.setConnectorName(StringUtils.EMPTY);
+            newObContext.setObjectName(StringUtils.EMPTY);
         } else {
             String className = typeDef.getClass().getCanonicalName();
             String[] classNameSplit = className.split("\\.");
             int lastIndexOfDollar = classNameSplit[3].lastIndexOf('$');
-            newObContext.setConnectorName(classNameSplit[0] + "/" + classNameSplit[1] + "/"
+            newObContext.setObjectName(classNameSplit[0] + "/" + classNameSplit[1] + "/"
                     + classNameSplit[3].substring(lastIndexOfDollar + 1));
         }
-        newObContext.setActionName(functionName.getValue());
+        newObContext.setFunctionName(functionName.getValue());
 
         newObContext.addMainTag(TAG_KEY_MODULE, pkg.getValue());
         newObContext.addMainTag(TAG_KEY_INVOCATION_POSITION, position.getValue());
         if (isRemote) {
             newObContext.addMainTag(TAG_KEY_IS_REMOTE, TAG_TRUE_VALUE);
+            newObContext.addMainTag(TAG_KEY_ACTION, newObContext.getFunctionName());
+            newObContext.addMainTag(TAG_KEY_CONNECTOR_NAME, newObContext.getObjectName());
         }
         if (isMainEntryPoint) {
             newObContext.addMainTag(TAG_KEY_IS_MAIN_ENTRY_POINT, TAG_TRUE_VALUE);
         }
         if (isWorker) {
-            newObContext.addMainTag(TAG_KEY_WORKER, workerName.getValue());
+            newObContext.addMainTag(TAG_KEY_IS_WORKER, TAG_TRUE_VALUE);
+        }
+        if (!isRemote && !isWorker) {
+            newObContext.addMainTag(TAG_KEY_FUNCTION, newObContext.getFunctionName());
+            if (!StringUtils.isEmpty(newObContext.getObjectName())) {
+                newObContext.addMainTag(TAG_KEY_OBJECT_NAME, newObContext.getObjectName());
+            }
+        }
+        if (!UNKNOWN_SERVICE.equals(newObContext.getServiceName())) {
+            // If service is present, resource should be too
+            newObContext.addMainTag(TAG_KEY_SERVICE, newObContext.getServiceName());
+            newObContext.addMainTag(TAG_KEY_RESOURCE, newObContext.getResourceName());
         }
 
         setObserverContextToCurrentFrame(strand, newObContext);

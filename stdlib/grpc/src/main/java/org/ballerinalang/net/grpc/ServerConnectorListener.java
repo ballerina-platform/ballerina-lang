@@ -145,7 +145,7 @@ public class ServerConnectorListener implements HttpConnectorListener {
 
     private ObserverContext getObserverContext(String method, InboundMessage inboundMessage) {
         ObserverContext observerContext = new ObserverContext();
-        observerContext.setConnectorName(SERVER_CONNECTOR_GRPC);
+        observerContext.setObjectName(SERVER_CONNECTOR_GRPC);
         observerContext.setResourceName(method);
 
         Map<String, String> httpHeaders = new HashMap<>();

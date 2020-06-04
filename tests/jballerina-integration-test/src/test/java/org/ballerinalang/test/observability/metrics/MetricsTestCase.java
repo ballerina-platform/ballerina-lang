@@ -127,9 +127,9 @@ public class MetricsTestCase extends BaseTest {
         expectedMetrics.put("response_time_seconds_value{service=\"metricsTest\"," +
                 "connector_name=\"ballerina/java_jdbc/Client\",src_module=\"_anon/.:0.0.0\",src_remote=\"true\"," +
                 "resource=\"getProduct\",src_position=\"metrics_test.bal:37:49\",action=\"query\",}", regexNumber);
-        expectedMetrics.put("response_time_seconds_value{service=\"metricsTest\",action=\"getQuery\"," +
-                "resource=\"getProduct\",src_position=\"metrics_test.bal:37:63\",src_module=\"_anon/.:0.0.0\"," +
-                "connector_name=\"\",}", regexNumber);
+        expectedMetrics.put("response_time_seconds_value{service=\"metricsTest\",function=\"getQuery\"," +
+                "resource=\"getProduct\",src_position=\"metrics_test.bal:37:63\",src_module=\"_anon/.:0.0.0\",}",
+                regexNumber);
         expectedMetrics.put("response_time_nanoseconds_total_value{service=\"metricsTest\"," +
                 "src_module=\"_anon/.:0.0.0\",http_status_code_group=\"2xx\",src_remote=\"true\"," +
                 "src_position=\"metrics_test.bal:57:20\",action=\"respond\",resource=\"getProduct\"," +
@@ -141,8 +141,8 @@ public class MetricsTestCase extends BaseTest {
         expectedMetrics.put("response_time_nanoseconds_total_value{service=\"metricsTest\"," +
                 "connector_name=\"ballerina/java_jdbc/Client\",src_module=\"_anon/.:0.0.0\",src_remote=\"true\"," +
                 "resource=\"getProduct\",src_position=\"metrics_test.bal:37:49\",action=\"query\",}", regexNumber);
-        expectedMetrics.put("response_time_nanoseconds_total_value{service=\"metricsTest\",action=\"getQuery\"," +
-                "resource=\"getProduct\",src_position=\"metrics_test.bal:37:63\",src_module=\"_anon/.:0.0.0\"," +
-                "connector_name=\"\",}", regexNumber);
+        expectedMetrics.put("response_time_nanoseconds_total_value{service=\"metricsTest\",function=\"getQuery\"," +
+                "resource=\"getProduct\",src_position=\"metrics_test.bal:37:63\",src_module=\"_anon/.:0.0.0\",}",
+                regexNumber);
     }
 }
