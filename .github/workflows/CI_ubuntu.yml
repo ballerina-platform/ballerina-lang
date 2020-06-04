@@ -65,10 +65,7 @@ jobs:
 
       - name: Get vscode vsix file location
         id: getvscode
-        run: |
-          cd tool-plugins/vscode/
-          ls
-          echo "::set-output name=file::$(ls tool-plugins/vscode/*.vsix)"
+        run: echo "::set-output name=file::$(ls tool-plugins/vscode/*.vsix)"
 
       - name: Upload vscode.vsix
         uses: actions/upload-artifact@v2
