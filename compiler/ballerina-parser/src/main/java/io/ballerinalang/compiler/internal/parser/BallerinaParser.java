@@ -502,6 +502,14 @@ public class BallerinaParser extends AbstractParser {
                 return parseBase16Keyword();
             case BASE64_KEYWORD:
                 return parseBase64Keyword();
+            case DOT_LT_TOKEN:
+                return parseDotLTToken();
+            case SLASH_LT_TOKEN:
+                return parseSlashLTToken();
+            case DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN:
+                return parseDoubleSlashDoubleAsteriskLTToken();
+            case XML_ATOMIC_NAME_PATTERN_START:
+                return parseXMLAtomicNamePatternBody();
             case BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS:
                 return parseBracedExprOrAnonFuncParamRhs((STNode) args[0], (STNode) args[1], (boolean) args[2]);
             default:
@@ -2707,6 +2715,10 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_PAREN_TOKEN:
             case ANNOT_CHAINING_TOKEN:
             case OPTIONAL_CHAINING_TOKEN:
+            case DOT_LT_TOKEN:
+            case SLASH_LT_TOKEN:
+            case DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN:
+            case SLASH_ASTERISK_TOKEN:
                 return OperatorPrecedence.MEMBER_ACCESS;
             case DOUBLE_EQUAL_TOKEN:
             case TRIPPLE_EQUAL_TOKEN:
@@ -4171,6 +4183,14 @@ public class BallerinaParser extends AbstractParser {
             case QUESTION_MARK_TOKEN:
                 newLhsExpr = parseConditionalExpression(lhsExpr);
                 break;
+            case DOT_LT_TOKEN:
+                newLhsExpr = parseXMLFilterExpression(lhsExpr);
+                break;
+            case SLASH_LT_TOKEN:
+            case DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN:
+            case SLASH_ASTERISK_TOKEN:
+                newLhsExpr = parseXMLStepExpression(lhsExpr);
+                break;
             default:
                 if (tokenKind == SyntaxKind.DOUBLE_GT_TOKEN) {
                     operator = parseSignedRightShiftToken();
@@ -4210,6 +4230,10 @@ public class BallerinaParser extends AbstractParser {
             case OPTIONAL_CHAINING_TOKEN:
             case QUESTION_MARK_TOKEN:
             case COLON_TOKEN:
+            case DOT_LT_TOKEN:
+            case SLASH_LT_TOKEN:
+            case DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN:
+            case SLASH_ASTERISK_TOKEN:
                 return true;
             default:
                 return isBinaryOperator(tokenKind);
@@ -7209,7 +7233,7 @@ public class BallerinaParser extends AbstractParser {
         switch (nextTokenKind) {
             case SEMICOLON_TOKEN:
                 onKeyword = STNodeFactory.createEmptyNode();
-                attachPoints = STNodeFactory.createEmptyNode();
+                attachPoints = STNodeFactory.createEmptyNodeList();
                 break;
             case ON_KEYWORD:
                 onKeyword = parseOnKeyword();
@@ -10961,7 +10985,7 @@ public class BallerinaParser extends AbstractParser {
      * <br/>
      * service-method-defn := metadata [resource] function identifier function-signature method-defn-body
      * </code>
-     * 
+     *
      * @param annots Annotations
      * @return Service constructor expression node
      */
@@ -11064,6 +11088,266 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return content;
+    }
+
+    /**
+     * Parse xml filter expression.
+     * <p>
+     * <code>xml-filter-expr := expression .< xml-name-pattern ></code>
+     *
+     * @param lhsExpr Preceding expression of .< token
+     * @return Parsed node
+     */
+    private STNode parseXMLFilterExpression(STNode lhsExpr) {
+        STNode xmlNamePatternChain = parseXMLFilterExpressionRhs();
+        return STNodeFactory.createXMLFilterExpressionNode(lhsExpr, xmlNamePatternChain);
+    }
+
+    /**
+     * Parse xml filter expression rhs.
+     * <p>
+     * <code>filer-expression-rhs := .< xml-name-pattern ></code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseXMLFilterExpressionRhs() {
+        STNode dotLTToken = parseDotLTToken();
+        return parseXMLNamePatternChain(dotLTToken);
+    }
+
+    /**
+     * Parse xml name pattern chain.
+     * <p>
+     * <code>
+     * xml-name-pattern-chain := filer-expression-rhs | xml-element-children-step | xml-element-descendants-step
+     * <br/>
+     * filer-expression-rhs := .< xml-name-pattern >
+     * <br/>
+     * xml-element-children-step := /< xml-name-pattern >
+     * <br/>
+     * xml-element-descendants-step := /**\/<xml-name-pattern >
+     * </code>
+     *
+     * @param startToken Preceding token of xml name pattern
+     * @return Parsed node
+     */
+    private STNode parseXMLNamePatternChain(STNode startToken) {
+        startContext(ParserRuleContext.XML_NAME_PATTERN);
+        STNode xmlNamePattern = parseXMLNamePattern();
+        STNode gtToken = parseGTToken();
+        endContext();
+        return STNodeFactory.createXMLNamePatternChainingNode(startToken, xmlNamePattern, gtToken);
+    }
+
+    /**
+     * Parse <code> .< </code> token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseDotLTToken() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.DOT_LT_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(nextToken, ParserRuleContext.DOT_LT_TOKEN);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse xml name pattern.
+     * <p>
+     * <code>xml-name-pattern := xml-atomic-name-pattern [| xml-atomic-name-pattern]*</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseXMLNamePattern() {
+        List<STNode> xmlAtomicNamePatternList = new ArrayList<>();
+        STToken nextToken = peek();
+
+        // Return an empty list
+        if (isEndOfXMLNamePattern(nextToken.kind)) {
+            this.errorHandler.reportMissingTokenError("missing xml atomic name pattern");
+            return STNodeFactory.createNodeList(xmlAtomicNamePatternList);
+        }
+
+        // Parse first xml atomic name pattern, that has no leading pipe token
+        STNode xmlAtomicNamePattern = parseXMLAtomicNamePattern();
+        xmlAtomicNamePatternList.add(xmlAtomicNamePattern);
+
+        // Parse the remaining xml atomic name patterns
+        STNode leadingPipe;
+        while (!isEndOfXMLNamePattern(peek().kind)) {
+            leadingPipe = parsePipeToken();
+            xmlAtomicNamePatternList.add(leadingPipe);
+
+            xmlAtomicNamePattern = parseXMLAtomicNamePattern();
+            xmlAtomicNamePatternList.add(xmlAtomicNamePattern);
+        }
+
+        return STNodeFactory.createNodeList(xmlAtomicNamePatternList);
+    }
+
+    private boolean isEndOfXMLNamePattern(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case IDENTIFIER_TOKEN:
+            case ASTERISK_TOKEN:
+            case COLON_TOKEN:
+                return false;
+            case GT_TOKEN:
+            case EOF_TOKEN:
+            case AT_TOKEN:
+            case DOCUMENTATION_LINE:
+            case CLOSE_BRACE_TOKEN:
+            case SEMICOLON_TOKEN:
+            case PUBLIC_KEYWORD:
+            case PRIVATE_KEYWORD:
+            case FUNCTION_KEYWORD:
+            case RETURNS_KEYWORD:
+            case SERVICE_KEYWORD:
+            case TYPE_KEYWORD:
+            case LISTENER_KEYWORD:
+            case CONST_KEYWORD:
+            case FINAL_KEYWORD:
+            case RESOURCE_KEYWORD:
+                return true;
+            default:
+                return isSimpleType(tokenKind);
+        }
+    }
+
+    /**
+     * Parse xml atomic name pattern.
+     * <p>
+     * <code>
+     * xml-atomic-name-pattern :=
+     *   *
+     *   | identifier
+     *   | xml-namespace-prefix : identifier
+     *   | xml-namespace-prefix : *
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseXMLAtomicNamePattern() {
+        startContext(ParserRuleContext.XML_ATOMIC_NAME_PATTERN);
+        STNode atomicNamePattern = parseXMLAtomicNamePatternBody();
+        endContext();
+        return atomicNamePattern;
+    }
+
+    private STNode parseXMLAtomicNamePatternBody() {
+        STToken token = peek();
+        STNode identifier;
+        switch (token.kind) {
+            case ASTERISK_TOKEN:
+                return consume();
+            case IDENTIFIER_TOKEN:
+                identifier = consume();
+                break;
+            default:
+                Solution sol = recover(token, ParserRuleContext.XML_ATOMIC_NAME_PATTERN_START);
+                if (sol.action == Action.REMOVE) {
+                    return sol.recoveredNode;
+                }
+
+                if (sol.recoveredNode.kind == SyntaxKind.ASTERISK_TOKEN) {
+                    return sol.recoveredNode;
+                }
+
+                identifier = sol.recoveredNode;
+                break;
+        }
+
+        return parseXMLAtomicNameIdentifier(identifier);
+    }
+
+    private STNode parseXMLAtomicNameIdentifier(STNode identifier) {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.COLON_TOKEN) {
+            STNode colon = consume();
+            STToken nextToken = peek();
+            if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN || nextToken.kind == SyntaxKind.ASTERISK_TOKEN) {
+                STToken endToken = consume();
+                return STNodeFactory.createXMLAtomicNamePatternNode(identifier, colon, endToken);
+            }
+        }
+        return STNodeFactory.createSimpleNameReferenceNode(identifier);
+    }
+
+    /**
+     * Parse xml step expression.
+     * <p>
+     * <code>xml-step-expr := expression xml-step-start</code>
+     *
+     * @param lhsExpr Preceding expression of /*, /<, or /**\/< token
+     * @return Parsed node
+     */
+    private STNode parseXMLStepExpression(STNode lhsExpr) {
+        STNode xmlStepStart = parseXMLStepStart();
+        return STNodeFactory.createXMLStepExpressionNode(lhsExpr, xmlStepStart);
+    }
+
+    /**
+     * Parse xml filter expression rhs.
+     * <p>
+     * <code>
+     *  xml-step-start :=
+     *      xml-all-children-step
+     *      | xml-element-children-step
+     *      | xml-element-descendants-step
+     * <br/>
+     * xml-all-children-step := /*
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseXMLStepStart() {
+        STToken token = peek();
+        STNode startToken;
+
+        switch (token.kind) {
+            case SLASH_ASTERISK_TOKEN:
+                return consume();
+            case DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN:
+                startToken = parseDoubleSlashDoubleAsteriskLTToken();
+                break;
+            case SLASH_LT_TOKEN:
+            default:
+                startToken = parseSlashLTToken();
+                break;
+        }
+        return parseXMLNamePatternChain(startToken);
+    }
+
+    /**
+     * Parse <code> /< </code> token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseSlashLTToken() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.SLASH_LT_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(nextToken, ParserRuleContext.SLASH_LT_TOKEN);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse <code> /< </code> token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseDoubleSlashDoubleAsteriskLTToken() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(nextToken, ParserRuleContext.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN);
+            return sol.recoveredNode;
+        }
     }
 
     /**
@@ -11537,44 +11821,44 @@ public class BallerinaParser extends AbstractParser {
      *                      | mapping-binding-pattern
      *                      | functional-binding-pattern
      * <br/><br/>
-     * 
+     *
      * capture-binding-pattern := variable-name
      * variable-name := identifier
      * <br/><br/>
-     * 
+     *
      * wildcard-binding-pattern := _
      * list-binding-pattern := [ list-member-binding-patterns ]
      * <br/>
      * list-member-binding-patterns := binding-pattern (, binding-pattern)* [, rest-binding-pattern]
      *                                 | [ rest-binding-pattern ]
      * <br/><br/>
-     * 
+     *
      * mapping-binding-pattern := { field-binding-patterns }
-     * field-binding-patterns := field-binding-pattern (, field-binding-pattern)* [, rest-binding-pattern] 
+     * field-binding-patterns := field-binding-pattern (, field-binding-pattern)* [, rest-binding-pattern]
      *                          | [ rest-binding-pattern ]
      * <br/>
      * field-binding-pattern := field-name : binding-pattern | variable-name
      * <br/>
      * rest-binding-pattern := ... variable-name
-     * 
+     *
      * <br/><br/>
      * functional-binding-pattern := functionally-constructible-type-reference ( arg-list-binding-pattern )
      * <br/>
-     * arg-list-binding-pattern := positional-arg-binding-patterns [, other-arg-binding-patterns] 
+     * arg-list-binding-pattern := positional-arg-binding-patterns [, other-arg-binding-patterns]
      *                             | other-arg-binding-patterns
      * <br/>
      * positional-arg-binding-patterns := positional-arg-binding-pattern (, positional-arg-binding-pattern)*
      * <br/>
      * positional-arg-binding-pattern := binding-pattern
      * <br/>
-     * other-arg-binding-patterns := named-arg-binding-patterns [, rest-binding-pattern] 
+     * other-arg-binding-patterns := named-arg-binding-patterns [, rest-binding-pattern]
      *                              | [rest-binding-pattern]
      * <br/>
      * named-arg-binding-patterns := named-arg-binding-pattern (, named-arg-binding-pattern)*
      * <br/>
      * named-arg-binding-pattern := arg-name = binding-pattern
      *</code>
-     * 
+     *
      * @return binding-pattern node
      */
     private STNode parseBindingPattern() {
@@ -11612,7 +11896,7 @@ public class BallerinaParser extends AbstractParser {
      * <br/>
      * variable-name := identifier
      * </code>
-     * 
+     *
      * @return capture-binding-pattern node
      */
     private STNode parseCaptureOrWildcardBindingPattern() {
@@ -11649,7 +11933,7 @@ public class BallerinaParser extends AbstractParser {
      * list-member-binding-patterns := binding-pattern (, binding-pattern)* [, rest-binding-pattern]
      *                                | [ rest-binding-pattern ]
      * </code>
-     * 
+     *
      * @return list-binding-pattern node
      */
     private STNode parseListBindingPattern() {
@@ -11742,7 +12026,7 @@ public class BallerinaParser extends AbstractParser {
      * list-member-binding-patterns := binding-pattern (, binding-pattern)* [, rest-binding-pattern]
      *                                  | [ rest-binding-pattern ]
      * </code>
-     * 
+     *
      * @return rest-binding-pattern node
      */
     private STNode parseListBindingPatternMember() {
@@ -11791,7 +12075,7 @@ public class BallerinaParser extends AbstractParser {
      * <br/><br/>
      * field-binding-pattern := field-name : binding-pattern | variable-name
      * </code>
-     * 
+     *
      * @return mapping-binding-pattern node
      */
     private STNode parseMappingBindingPattern() {
@@ -11859,7 +12143,7 @@ public class BallerinaParser extends AbstractParser {
      * field-binding-pattern := field-name : binding-pattern
      *                          | variable-name
      * </code>
-     * 
+     *
      * @return mapping-binding-pattern node
      */
     private STNode parseMappingBindingPatternMember() {
@@ -12488,7 +12772,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse any statement that starts with an open-bracket.
-     * 
+     *
      * @param annots Annotations attached to the statement.
      * @return Parsed node
      */
@@ -12531,7 +12815,7 @@ public class BallerinaParser extends AbstractParser {
      * 1) List binding pattern
      * 2) Tuple type
      * 3) List constructor
-     * 
+     *
      * @param isRoot Is this the root of the list
      * @return Parsed node
      */
@@ -12587,7 +12871,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse a member of a list-binding-pattern, tuple-type-desc, or
      * list-constructor-expr, when the parent is ambiguous.
-     * 
+     *
      * @param nextTokenKind Kind of the next token.
      * @return Parsed node
      */
@@ -12808,7 +13092,7 @@ public class BallerinaParser extends AbstractParser {
      * 1) Block statement
      * 2) Var-decl with mapping binding pattern.
      * 3) Statement that starts with mapping constructor expression.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseStatementStartsWithOpenBrace() {
@@ -12867,7 +13151,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse the rest of the statement, treating the start as a mapping binding pattern.
-     * 
+     *
      * @param openBrace Open brace
      * @param firstMappingField First member
      * @return Parsed node
@@ -12886,7 +13170,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse the rest of the statement, treating the start as a mapping constructor expression.
-     * 
+     *
      * @param openBrace Open brace
      * @param firstMember First member
      * @return Parsed node
@@ -12903,7 +13187,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse the braced-list as a mapping constructor expression.
-     * 
+     *
      * @param openBrace Open brace
      * @param members members list
      * @param member Most recently parsed member
@@ -12924,7 +13208,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse the rest of the statement, treating the start as a mapping binding pattern
      * or a mapping constructor expression.
-     * 
+     *
      * @param openBrace Open brace
      * @param member First member
      * @return Parsed node
@@ -12974,7 +13258,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse a member of a braced-list that occurs at the start of a statement.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseStatementStartingBracedListFirstMember() {
@@ -13009,7 +13293,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse the rhs components of an identifier that follows an open brace,
      * at the start of a statement. i.e: "{foo".
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseIdentifierRhsInStmtStartingBrace() {
@@ -13048,7 +13332,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse the rhs components of "<code>{ identifier : identifier</code>",
      * at the start of a statement. i.e: "{foo:bar".
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseQualifiedIdentifierRhsInStmtStartBrace(STNode identifier, STNode colon) {
@@ -13131,7 +13415,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse mapping binding pattern or mapping constructor.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseMappingBindingPatterOrMappingConstructor() {
@@ -13320,7 +13604,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse list binding pattern or list constructor.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseListBindingPatternOrListConstructor() {
@@ -13485,7 +13769,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse a member that starts with "foo:bar[", in a statement starting with a brace.
-     * 
+     *
      * @param identifier First identifier of the statement
      * @param colon Colon that follows the first identifier
      * @param secondIdentifier Identifier that follows the colon
@@ -13517,7 +13801,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Replace the first identifier of an expression, with a given qualified-identifier.
      * Only expressions that can start with "bar[..]" can reach here.
-     * 
+     *
      * @param qualifiedName Qualified identifier to replace simple identifier
      * @param exprOrAction Expression or action
      * @return Updated expression

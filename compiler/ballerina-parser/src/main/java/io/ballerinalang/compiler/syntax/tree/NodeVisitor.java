@@ -683,6 +683,22 @@ public abstract class NodeVisitor {
         visitSyntaxNode(byteArrayLiteralNode);
     }
 
+    public void visit(XMLFilterExpressionNode xMLFilterExpressionNode) {
+        visitSyntaxNode(xMLFilterExpressionNode);
+    }
+
+    public void visit(XMLStepExpressionNode xMLStepExpressionNode) {
+        visitSyntaxNode(xMLStepExpressionNode);
+    }
+
+    public void visit(XMLNamePatternChainingNode xMLNamePatternChainingNode) {
+        visitSyntaxNode(xMLNamePatternChainingNode);
+    }
+
+    public void visit(XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
+        visitSyntaxNode(xMLAtomicNamePatternNode);
+    }
+
     public void visit(TypeReferenceTypeDescNode typeReferenceTypeDescNode) {
         visitSyntaxNode(typeReferenceTypeDescNode);
     }

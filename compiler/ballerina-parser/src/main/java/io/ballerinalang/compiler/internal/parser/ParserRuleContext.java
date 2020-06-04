@@ -355,6 +355,10 @@ public enum ParserRuleContext {
     LEFT_ARROW_TOKEN("<-"),
     ANNOT_CHAINING_TOKEN(".@"),
     OPTIONAL_CHAINING_TOKEN("?."),
+    DOT_LT_TOKEN(".<"),
+    SLASH_LT_TOKEN("/<"),
+    DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN("/**/<"),
+    SLASH_ASTERISK_TOKEN("/*"),
 
     // Other terminals
     FUNC_NAME("function-name"),
@@ -377,6 +381,7 @@ public enum ParserRuleContext {
     IDENTIFIER("identifier"),
     NAMESPACE_PREFIX("namespace-prefix"),
     WORKER_NAME("worker-name"),
+    FIELD_OR_FUNC_NAME("field-or-func-name"),
 
     // Expressions
     EXPRESSION("expression"),
@@ -426,6 +431,16 @@ public enum ParserRuleContext {
     LET_CLAUSE_END("let-clause-end"),
     CONDITIONAL_EXPRESSION("conditional-expr"),
     SERVICE_CONSTRUCTOR_EXPRESSION("service-constructor-expression"),
+    XML_NAVIGATE_EXPR("xml-navigate-expr"),
+    XML_FILTER_EXPR("xml-filter-expr"),
+    XML_STEP_EXPR("xml-step-expr"),
+    XML_NAME_PATTERN("xml-name-pattern"),
+    XML_NAME_PATTERN_RHS("xml-name-pattern-rhs"),
+    XML_ATOMIC_NAME_PATTERN("xml-atomic_name-pattern"),
+    XML_ATOMIC_NAME_PATTERN_START("xml-atomic_name-pattern-start"),
+    XML_ATOMIC_NAME_IDENTIFIER("xml-atomic_name-identifier"),
+    XML_ATOMIC_NAME_IDENTIFIER_RHS("xml-atomic_name-identifier-rhs"),
+    XML_STEP_START("xml-step-start"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),
