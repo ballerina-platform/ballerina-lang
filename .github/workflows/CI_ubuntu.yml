@@ -57,3 +57,15 @@ jobs:
           ./gradlew build --max-workers=2 --scan
 
           find ~/.gradle/caches/ -name "*.lock" -type f -delete
+
+      - id: getdist
+        run: echo "::set-output name=file::$(ls distribution/zip/jballerina-tools/build/distributions/jballerina-tools-*.zip)"
+      - uses: actions/upload-artifact@v2
+        with:
+          path: ${{ steps.getdist.outputs.file }}
+
+      - id: getvscode
+        run: echo "::set-output name=file::$(ls ls tool-plugins/vscode/*.vsix"
+      - uses: actions/upload-artifact@v2
+        with:
+          path: tool-plugins/vscode/*.vsix
