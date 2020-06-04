@@ -58,13 +58,23 @@ jobs:
 
           find ~/.gradle/caches/ -name "*.lock" -type f -delete
 
-      - id: getdist
+      - name: Get jballerina-tools file location
+        id: getdist
         run: echo "::set-output name=file::$(ls distribution/zip/jballerina-tools/build/distributions/jballerina-tools-*.zip)"
-      - uses: actions/upload-artifact@v2
+
+      - name: Upload jballerina-tools.zip
+        uses: actions/upload-artifact@v2
         with:
+          name: jballerina-tools
           path: ${{ steps.getdist.outputs.file }}
 
-      - uses: actions/upload-artifact@v2
+      - name: Get vscode vsix file location
+        id: getvscode
+        run: echo "::set-output name=file::$(ls tool-plugins/vscode/*.vsix)"
+
+      - name: Upload vscode.vsix
+        uses: actions/upload-artifact@v2
         with:
-          path: tool-plugins/vscode/*.vsix
+          name:vscode-vsix
+          path: ${{ steps.getvscode.outputs.file }}
 
