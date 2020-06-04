@@ -52,6 +52,12 @@ public class ObservabilityConstants {
     public static final String TAG_KEY_DB_INSTANCE = "db.instance";
     public static final String TAG_KEY_DB_STATEMENT = "db.statement";
     public static final String TAG_KEY_DB_TYPE = "db.type";
+    public static final String TAG_KEY_SERVICE = "service";
+    public static final String TAG_KEY_RESOURCE = "resource";
+    public static final String TAG_KEY_FUNCTION = "function";
+    public static final String TAG_KEY_OBJECT_NAME = "object_name";
+    public static final String TAG_KEY_ACTION = "action";
+    public static final String TAG_KEY_CONNECTOR_NAME = "connector_name";
     public static final String TAG_KEY_ERROR = "error";
     public static final String TAG_KEY_MODULE = "src.module";
     public static final String TAG_KEY_INVOCATION_POSITION = "src.position";

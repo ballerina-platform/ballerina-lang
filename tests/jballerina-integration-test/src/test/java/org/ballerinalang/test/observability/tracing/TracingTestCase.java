@@ -130,13 +130,16 @@ public class TracingTestCase extends BaseTest {
             Assert.assertTrue(mockSpans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getSpanId() == span.getParentId()));
             Assert.assertEquals(span.getOperationName(), "resourceOne");
-            Assert.assertEquals(span.getTags().size(), 7);
+            Assert.assertEquals(span.getTags().size(), 10);
             Assert.assertEquals(span.getTags().get("span.kind"), "server");
             Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
             Assert.assertEquals(span.getTags().get("src.entry_point.resource"), "true");
             Assert.assertEquals(span.getTags().get("http.url"), "/echoService/resourceOne");
             Assert.assertEquals(span.getTags().get("http.method"), "GET");
             Assert.assertEquals(span.getTags().get("protocol"), "http");
+            Assert.assertEquals(span.getTags().get("service"), "echoService0");
+            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
+            Assert.assertEquals(span.getTags().get("connector_name"), "http");
         });
 
         Optional<BMockSpan> span2 = mockSpans.stream()
@@ -148,7 +151,7 @@ public class TracingTestCase extends BaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "ballerina/http/Client:get");
-            Assert.assertEquals(span.getTags().size(), 8);
+            Assert.assertEquals(span.getTags().size(), 12);
             Assert.assertEquals(span.getTags().get("span.kind"), "client");
             Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
             Assert.assertEquals(span.getTags().get("src.remote"), "true");
@@ -156,6 +159,10 @@ public class TracingTestCase extends BaseTest {
             Assert.assertEquals(span.getTags().get("http.url"), "/resourceTwo");
             Assert.assertEquals(span.getTags().get("http.method"), "GET");
             Assert.assertEquals(span.getTags().get("http.status_code_group"), "2xx");
+            Assert.assertEquals(span.getTags().get("service"), "echoService0");
+            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
+            Assert.assertEquals(span.getTags().get("connector_name"), "ballerina/http/Client");
+            Assert.assertEquals(span.getTags().get("action"), "get");
         });
 
         Optional<BMockSpan> span3 = mockSpans.stream()
@@ -167,7 +174,7 @@ public class TracingTestCase extends BaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span2.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "ballerina/http/HttpClient:get");
-            Assert.assertEquals(span.getTags().size(), 9);
+            Assert.assertEquals(span.getTags().size(), 13);
             Assert.assertEquals(span.getTags().get("span.kind"), "client");
             Assert.assertEquals(span.getTags().get("src.module"), "ballerina/http:1.0.0");
             Assert.assertEquals(span.getTags().get("src.remote"), "true");
@@ -176,6 +183,10 @@ public class TracingTestCase extends BaseTest {
             Assert.assertEquals(span.getTags().get("http.url"), "/echoService/resourceTwo");
             Assert.assertEquals(span.getTags().get("http.method"), "GET");
             Assert.assertEquals(span.getTags().get("peer.address"), "localhost:9090");
+            Assert.assertEquals(span.getTags().get("service"), "echoService0");
+            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
+            Assert.assertEquals(span.getTags().get("connector_name"), "ballerina/http/HttpClient");
+            Assert.assertEquals(span.getTags().get("action"), "get");
         });
 
         Optional<BMockSpan> span4 = mockSpans.stream()
@@ -187,13 +198,16 @@ public class TracingTestCase extends BaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span3.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "resourceTwo");
-            Assert.assertEquals(span.getTags().size(), 7);
+            Assert.assertEquals(span.getTags().size(), 10);
             Assert.assertEquals(span.getTags().get("span.kind"), "server");
             Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
             Assert.assertEquals(span.getTags().get("src.entry_point.resource"), "true");
             Assert.assertEquals(span.getTags().get("http.url"), "/echoService/resourceTwo");
             Assert.assertEquals(span.getTags().get("http.method"), "GET");
             Assert.assertEquals(span.getTags().get("protocol"), "http");
+            Assert.assertEquals(span.getTags().get("service"), "echoService0");
+            Assert.assertEquals(span.getTags().get("resource"), "resourceTwo");
+            Assert.assertEquals(span.getTags().get("connector_name"), "http");
         });
 
         Optional<BMockSpan> span5 = mockSpans.stream()
@@ -205,12 +219,16 @@ public class TracingTestCase extends BaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span4.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "ballerina/http/Caller:respond");
-            Assert.assertEquals(span.getTags().size(), 6);
+            Assert.assertEquals(span.getTags().size(), 10);
             Assert.assertEquals(span.getTags().get("span.kind"), "client");
             Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
             Assert.assertEquals(span.getTags().get("src.remote"), "true");
             Assert.assertEquals(span.getTags().get("http.status_code"), "200");
             Assert.assertEquals(span.getTags().get("http.status_code_group"), "2xx");
+            Assert.assertEquals(span.getTags().get("service"), "echoService0");
+            Assert.assertEquals(span.getTags().get("resource"), "resourceTwo");
+            Assert.assertEquals(span.getTags().get("connector_name"), "ballerina/http/Caller");
+            Assert.assertEquals(span.getTags().get("action"), "respond");
         });
 
         Optional<BMockSpan> span6 = mockSpans.stream()
@@ -222,12 +240,16 @@ public class TracingTestCase extends BaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "ballerina/http/Caller:respond");
-            Assert.assertEquals(span.getTags().size(), 6);
+            Assert.assertEquals(span.getTags().size(), 10);
             Assert.assertEquals(span.getTags().get("span.kind"), "client");
             Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
             Assert.assertEquals(span.getTags().get("src.remote"), "true");
             Assert.assertEquals(span.getTags().get("http.status_code"), "200");
             Assert.assertEquals(span.getTags().get("http.status_code_group"), "2xx");
+            Assert.assertEquals(span.getTags().get("service"), "echoService0");
+            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
+            Assert.assertEquals(span.getTags().get("connector_name"), "ballerina/http/Caller");
+            Assert.assertEquals(span.getTags().get("action"), "respond");
         });
     }
 
@@ -396,10 +418,12 @@ public class TracingTestCase extends BaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), parentSpan.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "w1");
-            Assert.assertEquals(span.getTags().size(), 4);
+            Assert.assertEquals(span.getTags().size(), 6);
             Assert.assertEquals(span.getTags().get("span.kind"), "client");
             Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
             Assert.assertEquals(span.getTags().get("src.worker"), "true");
+            Assert.assertEquals(span.getTags().get("service"), "echoService3");
+            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
 
             Assert.assertTrue(mockSpans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getParentId() == span.getSpanId()), "Invalid number of children");
@@ -414,10 +438,12 @@ public class TracingTestCase extends BaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), parentSpan.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "w2");
-            Assert.assertEquals(span.getTags().size(), 4);
+            Assert.assertEquals(span.getTags().size(), 6);
             Assert.assertEquals(span.getTags().get("span.kind"), "client");
             Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
             Assert.assertEquals(span.getTags().get("src.worker"), "true");
+            Assert.assertEquals(span.getTags().get("service"), "echoService3");
+            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
 
             Assert.assertTrue(mockSpans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getParentId() == span.getSpanId()), "Invalid number of children");
@@ -544,9 +570,12 @@ public class TracingTestCase extends BaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), resourceOneSpan.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "getGreeting1");
-            Assert.assertEquals(span.getTags().size(), 3);
+            Assert.assertEquals(span.getTags().size(), 6);
             Assert.assertEquals(span.getTags().get("span.kind"), "client");
             Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
+            Assert.assertEquals(span.getTags().get("service"), "echoService5");
+            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
+            Assert.assertEquals(span.getTags().get("function"), "getGreeting1");
 
             Assert.assertTrue(mockSpans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getParentId() == span.getSpanId()), "Invalid number of children");
@@ -567,9 +596,12 @@ public class TracingTestCase extends BaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), resourceTwoSpan.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "getGreeting2");
-            Assert.assertEquals(span.getTags().size(), 3);
+            Assert.assertEquals(span.getTags().size(), 6);
             Assert.assertEquals(span.getTags().get("span.kind"), "client");
             Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
+            Assert.assertEquals(span.getTags().get("service"), "echoService5");
+            Assert.assertEquals(span.getTags().get("resource"), "resourceTwo");
+            Assert.assertEquals(span.getTags().get("function"), "getGreeting2");
 
             Assert.assertTrue(mockSpans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getParentId() == span.getSpanId()), "Invalid number of children");
