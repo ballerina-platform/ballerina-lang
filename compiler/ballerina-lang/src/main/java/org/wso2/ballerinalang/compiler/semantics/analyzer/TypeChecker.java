@@ -1261,16 +1261,16 @@ public class TypeChecker extends BLangNodeVisitor {
                 return type;
             case TypeTags.JSON:
                 return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.arrayJsonType :
-                        ImmutableTypeCloner.getImmutableIntersectionType(null, types, symTable.arrayJsonType,
-                                                                         env, symTable, anonymousModelHelper, names);
+                        ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayJsonType,
+                                                                      env, symTable, anonymousModelHelper, names);
             case TypeTags.ANYDATA:
                 return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.arrayAnydataType :
-                        ImmutableTypeCloner.getImmutableIntersectionType(null, types, symTable.arrayAnydataType,
-                                                                         env, symTable, anonymousModelHelper, names);
+                        ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayAnydataType,
+                                                                      env, symTable, anonymousModelHelper, names);
             case TypeTags.ANY:
                 return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.arrayType :
-                        ImmutableTypeCloner.getImmutableIntersectionType(null, types, symTable.arrayType, env,
-                                                                         symTable, anonymousModelHelper, names);
+                        ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayType, env,
+                                                                      symTable, anonymousModelHelper, names);
             case TypeTags.INTERSECTION:
                 return ((BIntersectionType) type).effectiveType;
         }
@@ -1484,16 +1484,16 @@ public class TypeChecker extends BLangNodeVisitor {
                 return type;
             case TypeTags.JSON:
                 return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.mapJsonType :
-                        ImmutableTypeCloner.getImmutableIntersectionType(null, types, symTable.mapJsonType, env,
-                                                                         symTable, anonymousModelHelper, names);
+                        ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.mapJsonType, env,
+                                                                      symTable, anonymousModelHelper, names);
             case TypeTags.ANYDATA:
                 return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.mapAnydataType :
-                        ImmutableTypeCloner.getImmutableIntersectionType(null, types, symTable.mapAnydataType,
-                                                                         env, symTable, anonymousModelHelper, names);
+                        ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.mapAnydataType,
+                                                                      env, symTable, anonymousModelHelper, names);
             case TypeTags.ANY:
                 return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.mapType :
-                        ImmutableTypeCloner.getImmutableIntersectionType(null, types, symTable.mapType, env,
-                                                                         symTable, anonymousModelHelper, names);
+                        ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.mapType, env,
+                                                                      symTable, anonymousModelHelper, names);
             case TypeTags.INTERSECTION:
                 return ((BIntersectionType) type).effectiveType;
         }
@@ -6493,8 +6493,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BXMLSubType immutableXmlSubType = (BXMLSubType)
-                ((BIntersectionType) ImmutableTypeCloner.getImmutableIntersectionType(
-                        pos, types, mutableXmlSubType, env, symTable, anonymousModelHelper, names)).effectiveType;
+                ImmutableTypeCloner.getEffectiveImmutableType(pos, types, mutableXmlSubType, env, symTable,
+                                                              anonymousModelHelper, names);
 
         if (expType == immutableXmlSubType) {
             return expType;
@@ -6550,9 +6550,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 continue;
             }
             modifiedChild.type =
-                    ImmutableTypeCloner.getImmutableIntersectionType(modifiedChild.pos, types,
-                                                                     (SelectivelyImmutableReferenceType) childType,
-                                                                     env, symTable, anonymousModelHelper, names);
+                    ImmutableTypeCloner.getEffectiveImmutableType(modifiedChild.pos, types,
+                                                                  (SelectivelyImmutableReferenceType) childType,
+                                                                  env, symTable, anonymousModelHelper, names);
 
             if (modifiedChild.getKind() == NodeKind.XML_ELEMENT_LITERAL) {
                 markChildrenAsImmutable((BLangXMLElementLiteral) modifiedChild);

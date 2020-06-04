@@ -50,6 +50,7 @@ function testImmutableTypes() {
     testImmutabilityForSelfReferencingType();
     testImmutableRecordWithDefaultValues();
     testImmutableObjects();
+    testImmutableJson();
 }
 
 function testSimpleInitializationForSelectivelyImmutableTypes() {
@@ -735,6 +736,16 @@ function testImmutableObjects() {
     assertTrue(cr2.printer is MyPrinter);
     assertEquality(238475, cr.owner.getId());
     assertEquality("ID[1234]: str to print", cr.printer.getPrintString("str to print"));
+}
+
+function testImmutableJson() {
+    json & readonly j = {a: 1, b: "hello"};
+    anydata a = j;
+    any an = j;
+    assertTrue(an is json & readonly);
+    assertTrue(an is map<json> & readonly);
+    assertTrue(an is readonly);
+    assertTrue(a.isReadOnly());
 }
 
 type AssertionError error<ASSERTION_ERROR_REASON>;
