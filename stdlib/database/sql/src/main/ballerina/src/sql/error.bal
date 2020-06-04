@@ -16,10 +16,8 @@
 
 # Represents the properties belonging to a `DatabaseError`.
 #
-# + message - Error message
 # + errorCode - SQL error code
 # + sqlState - SQL state
-# + cause - Cause of the error
 public type DatabaseErrorDetail record {|
     int errorCode;
     string sqlState;

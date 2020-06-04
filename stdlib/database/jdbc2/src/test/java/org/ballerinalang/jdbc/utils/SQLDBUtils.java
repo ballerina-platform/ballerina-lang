@@ -174,14 +174,7 @@ public class SQLDBUtils {
     public static void assertNotError(Object value) {
         if (value instanceof BError) {
             BError bError = (BError) value;
-            String message = "Not expecting an error. Error details: \nReason:" + bError.getReason();
-            Object details = bError.getDetails();
-            if (details instanceof BMap) {
-                BValue errMessage = ((BMap) details).get("message");
-                if (errMessage != null) {
-                    message += " , message: " + errMessage.stringValue();
-                }
-            }
+            String message = "Not expecting an error. Error message: \nMessage:" + bError.getMessage();
             Assert.fail(message);
         }
     }

@@ -100,9 +100,9 @@ public class ConnectorInitTest {
                 "testConnectionWithDatasourceInvalidProperty", args);
         Assert.assertTrue(returnVal[0] instanceof BError);
         BError error = (BError) returnVal[0];
-        Assert.assertEquals(error.getReason(), SQLDBUtils.SQL_APPLICATION_ERROR_REASON);
-        Assert.assertTrue(((BMap) ((BError) returnVal[0]).getDetails()).get(SQLDBUtils.SQL_ERROR_MESSAGE)
-                .stringValue().contains("Property invalidProperty does not exist on target class"));
+        Assert.assertEquals(error.getMessage(), SQLDBUtils.SQL_APPLICATION_ERROR_REASON);
+        Assert.assertTrue(((BError) returnVal[0]).getMessage().contains(
+                "Property invalidProperty does not exist on target class"));
     }
 
     @Test

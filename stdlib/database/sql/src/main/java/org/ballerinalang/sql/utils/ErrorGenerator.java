@@ -46,9 +46,9 @@ public class ErrorGenerator {
         return getSQLDatabaseError(errorMessage, vendorCode, sqlState);
     }
 
-    public static ErrorValue getSQLApplicationError(String detailedErrorMessage) {
+    public static ErrorValue getSQLApplicationError(String errorMessage) {
         return BallerinaErrors.createDistinctError(Constants.APPLICATION_ERROR, Constants.SQL_PACKAGE_ID,
-                detailedErrorMessage);
+                errorMessage);
     }
 
     private static ErrorValue getSQLDatabaseError(String message, int vendorCode, String sqlState) {
