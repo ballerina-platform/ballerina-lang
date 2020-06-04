@@ -38,7 +38,7 @@ public class BJson extends BCompoundVariable {
     private final ObjectReferenceImpl jvmValueRef;
 
     public BJson(Value value, Variable dapVariable) {
-         this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
+        this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
         dapVariable.setType(BVariableType.JSON.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
@@ -75,8 +75,6 @@ public class BJson extends BCompoundVariable {
                 }
             });
             this.setChildVariables(values);
-        } catch (RuntimeException e) {
-            throw e;
         } catch (Exception ignored) {
             this.setChildVariables(new HashMap<>());
         }
