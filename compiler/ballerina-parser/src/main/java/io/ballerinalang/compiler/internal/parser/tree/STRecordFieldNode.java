@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -40,7 +43,23 @@ public class STRecordFieldNode extends STNode {
             STNode fieldName,
             STNode questionMarkToken,
             STNode semicolonToken) {
-        super(SyntaxKind.RECORD_FIELD);
+        this(
+                metadata,
+                typeName,
+                fieldName,
+                questionMarkToken,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STRecordFieldNode(
+            STNode metadata,
+            STNode typeName,
+            STNode fieldName,
+            STNode questionMarkToken,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.RECORD_FIELD, diagnostics);
         this.metadata = metadata;
         this.typeName = typeName;
         this.fieldName = fieldName;
@@ -53,6 +72,16 @@ public class STRecordFieldNode extends STNode {
                 fieldName,
                 questionMarkToken,
                 semicolonToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STRecordFieldNode(
+                this.metadata,
+                this.typeName,
+                this.fieldName,
+                this.questionMarkToken,
+                this.semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

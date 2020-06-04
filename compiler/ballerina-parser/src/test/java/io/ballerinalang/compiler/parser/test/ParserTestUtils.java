@@ -322,7 +322,7 @@ public class ParserTestUtils {
             try {
                 String jsonString = SyntaxTreeJSONGenerator.generateJSON(sourceFilePath, context);
                 try (BufferedWriter writer =
-                             new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
+                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
                     writer.write(jsonString);
                 }
             } catch (Exception e) {
@@ -337,7 +337,7 @@ public class ParserTestUtils {
             try {
                 String jsonString = SyntaxTreeJSONGenerator.generateJSON(source, context);
                 try (BufferedWriter writer =
-                             new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
+                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
                     writer.write(jsonString);
                 }
             } catch (Exception e) {
@@ -564,7 +564,7 @@ public class ParserTestUtils {
                 return SyntaxKind.PERCENT_TOKEN;
             case "GT_TOKEN":
                 return SyntaxKind.GT_TOKEN;
-            case "EQUAL_GT_TOKEN":
+            case "RIGHT_DOUBLE_ARROW_TOKEN":
                 return SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN;
             case "QUESTION_MARK_TOKEN":
                 return SyntaxKind.QUESTION_MARK_TOKEN;
@@ -602,6 +602,14 @@ public class ParserTestUtils {
                 return SyntaxKind.OPTIONAL_CHAINING_TOKEN;
             case "ELVIS_TOKEN":
                 return SyntaxKind.ELVIS_TOKEN;
+            case "DOT_LT_TOKEN":
+                return SyntaxKind.DOT_LT_TOKEN;
+            case "SLASH_LT_TOKEN":
+                return SyntaxKind.SLASH_LT_TOKEN;
+            case "DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN":
+                return SyntaxKind.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN;
+            case "SLASH_ASTERISK_TOKEN":
+                return SyntaxKind.SLASH_ASTERISK_TOKEN;
 
             // Separators
             case "OPEN_BRACE_TOKEN":
@@ -642,8 +650,6 @@ public class ParserTestUtils {
                 return SyntaxKind.DOUBLE_QUOTE_TOKEN;
             case "SINGLE_QUOTE_TOKEN":
                 return SyntaxKind.SINGLE_QUOTE_TOKEN;
-            case "RIGHT_DOUBLE_ARROW":
-                return SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN;
             case "SYNC_SEND_TOKEN":
                 return SyntaxKind.SYNC_SEND_TOKEN;
             case "LEFT_ARROW_TOKEN":
@@ -734,6 +740,14 @@ public class ParserTestUtils {
                 return SyntaxKind.SERVICE_CONSTRUCTOR_EXPRESSION;
             case "BYTE_ARRAY_LITERAL":
                 return SyntaxKind.BYTE_ARRAY_LITERAL;
+            case "XML_FILTER_EXPRESSION":
+                return SyntaxKind.XML_FILTER_EXPRESSION;
+            case "XML_STEP_EXPRESSION":
+                return SyntaxKind.XML_STEP_EXPRESSION;
+            case "XML_NAME_PATTERN_CHAIN":
+                return SyntaxKind.XML_NAME_PATTERN_CHAIN;
+            case "XML_ATOMIC_NAME_PATTERN":
+                return SyntaxKind.XML_ATOMIC_NAME_PATTERN;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
@@ -972,6 +986,10 @@ public class ParserTestUtils {
                 return SyntaxKind.LIST_BINDING_PATTERN;
             case "REST_BINDING_PATTERN":
                 return SyntaxKind.REST_BINDING_PATTERN;
+            case "FIELD_BINDING_PATTERN":
+                return SyntaxKind.FIELD_BINDING_PATTERN;
+            case "MAPPING_BINDING_PATTERN":
+                return SyntaxKind.MAPPING_BINDING_PATTERN;
             case "TYPE_PARAMETER":
                 return SyntaxKind.TYPE_PARAMETER;
             case "KEY_TYPE_CONSTRAINT":
@@ -986,6 +1004,8 @@ public class ParserTestUtils {
                 return SyntaxKind.WAIT_FIELD;
             case "ENUM_MEMBER":
                 return SyntaxKind.ENUM_MEMBER;
+            case "WILDCARD_BINDING_PATTERN":
+                return SyntaxKind.WILDCARD_BINDING_PATTERN;
 
             // XML template
             case "XML_ELEMENT":

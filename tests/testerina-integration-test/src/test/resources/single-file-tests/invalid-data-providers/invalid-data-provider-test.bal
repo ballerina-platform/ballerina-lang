@@ -9,7 +9,7 @@ import ballerina/io;
 function testInvalidDataProvider(string result) {
             
     io:println("Input params: ["+result.toString()+"]");
-    int|error resultErr = trap int.constructFrom(result);
+    int|error resultErr = trap result.cloneWithType(int);
 }
 
 function invalidDataGen() returns (int[][]) {

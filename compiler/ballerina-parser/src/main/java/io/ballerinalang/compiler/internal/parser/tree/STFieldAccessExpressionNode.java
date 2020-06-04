@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STFieldAccessExpressionNode extends STExpressionNode {
             STNode expression,
             STNode dotToken,
             STNode fieldName) {
-        super(SyntaxKind.FIELD_ACCESS);
+        this(
+                expression,
+                dotToken,
+                fieldName,
+                Collections.emptyList());
+    }
+
+    STFieldAccessExpressionNode(
+            STNode expression,
+            STNode dotToken,
+            STNode fieldName,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.FIELD_ACCESS, diagnostics);
         this.expression = expression;
         this.dotToken = dotToken;
         this.fieldName = fieldName;
@@ -45,6 +60,14 @@ public class STFieldAccessExpressionNode extends STExpressionNode {
                 expression,
                 dotToken,
                 fieldName);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STFieldAccessExpressionNode(
+                this.expression,
+                this.dotToken,
+                this.fieldName,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

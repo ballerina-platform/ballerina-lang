@@ -46,6 +46,7 @@ public class JClass {
     private String prefix;
     private String className;
     private String packageName;
+    private String accessModifier;
     private String shortClassName;
 
     private boolean isInterface = false;
@@ -176,5 +177,9 @@ public class JClass {
 
     public String getPackageName() {
         return packageName;
+    }
+
+    public void setAccessModifier(String accessModifier) {
+        this.accessModifier = accessModifier;
     }
 }

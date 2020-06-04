@@ -1,0 +1,29 @@
+{
+    "kind": "XML_STEP_EXPRESSION",
+    "children": [
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "a"
+        },
+        {
+            "kind": "XML_NAME_PATTERN_CHAIN",
+            "children": [
+                {
+                    "kind": "SLASH_LT_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                        {
+                            "kind": "ASTERISK_TOKEN"
+                        }
+                    ]
+                },
+                {
+                    "kind": "GT_TOKEN",
+                    "isMissing": true
+                }
+            ]
+        }
+    ]
+}

@@ -462,7 +462,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createComputedNameFieldNode(
-            STNode leadingComma,
             STNode openBracket,
             STNode fieldNameExpr,
             STNode closeBracket,
@@ -470,7 +469,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode valueExpr) {
 
         return new STComputedNameFieldNode(
-                leadingComma,
                 openBracket,
                 fieldNameExpr,
                 closeBracket,
@@ -594,25 +592,21 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createSpecificFieldNode(
-            STNode leadingComma,
             STNode fieldName,
             STNode colon,
             STNode valueExpr) {
 
         return new STSpecificFieldNode(
-                leadingComma,
                 fieldName,
                 colon,
                 valueExpr);
     }
 
     public static STNode createSpreadFieldNode(
-            STNode leadingComma,
             STNode ellipsis,
             STNode valueExpr) {
 
         return new STSpreadFieldNode(
-                leadingComma,
                 ellipsis,
                 valueExpr);
     }
@@ -1450,15 +1444,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createFromClauseNode(
             STNode fromKeyword,
-            STNode typeName,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode inKeyword,
             STNode expression) {
 
         return new STFromClauseNode(
                 fromKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 inKeyword,
                 expression);
     }
@@ -1603,6 +1595,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 variableName);
     }
 
+    public static STNode createWildcardBindingPatternNode(
+            STNode underscoreToken) {
+
+        return new STWildcardBindingPatternNode(
+                underscoreToken);
+    }
+
     public static STNode createListBindingPatternNode(
             STNode openBracket,
             STNode bindingPatterns,
@@ -1614,6 +1613,37 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 bindingPatterns,
                 restBindingPattern,
                 closeBracket);
+    }
+
+    public static STNode createMappingBindingPatternNode(
+            STNode openBrace,
+            STNode fieldBindingPatterns,
+            STNode restBindingPattern,
+            STNode closeBrace) {
+
+        return new STMappingBindingPatternNode(
+                openBrace,
+                fieldBindingPatterns,
+                restBindingPattern,
+                closeBrace);
+    }
+
+    public static STNode createFieldBindingPatternFullNode(
+            STNode variableName,
+            STNode colon,
+            STNode bindingPattern) {
+
+        return new STFieldBindingPatternFullNode(
+                variableName,
+                colon,
+                bindingPattern);
+    }
+
+    public static STNode createFieldBindingPatternVarnameNode(
+            STNode variableName) {
+
+        return new STFieldBindingPatternVarnameNode(
+                variableName);
     }
 
     public static STNode createRestBindingPatternNode(
@@ -1889,6 +1919,46 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 startBacktick,
                 content,
                 endBacktick);
+    }
+
+    public static STNode createXMLFilterExpressionNode(
+            STNode expression,
+            STNode xmlPatternChain) {
+
+        return new STXMLFilterExpressionNode(
+                expression,
+                xmlPatternChain);
+    }
+
+    public static STNode createXMLStepExpressionNode(
+            STNode expression,
+            STNode xmlStepStart) {
+
+        return new STXMLStepExpressionNode(
+                expression,
+                xmlStepStart);
+    }
+
+    public static STNode createXMLNamePatternChainingNode(
+            STNode startToken,
+            STNode xmlNamePattern,
+            STNode gtToken) {
+
+        return new STXMLNamePatternChainingNode(
+                startToken,
+                xmlNamePattern,
+                gtToken);
+    }
+
+    public static STNode createXMLAtomicNamePatternNode(
+            STNode prefix,
+            STNode colon,
+            STNode name) {
+
+        return new STXMLAtomicNamePatternNode(
+                prefix,
+                colon,
+                name);
     }
 }
 

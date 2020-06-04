@@ -166,7 +166,7 @@ public function getAsMap(@untainted string key) returns map<anydata> {
 
 # Retrieves the specified configuration value as an array.
 # ```ballerina
-# int[]|error ports = int[].constructFrom(config:getAsArray("ports"));
+# int[]|error ports = config:getAsArray("ports").cloneWithType(int[]);
 # ```
 #
 # + key - The key of the configuration to be retrieved
