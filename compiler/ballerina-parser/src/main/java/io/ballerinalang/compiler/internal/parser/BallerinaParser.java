@@ -12911,8 +12911,9 @@ public class BallerinaParser extends AbstractParser {
             case TUPLE_TYPE_DESC:
             default:
                 switchContext(ParserRuleContext.VAR_DECL_STMT);
-                STNode varName = parseBindingPattern();
-                STNode typedBindingPattern = STNodeFactory.createTypedBindingPatternNode(bracketedList, varName);
+                STNode typeDesc = parseComplexTypeDescriptor(bracketedList,
+                        ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true);
+                STNode typedBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, ParserRuleContext.VAR_DECL_STMT);
                 return parseVarDeclRhs(annots, STNodeFactory.createEmptyNode(), typedBindingPattern, false);
 
         }
