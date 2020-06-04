@@ -23,7 +23,6 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -34,8 +33,6 @@ import org.ballerinalang.jvm.values.api.BValueCreator;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-
 /**
  * Extern function ballerina.config:get.
  *
@@ -43,11 +40,8 @@ import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PR
  */
 public class GetConfig {
     private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-    private static final String LOOKUP_ERROR = "LookupError";
     private static final BMapType mapType = new BMapType(BTypes.typeAnydata);
     private static final BArrayType arrayType = new BArrayType(BTypes.typeAnydata);
-    private static final String PACKAGE_NAME = "config-api";
-    private static final BPackage PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME);
 
     public static Object get(BString configKey, BString type) {
         try {
@@ -68,8 +62,8 @@ public class GetConfig {
                     throw new IllegalStateException("invalid value type: " + type);
             }
         } catch (IllegalArgumentException e) {
-            throw BallerinaErrors.createDistinctError(LOOKUP_ERROR, PACKAGE_ID, "error occurred " +
-                    "while trying to retrieve the value; " + e.getMessage());
+            throw BallerinaErrors.createError(StringUtils.fromString(
+                    "error occurred while trying to retrieve the value; " + e.getMessage()));
         }
     }
 
