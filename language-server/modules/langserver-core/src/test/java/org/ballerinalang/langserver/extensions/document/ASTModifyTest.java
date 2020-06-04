@@ -34,6 +34,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -99,8 +102,18 @@ public class ASTModifyTest {
 
     private void assertTree(JsonElement actual, JsonElement expected) {
         if (expected.isJsonObject()) {
-            Assert.assertEquals(expected.getAsJsonObject().keySet(), actual.getAsJsonObject().keySet());
-            for (String key : expected.getAsJsonObject().keySet()) {
+            Assert.assertEquals(expected.getAsJsonObject().entrySet().size(),
+                    actual.getAsJsonObject().entrySet().size());
+            Set<String> expectedKeys = new HashSet<>();
+            for (Map.Entry<String, JsonElement> entry: expected.getAsJsonObject().entrySet()){
+                expectedKeys.add(entry.getKey());
+            }
+            Set<String> actualKeys = new HashSet<>();
+            for (Map.Entry<String, JsonElement> entry: actual.getAsJsonObject().entrySet()){
+                actualKeys.add(entry.getKey());
+            }
+            Assert.assertEquals(expectedKeys, actualKeys);
+            for (String key : expectedKeys) {
                 if (!key.equals("id") && !key.equals("ws")) {
                     JsonElement expectedElement = expected.getAsJsonObject().get(key);
                     JsonElement actualElement = actual.getAsJsonObject().get(key);
