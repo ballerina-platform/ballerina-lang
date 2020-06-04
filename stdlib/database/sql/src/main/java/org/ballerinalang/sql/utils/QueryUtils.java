@@ -18,6 +18,7 @@
 package org.ballerinalang.sql.utils;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BPackage;
@@ -36,6 +37,7 @@ import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.datasource.SQLDatasource;
+import org.ballerinalang.sql.datasource.SQLDatasourceUtils;
 import org.ballerinalang.sql.exception.ApplicationError;
 
 import java.sql.Connection;
@@ -71,7 +73,7 @@ public class QueryUtils {
             String sqlQuery = null;
             try {
                 sqlQuery = Utils.getSqlQuery(paramSQLString);
-                connection = sqlDatasource.getSQLConnection();
+                connection = SQLDatasourceUtils.getConnection(Scheduler.getStrand(), client, sqlDatasource);
                 statement = connection.prepareStatement(sqlQuery);
                 Utils.setParams(connection, statement, paramSQLString);
                 resultSet = statement.executeQuery();

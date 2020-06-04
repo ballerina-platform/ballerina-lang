@@ -18,11 +18,13 @@
 package org.ballerinalang.sql.utils;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.datasource.SQLDatasource;
+import org.ballerinalang.sql.datasource.SQLDatasourceUtils;
 import org.ballerinalang.sql.exception.ApplicationError;
 
 import java.io.IOException;
@@ -55,7 +57,7 @@ public class ExecuteUtils {
             String sqlQuery = null;
             try {
                 sqlQuery = Utils.getSqlQuery(paramSQLString);
-                connection = sqlDatasource.getSQLConnection();
+                connection = SQLDatasourceUtils.getConnection(Scheduler.getStrand(), client, sqlDatasource);
                 statement = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
                 Utils.setParams(connection, statement, paramSQLString);
                 int count = statement.executeUpdate();

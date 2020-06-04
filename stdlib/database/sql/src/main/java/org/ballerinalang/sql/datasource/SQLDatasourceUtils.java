@@ -18,14 +18,26 @@
 package org.ballerinalang.sql.datasource;
 
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.transactions.BallerinaTransactionContext;
+import org.ballerinalang.jvm.transactions.TransactionLocalContext;
+import org.ballerinalang.jvm.transactions.TransactionResourceManager;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.sql.Constants;
+import org.ballerinalang.sql.transaction.SQLTransactionContext;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.sql.XAConnection;
+import javax.transaction.xa.XAResource;
 
 /**
  * Class contains utility methods for SQL datasource operations.
@@ -64,4 +76,52 @@ public class SQLDatasourceUtils {
         }
         return supported;
     }
+
+    public static Connection getConnection(Strand strand, ObjectValue client, SQLDatasource datasource)
+            throws SQLException {
+        Connection conn;
+        try {
+            boolean isInTransaction = strand.isInTransaction();
+            if (!isInTransaction) {
+                conn = datasource.getConnection();
+                return conn;
+            } else {
+                //This is when there is an infected transaction block. But this is not participated to the transaction
+                //since the action call is outside of the transaction block.
+                if (!strand.transactionLocalContext.hasTransactionBlock()) {
+                    conn = datasource.getConnection();
+                    return conn;
+                }
+            }
+            String connectorId = (String) client.getNativeData(Constants.SQL_CONNECTOR_TRANSACTION_ID);
+            boolean isXAConnection = datasource.isXADataSource();
+            TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+            String globalTxId = transactionLocalContext.getGlobalTransactionId();
+            String currentTxBlockId = transactionLocalContext.getCurrentTransactionBlockId();
+            BallerinaTransactionContext txContext = transactionLocalContext.getTransactionContext(connectorId);
+            if (txContext == null) {
+                if (isXAConnection) {
+                    XAConnection xaConn = datasource.getXAConnection();
+                    XAResource xaResource = xaConn.getXAResource();
+                    TransactionResourceManager.getInstance()
+                            .beginXATransaction(globalTxId, currentTxBlockId, xaResource);
+                    conn = xaConn.getConnection();
+                    txContext = new SQLTransactionContext(conn, xaResource);
+                } else {
+                    conn = datasource.getConnection();
+                    conn.setAutoCommit(false);
+                    txContext = new SQLTransactionContext(conn);
+                }
+                transactionLocalContext.registerTransactionContext(connectorId, txContext);
+                TransactionResourceManager.getInstance().register(globalTxId, currentTxBlockId, txContext);
+            } else {
+                conn = ((SQLTransactionContext) txContext).getConnection();
+            }
+        } catch (SQLException e) {
+            throw new SQLException("error while getting the connection for " + Constants.CONNECTOR_NAME + ". "
+                    + e.getMessage(), e.getSQLState(), e.getErrorCode());
+        }
+        return conn;
+    }
+
 }
