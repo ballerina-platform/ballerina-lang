@@ -19,6 +19,7 @@ package org.ballerinalang.sql.utils;
 
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
@@ -49,6 +50,7 @@ public class ExecuteUtils {
 
     public static Object nativeExecute(ObjectValue client, MapValue<BString, Object> paramSQLString) {
         Object dbClient = client.getNativeData(Constants.DATABASE_CLIENT);
+        Strand strand = Scheduler.getStrand();
         if (dbClient != null) {
             SQLDatasource sqlDatasource = (SQLDatasource) dbClient;
             Connection connection = null;
@@ -57,7 +59,7 @@ public class ExecuteUtils {
             String sqlQuery = null;
             try {
                 sqlQuery = Utils.getSqlQuery(paramSQLString);
-                connection = SQLDatasourceUtils.getConnection(Scheduler.getStrand(), client, sqlDatasource);
+                connection = SQLDatasourceUtils.getConnection(strand, client, sqlDatasource);
                 statement = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
                 Utils.setParams(connection, statement, paramSQLString);
                 int count = statement.executeUpdate();
@@ -74,15 +76,18 @@ public class ExecuteUtils {
                 return BallerinaValues.createRecordValue(Constants.SQL_PACKAGE_ID,
                         Constants.EXCUTE_RESULT_RECORD, resultFields);
             } catch (SQLException e) {
+                Utils.handleErrorOnTransaction(strand);
                 return ErrorGenerator.getSQLDatabaseError(e,
                         "Error while executing sql query: " + sqlQuery + ". ");
             } catch (ApplicationError | IOException e) {
+                Utils.handleErrorOnTransaction(strand);
                 return ErrorGenerator.getSQLApplicationError("Error while executing sql query: "
                         + sqlQuery + ". " + e.getMessage());
             } finally {
-                Utils.closeResources(resultSet, statement, connection);
+                Utils.closeResources(strand, resultSet, statement, connection);
             }
         } else {
+            Utils.handleErrorOnTransaction(strand);
             return ErrorGenerator.getSQLApplicationError(
                     "Client is not properly initialized!");
         }

@@ -19,6 +19,7 @@ package org.ballerinalang.sql.utils;
 
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BPackage;
@@ -65,6 +66,7 @@ public class QueryUtils {
     public static StreamValue nativeQuery(ObjectValue client, MapValue<BString, Object> paramSQLString,
                                           Object recordType) {
         Object dbClient = client.getNativeData(Constants.DATABASE_CLIENT);
+        Strand strand = Scheduler.getStrand();
         if (dbClient != null) {
             SQLDatasource sqlDatasource = (SQLDatasource) dbClient;
             Connection connection = null;
@@ -73,7 +75,7 @@ public class QueryUtils {
             String sqlQuery = null;
             try {
                 sqlQuery = Utils.getSqlQuery(paramSQLString);
-                connection = SQLDatasourceUtils.getConnection(Scheduler.getStrand(), client, sqlDatasource);
+                connection = SQLDatasourceUtils.getConnection(strand, client, sqlDatasource);
                 statement = connection.prepareStatement(sqlQuery);
                 Utils.setParams(connection, statement, paramSQLString);
                 resultSet = statement.executeQuery();
@@ -102,16 +104,19 @@ public class QueryUtils {
                 return new StreamValue(new BStreamType(streamConstraint), createRecordIterator(resultSet,
                         statement, connection, columnDefinitions, streamConstraint));
             } catch (SQLException e) {
-                Utils.closeResources(resultSet, statement, connection);
+                Utils.handleErrorOnTransaction(strand);
+                Utils.closeResources(strand, resultSet, statement, connection);
                 ErrorValue errorValue = ErrorGenerator.getSQLDatabaseError(e,
                         "Error while executing sql query: " + sqlQuery + ". ");
                 return new StreamValue(new BStreamType(getDefaultStreamConstraint()), createRecordIterator(errorValue));
             } catch (ApplicationError applicationError) {
-                Utils.closeResources(resultSet, statement, connection);
+                Utils.handleErrorOnTransaction(strand);
+                Utils.closeResources(strand, resultSet, statement, connection);
                 ErrorValue errorValue = ErrorGenerator.getSQLApplicationError(applicationError.getMessage());
                 return getErrorStream(recordType, errorValue);
             } catch (Throwable e) {
-                Utils.closeResources(resultSet, statement, connection);
+                Utils.handleErrorOnTransaction(strand);
+                Utils.closeResources(strand, resultSet, statement, connection);
                 String message = e.getMessage();
                 if (message == null) {
                     message = e.getClass().getName();
@@ -121,6 +126,7 @@ public class QueryUtils {
                 return getErrorStream(recordType, errorValue);
             }
         } else {
+            Utils.handleErrorOnTransaction(strand);
             ErrorValue errorValue = ErrorGenerator.getSQLApplicationError(
                     "Client is not properly initialized!");
             return getErrorStream(recordType, errorValue);

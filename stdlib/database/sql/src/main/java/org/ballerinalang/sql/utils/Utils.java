@@ -21,6 +21,9 @@ package org.ballerinalang.sql.utils;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.transactions.TransactionLocalContext;
+import org.ballerinalang.jvm.transactions.TransactionUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BRecordType;
@@ -90,7 +93,7 @@ class Utils {
     private static final BArrayType floatArrayType = new BArrayType(BTypes.typeFloat);
     private static final BArrayType decimalArrayType = new BArrayType(BTypes.typeDecimal);
 
-    static void closeResources(ResultSet resultSet, Statement statement, Connection connection) {
+    static void closeResources(Strand strand, ResultSet resultSet, Statement statement, Connection connection) {
         if (resultSet != null) {
             try {
                 resultSet.close();
@@ -103,12 +106,26 @@ class Utils {
             } catch (SQLException ignored) {
             }
         }
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException ignored) {
+        if (strand == null || !strand.isInTransaction() || !strand.transactionLocalContext.hasTransactionBlock()) {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ignored) {
+                }
             }
         }
+    }
+
+    public static void handleErrorOnTransaction(Strand strand) {
+        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+        if (transactionLocalContext == null || !transactionLocalContext.hasTransactionBlock()) {
+            return;
+        }
+        String globalTransactionId = transactionLocalContext.getGlobalTransactionId();
+        String transactionBlockId = transactionLocalContext.getCurrentTransactionBlockId();
+
+        transactionLocalContext.markFailure();
+        TransactionUtils.notifyTransactionAbort(strand, globalTransactionId, transactionBlockId);
     }
 
     static String getSqlQuery(MapValue<BString, Object> paramString) throws ApplicationError {
@@ -346,7 +363,7 @@ class Utils {
                     } else if (value instanceof Long) {
                         date = new Date((Long) value);
                     } else if (value instanceof MapValue) {
-                    MapValue<BString, Object> dateTimeStruct = (MapValue<BString, Object>) value;
+                        MapValue<BString, Object> dateTimeStruct = (MapValue<BString, Object>) value;
                         if (dateTimeStruct.getType().getName()
                                 .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
                             ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
@@ -370,7 +387,7 @@ class Utils {
                     } else if (value instanceof Long) {
                         time = new Time((Long) value);
                     } else if (value instanceof MapValue) {
-                    MapValue<BString, Object> dateTimeStruct = (MapValue<BString, Object>) value;
+                        MapValue<BString, Object> dateTimeStruct = (MapValue<BString, Object>) value;
                         if (dateTimeStruct.getType().getName()
                                 .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
                             ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
@@ -395,7 +412,7 @@ class Utils {
                     } else if (value instanceof Long) {
                         timestamp = new Timestamp((Long) value);
                     } else if (value instanceof MapValue) {
-                    MapValue<BString, Object> dateTimeStruct = (MapValue<BString, Object>) value;
+                        MapValue<BString, Object> dateTimeStruct = (MapValue<BString, Object>) value;
                         if (dateTimeStruct.getType().getName()
                                 .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
                             ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
@@ -941,7 +958,7 @@ class Utils {
 
     private static MapValue<BString, Object> createTimeStruct(long millis) {
         return TimeUtils.createTimeRecord(TimeUtils.getTimeZoneRecord(), TimeUtils.getTimeRecord(), millis,
-                                          Constants.TIMEZONE_UTC);
+                Constants.TIMEZONE_UTC);
     }
 
     private static String getString(java.util.Date value) {
