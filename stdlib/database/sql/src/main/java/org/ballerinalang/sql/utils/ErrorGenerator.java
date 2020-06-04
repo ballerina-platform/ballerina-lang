@@ -56,7 +56,7 @@ public class ErrorGenerator {
         valueMap.put(Constants.ErrorRecordFields.ERROR_CODE, vendorCode);
         valueMap.put(Constants.ErrorRecordFields.SQL_STATE, sqlState);
         MapValue<BString, Object> sqlClientErrorDetailRecord = BallerinaValues.
-                createRecordValue(Constants.SQL_PACKAGE_ID, Constants.DATABASE_ERROR_DATA, valueMap);
+                createRecordValue(Constants.SQL_PACKAGE_ID, Constants.DATABASE_ERROR_DETAILS, valueMap);
         return BallerinaErrors.createDistinctError(Constants.DATABASE_ERROR, Constants.SQL_PACKAGE_ID,
                 message, sqlClientErrorDetailRecord);
     }
