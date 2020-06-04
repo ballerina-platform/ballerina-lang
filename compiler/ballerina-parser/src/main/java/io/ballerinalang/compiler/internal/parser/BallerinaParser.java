@@ -4101,7 +4101,7 @@ public class BallerinaParser extends AbstractParser {
             return lhsExpr;
         }
 
-        if (!isValidExprRhsStart(tokenKind)) {
+        if (!isValidExprRhsStart(tokenKind) || isInvalidFunctionCallStart(tokenKind, lhsExpr)) {
             STToken token = peek();
             Solution solution = recover(token, ParserRuleContext.EXPRESSION_RHS, currentPrecedenceLevel, lhsExpr,
                     isRhsExpr, allowActions);
@@ -4238,6 +4238,14 @@ public class BallerinaParser extends AbstractParser {
             default:
                 return isBinaryOperator(tokenKind);
         }
+    }
+
+    private boolean isInvalidFunctionCallStart(SyntaxKind tokenKind, STNode lhsExpr) {
+        if (tokenKind == SyntaxKind.OPEN_PAREN_TOKEN) {
+            // A function call is only followed by an identifier or a qualified identifier.
+            return lhsExpr.kind != SyntaxKind.QUALIFIED_NAME_REFERENCE && lhsExpr.kind != SyntaxKind.SIMPLE_NAME_REFERENCE;
+        }
+        return false;
     }
 
     /**
