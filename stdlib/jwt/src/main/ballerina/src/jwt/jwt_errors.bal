@@ -49,9 +49,9 @@ function prepareAuthError(string message, error? err = ()) returns auth:Error {
     log:printError(message, err);
     auth:Error authError;
     if (err is error) {
-        authError = AuthError(message, err);
+        authError = error(message, err);
     } else {
-        authError = AuthError(message);
+        authError = error(message);
     }
     return authError;
 }
