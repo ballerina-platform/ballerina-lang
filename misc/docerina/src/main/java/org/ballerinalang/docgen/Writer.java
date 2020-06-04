@@ -108,6 +108,13 @@ public class Writer {
                 return newDescription;
             });
 
+            handlebars.registerHelper("setStyles", (Helper<String>) (description, options) -> {
+                //set css for table tags
+                String newDescription = description.replaceAll("<table>", "<table class=\"ui table row-border " +
+                        "pad-left\">");
+                return newDescription;
+            });
+
             handlebars.registerHelper("removePTags", (Helper<String>) (string, options) -> {
                 //remove paragraph tags
                 if (string != null) {
