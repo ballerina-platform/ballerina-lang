@@ -365,9 +365,9 @@ public type _DoFunction object {
         _StreamFunction pf = <_StreamFunction> self.prevFunc;
         function(_Frame _frame) f = self.doFunc;
         _Frame|error? pFrame = pf.process();
-        while (pFrame is _Frame) {
+        if (pFrame is _Frame) {
             f(pFrame);
-            pFrame = pf.process();
+            return pFrame;
         }
         if (pFrame is error) {
             return pFrame;
@@ -382,3 +382,36 @@ public type _DoFunction object {
     }
 };
 
+public type _LimitFunction object {
+    *_StreamFunction;
+
+    # Desugared function to limit the number of results
+
+    public int lmt;
+    public int count = 0;
+
+    public function __init(int lmt) {
+        self.lmt = lmt;
+        self.prevFunc = ();
+        if (lmt < 0) {
+            panic error("Unable to assign limit", message = "limit cannot be < 0.");
+        }
+    }
+
+    public function process() returns _Frame|error? {
+        _StreamFunction pf = <_StreamFunction> self.prevFunc;
+        if (self.count < self.lmt) {
+            _Frame|error? pFrame = pf.process();
+            self.count += 1;
+            return pFrame;
+        }
+        return ();
+    }
+
+    public function reset() {
+        _StreamFunction? pf = self.prevFunc;
+        if (pf is _StreamFunction) {
+            pf.reset();
+        }
+    }
+};

@@ -31,8 +31,8 @@
               "kind": "ON_KEYWORD"
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "isMissing": true
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "SERVICE_BODY",
@@ -74,8 +74,8 @@
               "kind": "ON_KEYWORD"
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "isMissing": true
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "SERVICE_BODY",
@@ -144,6 +144,25 @@
                               "value": "ppp"
                             }
                           ]
+                        },
+                        {
+                          "kind": "COMMA_TOKEN",
+                          "isMissing": true
+                        },
+                        {
+                          "kind": "MAPPING_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "OPEN_BRACE_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
+                              "kind": "CLOSE_BRACE_TOKEN"
+                            }
+                          ]
                         }
                       ]
                     },
@@ -160,9 +179,6 @@
               "isMissing": true
             }
           ]
-        },
-        {
-          "kind": "EOF_TOKEN"
         }
       ]
     },

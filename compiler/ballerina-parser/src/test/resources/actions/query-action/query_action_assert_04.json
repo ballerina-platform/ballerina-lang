@@ -81,11 +81,21 @@
                               "kind": "FROM_KEYWORD"
                             },
                             {
-                              "kind": "VAR_KEYWORD"
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "person"
+                              "kind": "TYPED_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "VAR_KEYWORD"
+                                },
+                                {
+                                  "kind": "CAPTURE_BINDING_PATTERN",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "person"
+                                    }
+                                  ]
+                                }
+                              ]
                             },
                             {
                               "kind": "IN_KEYWORD"
@@ -240,11 +250,11 @@
                                           ]
                                         },
                                         {
+                                          "kind": "COMMA_TOKEN"
+                                        },
+                                        {
                                           "kind": "SPECIFIC_FIELD",
                                           "children": [
-                                            {
-                                              "kind": "COMMA_TOKEN"
-                                            },
                                             {
                                               "kind": "IDENTIFIER_TOKEN",
                                               "value": "lastName"

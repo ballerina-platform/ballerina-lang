@@ -906,8 +906,12 @@ shiftExpression
 
 shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
+limitClause
+    :   LIMIT expression
+    ;
+
 onConflictClause
-    :    ON CONFLICT expression
+    :   ON CONFLICT expression
     ;
 
 selectClause
@@ -947,11 +951,11 @@ queryConstructType
     ;
 
 queryExpr
-    :   queryConstructType? queryPipeline selectClause onConflictClause?
+    :   queryConstructType? queryPipeline selectClause onConflictClause? limitClause?
     ;
 
 queryAction
-    :   queryPipeline doClause
+    :   queryPipeline doClause limitClause?
     ;
 
 //reusable productions

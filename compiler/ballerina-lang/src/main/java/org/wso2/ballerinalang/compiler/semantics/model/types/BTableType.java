@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.TableType;
+import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -38,9 +39,15 @@ public class BTableType extends BType implements TableType {
     public List<String> fieldNameList;
     public DiagnosticPos keyPos;
     public DiagnosticPos constraintPos;
+    public BTableType immutableType;
 
     public BTableType(int tag, BType constraint, BTypeSymbol tSymbol) {
         super(tag, tSymbol);
+        this.constraint = constraint;
+    }
+
+    public BTableType(int tag, BType constraint, BTypeSymbol tSymbol, int flags) {
+        super(tag, tSymbol, flags);
         this.constraint = constraint;
     }
 
@@ -82,5 +89,10 @@ public class BTableType extends BType implements TableType {
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public Type getImmutableType() {
+        return immutableType;
     }
 }

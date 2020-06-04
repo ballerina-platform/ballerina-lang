@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STParenthesisedTypeDescriptorNode extends STTypeDescriptorNode {
             STNode openParenToken,
             STNode typedesc,
             STNode closeParenToken) {
-        super(SyntaxKind.PARENTHESISED_TYPE_DESC);
+        this(
+                openParenToken,
+                typedesc,
+                closeParenToken,
+                Collections.emptyList());
+    }
+
+    STParenthesisedTypeDescriptorNode(
+            STNode openParenToken,
+            STNode typedesc,
+            STNode closeParenToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.PARENTHESISED_TYPE_DESC, diagnostics);
         this.openParenToken = openParenToken;
         this.typedesc = typedesc;
         this.closeParenToken = closeParenToken;
@@ -45,6 +60,14 @@ public class STParenthesisedTypeDescriptorNode extends STTypeDescriptorNode {
                 openParenToken,
                 typedesc,
                 closeParenToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STParenthesisedTypeDescriptorNode(
+                this.openParenToken,
+                this.typedesc,
+                this.closeParenToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

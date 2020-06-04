@@ -25,11 +25,11 @@
           ]
         },
         {
+          "kind": "COMMA_TOKEN"
+        },
+        {
           "kind": "SPECIFIC_FIELD",
           "children": [
-            {
-              "kind": "COMMA_TOKEN"
-            },
             {
               "kind": "STRING_LITERAL",
               "value": "c"

@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -37,7 +40,21 @@ public class STBracedExpressionNode extends STExpressionNode {
             STNode openParen,
             STNode expression,
             STNode closeParen) {
-        super(kind);
+        this(
+                kind,
+                openParen,
+                expression,
+                closeParen,
+                Collections.emptyList());
+    }
+
+    STBracedExpressionNode(
+            SyntaxKind kind,
+            STNode openParen,
+            STNode expression,
+            STNode closeParen,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(kind, diagnostics);
         this.openParen = openParen;
         this.expression = expression;
         this.closeParen = closeParen;
@@ -46,6 +63,15 @@ public class STBracedExpressionNode extends STExpressionNode {
                 openParen,
                 expression,
                 closeParen);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STBracedExpressionNode(
+                this.kind,
+                this.openParen,
+                this.expression,
+                this.closeParen,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
