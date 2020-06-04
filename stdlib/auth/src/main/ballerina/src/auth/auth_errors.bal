@@ -16,7 +16,7 @@
 
 import ballerina/log;
 
-# Represents the Auth error.
+# Represents the Auth distinct error.
 public type AuthError distinct error;
 
 # Represents the Auth error. This will be returned if an error occurred while inbound auth providers
