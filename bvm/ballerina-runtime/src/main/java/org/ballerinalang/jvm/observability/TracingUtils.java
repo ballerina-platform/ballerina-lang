@@ -59,16 +59,16 @@ public class TracingUtils {
      */
     public static void startObservation(ObserverContext observerContext, boolean isClient) {
         BSpan span = new BSpan(observerContext, isClient);
-        span.setConnectorName(observerContext.getServiceName() != null ?
+        span.setServiceName(observerContext.getServiceName() != null ?
                 observerContext.getServiceName() : ObservabilityConstants.UNKNOWN_SERVICE);
 
         if (isClient) {
-            span.setActionName(StringUtils.isNotEmpty(observerContext.getConnectorName()) ?
-                    observerContext.getConnectorName() + SEPARATOR + observerContext.getActionName()
-                    : observerContext.getActionName());
+            span.setOperationName(StringUtils.isNotEmpty(observerContext.getObjectName())
+                    ? observerContext.getObjectName() + SEPARATOR + observerContext.getFunctionName()
+                    : observerContext.getFunctionName());
             observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, span.getProperties());
         } else {
-            span.setActionName(observerContext.getResourceName());
+            span.setOperationName(observerContext.getResourceName());
             Map<String, String> httpHeaders =
                     (Map<String, String>) observerContext.getProperty(PROPERTY_TRACE_PROPERTIES);
 

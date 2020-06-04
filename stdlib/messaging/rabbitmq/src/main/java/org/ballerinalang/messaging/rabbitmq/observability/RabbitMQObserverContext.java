@@ -30,7 +30,7 @@ import org.ballerinalang.jvm.observability.ObserverContext;
 public class RabbitMQObserverContext extends ObserverContext {
 
     RabbitMQObserverContext() {
-        setConnectorName(RabbitMQObservabilityConstants.CONNECTOR_NAME);
+        setObjectName(RabbitMQObservabilityConstants.CONNECTOR_NAME);
     }
 
     RabbitMQObserverContext(Connection connection) {

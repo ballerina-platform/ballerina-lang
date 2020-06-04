@@ -48,14 +48,14 @@ public class TraceManager {
 
     public void startSpan(BSpan parentBSpan, BSpan activeBSpan) {
         if (activeBSpan != null) {
-            String service = activeBSpan.getConnectorName();
-            String resource = activeBSpan.getActionName();
+            String service = activeBSpan.getServiceName();
+            String operationName = activeBSpan.getOperationName();
 
             Span span;
             if (parentBSpan != null) {
-                span = startSpan(resource, parentBSpan.getSpan(), activeBSpan.getTags(), service, false);
+                span = startSpan(operationName, parentBSpan.getSpan(), activeBSpan.getTags(), service, false);
             } else {
-                span = startSpan(resource, extractSpanContext(activeBSpan.getProperties(), service),
+                span = startSpan(operationName, extractSpanContext(activeBSpan.getProperties(), service),
                         activeBSpan.getTags(), service, true);
             }
 

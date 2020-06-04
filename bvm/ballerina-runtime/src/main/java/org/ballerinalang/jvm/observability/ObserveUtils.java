@@ -184,15 +184,15 @@ public class ObserveUtils {
         newObContext.setServiceName(observerCtx == null ? UNKNOWN_SERVICE : observerCtx.getServiceName());
         newObContext.setResourceName(observerCtx == null ? UNKNOWN_RESOURCE : observerCtx.getResourceName());
         if (typeDef == null) {
-            newObContext.setConnectorName(StringUtils.EMPTY);
+            newObContext.setObjectName(StringUtils.EMPTY);
         } else {
             String className = typeDef.getClass().getCanonicalName();
             String[] classNameSplit = className.split("\\.");
             int lastIndexOfDollar = classNameSplit[3].lastIndexOf('$');
-            newObContext.setConnectorName(classNameSplit[0] + "/" + classNameSplit[1] + "/"
+            newObContext.setObjectName(classNameSplit[0] + "/" + classNameSplit[1] + "/"
                     + classNameSplit[3].substring(lastIndexOfDollar + 1));
         }
-        newObContext.setActionName(functionName.getValue());
+        newObContext.setFunctionName(functionName.getValue());
 
         newObContext.addMainTag(TAG_KEY_MODULE, pkg.getValue());
         newObContext.addMainTag(TAG_KEY_INVOCATION_POSITION, position.getValue());

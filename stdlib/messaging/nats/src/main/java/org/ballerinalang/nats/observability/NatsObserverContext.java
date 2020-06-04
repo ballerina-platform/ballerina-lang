@@ -28,11 +28,11 @@ import org.ballerinalang.jvm.observability.ObserverContext;
 public class NatsObserverContext extends ObserverContext {
 
     NatsObserverContext() {
-        setConnectorName(NatsObservabilityConstants.CONNECTOR_NAME);
+        setObjectName(NatsObservabilityConstants.CONNECTOR_NAME);
     }
 
     NatsObserverContext(String context) {
-        setConnectorName(NatsObservabilityConstants.CONNECTOR_NAME);
+        setObjectName(NatsObservabilityConstants.CONNECTOR_NAME);
         addTag(NatsObservabilityConstants.TAG_CONTEXT, context);
     }
 
