@@ -18,7 +18,7 @@ import ballerina/io;
 import ballerina/lang.'object;
 
 function __init() {
-	io:println("Initializing module 'basicModule'");
+	io:println("Initializing module 'basic'");
 }
 
 public function main() {
@@ -39,9 +39,9 @@ public type TestListener object {
 
     public function __gracefulStop() returns error? {
         io:println("basic:TestListener listener __gracefulStop called, service name - " + self.name);
-        if (self.name == "error") {
+        if (self.name == "dependent") {
             io:println("listener __gracefulStop panicked, service name - " + self.name);
-            error sampleErr = error("panicked while stopping module 'errorModule'");
+            error sampleErr = error("panicked while stopping module 'dependent'");
             panic sampleErr;
         }
         return ();

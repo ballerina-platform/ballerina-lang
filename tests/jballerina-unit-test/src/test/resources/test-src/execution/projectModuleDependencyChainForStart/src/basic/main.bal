@@ -17,35 +17,32 @@
 import ballerina/io;
 import ballerina/lang.'object;
 
-int initCount = 0;
-
 function __init() {
-    initCount += 1;
-	io:println("Initializing module 'basicModule'");
+	io:println("Initializing module 'basic'");
 }
 
 public function main() {
-}
-
-public function getInitCount() returns int {
-    return initCount;
 }
 
 public type TestListener object {
 
     *'object:Listener;
     private string name = "";
+    private int startCount = 0;
 
     public function __init(string name){
         self.name = name;
     }
 
     public function __start() returns error? {
+        self.startCount += 1;
         io:println("basic:TestListener listener __start called, service name - " + self.name);
     }
 
     public function __gracefulStop() returns error? {
         io:println("basic:TestListener listener __gracefulStop called, service name - " + self.name);
+        string errorMsg = "Assertion Failed for service - ";
+        self.assertEquals(self.startCount, 1, errorMsg + self.name );
         return ();
     }
 
@@ -60,6 +57,16 @@ public type TestListener object {
 
     public function __detach(service s) returns error? {
         io:println("basic:TestListener listener __detach called, service name - " + self.name);
+    }
+
+    function assertEquals(int actual, int expected, string msg) {
+        boolean isEqual = actual == expected;
+        if (!isEqual) {
+            string expectedStr = io:sprintf("%s", expected);
+            string actualStr = io:sprintf("%s", actual);
+            string errorMsg = string `${msg}: expected '${expectedStr}' but found '${actualStr}'`;
+            panic error(errorMsg);
+        }
     }
 };
 

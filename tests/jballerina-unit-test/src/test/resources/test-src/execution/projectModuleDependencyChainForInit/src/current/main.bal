@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import basicModule;
-import firstDependentModule;
-import secondDependentModule;
+import basic;
+import dependent1;
+import dependent2;
 
 import ballerina/io;
 
@@ -24,17 +24,17 @@ int initCount = 0;
 
 function __init() {
     initCount += 1;
-	io:println("Initializing module 'mainModule'");
+	io:println("Initializing module 'current'");
 }
 
 public function main() {
-    io:println("main function invoked for main module");
+    io:println("main function invoked for current module");
 
     string errorMsg = "Assertion Failed for service - ";
-    assertEquals(initCount, 1, errorMsg + "main" );
-    assertEquals(firstDependentModule:getInitCount(), 1, errorMsg + "first dependent");
-    assertEquals(secondDependentModule:getInitCount(), 1, errorMsg + "second dependent");
-    assertEquals(basicModule:getInitCount(), 1, errorMsg + "basic");
+    assertEquals(initCount, 1, errorMsg + "current" );
+    assertEquals(dependent1:getInitCount(), 1, errorMsg + "first dependent");
+    assertEquals(dependent2:getInitCount(), 1, errorMsg + "second dependent");
+    assertEquals(basic:getInitCount(), 1, errorMsg + "basic");
 
 }
 
@@ -48,4 +48,4 @@ public function assertEquals(int actual, int expected, string msg) {
     }
 }
 
-listener basicModule:TestListener ep = new basicModule:TestListener("main");
+listener basic:TestListener ep = new basic:TestListener("current");

@@ -164,44 +164,44 @@ public class ModuleExecutionFlowTests {
     @Test
     public void testModuleStartAndStopPanic() {
         CompileResult compileResult =
-                BCompileUtil.compile("test-src/execution/projectStartAndStopPanic", "mainModule", false);
+                BCompileUtil.compile("test-src/execution/projectStartAndStopPanic", "current", false);
         ExitDetails output = run(compileResult, new String[]{});
 
-        String expectedConsoleString = "Initializing module 'basicModule'\n" +
-                "Initializing module 'errorModule'\n" +
-                "Initializing module 'mainModule'\n" +
-                "main function invoked for main module\n" +
+        String expectedConsoleString = "Initializing module 'basic'\n" +
+                "Initializing module 'dependent'\n" +
+                "Initializing module 'current'\n" +
+                "main function invoked for current module\n" +
                 "basic:TestListener listener __start called, service name - basic\n" +
-                "basic:TestListener listener __start called, service name - error\n" +
-                "listener __start panicked for service name - error\n" +
-                "basic:TestListener listener __gracefulStop called, service name - error\n" +
-                "listener __gracefulStop panicked, service name - error\n" +
+                "basic:TestListener listener __start called, service name - dependent\n" +
+                "listener __start panicked for service name - dependent\n" +
+                "basic:TestListener listener __gracefulStop called, service name - dependent\n" +
+                "listener __gracefulStop panicked, service name - dependent\n" +
                 "basic:TestListener listener __gracefulStop called, service name - basic";
 
-        String expectedErrorString = "error: panicked while starting module 'errorModule' \n" +
-                "\tat unit-tests.basicModule.0_1_0.TestListener:__start(main.bal:40)";
+        String expectedErrorString = "error: panicked while starting module 'dependent' \n" +
+                "\tat test.basic.0_1_0.TestListener:__start(main.bal:40)";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
 
     @Test
     public void testModuleStopPanic() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/execution/projectStopPanic", "mainModule", false);
+        CompileResult compileResult = BCompileUtil.compile("test-src/execution/projectStopPanic", "current", false);
         ExitDetails output = run(compileResult, new String[]{});
 
-        String expectedConsoleString = "Initializing module 'basicModule'\n" +
-                "Initializing module 'errorModule'\n" +
-                "Initializing module 'mainModule'\n" +
-                "main function invoked for main module\n" +
+        String expectedConsoleString = "Initializing module 'basic'\n" +
+                "Initializing module 'dependent'\n" +
+                "Initializing module 'current'\n" +
+                "main function invoked for current module\n" +
                 "basic:TestListener listener __start called, service name - basic\n" +
-                "basic:TestListener listener __start called, service name - error\n" +
-                "basic:TestListener listener __start called, service name - main\n" +
-                "basic:TestListener listener __gracefulStop called, service name - main\n" +
-                "basic:TestListener listener __gracefulStop called, service name - error\n" +
-                "listener __gracefulStop panicked, service name - error\n" +
+                "basic:TestListener listener __start called, service name - dependent\n" +
+                "basic:TestListener listener __start called, service name - current\n" +
+                "basic:TestListener listener __gracefulStop called, service name - current\n" +
+                "basic:TestListener listener __gracefulStop called, service name - dependent\n" +
+                "listener __gracefulStop panicked, service name - dependent\n" +
                 "basic:TestListener listener __gracefulStop called, service name - basic";
-        String expectedErrorString = "error: panicked while stopping module 'errorModule' \n" +
-                "\tat unit-tests.basicModule.0_1_0.TestListener:__gracefulStop(main.bal:44)";
+        String expectedErrorString = "error: panicked while stopping module 'dependent' \n" +
+                "\tat test.basic.0_1_0.TestListener:__gracefulStop(main.bal:44)";
 
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
@@ -210,19 +210,19 @@ public class ModuleExecutionFlowTests {
     @Test(description = "Test 'init' is called only once for each module at runtime")
     public void testModuleDependencyChainForInit() {
         CompileResult compileResult =
-                BCompileUtil.compile("test-src/execution/projectModuleDependencyChainForInit", "mainModule", false);
+                BCompileUtil.compile("test-src/execution/projectModuleDependencyChainForInit", "current", false);
         ExitDetails output = run(compileResult, new String[]{});
 
-        String expectedConsoleString = "Initializing module 'basicModule'\n" +
-                "Initializing module 'firstDependentModule'\n" +
-                "Initializing module 'secondDependentModule'\n" +
-                "Initializing module 'mainModule'\n" +
-                "main function invoked for main module\n" +
+        String expectedConsoleString = "Initializing module 'basic'\n" +
+                "Initializing module 'dependent1'\n" +
+                "Initializing module 'dependent2'\n" +
+                "Initializing module 'current'\n" +
+                "main function invoked for current module\n" +
                 "basic:TestListener listener __start called, service name - basic\n" +
                 "basic:TestListener listener __start called, service name - first dependent\n" +
                 "basic:TestListener listener __start called, service name - second dependent\n" +
-                "basic:TestListener listener __start called, service name - main\n" +
-                "basic:TestListener listener __gracefulStop called, service name - main\n" +
+                "basic:TestListener listener __start called, service name - current\n" +
+                "basic:TestListener listener __gracefulStop called, service name - current\n" +
                 "basic:TestListener listener __gracefulStop called, service name - second dependent\n" +
                 "basic:TestListener listener __gracefulStop called, service name - first dependent\n" +
                 "basic:TestListener listener __gracefulStop called, service name - basic";
@@ -233,19 +233,19 @@ public class ModuleExecutionFlowTests {
     @Test(description = "Test 'start' is called only once for each module at runtime")
     public void testModuleDependencyChainForStart() {
         CompileResult compileResult =
-                BCompileUtil.compile("test-src/execution/projectModuleDependencyChainForStart", "mainModule", false);
+                BCompileUtil.compile("test-src/execution/projectModuleDependencyChainForStart", "current", false);
         ExitDetails output = run(compileResult, new String[]{});
 
-        String expectedConsoleString = "Initializing module 'basicModule'\n" +
-                "Initializing module 'firstDependentModule'\n" +
-                "Initializing module 'secondDependentModule'\n" +
-                "Initializing module 'mainModule'\n" +
-                "main function invoked for main module\n" +
+        String expectedConsoleString = "Initializing module 'basic'\n" +
+                "Initializing module 'dependent1'\n" +
+                "Initializing module 'dependent2'\n" +
+                "Initializing module 'current'\n" +
+                "main function invoked for current module\n" +
                 "basic:TestListener listener __start called, service name - basic\n" +
                 "basic:TestListener listener __start called, service name - first dependent\n" +
                 "basic:TestListener listener __start called, service name - second dependent\n" +
-                "basic:TestListener listener __start called, service name - main\n" +
-                "basic:TestListener listener __gracefulStop called, service name - main\n" +
+                "basic:TestListener listener __start called, service name - current\n" +
+                "basic:TestListener listener __gracefulStop called, service name - current\n" +
                 "basic:TestListener listener __gracefulStop called, service name - second dependent\n" +
                 "basic:TestListener listener __gracefulStop called, service name - first dependent\n" +
                 "basic:TestListener listener __gracefulStop called, service name - basic";

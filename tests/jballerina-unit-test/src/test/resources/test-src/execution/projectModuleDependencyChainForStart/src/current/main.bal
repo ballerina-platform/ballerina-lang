@@ -14,18 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import basicModule;
+import basic;
+import dependent1;
+import dependent2;
+
 import ballerina/io;
 
-int initCount = 0;
-
 function __init() {
-    initCount += 1;
-	io:println("Initializing module 'firstDependentModule'");
+	io:println("Initializing module 'current'");
 }
 
-public function getInitCount() returns int {
-    return initCount;
+public function main() {
+    dependent1:sample();
+    dependent2:sample();
+    io:println("main function invoked for current module");
 }
 
-listener basicModule:TestListener ep = new basicModule:TestListener("first dependent");
+listener basic:TestListener ep = new basic:TestListener("current");
