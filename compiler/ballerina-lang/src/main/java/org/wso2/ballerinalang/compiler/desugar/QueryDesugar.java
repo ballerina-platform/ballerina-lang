@@ -190,6 +190,8 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_ADD_STREAM_FUNCTION = new Name("addStreamFunction");
     private static final Name QUERY_CONSUME_STREAM_FUNCTION = new Name("consumeStream");
     private static final Name QUERY_TO_ARRAY_FUNCTION = new Name("toArray");
+    private static final Name QUERY_TO_STRING_FUNCTION = new Name("toString");
+    private static final Name QUERY_TO_XML_FUNCTION = new Name("toXML");
     private static final Name QUERY_ADD_TO_TABLE_FUNCTION = new Name("addToTable");
     private static final Name QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION = new Name("getStreamFromPipeline");
     private static final String FRAME_PARAMETER_NAME = "$frame$";
@@ -241,9 +243,16 @@ public class QueryDesugar extends BLangNodeVisitor {
                     QUERY_ADD_TO_TABLE_FUNCTION, Lists.of(streamRef, tableRef, onConflictExpr), pos);
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, result);
             streamStmtExpr.type = tableRef.type;
+            onConflictExpr = null;
         } else {
-            BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
-                    QUERY_TO_ARRAY_FUNCTION, Lists.of(streamRef), pos);
+            BLangVariableReference result;
+            if (queryExpr.type.tag == TypeTags.XML) {
+                result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION, Lists.of(streamRef), pos);
+            } else if (queryExpr.type.tag == TypeTags.STRING) {
+                result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STRING_FUNCTION, Lists.of(streamRef), pos);
+            } else {
+                result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_ARRAY_FUNCTION, Lists.of(streamRef), pos);
+            }
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, result);
             streamStmtExpr.type = result.type;
         }
@@ -1049,7 +1058,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation invocationExpr) {
         List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
-        if (invocationExpr.langLibInvocation) {
+        if (invocationExpr.langLibInvocation && !requiredArgs.isEmpty()) {
             requiredArgs = requiredArgs.subList(1, requiredArgs.size());
         }
         requiredArgs.forEach(arg -> arg.accept(this));
