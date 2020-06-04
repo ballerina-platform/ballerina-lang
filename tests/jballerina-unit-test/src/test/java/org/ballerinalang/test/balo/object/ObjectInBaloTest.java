@@ -377,6 +377,28 @@ public class ObjectInBaloTest {
         Assert.assertEquals(returns[1].stringValue(), "sanjiva");
     }
 
+    @Test(description = "Test object subtyping")
+    public void testObjectEqualityBetweenNonClientAndClientObject() {
+        CompileResult result = BCompileUtil.compile("test-src/balo/test_balo/object" +
+                "/object_subtyping_tests.bal");
+        BValue[] returns = BRunUtil.invoke(result, "testObjectEqualityBetweenNonClientAndClientObject");
+    }
+
+    @Test (description = "Negative test to test subtyping of various object types")
+    public void testEqOfObjectsWithAndWithoutRemoteMethods1() {
+        CompileResult result = BCompileUtil.compile("test-src/balo/test_balo/object" +
+                "/object_subtyping_negative_tests.bal");
+        Assert.assertEquals(result.getErrorCount(), 4);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'testorg/foo:1.0.0:" +
+                "ObjectWithRemoteMethod', found 'testorg/foo:1.0.0:NonClientObject'", 21, 36);
+        BAssertUtil.validateError(result, 1, "incompatible types: expected 'testorg/foo:1.0.0:" +
+                "ObjectWithRemoteMethod', found 'testorg/foo:1.0.0:ClientObjectWithoutRemoteMethod'", 26, 36);
+        BAssertUtil.validateError(result, 2, "incompatible types: expected 'testorg/foo:1.0.0:" +
+                "ObjectWithOnlyRemoteMethod', found 'testorg/foo:1.0.0:ClientObjectWithoutRemoteMethod'", 31, 40);
+        BAssertUtil.validateError(result, 3, "incompatible types: expected 'testorg/foo:1.0.0:" +
+                "ObjectWithOnlyRemoteMethod', found 'testorg/foo:1.0.0:NonClientObject'", 36, 40);
+    }
+
     @Test (description = "Negative test to test multiple attach functions for same function interface and " +
             "attached function without function interface")
     public void testObjectNegativeTestForAttachFunctions() {
