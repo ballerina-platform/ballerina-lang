@@ -30,11 +30,9 @@ public class ObservabilityConstants {
     }
 
     public static final String SERVICE_NAME = "service_name";
-    public static final String KEY_TRACE_CONTEXT = "_trace_context_";
     public static final String KEY_OBSERVER_CONTEXT = "__observer_context__";
     public static final String UNKNOWN_SERVICE = "Unknown Service";
     public static final String UNKNOWN_RESOURCE = "Unknown Resource";
-    public static final String UNKNOWN_CONNECTOR = "Unknown";
 
     public static final String SERVER_CONNECTOR_HTTP = "http";
     public static final String SERVER_CONNECTOR_WEBSOCKET = "ws";
@@ -46,12 +44,6 @@ public class ObservabilityConstants {
 
     public static final String TAG_KEY_PEER_ADDRESS = "peer.address";
 
-    public static final String PROPERTY_HTTP_HOST = "host";
-    public static final String PROPERTY_HTTP_PORT = "port";
-
-    public static final String TAG_KEY_DB_INSTANCE = "db.instance";
-    public static final String TAG_KEY_DB_STATEMENT = "db.statement";
-    public static final String TAG_KEY_DB_TYPE = "db.type";
     public static final String TAG_KEY_SERVICE = "service";
     public static final String TAG_KEY_RESOURCE = "resource";
     public static final String TAG_KEY_FUNCTION = "function";
@@ -66,7 +58,8 @@ public class ObservabilityConstants {
     public static final String TAG_KEY_IS_WORKER = "src.worker";
     public static final String TAG_KEY_IS_REMOTE = "src.remote";
 
-    public static final String TAG_DB_TYPE_SQL = "sql";
+    public static final String PROPERTY_HTTP_HOST = "host";
+    public static final String PROPERTY_HTTP_PORT = "port";
 
     public static final String PROPERTY_TRACE_PROPERTIES = "trace_properties";
     public static final String PROPERTY_KEY_HTTP_STATUS_CODE = "http.status_code";
