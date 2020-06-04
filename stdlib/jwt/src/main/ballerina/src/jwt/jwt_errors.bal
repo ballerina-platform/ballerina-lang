@@ -17,9 +17,12 @@
 import ballerina/auth;
 import ballerina/log;
 
+# Represents the JWT distinct error
+public type JwtError distinct error;
+
 # Represents the JWT error type with details. This will be returned if an error occurred while issuing/validating a
 # JWT or any operation related to JWT.
-public type Error distinct error;
+public type Error JwtError;
 
 # Logs and prepares the `error` as an `Error`.
 #
@@ -30,9 +33,9 @@ function prepareError(string message, error? err = ()) returns Error {
     log:printError(message, err);
     Error jwtError;
     if (err is error) {
-        jwtError = error(message, err);
+        jwtError = JwtError(message, err);
     } else {
-        jwtError = error(message);
+        jwtError = JwtError(message);
     }
     return jwtError;
 }
@@ -46,9 +49,9 @@ function prepareAuthError(string message, error? err = ()) returns auth:Error {
     log:printError(message, err);
     auth:Error authError;
     if (err is error) {
-        authError = error(message, err);
+        authError = AuthError(message, err);
     } else {
-        authError = error(message);
+        authError = AuthError(message);
     }
     return authError;
 }

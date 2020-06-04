@@ -16,9 +16,12 @@
 
 import ballerina/log;
 
-# Represents the Auth error type with details. This will be returned if an error occurred while inbound auth providers
+# Represents the Auth error.
+public type AuthError distinct error;
+
+# Represents the Auth error. This will be returned if an error occurred while inbound auth providers
 # try to authenticate the received credentials and outbound auth providers try to generate the token.
-public type Error distinct error;
+public type Error AuthError;
 
 # Log and prepare `error` as a `Error`.
 #
@@ -29,9 +32,9 @@ function prepareError(string message, error? err = ()) returns Error {
     log:printError(message, err);
     Error authError;
     if (err is error) {
-        authError = error(message, err);
+        authError = AuthError(message, err);
     } else {
-        authError = error(message);
+        authError = AuthError(message);
     }
     return authError;
 }
