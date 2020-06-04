@@ -20,11 +20,11 @@
           ]
         },
         {
+          "kind": "COMMA_TOKEN"
+        },
+        {
           "kind": "SPREAD_FIELD",
           "children": [
-            {
-              "kind": "COMMA_TOKEN"
-            },
             {
               "kind": "ELLIPSIS_TOKEN"
             },

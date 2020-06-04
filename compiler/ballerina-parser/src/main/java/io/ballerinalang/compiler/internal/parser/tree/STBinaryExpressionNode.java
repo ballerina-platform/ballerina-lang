@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -37,7 +40,21 @@ public class STBinaryExpressionNode extends STExpressionNode {
             STNode lhsExpr,
             STNode operator,
             STNode rhsExpr) {
-        super(kind);
+        this(
+                kind,
+                lhsExpr,
+                operator,
+                rhsExpr,
+                Collections.emptyList());
+    }
+
+    STBinaryExpressionNode(
+            SyntaxKind kind,
+            STNode lhsExpr,
+            STNode operator,
+            STNode rhsExpr,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(kind, diagnostics);
         this.lhsExpr = lhsExpr;
         this.operator = operator;
         this.rhsExpr = rhsExpr;
@@ -46,6 +63,15 @@ public class STBinaryExpressionNode extends STExpressionNode {
                 lhsExpr,
                 operator,
                 rhsExpr);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STBinaryExpressionNode(
+                this.kind,
+                this.lhsExpr,
+                this.operator,
+                this.rhsExpr,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

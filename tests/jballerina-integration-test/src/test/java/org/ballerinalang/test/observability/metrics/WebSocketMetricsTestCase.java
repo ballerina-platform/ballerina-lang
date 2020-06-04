@@ -86,7 +86,7 @@ public class WebSocketMetricsTestCase extends BaseTest {
      *
      * @throws Exception Error when executing the commands.
      */
-    @Test
+    @Test (enabled = false)
     public void testMetrics() throws Exception {
         final WebSocketTestClient[] client = new WebSocketTestClient[1];
         await().atMost(200, TimeUnit.SECONDS)

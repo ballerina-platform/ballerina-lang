@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TableConstructorExpressionNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -40,7 +43,23 @@ public class STTableConstructorExpressionNode extends STExpressionNode {
             STNode openBracket,
             STNode mappingConstructors,
             STNode closeBracket) {
-        super(SyntaxKind.TABLE_CONSTRUCTOR);
+        this(
+                tableKeyword,
+                keySpecifier,
+                openBracket,
+                mappingConstructors,
+                closeBracket,
+                Collections.emptyList());
+    }
+
+    STTableConstructorExpressionNode(
+            STNode tableKeyword,
+            STNode keySpecifier,
+            STNode openBracket,
+            STNode mappingConstructors,
+            STNode closeBracket,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.TABLE_CONSTRUCTOR, diagnostics);
         this.tableKeyword = tableKeyword;
         this.keySpecifier = keySpecifier;
         this.openBracket = openBracket;
@@ -53,6 +72,16 @@ public class STTableConstructorExpressionNode extends STExpressionNode {
                 openBracket,
                 mappingConstructors,
                 closeBracket);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STTableConstructorExpressionNode(
+                this.tableKeyword,
+                this.keySpecifier,
+                this.openBracket,
+                this.mappingConstructors,
+                this.closeBracket,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

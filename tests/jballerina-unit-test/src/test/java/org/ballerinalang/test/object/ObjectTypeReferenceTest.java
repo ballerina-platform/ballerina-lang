@@ -47,14 +47,14 @@ public class ObjectTypeReferenceTest {
                 "-negative.bal");
         Assert.assertEquals(negativeResult.getErrorCount(), 12);
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Employee1' is not an abstract object", 32,
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Employee1' is not an object", 32,
                 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'salary'", 48, 6);
         BAssertUtil.validateError(negativeResult, i++,
                 "no implementation found for the function 'getName' of non-abstract object 'Manager2'", 96, 5);
         BAssertUtil.validateError(negativeResult, i++,
                 "no implementation found for the function 'getSalary' of non-abstract object 'Manager2'", 96, 5);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Q' is not an abstract object", 101, 6);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Q' is not an object", 101, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared type reference 'Person1'", 111, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'getName': trying to copy a duplicate " +
                 "function through referenced type 'ObjectWithFunction'", 120, 5);
@@ -90,9 +90,9 @@ public class ObjectTypeReferenceTest {
                 "-negative.bal");
         Assert.assertEquals(negativeResult.getErrorCount(), 3);
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'map<string>' is not an abstract object",
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'map<string>' is not an object",
                 18, 6);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'int' is not an abstract object", 20, 6);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'int' is not an object", 20, 6);
         BAssertUtil.validateError(negativeResult, i, "unknown type 'YYY'", 29, 6);
     }
 
@@ -161,6 +161,11 @@ public class ObjectTypeReferenceTest {
         Assert.assertEquals(returns[0].stringValue(), "Hello Jane");
         Assert.assertSame(returns[1].getClass(), BFloat.class);
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 1800.0);
+    }
+
+    @Test
+    public void testNonAbstractObjectInclusion() {
+        BRunUtil.invoke(compileResult, "testNonAbstractObjectInclusion");
     }
 
     @Test

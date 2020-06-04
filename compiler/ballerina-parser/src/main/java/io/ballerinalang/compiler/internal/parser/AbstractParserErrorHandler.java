@@ -27,6 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -129,24 +130,17 @@ public abstract class AbstractParserErrorHandler {
 
     /**
      * Handle a missing token scenario.
-     * 
+     *
      * @param currentCtx Current context
      * @param fix Solution to recover from the missing token
      */
     private STNode handleMissingToken(ParserRuleContext currentCtx, Solution fix) {
-        // If the original issues was at a production where there are alternatives,
-        // then do not report any errors. Parser will try to re-parse the best-matching
-        // alternative again. Errors will be reported at the next try.
-        if (isProductionWithAlternatives(currentCtx)) {
-            return createMissingToken(fix.tokenKind);
-        } else {
-            return createMissingTokenWithDiagnostics(fix.tokenKind);
-        }
+        return createMissingTokenWithDiagnostics(fix.tokenKind);
     }
 
     /**
      * Get a snapshot of the current context stack.
-     * 
+     *
      * @return Snapshot of the current context stack
      */
     private ArrayDeque<ParserRuleContext> getCtxStackSnapshot() {
@@ -163,7 +157,7 @@ public abstract class AbstractParserErrorHandler {
 
     /**
      * Start a fresh search for a way to recover with the next immediate token (peek(1), and the current context).
-     * 
+     *
      * @param currentCtx Current parser context
      * @return Recovery result
      */
@@ -175,7 +169,7 @@ public abstract class AbstractParserErrorHandler {
      * Search for a solution in a sub-tree/sub-path. This will take a snapshot of the current context stack
      * and will operate on top of it, so that the original state of the parser will not be disturbed. On return
      * the previous state of the parser contexts will be restored.
-     * 
+     *
      * @param currentCtx Current context
      * @param lookahead Position of the next token to consider, from the position of the original error.
      * @param currentDepth Amount of distance traveled so far.
@@ -213,6 +207,31 @@ public abstract class AbstractParserErrorHandler {
         // TODO Try this code and see; function (int s) return error? {}
         STToken currentToken = this.tokenReader.head();
         this.errorListener.reportMissingTokenError(currentToken, diagnosticCode);
+    }
+
+    public STNode addDiagnostics(STNode node, DiagnosticCode... diagnosticCodes) {
+        Collection<STNodeDiagnostic> diagnosticsToAdd = new ArrayList<>();
+        for (DiagnosticCode diagnosticCode : diagnosticCodes) {
+            diagnosticsToAdd.add(new STNodeDiagnostic(diagnosticCode));
+        }
+        return addDiagnostics(node, diagnosticsToAdd);
+    }
+
+    private STNode addDiagnostics(STNode node, Collection<STNodeDiagnostic> diagnosticsToAdd) {
+        if (diagnosticsToAdd.isEmpty()) {
+            return node;
+        }
+
+        Collection<STNodeDiagnostic> newDiagnostics;
+        Collection<STNodeDiagnostic> oldDiagnostics = node.diagnostics();
+        if (oldDiagnostics.isEmpty()) {
+            newDiagnostics = new ArrayList<>(diagnosticsToAdd);
+        } else {
+            // Merge all diagnostics
+            newDiagnostics = new ArrayList<>(oldDiagnostics);
+            newDiagnostics.addAll(diagnosticsToAdd);
+        }
+        return node.modifyWith(newDiagnostics);
     }
 
     public STToken createMissingToken(SyntaxKind expectedKind) {
@@ -278,7 +297,14 @@ public abstract class AbstractParserErrorHandler {
                 return DiagnosticErrorCode.ERROR_MISSING_DOUBLE_QUOTE_TOKEN;
             case BACKTICK_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_BACKTICK_TOKEN;
-
+            case OPEN_BRACE_PIPE_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_PIPE_TOKEN;
+            case CLOSE_BRACE_PIPE_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_PIPE_TOKEN;
+            case ASTERISK_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_ASTERISK_TOKEN;
+            case PIPE_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_ASTERISK_TOKEN;
 
             case DEFAULT_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_DEFAULT_KEYWORD;
@@ -333,7 +359,7 @@ public abstract class AbstractParserErrorHandler {
     protected ParserRuleContext getParentContext() {
         return this.ctxStack.peek();
     }
-    
+
     protected ParserRuleContext getGrandParentContext() {
         ParserRuleContext parent = this.ctxStack.pop();
         ParserRuleContext grandParent = this.ctxStack.peek();
@@ -343,7 +369,7 @@ public abstract class AbstractParserErrorHandler {
 
     /**
      * Search for matching token sequences within the given alternative paths, and find the most optimal solution.
-     * 
+     *
      * @param lookahead Position of the next token to consider, relative to the position of the original error
      * @param currentDepth Amount of distance traveled so far
      * @param currentMatches Matching tokens found so far
@@ -415,7 +441,7 @@ public abstract class AbstractParserErrorHandler {
 
     /**
      * Combine a given result with the current results, and get the final result.
-     * 
+     *
      * @param currentMatches Matches found so far
      * @param bestMatch Result found in the sub-tree, that requires to be merged with the current results
      * @return Final result
@@ -427,7 +453,7 @@ public abstract class AbstractParserErrorHandler {
 
     /**
      * Fix the current error and continue. Returns the best path after fixing.
-     * 
+     *
      * @param currentCtx Current parser context
      * @param lookahead Position of the next token to consider, relative to the position of the original error
      * @param currentDepth Amount of distance traveled so far
@@ -462,7 +488,7 @@ public abstract class AbstractParserErrorHandler {
      * Delete a token and see how far the parser can proceed.
      * </li>
      * </ol>
-     * 
+     *
      * Then decides the best action to perform (whether to insert or remove a token), using the result
      * of the above two steps, based on the following criteria:
      * <ol>
@@ -477,7 +503,7 @@ public abstract class AbstractParserErrorHandler {
      * an input a user has given.
      * </li>
      * </ol>
-     * 
+     *
      * @param currentCtx Current parser context
      * @param lookahead Position of the next token to consider, relative to the position of the original error
      * @param currentDepth Amount of distance traveled so far
@@ -531,7 +557,7 @@ public abstract class AbstractParserErrorHandler {
      * Represents a solution/fix for a parser error. A {@link Solution} consists of the parser context where the error
      * was encountered, the enclosing parser context at the same point, the token with the error, and the {@link Action}
      * required to recover from the error.
-     * 
+     *
      * @since 1.2.0
      */
     public static class Solution {

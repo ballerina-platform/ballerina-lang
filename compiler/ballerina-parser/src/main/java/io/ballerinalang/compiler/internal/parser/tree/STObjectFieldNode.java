@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -44,7 +47,27 @@ public class STObjectFieldNode extends STNode {
             STNode equalsToken,
             STNode expression,
             STNode semicolonToken) {
-        super(SyntaxKind.OBJECT_FIELD);
+        this(
+                metadata,
+                visibilityQualifier,
+                typeName,
+                fieldName,
+                equalsToken,
+                expression,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STObjectFieldNode(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode typeName,
+            STNode fieldName,
+            STNode equalsToken,
+            STNode expression,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.OBJECT_FIELD, diagnostics);
         this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
         this.typeName = typeName;
@@ -61,6 +84,18 @@ public class STObjectFieldNode extends STNode {
                 equalsToken,
                 expression,
                 semicolonToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STObjectFieldNode(
+                this.metadata,
+                this.visibilityQualifier,
+                this.typeName,
+                this.fieldName,
+                this.equalsToken,
+                this.expression,
+                this.semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

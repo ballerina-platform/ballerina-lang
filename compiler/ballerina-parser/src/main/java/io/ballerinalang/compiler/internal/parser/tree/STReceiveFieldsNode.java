@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.ReceiveFieldsNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STReceiveFieldsNode extends STNode {
             STNode openBrace,
             STNode receiveFields,
             STNode closeBrace) {
-        super(SyntaxKind.RECEIVE_FIELDS);
+        this(
+                openBrace,
+                receiveFields,
+                closeBrace,
+                Collections.emptyList());
+    }
+
+    STReceiveFieldsNode(
+            STNode openBrace,
+            STNode receiveFields,
+            STNode closeBrace,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.RECEIVE_FIELDS, diagnostics);
         this.openBrace = openBrace;
         this.receiveFields = receiveFields;
         this.closeBrace = closeBrace;
@@ -45,6 +60,14 @@ public class STReceiveFieldsNode extends STNode {
                 openBrace,
                 receiveFields,
                 closeBrace);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STReceiveFieldsNode(
+                this.openBrace,
+                this.receiveFields,
+                this.closeBrace,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

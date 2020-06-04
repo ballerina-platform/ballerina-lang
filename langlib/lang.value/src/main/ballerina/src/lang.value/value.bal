@@ -38,6 +38,34 @@ public function clone(AnydataType v) returns AnydataType = external;
 # + return - immutable clone of `v`
 public function cloneReadOnly(AnydataType v) returns AnydataType = external;
 
+# Constructs a value with a specified type by cloning another value.
+# + v - the value to be cloned
+# + t - the type for the cloned to be constructed
+# + return - a new value that belongs to `t`, or an error if this cannot be done
+#
+# When `v` is a structural value, the inherent type of the value to be constructed
+# comes from `t`. When `t` is a union, it must be possible to determine which
+# member of the union to use for the inherent type by following the same rules
+# that are used by list constructor expressions and mapping constructor expressions
+# with the contextually expected type. If not, then an error is returned.
+# The `constructFrom` operation is recursively applied to each member of `v` using
+# the type descriptor that the inherent type requires for that member.
+#
+# Like the Clone abstract operation, this does a deep copy, but differs in
+# the following respects:
+# - the inherent type of any structural values constructed comes from the specified
+#   type descriptor rather than the value being constructed
+# - the read-only bit of values and fields comes from the specified type descriptor
+# - the graph structure of `v` is not preserved; the result will always be a tree;
+#   an error will be returned if `v` has cycles
+# - immutable structural values are copied rather being returned as is; all
+#   structural values in the result will be mutable, except for error values
+#   (which are always immutable)
+# - numeric values can be converted using the NumericConvert abstract operation
+# - if a record type descriptor specifies default values, these will be used
+#   to supply any missing members
+public function cloneWithType(anydata v, typedesc<AnydataType> t) returns AnydataType|error = external;
+
 # Tests whether `v` is read-only, i.e. immutable
 # Returns true if read-only, false otherwise.
 #

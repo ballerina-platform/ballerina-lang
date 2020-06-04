@@ -172,6 +172,12 @@ public enum ParserRuleContext {
     LIST_BINDING_PATTERN("list-binding-pattern"),
     LIST_BINDING_PATTERN_CONTENTS("list-binding-pattern-content"),
     LIST_BINDING_PATTERN_END_OR_CONTINUE("list-binding-pattern-end-or-continue"),
+    FIELD_BINDING_PATTERN("field-binding-pattern"),
+    FIELD_BINDING_PATTERN_NAME("field-binding-pattern-name"),
+    MAPPING_BINDING_PATTERN("mapping-binding-pattern"),
+    MAPPING_BINDING_PATTERN_MEMBER("mapping-binding-pattern-member"),
+    MAPPING_BINDING_PATTERN_END("mapping-binding-pattern-end"),
+    FIELD_BINDING_PATTERN_END("field-binding-pattern-end-or-continue"),
     WAIT_KEYWORD_RHS("wait-keyword-rhs"),
     MULTI_WAIT_FIELDS("multi-wait-fields"),
     WAIT_FIELD_NAME("wait-field-name"),
@@ -190,9 +196,9 @@ public enum ParserRuleContext {
     RETRY_TYPE_PARAM_RHS("retry-type-param-rhs"),
     RETRY_BODY("retry-body"),
     ROLLBACK_RHS("rollback-rhs"),
-    LIST_BP_OR_TUPLE_TYPE_DESC("list-bp-or-tuple-type-desc"),
-    LIST_BP_OR_TUPLE_TYPE_MEMBER("list-bp-or-tuple-type-member"),
-    LIST_BP_OR_TUPLE_TYPE_DESC_RHS("list-bp-or-tuple-type-desc-rhs"),
+    STMT_START_BRACKETED_LIST("stmt-start-bracketed-list"),
+    STMT_START_BRACKETED_LIST_MEMBER("stmt-start-bracketed-list-member"),
+    STMT_START_BRACKETED_LIST_RHS("stmt-start-bracketed-list-rhs"),
     BRACKETED_LIST("bracketed-list"),
     BRACKETED_LIST_RHS("bracketed-list-rhs"),
     BRACKETED_LIST_MEMBER("bracketed-list-member"),
@@ -200,6 +206,10 @@ public enum ParserRuleContext {
     LIST_BINDING_MEMBER_OR_ARRAY_LENGTH("list-binding-member-or-array-length"),
     TYPED_BINDING_PATTERN_TYPE_RHS("type-binding-pattern-type-rhs"),
     UNION_OR_INTERSECTION_TOKEN("union-or-intersection"),
+
+    MAPPING_BP_OR_MAPPING_CONSTRUCTOR("mapping-bp-or-mapping-cons"),
+    MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER("mapping-bp-or-mapping-cons-member"),
+    LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER("list-bp-or-list-cons-member"),
 
     // Statements
     STATEMENT("statement"),
@@ -343,6 +353,10 @@ public enum ParserRuleContext {
     LEFT_ARROW_TOKEN("<-"),
     ANNOT_CHAINING_TOKEN(".@"),
     OPTIONAL_CHAINING_TOKEN("?."),
+    DOT_LT_TOKEN(".<"),
+    SLASH_LT_TOKEN("/<"),
+    DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN("/**/<"),
+    SLASH_ASTERISK_TOKEN("/*"),
 
     // Other terminals
     FUNC_NAME("function-name"),
@@ -365,6 +379,7 @@ public enum ParserRuleContext {
     IDENTIFIER("identifier"),
     NAMESPACE_PREFIX("namespace-prefix"),
     WORKER_NAME("worker-name"),
+    FIELD_OR_FUNC_NAME("field-or-func-name"),
 
     // Expressions
     EXPRESSION("expression"),
@@ -408,11 +423,22 @@ public enum ParserRuleContext {
     TABLE_CONSTRUCTOR_OR_QUERY_START("table-constructor-or-query-start"),
     TABLE_CONSTRUCTOR_OR_QUERY_RHS("table-constructor-or-query-rhs"),
     QUERY_EXPRESSION("query-expr"),
+    QUERY_EXPRESSION_END("query-expr-end"),
     FIELD_ACCESS_IDENTIFIER("field-access-identifier"),
     QUERY_PIPELINE_RHS("query-pipeline-rhs"),
     LET_CLAUSE_END("let-clause-end"),
     CONDITIONAL_EXPRESSION("conditional-expr"),
     SERVICE_CONSTRUCTOR_EXPRESSION("service-constructor-expression"),
+    XML_NAVIGATE_EXPR("xml-navigate-expr"),
+    XML_FILTER_EXPR("xml-filter-expr"),
+    XML_STEP_EXPR("xml-step-expr"),
+    XML_NAME_PATTERN("xml-name-pattern"),
+    XML_NAME_PATTERN_RHS("xml-name-pattern-rhs"),
+    XML_ATOMIC_NAME_PATTERN("xml-atomic_name-pattern"),
+    XML_ATOMIC_NAME_PATTERN_START("xml-atomic_name-pattern-start"),
+    XML_ATOMIC_NAME_IDENTIFIER("xml-atomic_name-identifier"),
+    XML_ATOMIC_NAME_IDENTIFIER_RHS("xml-atomic_name-identifier-rhs"),
+    XML_STEP_START("xml-step-start"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),
@@ -469,8 +495,8 @@ public enum ParserRuleContext {
     TABLE_TYPE_DESC_RHS("table-type-desc-rhs"),
     SIGNED_INT_OR_FLOAT_RHS("signed-int-or-float-rhs"),
     ENUM_MEMBER_LIST("enum-member-list"),
-    ENUM_MEMBER_RHS("enum-member-rhs"),
-    ENUM_MEMBER_INTERNAL_RHS("enum-member-internal-rhs"),
+    ENUM_MEMBER_END("enum-member-rhs"),
+    ENUM_MEMBER_RHS("enum-member-internal-rhs"),
     ENUM_MEMBER_START("enum-member-start"),
     ;
 
