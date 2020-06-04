@@ -156,7 +156,7 @@ public class ObjectInitializerTest {
 
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
         Assert.assertEquals(((BError) returns[0]).getReason(), "failed to create Person object");
-        Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(), "{f:\"foo\"}");
+        Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(), "{\"f\":\"foo\"}");
     }
 
     @Test(description = "Test checkpanic expression in object init expr's argument")

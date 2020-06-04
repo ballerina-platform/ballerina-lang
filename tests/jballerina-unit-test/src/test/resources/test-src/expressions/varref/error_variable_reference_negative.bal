@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type SMS error <string, record {| string message?; error cause?; string...; |}>;
+type SMS error <record {| string message?; error cause?; string...; |}>;
 
 function testDuplicateBinding() {
     string? s;
-    SMS err1 = error("Error One", message = "Msg One", detail = "Detail Msg");
+    SMS err1 = SMS("Error One", message = "Msg One", detail = "Detail Msg");
     error(s, message = s, detail = s) = err1;
 }

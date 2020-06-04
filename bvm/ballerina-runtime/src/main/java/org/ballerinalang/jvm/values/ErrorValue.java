@@ -38,7 +38,6 @@ import java.util.StringJoiner;
 import static org.ballerinalang.jvm.BallerinaErrors.ERROR_PRINT_PREFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
-import static org.ballerinalang.jvm.util.BLangConstants.STRING_EMPTY_VALUE;
 
 /**
  * <p>
