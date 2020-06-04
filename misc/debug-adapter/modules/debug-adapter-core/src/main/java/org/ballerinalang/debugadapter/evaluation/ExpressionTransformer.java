@@ -21,6 +21,7 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.Token;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -92,22 +93,32 @@ import java.util.StringJoiner;
 public class ExpressionTransformer extends NodeTransformer<Node> {
 
     private final Set<SyntaxKind> supportedSyntax = new HashSet<>();
+    private final Set<SyntaxKind> capturedSyntax = new HashSet<>();
     private final List<Node> unsupportedNodes = new ArrayList<>();
-    private final Set<SyntaxKind> ignoredTypes = new HashSet<>();
-    public final Set<SyntaxKind> capturedSyntax = new HashSet<>();
 
     public ExpressionTransformer() {
-        // Supported expression types.
+        // expressions
         supportedSyntax.add(SyntaxKind.BINARY_EXPRESSION);
         supportedSyntax.add(SyntaxKind.BRACED_EXPRESSION);
-        // Other supported types.
+        // arithmetic/logical operators
+        supportedSyntax.add(SyntaxKind.PLUS_TOKEN);
+        supportedSyntax.add(SyntaxKind.MINUS_TOKEN);
+        supportedSyntax.add(SyntaxKind.ASTERISK_TOKEN);
+        supportedSyntax.add(SyntaxKind.SLASH_TOKEN);
+        supportedSyntax.add(SyntaxKind.LT_TOKEN);
+        supportedSyntax.add(SyntaxKind.LT_EQUAL_TOKEN);
+        supportedSyntax.add(SyntaxKind.GT_TOKEN);
+        supportedSyntax.add(SyntaxKind.GT_EQUAL_TOKEN);
+        // variables
         supportedSyntax.add(SyntaxKind.SIMPLE_NAME_REFERENCE);
+        supportedSyntax.add(SyntaxKind.IDENTIFIER_TOKEN);
+        // numeric literals
         supportedSyntax.add(SyntaxKind.BASIC_LITERAL);
         supportedSyntax.add(SyntaxKind.DECIMAL_INTEGER_LITERAL);
         supportedSyntax.add(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL);
-        // Ignorable types.
-        ignoredTypes.add(SyntaxKind.NONE);
-        ignoredTypes.add(SyntaxKind.EOF_TOKEN);
+        // misc
+        supportedSyntax.add(SyntaxKind.NONE);
+        supportedSyntax.add(SyntaxKind.EOF_TOKEN);
     }
 
     /**
@@ -134,9 +145,14 @@ public class ExpressionTransformer extends NodeTransformer<Node> {
     }
 
     @Override
+    public Node transform(Token token) {
+        return transformSyntaxNode(token);
+    }
+
+    @Override
     protected Node transformSyntaxNode(Node node) {
         capturedSyntax.add(node.kind());
-        if (!ignoredTypes.contains(node.kind()) && !supportedSyntax.contains(node.kind())) {
+        if (!supportedSyntax.contains(node.kind())) {
             unsupportedNodes.add(node);
         }
         if (node instanceof NonTerminalNode) {
