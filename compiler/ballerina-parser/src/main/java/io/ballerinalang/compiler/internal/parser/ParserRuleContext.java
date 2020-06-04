@@ -316,6 +316,7 @@ public enum ParserRuleContext {
     ENUM_KEYWORD("enum"),
     BASE16_KEYWORD("base16"),
     BASE64_KEYWORD("base64"),
+    READONLY_KEYWORD("readonly"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -398,6 +399,7 @@ public enum ParserRuleContext {
     FIRST_MAPPING_FIELD("first-mapping-field"),
     MAPPING_FIELD_NAME("maping-field-name"),
     SPECIFIC_FIELD_RHS("specific-field-rhs"),
+    SPECIFIC_FIELD("specific-field"),
     COMPUTED_FIELD_NAME("computed-field-name"),
     MAPPING_FIELD_END("mapping-field-end"),
     TYPEOF_EXPRESSION("typeof-expr"),

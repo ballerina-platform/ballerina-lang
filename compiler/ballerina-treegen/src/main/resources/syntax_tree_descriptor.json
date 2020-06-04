@@ -1041,6 +1041,11 @@
             "kind": "SPECIFIC_FIELD",
             "attributes": [
                 {
+                    "name": "readonlyKeyword",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
                     "name": "fieldName",
                     "type": "Token"
                 },

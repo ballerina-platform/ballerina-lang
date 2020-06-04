@@ -794,6 +794,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public SpecificFieldNode transform(
             SpecificFieldNode specificFieldNode) {
+        Token readonlyKeyword =
+                modifyToken(specificFieldNode.readonlyKeyword().orElse(null));
         Token fieldName =
                 modifyToken(specificFieldNode.fieldName());
         Token colon =
@@ -801,6 +803,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         ExpressionNode valueExpr =
                 modifyNode(specificFieldNode.valueExpr());
         return specificFieldNode.modify(
+                readonlyKeyword,
                 fieldName,
                 colon,
                 valueExpr);

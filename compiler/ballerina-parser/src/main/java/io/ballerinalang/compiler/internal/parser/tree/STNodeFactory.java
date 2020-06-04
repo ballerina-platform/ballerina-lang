@@ -592,11 +592,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createSpecificFieldNode(
+            STNode readonlyKeyword,
             STNode fieldName,
             STNode colon,
             STNode valueExpr) {
 
         return new STSpecificFieldNode(
+                readonlyKeyword,
                 fieldName,
                 colon,
                 valueExpr);

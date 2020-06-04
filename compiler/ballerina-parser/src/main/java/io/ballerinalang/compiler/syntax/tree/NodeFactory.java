@@ -778,6 +778,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static SpecificFieldNode createSpecificFieldNode(
+            Token readonlyKeyword,
             Token fieldName,
             Token colon,
             ExpressionNode valueExpr) {
@@ -786,6 +787,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(valueExpr, "valueExpr must not be null");
 
         STNode stSpecificFieldNode = STNodeFactory.createSpecificFieldNode(
+                getOptionalSTNode(readonlyKeyword),
                 fieldName.internalNode(),
                 colon.internalNode(),
                 valueExpr.internalNode());
