@@ -16,21 +16,11 @@
 
 import ballerina/log;
 
-# Record type to hold the details of an error.
-#
-# + message - Specific error message of the error.
-# + cause - Any other error, which causes this error.
-public type Detail record {
-    string message;
-    error cause?;
-};
-
-# Represents the reason for the `cache:Error`.
-public const CACHE_ERROR = "{ballerina/cache}Error";
-
 # Represents the Cache error type with details. This will be returned if an error occurred while doing any of the cache
 # operations.
-public type Error error<CACHE_ERROR, Detail>;
+public type CacheError distinct error;
+
+public type Error CacheError;
 
 # Prepare the `error` as a `cache:Error` after printing an error log.
 #
@@ -41,9 +31,9 @@ function prepareError(string message, error? err = ()) returns Error {
     log:printError(message, err);
     Error cacheError;
     if (err is error) {
-        cacheError = error(CACHE_ERROR, message = message, cause = err);
+        cacheError = CacheError(message, err);
     } else {
-        cacheError = error(CACHE_ERROR, message = message);
+        cacheError = CacheError(message);
     }
     return cacheError;
 }
@@ -57,9 +47,9 @@ function prepareErrorWithDebugLog(string message, error? err = ()) returns Error
     log:printDebug(message);
     Error cacheError;
     if (err is error) {
-        cacheError = error(CACHE_ERROR, message = message, cause = err);
+        cacheError = CacheError(message, err);
     } else {
-        cacheError = error(CACHE_ERROR, message = message);
+        cacheError = CacheError(message);
     }
     return cacheError;
 }
