@@ -3,7 +3,8 @@ name: CI Windows
 on: pull_request
 
 jobs:
-  build:
+  windows_build:
+    name: Build with some tests on Windows
     runs-on: windows-latest
 
     steps:

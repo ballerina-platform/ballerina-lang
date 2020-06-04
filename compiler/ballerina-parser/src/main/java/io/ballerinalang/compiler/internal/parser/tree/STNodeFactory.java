@@ -1920,5 +1920,45 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 content,
                 endBacktick);
     }
+
+    public static STNode createXMLFilterExpressionNode(
+            STNode expression,
+            STNode xmlPatternChain) {
+
+        return new STXMLFilterExpressionNode(
+                expression,
+                xmlPatternChain);
+    }
+
+    public static STNode createXMLStepExpressionNode(
+            STNode expression,
+            STNode xmlStepStart) {
+
+        return new STXMLStepExpressionNode(
+                expression,
+                xmlStepStart);
+    }
+
+    public static STNode createXMLNamePatternChainingNode(
+            STNode startToken,
+            STNode xmlNamePattern,
+            STNode gtToken) {
+
+        return new STXMLNamePatternChainingNode(
+                startToken,
+                xmlNamePattern,
+                gtToken);
+    }
+
+    public static STNode createXMLAtomicNamePatternNode(
+            STNode prefix,
+            STNode colon,
+            STNode name) {
+
+        return new STXMLAtomicNamePatternNode(
+                prefix,
+                colon,
+                name);
+    }
 }
 

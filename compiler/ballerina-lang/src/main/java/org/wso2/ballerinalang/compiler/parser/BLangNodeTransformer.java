@@ -17,6 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.parser;
 
+import io.ballerinalang.compiler.syntax.tree.AnnotationAttachPointNode;
+import io.ballerinalang.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
 import io.ballerinalang.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.AssignmentStatementNode;
@@ -35,6 +37,7 @@ import io.ballerinalang.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ContinueStatementNode;
 import io.ballerinalang.compiler.syntax.tree.DefaultableParameterNode;
+import io.ballerinalang.compiler.syntax.tree.DocumentationStringNode;
 import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
 import io.ballerinalang.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ErrorTypeParamsNode;
@@ -101,6 +104,7 @@ import io.ballerinalang.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerinalang.compiler.syntax.tree.RestArgumentNode;
+import io.ballerinalang.compiler.syntax.tree.RestBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.RestDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RestParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnStatementNode;
@@ -151,6 +155,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
+import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -163,6 +168,7 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -173,6 +179,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
@@ -197,6 +204,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -208,6 +216,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
@@ -235,6 +244,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -266,6 +276,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -1114,6 +1125,72 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return bLAnnotationAttachment;
     }
 
+    @Override
+    public BLangNode transform(AnnotationDeclarationNode annotationDeclarationNode) {
+        BLangAnnotation annotationDecl = (BLangAnnotation) TreeBuilder.createAnnotationNode();
+        DiagnosticPos pos = getPosition(annotationDeclarationNode);
+        annotationDecl.pos = pos;
+        annotationDecl.name = createIdentifier(annotationDeclarationNode.annotationTag());
+
+        if (annotationDeclarationNode.visibilityQualifier() != null) {
+            annotationDecl.addFlag(Flag.PUBLIC);
+        }
+
+        if (annotationDeclarationNode.constKeyword() != null) {
+            annotationDecl.addFlag(Flag.CONSTANT);
+        }
+
+        annotationDecl.annAttachments = applyAll(annotationDeclarationNode.metadata().annotations());
+
+        annotationDeclarationNode.metadata().documentationString().ifPresent(docString-> {
+            annotationDecl.markdownDocumentationAttachment = createMarkdownDocumentationAttachment(docString);
+        });
+
+        Node typedesc = annotationDeclarationNode.typeDescriptor();
+        if (typedesc != null) {
+            annotationDecl.typeNode = createTypeNode(typedesc);
+        }
+
+        SeparatedNodeList<Node> paramList = annotationDeclarationNode.attachPoints();
+
+        for (Node child : paramList) {
+            AnnotationAttachPointNode attachPoint = (AnnotationAttachPointNode) child;
+            boolean source = attachPoint.sourceKeyword() != null;
+            AttachPoint bLAttachPoint;
+            Token firstIndent =  attachPoint.firstIdent();
+
+            switch (firstIndent.kind()) {
+                case OBJECT_KEYWORD:
+                    Token secondIndent = attachPoint.secondIdent();
+                    switch (secondIndent.kind()) {
+                        case FUNCTION_KEYWORD:
+                            bLAttachPoint =
+                                    AttachPoint.getAttachmentPoint(AttachPoint.Point.OBJECT_METHOD.getValue(), source);
+                            break;
+                        case FIELD_KEYWORD:
+                            bLAttachPoint =
+                                    AttachPoint.getAttachmentPoint(AttachPoint.Point.OBJECT_FIELD.getValue(), source);
+                            break;
+                        default:
+                            bLAttachPoint =
+                                    AttachPoint.getAttachmentPoint(AttachPoint.Point.OBJECT.getValue(), source);
+                    }
+                    break;
+                case RESOURCE_KEYWORD:
+                    bLAttachPoint = AttachPoint.getAttachmentPoint(AttachPoint.Point.RESOURCE.getValue(), source);
+                    break;
+                case RECORD_KEYWORD:
+                    bLAttachPoint = AttachPoint.getAttachmentPoint(AttachPoint.Point.RECORD_FIELD.getValue(), source);
+                    break;
+                default:
+                    bLAttachPoint = AttachPoint.getAttachmentPoint(firstIndent.text(), source);
+            }
+            annotationDecl.addAttachPoint(bLAttachPoint);
+        }
+
+        return annotationDecl;
+    }
+
     // -----------------------------------------------Expressions-------------------------------------------------------
     @Override
     public BLangNode transform(ConditionalExpressionNode conditionalExpressionNode) {
@@ -1554,6 +1631,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(AssignmentStatementNode assignmentStmtNode) {
+        SyntaxKind lhsKind = assignmentStmtNode.children().get(0).kind();
+        switch (lhsKind) {
+            case LIST_BINDING_PATTERN:
+                return transformDestructingStatement(assignmentStmtNode);
+//            case MAPPING_BINDING_PATTERN: // ignored for now
+//                lhs = (MappingBindingPatternNode) lhs;
+//                return transformDestructingStatement(assignmentStmtNode);
+            default:
+                break;
+        }
         BLangAssignment bLAssignment = (BLangAssignment) TreeBuilder.createAssignmentNode();
         BLangExpression lhsExpr = createExpression(assignmentStmtNode.varRef());
         validateLvexpr(lhsExpr, DiagnosticCode.INVALID_INVOCATION_LVALUE_ASSIGNMENT);
@@ -1561,6 +1648,52 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLAssignment.pos = getPosition(assignmentStmtNode);
         bLAssignment.varRef = lhsExpr;
         return bLAssignment;
+    }
+
+    public BLangNode transformDestructingStatement(
+            AssignmentStatementNode assignmentStmtNode) {
+        BLangTupleDestructure bLAssignmentDesc =
+                (BLangTupleDestructure) TreeBuilder.createTupleDestructureStatementNode();
+        bLAssignmentDesc.varRef = (BLangTupleVarRef)
+                TreeBuilder.createTupleVariableReferenceNode();
+        addListBindingPattern(bLAssignmentDesc.varRef,
+                (ListBindingPatternNode) assignmentStmtNode.children().get(0));
+        bLAssignmentDesc.setExpression(createExpression(assignmentStmtNode.expression()));
+        return bLAssignmentDesc;
+    }
+
+    public void addListBindingPattern(BLangTupleVarRef bLangTupleVarRef,
+                                      ListBindingPatternNode listBindingPatternNode) {
+        Optional restBindingPatternNode =
+                listBindingPatternNode.restBindingPattern();
+        if (restBindingPatternNode != null) {
+            bLangTupleVarRef.restParam =
+                    createExpression(
+                            ((RestBindingPatternNode) restBindingPatternNode.get()).
+                                    children().get(1)
+                    );
+        }
+        for (Node expr : listBindingPatternNode.bindingPatterns()) {
+            switch (expr.kind()) {
+                case LIST_BINDING_PATTERN:
+                    BLangTupleVarRef res = (BLangTupleVarRef)
+                            TreeBuilder.createTupleVariableReferenceNode();
+                    addListBindingPattern(res, (ListBindingPatternNode) expr);
+                    bLangTupleVarRef.expressions.add(res);
+                    break;
+                // mapping binding pattern
+                case CAPTURE_BINDING_PATTERN:
+                    bLangTupleVarRef.expressions.add(
+                            createExpression(
+                                    ((CaptureBindingPatternNode) expr).children().get(0))
+                    );
+                    break;
+                default:
+                    throw new RuntimeException("" +
+                            "Syntax kind is not supported in listbindingpattern: " + expr.kind());
+            }
+
+        }
     }
 
     @Override
@@ -2532,6 +2665,21 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) node;
             return createBLangNameReference(nameReferenceNode.name());
         }
+    }
+
+    private BLangMarkdownDocumentation createMarkdownDocumentationAttachment(Node docString) {
+        BLangMarkdownDocumentation doc = (BLangMarkdownDocumentation) TreeBuilder.createMarkdownDocumentationNode();
+        DocumentationStringNode docStringNode = (DocumentationStringNode) docString;
+
+        LinkedList<BLangMarkdownDocumentationLine> docLineList = new LinkedList<>();
+        BLangMarkdownDocumentationLine docLine =
+                (BLangMarkdownDocumentationLine) TreeBuilder.createMarkdownDocumentationTextNode();
+        for (Token docTok : docStringNode.documentationLines()) {
+            docLine.text = docTok.text();
+            docLineList.add(docLine);
+        }
+        doc.documentationLines = docLineList;
+        return doc;
     }
 
     private Object getIntegerLiteral(Node literal, String nodeValue) {
