@@ -140,6 +140,7 @@ import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.WaitActionNode;
 import io.ballerinalang.compiler.syntax.tree.WhileStatementNode;
+import io.ballerinalang.compiler.syntax.tree.WildcardBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.XMLComment;
 import io.ballerinalang.compiler.syntax.tree.XMLElementNode;
 import io.ballerinalang.compiler.syntax.tree.XMLEndTagNode;
@@ -1662,11 +1663,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return bLAssignmentDesc;
     }
 
+
     public void addListBindingPattern(BLangTupleVarRef bLangTupleVarRef,
                                       ListBindingPatternNode listBindingPatternNode) {
         Optional restBindingPatternNode =
                 listBindingPatternNode.restBindingPattern();
-        if (restBindingPatternNode != null) {
+        if (restBindingPatternNode.isPresent()) {
             bLangTupleVarRef.restParam =
                     createExpression(
                             ((RestBindingPatternNode) restBindingPatternNode.get()).
@@ -1686,6 +1688,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     bLangTupleVarRef.expressions.add(
                             createExpression(
                                     ((CaptureBindingPatternNode) expr).children().get(0))
+                    );
+                    break;
+                case WILDCARD_BINDING_PATTERN:
+                    bLangTupleVarRef.expressions.add(
+                            createExpression(
+                                    ((WildcardBindingPatternNode) expr).children().get(0))
                     );
                     break;
                 default:
@@ -1771,10 +1779,30 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLVarDef.pos = getPosition(varDeclaration);
 
         TypedBindingPatternNode typedBindingPattern = varDeclaration.typedBindingPattern();
-        CaptureBindingPatternNode bindingPattern = (CaptureBindingPatternNode) typedBindingPattern.bindingPattern();
+        DiagnosticPos pos = null;
+        String text = null;
+
+        switch (typedBindingPattern.bindingPattern().kind()) {
+            case CAPTURE_BINDING_PATTERN:
+                CaptureBindingPatternNode captureBindingPattern =
+                        (CaptureBindingPatternNode) typedBindingPattern.bindingPattern();
+                pos = getPosition(captureBindingPattern.variableName());
+                text = captureBindingPattern.variableName().text();
+                break;
+            case WILDCARD_BINDING_PATTERN:
+                WildcardBindingPatternNode wildcardBindingPatternNode =
+                        (WildcardBindingPatternNode) typedBindingPattern.bindingPattern();
+                pos = getPosition(wildcardBindingPatternNode.underscoreToken());
+                text = wildcardBindingPatternNode.underscoreToken().text();
+                break;
+            default:
+                throw new RuntimeException("Syntax kind is not a valid binding pattern " +
+                        typedBindingPattern.bindingPattern().kind());
+        }
 
         BLangSimpleVariable simpleVar = new SimpleVarBuilder()
-                .with(bindingPattern.variableName().text(), getPosition(bindingPattern.variableName()))
+                .with(text, pos)
+                .setPos(bLVarDef.pos)
                 .setTypeByNode(typedBindingPattern.typeDescriptor())
                 .setExpressionByNode(varDeclaration.initializer().orElse(null))
                 .setFinal(varDeclaration.finalKeyword().isPresent())
@@ -2860,6 +2888,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         private Set<Flag> flags = new HashSet<>();
         private boolean isFinal;
         private ExpressionNode expr;
+        private DiagnosticPos pos;
 
         public BLangSimpleVariable build() {
             BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
@@ -2872,6 +2901,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 markVariableAsFinal(bLSimpleVar);
             }
             bLSimpleVar.setInitialExpression(this.expr);
+            bLSimpleVar.pos = pos;
             return bLSimpleVar;
         }
 
@@ -2961,6 +2991,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         public SimpleVarBuilder isWorkerVar() {
             this.flags.add(Flag.WORKER);
+            return this;
+        }
+
+        public SimpleVarBuilder setPos(DiagnosticPos pos) {
+            this.pos = pos;
             return this;
         }
     }
