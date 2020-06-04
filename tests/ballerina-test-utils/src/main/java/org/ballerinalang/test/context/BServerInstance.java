@@ -25,6 +25,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -380,7 +384,10 @@ public class BServerInstance implements BServer {
 
         String[] cmdArray;
         File commandDir = new File(balServer.getServerHome());
+
         try {
+            makeContainerFriendly(commandDir);
+
             if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
                 cmdArray = new String[]{"cmd.exe", "/c", "bin\\" + Constant.BALLERINA_SERVER_SCRIPT_NAME + ".bat",
                                         command};
@@ -407,6 +414,15 @@ public class BServerInstance implements BServer {
         } catch (InterruptedException | IOException e) {
             throw new BallerinaTestException("Error starting services", e);
         }
+    }
+
+    private void makeContainerFriendly(File commandDir) throws IOException {
+        Path path = Paths.get(commandDir + "bin/ballerina");
+        Charset charset = StandardCharsets.UTF_8;
+
+        String content = new String(Files.readAllBytes(path), charset);
+        content = content.replaceAll("Xmx1024m", "Xmx500m");
+        Files.write(path, content.getBytes(charset));
     }
 
     /**
@@ -518,7 +534,7 @@ public class BServerInstance implements BServer {
             //TODO: Need to reduce the timeout after build time improvements
             Utils.waitForPortsToOpen(new int[]{agentPort}, 1000 * 60 * 10, false, agentHost);
             log.info("Server Started Successfully.");
-        } catch (IOException e) {
+        } catch (IOException|RuntimeException e) {
             throw new BallerinaTestException("Error starting services", e);
         }
     }
