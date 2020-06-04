@@ -105,11 +105,11 @@ public class ASTModifyTest {
             Assert.assertEquals(expected.getAsJsonObject().entrySet().size(),
                     actual.getAsJsonObject().entrySet().size());
             Set<String> expectedKeys = new HashSet<>();
-            for (Map.Entry<String, JsonElement> entry: expected.getAsJsonObject().entrySet()){
+            for (Map.Entry<String, JsonElement> entry : expected.getAsJsonObject().entrySet()) {
                 expectedKeys.add(entry.getKey());
             }
             Set<String> actualKeys = new HashSet<>();
-            for (Map.Entry<String, JsonElement> entry: actual.getAsJsonObject().entrySet()){
+            for (Map.Entry<String, JsonElement> entry : actual.getAsJsonObject().entrySet()) {
                 actualKeys.add(entry.getKey());
             }
             Assert.assertEquals(expectedKeys, actualKeys);
