@@ -81,13 +81,13 @@ public class XMLAttributeAccessTest {
         BValue[] result = BRunUtil.invoke(lexCompileRes, "testXMLAttributeWithNSPrefix");
         Assert.assertEquals(result[0].stringValue(), "preserve");
         Assert.assertEquals(result[1].stringValue(), "preserve");
-        Assert.assertEquals(result[2].stringValue(), "{lang.map}InvalidKey {key:\"b\"}");
+        Assert.assertEquals(result[2].stringValue(), "{lang.map}InvalidKey {\"key\":\"b\"}");
     }
 
     @Test
     public void testXMLASMapContentInvalidKey() {
         BValue[] result = BRunUtil.invoke(lexCompileRes, "testXMLASMapContentInvalidKey");
-        Assert.assertEquals(result[0].stringValue(), "{lang.map}InvalidKey {key:\"b\"}");
+        Assert.assertEquals(result[0].stringValue(), "{lang.map}InvalidKey {\"key\":\"b\"}");
     }
 
     @Test

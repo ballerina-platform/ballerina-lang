@@ -410,4 +410,19 @@ public class ErrorTest {
         BError bError = (BError) returns[0];
         Assert.assertEquals(bError.getReason(), "panic now");
     }
+
+    @Test
+    public void testErrorTypeDescriptionInferring() {
+        BRunUtil.invoke(errorTestResult, "testErrorTypeDescriptionInferring");
+    }
+
+    @Test
+    public void testDefaultErrorTypeDescriptionInferring() {
+        BRunUtil.invoke(errorTestResult, "testDefaultErrorTypeDescriptionInferring");
+    }
+
+    @Test
+    public void testUnionErrorTypeDescriptionInferring() {
+        BRunUtil.invoke(errorTestResult, "testUnionErrorTypeDescriptionInferring");
+    }
 }

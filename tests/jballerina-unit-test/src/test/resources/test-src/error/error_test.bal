@@ -354,3 +354,37 @@ function testStackOverFlow() returns [runtime:CallStackElement[], string]? {
         return [e.stackTrace().callStack, e.message()];
     }
 }
+
+function testErrorTypeDescriptionInferring() {
+    TrxError e = TrxError("IAmAInferedErr");
+    error<*> err = e;
+    TrxError errSecondRef = err;
+    assertEquality(errSecondRef.detail().toString(), e.detail().toString());
+}
+
+function testDefaultErrorTypeDescriptionInferring() {
+    error e = error("IAmAInferedDefaultErr");
+    error<*> err = e;
+    assertEquality(err.detail().toString(), e.detail().toString());
+}
+
+function testUnionErrorTypeDescriptionInferring() {
+    error|TrxError e = error("IAmAInferedUnionErr");
+    error<*> err = e;
+    assertEquality(err.detail().toString(), e.detail().toString());
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error actual, any|error expected) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

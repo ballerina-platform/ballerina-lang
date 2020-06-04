@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypeIdSet;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
@@ -99,15 +100,32 @@ public class BallerinaErrors {
         return new ErrorValue(type, message, null, detailMap);
     }
 
+    public static ErrorValue createDistinctError(String typeIdName, BPackage typeIdPkg, String message) {
+        return createDistinctError(typeIdName, typeIdPkg, message, new MapValueImpl<>(BTypes.typeErrorDetail));
+    }
 
-    public static ErrorValue createDistinctError(String errorCode, String typeIdName, BPackage typeIdPkg,
+    public static ErrorValue createDistinctError(String typeIdName, BPackage typeIdPkg, String message,
                                                  MapValue<BString, Object> detailRecord) {
-        ErrorValue error = createError(errorCode, detailRecord);
+        ErrorValue error = createError(message, detailRecord);
+        setTypeId(typeIdName, typeIdPkg, error);
+        return error;
+    }
+
+    public static ErrorValue createDistinctError(String typeIdName, BPackage typeIdPkg, String message,
+                                                 ErrorValue cause) {
+        MapValueImpl<Object, Object> details = new MapValueImpl<>(BTypes.typeErrorDetail);
+        ErrorValue error = new ErrorValue(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(),
+                                                         TypeChecker.getType(details)),
+                                          StringUtils.fromString(message), cause, details);
+        setTypeId(typeIdName, typeIdPkg, error);
+        return error;
+    }
+
+    private static void setTypeId(String typeIdName, BPackage typeIdPkg, ErrorValue error) {
         BErrorType type = (BErrorType) error.getType();
         BTypeIdSet typeIdSet = new BTypeIdSet();
         typeIdSet.add(typeIdPkg, typeIdName, true);
         type.setTypeIdSet(typeIdSet);
-        return error;
     }
 
     @Deprecated
