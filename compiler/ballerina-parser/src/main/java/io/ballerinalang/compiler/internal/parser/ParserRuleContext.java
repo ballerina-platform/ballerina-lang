@@ -49,7 +49,6 @@ public enum ParserRuleContext {
     FUNC_BODY_OR_TYPE_DESC_RHS("func-body-or-type-desc-rhs"),
     ANON_FUNC_BODY("annon-func-body"),
     FUNC_TYPE_DESC_END("func-type-desc-end"),
-
     EXTERNAL_FUNC_BODY("external-func-body"),
     FUNC_BODY_BLOCK("func-body-block"),
     MODULE_TYPE_DEFINITION("type-definition"),
@@ -144,7 +143,7 @@ public enum ParserRuleContext {
     WHERE_CLAUSE("where-clause"),
     FROM_CLAUSE("from-clause"),
     LET_CLAUSE("let-clause"),
-    AMBIGUOUS_FUNC_TYPE_DESC_RHS("module-func-type-desc-rhs"),
+    MODULE_LEVEL_AMBIGUOUS_FUNC_TYPE_DESC_RHS("module-level-func-type-desc-rhs"),
     EXPLICIT_ANON_FUNC_EXPR_BODY_START("explicit-anon-func-expr-body-start"),
     BRACED_EXPR_OR_ANON_FUNC_PARAMS("braced-expr-or-anon-func-params"),
     BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS("braced-expr-or-anon-func-param-rhs"),
@@ -210,6 +209,9 @@ public enum ParserRuleContext {
     MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER("mapping-bp-or-mapping-cons-member"),
     LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER("list-bp-or-list-cons-member"),
     VAR_REF_OR_TYPE_REF("var-ref"),
+    FUNC_TYPE_DESC_OR_ANON_FUNC("func-desc-type-or-anon-func"),
+    FUNC_TYPE_DESC_RHS_OR_ANON_FUNC_BODY("func-type-desc-rhs-or-anon-func-body"),
+    STMT_LEVEL_AMBIGUOUS_FUNC_TYPE_DESC_RHS("stmt-level-func-type-desc-rhs"),
 
     // Statements
     STATEMENT("statement"),
@@ -234,7 +236,7 @@ public enum ParserRuleContext {
     RETURN_STMT_RHS("return-stmt-rhs"),
     COMPOUND_ASSIGNMENT_STMT("compound-assignment-statement"),
     LOCAL_TYPE_DEFINITION_STMT("local-type-definition-statement"),
-    STMT_START_IDENTIFIER_RHS("stmt-start-identifier-rhs"),
+    BINDING_PATTERN_OR_EXPR_RHS("binding-pattern-or-expr-rhs"),
     STMT_START_WITH_EXPR_RHS("stmt-start-with-expr-rhs"),
     EXPRESSION_STATEMENT("expression-statement"),
     EXPRESSION_STATEMENT_START("expression-statement-start"),

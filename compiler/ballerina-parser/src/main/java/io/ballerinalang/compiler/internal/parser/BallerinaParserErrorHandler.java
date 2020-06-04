@@ -57,7 +57,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.RETURNS_KEYWORD, ParserRuleContext.FUNC_BODY_OR_TYPE_DESC_RHS };
 
     private static final ParserRuleContext[] FUNC_BODY_OR_TYPE_DESC_RHS =
-            { ParserRuleContext.FUNC_BODY, ParserRuleContext.AMBIGUOUS_FUNC_TYPE_DESC_RHS };
+            { ParserRuleContext.FUNC_BODY, ParserRuleContext.MODULE_LEVEL_AMBIGUOUS_FUNC_TYPE_DESC_RHS };
 
     /**
      * FUNC_DEF --> When only function definitions are possible. eg: resource function.
@@ -85,6 +85,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
      */
     private static final ParserRuleContext[] FUNC_TYPE_OPTIONAL_RETURNS =
             { ParserRuleContext.RETURNS_KEYWORD, ParserRuleContext.FUNC_TYPE_DESC_END };
+
+    private static final ParserRuleContext[] FUNC_TYPE_OR_ANON_FUNC_OPTIONAL_RETURNS =
+            { ParserRuleContext.RETURNS_KEYWORD, ParserRuleContext.FUNC_TYPE_DESC_RHS_OR_ANON_FUNC_BODY };
+
+    private static final ParserRuleContext[] FUNC_TYPE_DESC_RHS_OR_ANON_FUNC_BODY =
+            { ParserRuleContext.ANON_FUNC_BODY, ParserRuleContext.STMT_LEVEL_AMBIGUOUS_FUNC_TYPE_DESC_RHS };
 
     private static final ParserRuleContext[] WORKER_NAME_RHS =
             { ParserRuleContext.RETURNS_KEYWORD, ParserRuleContext.BLOCK_STMT };
@@ -230,7 +236,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.NEW_KEYWORD,
             ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD, ParserRuleContext.LEFT_ARROW_TOKEN,
             ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD, ParserRuleContext.TRANSACTIONAL_KEYWORD,
-            ParserRuleContext.SERVICE_CONSTRUCTOR_EXPRESSION};
+            ParserRuleContext.SERVICE_CONSTRUCTOR_EXPRESSION };
 
     private static final ParserRuleContext[] FIRST_MAPPING_FIELD_START =
             { ParserRuleContext.MAPPING_FIELD, ParserRuleContext.CLOSE_BRACE };
@@ -393,9 +399,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] NIL_OR_PARENTHESISED_TYPE_DESC_RHS =
             { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.TYPE_DESCRIPTOR };
 
-    private static final ParserRuleContext[] BINDING_PATTERN =
-            { ParserRuleContext.CAPTURE_BINDING_PATTERN, ParserRuleContext.LIST_BINDING_PATTERN,
-                    ParserRuleContext.MAPPING_BINDING_PATTERN};
+    private static final ParserRuleContext[] BINDING_PATTERN = { ParserRuleContext.CAPTURE_BINDING_PATTERN,
+            ParserRuleContext.LIST_BINDING_PATTERN, ParserRuleContext.MAPPING_BINDING_PATTERN };
 
     private static final ParserRuleContext[] LIST_BINDING_PATTERN_CONTENTS =
             { ParserRuleContext.REST_BINDING_PATTERN, ParserRuleContext.BINDING_PATTERN };
@@ -407,10 +412,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_BRACKET };
 
     private static final ParserRuleContext[] MAPPING_BINDING_PATTERN_END =
-            { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_BRACE};
+            { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_BRACE };
 
     private static final ParserRuleContext[] FIELD_BINDING_PATTERN_END =
-            { ParserRuleContext.COMMA, ParserRuleContext.COLON, ParserRuleContext.CLOSE_BRACE};
+            { ParserRuleContext.COMMA, ParserRuleContext.COLON, ParserRuleContext.CLOSE_BRACE };
 
     private static final ParserRuleContext[] REMOTE_CALL_OR_ASYNC_SEND_RHS =
             { ParserRuleContext.WORKER_NAME_OR_METHOD_NAME, ParserRuleContext.DEFAULT_WORKER_NAME_IN_ASYNC_SEND };
@@ -564,7 +569,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case STMT_START_BRACKETED_LIST_MEMBER:
             case STMT_START_BRACKETED_LIST_RHS:
             case ENUM_MEMBER_END:
-            case STMT_START_IDENTIFIER_RHS:
+            case BINDING_PATTERN_OR_EXPR_RHS:
             case BRACKETED_LIST_RHS:
             case BRACKETED_LIST_MEMBER:
             case BRACKETED_LIST_MEMBER_END:
@@ -572,6 +577,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPED_BINDING_PATTERN_TYPE_RHS:
             case TYPE_DESC_IN_TUPLE_RHS:
             case LIST_BINDING_MEMBER_OR_ARRAY_LENGTH:
+            case FUNC_TYPE_DESC_RHS_OR_ANON_FUNC_BODY:
                 return true;
             default:
                 return false;
@@ -1210,12 +1216,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RETRY_BODY:
             case STMT_START_BRACKETED_LIST_MEMBER:
             case STMT_START_BRACKETED_LIST_RHS:
-            case STMT_START_IDENTIFIER_RHS:
+            case BINDING_PATTERN_OR_EXPR_RHS:
             case BRACKETED_LIST_RHS:
             case BRACKETED_LIST_MEMBER:
             case BRACKETED_LIST_MEMBER_END:
             case AMBIGUOUS_STMT:
             case LIST_BINDING_MEMBER_OR_ARRAY_LENGTH:
+            case FUNC_TYPE_DESC_RHS_OR_ANON_FUNC_BODY:
                 return true;
             default:
                 return false;
@@ -1244,13 +1251,19 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     alternatives = ANNON_FUNC_OPTIONAL_RETURNS;
                 } else if (parentCtx == ParserRuleContext.FUNC_TYPE_DESC) {
                     alternatives = FUNC_TYPE_OPTIONAL_RETURNS;
+                } else if (parentCtx == ParserRuleContext.FUNC_TYPE_DESC_OR_ANON_FUNC) {
+                    alternatives = FUNC_TYPE_OR_ANON_FUNC_OPTIONAL_RETURNS;
                 } else {
                     alternatives = FUNC_TYPE_OR_DEF_OPTIONAL_RETURNS;
                 }
+
                 alternativeRules = alternatives;
                 break;
             case FUNC_BODY_OR_TYPE_DESC_RHS:
                 alternativeRules = FUNC_BODY_OR_TYPE_DESC_RHS;
+                break;
+            case FUNC_TYPE_DESC_RHS_OR_ANON_FUNC_BODY:
+                alternativeRules = FUNC_TYPE_DESC_RHS_OR_ANON_FUNC_BODY;
                 break;
             case ANON_FUNC_BODY:
                 alternativeRules = ANON_FUNC_BODY;
@@ -1609,7 +1622,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 alternativeRules = BRACKETED_LIST_MEMBER;
                 break;
             case BRACKETED_LIST_RHS:
-            case STMT_START_IDENTIFIER_RHS:
+            case BINDING_PATTERN_OR_EXPR_RHS:
                 alternativeRules = BRACKETED_LIST_RHS;
                 break;
             case LIST_BINDING_MEMBER_OR_ARRAY_LENGTH:
@@ -2401,13 +2414,22 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TYPE_DESCRIPTOR;
             case EXPR_FUNC_BODY_START:
                 return ParserRuleContext.EXPRESSION;
-            case AMBIGUOUS_FUNC_TYPE_DESC_RHS:
+            case MODULE_LEVEL_AMBIGUOUS_FUNC_TYPE_DESC_RHS:
                 endContext();
-                // We come here trying to recover statement/object-member started with identifier,
-                // and trying to match it against a var-decl. Since this wasn't a var-decl
+                // We come here trying to recover module-var-decl/object-member started with function,
+                // keyword and trying to match it against a var-decl. Since this wasn't a var-decl
                 // originally, a context for type hasn't started yet. Therefore start a
                 // a context manually here.
                 startContext(ParserRuleContext.VAR_DECL_STMT);
+                startContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
+                return ParserRuleContext.TYPEDESC_RHS;
+            case STMT_LEVEL_AMBIGUOUS_FUNC_TYPE_DESC_RHS:
+                endContext();
+                // We come here trying to recover statement started with function-keyword,
+                // and trying to match it against a var-decl. Since this wasn't a var-decl
+                // originally, a context for type hasn't started yet. Therefore switch to
+                // var-decl context
+                switchContext(ParserRuleContext.VAR_DECL_STMT);
                 startContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
                 return ParserRuleContext.TYPEDESC_RHS;
             case FUNC_TYPE_DESC_END:
@@ -2667,7 +2689,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             return ParserRuleContext.EXPRESSION;
         } else if (parentCtx == ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE ||
                 parentCtx == ParserRuleContext.FUNC_TYPE_DESC || parentCtx == ParserRuleContext.FUNC_DEF ||
-                parentCtx == ParserRuleContext.ANON_FUNC_EXPRESSION) {
+                parentCtx == ParserRuleContext.ANON_FUNC_EXPRESSION ||
+                parentCtx == ParserRuleContext.FUNC_TYPE_DESC_OR_ANON_FUNC) {
             // TODO: find a better way
             startContext(ParserRuleContext.PARAM_LIST);
             return ParserRuleContext.PARAM_LIST;
@@ -2869,6 +2892,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                         return ParserRuleContext.TYPEDESC_RHS;
                     case FUNC_DEF_OR_FUNC_TYPE:
                         return ParserRuleContext.FUNC_BODY_OR_TYPE_DESC_RHS;
+                    case FUNC_TYPE_DESC_OR_ANON_FUNC:
+                        return ParserRuleContext.FUNC_TYPE_DESC_RHS_OR_ANON_FUNC_BODY;
                     case FUNC_DEF:
                         return ParserRuleContext.FUNC_BODY;
                     case ANON_FUNC_EXPRESSION:
@@ -3123,6 +3148,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FUNC_TYPE_DESC:
             case FUNC_DEF_OR_FUNC_TYPE:
             case ANON_FUNC_EXPRESSION:
+            case FUNC_TYPE_DESC_OR_ANON_FUNC:
                 return ParserRuleContext.TYPE_DESC_IN_RETURN_TYPE_DESC;
             case LET_EXPR_LET_VAR_DECL:
             case LET_CLAUSE_LET_VAR_DECL:
@@ -3179,7 +3205,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             return getNextRuleForBindingPattern();
         } else if (parentCtx == ParserRuleContext.MAPPING_BINDING_PATTERN) {
             return getNextRuleForBindingPattern();
-        }  else if (isStatement(parentCtx) || parentCtx == ParserRuleContext.LISTENER_DECL ||
+        } else if (isStatement(parentCtx) || parentCtx == ParserRuleContext.LISTENER_DECL ||
                 parentCtx == ParserRuleContext.CONSTANT_DECL) {
             return ParserRuleContext.VAR_DECL_STMT_RHS;
         } else if (parentCtx == ParserRuleContext.RECORD_FIELD) {
@@ -3645,6 +3671,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FUNC_DEF:
             case FUNC_DEF_OR_FUNC_TYPE:
             case FUNC_TYPE_DESC:
+            case FUNC_TYPE_DESC_OR_ANON_FUNC:
                 return SyntaxKind.FUNCTION_KEYWORD;
             case VAR_DECL_STMT_RHS:
                 return SyntaxKind.SEMICOLON_TOKEN;
