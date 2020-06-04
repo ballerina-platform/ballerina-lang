@@ -260,6 +260,7 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
 
+import static org.ballerinalang.util.BLangCompilerConstants.RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createBlockStmt;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createExpressionStmt;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createLiteral;
@@ -2359,7 +2360,7 @@ public class Desugar extends BLangNodeVisitor {
                 .scope.lookup(names.fromString("DefaultRetryManager")).symbol;
         BType retryManagerType = retryManagerTypeSymbol.type;
         if (retryNode.getRetrySpec().retryManagerType != null) {
-            retryManagerType = retryNode.retrySpec.type;
+            retryManagerType = retryNode.retrySpec.retryManagerType.type;
         }
 
         //<RetryManagerType> $retryManager$ = new;
@@ -2460,7 +2461,7 @@ public class Desugar extends BLangNodeVisitor {
     private BAttachedFunction getShouldRetryFunc(BVarSymbol retryManagerSymbol) {
         BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) retryManagerSymbol.type.tsymbol;
         for (BAttachedFunction bAttachedFunction : typeSymbol.attachedFuncs) {
-            if (bAttachedFunction.funcName.value.equals("shouldRetry")) {
+            if (bAttachedFunction.funcName.value.equals(RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC)) {
                 return bAttachedFunction;
             }
         }

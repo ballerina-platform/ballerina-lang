@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -69,6 +70,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
@@ -213,6 +215,7 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.ballerinalang.util.BLangCompilerConstants.RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC;
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
@@ -571,12 +574,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
-        //TODO Transactions
-//        if (this.transactionCount == 0) {
-//            this.dlog.error(retryNode.pos, DiagnosticCode.RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
-//            return;
-//        }
-//        this.lastStatement = true;
+        retryNode.retrySpec.accept(this);
+        retryNode.retryBody.accept(this);
+    }
+
+    @Override
+    public void visit(BLangRetrySpec retrySpec) {
+        if (retrySpec.retryManagerType != null) {
+            BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) symTable.langInternalModuleSymbol
+                    .scope.lookup(names.fromString("RetryManager")).symbol;
+            BType abstractRetryManagerType = retryManagerTypeSymbol.type;
+            if (!types.isAssignable(retrySpec.retryManagerType.type, abstractRetryManagerType)) {
+                dlog.error(retrySpec.pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT,
+                        RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC, retrySpec.retryManagerType.type);
+            }
+        }
     }
 
     @Override
