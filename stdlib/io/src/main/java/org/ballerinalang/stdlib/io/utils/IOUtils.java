@@ -64,9 +64,8 @@ public class IOUtils {
      * @return an error which will be propagated to ballerina user
      */
     public static ErrorValue createError(String errorMsg) {
-        return BallerinaErrors.createDistinctError(GenericError.errorCode(), GenericError.errorCode(),
-                IO_PACKAGE_ID,
-                createDetailRecord(errorMsg, null));
+        return BallerinaErrors.createDistinctError(GenericError.errorCode(), IO_PACKAGE_ID, GenericError.errorCode(),
+                                                   createDetailRecord(errorMsg, null));
     }
 
     /**
@@ -91,8 +90,8 @@ public class IOUtils {
     }
 
     public static ErrorValue createDistinctError(IOConstants.ErrorCode code, String errorMsg) {
-        return BallerinaErrors.createDistinctError(code.errorCode(), code.errorCode(), IO_PACKAGE_ID,
-                createDetailRecord(errorMsg, null));
+        return BallerinaErrors.createDistinctError(code.errorCode(), IO_PACKAGE_ID, code.errorCode(),
+                                                   createDetailRecord(errorMsg, null));
     }
 
     /**

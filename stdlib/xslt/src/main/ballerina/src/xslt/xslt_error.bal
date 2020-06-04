@@ -1,4 +1,4 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,33 +14,5 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const R1 = "r1";
-const R2 = "r2";
-
-type E1 distinct error;
-type E2 distinct error;
-
-public function main() {
-    worker w1 returns E1|E2? {
-        if (false) {
-            return E1(R1);
-        }
-        100 ->> w2;
-
-        if (true) {
-            return E2(R2);
-        }
-        "hello" ->> w2;
-    }
-
-    worker w2 returns error? {
-        int lw = <- w1;
-
-        if (true) {
-            return error("w2 err");
-        }
-        string s = <- w1;
-    }
-
-    error? err = wait w1;
-}
+# Represents a `TransformError` with the message and the cause.
+public type TransformError distinct error;

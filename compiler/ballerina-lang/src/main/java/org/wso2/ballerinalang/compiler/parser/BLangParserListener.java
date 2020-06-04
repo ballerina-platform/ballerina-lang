@@ -1322,15 +1322,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        int numNamedArgs = ctx.errorNamedArgRefPattern().size();
-        boolean reasonRefAvailable = ctx.variableReference() != null;
+        BallerinaParser.ErrorRefArgsPatternContext errorRefArgsPatternContext = ctx.errorRefArgsPattern();
+        int numNamedArgs = errorRefArgsPatternContext.errorNamedArgRefPattern().size();
+        boolean causeRefAvailable = errorRefArgsPatternContext.variableReference().size() > 1;
 
-        boolean restPatternAvailable = ctx.errorRefRestPattern() != null;
+        boolean restPatternAvailable = errorRefArgsPatternContext.errorRefRestPattern() != null;
 
         boolean indirectErrorRefPattern = ctx.typeName() != null;
 
         this.pkgBuilder.addErrorVariableReference(getCurrentPos(ctx), getWS(ctx),
-                numNamedArgs, reasonRefAvailable, restPatternAvailable, indirectErrorRefPattern);
+                numNamedArgs, causeRefAvailable, restPatternAvailable, indirectErrorRefPattern);
     }
 
     @Override

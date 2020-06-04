@@ -843,6 +843,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.pkgAlias = source.pkgAlias;
         clone.message = clone(source.message);
+        clone.cause = clone(source.cause);
         clone.detail = cloneList(source.detail);
         clone.restVar = clone(source.restVar);
         clone.typeNode = clone(source.typeNode);
