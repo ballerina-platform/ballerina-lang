@@ -123,7 +123,7 @@ function processHubResponse(@untainted string hub, @untainted string mode,
 
     string topic = subscriptionChangeRequest.topic;
     if (response is error) {
-        return error("Error occurred for request: Mode[" + mode+ "] at Hub[" + hub + "] - " + response.getMessage());
+        return error("Error occurred for request: Mode[" + mode+ "] at Hub[" + hub + "] - " + response.message());
     } else {
         int responseStatusCode = response.statusCode;
         if (responseStatusCode == http:STATUS_TEMPORARY_REDIRECT
@@ -144,7 +144,7 @@ function processHubResponse(@untainted string hub, @untainted string mode,
             } else {
                 errorMessage = errorMessage + " - Error occurred identifying cause: " + responsePayload.getMessage();
             }
-            return error(errorMessage);
+            return WebSubError(errorMessage);
         } else {
             if (responseStatusCode != http:STATUS_ACCEPTED) {
                 log:printDebug("Subscription request considered successful for non 202 status code: "
