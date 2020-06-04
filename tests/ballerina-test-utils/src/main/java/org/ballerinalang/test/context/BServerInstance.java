@@ -534,7 +534,7 @@ public class BServerInstance implements BServer {
             //TODO: Need to reduce the timeout after build time improvements
             Utils.waitForPortsToOpen(new int[]{agentPort}, 1000 * 60 * 10, false, agentHost);
             log.info("Server Started Successfully.");
-        } catch (IOException|RuntimeException e) {
+        } catch (IOException | RuntimeException e) {
             throw new BallerinaTestException("Error starting services", e);
         }
     }
