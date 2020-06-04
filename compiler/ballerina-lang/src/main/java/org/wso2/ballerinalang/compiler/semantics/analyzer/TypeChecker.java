@@ -3621,6 +3621,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
         checkStringTemplateExprs(rawTemplateLiteral.strings, false);
         checkStringTemplateExprs(rawTemplateLiteral.insertions, false);
+        // TODO: fix subtyping
         resultType = types.checkType(rawTemplateLiteral, symTable.rawTemplateType, expType);
     }
 
