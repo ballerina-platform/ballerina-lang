@@ -1,12 +1,13 @@
 name: CI Windows
 
-on: pull_request
-  branches:
-    - master
-    - next-release
-    - release-stage
-    - stage
-    - ballerina-[0-9]+.[0-9]+.[0-9]+
+on: 
+  pull_request:
+    branches:
+      - master
+      - next-release
+      - release-stage
+      - stage
+      - ballerina-[0-9]+.[0-9]+.[0-9]+
 
 jobs:
   windows_build:
