@@ -64,8 +64,7 @@ jobs:
         with:
           path: ${{ steps.getdist.outputs.file }}
 
-      - id: getvscode
-        run: echo "::set-output name=file::$(ls ls tool-plugins/vscode/*.vsix"
       - uses: actions/upload-artifact@v2
         with:
           path: tool-plugins/vscode/*.vsix
+
