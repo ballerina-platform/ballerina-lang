@@ -16,39 +16,58 @@
 
 // Ballerina MIME Error Types
 # Represents an `EncodeError` with the message and the cause.
-public type EncodeError error;
+public type EncodeError distinct error;
 
 # Represents a `DecodeError` with the message and the cause.
-public type DecodeError error;
+public type DecodeError distinct error;
 
 # Represents a `GenericMimeError` with the message and the cause.
-public type GenericMimeError error;
+public type GenericMimeError distinct error;
 
 # Represents a `SetHeaderError` with the message and the cause.
-public type SetHeaderError error;
+public type SetHeaderError distinct error;
 
-# Represents a `ReadingHeaderFailed` error with the message and the cause.
-public type ReadingHeaderFailed error;
+# Represents a `HeaderReadError` error with the message and the cause.
+public type HeaderReadError distinct error;
+
+# Represents a `InvalidHeaderValueError` error with the message and the cause.
+public type InvalidHeaderValueError distinct error;
+
+# Represents a `InvalidHeaderParamError` error with the message and the cause.
+public type InvalidHeaderParamError distinct error;
+
+# Represents a `InvalidContentLengthError` error with the message and the cause.
+public type InvalidContentLengthError distinct error;
+
+# Represents a `HeaderNotFoundError` error with the message and the cause.
+public type HeaderNotFoundError distinct error;
+
+# Represents a `InvalidHeaderOperationError` error with the message and the cause.
+public type InvalidHeaderOperationError distinct error;
+
+# Represents a `SerializationError` error with the message and the cause.
+public type SerializationError distinct error;
 
 # Represents a `ParserError` with the message and the cause.
-public type ParserError error;
+public type ParserError distinct error;
 
 # Represents an `InvalidContentTypeError` with the message and the cause.
-public type InvalidContentTypeError error;
+public type InvalidContentTypeError distinct error;
 
 # Represents a `HeaderUnavailableError` with the message and the cause.
-public type HeaderUnavailableError error;
+public type HeaderUnavailableError distinct error;
 
 # Represents an `IdleTimeoutTriggeredError` with the message and the cause.
-public type IdleTimeoutTriggeredError error;
+public type IdleTimeoutTriggeredError distinct error;
 
 # Represents a `NoContentError` with the message and the cause.
-public type NoContentError error;
+public type NoContentError distinct error;
 
 # Represents MIME related errors.
 public type Error ParserError|EncodeError|DecodeError|GenericMimeError|SetHeaderError|InvalidContentTypeError
-                |ReadingHeaderFailed|InvalidContentTypeError|HeaderUnavailableError|IdleTimeoutTriggeredError
-                |NoContentError;
+                |HeaderReadError|HeaderUnavailableError|IdleTimeoutTriggeredError|NoContentError
+                |InvalidHeaderValueError|InvalidHeaderParamError|InvalidContentLengthError
+                |HeaderNotFoundError|InvalidHeaderOperationError|SerializationError;
 
 # Constructs an `EncodeError` with the given details.
 #

@@ -327,7 +327,7 @@ public type Request object {
             string message = "Error occurred while retrieving form parameters from the request";
             if (!mimeEntity.hasHeader(mime:CONTENT_TYPE)) {
                 string errMessage = "Content-Type header is not available";
-                mime:HeaderUnavailableError typeError = error(mime:HEADER_UNAVAILABLE, message = errMessage);
+                mime:HeaderUnavailableError typeError = mime:HeaderUnavailableError(errMessage);
                 return getGenericClientError(message, typeError);
             }
             string contentTypeHeaderValue = "";
