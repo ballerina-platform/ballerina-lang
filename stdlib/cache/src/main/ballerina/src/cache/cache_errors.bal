@@ -20,6 +20,7 @@ import ballerina/log;
 # operations.
 public type CacheError distinct error;
 
+# Represents Cache related errors.
 public type Error CacheError;
 
 # Prepare the `error` as a `cache:Error` after printing an error log.
