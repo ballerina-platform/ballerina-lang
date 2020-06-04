@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaMetadata;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.StrandMetaData;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIConstructorCall;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
@@ -246,7 +247,7 @@ public class JvmTerminatorGen {
                 return;
             case ASYNC_CALL:
                 this.genAsyncCallTerm((BIRTerminator.AsyncCall) terminator, localVarOffset, moduleClassName,
-                                      funcName, lambdaMetadata);
+                                      attachedType, funcName, lambdaMetadata);
                 return;
             case BRANCH:
                 this.genBranchTerm((BIRTerminator.Branch) terminator, funcName);
@@ -265,8 +266,8 @@ public class JvmTerminatorGen {
                 this.genWaitAllIns((BIRTerminator.WaitAll) terminator, funcName, localVarOffset);
                 return;
             case FP_CALL:
-                this.genFPCallIns((BIRTerminator.FPCall) terminator, moduleClassName, funcName, lambdaMetadata,
-                                  localVarOffset);
+                this.genFPCallIns((BIRTerminator.FPCall) terminator, moduleClassName, attachedType, funcName,
+                                  lambdaMetadata, localVarOffset);
                 return;
             case WK_SEND:
                 this.genWorkerSendIns((BIRTerminator.WorkerSend) terminator, funcName, localVarOffset);
@@ -766,7 +767,7 @@ public class JvmTerminatorGen {
     }
 
     private void genAsyncCallTerm(BIRTerminator.AsyncCall callIns, int localVarOffset, String moduleClassName,
-                                  String parentFunction, LambdaMetadata lambdaMetadata) {
+                                  BType attachedType, String parentFunction, LambdaMetadata lambdaMetadata) {
 
         PackageID calleePkgId = callIns.calleePkg;
 
@@ -879,8 +880,8 @@ public class JvmTerminatorGen {
             this.mv.visitLdcInsn(workerName);
         }
 
-        this.submitToScheduler(callIns.lhsOp, moduleClassName, parentFunction,
-                               lambdaMetadata, concurrent);
+        this.submitToScheduler(callIns.lhsOp, moduleClassName, attachedType, parentFunction, lambdaMetadata,
+                               concurrent);
     }
 
     private void generateWaitIns(BIRTerminator.Wait waitInst, String funcName, int localVarOffset) {
@@ -949,7 +950,7 @@ public class JvmTerminatorGen {
                 MAP, MAP_VALUE), false);
     }
 
-    private void genFPCallIns(BIRTerminator.FPCall fpCall, String moduleClassName, String funcName,
+    private void genFPCallIns(BIRTerminator.FPCall fpCall, String moduleClassName, BType attachedType, String funcName,
                               LambdaMetadata lambdaMetadata, int localVarOffset) {
 
         if (fpCall.isAsync) {
@@ -1025,7 +1026,7 @@ public class JvmTerminatorGen {
             this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "getStrandName",
                                     String.format("(L%s;L%s;)L%s;", FUNCTION_POINTER, STRING_VALUE, STRING_VALUE),
                                     false);
-            this.submitToScheduler(fpCall.lhsOp, moduleClassName, funcName, lambdaMetadata, true);
+            this.submitToScheduler(fpCall.lhsOp, moduleClassName, attachedType, funcName, lambdaMetadata, true);
             Label afterSubmit = new Label();
             this.mv.visitJumpInsn(GOTO, afterSubmit);
             this.mv.visitLabel(notConcurrent);
@@ -1041,7 +1042,7 @@ public class JvmTerminatorGen {
             this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "getStrandName",
                                     String.format("(L%s;L%s;)L%s;", FUNCTION_POINTER, STRING_VALUE, STRING_VALUE),
                                     false);
-            this.submitToScheduler(fpCall.lhsOp, moduleClassName, funcName, lambdaMetadata, false);
+            this.submitToScheduler(fpCall.lhsOp, moduleClassName, attachedType, funcName, lambdaMetadata, false);
             this.mv.visitLabel(afterSubmit);
         } else {
             this.mv.visitMethodInsn(INVOKEINTERFACE, FUNCTION, "apply",
@@ -1139,12 +1140,21 @@ public class JvmTerminatorGen {
         this.storeToVar(ins.lhsOp.variableDcl);
     }
 
-    private void submitToScheduler(BIROperand lhsOp, String moduleClassName, String parentFunction,
+    private void submitToScheduler(BIROperand lhsOp, String moduleClassName, BType attachedType, String parentFunction,
                                    LambdaMetadata lambdaMetadata, boolean concurrent) {
 
-        lambdaMetadata.getStrandMetaData().putIfAbsent(getStrandMetaDataVarName(parentFunction), parentFunction);
-        this.mv.visitFieldInsn(GETSTATIC, moduleClassName, JvmMethodGen.getStrandMetaDataVarName(parentFunction),
-                               String.format("L%s;", STRAND_METADATA));
+        String metaDataVarName;
+        StrandMetaData strandMetaData;
+        if (attachedType != null) {
+            metaDataVarName = getStrandMetaDataVarName(attachedType.tsymbol.name.value, parentFunction);
+            strandMetaData = new StrandMetaData(attachedType.tsymbol.name.value, parentFunction);
+        } else {
+            metaDataVarName = getStrandMetaDataVarName(parentFunction);
+            strandMetaData = new StrandMetaData(parentFunction);
+
+        }
+        lambdaMetadata.getStrandMetaData().putIfAbsent(metaDataVarName, strandMetaData);
+        this.mv.visitFieldInsn(GETSTATIC, moduleClassName, metaDataVarName, String.format("L%s;", STRAND_METADATA));
         if (concurrent) {
             mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
                                String.format("([L%s;L%s;L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND,

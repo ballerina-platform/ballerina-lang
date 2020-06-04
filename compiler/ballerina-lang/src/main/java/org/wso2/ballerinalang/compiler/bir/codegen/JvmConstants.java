@@ -202,6 +202,7 @@ public class JvmConstants {
     public static final String STRAND_NAME = "name";
     public static final String STRAND_POLICY_NAME = "policy";
     public static final String STRAND_VALUE_ANY = "any";
+    public static final String STRAND_META_DATA_VAR_PREFIX = "$strand$";
     public static final String DEFAULT_STRAND_DISPATCHER = "DEFAULT";
 
     // observability related constants

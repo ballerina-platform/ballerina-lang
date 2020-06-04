@@ -30,7 +30,7 @@ import java.util.Map;
 public class LambdaMetadata {
 
     private Map<String, BIRInstruction> lambdas;
-    private Map<String, String> strandMetaDataMap;
+    private Map<String, StrandMetaData> strandMetaDataMap;
     private int lambdaIndex = 0;
     private String enclosingClass;
 
@@ -66,7 +66,7 @@ public class LambdaMetadata {
         return lambdas;
     }
 
-    public Map<String, String> getStrandMetaData() {
+    public Map<String, StrandMetaData> getStrandMetaData() {
         return strandMetaDataMap;
     }
 }

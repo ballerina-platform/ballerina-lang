@@ -25,6 +25,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaMetadata;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.StrandMetaData;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
@@ -389,10 +390,9 @@ class JvmTypeGen {
             mv.visitTypeInsn(NEW, STRAND);
             mv.visitInsn(DUP);
             mv.visitInsn(ACONST_NULL);
-            lambdaMetadata.getStrandMetaData()
-                    .putIfAbsent(getStrandMetaDataVarName(CREATE_RECORD_VALUE), CREATE_RECORD_VALUE);
-            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, JvmMethodGen.getStrandMetaDataVarName(CREATE_RECORD_VALUE),
-                              String.format("L%s;", STRAND_METADATA));
+            String metaDataVarName = getStrandMetaDataVarName(typeDef.name.value);
+            lambdaMetadata.getStrandMetaData().putIfAbsent(metaDataVarName, new StrandMetaData(CREATE_RECORD_VALUE));
+            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, metaDataVarName, String.format("L%s;", STRAND_METADATA));
             mv.visitInsn(ACONST_NULL);
             mv.visitInsn(ACONST_NULL);
             mv.visitInsn(ACONST_NULL);
@@ -489,10 +489,9 @@ class JvmTypeGen {
             mv.visitTypeInsn(NEW, STRAND);
             mv.visitInsn(DUP);
             mv.visitInsn(ACONST_NULL);
-            lambdaMetadata.getStrandMetaData()
-                    .putIfAbsent(getStrandMetaDataVarName(CREATE_OBJECT_VALUE), CREATE_OBJECT_VALUE);
-            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, JvmMethodGen.getStrandMetaDataVarName(CREATE_OBJECT_VALUE),
-                              String.format("L%s;", STRAND_METADATA));
+            String metaDataVarName = getStrandMetaDataVarName(CREATE_OBJECT_VALUE);
+            lambdaMetadata.getStrandMetaData().putIfAbsent(metaDataVarName, new StrandMetaData(CREATE_OBJECT_VALUE));
+            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, metaDataVarName, String.format("L%s;", STRAND_METADATA));
             mv.visitVarInsn(ALOAD, schedulerIndex);
             mv.visitVarInsn(ALOAD, parentIndex);
             mv.visitVarInsn(ALOAD, propertiesIndex);

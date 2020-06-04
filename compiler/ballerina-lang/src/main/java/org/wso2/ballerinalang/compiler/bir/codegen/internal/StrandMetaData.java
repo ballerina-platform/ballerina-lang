@@ -15,36 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.scheduling;
+package org.wso2.ballerinalang.compiler.bir.codegen.internal;
 
 /**
- * Holds meta data of the @{@link Strand}.
+ * A metadata holder to keep track of strand meta data.
  *
  * @since 2.0.0
  */
-
 public class StrandMetaData {
 
-    public final String moduleOrg;
+    public String parentFunctionName;
 
-    public final String moduleName;
+    public String typeName;
 
-    public final String moduleVersion;
-
-    public final String typeName;
-
-    public final String parentFunctionName;
-
-    public StrandMetaData(String moduleOrg, String moduleName, String moduleVersion, String typeName,
-                          String parentFunctionName) {
-        this.moduleOrg = moduleOrg;
-        this.moduleName = moduleName;
-        this.moduleVersion = moduleVersion;
-        this.typeName = typeName;
+    public StrandMetaData(String parentFunctionName) {
         this.parentFunctionName = parentFunctionName;
     }
 
-    public StrandMetaData(String moduleOrg, String moduleName, String moduleVersion, String parentFunctionName) {
-        this(moduleOrg, moduleName, moduleVersion, null, parentFunctionName);
+    public StrandMetaData(String typeName, String parentFunctionName) {
+        this.typeName = typeName;
+        this.parentFunctionName = parentFunctionName;
     }
 }
