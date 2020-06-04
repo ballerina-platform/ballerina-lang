@@ -333,7 +333,7 @@ public class BServerInstance implements BServer {
      * @return The service URL without scheme.
      */
     private String getServiceUrl(int port, String servicePath) {
-        return "localhost:" + port + "/" + servicePath;
+        return "host.docker.internal:" + port + "/" + servicePath;
     }
 
     /**
