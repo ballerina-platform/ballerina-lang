@@ -207,6 +207,52 @@ public class ModuleExecutionFlowTests {
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
 
+    @Test(description = "Test 'init' is called only once for each module at runtime")
+    public void testModuleDependencyChainForInit() {
+        CompileResult compileResult =
+                BCompileUtil.compile("test-src/execution/projectModuleDependencyChainForInit", "mainModule", false);
+        ExitDetails output = run(compileResult, new String[]{});
+
+        String expectedConsoleString = "Initializing module 'basicModule'\n" +
+                "Initializing module 'firstDependentModule'\n" +
+                "Initializing module 'secondDependentModule'\n" +
+                "Initializing module 'mainModule'\n" +
+                "main function invoked for main module\n" +
+                "basic:TestListener listener __start called, service name - basic\n" +
+                "basic:TestListener listener __start called, service name - first dependent\n" +
+                "basic:TestListener listener __start called, service name - second dependent\n" +
+                "basic:TestListener listener __start called, service name - main\n" +
+                "basic:TestListener listener __gracefulStop called, service name - main\n" +
+                "basic:TestListener listener __gracefulStop called, service name - second dependent\n" +
+                "basic:TestListener listener __gracefulStop called, service name - first dependent\n" +
+                "basic:TestListener listener __gracefulStop called, service name - basic";
+
+        Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
+    }
+
+    @Test(description = "Test 'start' is called only once for each module at runtime")
+    public void testModuleDependencyChainForStart() {
+        CompileResult compileResult =
+                BCompileUtil.compile("test-src/execution/projectModuleDependencyChainForStart", "mainModule", false);
+        ExitDetails output = run(compileResult, new String[]{});
+
+        String expectedConsoleString = "Initializing module 'basicModule'\n" +
+                "Initializing module 'firstDependentModule'\n" +
+                "Initializing module 'secondDependentModule'\n" +
+                "Initializing module 'mainModule'\n" +
+                "main function invoked for main module\n" +
+                "basic:TestListener listener __start called, service name - basic\n" +
+                "basic:TestListener listener __start called, service name - first dependent\n" +
+                "basic:TestListener listener __start called, service name - second dependent\n" +
+                "basic:TestListener listener __start called, service name - main\n" +
+                "basic:TestListener listener __gracefulStop called, service name - main\n" +
+                "basic:TestListener listener __gracefulStop called, service name - second dependent\n" +
+                "basic:TestListener listener __gracefulStop called, service name - first dependent\n" +
+                "basic:TestListener listener __gracefulStop called, service name - basic";
+
+        Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
+    }
+
     private ExitDetails run(CompileResult compileResult, String[] args) {
         try {
             return BCompileUtil.run(compileResult, args);
