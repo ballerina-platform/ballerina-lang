@@ -417,7 +417,7 @@ public class BServerInstance implements BServer {
     }
 
     private void makeContainerFriendly(File commandDir) throws IOException {
-        Path path = Paths.get(commandDir + "bin/ballerina");
+        Path path = Paths.get(commandDir + "/bin/ballerina");
         Charset charset = StandardCharsets.UTF_8;
 
         String content = new String(Files.readAllBytes(path), charset);
