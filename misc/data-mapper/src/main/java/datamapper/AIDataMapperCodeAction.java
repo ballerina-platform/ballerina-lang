@@ -231,7 +231,15 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
             JsonObject fieldDetails = new JsonObject();
             fieldDetails.addProperty("id", "dummy_id");
             /* TODO: Do we need to go to lower levels? */
-            if (attribute.type instanceof BRecordType) {
+            if (attribute.type instanceof BArrayType) {
+                BType attributeEType = ((BArrayType) attribute.type).eType;
+                if (attributeEType instanceof BRecordType) {
+                    fieldDetails.addProperty("type", "ballerina_type");
+                    fieldDetails.add("properties", recordToJSON(((BRecordType) attributeEType).fields));
+                } else {
+                    fieldDetails.addProperty("type", String.valueOf(attribute.type));
+                }
+            } else if (attribute.type instanceof BRecordType) {
                 fieldDetails.addProperty("type", "ballerina_type");
                 fieldDetails.add("properties", recordToJSON(((BRecordType) attribute.type).fields));
             } else {
