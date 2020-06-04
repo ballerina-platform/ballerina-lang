@@ -38,6 +38,7 @@ import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -70,12 +71,11 @@ import static org.ballerinalang.langserver.util.references.ReferencesUtil.getRef
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
 
-    private static final String REMOTE_URL = "https://ai-data-mapper.development.choreo.dev/uploader";
+    private static final String REMOTE_URL = "https://datamapper.dv.choreo.dev/uploader";
     private static final String REMOTE_AI_SERVICE_URL_ENV = "REMOTE_AI_SERVICE_URL";
     private static final String CUSTOM_URL = System.getenv(REMOTE_AI_SERVICE_URL_ENV);
     private static final String AI_SERVICE_URL = (CUSTOM_URL == null || CUSTOM_URL.length() == 0) ? REMOTE_URL :
             CUSTOM_URL;
-    private static final int RECORD_TYPE_TAG = 12;
 
 
     public static CodeAction getAIDataMapperCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
@@ -93,12 +93,12 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
             } else {
                 refAtCursor = getReferenceAtCursor(context, document, endingPosition);
             }
-            int symbolAtCursorTag = refAtCursor.getSymbol().type.tag;
+            BType symbolAtCursorType = refAtCursor.getSymbol().type;
 
             if (refAtCursor.getbLangNode().parent instanceof BLangFieldBasedAccess) {
                 return null;
             } else {
-                if (symbolAtCursorTag == RECORD_TYPE_TAG) {
+                if (symbolAtCursorType instanceof BRecordType) {
                     String commandTitle = "Generate mapping function";
                     CodeAction action = new CodeAction(commandTitle);
                     action.setKind(CodeActionKind.QuickFix);
@@ -231,15 +231,12 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
             JsonObject fieldDetails = new JsonObject();
             fieldDetails.addProperty("id", "dummy_id");
             /* TODO: Do we need to go to lower levels? */
-
-                if (attribute.type.tag == RECORD_TYPE_TAG) {
-                    if (attribute.type instanceof BRecordType) {
-                        fieldDetails.addProperty("type", "ballerina_type");
-                        fieldDetails.add("properties", recordToJSON(((BRecordType) attribute.type).fields));
-                    }
-                } else {
-                    fieldDetails.addProperty("type", String.valueOf(attribute.type));
-                }
+            if (attribute.type instanceof BRecordType) {
+                fieldDetails.addProperty("type", "ballerina_type");
+                fieldDetails.add("properties", recordToJSON(((BRecordType) attribute.type).fields));
+            } else {
+                fieldDetails.addProperty("type", String.valueOf(attribute.type));
+            }
             properties.add(String.valueOf(attribute.name), fieldDetails);
         }
         return properties;
