@@ -38,6 +38,7 @@ import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
+import org.wso2.transport.http.netty.contract.exceptions.ClientClosedConnectionException;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.listener.states.ListenerReqRespStateManager;
 import org.wso2.transport.http.netty.contractimpl.listener.states.ReceivingHeaders;
@@ -239,7 +240,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     private void notifyErrorListenerAtConnectedState(String errorMsg) {
         try {
-            serverConnectorFuture.notifyErrorListener(new ServerConnectorException(errorMsg));
+            serverConnectorFuture.notifyErrorListener(new ClientClosedConnectionException(errorMsg));
             // Error is notified to server connector. Debug log is to make transport layer aware
             LOG.debug(errorMsg);
         } catch (ServerConnectorException e) {
