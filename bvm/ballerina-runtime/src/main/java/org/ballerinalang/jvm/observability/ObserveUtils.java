@@ -44,8 +44,8 @@ import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_IS_MAIN_ENTRY_POINT;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_IS_REMOTE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_IS_RESOURCE_ENTRY_POINT;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_IS_WORKER;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_MODULE;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_WORKER;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_TRUE_VALUE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_RESOURCE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_SERVICE;
@@ -164,15 +164,14 @@ public class ObserveUtils {
      * @param isRemote True if this was a remove function invocation
      * @param isMainEntryPoint True if this was a main entry point invocation
      * @param isWorker True if this was a worker start
-     * @param workerName name of the worker if this was a worker function
      * @param typeDef The type definition the function was attached to
      * @param functionName name of the function being invoked
      * @param pkg The package the resource belongs to
      * @param position The source code position the resource in defined in
      */
     public static void startCallableObservation(boolean isRemote, boolean isMainEntryPoint, boolean isWorker,
-                                                BString workerName, ObjectValue typeDef, BString functionName,
-                                                BString pkg, BString position) {
+                                                ObjectValue typeDef, BString functionName, BString pkg,
+                                                BString position) {
         if (!enabled) {
             return;
         }
@@ -204,7 +203,7 @@ public class ObserveUtils {
             newObContext.addMainTag(TAG_KEY_IS_MAIN_ENTRY_POINT, TAG_TRUE_VALUE);
         }
         if (isWorker) {
-            newObContext.addMainTag(TAG_KEY_WORKER, workerName.getValue());
+            newObContext.addMainTag(TAG_KEY_IS_WORKER, TAG_TRUE_VALUE);
         }
 
         setObserverContextToCurrentFrame(strand, newObContext);

@@ -123,10 +123,10 @@ class JvmObservabilityGen {
             rewriteAsyncInvocations(func, pkg);
             rewriteObservableFunctionInvocations(func, pkg);
             if (ENTRY_POINT_MAIN_METHOD_NAME.equals(func.name.value)) {
-                rewriteObservableFunctionBody(func, pkg, false, true, false, func.workerName.value,
+                rewriteObservableFunctionBody(func, pkg, false, true, false,
                         StringUtils.EMPTY, func.name.value);
             } else if ((func.flags & Flags.WORKER) == Flags.WORKER) {   // Identifying lambdas generated for workers
-                rewriteObservableFunctionBody(func, pkg, false, false, true, func.workerName.value,
+                rewriteObservableFunctionBody(func, pkg, false, false, true,
                         StringUtils.EMPTY, func.workerName.value);
             }
         }
@@ -141,7 +141,7 @@ class JvmObservabilityGen {
                 rewriteObservableFunctionInvocations(func, pkg);
                 if (isService && (func.flags & Flags.RESOURCE) == Flags.RESOURCE) {
                     rewriteObservableFunctionBody(func, pkg, true, false, false,
-                            func.workerName.value, cleanUpServiceName(typeDef.name.value), func.name.value);
+                            cleanUpServiceName(typeDef.name.value), func.name.value);
                 }
             }
         }
@@ -257,13 +257,12 @@ class JvmObservabilityGen {
      * @param isResource True if the function is a service resource
      * @param isMainEntryPoint True if the function is the main entry point
      * @param isWorker True if the function was a worker
-     * @param workerName Name of the worker if this was from a worker function
      * @param serviceName The name of the service
      * @param resourceOrAction The name of the resource or action which will be observed
      */
     private void rewriteObservableFunctionBody(BIRFunction func, BIRPackage pkg, boolean isResource,
-                                               boolean isMainEntryPoint, boolean isWorker, String workerName,
-                                               String serviceName, String resourceOrAction) {
+                                               boolean isMainEntryPoint, boolean isWorker, String serviceName,
+                                               String resourceOrAction) {
         // Injecting observe start call at the start of the function body
         {
             BIRBasicBlock startBB = func.basicBlocks.get(0);    // Every non-abstract function should have function body
@@ -278,7 +277,7 @@ class JvmObservabilityGen {
                         INVOCATION_INSTRUMENTATION_TYPE, startBB.id.value), symbolTable.nilType, null,
                         func.localVars, startBB, null);
                 injectStartCallableObservationCall(startBB, func.localVars, null, false, isMainEntryPoint, isWorker,
-                        workerName, objectTypeOperand, resourceOrAction, pkg, func.pos, FUNC_BODY_INSTRUMENTATION_TYPE);
+                        objectTypeOperand, resourceOrAction, pkg, func.pos, FUNC_BODY_INSTRUMENTATION_TYPE);
             }
 
             // Fix the Basic Blocks links
@@ -428,8 +427,8 @@ class JvmObservabilityGen {
                         observeEndBB = insertBasicBlock(func, i + 5);
 
                         injectStartCallableObservationCall(observeStartBB, func.localVars, desugaredInsPosition,
-                                isRemote, false, false, func.workerName.value, objectTypeOperand,
-                                action, pkg, originalInsPos, INVOCATION_INSTRUMENTATION_TYPE);
+                                isRemote, false, false, objectTypeOperand, action, pkg,
+                                originalInsPos, INVOCATION_INSTRUMENTATION_TYPE);
                         injectCheckErrorCalls(errorCheckBB, errorReportBB, observeEndBB, func.localVars,
                                 desugaredInsPosition, callIns.lhsOp, INVOCATION_INSTRUMENTATION_TYPE);
                         injectReportErrorCall(errorReportBB, func.localVars, desugaredInsPosition, callIns.lhsOp,
@@ -446,8 +445,8 @@ class JvmObservabilityGen {
                         observeEndBB = insertBasicBlock(func, i + 3);
 
                         injectStartCallableObservationCall(observeStartBB, func.localVars, desugaredInsPosition,
-                                isRemote, false, false, func.workerName.value,
-                                objectTypeOperand, action, pkg, originalInsPos, INVOCATION_INSTRUMENTATION_TYPE);
+                                isRemote, false, false, objectTypeOperand, action, pkg,
+                                originalInsPos, INVOCATION_INSTRUMENTATION_TYPE);
                         injectStopObservationCall(observeEndBB, desugaredInsPosition);
 
                         // Fix the Basic Blocks links
@@ -572,7 +571,6 @@ class JvmObservabilityGen {
      * @param isRemote True if a remote function will be observed by the observation
      * @param isMainEntryPoint True if the main function will be observed by the observation
      * @param isWorker True if a worker function will be observed by the observation
-     * @param workerName The name of the worker if this observes a worker
      * @param objectOperand The object the function was attached to
      * @param action The name of the action which will be observed
      * @param pkg The package the invocation belongs to
@@ -582,7 +580,7 @@ class JvmObservabilityGen {
     private void injectStartCallableObservationCall(BIRBasicBlock observeStartBB,
                                                     Collection<BIRVariableDcl> scopeVarList,
                                                     DiagnosticPos desugaredInsPos, boolean isRemote,
-                                                    boolean isMainEntryPoint, boolean isWorker, String workerName,
+                                                    boolean isMainEntryPoint, boolean isWorker,
                                                     BIROperand objectOperand, String action, BIRPackage pkg,
                                                     DiagnosticPos originalInsPosition, String uniqueId) {
         String pkgId = generatePackageId(pkg);
@@ -603,9 +601,6 @@ class JvmObservabilityGen {
         BIROperand originalInsPosOperand = generateConstantOperand(String.format("%s$%s$position", uniqueId,
                 observeStartBB.id.value), symbolTable.stringType, position, scopeVarList, observeStartBB,
                 desugaredInsPos);
-        BIROperand workerNameOperand = generateConstantOperand(String.format("%s$%s$workerName", uniqueId,
-                observeStartBB.id.value), symbolTable.stringType, workerName, scopeVarList, observeStartBB,
-                desugaredInsPos);
         BIROperand actionOperand = generateConstantOperand(String.format("%s$%s$action", uniqueId,
                 observeStartBB.id.value), symbolTable.stringType, action, scopeVarList, observeStartBB,
                 desugaredInsPos);
@@ -613,11 +608,11 @@ class JvmObservabilityGen {
         JIMethodCall observeStartCallTerminator = new JIMethodCall(desugaredInsPos);
         observeStartCallTerminator.invocationType = INVOKESTATIC;
         observeStartCallTerminator.jClassName = OBSERVE_UTILS;
-        observeStartCallTerminator.jMethodVMSig = String.format("(ZZZL%s;L%s;L%s;L%s;L%s;)V", B_STRING_VALUE,
-                OBJECT_VALUE, B_STRING_VALUE, B_STRING_VALUE, B_STRING_VALUE);
+        observeStartCallTerminator.jMethodVMSig = String.format("(ZZZL%s;L%s;L%s;L%s;)V", OBJECT_VALUE, B_STRING_VALUE,
+                B_STRING_VALUE, B_STRING_VALUE);
         observeStartCallTerminator.name = START_CALLABLE_OBSERVATION_METHOD;
         observeStartCallTerminator.args = Arrays.asList(isRemoteOperand, isMainEntryPointOperand, isWorkerOperand,
-                workerNameOperand, objectOperand, actionOperand, pkgOperand, originalInsPosOperand);
+                objectOperand, actionOperand, pkgOperand, originalInsPosOperand);
         observeStartBB.terminator = observeStartCallTerminator;
     }
 

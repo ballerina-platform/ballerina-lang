@@ -399,7 +399,7 @@ public class TracingTestCase extends BaseTest {
             Assert.assertEquals(span.getTags().size(), 4);
             Assert.assertEquals(span.getTags().get("span.kind"), "client");
             Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("worker"), "w1");
+            Assert.assertEquals(span.getTags().get("src.worker"), "true");
 
             Assert.assertTrue(mockSpans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getParentId() == span.getSpanId()), "Invalid number of children");
@@ -417,7 +417,7 @@ public class TracingTestCase extends BaseTest {
             Assert.assertEquals(span.getTags().size(), 4);
             Assert.assertEquals(span.getTags().get("span.kind"), "client");
             Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("worker"), "w2");
+            Assert.assertEquals(span.getTags().get("src.worker"), "true");
 
             Assert.assertTrue(mockSpans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getParentId() == span.getSpanId()), "Invalid number of children");
