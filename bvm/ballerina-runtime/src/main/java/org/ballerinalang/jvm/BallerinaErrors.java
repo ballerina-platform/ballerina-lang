@@ -65,12 +65,12 @@ public class BallerinaErrors {
     public static final String GENERATE_OBJECT_CLASS_PREFIX = ".$value$";
 
     @Deprecated
-    public static ErrorValue createError(String reason) {
-        return createError(StringUtils.fromString(reason));
+    public static ErrorValue createError(String message) {
+        return createError(StringUtils.fromString(message));
     }
 
-    public static ErrorValue createError(BString reason) {
-        return new ErrorValue(reason, new MapValueImpl<>(BTypes.typeErrorDetail));
+    public static ErrorValue createError(BString message) {
+        return new ErrorValue(message, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
     @Deprecated

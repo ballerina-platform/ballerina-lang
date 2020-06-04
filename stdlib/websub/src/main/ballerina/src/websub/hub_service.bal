@@ -135,9 +135,8 @@ function getHubService() returns service {
                                 var fetchedPayload = fetchResponse.getTextPayload();
                                 stringPayload = fetchedPayload is string ? fetchedPayload : "";
                             } else {
-                                string errorCause = <string>fetchResponse.detail()?.message;
                                 string errorMessage = "Error fetching updates for topic URL [" + topic + "]: "
-                                + errorCause;
+                                                      + fetchResponse.getMessage();
                                 log:printError(errorMessage);
                                 response.setTextPayload(<@untaintedstring>errorMessage);
                                 response.statusCode = http:STATUS_BAD_REQUEST;
@@ -161,22 +160,21 @@ function getHubService() returns service {
                             WebSubContent notification = {payload: binaryPayload, contentType: contentType};
                             publishStatus = publishToInternalHub(topic, notification);
                         } else {
-                            string errorCause = <string>binaryPayload.detail()?.message;
-                            string errorMessage = "Error extracting payload: " + <@untaintedstring>errorCause;
+                            string errorMessage = "Error extracting payload: " + binaryPayload.getMessage();
                             log:printError(errorMessage);
                             response.statusCode = http:STATUS_BAD_REQUEST;
                             response.setTextPayload(errorMessage);
                             var responseError = httpCaller->respond(response);
                             if (responseError is error) {
                                 log:printError("Error responding on payload extraction failure for"
-                                + " publish request", responseError);
+                                                + " publish request", responseError);
                             }
                             return;
                         }
 
                         if (publishStatus is error) {
-                            string errorCause = <string>publishStatus.detail()?.message;
-                            string errorMessage = "Update notification failed for Topic [" + topic + "]: " + errorCause;
+                            string errorMessage = "Update notification failed for Topic [" + topic + "]: " +
+                                                   publishStatus.getMessage();
                             response.setTextPayload(<@untaintedstring>errorMessage);
                             log:printError(errorMessage);
                         } else {
@@ -280,17 +278,14 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
         PendingSubscriptionChangeRequest pendingRequest = new(mode, topic, callback);
         pendingRequests[generateKey(topic, callback)] = pendingRequest;
         if (!callback.startsWith("http://") && !callback.startsWith("https://")) {
-            error err = error(WEBSUB_ERROR_CODE, message = "Malformed URL specified as callback");
-            return err;
+            return error("Malformed URL specified as callback");
         }
         if (hubTopicRegistrationRequired && !isTopicRegistered(topic)) {
-            error err = error(WEBSUB_ERROR_CODE, message = "Subscription request denied for unregistered topic");
-            return err;
+            return error("Subscription request denied for unregistered topic");
         }
         return;
     }
-    error err = error(WEBSUB_ERROR_CODE, message = "Topic/Callback cannot be null for subscription/unsubscription request");
-    return err;
+    return error("Topic/Callback cannot be null for subscription/unsubscription request");
 }
 
 # Initiates intent verification for a valid subscription/unsubscription request received.
@@ -371,9 +366,8 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
                     + "]: Error retrieving response payload: " + errCause);
         }
     } else {
-        error err = subscriberResponse;
-        string errCause = <string> err.detail()?.message;
-        log:printError("Error sending intent verification request for callback URL: [" + callback + "]: " + errCause);
+        log:printError("Error sending intent verification request for callback URL: [" + callback + "]: " +
+                        subscriberResponse.getMessage());
     }
     PendingSubscriptionChangeRequest pendingSubscriptionChangeRequest = new(mode, topic, callback);
     string key = generateKey(topic, callback);
@@ -438,7 +432,7 @@ function addTopicRegistrationsOnStartup(HubPersistenceStore persistenceStore) re
             }
         }
     } else {
-        return HubStartupError(message = "Error retrieving persisted topics", cause = topics);
+        return HubStartupError("Error retrieving persisted topics", topics);
     }
 }
 
@@ -458,7 +452,7 @@ function addSubscriptionsOnStartup(HubPersistenceStore persistenceStore) returns
             addSubscription(subscription);
         }
     } else {
-        return HubStartupError(message = "Error retrieving persisted subscriptions", cause = subscriptions);
+        return HubStartupError("Error retrieving persisted subscriptions", subscriptions);
     }
 }
 
@@ -471,8 +465,7 @@ function fetchTopicUpdate(string topic) returns http:Response|error {
     http:Client topicEp = new http:Client(topic, hubClientConfig);
     http:Request request = new;
 
-    var fetchResponse = topicEp->get("", request);
-    return fetchResponse;
+    return topicEp->get("", request);
 }
 
 # Distributes content to a subscriber on the notification from the publishers.
@@ -541,10 +534,8 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
                             + subscriptionDetails.topic + "]: received response code " + respStatusCode.toString());
             }
         } else {
-            error err = contentDistributionResponse;
-            string errCause = <string> err.detail()?.message;
             log:printError("Error delivering content to callback[" + callback + "] for topic["
-                            + subscriptionDetails.topic + "]: " + errCause);
+                            + subscriptionDetails.topic + "]: " + contentDistributionResponse.getMessage());
         }
     }
     return;
