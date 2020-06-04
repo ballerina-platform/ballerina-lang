@@ -73,3 +73,46 @@ function testInvalidUpdateOfReadonlyFieldInUnion() {
     Student|Customer sd = customer;
     sd.name = "May";
 }
+
+type Foo abstract object {
+    int[] arr;
+    map<string> mp;
+
+    function baz() returns string;
+};
+
+type Bar object {
+    readonly int[] arr = [1, 2];
+    readonly map<string> mp = {a: "abc"};
+    int? oth = ();
+
+    function baz() returns string {
+        return "Bar";
+    }
+};
+
+type Baz object {
+    readonly int[] arr = [1, 2];
+    map<string> mp = {a: "abc"};
+
+    function baz() returns string {
+        return "Baz";
+    }
+};
+
+type Qux object {
+    readonly & int[] arr = [1, 2];
+    map<string> & readonly mp = {a: "abc"};
+
+    function baz() returns string {
+        return "Qux";
+    }
+};
+
+function testInvalidImmutableTypeAssignmentForNotAllReadOnlyFields() {
+    Bar bar = new;
+
+    Foo & readonly f1 = bar;
+    Foo & readonly f2 = new Baz();
+    Foo & readonly f3 = new Qux();
+}
