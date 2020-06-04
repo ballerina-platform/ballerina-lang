@@ -50,14 +50,13 @@ public class SystemUtils {
      * Returns error object  with message. Error type is generic ballerina error type. This utility to construct
      * error object from message.
      *
-     * @param typeId The string type ID of the particular error object. If the typeId is  null, "UNKNOWN" sets by
-*                    default.
+     * @param typeId The string type ID of the particular error object.
      * @param ex    Java throwable object to capture description of error struct. If throwable object is null,
      *              "Unknown Error" sets to message by default.
      * @return Ballerina error object.
      */
     public static ErrorValue getBallerinaError(String typeId, Throwable ex) {
-        String errorMsg = typeId != null && ex.getMessage() != null ? ex.getMessage() : UNKNOWN_MESSAGE;
+        String errorMsg = ex != null && ex.getMessage() != null ? ex.getMessage() : UNKNOWN_MESSAGE;
         return getBallerinaError(typeId, errorMsg);
     }
 

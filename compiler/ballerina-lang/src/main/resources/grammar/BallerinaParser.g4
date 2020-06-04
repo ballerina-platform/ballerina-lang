@@ -423,7 +423,7 @@ recordDestructuringStatement
     :   recordRefBindingPattern ASSIGN expression SEMICOLON
     ;
 
- errorDestructuringStatement
+errorDestructuringStatement
     :   errorRefBindingPattern ASSIGN expression SEMICOLON
     ;
 
@@ -571,9 +571,12 @@ recordRefBindingPattern
     ;
 
 errorRefBindingPattern
-    :   TYPE_ERROR LEFT_PARENTHESIS ((variableReference (COMMA errorNamedArgRefPattern)*) | errorNamedArgRefPattern+) (COMMA errorRefRestPattern)? RIGHT_PARENTHESIS
-    |   TYPE_ERROR LEFT_PARENTHESIS errorRefRestPattern RIGHT_PARENTHESIS
-    |   typeName LEFT_PARENTHESIS errorNamedArgRefPattern (COMMA errorNamedArgRefPattern)*  (COMMA errorRefRestPattern)? RIGHT_PARENTHESIS
+    :   TYPE_ERROR LEFT_PARENTHESIS errorRefArgsPattern RIGHT_PARENTHESIS
+    |   typeName LEFT_PARENTHESIS errorRefArgsPattern RIGHT_PARENTHESIS
+    ;
+
+errorRefArgsPattern
+    :  variableReference (COMMA variableReference)? (COMMA errorNamedArgRefPattern)* (COMMA errorRefRestPattern)?
     ;
 
 errorNamedArgRefPattern

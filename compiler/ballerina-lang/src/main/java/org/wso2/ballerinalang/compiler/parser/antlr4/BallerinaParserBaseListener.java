@@ -1516,6 +1516,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterErrorRefArgsPattern(BallerinaParser.ErrorRefArgsPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitErrorRefArgsPattern(BallerinaParser.ErrorRefArgsPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterErrorNamedArgRefPattern(BallerinaParser.ErrorNamedArgRefPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}
