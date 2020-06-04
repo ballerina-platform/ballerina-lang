@@ -2367,6 +2367,7 @@ public class Desugar extends BLangNodeVisitor {
         BVarSymbol retryMangerSymbol = new BVarSymbol(0, names.fromString("$retryManager$"),
                 env.scope.owner.pkgID, retryManagerType, this.env.scope.owner);
         BLangTypeInit managerInit = ASTBuilderUtil.createEmptyTypeInit(retryNode.pos, retryManagerType);
+        managerInit.initInvocation.requiredArgs = retryNode.getRetrySpec().argExprs;
         BLangSimpleVariable retryManagerVariable = ASTBuilderUtil.createVariable(retryNode.pos, "$retryManager$",
                 retryManagerType, managerInit, retryMangerSymbol);
         BLangSimpleVariableDef retryManagerVarDef =
@@ -2379,9 +2380,9 @@ public class Desugar extends BLangNodeVisitor {
         //    <"Content in retry block goes here">
         //  };
         BLangBlockFunctionBody retryBody = ASTBuilderUtil.createBlockFunctionBody(retryNode.retryBody.pos);
-        BLangType transactionLambdaReturnType = ASTBuilderUtil.createTypeNode(symTable.errorOrNilType);
+        BLangType retryLambdaReturnType = ASTBuilderUtil.createTypeNode(symTable.errorOrNilType);
         BLangLambdaFunction retryFunc = createLambdaFunction(retryNode.pos, "$retryFunc$",
-                Collections.emptyList(), transactionLambdaReturnType, retryBody);
+                Collections.emptyList(), retryLambdaReturnType, retryBody);
         retryBody.stmts.addAll(retryNode.retryBody.stmts);
         BVarSymbol retryFuncVarSymbol = new BVarSymbol(0, names.fromString("$retryFunc$"),
                 env.scope.owner.pkgID, retryFunc.type, retryFunc.function.symbol);
