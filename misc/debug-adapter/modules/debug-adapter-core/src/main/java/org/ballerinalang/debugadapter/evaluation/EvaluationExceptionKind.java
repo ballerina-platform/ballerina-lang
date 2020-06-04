@@ -27,7 +27,7 @@ public enum EvaluationExceptionKind {
     EMPTY("Empty expressions cannot be evaluated."),
     INVALID("Invalid expression: \"%s\""),
     SYNTAX_ERROR("Syntax errors found: " + System.lineSeparator() + "%s"),
-    UNSUPPORTED("Unsupported expressions/sub-expressions found: %s");
+    UNSUPPORTED("Unsupported expressions/sub-expressions found: " + System.lineSeparator() + "%s");
 
     public static final String PREFIX = "Failed to evaluate." + System.lineSeparator() + "Reason: ";
     private final String value;

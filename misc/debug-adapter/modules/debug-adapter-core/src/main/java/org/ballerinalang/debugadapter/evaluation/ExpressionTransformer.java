@@ -99,6 +99,7 @@ public class ExpressionTransformer extends NodeTransformer<Node> {
     public ExpressionTransformer() {
         // Supported expression types.
         supportedSyntax.add(SyntaxKind.BINARY_EXPRESSION);
+        supportedSyntax.add(SyntaxKind.BRACED_EXPRESSION);
         // Other supported types.
         supportedSyntax.add(SyntaxKind.SIMPLE_NAME_REFERENCE);
         supportedSyntax.add(SyntaxKind.BASIC_LITERAL);
@@ -122,7 +123,7 @@ public class ExpressionTransformer extends NodeTransformer<Node> {
         Node jExpression = parsedExpr.apply(this);
         if (unsupportedSyntaxDetected()) {
             final StringJoiner errors = new StringJoiner(System.lineSeparator());
-            unsupportedNodes.forEach(node -> errors.add(String.format("%s(%s)", node.toString(), node.kind())));
+            unsupportedNodes.forEach(node -> errors.add(String.format("%s (%s)", node.toString(), node.kind())));
             throw new EvaluationException(String.format(EvaluationExceptionKind.UNSUPPORTED.getString(), errors));
         }
         return jExpression.toString();

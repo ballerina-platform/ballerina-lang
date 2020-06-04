@@ -480,7 +480,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             if (result.isPresent()) {
                 Value value = result.get();
                 String valueTypeName = value.type().name();
-                BVariable variable = VariableFactory.getVariable(value, valueTypeName, args.getExpression());
+                BVariable variable = VariableFactory.getVariable(value, valueTypeName, "Evaluation Result");
                 if (variable == null) {
                     return CompletableFuture.completedFuture(response);
                 } else if (variable instanceof BPrimitiveVariable) {

@@ -96,6 +96,6 @@ class DebugExpressionParser {
     }
 
     private static boolean isBlank(String str) {
-        return !(str == null || str.isEmpty() || str.chars().allMatch(Character::isWhitespace));
+        return str == null || str.isEmpty() || str.chars().allMatch(Character::isWhitespace);
     }
 }
