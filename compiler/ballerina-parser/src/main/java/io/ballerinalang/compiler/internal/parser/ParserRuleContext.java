@@ -212,6 +212,7 @@ public enum ParserRuleContext {
     FUNC_TYPE_DESC_OR_ANON_FUNC("func-desc-type-or-anon-func"),
     FUNC_TYPE_DESC_RHS_OR_ANON_FUNC_BODY("func-type-desc-rhs-or-anon-func-body"),
     STMT_LEVEL_AMBIGUOUS_FUNC_TYPE_DESC_RHS("stmt-level-func-type-desc-rhs"),
+    RECORD_FIELD_NAME_OR_TYPE_NAME("record-field-name-or-type-name"),
 
     // Statements
     STATEMENT("statement"),

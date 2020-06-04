@@ -1287,6 +1287,11 @@
                     "type": "MetadataNode"
                 },
                 {
+                    "name": "readonlyKeyword",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
                     "name": "typeName",
                     "type": "Node"
                 },
@@ -1313,6 +1318,11 @@
                 {
                     "name": "metadata",
                     "type": "MetadataNode"
+                },
+                {
+                    "name": "readonlyKeyword",
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "typeName",

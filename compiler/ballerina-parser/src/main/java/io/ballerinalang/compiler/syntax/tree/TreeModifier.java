@@ -976,6 +976,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             RecordFieldNode recordFieldNode) {
         MetadataNode metadata =
                 modifyNode(recordFieldNode.metadata());
+        Token readonlyKeyword =
+                modifyToken(recordFieldNode.readonlyKeyword().orElse(null));
         Node typeName =
                 modifyNode(recordFieldNode.typeName());
         Token fieldName =
@@ -986,6 +988,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(recordFieldNode.semicolonToken());
         return recordFieldNode.modify(
                 metadata,
+                readonlyKeyword,
                 typeName,
                 fieldName,
                 questionMarkToken,
@@ -997,6 +1000,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             RecordFieldWithDefaultValueNode recordFieldWithDefaultValueNode) {
         MetadataNode metadata =
                 modifyNode(recordFieldWithDefaultValueNode.metadata());
+        Token readonlyKeyword =
+                modifyToken(recordFieldWithDefaultValueNode.readonlyKeyword().orElse(null));
         Node typeName =
                 modifyNode(recordFieldWithDefaultValueNode.typeName());
         Token fieldName =
@@ -1009,6 +1014,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(recordFieldWithDefaultValueNode.semicolonToken());
         return recordFieldWithDefaultValueNode.modify(
                 metadata,
+                readonlyKeyword,
                 typeName,
                 fieldName,
                 equalsToken,

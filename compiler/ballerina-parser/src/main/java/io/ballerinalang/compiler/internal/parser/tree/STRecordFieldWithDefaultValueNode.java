@@ -32,6 +32,7 @@ import java.util.Collections;
  */
 public class STRecordFieldWithDefaultValueNode extends STNode {
     public final STNode metadata;
+    public final STNode readonlyKeyword;
     public final STNode typeName;
     public final STNode fieldName;
     public final STNode equalsToken;
@@ -40,6 +41,7 @@ public class STRecordFieldWithDefaultValueNode extends STNode {
 
     STRecordFieldWithDefaultValueNode(
             STNode metadata,
+            STNode readonlyKeyword,
             STNode typeName,
             STNode fieldName,
             STNode equalsToken,
@@ -47,6 +49,7 @@ public class STRecordFieldWithDefaultValueNode extends STNode {
             STNode semicolonToken) {
         this(
                 metadata,
+                readonlyKeyword,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -57,6 +60,7 @@ public class STRecordFieldWithDefaultValueNode extends STNode {
 
     STRecordFieldWithDefaultValueNode(
             STNode metadata,
+            STNode readonlyKeyword,
             STNode typeName,
             STNode fieldName,
             STNode equalsToken,
@@ -65,6 +69,7 @@ public class STRecordFieldWithDefaultValueNode extends STNode {
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE, diagnostics);
         this.metadata = metadata;
+        this.readonlyKeyword = readonlyKeyword;
         this.typeName = typeName;
         this.fieldName = fieldName;
         this.equalsToken = equalsToken;
@@ -73,6 +78,7 @@ public class STRecordFieldWithDefaultValueNode extends STNode {
 
         addChildren(
                 metadata,
+                readonlyKeyword,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -83,6 +89,7 @@ public class STRecordFieldWithDefaultValueNode extends STNode {
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STRecordFieldWithDefaultValueNode(
                 this.metadata,
+                this.readonlyKeyword,
                 this.typeName,
                 this.fieldName,
                 this.equalsToken,
