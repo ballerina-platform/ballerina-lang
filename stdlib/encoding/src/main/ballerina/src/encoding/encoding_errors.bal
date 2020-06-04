@@ -15,4 +15,10 @@
 // under the License.
 
 # Represents the Encoding error.
-public type Error error;
+public type EncodingError distinct error;
+
+# Represents the Decoding error.
+public type DecodingError distinct error;
+
+# Represents the Encoding module error.
+public type Error EncodingError|DecodingError;
