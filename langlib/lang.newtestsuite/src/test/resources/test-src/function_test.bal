@@ -35,20 +35,20 @@ function testValueAssignment() {
     byte g1 = 255;
     byte g2 = 0;
 
-    test:assertEqual(2147483647, a1);
-    test:assertEqual(-2147483648, a2);
-    test:assertEqual(32767, b1);
-    test:assertEqual(-32768, b2);
-    test:assertEqual(127, c1);
-    test:assertEqual(-128, c2);
-    test:assertEqual(4294967295, d1);
-    test:assertEqual(0, d2);
-    test:assertEqual(65535, e1);
-    test:assertEqual(0, e2);
-    test:assertEqual(255, f1);
-    test:assertEqual(0, f2);
-    test:assertEqual(255, g1);
-    test:assertEqual(0, g2);
+    test:assertEquals(2147483647, a1);
+    test:assertEquals(-2147483648, a2);
+    test:assertEquals(32767, b1);
+    test:assertEquals(-32768, b2);
+    test:assertEquals(127, c1);
+    test:assertEquals(-128, c2);
+    test:assertEquals(4294967295, d1);
+    test:assertEquals(0, d2);
+    test:assertEquals(65535, e1);
+    test:assertEquals(0, e2);
+    test:assertEquals(255, f1);
+    test:assertEquals(0, f2);
+    test:assertEquals(255, g1);
+    test:assertEquals(0, g2);
 }
 
 function testAbs() returns decimal {
@@ -57,7 +57,7 @@ function testAbs() returns decimal {
 }
 
 function sum(){
-    test:assertEqual(24, 24);
+    test:assertEquals(24, 24);
 }
 
 function testFail(){

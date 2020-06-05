@@ -27,28 +27,27 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import static org.ballerinalang.util.BLangCompilerConstants.TEST_VERSION;
 
-
 /**
- * Native implementation of assertNotEqual(any|error actual, any|error expected, string message? = ()).
+ * Native implementation of assertEqual(anydata actual, anydata expected, string message? = ()).
  *
  * @since 2.0.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.test", version = TEST_VERSION, functionName = "assertNotEqual",
+        orgName = "ballerina", packageName = "lang.test", version = TEST_VERSION, functionName = "assertEquals",
         args = {@Argument(name = "actual", type = TypeKind.ANYDATA),
                 @Argument(name = "expected", type = TypeKind.ANYDATA),
                 @Argument(name = "message", type = TypeKind.UNION)},
         isPublic = true
 )
-
-public class AssertNotEqual {
-    public static void assertNotEqual(Strand strand, Object actual, Object expected, Object message) {
+public class AssertEquals {
+    public static void assertEquals(Strand strand, Object actual, Object expected, Object message) {
         if (TypeChecker.isEqual(expected, actual)) {
-            String msg = " expected the actual value not to be [" + expected + "]";
-            msg = message != null ? message.toString() + msg : msg;
-            strand.setProperty("lang.test.state.failMsg",
-                    BallerinaErrors.createError("{ballerina/lang.test}AssertionError", msg));
-            throw BallerinaErrors.createError("{ballerina/lang.test}AssertionError", msg);
+            return;
         }
+        String msg = " expected: [" + expected + "] but found: [" + actual + "]";
+        msg = message != null ? message.toString() + msg : msg;
+        strand.setProperty(NativeImpConstants.STRAND_PROPERTY_NAME,
+                BallerinaErrors.createError(NativeImpConstants.TEST_FAIL_REASON, msg));
+        throw BallerinaErrors.createError(NativeImpConstants.TEST_FAIL_REASON, msg);
     }
 }

@@ -19,6 +19,7 @@
 
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 apply from: "$rootDir/gradle/birTestableProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 configurations {
     testCompile.extendsFrom(birJar)
@@ -27,6 +28,8 @@ configurations {
 
 dependencies {
     compile project(':ballerina-lang:testutils')
+    implementation project(':ballerina-lang-test')
+    baloImplementation project(path: ':ballerina-lang-test', configuration: 'baloImplementation')
     jacocoPath  group: 'org.jacoco', name: 'org.jacoco.agent',classifier: 'runtime' , version: '0.8.5'
 }
 
