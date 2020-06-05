@@ -251,6 +251,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private Stack<Boolean> returnWithintransactionCheckStack = new Stack<>();
     private Stack<Boolean> doneWithintransactionCheckStack = new Stack<>();
     private Stack<Boolean> transactionalFuncCheckStack = new Stack<>();
+    private Stack<Boolean> returnWithinRetryCheckStack = new Stack<>();
     private BLangNode parent;
     private Names names;
     private SymbolEnv env;
@@ -574,8 +575,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
+        this.returnWithinRetryCheckStack.push(false);
         retryNode.retrySpec.accept(this);
         retryNode.retryBody.accept(this);
+        retryNode.retryBodyReturns = this.returnWithinRetryCheckStack.peek();
+        this.returnWithinRetryCheckStack.pop();
     }
 
     @Override
@@ -636,6 +640,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (checkReturnValidityInTransaction()) {
             this.dlog.error(returnStmt.pos, DiagnosticCode.RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;
+        }
+        if (!this.returnWithinRetryCheckStack.empty()) {
+            this.returnWithinRetryCheckStack.pop();
+            this.returnWithinRetryCheckStack.push(true);
         }
         this.statementReturns = true;
         analyzeExpr(returnStmt.expr);

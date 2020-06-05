@@ -3235,10 +3235,12 @@ public class BLangPackageBuilder {
 
     void addRetryStatement(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangRetry retryNode = (BLangRetry) TreeBuilder.createRetryNode();
+        retryNode.setRetrySpec((BLangRetrySpec) this.retrySpecNodeStack.pop());
         retryNode.pos = pos;
         retryNode.addWS(ws);
-        retryNode.setRetryBody((BLangBlockStmt) this.blockNodeStack.pop());
-        retryNode.setRetrySpec((BLangRetrySpec) this.retrySpecNodeStack.pop());
+        BLangBlockStmt retryBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        retryBlock.pos = pos;
+        retryNode.setRetryBody(retryBlock);
         addStmtToCurrentBlock(retryNode);
     }
 
