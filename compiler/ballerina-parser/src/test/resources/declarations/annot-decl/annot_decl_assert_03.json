@@ -28,6 +28,10 @@
               "isMissing": true
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "SEMICOLON_TOKEN"
             }
           ]

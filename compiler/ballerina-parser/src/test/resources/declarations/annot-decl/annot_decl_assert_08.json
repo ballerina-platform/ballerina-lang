@@ -32,6 +32,10 @@
               "value": "MyAnnot1"
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "SEMICOLON_TOKEN"
             }
           ]

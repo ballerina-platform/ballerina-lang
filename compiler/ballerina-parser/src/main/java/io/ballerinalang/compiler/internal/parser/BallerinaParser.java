@@ -7277,7 +7277,7 @@ public class BallerinaParser extends AbstractParser {
         switch (nextTokenKind) {
             case SEMICOLON_TOKEN:
                 onKeyword = STNodeFactory.createEmptyNode();
-                attachPoints = STNodeFactory.createEmptyNode();
+                attachPoints = STNodeFactory.createEmptyNodeList();
                 break;
             case ON_KEYWORD:
                 onKeyword = parseOnKeyword();

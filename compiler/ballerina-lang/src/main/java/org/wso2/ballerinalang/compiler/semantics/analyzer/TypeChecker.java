@@ -3609,8 +3609,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (assignableSelectTypes.size() == 1) {
             actualType = assignableSelectTypes.get(0);
-            if (!queryExpr.isStream && !queryExpr.isTable) {
-                actualType = new BArrayType(actualType);
+            if ((!queryExpr.isStream && !queryExpr.isTable)) {
+                if (targetType.tag != TypeTags.STRING
+                        && targetType.tag != TypeTags.XML) {
+                    actualType = new BArrayType(actualType);
+                }
             }
         } else if (assignableSelectTypes.size() > 1) {
             dlog.error(selectExp.pos, DiagnosticCode.AMBIGUOUS_TYPES, assignableSelectTypes);
