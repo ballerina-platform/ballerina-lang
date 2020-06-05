@@ -915,10 +915,11 @@ public class BRunUtil {
                 return bmap;
             case org.ballerinalang.jvm.types.TypeTags.ERROR_TAG:
                 ErrorValue errorValue = (ErrorValue) value;
+                BError cause = (BError) getBVMValue(errorValue.getCause(), bvmValueMap);
                 BRefType<?> details = getBVMValue(errorValue.getDetails(), bvmValueMap);
                 bvmValue = new BError(getBVMType(errorValue.getType(), new Stack<>()),
-                                      errorValue.getErrorMessage().getValue(), details);
-                break;
+                                      errorValue.getErrorMessage().getValue(), cause, details);
+                return bvmValue;
             case org.ballerinalang.jvm.types.TypeTags.NULL_TAG:
                 bvmValue = null;
                 break;
