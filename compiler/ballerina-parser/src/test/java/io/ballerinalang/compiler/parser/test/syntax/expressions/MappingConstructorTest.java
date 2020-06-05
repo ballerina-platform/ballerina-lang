@@ -136,7 +136,7 @@ public class MappingConstructorTest extends AbstractExpressionsTest {
     
     @Test
     public void testRecoveryInSpecificKeyWithReadOnly() {
-        testFile("mapping-constructor/mapping_constructor_source_19.bal", "mapping-constructor/mapping_constructor_assert_19.json");
+        testFile("mapping-constructor/mapping_constructor_source_19.bal",
+                "mapping-constructor/mapping_constructor_assert_19.json");
     }
-
 }

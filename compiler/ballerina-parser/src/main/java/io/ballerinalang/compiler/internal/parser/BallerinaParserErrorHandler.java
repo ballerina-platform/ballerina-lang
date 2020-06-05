@@ -2622,6 +2622,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                         parentCtx == ParserRuleContext.MAPPING_FIELD) {
                     return ParserRuleContext.SPECIFIC_FIELD;
                 }
+                // fall through
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }

@@ -2390,7 +2390,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private BLangSimpleVariable createSimpleVar(Token name, Node typeName, Node initializer, boolean isFinal,
-                                                boolean isListenerVar, Token visibilityQualifier,
+                                                boolean isListenerVar, Optional<Token> visibilityQualifier,
                                                 NodeList<AnnotationNode> annotations) {
         BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         bLSimpleVar.setName(this.createIdentifier(name));
@@ -2401,10 +2401,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             bLSimpleVar.setTypeNode(createTypeNode(typeName));
         }
 
-        if (visibilityQualifier != null) {
-            if (visibilityQualifier.kind() == SyntaxKind.PRIVATE_KEYWORD) {
+        if (visibilityQualifier.isPresent()) {
+            if (visibilityQualifier.get().kind() == SyntaxKind.PRIVATE_KEYWORD) {
                 bLSimpleVar.flagSet.add(Flag.PRIVATE);
-            } else if (visibilityQualifier.kind() == SyntaxKind.PUBLIC_KEYWORD) {
+            } else if (visibilityQualifier.get().kind() == SyntaxKind.PUBLIC_KEYWORD) {
                 bLSimpleVar.flagSet.add(Flag.PUBLIC);
             }
         }

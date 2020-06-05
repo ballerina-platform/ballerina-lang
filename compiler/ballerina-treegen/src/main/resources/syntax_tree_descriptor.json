@@ -1253,7 +1253,13 @@
                 },
                 {
                     "name": "visibilityQualifier",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "readonlyKeyword",
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "typeName",
