@@ -16,9 +16,6 @@
  */
 package org.ballerinalang.test.types.table;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -32,30 +29,13 @@ import org.testng.annotations.Test;
  *
  * @since 1.3.0
  */
-public class RecordConstraintTableTest {
+public class TableWithRecordKeySpecifierTest {
 
-    private CompileResult result, negativeResult;
+    private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/table/record-constraint-table-value.bal");
-        negativeResult = BCompileUtil.compile("test-src/types/table/table-value-negative.bal");
-    }
-
-    @Test
-    public void testDuplicateKeysInTableConstructorExpr() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 3);
-        BAssertUtil.validateError(negativeResult, 0, "duplicate key found in table row key('name') : 'AAA'", 18, 5);
-        BAssertUtil.validateError(negativeResult, 1, "duplicate key found in table row key('id, name') : '13, Foo'",
-                23, 5);
-        BAssertUtil.validateError(negativeResult, 2, "duplicate key found in table row key('m') : ' {AAA: DDDD}'",
-                36, 7);
-    }
-
-    @Test(description = "Test global table constructor expr")
-    public void testGlobalTableConstructExpr() {
-        BValue[] values = BRunUtil.invoke(result, "testGlobalTableConstructExpr", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        result = BCompileUtil.compile("test-src/types/table/record-type-table-key.bal");
     }
 
     @Test(description = "Test key specifier and key type constraint options")
@@ -75,7 +55,7 @@ public class RecordConstraintTableTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound message=cannot " +
-                    "find key '18'.*")
+                    "find key 'fname=Sanjiva lname=Clark'.*")
     public void testMemberAccessWithInvalidSingleKey() {
         BRunUtil.invoke(result, "testMemberAccessWithInvalidSingleKey");
         Assert.fail();
@@ -83,7 +63,7 @@ public class RecordConstraintTableTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound message=cannot " +
-                    "find key '18 Mohan'.*")
+                    "find key '18 fname=Sanjiva lname=Clark'.*")
     public void testMemberAccessWithInvalidMultiKey() {
         BRunUtil.invoke(result, "testMemberAccessWithInvalidMultiKey");
         Assert.fail();
@@ -93,24 +73,5 @@ public class RecordConstraintTableTest {
     public void testTableWithVarType() {
         BRunUtil.invoke(result, "runTableTestcasesWithVarType");
     }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound message=cannot " +
-                    "find key '18 Mohan'.*")
-    public void testVarTypeTableInvalidMemberAccess() {
-        BRunUtil.invoke(result, "testVarTypeTableInvalidMemberAccess");
-        Assert.fail();
-    }
-
-    @Test(description = "Test member access in table in store operation")
-    public void testTableMemberAccessStore() {
-        BValue[] values = BRunUtil.invoke(result, "testTableMemberAccessStore", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
-    }
-
-    @Test(description = "Test member access in table in load operation")
-    public void testTableMemberAccessLoad() {
-        BValue[] values = BRunUtil.invoke(result, "testTableMemberAccessLoad", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
-    }
 }
+
