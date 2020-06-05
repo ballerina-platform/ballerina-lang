@@ -20,10 +20,8 @@ package org.ballerinalang.stdlib.jwt;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -172,8 +170,7 @@ public class JwtIssuerAndValidatorTest {
         BValue[] inputBValues = {new BString(jwtTokenWithoutIssAndSub), new BString(trustStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testValidateJwt", inputBValues);
         Assert.assertTrue((returns[0]) instanceof BError);
-        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "JWT must contain a valid issuer name.");
+        Assert.assertEquals(((BError) returns[0]).getMessage(), "JWT must contain a valid issuer name.");
     }
 
     @Test(priority = 2, description = "Test case for validating JWT without issuer or subject information, " +
@@ -182,8 +179,7 @@ public class JwtIssuerAndValidatorTest {
         BValue[] inputBValues = {new BString(jwtTokenWithoutAudAndSub), new BString(trustStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testValidateJwt", inputBValues);
         Assert.assertTrue((returns[0]) instanceof BError);
-        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "JWT must contain a valid audience.");
+        Assert.assertEquals(((BError) returns[0]).getMessage(), "JWT must contain a valid audience.");
     }
 
     @Test(priority = 2, description = "Test case for validating JWT without issuer or subject information, " +
@@ -213,7 +209,6 @@ public class JwtIssuerAndValidatorTest {
         BValue[] inputBValues = {new BString(jwtToken), new BString(trustStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testValidateJwtWithInvalidSignature", inputBValues);
         Assert.assertTrue((returns[0]) instanceof BError);
-        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                            "JWT signature validation has failed.");
+        Assert.assertEquals((((BError) returns[0]).getMessage()), "JWT signature validation has failed.");
     }
 }
