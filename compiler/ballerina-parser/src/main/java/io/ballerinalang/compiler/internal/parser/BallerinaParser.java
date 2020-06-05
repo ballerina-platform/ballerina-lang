@@ -3046,6 +3046,7 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
+
     private STNode parseFieldOrRestDescriptor(boolean isInclusive) {
         return parseFieldOrRestDescriptor(peek().kind, isInclusive);
     }
@@ -3064,6 +3065,7 @@ public class BallerinaParser extends AbstractParser {
                 endContext();
                 return STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
             case AT_TOKEN:
+            case DOCUMENTATION_LINE:
                 startContext(ParserRuleContext.RECORD_FIELD);
                 STNode metadata = parseMetaData(nextTokenKind);
                 nextTokenKind = peek().kind;
