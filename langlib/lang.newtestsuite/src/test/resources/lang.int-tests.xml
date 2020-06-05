@@ -4,7 +4,7 @@
     <test name="xyz">
         <description>str1234</description>
         <source>
-            <file>test-src/function-test.bal</file>
+            <file>test-src/function_test.bal</file>
         </source>
         <steps>
             <run>

@@ -43,9 +43,9 @@ public class AssertNotError {
         if (TypeChecker.getType(value).getTag() == TypeTags.ERROR_TAG) {
             String msg = " expected a non-error type";
             msg = message != null ? message.toString() + msg : msg;
-            strand.setProperty("lang.test.state.failMsg",
-                    BallerinaErrors.createError("{ballerina/lang.test}AssertionError", msg));
-            throw BallerinaErrors.createError("{ballerina/lang.test}AssertionError", msg);
+            strand.setProperty(NativeImpConstants.STRAND_PROPERTY_NAME,
+                    BallerinaErrors.createError(NativeImpConstants.TEST_FAIL_REASON, msg));
+            throw BallerinaErrors.createError(NativeImpConstants.TEST_FAIL_REASON, msg);
         }
     }
 }

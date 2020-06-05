@@ -14,13 +14,17 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 
-description = 'Lang Library Unit Test new  Module'
+package org.ballerinalang.langlib.test;
 
-apply from: "$rootDir/gradle/balTestableProjectForTest.gradle"
+/**
+ * NativeImpConstants Class holds constants used in java native implementations.
+ *
+ * @since 2.0.0
+ */
 
-runTestSuites{
-    libPath << "src/test/resources/TestSuite.xml"
+public class NativeImpConstants {
+    public static final String TEST_FAIL_REASON = "{ballerina/lang.test}AssertionError";
+    public static final String STRAND_PROPERTY_NAME = "lang.test.state.failMsg";
 }
