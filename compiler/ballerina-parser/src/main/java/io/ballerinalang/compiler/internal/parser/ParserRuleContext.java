@@ -441,6 +441,7 @@ public enum ParserRuleContext {
     XML_ATOMIC_NAME_IDENTIFIER("xml-atomic_name-identifier"),
     XML_ATOMIC_NAME_IDENTIFIER_RHS("xml-atomic_name-identifier-rhs"),
     XML_STEP_START("xml-step-start"),
+    FUNCTION_CALL_START("function-call-start"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),

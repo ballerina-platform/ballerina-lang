@@ -21,6 +21,9 @@ import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * <p>
@@ -1765,80 +1768,95 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
      */
     private Result seekMatchInExpressionRhs(int lookahead, int currentDepth, int currentMatches, boolean isEntryPoint) {
         ParserRuleContext parentCtx = getParentContext();
-        ParserRuleContext[] next;
+        if (parentCtx == ParserRuleContext.FUNCTION_CALL_START) {
+            endContext();
+            return seekMatchInExpressionRhs(lookahead, currentDepth, currentMatches, isEntryPoint, true);
+        } else {
+            return seekMatchInExpressionRhs(lookahead, currentDepth, currentMatches, isEntryPoint, false);
+        }
+    }
+
+    private Result seekMatchInExpressionRhs(int lookahead, int currentDepth, int currentMatches, boolean isEntryPoint,
+                                            boolean allowFuncCall) {
+        ParserRuleContext parentCtx = getParentContext();
+        ParserRuleContext[] alternatives = null;
         switch (parentCtx) {
             case ARG_LIST:
-                next = new ParserRuleContext[] { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
+                alternatives = new ParserRuleContext[] { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
                         ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPTIONAL_CHAINING_TOKEN,
                         ParserRuleContext.CONDITIONAL_EXPRESSION, ParserRuleContext.XML_NAVIGATE_EXPR,
                         ParserRuleContext.MEMBER_ACCESS_KEY_EXPR, ParserRuleContext.COMMA,
                         ParserRuleContext.ARG_LIST_START, ParserRuleContext.ARG_LIST_END };
-                return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
+                return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, alternatives, isEntryPoint);
             case MAPPING_CONSTRUCTOR:
             case MULTI_WAIT_FIELDS:
-                next = new ParserRuleContext[] { ParserRuleContext.CLOSE_BRACE, ParserRuleContext.BINARY_OPERATOR,
-                        ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
-                        ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
-                        ParserRuleContext.XML_NAVIGATE_EXPR, ParserRuleContext.MEMBER_ACCESS_KEY_EXPR,
-                        ParserRuleContext.COMMA, ParserRuleContext.ARG_LIST_START };
-                return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
+                alternatives = new ParserRuleContext[] { ParserRuleContext.CLOSE_BRACE,
+                        ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
+                        ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPTIONAL_CHAINING_TOKEN,
+                        ParserRuleContext.CONDITIONAL_EXPRESSION, ParserRuleContext.XML_NAVIGATE_EXPR,
+                        ParserRuleContext.MEMBER_ACCESS_KEY_EXPR, ParserRuleContext.COMMA };
+                break;
             case COMPUTED_FIELD_NAME:
                 // Here we give high priority to the comma. Therefore order of the below array matters.
-                next = new ParserRuleContext[] { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.BINARY_OPERATOR,
-                        ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
-                        ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
-                        ParserRuleContext.XML_NAVIGATE_EXPR, ParserRuleContext.OPEN_BRACKET,
-                        ParserRuleContext.ARG_LIST_START };
-                return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
+                alternatives = new ParserRuleContext[] { ParserRuleContext.CLOSE_BRACKET,
+                        ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
+                        ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPTIONAL_CHAINING_TOKEN,
+                        ParserRuleContext.CONDITIONAL_EXPRESSION, ParserRuleContext.XML_NAVIGATE_EXPR,
+                        ParserRuleContext.OPEN_BRACKET };
+                break;
             case LISTENERS_LIST:
-                next = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
+                alternatives = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
                         ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
                         ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
                         ParserRuleContext.XML_NAVIGATE_EXPR, ParserRuleContext.MEMBER_ACCESS_KEY_EXPR,
-                        ParserRuleContext.OPEN_BRACE, ParserRuleContext.ARG_LIST_START };
-                return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
+                        ParserRuleContext.OPEN_BRACE };
+                break;
             case LIST_CONSTRUCTOR:
             case MEMBER_ACCESS_KEY_EXPR:
             case BRACKETED_LIST:
             case STMT_START_BRACKETED_LIST:
-                next = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
+                alternatives = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
                         ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
                         ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
                         ParserRuleContext.XML_NAVIGATE_EXPR, ParserRuleContext.MEMBER_ACCESS_KEY_EXPR,
-                        ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.ARG_LIST_START };
-                return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
+                        ParserRuleContext.CLOSE_BRACKET };
+                break;
             case LET_EXPR_LET_VAR_DECL:
-                next = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
+                alternatives = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
                         ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
                         ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
                         ParserRuleContext.XML_NAVIGATE_EXPR, ParserRuleContext.MEMBER_ACCESS_KEY_EXPR,
-                        ParserRuleContext.IN_KEYWORD, ParserRuleContext.ARG_LIST_START };
-                return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
+                        ParserRuleContext.IN_KEYWORD };
+                break;
             case LET_CLAUSE_LET_VAR_DECL:
-                next = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
+                alternatives = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
                         ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
                         ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
                         ParserRuleContext.XML_NAVIGATE_EXPR, ParserRuleContext.MEMBER_ACCESS_KEY_EXPR,
-                        ParserRuleContext.LET_CLAUSE_END, ParserRuleContext.ARG_LIST_START };
-                return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
+                        ParserRuleContext.LET_CLAUSE_END };
+                break;
             case QUERY_EXPRESSION:
-                next = new ParserRuleContext[] { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
+                alternatives = new ParserRuleContext[] { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
                         ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPTIONAL_CHAINING_TOKEN,
                         ParserRuleContext.CONDITIONAL_EXPRESSION, ParserRuleContext.XML_NAVIGATE_EXPR,
-                        ParserRuleContext.MEMBER_ACCESS_KEY_EXPR, ParserRuleContext.QUERY_PIPELINE_RHS,
-                        ParserRuleContext.ARG_LIST_START };
-                return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
+                        ParserRuleContext.MEMBER_ACCESS_KEY_EXPR, ParserRuleContext.QUERY_PIPELINE_RHS };
+                break;
             default:
                 if (isParameter(parentCtx)) {
-                    next = new ParserRuleContext[] { ParserRuleContext.CLOSE_PARENTHESIS,
+                    alternatives = new ParserRuleContext[] { ParserRuleContext.CLOSE_PARENTHESIS,
                             ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
                             ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPTIONAL_CHAINING_TOKEN,
                             ParserRuleContext.CONDITIONAL_EXPRESSION, ParserRuleContext.XML_NAVIGATE_EXPR,
-                            ParserRuleContext.MEMBER_ACCESS_KEY_EXPR, ParserRuleContext.COMMA,
-                            ParserRuleContext.ARG_LIST_START };
-                    return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
+                            ParserRuleContext.MEMBER_ACCESS_KEY_EXPR, ParserRuleContext.COMMA };
                 }
                 break;
+        }
+
+        if (alternatives != null) {
+            if (allowFuncCall) {
+                alternatives = addNewAlternative(alternatives, ParserRuleContext.ARG_LIST_START);
+            }
+            return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, alternatives, isEntryPoint);
         }
 
         ParserRuleContext nextContext;
@@ -1870,14 +1888,22 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             throw new IllegalStateException(parentCtx.toString());
         }
 
-        ParserRuleContext[] alternatives = { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.IS_KEYWORD,
+        alternatives = new ParserRuleContext[] { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.IS_KEYWORD,
                 ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
                 ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
                 ParserRuleContext.XML_NAVIGATE_EXPR, ParserRuleContext.MEMBER_ACCESS_KEY_EXPR,
-                ParserRuleContext.RIGHT_ARROW, ParserRuleContext.SYNC_SEND_TOKEN, nextContext,
-                ParserRuleContext.ARG_LIST_START };
+                ParserRuleContext.RIGHT_ARROW, ParserRuleContext.SYNC_SEND_TOKEN, nextContext };
 
+        if (allowFuncCall) {
+            alternatives = addNewAlternative(alternatives, ParserRuleContext.ARG_LIST_START);
+        }
         return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, alternatives, isEntryPoint);
+    }
+
+    private ParserRuleContext[] addNewAlternative(ParserRuleContext[] alternatives, ParserRuleContext newAlternative) {
+        List<ParserRuleContext> alternativesList = new ArrayList<>(Arrays.asList(alternatives));
+        alternativesList.add(newAlternative);
+        return alternativesList.toArray(alternatives);
     }
 
     /**
@@ -2205,7 +2231,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 switch (parentCtx) {
                     case VARIABLE_REF:
                         endContext();
-                        return getNextRuleForExpr();
+                        return getNextRuleForExprStartsWithIdentifier();
                     case TYPE_REFERENCE:
                         endContext();
                         if (isInTypeDescContext()) {
@@ -2219,7 +2245,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                         return ParserRuleContext.ANNOT_OPTIONAL_ATTACH_POINTS;
                     case FIELD_ACCESS_IDENTIFIER:
                         endContext();
-                        return ParserRuleContext.EXPRESSION_RHS;
+                        return getNextRuleForExprWithFuncCallEnabled();
                     case XML_ATOMIC_NAME_PATTERN:
                         endContext();
                         return ParserRuleContext.XML_NAME_PATTERN_RHS;
@@ -3506,6 +3532,22 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             endContext();
             return getNextRuleForConstExpr();
         }
+        return ParserRuleContext.EXPRESSION_RHS;
+    }
+
+    private ParserRuleContext getNextRuleForExprStartsWithIdentifier() {
+        ParserRuleContext parentCtx;
+        parentCtx = getParentContext();
+        if (parentCtx == ParserRuleContext.CONSTANT_EXPRESSION) {
+            endContext();
+            return getNextRuleForConstExpr();
+        }
+        return getNextRuleForExprWithFuncCallEnabled();
+    }
+
+    private ParserRuleContext getNextRuleForExprWithFuncCallEnabled() {
+        // Here we start a new context so that expr-rhs will allow function calls
+        startContext(ParserRuleContext.FUNCTION_CALL_START);
         return ParserRuleContext.EXPRESSION_RHS;
     }
 

@@ -4242,8 +4242,9 @@ public class BallerinaParser extends AbstractParser {
 
     private boolean isInvalidFunctionCallStart(SyntaxKind tokenKind, STNode lhsExpr) {
         if (tokenKind == SyntaxKind.OPEN_PAREN_TOKEN) {
-            // A function call is only followed by an identifier or a qualified identifier.
-            return lhsExpr.kind != SyntaxKind.QUALIFIED_NAME_REFERENCE && lhsExpr.kind != SyntaxKind.SIMPLE_NAME_REFERENCE;
+            // Only an identifier or a qualified identifier is followed by a function call.
+            return lhsExpr.kind != SyntaxKind.QUALIFIED_NAME_REFERENCE &&
+                    lhsExpr.kind != SyntaxKind.SIMPLE_NAME_REFERENCE;
         }
         return false;
     }
