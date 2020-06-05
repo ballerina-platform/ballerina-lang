@@ -273,11 +273,11 @@ public class MessageDispatcher {
     private void executeResource(String function, CallableUnitCallback callback, StrandMetaData metaData,
                                  Object... args) {
         if (ObserveUtils.isTracingEnabled()) {
-            runtime.invokeMethodAsync(service, function, callback, getNewObserverContextInProperties(), null,
-                                      metaData, args);
+            runtime.invokeMethodAsync(service, function, null, metaData, callback, getNewObserverContextInProperties(),
+                                      args);
             return;
         }
-        runtime.invokeMethodAsync(service, function, callback, null, metaData, args);
+        runtime.invokeMethodAsync(service, function, null, metaData, callback, args);
     }
 
     private Map<String, Object> getNewObserverContextInProperties() {

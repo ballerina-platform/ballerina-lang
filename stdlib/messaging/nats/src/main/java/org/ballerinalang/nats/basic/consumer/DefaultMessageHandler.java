@@ -141,13 +141,13 @@ public class DefaultMessageHandler implements MessageHandler {
                     NatsObservabilityConstants.CONTEXT_CONSUMER, connectedUrl,
                     msgObj.getStringValue(Constants.SUBJECT).getValue());
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
-            runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE,
-                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter),
-                                      null, META_DATA_ON_MESSAGE, properties, msgObj, Boolean.TRUE);
+            runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE, null, META_DATA_ON_MESSAGE,
+                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter), properties,
+                                      msgObj, Boolean.TRUE);
         } else {
-            runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE,
+            runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE, null, META_DATA_ON_MESSAGE,
                                       new ResponseCallback(countDownLatch, subject, natsMetricsReporter),
-                                      null, META_DATA_ON_MESSAGE, msgObj, Boolean.TRUE);
+                                      null, msgObj, Boolean.TRUE);
         }
     }
 
@@ -160,12 +160,13 @@ public class DefaultMessageHandler implements MessageHandler {
                     msgObj.getStringValue(Constants.SUBJECT).getValue());
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
             runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE,
-                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter),
-                                      null, META_DATA_ON_MESSAGE, properties, msgObj, true, typeBoundData, true);
+                                      null, META_DATA_ON_MESSAGE,
+                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter), properties,
+                                      msgObj, true, typeBoundData, true);
         } else {
-            runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE,
-                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter),
-                                      null, META_DATA_ON_MESSAGE, msgObj, true, typeBoundData, true);
+            runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE, null, META_DATA_ON_MESSAGE,
+                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter), null,
+                                      msgObj, true, typeBoundData, true);
         }
     }
 

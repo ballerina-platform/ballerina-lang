@@ -217,7 +217,7 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
         CallableUnitCallback callback = new WebSubEmptyCallableUnitCallback();
         //TODO handle BallerinaConnectorException
         ObjectValue service = httpResource.getParentService().getBalService();
-        Executor.submit(scheduler, service, balResource.getName(), callback, null, META_DATA_ON_MESSAGE, null,
+        Executor.submit(scheduler, service, balResource.getName(), null, META_DATA_ON_MESSAGE, callback, null,
                         signatureParams);
     }
 

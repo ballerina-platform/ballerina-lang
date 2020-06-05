@@ -96,10 +96,10 @@ public class KafkaListenerImpl implements KafkaListener {
     private void executeResource(ObjectValue listener, ConsumerRecords records, String groupId) {
         if (ObserveUtils.isTracingEnabled()) {
             Map<String, Object> properties = getNewObserverContextInProperties(listener);
-            Executor.submit(this.scheduler, service, KAFKA_RESOURCE_ON_MESSAGE, callback, null, META_DATA_ON_MESSAGE,
+            Executor.submit(this.scheduler, service, KAFKA_RESOURCE_ON_MESSAGE, null, META_DATA_ON_MESSAGE, callback,
                             properties, getResourceParameters(service, this.listener, records, groupId));
         } else {
-            Executor.submit(this.scheduler, service, KAFKA_RESOURCE_ON_MESSAGE, callback, null, META_DATA_ON_MESSAGE,
+            Executor.submit(this.scheduler, service, KAFKA_RESOURCE_ON_MESSAGE, null, META_DATA_ON_MESSAGE, callback,
                             null, getResourceParameters(service, this.listener, records, groupId));
         }
     }
@@ -108,10 +108,10 @@ public class KafkaListenerImpl implements KafkaListener {
                                  String groupId) {
         if (ObserveUtils.isTracingEnabled()) {
             Map<String, Object> properties = getNewObserverContextInProperties(listener);
-            Executor.submit(this.scheduler, service, KAFKA_RESOURCE_ON_MESSAGE, consumer, null, META_DATA_ON_MESSAGE,
+            Executor.submit(this.scheduler, service, KAFKA_RESOURCE_ON_MESSAGE, null, META_DATA_ON_MESSAGE, consumer,
                             properties, getResourceParameters(service, this.listener, records, groupId));
         } else {
-            Executor.submit(this.scheduler, service, KAFKA_RESOURCE_ON_MESSAGE, consumer, null, META_DATA_ON_MESSAGE,
+            Executor.submit(this.scheduler, service, KAFKA_RESOURCE_ON_MESSAGE, null, META_DATA_ON_MESSAGE, consumer,
                             null, getResourceParameters(service, this.listener, records, groupId));
         }
     }

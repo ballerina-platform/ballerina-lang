@@ -190,8 +190,9 @@ public abstract class ServerCallHandler {
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, context);
         }
         CallableUnitCallback callback = new StreamingCallableUnitCallBack(null, context);
-        resource.getRuntime().invokeMethodAsync(resource.getService(), resource.getFunctionName(), callback, null,
-                                                META_DATA_ON_ERROR,  properties, paramValues);
+        resource.getRuntime().invokeMethodAsync(resource.getService(), resource.getFunctionName(), null,
+                                                META_DATA_ON_ERROR, callback,
+                                                properties, paramValues);
     }
 
     void onMessageInvoke(ServiceResource resource, Message request, StreamObserver responseObserver,
@@ -202,8 +203,9 @@ public abstract class ServerCallHandler {
         if (ObserveUtils.isObservabilityEnabled()) {
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, context);
         }
-        resource.getRuntime().invokeMethodAsync(resource.getService(), resource.getFunctionName(), callback, null,
-                                                META_DATA_ON_MESSAGE, properties, requestParams);
+        resource.getRuntime().invokeMethodAsync(resource.getService(), resource.getFunctionName(), null,
+                                                META_DATA_ON_MESSAGE, callback,
+                                                properties, requestParams);
     }
 
     Object[] computeMessageParams(ServiceResource resource, Message request, StreamObserver responseObserver) {

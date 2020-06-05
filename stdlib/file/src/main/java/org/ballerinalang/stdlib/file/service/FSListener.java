@@ -65,8 +65,8 @@ public class FSListener implements LocalFileSystemListener {
         Object[] parameters = getJvmSignatureParameters(fileEvent);
         AttachedFunction resource = getAttachedFunction(fileEvent.getEvent());
         if (resource != null) {
-            runtime.invokeMethodAsync(service, resource.getName(), new DirectoryCallback(),
-                                      null, metaData, parameters);
+            runtime.invokeMethodAsync(service, resource.getName(), null, metaData, new DirectoryCallback(),
+                                      parameters);
         } else {
             log.warn(String.format("FileEvent received for unregistered resource: [%s] %s", fileEvent.getEvent(),
                     fileEvent.getFileName()));

@@ -41,8 +41,8 @@ public class TaskExecutor {
         Object[] onTriggerFunctionArgs = getParameterList(onTriggerFunction, serviceInformation);
 
         BRuntime runtime = serviceInformation.getRuntime();
-        runtime.invokeMethodAsync(serviceInformation.getService(), RESOURCE_ON_TRIGGER, null, null,
-                                  metaData, onTriggerFunctionArgs);
+        runtime.invokeMethodAsync(serviceInformation.getService(), RESOURCE_ON_TRIGGER, null, metaData, null,
+                                  onTriggerFunctionArgs);
     }
 
     private static Object[] getParameterList(AttachedFunction function, ServiceInformation serviceInformation) {

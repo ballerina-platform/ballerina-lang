@@ -70,9 +70,9 @@ public class StreamingServerCallHandler extends ServerCallHandler {
         if (ObserveUtils.isObservabilityEnabled()) {
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, context);
         }
-        onOpen.getRuntime().invokeMethodAsync(onOpen.getService(), onOpen.getFunctionName(), callback, null,
-                                              META_DATA_ON_OPEN, properties, computeMessageParams(onOpen, null,
-                                                                                                  responseObserver));
+        onOpen.getRuntime().invokeMethodAsync(onOpen.getService(), onOpen.getFunctionName(), null, META_DATA_ON_OPEN,
+                                              callback, properties,
+                                              computeMessageParams(onOpen, null, responseObserver));
         callback.available.acquireUninterruptibly();
 
         return new StreamObserver() {
@@ -82,8 +82,8 @@ public class StreamingServerCallHandler extends ServerCallHandler {
 
                 CallableUnitCallback callback = new StreamingCallableUnitCallBack(responseObserver, context);
                 onMessage.getRuntime().invokeMethodAsync(onMessage.getService(), onMessage.getFunctionName(),
-                        callback, null, META_DATA_ON_MESSAGE, properties, computeMessageParams(onMessage, value,
-                                                                                       responseObserver));
+                                                         null, META_DATA_ON_MESSAGE, callback, properties,
+                                                         computeMessageParams(onMessage, value, responseObserver));
             }
 
             @Override
@@ -97,8 +97,8 @@ public class StreamingServerCallHandler extends ServerCallHandler {
                 ServiceResource onCompleted = resourceMap.get(GrpcConstants.ON_COMPLETE_RESOURCE);
                 CallableUnitCallback callback = new UnaryCallableUnitCallBack(responseObserver, Boolean.FALSE, context);
                 onCompleted.getRuntime().invokeMethodAsync(onCompleted.getService(), onCompleted.getFunctionName(),
-                        callback, null, META_DATA_ON_COMPLETE, properties, computeMessageParams(onCompleted, null,
-                                                                                       responseObserver));
+                                                           null, META_DATA_ON_COMPLETE, callback, properties,
+                                                           computeMessageParams(onCompleted, null, responseObserver));
             }
         };
     }

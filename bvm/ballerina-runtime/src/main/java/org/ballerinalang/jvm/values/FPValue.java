@@ -65,8 +65,8 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
 
     public FutureValue asyncCall(Object[] args, Function<Object, Object> resultHandleFunction,
                                  StrandMetaData metaData) {
-        return BRuntime.getCurrentRuntime().invokeFunctionPointerAsync(this, args, resultHandleFunction,
-                                                                       this.strandName, metaData);
+        return BRuntime.getCurrentRuntime().invokeFunctionPointerAsync(this, this.strandName, metaData,
+                                                                       args, resultHandleFunction);
     }
 
     public Function<T, R> getFunction() {

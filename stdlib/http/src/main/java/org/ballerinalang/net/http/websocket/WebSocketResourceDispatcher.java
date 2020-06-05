@@ -107,9 +107,9 @@ public class WebSocketResourceDispatcher {
         httpCaller.addNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER, connectionManager);
 
         Executor.submit(wsService.getScheduler(), onUpgradeResource.getParentService().getBalService(),
-                        balResource.getName(),
+                        balResource.getName(), null, META_DATA_ON_OPEN,
                         new OnUpgradeResourceCallback(webSocketHandshaker, wsService, connectionManager),
-                        null, META_DATA_ON_OPEN, new HashMap<>(), signatureParams);
+                        new HashMap<>(), signatureParams);
     }
 
     public static void dispatchOnOpen(WebSocketConnection webSocketConnection, ObjectValue webSocketCaller,
@@ -528,10 +528,10 @@ public class WebSocketResourceDispatcher {
             Map<String, Object> properties = new HashMap<>();
             WebSocketObserverContext observerContext = new WebSocketObserverContext(connectionInfo);
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
-            Executor.submit(wsService.getScheduler(), wsService.getBalService(), resource, callback, null, metaData,
+            Executor.submit(wsService.getScheduler(), wsService.getBalService(), resource, null, metaData, callback,
                             properties, bValues);
         } else {
-            Executor.submit(wsService.getScheduler(), wsService.getBalService(), resource, callback, null, metaData,
+            Executor.submit(wsService.getScheduler(), wsService.getBalService(), resource, null, metaData, callback,
                             null, bValues);
         }
         WebSocketObservabilityUtil.observeResourceInvocation(connectionInfo, resource);
