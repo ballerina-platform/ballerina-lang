@@ -289,7 +289,7 @@ public class TypeChecker extends BLangNodeVisitor {
      * @param expType expected type
      * @return the actual types of the given list of expressions
      */
-    public List<BType> checkExprs(List<BLangExpression> exprs, SymbolEnv env, BType expType) {
+    public List<BType> checkExprs(List<? extends BLangExpression> exprs, SymbolEnv env, BType expType) {
         List<BType> resTypes = new ArrayList<>(exprs.size());
         for (BLangExpression expr : exprs) {
             resTypes.add(checkExpr(expr, env, expType));
@@ -3622,10 +3622,52 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
-        checkStringTemplateExprs(rawTemplateLiteral.strings, false);
-        checkStringTemplateExprs(rawTemplateLiteral.insertions, false);
-        // TODO: fix subtyping
-        resultType = types.checkType(rawTemplateLiteral, symTable.rawTemplateType, expType);
+        BType type = types.checkType(rawTemplateLiteral, expType, symTable.rawTemplateType);
+
+        if (type == symTable.semanticError) {
+            resultType = type;
+            return;
+        }
+
+        checkExprs(rawTemplateLiteral.strings, env, symTable.stringType);
+
+        BObjectType literalType = (BObjectType) type;
+        BType insertionsType = literalType.fields.get("insertions").type;
+
+        if (insertionsType.tag == TypeTags.ARRAY) {
+            BArrayType arrayType = (BArrayType) insertionsType;
+            for (BLangExpression insertion : rawTemplateLiteral.insertions) {
+                checkExpr(insertion, env, arrayType.eType);
+            }
+            // TODO: Consider fixed-length arrays
+        } else if (insertionsType.tag == TypeTags.TUPLE) {
+            BTupleType tupleType = (BTupleType) insertionsType;
+            List<BLangExpression> insertions = rawTemplateLiteral.insertions;
+            int size = insertions.size();
+            int requiredInsertions = tupleType.tupleTypes.size();
+
+            if (size < requiredInsertions || (size > requiredInsertions && tupleType.restType == null)) {
+                dlog.error(rawTemplateLiteral.pos, DiagnosticCode.INVALID_RAW_TEMPLATE_LITERAL,
+                           requiredInsertions, size);
+                resultType = symTable.semanticError;
+                return;
+            }
+
+            int i;
+            for (i = 0; i < requiredInsertions; i++) {
+                checkExpr(insertions.get(i), env, tupleType.tupleTypes.get(i));
+            }
+
+            if (size > requiredInsertions) {
+                for (; i < size; i++) {
+                    checkExpr(insertions.get(i), env, tupleType.restType);
+                }
+            }
+        } else {
+            throw new IllegalStateException("Expected a list type, but found: " + insertionsType);
+        }
+
+        resultType = type;
     }
 
     @Override

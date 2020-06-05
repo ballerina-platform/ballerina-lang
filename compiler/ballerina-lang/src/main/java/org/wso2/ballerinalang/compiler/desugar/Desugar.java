@@ -4298,12 +4298,12 @@ public class Desugar extends BLangNodeVisitor {
         BLangFieldBasedAccess insertions = ASTBuilderUtil
                 .createFieldAccessExpr(objVarRef, ASTBuilderUtil.createIdentifier(pos, "insertions"));
         insertions.symbol = objType.fields.get("insertions").symbol;
-        insertions.type = insertions.expectedType = insertions.originalType = symTable.arrayAllType;
+        insertions.type = insertions.expectedType = insertions.originalType = insertions.symbol.type;
         insertions.lhsVar = true;
 
-        BLangListConstructorExpr insertionsList = ASTBuilderUtil.createEmptyArrayLiteral(pos, symTable.arrayAllType);
+        BLangListConstructorExpr insertionsList = ASTBuilderUtil.createEmptyArrayLiteral(pos, insertions.type);
         insertionsList.exprs.addAll(rawTemplateLiteral.insertions);
-        insertionsList.expectedType = symTable.arrayAllType;
+        insertionsList.expectedType = insertions.type;
 
         BLangAssignment insertionsAssignment = ASTBuilderUtil.createAssignmentStmt(pos, insertions, insertionsList);
         blockStmt.addStatement(insertionsAssignment);
