@@ -2524,7 +2524,7 @@ public class BLangPackageBuilder {
                 var.isDeclaredWithVar = true;
             }
         }
-        if (var.typeNode.getKind() == NodeKind.ERROR_TYPE) {
+        if (var.typeNode != null && var.typeNode.getKind() == NodeKind.ERROR_TYPE) {
             var.isDeclaredWithVar = ((BLangErrorType) var.typeNode).inferErrorType;
         }
 
