@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.extensions;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorsResponse;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaASTRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaASTResponse;
 import org.ballerinalang.langserver.util.TestUtil;
@@ -31,6 +32,7 @@ import java.util.concurrent.CompletableFuture;
 public class LSExtensionTestUtil {
 
     private static final String GET_AST = "ballerinaDocument/ast";
+    private static final String GET_CONNECTORS = "ballerinaConnector/connectors";
     private static final Gson GSON = new Gson();
     private static final JsonParser parser = new JsonParser();
     /**
@@ -49,4 +51,10 @@ public class LSExtensionTestUtil {
     private static JsonObject getResult(CompletableFuture result) {
         return parser.parse(TestUtil.getResponseString(result)).getAsJsonObject().getAsJsonObject("result");
     }
+
+    public static BallerinaConnectorsResponse getConnectors(Endpoint serviceEndpoint) {
+        CompletableFuture result = serviceEndpoint.request(GET_CONNECTORS, null);
+        return GSON.fromJson(getResult(result), BallerinaConnectorsResponse.class);
+    }
+
 }
