@@ -162,13 +162,13 @@ public type Listener object {
                         if (hubDecodeResponse is string) {
                             retHub = hubDecodeResponse;
                         } else {
-                            panic <WebSubError> hubDecodeResponse;
+                            panic <encoding:DecodingError> hubDecodeResponse;
                         }
                         var topicDecodeResponse = encoding:decodeUriComponent(retTopic, "UTF-8");
                         if (topicDecodeResponse is string) {
                             retTopic = topicDecodeResponse;
                         } else {
-                            panic <WebSubError> topicDecodeResponse;
+                            panic <encoding:DecodingError> topicDecodeResponse;
                         }
                         hub = retHub;
                         [string, string] hubAndTopic = [retHub, retTopic];
@@ -301,7 +301,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientConfiguration? pu
         }
     } else {
         return WebSubError("Error occurred with WebSub discovery for Resource URL [" +resourceUrl + "]: " +
-                            discoveryResponse.getMessage() );
+                            discoveryResponse.message() );
     }
 }
 

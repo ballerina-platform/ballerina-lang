@@ -142,7 +142,7 @@ function processHubResponse(@untainted string hub, @untainted string mode,
             if (responsePayload is string) {
                 errorMessage = errorMessage + " - " + responsePayload;
             } else {
-                errorMessage = errorMessage + " - Error occurred identifying cause: " + responsePayload.getMessage();
+                errorMessage = errorMessage + " - Error occurred identifying cause: " + responsePayload.message();
             }
             return WebSubError(errorMessage);
         } else {

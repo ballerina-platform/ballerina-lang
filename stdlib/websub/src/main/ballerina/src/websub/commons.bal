@@ -213,7 +213,7 @@ function processWebSubNotification(http:Request request, service serviceType) re
     if (payload is string) {
         return validateSignature(xHubSignature, payload, secret);
     } else {
-        string errCause = payload.getMessage();
+        string errCause = payload.message();
         return WebSubError("Error extracting notification payload as string for signature validation: " + errCause);
     }
 }

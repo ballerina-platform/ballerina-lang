@@ -74,7 +74,8 @@ function getHubService() returns service {
                 var registerStatus = registerTopic(topic);
                 if (registerStatus is error) {
                     response.statusCode = http:STATUS_BAD_REQUEST;
-                    response.setTextPayload(registerStatus.message());
+                    string errorMessage = registerStatus.message();
+                    response.setTextPayload(errorMessage);
                     log:printWarn("Topic registration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
                 } else {
                     response.statusCode = http:STATUS_ACCEPTED;
@@ -159,7 +160,8 @@ function getHubService() returns service {
                             WebSubContent notification = {payload: binaryPayload, contentType: contentType};
                             publishStatus = publishToInternalHub(topic, notification);
                         } else {
-                            string errorMessage = "Error extracting payload: " + binaryPayload.message();
+                            string errorMessage = "Error extracting payload: " +
+                                                  <@untaintedstring>binaryPayload.message();
                             log:printError(errorMessage);
                             response.statusCode = http:STATUS_BAD_REQUEST;
                             response.setTextPayload(errorMessage);
