@@ -40,7 +40,46 @@ public class AmbiguityResolutionTest extends AbstractMiscTest {
     public void testMostlyAmbiguousListOnLHS() {
         testFile("ambiguity/ambiguity_source_03.bal", "ambiguity/ambiguity_assert_03.json");
     }
-    
+
+    @Test
+    public void testAmbiguousMapping() {
+        testFile("ambiguity/ambiguity_source_04.bal", "ambiguity/ambiguity_assert_04.json");
+    }
+
+    @Test
+    public void testOpenBracketFollowedByStmtStartOpenBrace() {
+        testFile("ambiguity/ambiguity_source_05.bal", "ambiguity/ambiguity_assert_05.json");
+    }
+
+    @Test
+    public void testAmbiguousMappingAtStmtStart() {
+        testFile("ambiguity/ambiguity_source_07.bal", "ambiguity/ambiguity_assert_07.json");
+    }
+
+    @Test
+    public void testAmbiguousMappingWithQualifiedNameAtStmtStart_1() {
+        testFile("ambiguity/ambiguity_source_10.bal", "ambiguity/ambiguity_assert_10.json");
+    }
+
+    @Test
+    public void testAmbiguousMappingWithQualifiedNameAtStmtStart_2() {
+        testFile("ambiguity/ambiguity_source_11.bal", "ambiguity/ambiguity_assert_11.json");
+    }
+
     // Recovery tests
 
+    @Test
+    public void testInvalidExprInStmtStartMapping() {
+        testFile("ambiguity/ambiguity_source_06.bal", "ambiguity/ambiguity_assert_06.json");
+    }
+
+    @Test
+    public void testStmtStartMappingRecovery() {
+        testFile("ambiguity/ambiguity_source_08.bal", "ambiguity/ambiguity_assert_08.json");
+    }
+
+    @Test
+    public void testInvalidTokenAfterColonInStmtStartMappingField() {
+        testFile("ambiguity/ambiguity_source_09.bal", "ambiguity/ambiguity_assert_09.json");
+    }
 }

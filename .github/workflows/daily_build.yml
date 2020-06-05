@@ -7,6 +7,7 @@ on:
 jobs:
   ubuntu-build:
     runs-on: ubuntu-latest
+    timeout-minutes: 75
 
     steps:
     - uses: actions/checkout@v1
@@ -24,11 +25,6 @@ jobs:
       with:
         java-version: 1.8
 
-    - name: Down grade npm version
-      run: |
-        npm install -g npm@'5.6.0'
-        npm version
-
     - name: Cache Gradle packages
       uses: actions/cache@v1
       with:
@@ -41,3 +37,23 @@ jobs:
         export DISPLAY=':99.0'
         /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
         ./gradlew build --scan --max-workers=2
+
+    - name: Get jballerina-tools file location
+      id: getdist
+      run: echo "::set-output name=file::$(ls distribution/zip/jballerina-tools/build/distributions/jballerina-tools-*.zip)"
+
+    - name: Upload jballerina-tools.zip
+      uses: actions/upload-artifact@v2
+      with:
+        name: jballerina-tools
+        path: ${{ steps.getdist.outputs.file }}
+
+    - name: Get vscode vsix file location
+      id: getvscode
+      run: echo "::set-output name=file::$(ls tool-plugins/vscode/*.vsix)"
+
+    - name: Upload vscode.vsix
+      uses: actions/upload-artifact@v2
+      with:
+        name: vscode-vsix
+        path: ${{ steps.getvscode.outputs.file }}

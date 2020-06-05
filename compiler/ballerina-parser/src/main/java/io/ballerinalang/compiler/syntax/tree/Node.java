@@ -91,6 +91,10 @@ public abstract class Node {
         return internalNode.hasDiagnostics();
     }
 
+    public boolean isMissing() {
+        return internalNode.isMissing();
+    }
+
     public SyntaxTree syntaxTree() {
         return populateSyntaxTree();
     }

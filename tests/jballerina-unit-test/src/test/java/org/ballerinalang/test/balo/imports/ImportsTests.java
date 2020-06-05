@@ -20,21 +20,17 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BFileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Test cases for multiple version support.
@@ -43,42 +39,21 @@ public class ImportsTests {
 
     private static final String USER_HOME = "user.home";
     private String previousUserHome;
-    private Path tempBir;
     private Path imports;
-    private Path homeBirCache;
-    private Path birDir;
-    private List<Path> birFiles;
 
     @BeforeClass(description = "Build the necessary modules.")
     public void setup() throws IOException {
         Path tempDir = Files.createTempDirectory("temp-bal-home");
-
-        tempBir = Paths.get(System.getProperty("user.dir"), "build", "test-bir-temp");
-
         imports = Paths.get("test-src", "balo", "imports");
-
-        homeBirCache = tempDir.resolve(Paths.get(".ballerina", "bir_cache" + "-" +
-                RepoUtils.getBallerinaVersion()));
-
         previousUserHome = System.getProperty(USER_HOME);
         System.setProperty(USER_HOME, tempDir.toString());
-
-        // Delete all existing bir files.
-        BFileUtil.deleteAll(tempBir, "testModule.bir");
     }
 
     @Test(description = "Get the version from the source file.")
-    public void testVersionSupportImportFromSourceFile() throws IOException {
+    public void testVersionSupportImportFromSourceFile() {
         BaloCreator.cleanCacheDirectories();
         BaloCreator.createAndSetupBalo(imports.resolve(Paths.get("test_module1", "test_module")).toString(),
                 "testOrg", "testModule", "1.1.0");
-        birFiles = Files.find(tempBir, Integer.MAX_VALUE, (path, attribute) ->
-                path.toString().contains("testModule.bir")
-                        && !path.toString().contains("imports")).collect(Collectors.toList());
-        birDir = Files.createDirectories(homeBirCache.resolve(Paths.get("testOrg", "testModule", "1.1.0")));
-        BFileUtil.copy(birFiles.get(0), birDir.resolve(Paths.get("testModule.bir")));
-        BFileUtil.delete(birFiles.get(0));
-
 
         CompileResult result = BCompileUtil.compile(this, "/test-src/balo/imports/test-case1/", "testCase1");
         BValue[] returns = BRunUtil.invoke(result, "cal");
@@ -88,16 +63,10 @@ public class ImportsTests {
     }
 
     @Test(description = "Get the version from the toml file.")
-    public void testVersionSupportImportFromTomlFile() throws IOException {
+    public void testVersionSupportImportFromTomlFile() {
         BaloCreator.cleanCacheDirectories();
         BaloCreator.createAndSetupBalo(imports.resolve(Paths.get("test_module2", "test_module")).toString(),
                 "testOrg", "testModule", "1.1.1");
-        birFiles = Files.find(tempBir, Integer.MAX_VALUE, (path, attribute) ->
-                path.toString().contains("testModule.bir")
-                        && !path.toString().contains("imports")).collect(Collectors.toList());
-        birDir = Files.createDirectories(homeBirCache.resolve(Paths.get("testOrg", "testModule", "1.1.1")));
-        BFileUtil.copy(birFiles.get(0), birDir.resolve(Paths.get("testModule.bir")));
-        BFileUtil.delete(birFiles.get(0));
 
         CompileResult result = BCompileUtil.compile(this, "/test-src/balo/imports/test-case2/", "testCase2");
         BValue[] returns = BRunUtil.invoke(result, "cal");
@@ -107,16 +76,10 @@ public class ImportsTests {
     }
 
     @Test(description = "Get the version from the lock file.")
-    public void testVersionSupportImportFromLockFile() throws IOException {
+    public void testVersionSupportImportFromLockFile() {
         BaloCreator.cleanCacheDirectories();
         BaloCreator.createAndSetupBalo(imports.resolve(Paths.get("test_module3", "test_module")).toString(),
                 "testOrg", "testModule", "1.1.2");
-        birFiles = Files.find(tempBir, Integer.MAX_VALUE, (path, attribute) ->
-                path.toString().contains("testModule.bir")
-                        && !path.toString().contains("imports")).collect(Collectors.toList());
-        birDir = Files.createDirectories(homeBirCache.resolve(Paths.get("testOrg", "testModule", "1.1.2")));
-        BFileUtil.copy(birFiles.get(0), birDir.resolve(Paths.get("testModule.bir")));
-        BFileUtil.delete(birFiles.get(0));
 
         CompileResult result = BCompileUtil.compile(this, "/test-src/balo/imports/test-case3/", "testCase3");
         BValue[] returns = BRunUtil.invoke(result, "cal");
@@ -126,16 +89,10 @@ public class ImportsTests {
     }
 
     @Test(description = "Get the version from a single source file.")
-    public void testVersionSupportImportInSingleFile() throws IOException {
+    public void testVersionSupportImportInSingleFile() {
         BaloCreator.cleanCacheDirectories();
         BaloCreator.createAndSetupBalo(imports.resolve(Paths.get("test_module1", "test_module")).toString(),
                 "testOrg", "testModule", "1.1.0");
-        birFiles = Files.find(tempBir, Integer.MAX_VALUE, (path, attribute) ->
-                path.toString().contains("testModule.bir")
-                        && !path.toString().contains("imports")).collect(Collectors.toList());
-        birDir = Files.createDirectories(homeBirCache.resolve(Paths.get("testOrg", "testModule", "1.1.0")));
-        BFileUtil.copy(birFiles.get(0), birDir.resolve(Paths.get("testModule.bir")));
-        BFileUtil.delete(birFiles.get(0));
 
         CompileResult result = BCompileUtil.compile("test-src/balo/imports/test-case4/main.bal");
         BValue[] returns = BRunUtil.invoke(result, "cal");
@@ -145,16 +102,10 @@ public class ImportsTests {
     }
 
     @Test(description = "Get the version from a single source file without alias.")
-    public void testVersionSupportImportInSingleFileWithoutAlias() throws IOException {
+    public void testVersionSupportImportInSingleFileWithoutAlias() {
         BaloCreator.cleanCacheDirectories();
         BaloCreator.createAndSetupBalo(imports.resolve(Paths.get("test_module2", "test_module")).toString(),
                 "testOrg", "testModule", "1.1.1");
-        birFiles = Files.find(tempBir, Integer.MAX_VALUE, (path, attribute) ->
-                path.toString().contains("testModule.bir")
-                        && !path.toString().contains("imports")).collect(Collectors.toList());
-        birDir = Files.createDirectories(homeBirCache.resolve(Paths.get("testOrg", "testModule", "1.1.1")));
-        BFileUtil.copy(birFiles.get(0), birDir.resolve(Paths.get("testModule.bir")));
-        BFileUtil.delete(birFiles.get(0));
 
         CompileResult result = BCompileUtil.compile("test-src/balo/imports/test-case5/main.bal");
         BValue[] returns = BRunUtil.invoke(result, "cal");
