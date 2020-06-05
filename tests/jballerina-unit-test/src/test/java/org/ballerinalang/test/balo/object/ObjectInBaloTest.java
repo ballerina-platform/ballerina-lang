@@ -381,7 +381,7 @@ public class ObjectInBaloTest {
     public void testObjectEqualityBetweenNonClientAndClientObject() {
         CompileResult result = BCompileUtil.compile("test-src/balo/test_balo/object" +
                 "/object_subtyping_tests.bal");
-        BValue[] returns = BRunUtil.invoke(result, "testObjectEqualityBetweenNonClientAndClientObject");
+        BRunUtil.invoke(result, "testObjectEqualityBetweenNonClientAndClientObject");
     }
 
     @Test (description = "Negative test to test subtyping of various object types")

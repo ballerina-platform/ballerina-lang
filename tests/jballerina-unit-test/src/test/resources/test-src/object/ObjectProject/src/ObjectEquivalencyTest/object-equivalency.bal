@@ -664,6 +664,49 @@ function testObjectEqualityBetweenNonClientAndClientObject() {
     assertEquality("ClientObjectWithoutRemoteMethod", obj3.name);
 }
 
+type Email client object {
+    public remote function send(string message) returns error? {
+    }
+};
+
+type FakeEmail object {
+    public function send(string message) returns error? {
+    }
+};
+
+type Message record {|
+    Email f;
+|};
+
+function subtypingBetweenNonClientAndClientObject1() returns Email {
+    FakeEmail p = new();
+    any e = p;
+    Email email = <Email> e;
+    return email;
+}
+
+function subtypingBetweenNonClientAndClientObject2() returns any {
+    Message b = {f: new};
+    record {|
+        object {}...;
+    |} r = b;
+
+    r["f"] = new FakeEmail();
+    return r["f"];
+}
+
+function testSubtypingBetweenNonClientAndClientObject() {
+    Email|error err1 = trap subtypingBetweenNonClientAndClientObject1();
+    any|error err2 = trap subtypingBetweenNonClientAndClientObject2();
+    error e1 = <error> err1;
+    error e2 = <error> err2;
+
+    assertEquality("incompatible types: 'ObjectEquivalencyTest:FakeEmail' cannot be cast to " +
+    "'ObjectEquivalencyTest:Email'", e1.detail()?.message);
+    assertEquality("invalid value for record field 'f': expected value of type 'ObjectEquivalencyTest:Email', " +
+    "found 'ObjectEquivalencyTest:FakeEmail'", e2.detail()?.message);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

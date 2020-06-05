@@ -143,4 +143,9 @@ public class ObjectEquivalencyTest {
     public void testObjectEqualityBetweenNonClientAndClientObject() {
         BRunUtil.invoke(compileResult, "testObjectEqualityBetweenNonClientAndClientObject");
     }
+
+    @Test
+    public void testSubtypingBetweenNonClientAndClientObject() {
+        BRunUtil.invoke(compileResult, "testSubtypingBetweenNonClientAndClientObject");
+    }
 }
