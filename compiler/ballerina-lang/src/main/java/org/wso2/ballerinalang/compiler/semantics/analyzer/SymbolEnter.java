@@ -1425,7 +1425,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             BStructureType structureType = (BStructureType) typeDef.symbol.type;
 
-            if (Symbols.isFlagOn(structureType.tsymbol.flags, Flags.READONLY)) {
+            if (Symbols.isFlagOn(structureType.flags, Flags.READONLY)) {
                 continue;
             }
 
