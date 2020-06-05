@@ -70,10 +70,8 @@ function foo() {
 function assertStrandMetaDataResult(string assertString) {
     string result = "";
     var strand = getStrand();
-    var metadataOP = getMetaData(strand);
-    boolean isMetadataAvailable = isPresent(metadataOP);
-    if (isMetadataAvailable) {
-        var metadata = get(metadataOP);
+    var metadata = getMetaData(strand);
+    if (nonNull(metadata)) {
         int id = getId(strand);
         var strandName = getName(strand);
         var isStrandHasName = isPresent(strandName);
@@ -104,6 +102,10 @@ function getName(handle starnd) returns handle = @java:Method {
 
 function get(handle optional) returns handle = @java:Method {
     class: "java.util.Optional"
+} external;
+
+function nonNull(handle optional) returns boolean = @java:Method {
+    class: "java.util.Objects"
 } external;
 
 function isPresent(handle optional) returns boolean = @java:Method {
