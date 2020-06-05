@@ -164,7 +164,7 @@ public class PathTest {
         if ("error".equals(expected)) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "UNCPathError");
+            assertTrue(error.getMessage().contains("UNC path"));
             log.info("Ballerina error: " + error.getMessage());
         } else {
             assertTrue(returns[0] instanceof BString);
@@ -192,7 +192,7 @@ public class PathTest {
         if ("error".equals(expected)) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getMessage(), "UNCPathError");
+            assertTrue(error.getMessage().contains("UNC path"));
             log.info("Ballerina error: " + error.getMessage());
         } else {
             assertTrue(returns[0] instanceof BString);
@@ -221,7 +221,7 @@ public class PathTest {
         if ("error".equals(expected)) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getMessage(), "UNCPathError");
+            assertTrue(error.getMessage().contains("UNC path"));
             log.info("Ballerina error: " + error.getMessage());
         } else {
             assertTrue(returns[0] instanceof BString);
@@ -249,7 +249,7 @@ public class PathTest {
         if ("error".equals(expected)) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getMessage(), "UNCPathError");
+            assertTrue(error.getMessage().contains("UNC path"));
             log.info("Ballerina error: " + error.getMessage());
         } else {
             assertTrue(returns[0] instanceof BValueArray);
@@ -291,7 +291,7 @@ public class PathTest {
         if ("error".equals(expected)) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getMessage(), "UNCPathError");
+            assertTrue(error.getMessage().contains("UNC path"));
             log.info("Ballerina error: " + error.getMessage());
         } else {
             assertTrue(returns[0] instanceof BString);
@@ -385,8 +385,7 @@ public class PathTest {
         assertEquals(returns.length, 1);
         assertTrue(returns[0] instanceof BError);
         BError resolveError = (BError) returns[0];
-        assertEquals(resolveError.getMessage(),
-                     "Path is not a symbolic link src/test/resources/data-files/test_nolink.txt");
+        assertTrue(resolveError.getMessage().contains("Path is not a symbolic link"));
         log.info("Ballerina error: " + resolveError.getMessage());
     }
 
@@ -399,8 +398,7 @@ public class PathTest {
         assertEquals(returns.length, 1);
         assertTrue(returns[0] instanceof BError);
         BError resolveError = (BError) returns[0];
-        assertEquals(resolveError.getMessage(),
-                     "File does not exist at src/test/resources/data-files/test_nonexist.txt");
+        assertTrue(resolveError.getMessage().contains("File does not exist at"));
         log.info("Ballerina error: " + resolveError.getMessage());
     }
 
