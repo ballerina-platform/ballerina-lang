@@ -27,6 +27,7 @@ import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.StrandMetaData;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.types.TypeFlags;
@@ -103,6 +104,10 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static org.ballerinalang.jvm.util.BLangConstants.ANON_ORG;
+import static org.ballerinalang.jvm.util.BLangConstants.DOT;
+import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
 
 /**
  * Utility methods for run Ballerina functions.
@@ -271,7 +276,9 @@ public class BRunUtil {
 
             Scheduler scheduler = new Scheduler(false);
             FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>(),
-                    org.ballerinalang.jvm.types.BTypes.typeAny, null, null);
+                                                         org.ballerinalang.jvm.types.BTypes.typeAny, "test",
+                                                         new StrandMetaData(ANON_ORG, DOT, DEFAULT_VERSION.value,
+                                                                            functionName));
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {
                 throw new org.ballerinalang.util.exceptions.BLangRuntimeException(futureValue.panic.getMessage(),
@@ -403,7 +410,9 @@ public class BRunUtil {
 
             Scheduler scheduler = new Scheduler(false);
             FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>(),
-                    org.ballerinalang.jvm.types.BTypes.typeAny, null, null);
+                                                         org.ballerinalang.jvm.types.BTypes.typeAny, "test",
+                                                         new StrandMetaData(ANON_ORG, DOT, DEFAULT_VERSION.value,
+                                                                            functionName));
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {
                 throw new org.ballerinalang.util.exceptions.BLangRuntimeException(futureValue.panic.getMessage(),
