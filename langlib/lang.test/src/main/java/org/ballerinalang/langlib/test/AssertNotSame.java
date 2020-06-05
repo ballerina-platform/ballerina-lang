@@ -35,20 +35,20 @@ import static org.ballerinalang.util.BLangCompilerConstants.TEST_VERSION;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.test", version = TEST_VERSION, functionName = "assertNotSame",
-        args = {@Argument(name = "val1", type = TypeKind.UNION),
-                @Argument(name = "val2", type = TypeKind.UNION),
+        args = {@Argument(name = "actual", type = TypeKind.UNION),
+                @Argument(name = "expected", type = TypeKind.UNION),
                 @Argument(name = "message", type = TypeKind.UNION)},
         isPublic = true
 )
 
 public class AssertNotSame {
-    public static void assertNotSame(Strand strand, Object val1, Object val2, Object message) {
-        if (TypeChecker.isReferenceEqual(val2, val1)) {
-            String msg = " expected the actual value do not refer to [" + val2 + "]";
+    public static void assertNotSame(Strand strand, Object actual, Object expected, Object message) {
+        if (TypeChecker.isReferenceEqual(expected, actual)) {
+            String msg = " expected the actual value do not refer to [" + expected + "]";
             msg = message != null ? message.toString() + msg : msg;
-            strand.setProperty("lang.test.state.failMsg",
-                    BallerinaErrors.createError("{ballerina/lang.test}AssertionError", msg));
-            throw BallerinaErrors.createError("{ballerina/lang.test}AssertionError", msg);
+            strand.setProperty(NativeImpConstants.STRAND_PROPERTY_NAME,
+                    BallerinaErrors.createError(NativeImpConstants.TEST_FAIL_REASON, msg));
+            throw BallerinaErrors.createError(NativeImpConstants.TEST_FAIL_REASON, msg);
         }
     }
 }

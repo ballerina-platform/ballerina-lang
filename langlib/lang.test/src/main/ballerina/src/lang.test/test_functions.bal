@@ -16,10 +16,10 @@
 
 # Tests value equality for two values.
 #
-# + expected - expected value
 # + actual - actual value
+# + expected - expected value
 # + message - Assertion error message
-public function assertEqual(anydata actual, anydata expected, string? message = ()) = external;
+public function assertEquals(anydata actual, anydata expected, string? message = ()) = external;
 
 # Tests whether a value is of type 'error'.
 #
@@ -37,29 +37,29 @@ public function assertNotError(any|error value, string? message = ()) = external
 
 # Tests whether a value is 'true'.
 #
-# + condition - the passed condition to be asserted
+# + value - the passed value to be asserted
 # + message - Assertion error message
-public function assertTrue(boolean condition, string? message = ()) = external;
+public function assertTrue(boolean value, string? message = ()) = external;
 
 # Tests whether a value is 'false'.
 #
-# + condition - the passed condition to be asserted
+# + value - the passed value to be asserted
 # + message - Assertion error message
-public function assertFalse(boolean condition, string? message = ()) = external;
+public function assertFalse(boolean value, string? message = ()) = external;
 
 # Tests two objects refer to the same object.
 #
-# + actual - the passed value to be assert
-# + expected - the passed value to be assert
+# + actual - the passed value to be asserted
+# + expected - expected value
 # + message - Assertion error message
 public function assertSame(any|error actual, any|error expected, string? message = ()) = external;
 
 # Asserts that two objects do not refer to the same object.
 #
-# + val1 - First object
-# + val2 - second Object
+# + actual - the passed value to be asserted
+# + expected - expected value
 # + message - Assertion error message
-public function assertNotSame(any|error val1, any|error val2, string? message = ()) = external;
+public function assertNotSame(any|error actual, any|error expected, string? message = ()) = external;
 
 # Assert failure is triggered based on user discretion. AssertError is thrown with the given errorMessage.
 #
@@ -71,4 +71,4 @@ public function fail(string? message = ()) = external;
 # + actual - actual value
 # + expected - expected value
 # + message - Assertion error message
-public function assertNotEqual(anydata actual, anydata expected, string? message = ()) = external;
+public function assertNotEquals(anydata actual, anydata expected, string? message = ()) = external;

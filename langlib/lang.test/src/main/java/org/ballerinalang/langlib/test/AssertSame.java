@@ -45,9 +45,9 @@ public class AssertSame {
         if (!TypeChecker.isReferenceEqual(expected, actual)) {
             String msg = "expected: " + expected + " but found: " + actual;
             msg = message != null ? message.toString() + msg : msg;
-            strand.setProperty("lang.test.state.failMsg",
-                    BallerinaErrors.createError("{ballerina/lang.test}AssertionError", msg));
-            throw BallerinaErrors.createError("{ballerina/lang.test}AssertionError", msg);
+            strand.setProperty(NativeImpConstants.STRAND_PROPERTY_NAME,
+                    BallerinaErrors.createError(NativeImpConstants.TEST_FAIL_REASON, msg));
+            throw BallerinaErrors.createError(NativeImpConstants.TEST_FAIL_REASON, msg);
         }
     }
 }

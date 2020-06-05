@@ -40,8 +40,8 @@ public class Fail {
     public static void fail(Strand strand, Object message) {
         String msg = " failed";
         msg = message != null ? message.toString() + msg : msg;
-        strand.setProperty("lang.test.state.failMsg",
-                BallerinaErrors.createError("{ballerina/lang.test}AssertionError", msg));
-        throw BallerinaErrors.createError("{ballerina/lang.test}AssertionError", msg);
+        strand.setProperty(NativeImpConstants.STRAND_PROPERTY_NAME,
+                BallerinaErrors.createError(NativeImpConstants.TEST_FAIL_REASON, msg));
+        throw BallerinaErrors.createError(NativeImpConstants.TEST_FAIL_REASON, msg);
     }
 }
