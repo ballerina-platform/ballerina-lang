@@ -91,7 +91,7 @@ public class WebSubUtils {
     }
 
     /**
-     * Create WebSub specific error record with 'WebSubError' as error code.
+     * Create WebSub specific error record with 'WebSubError' as error type ID name.
      *
      * @param errMsg  Actual error message
      * @return Ballerina error value
@@ -102,7 +102,7 @@ public class WebSubUtils {
     }
 
     /**
-     * Create WebSub specific error for a given error reason and detail.
+     * Create WebSub specific error for a given error message.
      *
      * @param typeIdName  The error type ID name
      * @param message  The Actual error cause

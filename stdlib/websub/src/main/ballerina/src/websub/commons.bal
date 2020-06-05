@@ -81,11 +81,6 @@ const ANNOT_FIELD_EXPECT_INTENT_VERIFICATION = "expectIntentVerification";
 const ANNOT_FIELD_HUB_CLIENT_CONFIG = "hubClientConfig";
 const ANNOT_FIELD_PUBLISHER_CLIENT_CONFIG = "publisherClientConfig";
 
-const string WEBSUB_MODULE_NAME = "ballerina/websub";
-
-//# The constant used to represent error  of WebSub module.
-//public const string WEBSUB_ERROR = "WebSubError";
-
 # The identifier to be used to identify the mode in which update content should be identified.
 public type RemotePublishMode PUBLISH_MODE_DIRECT|PUBLISH_MODE_FETCH;
 
