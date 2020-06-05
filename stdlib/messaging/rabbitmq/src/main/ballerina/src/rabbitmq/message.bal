@@ -66,7 +66,7 @@ public type Message client object {
         if (self.deliveryTag > -1) {
             return self.deliveryTag;
         } else {
-            Error e = Error(message = "Delivery tag not properly initiliazed.");
+            RabbitMqError e = RabbitMqError("Delivery tag not properly initiliazed.");
             panic e;
         }
    }
@@ -82,7 +82,7 @@ public type Message client object {
         if (basicProperties is BasicProperties) {
             return basicProperties;
         }
-        Error e = Error(message = "Properties not properly initialized.");
+        RabbitMqError e = RabbitMqError("Properties not properly initialized.");
         return e;
    }
 
@@ -99,7 +99,7 @@ public type Message client object {
             if (toStringResult is string) {
                 return toStringResult;
             } else {
-                Error e = Error(message = "Error occuurred while retrieving the text content of the message.");
+                RabbitMqError e = RabbitMqError("Error occuurred while retrieving the text content of the message.");
                 return e;
             }
         } else {
