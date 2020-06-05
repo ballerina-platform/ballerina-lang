@@ -59,15 +59,6 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
         return this.function.apply(t);
     }
 
-//    @Deprecated
-//    public FPValue(Consumer<T> consumer, BType type) {
-//        this.function = val -> {
-//            consumer.accept(val);
-//            return null;
-//        };
-//        this.type = type;
-//    }
-
     public FutureValue asyncCall(Object[] args, StrandMetaData metaData) {
         return this.asyncCall(args, o -> o, metaData);
     }

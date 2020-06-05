@@ -148,11 +148,6 @@ public class Scheduler {
         return future;
     }
 
-//    @Deprecated
-//    public FutureValue scheduleConsumer(Object[] params, FPValue<?, ?> fp, Strand parent) {
-//        return schedule(params, fp.getFunction(), parent, (CallableUnitCallback) null);
-//    }
-
     /**
      * Add a task to the runnable list, which will eventually be executed by the Scheduler.
      *
