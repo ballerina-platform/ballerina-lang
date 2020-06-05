@@ -26,12 +26,12 @@ string[] errorMessages = [];
 type Person object {
     public string name;
     function __init(string name) returns error? {
-        _ = start assertStrandMetaDataResult("$anon/.:0.0.0.Person.__init-4");
+        _ = start assertStrandMetaDataResult("$anon/.:0.0.0.Person.__init");
         worker w2 {
-            assertStrandMetaDataResult("$anon/.:0.0.0.Person.__init.w2-5");
+            assertStrandMetaDataResult("$anon/.:0.0.0.Person.__init.w2");
         }
          _ =  @strand{name:"**my starnd inside worker**"}
-                        start assertStrandMetaDataResult("$anon/.:0.0.0.Person.__init.**my starnd inside worker**-6");
+                        start assertStrandMetaDataResult("$anon/.:0.0.0.Person.__init.**my starnd inside worker**");
         self.name = name;
     }
 };
@@ -40,19 +40,19 @@ type Person object {
 function testStrandMetaDataAsyncCalls() {
     Person|error p1 = new("Waruna");
     foo();
-    assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.test-3");
+    assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.test");
     worker w1 {
-        assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.w1-7");
+        assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.w1");
     }
-    future<()> f1 = start assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.f1-8");
-    _ = start assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls-9");
-    _ = start assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls-10");
+    future<()> f1 = start assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.f1");
+    _ = start assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls");
+    _ = start assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls");
     _ = @strand{name:"**my starnd**"}
-            start assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.**my starnd**-11");
+            start assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.**my starnd**");
 
     function(string s) func = assertStrandMetaDataResult;
-    future<()> x = start func("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.x-12");
-    while (successCount < totalNoOfStrandsForTest && errorCount == 0) {
+    future<()> x = start func("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.x");
+    while (successCount < (totalNoOfStrandsForTest*2) && errorCount == 0) {
         runtime:sleep(1);
     }
     if (errorCount > 0) {
@@ -64,7 +64,7 @@ function testStrandMetaDataAsyncCalls() {
 }
 
 function foo() {
-    assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.test-3");
+    assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.test");
 }
 
 function assertStrandMetaDataResult(string assertString) {
@@ -90,8 +90,8 @@ function assertStrandMetaDataResult(string assertString) {
         if (typeNameVal is string) {
             typeName = "." + typeNameVal;
         }
-        assertEquality(org +"/" + modName + ":" + modVersion + typeName + "." + parentFunc + name + "-" +
-                        id.toString(), assertString);
+        assertEquality(org +"/" + modName + ":" + modVersion + typeName + "." + parentFunc + name, assertString);
+        assertTrue(id > 0);
     } else {
         errorMessages[errorCount] = "meta data cannot be found for evaluate assert string '" + assertString + "'";
         errorCount = errorCount + 1;
@@ -152,11 +152,15 @@ type AssertionError error<ASSERTION_ERROR_REASON>;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
-function assertEquality(string expected, string actual) {
-    if expected == actual {
+public function assertTrue(any|error actual) {
+    assertEquality(true, actual);
+}
+
+public function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
         successCount = successCount + 1;
         return;
     }
-    errorMessages[errorCount] = "expected '" + expected + "', found '" + actual + "'";
+    errorMessages[errorCount] = "expected '" + expected.toString() + "', found '" + actual.toString() + "'";
     errorCount = errorCount + 1;
 }
