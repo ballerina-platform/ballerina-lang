@@ -52,10 +52,10 @@ public type PublisherClient client object {
             if (registrationResponse.statusCode != http:STATUS_ACCEPTED) {
                 var result = registrationResponse.getTextPayload();
                 string payload = result is string ? result : "";
-                return error("Error occurred during topic registration: " + payload);
+                return WebSubError("Error occurred during topic registration: " + payload);
             }
         } else {
-            return error("Error sending topic registration request: " + registrationResponse.getMessage());
+            return WebSubError("Error sending topic registration request: " + registrationResponse.getMessage());
         }
     }
 
@@ -74,10 +74,10 @@ public type PublisherClient client object {
             if (unregistrationResponse.statusCode != http:STATUS_ACCEPTED) {
                 var result = unregistrationResponse.getTextPayload();
                 string payload = result is string ? result : "";
-                return error("Error occurred during topic unregistration: " + payload);
+                return WebSubError("Error occurred during topic unregistration: " + payload);
             }
         } else {
-            return error("Error sending topic unregistration request: " + unregistrationResponse.getMessage());
+            return WebSubError("Error sending topic unregistration request: " + unregistrationResponse.getMessage());
         }
     }
 
@@ -114,10 +114,10 @@ public type PublisherClient client object {
             if (!isSuccessStatusCode(response.statusCode)) {
                 var result = response.getTextPayload();
                 string textPayload = result is string ? result : "";
-                return error("Error occurred publishing update: " + textPayload);
+                return WebSubError("Error occurred publishing update: " + textPayload);
             }
         } else {
-            return error("Publish failed for topic [" + topic + "]");
+            return WebSubError("Publish failed for topic [" + topic + "]");
         }
     }
 
@@ -146,10 +146,10 @@ public type PublisherClient client object {
             if (!isSuccessStatusCode(response.statusCode)) {
                 var result = response.getTextPayload();
                 string textPayload = result is string ? result : "";
-                return error("Error occurred notifying update availability: " + textPayload);
+                return WebSubError("Error occurred notifying update availability: " + textPayload);
             }
         } else {
-            return error("Update availability notification failed for topic [" + topic + "]");
+            return WebSubError("Update availability notification failed for topic [" + topic + "]");
         }
     }
 };

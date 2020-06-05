@@ -162,13 +162,13 @@ public type Listener object {
                         if (hubDecodeResponse is string) {
                             retHub = hubDecodeResponse;
                         } else {
-                            panic <error> hubDecodeResponse;
+                            panic <WebSubError> hubDecodeResponse;
                         }
                         var topicDecodeResponse = encoding:decodeUriComponent(retTopic, "UTF-8");
                         if (topicDecodeResponse is string) {
                             retTopic = topicDecodeResponse;
                         } else {
-                            panic <error> topicDecodeResponse;
+                            panic <WebSubError> topicDecodeResponse;
                         }
                         hub = retHub;
                         [string, string] hubAndTopic = [retHub, retTopic];
@@ -177,7 +177,7 @@ public type Listener object {
                         self.setTopic(webSubServiceName, retTopic);
                     } else {
                         log:printError("Error sending out subscription request on start up: " +
-                                        discoveredDetails.getMessage());
+                                        discoveredDetails.message());
                         continue;
                     }
                 }
@@ -300,7 +300,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientConfiguration? pu
             return topicAndHubs;
         }
     } else {
-        return error("Error occurred with WebSub discovery for Resource URL [" +resourceUrl + "]: " +
+        return WebSubError("Error occurred with WebSub discovery for Resource URL [" +resourceUrl + "]: " +
                             discoveryResponse.getMessage() );
     }
 }
@@ -339,6 +339,6 @@ function invokeClientConnectorForSubscription(string hub, http:ClientConfigurati
         log:printInfo(subscriptionSuccessMsg);
     } else {
         log:printError("Subscription Request failed at Hub[" + hub + "], for Topic[" + topic + "]: " +
-                       subscriptionResponse.getMessage());
+                       subscriptionResponse.message());
     }
 }

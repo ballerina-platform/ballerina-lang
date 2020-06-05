@@ -215,30 +215,32 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
 
     private static void validateCallerParam(BType paramVarType) {
         if (!isExpectedObjectParam(paramVarType, WEBSUB_SERVICE_CALLER)) {
-            throw BallerinaErrors.createError(String.format(message, paramVarType.getQualifiedName(),
-                    RESOURCE_NAME_ON_INTENT_VERIFICATION, WEBSUB_PACKAGE, WEBSUB_SERVICE_CALLER));
+            throw BallerinaErrors.createError(StringUtils.fromString(String.format(message,
+                    paramVarType.getQualifiedName(), RESOURCE_NAME_ON_INTENT_VERIFICATION, WEBSUB_PACKAGE,
+                    WEBSUB_SERVICE_CALLER)));
         }
     }
 
     private static void validateIntentVerificationParam(BType paramVarType) {
         if (!isExpectedObjectParam(paramVarType, WEBSUB_INTENT_VERIFICATION_REQUEST)) {
-            throw BallerinaErrors.createError(String.format(message, paramVarType.getQualifiedName(),
-                    RESOURCE_NAME_ON_INTENT_VERIFICATION, WEBSUB_PACKAGE, WEBSUB_INTENT_VERIFICATION_REQUEST));
+            throw BallerinaErrors.createError(StringUtils.fromString(String.format(message,
+                    paramVarType.getQualifiedName(), RESOURCE_NAME_ON_INTENT_VERIFICATION,
+                    WEBSUB_PACKAGE, WEBSUB_INTENT_VERIFICATION_REQUEST)));
         }
     }
 
     private static void validateNotificationParam(String resourceName, BType paramVarType) {
         if (!isExpectedObjectParam(paramVarType, WEBSUB_NOTIFICATION_REQUEST)) {
-            throw BallerinaErrors.createError(String.format(message,paramVarType.getQualifiedName(),
-                    resourceName, WEBSUB_PACKAGE, WEBSUB_NOTIFICATION_REQUEST));
+            throw BallerinaErrors.createError(StringUtils.fromString(String.format(message,
+                    paramVarType.getQualifiedName(), resourceName, WEBSUB_PACKAGE, WEBSUB_NOTIFICATION_REQUEST)));
         }
     }
 
     private static void validateRecordType(String resourceName, BType paramVarType, BRecordType recordType) {
         if (!TypeChecker.isSameType(paramVarType, recordType)) {
-            throw BallerinaErrors.createError(String.format("Invalid parameter type '%s' in " +
+            throw BallerinaErrors.createError(StringUtils.fromString(String.format("Invalid parameter type '%s' in " +
                             "resource '%s'. Requires '%s'", paramVarType.getQualifiedName(), resourceName,
-                            recordType.getQualifiedName()));
+                            recordType.getQualifiedName())));
         }
     }
 
