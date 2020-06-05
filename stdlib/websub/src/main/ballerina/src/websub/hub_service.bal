@@ -73,8 +73,9 @@ function getHubService() returns service {
 
                 var registerStatus = registerTopic(topic);
                 if (registerStatus is error) {
+                    string errorMessage = <string>registerStatus.detail()?.message;
                     response.statusCode = http:STATUS_BAD_REQUEST;
-                    response.setTextPayload(registerStatus.message());
+                    response.setTextPayload(errorMessage);
                     log:printWarn("Topic registration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
                 } else {
                     response.statusCode = http:STATUS_ACCEPTED;
@@ -98,7 +99,7 @@ function getHubService() returns service {
 
                 var unregisterStatus = unregisterTopic(topic);
                 if (unregisterStatus is error) {
-                    string errorMessage = <string>unregisterStatus.message();
+                    string errorMessage = <string>unregisterStatus.detail()?.message;
                     response.statusCode = http:STATUS_BAD_REQUEST;
                     response.setTextPayload(errorMessage);
                     log:printWarn("Topic unregistration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
@@ -134,8 +135,9 @@ function getHubService() returns service {
                                 var fetchedPayload = fetchResponse.getTextPayload();
                                 stringPayload = fetchedPayload is string ? fetchedPayload : "";
                             } else {
+                                string errorCause = <string>fetchResponse.detail()?.message;
                                 string errorMessage = "Error fetching updates for topic URL [" + topic + "]: "
-                                                      + fetchResponse.message();
+                                + errorCause;
                                 log:printError(errorMessage);
                                 response.setTextPayload(<@untaintedstring>errorMessage);
                                 response.statusCode = http:STATUS_BAD_REQUEST;
@@ -159,21 +161,22 @@ function getHubService() returns service {
                             WebSubContent notification = {payload: binaryPayload, contentType: contentType};
                             publishStatus = publishToInternalHub(topic, notification);
                         } else {
-                            string errorMessage = "Error extracting payload: " + binaryPayload.message();
+                            string errorCause = <string>binaryPayload.detail()?.message;
+                            string errorMessage = "Error extracting payload: " + <@untaintedstring>errorCause;
                             log:printError(errorMessage);
                             response.statusCode = http:STATUS_BAD_REQUEST;
                             response.setTextPayload(errorMessage);
                             var responseError = httpCaller->respond(response);
                             if (responseError is error) {
                                 log:printError("Error responding on payload extraction failure for"
-                                                + " publish request", responseError);
+                                + " publish request", responseError);
                             }
                             return;
                         }
 
                         if (publishStatus is error) {
-                            string errorMessage = "Update notification failed for Topic [" + topic + "]: " +
-                                                   publishStatus.message();
+                            string errorCause = <string>publishStatus.detail()?.message;
+                            string errorMessage = "Update notification failed for Topic [" + topic + "]: " + errorCause;
                             response.setTextPayload(<@untaintedstring>errorMessage);
                             log:printError(errorMessage);
                         } else {
@@ -246,7 +249,8 @@ function getHubService() returns service {
             var validationStatus = validateSubscriptionChangeRequest(mode, topic, callback);
             if (validationStatus is error) {
                 response.statusCode = http:STATUS_BAD_REQUEST;
-                response.setTextPayload(validationStatus.message());
+                string errorMessage = <string>validationStatus.detail()?.message;
+                response.setTextPayload(errorMessage);
                 log:printError("Invalid subscription request received for topic[" + topic + "] with callback[" +
                                             callback + "]");
             } else {
@@ -276,14 +280,17 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
         PendingSubscriptionChangeRequest pendingRequest = new(mode, topic, callback);
         pendingRequests[generateKey(topic, callback)] = pendingRequest;
         if (!callback.startsWith("http://") && !callback.startsWith("https://")) {
-            return WebSubError("Malformed URL specified as callback");
+            error err = error(WEBSUB_ERROR_CODE, message = "Malformed URL specified as callback");
+            return err;
         }
         if (hubTopicRegistrationRequired && !isTopicRegistered(topic)) {
-            return WebSubError("Subscription request denied for unregistered topic");
+            error err = error(WEBSUB_ERROR_CODE, message = "Subscription request denied for unregistered topic");
+            return err;
         }
         return;
     }
-    return WebSubError("Topic/Callback cannot be null for subscription/unsubscription request");
+    error err = error(WEBSUB_ERROR_CODE, message = "Topic/Callback cannot be null for subscription/unsubscription request");
+    return err;
 }
 
 # Initiates intent verification for a valid subscription/unsubscription request received.
@@ -339,7 +346,8 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
                     if (!isTopicRegistered(topic)) {
                         var registerStatus = registerTopic(topic);
                         if (registerStatus is error) {
-                            log:printError("Error registering topic for subscription: " + registerStatus.message());
+                            string errCause = <string> registerStatus.detail()?.message;
+                            log:printError("Error registering topic for subscription: " + errCause);
                         }
                     }
                     addSubscription(subscriptionDetails);
@@ -358,13 +366,14 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
             }
         } else {
             error err = respStringPayload;
-            string errCause = <string> err.message();
+            string errCause = <string> err.detail()?.message;
             log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: [" + callback
                     + "]: Error retrieving response payload: " + errCause);
         }
     } else {
-        log:printError("Error sending intent verification request for callback URL: [" + callback + "]: " +
-                        subscriberResponse.message());
+        error err = subscriberResponse;
+        string errCause = <string> err.detail()?.message;
+        log:printError("Error sending intent verification request for callback URL: [" + callback + "]: " + errCause);
     }
     PendingSubscriptionChangeRequest pendingSubscriptionChangeRequest = new(mode, topic, callback);
     string key = generateKey(topic, callback);
@@ -424,11 +433,12 @@ function addTopicRegistrationsOnStartup(HubPersistenceStore persistenceStore) re
         foreach string topic in topics {
             var registerStatus = registerTopic(topic, loadingOnStartUp = true);
             if (registerStatus is error) {
-                log:printError("Error registering retrieved topic details: " + registerStatus.message());
+                string errCause = <string> registerStatus.detail()?.message;
+                log:printError("Error registering retrieved topic details: " + errCause);
             }
         }
     } else {
-        return HubStartupError("Error retrieving persisted topics", topics);
+        return HubStartupError(message = "Error retrieving persisted topics", cause = topics);
     }
 }
 
@@ -448,7 +458,7 @@ function addSubscriptionsOnStartup(HubPersistenceStore persistenceStore) returns
             addSubscription(subscription);
         }
     } else {
-        return HubStartupError("Error retrieving persisted subscriptions", subscriptions);
+        return HubStartupError(message = "Error retrieving persisted subscriptions", cause = subscriptions);
     }
 }
 
@@ -461,7 +471,8 @@ function fetchTopicUpdate(string topic) returns http:Response|error {
     http:Client topicEp = new http:Client(topic, hubClientConfig);
     http:Request request = new;
 
-    return topicEp->get("", request);
+    var fetchResponse = topicEp->get("", request);
+    return fetchResponse;
 }
 
 # Distributes content to a subscriber on the notification from the publishers.
@@ -530,8 +541,10 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
                             + subscriptionDetails.topic + "]: received response code " + respStatusCode.toString());
             }
         } else {
+            error err = contentDistributionResponse;
+            string errCause = <string> err.detail()?.message;
             log:printError("Error delivering content to callback[" + callback + "] for topic["
-                            + subscriptionDetails.topic + "]: " + contentDistributionResponse.message());
+                            + subscriptionDetails.topic + "]: " + errCause);
         }
     }
     return;

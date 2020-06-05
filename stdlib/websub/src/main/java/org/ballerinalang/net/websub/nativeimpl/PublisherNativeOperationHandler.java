@@ -25,12 +25,13 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.net.websub.BallerinaWebSubException;
-import org.ballerinalang.net.websub.WebSubUtils;
 import org.ballerinalang.net.websub.hub.Hub;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.utils.IOConstants;
 
 import java.io.IOException;
+
+import static org.ballerinalang.net.websub.WebSubUtils.createError;
+import static org.ballerinalang.stdlib.io.utils.IOConstants.BYTE_CHANNEL_NAME;
 
 /**
  * This class contains interop external functions related to Publisher.
@@ -55,11 +56,11 @@ public class PublisherNativeOperationHandler {
             try {
                 Hub.getInstance().publish(topic, content);
             } catch (BallerinaWebSubException e) {
-                return WebSubUtils.createError(e.getMessage());
+                return createError(e.getMessage());
             }
             return null;
         }
-        return WebSubUtils.createError("Internal Ballerina Hub not initialized or incorrectly referenced");
+        return createError("Internal Ballerina Hub not initialized or incorrectly referenced");
     }
 
     /**
@@ -70,7 +71,7 @@ public class PublisherNativeOperationHandler {
      * @return the constructed byte array
      */
     public static ArrayValue constructByteArray(ObjectValue byteChannel) {
-        Channel channel = (Channel) byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+        Channel channel = (Channel) byteChannel.getNativeData(BYTE_CHANNEL_NAME);
         if (channel == null) {
             return new ArrayValueImpl(new byte[0]);
         }

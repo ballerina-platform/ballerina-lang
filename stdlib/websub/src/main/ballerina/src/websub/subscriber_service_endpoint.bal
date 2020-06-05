@@ -162,13 +162,13 @@ public type Listener object {
                         if (hubDecodeResponse is string) {
                             retHub = hubDecodeResponse;
                         } else {
-                            panic <WebSubError> hubDecodeResponse;
+                            panic <error> hubDecodeResponse;
                         }
                         var topicDecodeResponse = encoding:decodeUriComponent(retTopic, "UTF-8");
                         if (topicDecodeResponse is string) {
                             retTopic = topicDecodeResponse;
                         } else {
-                            panic <WebSubError> topicDecodeResponse;
+                            panic <error> topicDecodeResponse;
                         }
                         hub = retHub;
                         [string, string] hubAndTopic = [retHub, retTopic];
@@ -176,8 +176,8 @@ public type Listener object {
                         string webSubServiceName = <string>subscriptionDetails["webSubServiceName"];
                         self.setTopic(webSubServiceName, retTopic);
                     } else {
-                        log:printError("Error sending out subscription request on start up: " +
-                                        discoveredDetails.message());
+                        string errCause = <string> discoveredDetails.detail()?.message;
+                        log:printError("Error sending out subscription request on start up: " + errCause);
                         continue;
                     }
                 }
@@ -289,6 +289,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientConfiguration? pu
     http:Client resourceEP = new http:Client(resourceUrl, publisherClientConfig);
     http:Request request = new;
     var discoveryResponse = resourceEP->get("", request);
+    error websubError = error("Dummy");
     if (discoveryResponse is http:Response) {
         var topicAndHubs = extractTopicAndHubUrls(discoveryResponse);
         if (topicAndHubs is [string, string[]]) {
@@ -300,9 +301,12 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientConfiguration? pu
             return topicAndHubs;
         }
     } else {
-        return WebSubError("Error occurred with WebSub discovery for Resource URL [" +resourceUrl + "]: " +
-                            discoveryResponse.getMessage() );
+        error err = discoveryResponse;
+        string errCause = <string> err.detail()?.message;
+        websubError = error(WEBSUB_ERROR_CODE, message = "Error occurred with WebSub discovery for Resource URL [" +
+                                resourceUrl + "]: " + errCause );
     }
+    return websubError;
 }
 
 # Invokes the `WebSubSubscriberConnector`'s remote functions for the subscription.
@@ -338,7 +342,7 @@ function invokeClientConnectorForSubscription(string hub, http:ClientConfigurati
         }
         log:printInfo(subscriptionSuccessMsg);
     } else {
-        log:printError("Subscription Request failed at Hub[" + hub + "], for Topic[" + topic + "]: " +
-                       subscriptionResponse.message());
+        string errCause = <string> subscriptionResponse.detail()?.message;
+        log:printError("Subscription Request failed at Hub[" + hub + "], for Topic[" + topic + "]: " + errCause);
     }
 }
