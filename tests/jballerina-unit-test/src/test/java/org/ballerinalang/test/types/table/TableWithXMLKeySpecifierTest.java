@@ -25,17 +25,17 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Class to test record constraint table type.
+ * Class to test xml constraint table type.
  *
  * @since 1.3.0
  */
-public class TableWithComplexKeySpecifierTest {
+public class TableWithXMLKeySpecifierTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/table/complex-type-table-key.bal");
+        result = BCompileUtil.compile("test-src/types/table/xml-type-table-key.bal");
     }
 
     @Test(description = "Test key specifier and key type constraint options")
@@ -48,24 +48,19 @@ public class TableWithComplexKeySpecifierTest {
         BRunUtil.invoke(result, "runMemberAccessTestCases");
     }
 
-    @Test(description = "Test keyless table")
-    public void testKeylessTable() {
-        BRunUtil.invoke(result, "testKeylessTable");
-    }
-
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound message=cannot " +
-                    "find key 'fname=Sanjiva lname=Clark'.*")
+                    "find key '<id>245</id>'.*")
     public void testMemberAccessWithInvalidSingleKey() {
-        BRunUtil.invoke(result, "testMemberAccessWithInvalidSingleKey");
+        BRunUtil.invoke(result, "testMemberAccessWithInvalidXMLRecordKey");
         Assert.fail();
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound message=cannot " +
-                    "find key '18 fname=Sanjiva lname=Clark'.*")
+                    "find key '<id>245</id> fname=Sanjiva lname=Weerawarana'.*")
     public void testMemberAccessWithInvalidMultiKey() {
-        BRunUtil.invoke(result, "testMemberAccessWithInvalidMultiKey");
+        BRunUtil.invoke(result, "testMemberAccessWithInvalidXMLMultiKey");
         Assert.fail();
     }
 

@@ -840,6 +840,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType inferTableMemberType(List<BType> memTypes, BLangTableConstructorExpr tableConstructorExpr) {
         BLangTableKeySpecifier keySpecifier = tableConstructorExpr.tableKeySpecifier;
+        List<String> keySpecifierFieldNames = new ArrayList<>();
         Set<BField> allFieldSet = new LinkedHashSet<>();
         for (BType memType : memTypes) {
             allFieldSet.addAll(((BRecordType) memType).fields.values());
@@ -854,6 +855,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (keySpecifier != null) {
             for (BLangIdentifier identifier : keySpecifier.fieldNameIdentifierList) {
                 requiredFieldNames.add(identifier.value);
+                keySpecifierFieldNames.add(identifier.value);
             }
         }
 
@@ -878,8 +880,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
             if (isOptional) {
                 field.symbol.flags = Flags.asMask(EnumSet.of(Flag.OPTIONAL));
-            } else if (requiredFieldNames.contains(fieldName)) {
+            } else if (requiredFieldNames.contains(fieldName) && keySpecifierFieldNames.contains(fieldName)) {
                 field.symbol.flags = Flags.asMask(EnumSet.of(Flag.REQUIRED)) + Flags.asMask(EnumSet.of(Flag.READONLY));
+            } else if (requiredFieldNames.contains(fieldName)) {
+                field.symbol.flags = Flags.asMask(EnumSet.of(Flag.REQUIRED));
             }
         }
 
