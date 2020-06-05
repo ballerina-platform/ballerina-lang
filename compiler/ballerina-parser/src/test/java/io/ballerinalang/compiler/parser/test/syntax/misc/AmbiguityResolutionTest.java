@@ -91,6 +91,11 @@ public class AmbiguityResolutionTest extends AbstractMiscTest {
         testFile("ambiguity/ambiguity_source_17.bal", "ambiguity/ambiguity_assert_17.json");
     }
 
+    @Test
+    public void testStmtStartsWithTwoAmbiguousLists() {
+        testFile("ambiguity/ambiguity_source_20.bal", "ambiguity/ambiguity_assert_20.json");
+    }
+
     // Recovery tests
 
     @Test
