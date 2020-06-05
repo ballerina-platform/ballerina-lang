@@ -547,8 +547,7 @@ function handleOpenCircuit(CircuitHealth circuitHealth, CircuitBreakerInferredCo
     updateRejectedRequestCount(circuitHealth, circuitBreakerInferredConfig);
     string errorMessage = "Upstream service unavailable. Requests to upstream service will be suspended for "
         + timeRemaining.toString() + " milliseconds.";
-    UpstreamServiceUnavailableError httpConnectorErr = error(UPSTREAM_SERVICE_UNAVAILABLE, message = errorMessage);
-    return httpConnectorErr;
+    return UpstreamServiceUnavailableError(errorMessage);
 }
 
 // Validates the struct configurations passed to create circuit breaker.
@@ -557,8 +556,7 @@ function validateCircuitBreakerConfiguration(CircuitBreakerConfig circuitBreaker
     if (failureThreshold < 0 || failureThreshold > 1) {
         string errorMessage = "Invalid failure threshold. Failure threshold value"
             + " should between 0 to 1, found " + failureThreshold.toString();
-        error circuitBreakerConfigError = error(HTTP_ERROR_CODE, message = errorMessage);
-        panic circuitBreakerConfigError;
+        panic CircuitBreakerConfigError(errorMessage);
     }
 }
 

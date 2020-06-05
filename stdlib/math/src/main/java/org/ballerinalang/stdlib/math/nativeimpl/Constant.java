@@ -27,7 +27,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PR
  */
 public class Constant {
 
-    static final String MATH_ERROR = "Error";
+    static final String MATH_ERROR = "ArithmeticError";
 
     public static final String ILLEGAL_ARGUMENT_ERROR_MSG = "End range must be greater than the start range";
 

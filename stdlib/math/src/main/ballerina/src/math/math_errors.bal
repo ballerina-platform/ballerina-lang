@@ -15,4 +15,7 @@
 // under the License.
 
 # Represents an error occurred in the `math` operation.
-public type Error distinct error;
+public type ArithmeticError distinct error;
+
+# The union of all the Math related errors
+public type Error ArithmeticError;

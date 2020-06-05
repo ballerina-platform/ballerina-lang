@@ -14,5 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# The Crypto error.
-public type Error distinct error;
+# Represents the Crypto error.
+public type CryptoError distinct error;
+
+# The union of all the Crypto related errors
+public type Error CryptoError;

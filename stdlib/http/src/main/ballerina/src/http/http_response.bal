@@ -193,11 +193,11 @@ public type Response object {
         } else {
             var payload = result.getJson();
             if (payload is mime:Error) {
-                if (payload.detail()?.cause is mime:NoContentError) {
+                if (payload.cause() is mime:NoContentError) {
                     return createErrorForNoPayload(payload);
                 } else {
                     string message = "Error occurred while retrieving the json payload from the response";
-                    return getGenericClientError(message, payload);
+                    return GenericClientError(message, payload);
                }
             } else {
                 return payload;
@@ -215,11 +215,11 @@ public type Response object {
         } else {
             var payload = result.getXml();
             if (payload is mime:Error) {
-                if (payload.detail()?.cause is mime:NoContentError) {
+                if (payload.cause() is mime:NoContentError) {
                     return createErrorForNoPayload(payload);
                 } else {
                     string message = "Error occurred while retrieving the xml payload from the response";
-                    return getGenericClientError(message, payload);
+                    return GenericClientError(message, payload);
                }
             } else {
                 return payload;
@@ -237,11 +237,11 @@ public type Response object {
         } else {
             var payload = result.getText();
             if (payload is mime:Error) {
-                if (payload.detail()?.cause is mime:NoContentError) {
+                if (payload.cause() is mime:NoContentError) {
                     return createErrorForNoPayload(payload);
                 } else {
                     string message = "Error occurred while retrieving the text payload from the response";
-                    return getGenericClientError(message, payload);
+                    return GenericClientError(message, payload);
                }
             } else {
                 return payload;
@@ -261,7 +261,7 @@ public type Response object {
             var payload = result.getByteChannel();
             if (payload is mime:Error) {
                 string message = "Error occurred while retrieving the byte channel from the response";
-                return getGenericClientError(message, payload);
+                return GenericClientError(message, payload);
             } else {
                 return payload;
             }
@@ -279,7 +279,7 @@ public type Response object {
             var payload = result.getByteArray();
             if (payload is mime:Error) {
                 string message = "Error occurred while retrieving the binary payload from the response";
-                return getGenericClientError(message, payload);
+                return GenericClientError(message, payload);
             } else {
                 return payload;
             }
@@ -299,7 +299,7 @@ public type Response object {
             var bodyParts = result.getBodyParts();
             if (bodyParts is mime:Error) {
                 string message = "Error occurred while retrieving body parts from the response";
-                return getGenericClientError(message, bodyParts);
+                return GenericClientError(message, bodyParts);
             } else {
                 return bodyParts;
             }

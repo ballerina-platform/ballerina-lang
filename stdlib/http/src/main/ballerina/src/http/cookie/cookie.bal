@@ -72,7 +72,7 @@ public type Cookie object {
         if (name is string) {
             name = name.trim();
             if (name == "") {
-                return error(INVALID_COOKIE_ERROR, message = "Invalid name: Name cannot be empty");
+                return InvalidCookieError("Invalid name: Name cannot be empty");
             }
             self.name = name;
         }
@@ -80,7 +80,7 @@ public type Cookie object {
         if (value is string) {
             value = value.trim();
             if (value == "") {
-                return error(INVALID_COOKIE_ERROR, message = "Invalid value: Value cannot be empty");
+                return InvalidCookieError("Invalid value: Value cannot be empty");
             }
             self.value = value;
         }
@@ -88,7 +88,7 @@ public type Cookie object {
         if (domain is string) {
             domain = domain.trim().toLowerAscii();
             if (domain == "") {
-                return error(INVALID_COOKIE_ERROR, message = "Invalid domain: Domain cannot be empty");
+                return InvalidCookieError("Invalid domain: Domain cannot be empty");
             }
             if (domain.startsWith(".")) {
                 domain = domain.substring(1, domain.length());
@@ -102,7 +102,7 @@ public type Cookie object {
         if (path is string) {
             path = path.trim();
             if (path == "" || !path.startsWith("/") || stringutils:contains(path, "?")) {
-                return error(INVALID_COOKIE_ERROR, message = "Invalid path: Path is not in correct format");
+                return InvalidCookieError("Invalid path: Path is not in correct format");
             }
             self.path = path;
         }
@@ -110,11 +110,11 @@ public type Cookie object {
         if (expires is string) {
             expires = expires.trim();
             if (!toGmtFormat(self, expires)) {
-                return error(INVALID_COOKIE_ERROR, message = "Invalid time: Expiry-time is not in yyyy-mm-dd hh:mm:ss format");
+                return InvalidCookieError("Invalid time: Expiry-time is not in yyyy-mm-dd hh:mm:ss format");
             }
         }
         if (self.maxAge < 0) {
-            return error(INVALID_COOKIE_ERROR, message = "Invalid max-age: Max Age can not be less than zero");
+            return InvalidCookieError("Invalid max-age: Max Age can not be less than zero");
         }
         return true;
     }
