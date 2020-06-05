@@ -340,7 +340,7 @@ public class BallerinaParser extends AbstractParser {
             case XMLNS_KEYWORD:
                 return parseXMLNSKeyword();
             case XML_NAMESPACE_PREFIX_DECL:
-                return parseXMLDeclRhs((STNode) args[0], (STNode) args[1]);
+                return parseXMLDeclRhs((STNode) args[0], (STNode) args[1], (boolean) args[2]);
             case NAMESPACE_PREFIX:
                 return parseNamespacePrefix();
             case WORKER_KEYWORD:
@@ -1242,7 +1242,7 @@ public class BallerinaParser extends AbstractParser {
             case XMLNS_KEYWORD:
                 reportInvalidQualifier(qualifier);
                 // TODO log error for metadata
-                return parseXMLNamepsaceDeclaration();
+                return parseXMLNamespaceDeclaration(true);
             case FINAL_KEYWORD:
                 reportInvalidQualifier(qualifier);
                 STNode finalKeyword = parseFinalKeyword();
@@ -3516,7 +3516,7 @@ public class BallerinaParser extends AbstractParser {
             case COMMIT_KEYWORD:
                 return parseExpressionStament(tokenKind, getAnnotations(annots));
             case XMLNS_KEYWORD:
-                return parseXMLNamepsaceDeclaration();
+                return parseXMLNamespaceDeclaration(false);
             case TRANSACTION_KEYWORD:
                 return parseTransactionStatement();
             case RETRY_KEYWORD:
@@ -7730,11 +7730,11 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return
      */
-    private STNode parseXMLNamepsaceDeclaration() {
+    private STNode parseXMLNamespaceDeclaration(boolean isModuleVar) {
         startContext(ParserRuleContext.XML_NAMESPACE_DECLARATION);
         STNode xmlnsKeyword = parseXMLNSKeyword();
         STNode namespaceUri = parseXMLNamespaceUri();
-        STNode xmlnsDecl = parseXMLDeclRhs(xmlnsKeyword, namespaceUri);
+        STNode xmlnsDecl = parseXMLDeclRhs(xmlnsKeyword, namespaceUri, isModuleVar);
         endContext();
         return xmlnsDecl;
     }
@@ -7822,11 +7822,12 @@ public class BallerinaParser extends AbstractParser {
      * @param namespaceUri Namespace URI
      * @return Parsed node
      */
-    private STNode parseXMLDeclRhs(STNode xmlnsKeyword, STNode namespaceUri) {
-        return parseXMLDeclRhs(peek().kind, xmlnsKeyword, namespaceUri);
+    private STNode parseXMLDeclRhs(STNode xmlnsKeyword, STNode namespaceUri, boolean isModuleVar) {
+        return parseXMLDeclRhs(peek().kind, xmlnsKeyword, namespaceUri, isModuleVar);
     }
 
-    private STNode parseXMLDeclRhs(SyntaxKind nextTokenKind, STNode xmlnsKeyword, STNode namespaceUri) {
+    private STNode parseXMLDeclRhs(SyntaxKind nextTokenKind, STNode xmlnsKeyword, STNode namespaceUri,
+                                   boolean isModuleVar) {
         STNode asKeyword = STNodeFactory.createEmptyNode();
         STNode namespacePrefix = STNodeFactory.createEmptyNode();
 
@@ -7840,7 +7841,8 @@ public class BallerinaParser extends AbstractParser {
             default:
                 STToken token = peek();
                 Solution solution =
-                        recover(token, ParserRuleContext.XML_NAMESPACE_PREFIX_DECL, xmlnsKeyword, namespaceUri);
+                        recover(token, ParserRuleContext.XML_NAMESPACE_PREFIX_DECL, xmlnsKeyword, namespaceUri,
+                                isModuleVar);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -7849,9 +7851,13 @@ public class BallerinaParser extends AbstractParser {
                     return solution.recoveredNode;
                 }
 
-                return parseXMLDeclRhs(solution.tokenKind, xmlnsKeyword, namespaceUri);
+                return parseXMLDeclRhs(solution.tokenKind, xmlnsKeyword, namespaceUri, isModuleVar);
         }
         STNode semicolon = parseSemicolon();
+        if (isModuleVar) {
+            return STNodeFactory.createModuleXMLNamespaceDeclarationNode(xmlnsKeyword, namespaceUri, asKeyword,
+                    namespacePrefix, semicolon);
+        }
         return STNodeFactory.createXMLNamespaceDeclarationNode(xmlnsKeyword, namespaceUri, asKeyword, namespacePrefix,
                 semicolon);
     }

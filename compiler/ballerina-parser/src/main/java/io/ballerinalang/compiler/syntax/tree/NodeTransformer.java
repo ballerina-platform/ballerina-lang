@@ -316,6 +316,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(xMLNamespaceDeclarationNode);
     }
 
+    public T transform(ModuleXMLNamespaceDeclarationNode moduleXMLNamespaceDeclarationNode) {
+        return transformSyntaxNode(moduleXMLNamespaceDeclarationNode);
+    }
+
     public T transform(FunctionBodyBlockNode functionBodyBlockNode) {
         return transformSyntaxNode(functionBodyBlockNode);
     }
