@@ -31,6 +31,7 @@ public class BLangRetry extends BLangStatement implements RetryNode {
 
     public BLangRetrySpec retrySpec;
     public BLangBlockStmt retryBody;
+    public boolean retryBodyReturns;
 
     public BLangRetrySpec getRetrySpec() {
         return retrySpec;

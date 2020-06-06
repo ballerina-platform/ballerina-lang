@@ -14,11 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# This file contains.
+# This file contains default retry manager to be used with retry statement.
 
-//public type RetriableError distinct error;
 @typeParam
 public type RetriableError error;
+//todo use distinct when grammer allowes
+//public type RetriableError distinct error;
+
+public type RetryManager abstract object {
+ public function shouldRetry(error? e) returns boolean;
+};
 
 @typeParam
 public type DefaultRetryManager object {
