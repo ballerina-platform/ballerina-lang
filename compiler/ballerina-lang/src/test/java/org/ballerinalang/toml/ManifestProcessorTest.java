@@ -145,9 +145,9 @@ public class ManifestProcessorTest {
         Files.delete(tmpDir);
     }
 
-    @Test(description = "One dependency added with path in the unusual form of path to the dependencies section " +
+    @Test(description = "One dependency added with path in the irregular form of path to the dependencies section " +
             "has an effect")
-    public void testSingleDependenciesIrregularPath() throws TomlException, IOException {
+    public void testDependenciesIrregularPath() throws TomlException, IOException {
         Path tmpDir = Files.createTempDirectory("manifest-test-");
         Path baloPath = tmpDir.resolve("string_utils.balo");
         Files.createFile(baloPath);
@@ -161,7 +161,6 @@ public class ManifestProcessorTest {
         Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "[dependencies] \n " +
                 "string-utils = {path = '" + baloPath + "', version = \"1.1.5\"} \n");
         Path manifestPath = manifest.getDependencies().get(0).getMetadata().getPath();
-
         if (manifestPath.toString().contains("\\")) {
             manifestPath = Paths.get(manifestPath.toString().replace("\\", "/"));
         } else {
@@ -200,34 +199,68 @@ public class ManifestProcessorTest {
         Files.delete(tmpDir);
     }
 
-    @Test(description = "Multiple dependencies added with path in the irregular form to the dependencies section " +
-            "has an effect")
-    public void testMultipleDependenciesIrregularPath() throws TomlException, IOException {
-        Path tmpDir = Files.createTempDirectory("manifest-test-");
-        Path baloPath = tmpDir.resolve("string_utils.balo");
-        Files.createFile(baloPath);
+    @Test(description = "Dependencies added with Windows absolute path in the regular form to the dependencies " +
+            "section has an effect")
+    public void testDependencyWithWindowsAbsolutePath() throws TomlException, IOException {
+        if (OS.contains("win")) {
+            Path tmpDir = Files.createTempDirectory("manifest-test-");
+            Path baloPath = tmpDir.resolve("string_utils.balo").toAbsolutePath();
+            Files.createFile(baloPath);
+            Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock +
+                    "[dependencies] \n " + "string-utils = { path = '" + baloPath + "', version = \"1.0.5\" } \n " +
+                    "jquery = { version = \"2.2.3\" } \n");
+            Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
+            Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "1.0.5");
+            Assert.assertEquals(manifest.getDependencies().get(1).getModuleID(), "jquery");
+            Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getVersion(), "2.2.3");
+            Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getPath().toString(),
+                    baloPath.toString());
 
-        if (baloPath.toString().contains("\\")) {
-            baloPath = Paths.get(baloPath.toString().replace("\\", "/"));
-        } else {
-            baloPath = Paths.get(baloPath.toString().replace("/", "\\"));
+            Files.delete(baloPath);
+            Files.delete(tmpDir);
         }
+    }
 
-        Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "[dependencies] \n " +
-                "string-utils = { path = '" + baloPath + "', version = \"1.0.5\" } \n " +
-                "jquery = { version = \"2.2.3\" } \n");
-        Path manifestPath = manifest.getDependencies().get(0).getMetadata().getPath();
+    @Test(description = "Dependencies added with Windows absolute path in the regular form to the dependencies " +
+            "section has an effect")
+    public void testNativeLibWithRegularPath() throws TomlException, IOException {
+        Path tmpDir = Files.createTempDirectory("manifest-test-");
+        Path libPath = tmpDir.resolve("string_utils.jar");
+        Files.createFile(libPath);
 
+        Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock +
+                "[platform] \n target = \"java8\" \n \n " +
+                "[[platform.libraries]] \n " +
+                "artifactId = \"utils\" \n path = '" + libPath + "'\n groupId = \"wso2\" \n " +
+                "modules = [\"mymodule\"] ");
+        Assert.assertEquals(manifest.platform.libraries.get(0).getPath(), libPath.toString());
+        Files.delete(libPath);
+        Files.delete(tmpDir);
+    }
+
+    @Test(description = "Dependencies added with Windows absolute path in the irregular form to the dependencies " +
+            "section has an effect")
+    public void testNativeLibWithIrregularPath() throws TomlException, IOException {
+        Path tmpDir = Files.createTempDirectory("manifest-test-");
+        Path libPath = tmpDir.resolve("string_utils.jar");
+        Files.createFile(libPath);
+
+        if (libPath.toString().contains("\\")) {
+            libPath = Paths.get(libPath.toString().replace("\\", "/"));
+        } else {
+            libPath = Paths.get(libPath.toString().replace("/", "\\"));
+        }
+        Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock +
+                "[platform] \n target = \"java8\" \n \n " +
+                "[[platform.libraries]] \n " +
+                "artifactId = \"utils\" \n path = '" + libPath + "'\n groupId = \"wso2\" \n " +
+                "modules = [\"mymodule\"] ");
+        Path manifestPath = Paths.get(manifest.platform.libraries.get(0).getPath());
         if (manifestPath.toString().contains("\\")) {
             manifestPath = Paths.get(manifestPath.toString().replace("\\", "/"));
         } else {
             manifestPath = Paths.get(manifestPath.toString().replace("/", "\\"));
         }
-
-        Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
-        Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "1.0.5");
-        Assert.assertEquals(manifest.getDependencies().get(1).getModuleID(), "jquery");
-        Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getVersion(), "2.2.3");
-        Assert.assertEquals(manifestPath.toString(), baloPath.toString());
+        Assert.assertEquals(manifestPath.toString(), libPath.toString());
     }
 }

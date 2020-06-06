@@ -40,11 +40,7 @@ public class Library {
     }
 
     public String getPath() {
-        if (PathUtils.getPath(this.path) == null) {
-            return null;
-        } else {
-            return PathUtils.getPath(this.path);
-        }
+        return PathUtils.getPath(this.path);
     }
 
     public void setPath(String path) {

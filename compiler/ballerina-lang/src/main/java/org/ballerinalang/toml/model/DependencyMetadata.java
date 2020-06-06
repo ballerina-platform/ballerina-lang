@@ -55,11 +55,7 @@ public class DependencyMetadata {
      * @return location of the dependency
      */
     public Path getPath() {
-        if (PathUtils.getPath(this.path) == null) {
-            return null;
-        } else {
-            return Paths.get(PathUtils.getPath(this.path));
-        }
+        return Paths.get(PathUtils.getPath(this.path));
     }
 
     /**
