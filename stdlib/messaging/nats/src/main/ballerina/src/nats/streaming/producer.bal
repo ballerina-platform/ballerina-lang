@@ -47,7 +47,7 @@ public type StreamingProducer client object {
     public remote function publish(string subject,@untainted Content data) returns string|Error {
         Connection? natsConnection = self.conn;
         if (natsConnection is ()) {
-            return Error( message = "NATS Streaming Client has been closed.");
+            return NatsError("NATS Streaming Client has been closed.");
         } else {
             string|byte[]|error converted = convertData(data);
             if (converted is error) {
