@@ -123,7 +123,7 @@ function processHubResponse(@untainted string hub, @untainted string mode,
 
     string topic = subscriptionChangeRequest.topic;
     if (response is error) {
-        return error("Error occurred for request: Mode[" + mode+ "] at Hub[" + hub + "] - " + response.message());
+        return WebSubError("Error occurred for request: Mode[" + mode+ "] at Hub[" + hub + "] - " + response.message());
     } else {
         int responseStatusCode = response.statusCode;
         if (responseStatusCode == http:STATUS_TEMPORARY_REDIRECT
@@ -133,9 +133,9 @@ function processHubResponse(@untainted string hub, @untainted string mode,
                 return invokeClientConnectorOnRedirection(redirected_hub, mode, subscriptionChangeRequest,
                                                             httpClient.config.auth, remainingRedirects - 1);
             }
-            return error("Redirection response received for subscription change request made with followRedirects " +
-                         "disabled or after maxCount exceeded: Hub [" + hub + "], Topic [" +
-                         subscriptionChangeRequest.topic + "]");
+            return WebSubError("Redirection response received for subscription change request made with " +
+                               "followRedirects disabled or after maxCount exceeded: Hub [" + hub + "], Topic [" +
+                               subscriptionChangeRequest.topic + "]");
         } else if (!isSuccessStatusCode(responseStatusCode)) {
             var responsePayload = response.getTextPayload();
             string errorMessage = "Error in request: Mode[" + mode + "] at Hub[" + hub + "]";
