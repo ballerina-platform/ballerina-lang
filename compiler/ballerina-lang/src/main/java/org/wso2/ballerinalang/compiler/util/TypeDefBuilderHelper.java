@@ -97,8 +97,8 @@ public class TypeDefBuilderHelper {
         return objectTypeNode;
     }
 
-    public static BLangFunction createInitFunctionForStructureType(BLangStructureTypeNode structureTypeNode,
-                                                                   SymbolEnv env, Names names, SymbolTable symTable) {
+    public static BLangFunction createInitFunctionForRecordType(BLangStructureTypeNode structureTypeNode,
+                                                                SymbolEnv env, Names names, SymbolTable symTable) {
         BLangFunction initFunction = createInitFunctionForStructureType(structureTypeNode, env,
                                                                         Names.INIT_FUNCTION_SUFFIX, names, symTable);
         BStructureTypeSymbol structureSymbol = ((BStructureTypeSymbol) structureTypeNode.type.tsymbol);
@@ -107,21 +107,6 @@ public class TypeDefBuilderHelper {
         structureTypeNode.initFunction = initFunction;
         structureSymbol.scope.define(structureSymbol.initializerFunc.symbol.name,
                                      structureSymbol.initializerFunc.symbol);
-        return initFunction;
-    }
-
-    public static BLangFunction createInitFunctionForStructureType(BLangStructureTypeNode structureTypeNode,
-                                                                   BAttachedFunction initializerFunc,
-                                                                   SymbolEnv env, Names names, SymbolTable symTable) {
-        BLangFunction initFunction = createInitFunctionForStructureType(structureTypeNode, env,
-                                                                        Names.INIT_FUNCTION_SUFFIX, names, symTable);
-        structureTypeNode.initFunction = initFunction;
-
-        if (initializerFunc != null) {
-            ((BStructureTypeSymbol) structureTypeNode.type.tsymbol).scope.define(initializerFunc.symbol.name,
-                                                                                 initializerFunc.symbol);
-        }
-
         return initFunction;
     }
 

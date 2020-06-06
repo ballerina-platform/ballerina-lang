@@ -1407,16 +1407,35 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Any newly added typedefs are due to `T & readonly` typed fields. Once the fields are set for all
         // type-definitions we can revisit the newly added type-definitions and define the fields for them.
-        int newSize = typeDefNodes.size();
+        populateImmutableTypeFields(typeDefNodes, pkgEnv, typeDefNodes.size());
 
-        for (int i = originalSize; i < newSize; i++) {
-            BLangTypeDefinition immutableTypeDefinition = typeDefNodes.get(i);
-            SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(immutableTypeDefinition.typeNode,
-                                                           immutableTypeDefinition.symbol.scope, pkgEnv);
-            ImmutableTypeCloner.defineUndefinedImmutableFields(immutableTypeDefinition, types, typeDefEnv, symTable,
+        // If all the fields of a structure are readonly, mark the structure type itself as readonly.
+        setReadOnlyForAllReadOnlyFieldStructure(typeDefNodes);
+    }
+
+    private void populateImmutableTypeFields(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv, int size) {
+        for (int i = 0; i < size; i++) {
+            BLangTypeDefinition typeDef = typeDefNodes.get(i);
+            NodeKind nodeKind = typeDef.typeNode.getKind();
+            if (nodeKind == NodeKind.OBJECT_TYPE) {
+                if (((BObjectType) typeDef.symbol.type).mutableType == null) {
+                    continue;
+                }
+            } else if (nodeKind == NodeKind.RECORD_TYPE) {
+                if (((BRecordType) typeDef.symbol.type).mutableType == null) {
+                    continue;
+                }
+            } else {
+                continue;
+            }
+
+            SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeDef.typeNode, typeDef.symbol.scope, pkgEnv);
+            ImmutableTypeCloner.defineUndefinedImmutableFields(typeDef, types, typeDefEnv, symTable,
                                                                anonymousModelHelper, names);
         }
+    }
 
+    private void setReadOnlyForAllReadOnlyFieldStructure(List<BLangTypeDefinition> typeDefNodes) {
         for (BLangTypeDefinition typeDef : typeDefNodes) {
             NodeKind nodeKind = typeDef.typeNode.getKind();
             if (nodeKind != NodeKind.OBJECT_TYPE && nodeKind != NodeKind.RECORD_TYPE) {

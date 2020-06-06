@@ -281,7 +281,9 @@ public class ImmutableTypeCloner {
                 immutableTableType.constraintPos = origTableType.constraintPos;
                 immutableTableType.fieldNameList = origTableType.fieldNameList;
 
-                immutableTableTSymbol.type = immutableTableType;
+                if (immutableTableTSymbol != null) {
+                    immutableTableTSymbol.type = immutableTableType;
+                }
 
                 BIntersectionType immutableTableIntersectionType = createImmutableIntersectionType(env, origTableType,
                                                                                                    immutableTableType,
@@ -515,7 +517,7 @@ public class ImmutableTypeCloner {
         PackageID pkgID = env.enclPkg.symbol.pkgID;
         BRecordTypeSymbol recordSymbol =
                 Symbols.createRecordSymbol(origRecordType.tsymbol.flags | Flags.READONLY,
-                                           getImmutableTypeName(names, origRecordType.tsymbol),
+                                           getImmutableTypeName(names, origRecordType.tsymbol.toString()),
                                            pkgID, null, env.scope.owner);
 
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
@@ -552,9 +554,10 @@ public class ImmutableTypeCloner {
         setRestType(types, symTable, anonymousModelHelper, names, immutableRecordType, origRecordType, pos, env,
                     unresolvedTypes);
 
-        TypeDefBuilderHelper.createInitFunctionForStructureType(recordTypeNode, env, names, symTable);
-        TypeDefBuilderHelper.addTypeDefinition(immutableRecordType, recordSymbol, recordTypeNode, env);
-
+        TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
+        BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.addTypeDefinition(immutableRecordType, recordSymbol,
+                                                                                    recordTypeNode, env);
+        typeDefinition.pos = pos;
         return immutableRecordIntersectionType;
     }
 
@@ -567,7 +570,7 @@ public class ImmutableTypeCloner {
         BObjectTypeSymbol origObjectTSymbol = (BObjectTypeSymbol) origObjectType.tsymbol;
         BObjectTypeSymbol objectSymbol =
                 Symbols.createObjectSymbol(origObjectTSymbol.flags | Flags.READONLY,
-                                           getImmutableTypeName(names, origObjectTSymbol),
+                                           getImmutableTypeName(names, origObjectTSymbol.toString()),
                                            pkgID, null, env.scope.owner);
 
         objectSymbol.scope = new Scope(objectSymbol);
@@ -654,7 +657,7 @@ public class ImmutableTypeCloner {
     }
 
     private static Name getImmutableTypeName(Names names, String origName) {
-        return names.fromString(origName.concat(AND_READONLY_SUFFIX));
+        return names.fromString("(".concat(origName).concat(AND_READONLY_SUFFIX).concat(")"));
     }
 
     private static BIntersectionType createImmutableIntersectionType(SymbolEnv env, BType nonReadOnlyType,

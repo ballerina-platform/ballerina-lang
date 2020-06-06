@@ -23,6 +23,7 @@ function testImmutableTypes() {
     testXmlElements();
     testImmutableLists();
     testImmutableMappings();
+    testMutability();
 }
 
 function testXmlComment() {
@@ -179,12 +180,172 @@ function testImmutableMappings() {
     assertTrue(stVal["math"] is [se:RESULT, int] & readonly);
     assertTrue(stVal["math"].isReadOnly());
     assertEquality(<[se:RESULT, int]> ["P", 75], stVal["math"]);
-
-    assertTrue(stVal["science"] is [se:RESULT, int] & readonly);
-    assertTrue(stVal["science"].isReadOnly());
-    assertEquality(<[se:RESULT, int]> ["P", 65], stVal["science"]);
 }
 
+function testMutability() {
+    record {| any...; |} rec = se:getMixedRecord();
+
+    any a = rec["a"];
+    assertTrue(a is 'xml:Comment);
+    assertTrue(a is 'xml:Comment & readonly);
+    readonly r1 = <readonly> a;
+    anydata ad1 = <anydata> a;
+    assertTrue(ad1.isReadOnly());
+    assertEquality(xml `<!--Comment 1-->`, ad1);
+
+    any b = rec["b"];
+    assertTrue(b is 'xml:Comment);
+    assertFalse(b is 'xml:Comment & readonly);
+    anydata ad2 = <anydata> b;
+    assertFalse(ad2.isReadOnly());
+    assertEquality(xml `<!--Comment 2-->`, ad2);
+
+    any c = rec["c"];
+    assertTrue(c is 'xml:ProcessingInstruction);
+    assertTrue(c is 'xml:ProcessingInstruction & readonly);
+    readonly r3 = <readonly> c;
+    anydata ad3 = <anydata> c;
+    assertTrue(ad3.isReadOnly());
+    assertEquality(xml `<?pi a="1234" bc="def"?>`, ad3);
+
+    any d = rec["d"];
+    assertTrue(d is 'xml:ProcessingInstruction);
+    assertFalse(d is 'xml:ProcessingInstruction & readonly);
+    anydata ad4 = <anydata> d;
+    assertFalse(ad4.isReadOnly());
+    assertEquality(xml `<?pi b="342" a="qwe"?>`, ad4);
+
+    any e = rec["e"];
+    assertTrue(e is 'xml:Element);
+    assertTrue(e is 'xml:Element & readonly);
+    readonly r5 = <readonly> e;
+    anydata ad5 = <anydata> e;
+    assertTrue(ad5.isReadOnly());
+    assertEquality(xml `<Student><name>Emma</name><id>6040</id></Student>`, ad5);
+
+    any f = rec["f"];
+    assertTrue(f is 'xml:Element);
+    assertFalse(f is 'xml:Element & readonly);
+    anydata ad6 = <anydata> f;
+    assertFalse(ad6.isReadOnly());
+    assertEquality(xml `<Student><name>Jo</name><id>1234</id></Student>`, ad6);
+
+    any g = rec["g"];
+    assertTrue(g is 'xml:Text);
+    assertTrue(g is xml);
+    assertTrue(g is 'xml:Text & readonly);
+    assertTrue(g is xml & readonly);
+    readonly r7 = <readonly> g;
+    anydata ad7 = <anydata> g;
+    assertTrue(ad5.isReadOnly());
+    assertEquality(xml `Text value`, ad7);
+
+    any h = rec["h"];
+    assertTrue(h is 'xml:Element);
+    assertTrue(h is xml);
+    assertFalse(h is 'xml:Element & readonly);
+    assertFalse(h is xml & readonly);
+    anydata ad8 = <anydata> h;
+    assertFalse(ad8.isReadOnly());
+    assertEquality(xml `<name>Jo</name>`, ad8);
+
+    any i = rec["i"];
+    assertTrue(i is json[]);
+    assertTrue(i is json[] & readonly);
+    readonly r9 = <readonly> i;
+    anydata ad9 = <anydata> i;
+    assertTrue(ad9.isReadOnly());
+    assertEquality(<json[]> [{a: 1, b: "str"}, true], ad9);
+    json[] jsonArr = <json[]> i;
+    assertTrue(jsonArr[0].isReadOnly());
+    assertTrue(jsonArr[0] is map<json> & readonly);
+
+    any j = rec["j"];
+    assertTrue(j is int[]);
+    assertFalse(j is int[] & readonly);
+    anydata ad10 = <anydata> j;
+    assertFalse(ad10.isReadOnly());
+    assertEquality(<int[]> [1, 2, 3], ad10);
+
+    any k = rec["k"];
+    assertTrue(k is [se:Identifier, int]);
+    assertTrue(k is [se:Identifier, int] & readonly);
+    readonly r11 = <readonly> k;
+    anydata ad11 = <anydata> k;
+    assertTrue(ad11.isReadOnly());
+    assertEquality(<[se:Identifier, int]> [{name: "Maryam", id: 1234}, 20], ad11);
+    [se:Identifier, int] idTuple = <[se:Identifier, int]> k;
+    assertTrue(idTuple[0] is se:Identifier & readonly);
+
+    any l = rec["l"];
+    assertTrue(l is [string, float]);
+    assertFalse(l is [string, float] & readonly);
+    anydata ad12 = <anydata> l;
+    assertFalse(ad12.isReadOnly());
+    assertEquality(<[string, float]> ["Brad", 20], ad12);
+
+    any m = rec["m"];
+    assertTrue(m is se:Student);
+    assertTrue(m is se:Student & readonly);
+    readonly r13 = <readonly> m;
+    anydata ad13 = <anydata> m;
+    assertTrue(ad13.isReadOnly());
+    assertEquality(<se:Student> {details: {name: "Amy", id: 1234}, "math": ["P", 80]}, ad13);
+    se:Student student = <se:Student> m;
+    assertTrue(student.details is se:Details & readonly);
+    assertTrue(student.details.isReadOnly());
+
+    any n = rec["n"];
+    assertTrue(n is se:Details);
+    assertFalse(n is se:Details & readonly);
+    anydata ad14 = <anydata> n;
+    assertFalse(ad14.isReadOnly());
+    assertEquality(<se:Details> {name: "Kim", id: 234789}, ad14);
+
+    any o = rec["o"];
+    assertTrue(o is map<string>);
+    assertTrue(o is map<string> & readonly);
+    readonly r15 = <readonly> o;
+    anydata ad15 = <anydata> o;
+    assertTrue(ad15.isReadOnly());
+    assertEquality(<map<string>> {a: "123", b: "234", "c": "name"}, ad15);
+
+    any p = rec["p"];
+    assertTrue(p is map<json>);
+    assertFalse(p is map<json> & readonly);
+    anydata ad16 = <anydata> p;
+    assertFalse(ad16.isReadOnly());
+    assertEquality(<map<json>> {a: 1, b: true, c: "name"}, ad16);
+
+    any q = rec["q"];
+    assertTrue(q is table<se:Identifier> key(name));
+    assertTrue(q is table<se:Identifier> key(name) & readonly);
+    readonly r17 = <readonly> q;
+    anydata ad17 = <anydata> q;
+    assertTrue(ad17.isReadOnly());
+    table<se:Identifier> key(name) qVal = <table<se:Identifier> key(name)> ad17;
+    assertEquality(3, qVal.length());
+
+    any r = rec["r"];
+    assertTrue(r is table<map<string>>);
+    assertFalse(r is table<map<string>> & readonly);
+    anydata ad18 = <anydata> r;
+    assertFalse(ad18.isReadOnly());
+    table<map<string>> rVal = <table<map<string>>> ad18;
+    assertEquality(2, rVal.length());
+
+    any s = rec["s"];
+    assertTrue(s is se:OwnerA);
+    assertTrue(s is se:Owner & readonly);
+    se:Owner ownerA = <se:Owner> s;
+    assertEquality(222, ownerA.getId());
+
+    any t = rec["t"];
+    assertTrue(t is se:OwnerB);
+    assertFalse(t is se:Owner & readonly);
+    se:Owner ownerB = <se:OwnerB> t;
+    assertEquality(2468, ownerB.getId());
+}
 
 type AssertionError error<ASSERTION_ERROR_REASON>;
 

@@ -163,3 +163,29 @@ type Baz abstract object {
 function testNeverReadOnlyObject() {
     Baz & readonly bz;
 }
+
+type Config abstract object {
+    string name;
+
+    function getName() returns string;
+};
+
+type MyConfig object {
+    readonly string name;
+
+    public function __init(string name) {
+        self.name = name;
+    }
+
+    function getName() returns string {
+        return self.name;
+    }
+};
+
+function testInvalidObjectUpdate() {
+    Config & readonly config = new MyConfig("client config");
+    config.name = "new name";
+
+    MyConfig myConfig = new MyConfig("client config");
+    myConfig.name = "new name";
+}

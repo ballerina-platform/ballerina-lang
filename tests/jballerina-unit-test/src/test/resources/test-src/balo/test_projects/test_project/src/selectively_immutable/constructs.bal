@@ -113,5 +113,125 @@ public type RESULT "P"|"F";
 
 public type Student record {|
     Details details;
+    [RESULT, int] math?;
     [RESULT, int]...;
 |};
+
+public type Owner abstract object {
+    public function getId() returns int;
+};
+
+public type OwnerA object {
+    readonly int id;
+
+    public function __init(int id) {
+        self.id = id;
+    }
+
+    public function getId() returns int {
+        return self.id;
+    }
+};
+
+public type OwnerB object {
+    readonly int id;
+    string name;
+
+    public function __init(int id, string name) {
+        self.id = id;
+        self.name = name;
+    }
+
+    public function getId() returns int {
+        return 2 * self.id;
+    }
+};
+
+public type MixedRecord record {|
+    'xml:Comment & readonly a;
+    'xml:Comment b;
+    'xml:ProcessingInstruction & readonly c;
+    'xml:ProcessingInstruction d;
+    'xml:Element & readonly e;
+    'xml:Element f;
+    'xml:Text g;
+    xml h;
+
+    json[] & readonly i;
+    int[] j;
+    [Identifier, int] & readonly k;
+    [string, float] l;
+
+    Student & readonly m;
+    Details n;
+    map<string> & readonly o;
+    map<json> p;
+
+    table<Identifier> key(name) & readonly q;
+    table<map<string>> r;
+
+    Owner & readonly s;
+    Owner t;
+|};
+
+public function getMixedRecord() returns MixedRecord {
+    table<Identifier> key(name) & readonly q = table [
+                                                  {name: "Jo", id: 4567},
+                                                  {name: "Emma", id: 1234},
+                                                  {name: "Amy", id: 678}
+                                               ];
+    table<map<string>> rVal = table [
+                                 {x: "x", y: "y"},
+                                 {z: "z"}
+                              ];
+
+    MixedRecord mr = {
+        a: xml `<!--Comment 1-->`,
+        b: xml `<!--Comment 2-->`,
+        c: xml `<?pi a="1234" bc="def"?>`,
+        d: xml `<?pi b="342" a="qwe"?>`,
+        e: xml `<Student><name>Emma</name><id>6040</id></Student>`,
+        f: xml `<Student><name>Jo</name><id>1234</id></Student>`,
+        g: xml `Text value`,
+        h: xml `<name>Jo</name>`,
+        i: [{a: 1, b: "str"}, true],
+        j: [1, 2, 3],
+        k: [{name: "Maryam", id: 1234}, 20],
+        l: ["Brad", 20],
+        m: {details: {name: "Amy", id: 1234}, "math": ["P", 80]},
+        n: {name: "Kim", id: 234789},
+        o: {a: "123", b: "234", "c": "name"},
+        p: {a: 1, b: true, c: "name"},
+        q,
+        r: rVal,
+        s: new OwnerA(222),
+        t: new OwnerB(1234, "Rob")
+    };
+    return mr;
+}
+
+public type ReadOnlyStudent readonly & Student;
+
+public type AB "A"|"B";
+
+public type Config abstract object {
+    public string name;
+
+    public function getName() returns string;
+};
+
+public type MyConfig object {
+    public readonly string name;
+
+    public function __init(string name) {
+        self.name = name;
+    }
+
+    public function getName() returns string {
+        return self.name;
+    }
+};
+
+public function getImmutableConfig() returns Config & readonly {
+    return new MyConfig("client config");
+}

@@ -152,6 +152,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNION_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.loadConstantValue;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupTypeName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getObjectField;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getRecordField;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getType;
@@ -1449,7 +1450,7 @@ class JvmTypeGen {
      */
     private static String getTypeFieldName(String typeName) {
 
-        return String.format("$type$%s", typeName);
+        return String.format("$type$%s", cleanupTypeName(typeName));
     }
 
     private static void loadFutureType(MethodVisitor mv, BFutureType bType) {

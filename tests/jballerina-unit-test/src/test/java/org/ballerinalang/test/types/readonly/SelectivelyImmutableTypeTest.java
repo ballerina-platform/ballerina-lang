@@ -42,12 +42,12 @@ public class SelectivelyImmutableTypeTest {
     }
 
     @Test
-    public void testReadonlyType() {
+    public void testImmutableTypes() {
         BRunUtil.invoke(result, "testImmutableTypes");
     }
 
     @Test
-    public void testReadonlyRecordFieldsNegative() {
+    public void testImmutableTypesNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/types/readonly/test_selectively_immutable_type_negative.bal");
         int index = 0;
@@ -72,14 +72,17 @@ public class SelectivelyImmutableTypeTest {
         validateError(result, index++, "a type compatible with mapping constructor expressions not found in type " +
                 "'other'", 129, 17);
         validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 133, 5);
-        validateError(result, index++, "incompatible types: expected 'Department & readonly', found 'Department'", 138,
-                      14);
-        validateError(result, index++, "incompatible types: expected 'Department & readonly', found 'Department'", 139,
-                      17);
+        validateError(result, index++, "incompatible types: expected '(Department & readonly)', found 'Department'",
+                      138, 14);
+        validateError(result, index++, "incompatible types: expected '(Department & readonly)', found 'Department'",
+                      139, 17);
+
         validateError(result, index++, "invalid intersection type with 'readonly', 'table<Bar> key(name)' can never " +
                               "be 'readonly'", 152, 5);
         validateError(result, index++, "invalid intersection type with 'readonly', 'Baz' can never be 'readonly'", 164,
                       5);
+        validateError(result, index++, "cannot update 'readonly' value of type '(Config & readonly)'", 187, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type 'MyConfig'", 190, 5);
 
         assertEquals(result.getErrorCount(), index);
     }

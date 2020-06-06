@@ -930,8 +930,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(recordType, pkgID, symTable,
                 pos);
-        recordTypeNode.initFunction = TypeDefBuilderHelper.createInitFunctionForStructureType(recordTypeNode, env,
-                                                                                              names, symTable);
+        recordTypeNode.initFunction = TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env,
+                                                                                           names, symTable);
         TypeDefBuilderHelper.addTypeDefinition(recordType, recordSymbol, recordTypeNode, env);
         recordType.sealed = true;
         recordType.restFieldType = symTable.noType;
@@ -6430,8 +6430,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(recordType, pkgID, symTable,
                                                                                        recordLiteral.pos);
-        recordTypeNode.initFunction = TypeDefBuilderHelper.createInitFunctionForStructureType(recordTypeNode, env,
-                                                                                              names, symTable);
+        recordTypeNode.initFunction = TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env,
+                                                                                           names, symTable);
         TypeDefBuilderHelper.addTypeDefinition(recordType, recordSymbol, recordTypeNode, env);
 
         return recordType;
