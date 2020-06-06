@@ -18,6 +18,8 @@
 
 package org.ballerinalang.stdlib.filepath.nativeimpl;
 
+import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.stdlib.filepath.Constants;
 import org.ballerinalang.stdlib.filepath.Utils;
 
@@ -41,22 +43,23 @@ import java.util.regex.PatternSyntaxException;
 public class FilePathUtils {
     private static final String GLOB_SYNTAX_FLAVOR = "glob:";
 
-    public static Object absolute(String inputPath) {
+    public static Object absolute(BString inputPath) {
         try {
-            return FileSystems.getDefault().getPath(inputPath).toAbsolutePath().toString();
+            return StringUtils.fromString(
+                    FileSystems.getDefault().getPath(inputPath.getValue()).toAbsolutePath().toString());
         } catch (InvalidPathException ex) {
             return Utils.getPathError(Constants.INVALID_PATH_ERROR, "Invalid path " + inputPath);
         }
     }
 
-    public static Object matches(String inputPath, String pattern) {
+    public static Object matches(BString inputPath, BString pattern) {
         FileSystem fs = FileSystems.getDefault();
         PathMatcher matcher;
         try {
-            if (!pattern.startsWith(GLOB_SYNTAX_FLAVOR)) {
+            if (!pattern.getValue().startsWith(GLOB_SYNTAX_FLAVOR)) {
                 matcher = fs.getPathMatcher(GLOB_SYNTAX_FLAVOR + pattern);
             } else {
-                matcher = fs.getPathMatcher(pattern);
+                matcher = fs.getPathMatcher(pattern.getValue());
             }
         } catch (PatternSyntaxException ex) {
             return Utils.getPathError(Constants.INVALID_PATTERN_ERROR, "Invalid pattern " + pattern);
@@ -64,13 +67,13 @@ public class FilePathUtils {
         if (inputPath == null) {
             return false;
         }
-        return matcher.matches(Paths.get(inputPath));
+        return matcher.matches(Paths.get(inputPath.getValue()));
     }
 
-    public static Object resolve(String inputPath) {
+    public static Object resolve(BString inputPath) {
         try {
-            Path realPath = Files.readSymbolicLink(Paths.get(inputPath).toAbsolutePath());
-            return realPath.toString();
+            Path realPath = Files.readSymbolicLink(Paths.get(inputPath.getValue()).toAbsolutePath());
+            return StringUtils.fromString(realPath.toString());
         } catch (NotLinkException ex) {
             return Utils.getPathError(Constants.NOT_LINK_ERROR, "Path is not a symbolic link " + inputPath);
         } catch (NoSuchFileException ex) {

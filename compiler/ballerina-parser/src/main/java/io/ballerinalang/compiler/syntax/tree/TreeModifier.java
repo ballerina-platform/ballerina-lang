@@ -1248,6 +1248,27 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public ModuleXMLNamespaceDeclarationNode transform(
+            ModuleXMLNamespaceDeclarationNode moduleXMLNamespaceDeclarationNode) {
+        Token xmlnsKeyword =
+                modifyToken(moduleXMLNamespaceDeclarationNode.xmlnsKeyword());
+        ExpressionNode namespaceuri =
+                modifyNode(moduleXMLNamespaceDeclarationNode.namespaceuri());
+        Token asKeyword =
+                modifyToken(moduleXMLNamespaceDeclarationNode.asKeyword());
+        IdentifierToken namespacePrefix =
+                modifyNode(moduleXMLNamespaceDeclarationNode.namespacePrefix());
+        Token semicolonToken =
+                modifyToken(moduleXMLNamespaceDeclarationNode.semicolonToken());
+        return moduleXMLNamespaceDeclarationNode.modify(
+                xmlnsKeyword,
+                namespaceuri,
+                asKeyword,
+                namespacePrefix,
+                semicolonToken);
+    }
+
+    @Override
     public FunctionBodyBlockNode transform(
             FunctionBodyBlockNode functionBodyBlockNode) {
         Token openBraceToken =

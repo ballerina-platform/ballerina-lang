@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  * Wraps {@link StreamingConnectionFactory}.
  */
 public class BallerinaNatsStreamingConnectionFactory {
-    private final MapValue<String, Object> streamingConfig;
+    private final MapValue<BString, Object> streamingConfig;
     private final Connection natsConnection;
     private final String clusterId;
     private final String clientId;
@@ -42,7 +42,7 @@ public class BallerinaNatsStreamingConnectionFactory {
     private static final BString DISCOVERY_PREFIX = StringUtils.fromString("discoverPrefix");
 
     public BallerinaNatsStreamingConnectionFactory(Connection natsConnection, String clusterId, String clientId,
-                                                   MapValue<String, Object> streamingConfig) {
+                                                   MapValue<BString, Object> streamingConfig) {
         this.streamingConfig = streamingConfig;
         this.natsConnection = natsConnection;
         this.clusterId = clusterId;

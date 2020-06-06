@@ -366,6 +366,8 @@ public class ParserTestUtils {
                 return SyntaxKind.MODULE_VAR_DECL;
             case "XML_NAMESPACE_DECLARATION":
                 return SyntaxKind.XML_NAMESPACE_DECLARATION;
+            case "MODULE_XML_NAMESPACE_DECLARATION":
+                return SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION;
             case "ANNOTATION_DECLARATION":
                 return SyntaxKind.ANNOTATION_DECLARATION;
             case "ENUM_DECLARATION":
