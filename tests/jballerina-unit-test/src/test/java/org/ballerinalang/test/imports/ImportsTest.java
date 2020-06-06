@@ -57,7 +57,7 @@ public class ImportsTest {
                 3, 1);
     }
 
-    @Test(description = "Test importing same module name but with different org names")
+    @Test(description = "Test importing same module name but with different org names", groups = "brokenOnErrorChange")
     public void testSameModuleNameDifferentOrgImports() {
         CompileResult result = BCompileUtil.compile("test-src/imports/same-module-different-org-import", "math");
         BValue[] returns = BRunUtil.invoke(result, "getStringValueOfPI");

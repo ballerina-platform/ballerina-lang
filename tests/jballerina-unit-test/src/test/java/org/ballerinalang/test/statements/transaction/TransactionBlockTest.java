@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 /**
  * Test cases for committed aborted clauses in TransactionStatement.
  */
+@Test(groups = "brokenOnErrorChange")
 public class TransactionBlockTest {
 
     private CompileResult programFile;

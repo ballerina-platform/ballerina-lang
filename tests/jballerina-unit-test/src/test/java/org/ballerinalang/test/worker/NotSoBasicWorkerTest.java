@@ -126,7 +126,7 @@ public class NotSoBasicWorkerTest {
         Assert.assertEquals(ret.intValue(), 30);
     }
 
-    @Test
+    @Test(groups = "brokenOnErrorChange")
     public void largeForkCreationTest() {
         BValue[] vals = BRunUtil.invoke(result, "largeForkCreationTest", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
@@ -148,7 +148,7 @@ public class NotSoBasicWorkerTest {
         Assert.assertEquals(vals[0].stringValue(), "W3: data1, W4: data2");
     }
 
-    @Test()
+    @Test(groups = "brokenOnErrorChange")
     public void testForkJoinWorkersWithNonBlockingConnector() {
         CompileResult result = BCompileUtil.compile("test-src/workers/fork-join-blocking.bal");
         BValue[] vals = BRunUtil.invoke(result, "testForkJoin", new BValue[0]);

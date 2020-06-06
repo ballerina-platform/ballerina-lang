@@ -62,7 +62,7 @@ public class XMLLiteralTest {
         negativeResult = BCompileUtil.compile("test-src/types/xml/xml-literals-negative.bal");
     }
 
-    @Test
+    @Test(groups = "brokenOnErrorChange")
     public void testXMLNegativeSemantics() {
         int index = 0;
         BAssertUtil.validateError(negativeResult, index++, "invalid namespace prefix 'xmlns'", 5, 19);
