@@ -147,7 +147,7 @@ public type Producer client object {
         if (self.keySerializerType == SER_CUSTOM) {
             var keySerializerObject = config?.keySerializer;
             if (keySerializerObject is ()) {
-                panic error(PRODUCER_ERROR, message = "Invalid keySerializer config: Please Provide a " +
+                panic createProducerError("Invalid keySerializer config: Please Provide a " +
                             "valid custom serializer for the keySerializer");
             } else {
                 self.keySerializer = keySerializerObject;
@@ -156,14 +156,14 @@ public type Producer client object {
         if (self.keySerializerType == SER_AVRO) {
             var schemaRegistryUrl = config?.schemaRegistryUrl;
             if (schemaRegistryUrl is ()) {
-                panic error(PRODUCER_ERROR, message = "Missing schema registry URL for the Avro serializer. Please " +
+                panic createProducerError("Missing schema registry URL for the Avro serializer. Please " +
                             "provide 'schemaRegistryUrl' configuration in 'kafka:ProducerConfiguration'.");
             }
         }
         if (self.valueSerializerType == SER_CUSTOM) {
             var valueSerializerObject = config?.valueSerializer;
             if (valueSerializerObject is ()) {
-                panic error(PRODUCER_ERROR, message = "Invalid valueSerializer config: Please Provide a " +
+                panic createProducerError("Invalid valueSerializer config: Please Provide a " +
                             "valid custom serializer for the valueSerializer");
             } else {
                 self.valueSerializer = valueSerializerObject;
@@ -172,7 +172,7 @@ public type Producer client object {
         if (self.valueSerializerType == SER_AVRO) {
             var schemaRegistryUrl = config?.schemaRegistryUrl;
             if (schemaRegistryUrl is ()) {
-                panic error(PRODUCER_ERROR, message = "Missing schema registry URL for the Avro serializer. Please " +
+                panic createProducerError("Missing schema registry URL for the Avro serializer. Please " +
                             "provide 'schemaRegistryUrl' configuration in 'kafka:ProducerConfiguration'.");
             }
         }
