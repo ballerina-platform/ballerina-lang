@@ -89,8 +89,7 @@ public type Client client object {
             }
             return nativeExecute(self, sqlParamString);
         } else {
-            return sql:ApplicationError( message = "JDBC Client is already closed,"
-                + " hence further operations are not allowed");
+            return sql:ApplicationError("JDBC Client is already closed, hence further operations are not allowed");
         }
     }
 

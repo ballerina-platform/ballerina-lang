@@ -57,8 +57,8 @@ public class EmailConstants {
     public static final String PROPS_STORE = "store";
     public static final String MAIL_STORE_PROTOCOL = "mail.store.protocol";
     public static final String MIME_CONTENT_TYPE_PATTERN = "multipart/*";
-    public static final String READ_CLIENT_INIT_ERROR = "{ballerina/email}ReadClientInitError";
-    public static final String READ_ERROR = "{ballerina/email}ReadError";
+    public static final String READ_CLIENT_INIT_ERROR = "ReadClientInitError";
+    public static final String READ_ERROR = "ReadError";
     public static final BString ENDPOINT_CONFIG_SECURE_SOCKET = StringUtils.fromString("secureSocket");
     public static final BString ENDPOINT_CONFIG_PRIVATE_KEY = StringUtils.fromString("privateKey");
     public static final BString ENDPOINT_CONFIG_PATH = StringUtils.fromString("path");
@@ -100,7 +100,7 @@ public class EmailConstants {
     public static final String PROPS_SMTP_PORT = "mail.smtp.port";
     public static final String PROPS_SMTP_AUTH = "mail.smtp.auth";
     public static final String PROPS_SMTP_STARTTLS = "mail.smtp.starttls.enable";
-    public static final String SEND_ERROR = "{ballerina/email}SendError";
+    public static final String SEND_ERROR = "SendError";
 
     public static final String EMAIL = "Email";
     public static final String ERROR = "Error";
