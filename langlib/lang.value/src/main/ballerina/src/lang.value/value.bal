@@ -121,6 +121,23 @@ public function toString((any|error) v) returns string = external;
 # + return - string representation of json
 public function toJsonString(json v) returns string = external;
 
+# Converts a value of type `anydata` to `json`.
+# This does a deep copy of `v` converting values that do
+# not belong to json into values that do.
+# A value of type `xml` is converted into a string as if
+# by the `toString` function.
+# A value of type `table` is converted into a list of
+# mappings one for each row.
+# The inherent type of arrays in the return value will be
+# `json[]` and of mappings will be `map<json>`.
+# A new copy is made of all structural values, including
+# immutable values.
+#
+# + v - anydata value
+# + return - representation of `v` as value of type json
+# This panics if `v` has cycles.
+public function toJson(anydata v) returns json = external;
+
 # Parses a string in JSON format and returns the the value that it represents.
 # All numbers in the JSON will be represented as float values.
 # Returns an error if the string cannot be parsed.
