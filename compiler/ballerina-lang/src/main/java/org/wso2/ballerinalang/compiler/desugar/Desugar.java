@@ -5780,8 +5780,8 @@ public class Desugar extends BLangNodeVisitor {
                                                                                            recordVarType,
                                                                                            bindingPatternVariable.pos);
             recordTypeNode.initFunction =
-                    rewrite(TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names,
-                                                                                 symTable), env);
+                    rewrite(TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable),
+                            env);
             TypeDefBuilderHelper.addTypeDefinition(recordVarType, recordSymbol, recordTypeNode, env);
 
             return recordVarType;

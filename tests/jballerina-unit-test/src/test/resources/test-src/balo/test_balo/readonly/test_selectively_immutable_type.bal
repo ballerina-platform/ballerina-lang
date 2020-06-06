@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.'xml;
+import testorg/records;
 import testorg/selectively_immutable as se;
 
 function testImmutableTypes() {
@@ -24,6 +25,7 @@ function testImmutableTypes() {
     testImmutableLists();
     testImmutableMappings();
     testMutability();
+    testSameNamedConstructFromDifferentModules();
 }
 
 function testXmlComment() {
@@ -345,6 +347,54 @@ function testMutability() {
     assertFalse(t is se:Owner & readonly);
     se:Owner ownerB = <se:OwnerB> t;
     assertEquality(2468, ownerB.getId());
+}
+
+function testSameNamedConstructFromDifferentModules() {
+    se:Employee & readonly seEmp = {
+        details: {
+            name: "Jo",
+            id: 1234
+        },
+        department: "IT"
+    };
+
+    records:Employee & readonly recEmp = {
+        details: {
+            name: "May",
+            yob: 1990
+        },
+        id: 2314
+    };
+
+    readonly r1 = seEmp;
+    readonly r2 = recEmp;
+
+    record {} rec1 = seEmp;
+    record {} rec2 = recEmp;
+
+    assertTrue(rec1 is se:Employee);
+    assertTrue(rec1 is se:Employee & readonly);
+    assertTrue(rec1.isReadOnly());
+    assertTrue(rec1["details"] is se:Details);
+    assertTrue(rec1["details"] is se:Details & readonly);
+    assertTrue(rec2.isReadOnly());
+
+    se:Employee e1 = <se:Employee> rec1;
+    assertEquality("Jo", e1.details.name);
+    assertEquality(1234, e1.details.id);
+    assertEquality("IT", e1.department);
+
+    assertTrue(rec2 is records:Employee);
+    assertTrue(rec2 is records:Employee & readonly);
+    assertTrue(rec2.isReadOnly());
+    assertTrue(rec2["details"] is records:Details);
+    assertTrue(rec2["details"] is records:Details & readonly);
+    assertTrue(rec2.isReadOnly());
+
+    records:Employee e2 = <records:Employee> rec2;
+    assertEquality("May", e2.details.name);
+    assertEquality(1990, e2.details.yob);
+    assertEquality(2314, e2.id);
 }
 
 type AssertionError error<ASSERTION_ERROR_REASON>;

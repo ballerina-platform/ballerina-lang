@@ -41,6 +41,7 @@ public class SelectivelyImmutableTypeBaloTest {
     public void setup() {
         BaloCreator.cleanCacheDirectories();
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "selectively_immutable");
+        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "records");
         result = BCompileUtil.compile("test-src/balo/test_balo/readonly/test_selectively_immutable_type.bal");
     }
 
@@ -93,5 +94,6 @@ public class SelectivelyImmutableTypeBaloTest {
     public void tearDown() {
         BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg",
                                                "selectively_immutable");
+        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg", "records");
     }
 }
