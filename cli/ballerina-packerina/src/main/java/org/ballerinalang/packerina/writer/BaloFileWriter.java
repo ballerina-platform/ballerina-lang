@@ -51,7 +51,6 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -307,7 +306,7 @@ public class BaloFileWriter {
 
             List<Path> libs = manifest.getPlatform().libraries.stream()
                     .filter(lib -> lib.getModules() == null || Arrays.asList(lib.getModules()).contains(moduleName))
-                    .map(lib -> Paths.get(lib.getPath())).collect(Collectors.toList());
+                    .map(lib -> lib.getPath()).collect(Collectors.toList());
 
             for (Path lib : libs) {
                 Path nativeFile = projectDirectory.resolve(lib);

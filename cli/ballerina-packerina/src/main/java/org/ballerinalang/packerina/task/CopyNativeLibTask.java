@@ -162,7 +162,7 @@ public class CopyNativeLibTask implements Task {
 
                 if (library.getGroupId().equals(importz.pkgID.orgName.value) &&
                         Arrays.asList(library.getModules()).contains(importz.pkgID.name.value)) {
-                    Path libFilePath = Paths.get(library.getPath());
+                    Path libFilePath = library.getPath();
                     Path libFile = project.resolve(libFilePath);
                     Path libFileName = libFilePath.getFileName();
 

@@ -17,7 +17,8 @@
  */
 package org.ballerinalang.toml.model;
 
-import org.ballerinalang.toml.util.PathUtils;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Model for Native Library config in Ballerina.toml.
@@ -39,12 +40,8 @@ public class Library {
         this.version = version;
     }
 
-    public String getPath() {
-        if (PathUtils.getPath(this.path) == null) {
-            return null;
-        } else {
-            return PathUtils.getPath(this.path);
-        }
+    public Path getPath() {
+        return Paths.get(this.path);
     }
 
     public void setPath(String path) {
