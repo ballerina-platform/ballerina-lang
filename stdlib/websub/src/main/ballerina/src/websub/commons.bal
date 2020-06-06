@@ -81,11 +81,6 @@ const ANNOT_FIELD_EXPECT_INTENT_VERIFICATION = "expectIntentVerification";
 const ANNOT_FIELD_HUB_CLIENT_CONFIG = "hubClientConfig";
 const ANNOT_FIELD_PUBLISHER_CLIENT_CONFIG = "publisherClientConfig";
 
-const string WEBSUB_MODULE_NAME = "ballerina/websub";
-
-# The constant used to represent error code of WebSub module.
-public const string WEBSUB_ERROR_CODE = "{ballerina/websub}WebSubError";
-
 # The identifier to be used to identify the mode in which update content should be identified.
 public type RemotePublishMode PUBLISH_MODE_DIRECT|PUBLISH_MODE_FETCH;
 
@@ -169,9 +164,7 @@ public type IntentVerificationRequest object {
 # + topic - The intended topic for which subscription change should be verified
 # + return - An `http:Response`, which to the hub verifying/denying intent to subscripe/unsubscribe
 function buildIntentVerificationResponse(IntentVerificationRequest intentVerificationRequest, string mode,
-                                         string topic)
-    returns http:Response {
-
+                                         string topic) returns http:Response {
     http:Response response = new;
     var decodedTopic = encoding:decodeUriComponent(intentVerificationRequest.topic, "UTF-8");
     string reqTopic = decodedTopic is string ? decodedTopic : topic;
@@ -201,9 +194,7 @@ function processWebSubNotification(http:Request request, service serviceType) re
 
     if (!request.hasHeader(X_HUB_SIGNATURE)) {
         if (secret != "") {
-            error webSubError = error(WEBSUB_ERROR_CODE, message = X_HUB_SIGNATURE +
-                                        " header not present for subscription added specifying " + HUB_SECRET);
-            return webSubError;
+            return WebSubError(X_HUB_SIGNATURE + " header not present for subscription added specifying " + HUB_SECRET);
         }
         return;
     }
@@ -217,11 +208,8 @@ function processWebSubNotification(http:Request request, service serviceType) re
     if (payload is string) {
         return validateSignature(xHubSignature, payload, secret);
     } else {
-        error err = payload;
-        string errCause = <string> err.detail()?.message;
-        error webSubError = error(WEBSUB_ERROR_CODE, message = "Error extracting notification payload as string " +
-                                            "for signature validation: " + errCause);
-        return webSubError;
+        string errCause = payload.message();
+        return WebSubError("Error extracting notification payload as string for signature validation: " + errCause);
     }
 }
 
@@ -242,13 +230,11 @@ function validateSignature(string xHubSignature, string stringPayload, string se
     } else if (stringutils:equalsIgnoreCase(method, SHA256)) {
         generatedSignature = crypto:hmacSha256(stringPayload.toBytes(), secret.toBytes()).toBase16();
     } else {
-        error webSubError = error(WEBSUB_ERROR_CODE, message = "Unsupported signature method: " + method);
-        return webSubError;
+        return WebSubError("Unsupported signature method: " + method);
     }
 
     if (!stringutils:equalsIgnoreCase(signature, generatedSignature)) {
-        error webSubError = error(WEBSUB_ERROR_CODE, message = "Signature validation failed: Invalid Signature!");
-        return webSubError;
+        return WebSubError("Signature validation failed: Invalid Signature!");
     }
     return;
 }
@@ -411,8 +397,7 @@ public function extractTopicAndHubUrls(http:Response response) returns @tainted 
     }
 
     if (linkHeaders.length() == 0) {
-        error websubError = error(WEBSUB_ERROR_CODE, message = "Link header unavailable in discovery response");
-        return websubError;
+        return WebSubError("Link header unavailable in discovery response");
     }
 
     int hubIndex = 0;
@@ -436,8 +421,7 @@ public function extractTopicAndHubUrls(http:Response response) returns @tainted 
                 hubIndex += 1;
             } else if (stringutils:contains(linkConstituents[1], "rel=\"self\"")) {
                 if (topic != "") {
-                    error websubError = error(WEBSUB_ERROR_CODE, message = "Link Header contains > 1 self URLs");
-                    return websubError;
+                    return WebSubError("Link Header contains > 1 self URLs");
                 } else {
                     topic = url;
                 }
@@ -448,9 +432,7 @@ public function extractTopicAndHubUrls(http:Response response) returns @tainted 
     if (hubs.length() > 0 && topic != "") {
         return [topic, hubs];
     }
-    error websubError = error(WEBSUB_ERROR_CODE,
-                            message = "Hub and/or Topic URL(s) not identified in link header of discovery response");
-    return websubError;
+    return WebSubError("Hub and/or Topic URL(s) not identified in link header of discovery response");
 }
 
 # Record representing a WebSub subscription change request.
@@ -546,7 +528,7 @@ public function startHub(http:Listener hubServiceListener,
     hubPublishResourcePath = publishResourcePath;
 
     if (hubSubscriptionResourcePath == hubPublishResourcePath) {
-        return HubStartupError(message = "publisher and subscription resource paths cannot be the same");
+        return HubStartupError("publisher and subscription resource paths cannot be the same");
     }
 
     hubServiceAuth = serviceAuth;
@@ -567,7 +549,6 @@ public function startHub(http:Listener hubServiceListener,
     if (hubPersistenceStoreImpl is HubPersistenceStore) {
         hubPersistenceEnabled = true;
     }
-
 
     Hub|HubStartedUpError|HubStartupError res = startUpHubService(hubBasePath, hubSubscriptionResourcePath,
                                                                         hubPublishResourcePath,
@@ -623,12 +604,11 @@ public type Hub object {
 
         if (stopResult is error) {
             if (stopHubServiceResult is error) {
-                error[] causes = [stopResult, stopHubServiceResult];
-                return error(WEBSUB_ERROR_CODE, causes = causes);
+                return WebSubError("Couldn't stop the started up Ballerina WebSub Hub", stopHubServiceResult);
             }
-            return error(WEBSUB_ERROR_CODE, cause = stopResult);
+            return WebSubError("Couldn't stop the started up Ballerina WebSub Hub", stopResult);
         }
-        return error(WEBSUB_ERROR_CODE, cause = <error> stopHubServiceResult);
+        return WebSubError("Couldn't stop the started up Ballerina WebSub Hub", <WebSubError> stopHubServiceResult);
     }
 
 # Publishes an update against the topic in the initialized Ballerina Hub.
@@ -644,9 +624,7 @@ public type Hub object {
     public function publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
                                   string? contentType = ()) returns error? {
         if (self.publishUrl == "") {
-            error webSubError = error(WEBSUB_ERROR_CODE,
-                                    message = "Internal Ballerina Hub not initialized or incorrectly referenced");
-            return webSubError;
+            return WebSubError("Internal Ballerina Hub not initialized or incorrectly referenced");
         }
 
         WebSubContent content = {};
@@ -683,8 +661,7 @@ public type Hub object {
 # + return - An `error` if an error occurred with registration or else `()`
     public function registerTopic(string topic) returns error? {
         if (!hubTopicRegistrationRequired) {
-            error e = error(WEBSUB_ERROR_CODE, message = "Topic registration not allowed/not required at the Hub");
-            return e;
+            return WebSubError("Topic registration not allowed/not required at the Hub");
         }
         return registerTopic(topic);
     }
@@ -698,8 +675,7 @@ public type Hub object {
 # + return - An `error` if an error occurred with unregistration or else `()`
     public function unregisterTopic(string topic) returns error? {
         if (!hubTopicRegistrationRequired) {
-            error e = error(WEBSUB_ERROR_CODE, message = "Topic unregistration not allowed/not required at the Hub");
-            return e;
+            return WebSubError("Topic unregistration not allowed/not required at the Hub");
         }
         return unregisterTopic(topic);
     }
@@ -726,7 +702,7 @@ public type Hub object {
 # + return - An array of available topics
 public function getAvailableTopics() returns string[] {
         return externGetAvailableTopics(self);
-    }
+}
 
 # Retrieves details of subscribers registered to receive updates for a particular topic.
 # ```ballerina

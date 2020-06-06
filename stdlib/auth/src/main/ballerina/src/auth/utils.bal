@@ -56,7 +56,7 @@ const string CONFIG_USER_SECTION = "b7a.users";
 public function extractUsernameAndPassword(string credential) returns [string, string]|Error {
     byte[]|error result = arrays:fromBase64(credential);
     if (result is error) {
-        return prepareError(result.reason(), result);
+        return prepareError(result.message(), result);
     }
 
     string|error fromBytesResults = strings:fromBytes(<byte[]>result);
@@ -68,7 +68,7 @@ public function extractUsernameAndPassword(string credential) returns [string, s
             return [decodedCredentials[0], decodedCredentials[1]];
         }
     } else {
-        return prepareError(fromBytesResults.reason(), fromBytesResults);
+        return prepareError(fromBytesResults.message(), fromBytesResults);
     }
 }
 

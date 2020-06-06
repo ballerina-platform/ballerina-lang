@@ -95,8 +95,7 @@ public type Client client object {
             }
             return nativeExecute(self, sqlParamString);
         } else {
-            return sql:ApplicationError( message = "MySQL Client is already closed,"
-                + " hence further operations are not allowed");
+            return sql:ApplicationError("MySQL Client is already closed, hence further operations are not allowed");
         }
     }
 

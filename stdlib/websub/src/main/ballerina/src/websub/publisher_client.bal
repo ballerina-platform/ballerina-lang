@@ -26,7 +26,7 @@ public type PublisherClient client object {
 
 # Initializes the `websub:PublisherClient`.
 # ```ballerina
-# websub:PublisherClient websubHubClientEP = new ("http://localhost:9191/websub/publish");
+# websub:PublisherClient websubHubClientEP = new("http://localhost:9191/websub/publish");
 # ```
 #
 # + url    - The URL to publish/notify updates
@@ -52,14 +52,10 @@ public type PublisherClient client object {
             if (registrationResponse.statusCode != http:STATUS_ACCEPTED) {
                 var result = registrationResponse.getTextPayload();
                 string payload = result is string ? result : "";
-                error webSubError = error(WEBSUB_ERROR_CODE, message = "Error occurred during topic registration: " + payload);
-                return webSubError;
+                return WebSubError("Error occurred during topic registration: " + payload);
             }
         } else {
-            error err = registrationResponse;//todo
-            string errCause = <string> err.detail()?.message;
-            error webSubError = error(WEBSUB_ERROR_CODE, message = "Error sending topic registration request: " + errCause);
-            return webSubError;
+            return WebSubError("Error sending topic registration request: " + registrationResponse.message());
         }
     }
 
@@ -78,14 +74,10 @@ public type PublisherClient client object {
             if (unregistrationResponse.statusCode != http:STATUS_ACCEPTED) {
                 var result = unregistrationResponse.getTextPayload();
                 string payload = result is string ? result : "";
-                error webSubError = error(WEBSUB_ERROR_CODE, message = "Error occurred during topic unregistration: " + payload);
-                return webSubError;
+                return WebSubError("Error occurred during topic unregistration: " + payload);
             }
         } else {
-            error err = unregistrationResponse;
-            string errCause = <string> err.detail()?.message;
-            error webSubError = error(WEBSUB_ERROR_CODE, message = "Error sending topic unregistration request: " + errCause);
-            return webSubError;
+            return WebSubError("Error sending topic unregistration request: " + unregistrationResponse.message());
         }
     }
 
@@ -122,12 +114,10 @@ public type PublisherClient client object {
             if (!isSuccessStatusCode(response.statusCode)) {
                 var result = response.getTextPayload();
                 string textPayload = result is string ? result : "";
-                error webSubError = error(WEBSUB_ERROR_CODE, message = "Error occurred publishing update: " + textPayload);
-                return webSubError;
+                return WebSubError("Error occurred publishing update: " + textPayload);
             }
         } else {
-            error webSubError = error(WEBSUB_ERROR_CODE, message = "Publish failed for topic [" + topic + "]");
-            return webSubError;
+            return WebSubError("Publish failed for topic [" + topic + "]");
         }
     }
 
@@ -156,14 +146,10 @@ public type PublisherClient client object {
             if (!isSuccessStatusCode(response.statusCode)) {
                 var result = response.getTextPayload();
                 string textPayload = result is string ? result : "";
-                error webSubError = error(WEBSUB_ERROR_CODE,
-                                            message = "Error occurred notifying update availability: " + textPayload);
-                return webSubError;
+                return WebSubError("Error occurred notifying update availability: " + textPayload);
             }
         } else {
-            error webSubError = error(WEBSUB_ERROR_CODE,
-                                        message = "Update availability notification failed for topic [" + topic + "]");
-            return webSubError;
+            return WebSubError("Update availability notification failed for topic [" + topic + "]");
         }
     }
 };

@@ -123,10 +123,7 @@ function processHubResponse(@untainted string hub, @untainted string mode,
 
     string topic = subscriptionChangeRequest.topic;
     if (response is error) {
-        string errCause = <string> response.detail()?.message;
-        error webSubError = error(WEBSUB_ERROR_CODE, message = "Error occurred for request: Mode[" + mode
-                                        + "] at Hub[" + hub + "] - " + errCause );
-        return webSubError;
+        return WebSubError("Error occurred for request: Mode[" + mode+ "] at Hub[" + hub + "] - " + response.message());
     } else {
         int responseStatusCode = response.statusCode;
         if (responseStatusCode == http:STATUS_TEMPORARY_REDIRECT
@@ -136,22 +133,18 @@ function processHubResponse(@untainted string hub, @untainted string mode,
                 return invokeClientConnectorOnRedirection(redirected_hub, mode, subscriptionChangeRequest,
                                                             httpClient.config.auth, remainingRedirects - 1);
             }
-            error subscriptionError = error(WEBSUB_ERROR_CODE, message = "Redirection response received for "
-                    + "subscription change request made with followRedirects disabled or after maxCount exceeded: Hub ["
-                    + hub + "], Topic [" + subscriptionChangeRequest.topic + "]");
-            return subscriptionError;
+            return WebSubError("Redirection response received for subscription change request made with " +
+                               "followRedirects disabled or after maxCount exceeded: Hub [" + hub + "], Topic [" +
+                               subscriptionChangeRequest.topic + "]");
         } else if (!isSuccessStatusCode(responseStatusCode)) {
             var responsePayload = response.getTextPayload();
             string errorMessage = "Error in request: Mode[" + mode + "] at Hub[" + hub + "]";
             if (responsePayload is string) {
                 errorMessage = errorMessage + " - " + responsePayload;
             } else {
-                error err = responsePayload;
-                string errCause = <string> err.detail()?.message;
-                errorMessage = errorMessage + " - Error occurred identifying cause: " + errCause;
+                errorMessage = errorMessage + " - Error occurred identifying cause: " + responsePayload.message();
             }
-            error webSubError = error(WEBSUB_ERROR_CODE, message = errorMessage);
-            return webSubError;
+            return WebSubError(errorMessage);
         } else {
             if (responseStatusCode != http:STATUS_ACCEPTED) {
                 log:printDebug("Subscription request considered successful for non 202 status code: "
