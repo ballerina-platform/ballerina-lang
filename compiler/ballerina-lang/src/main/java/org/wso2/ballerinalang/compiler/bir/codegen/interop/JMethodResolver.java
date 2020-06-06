@@ -42,6 +42,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -132,6 +133,11 @@ class JMethodResolver {
         if (jMethods.size() == 1 && noConstraints) {
             return jMethods.get(0);
         } else if (noConstraints) {
+            Optional<JMethod> covariantRetTypeMethod = findCovariantReturnTypeMethod(jMethods);
+            if (covariantRetTypeMethod.isPresent()) {
+                return covariantRetTypeMethod.get();
+            }
+
             int paramCount = jMethods.get(0).getParamTypes().length;
             throw getOverloadedMethodExistError(jMethodRequest.kind, jMethodRequest.declaringClass,
                     jMethodRequest.methodName, paramCount);
@@ -143,6 +149,26 @@ class JMethodResolver {
             return resolveMatchingMethod(jMethodRequest, jMethods);
         }
         return jMethod;
+    }
+
+    private Optional<JMethod> findCovariantReturnTypeMethod(List<JMethod> jMethods) {
+
+        for (int i = 0; i < jMethods.size(); i++) {
+            for (int k = i; k < jMethods.size(); k++) {
+                if (i == k) {
+                    continue;
+                }
+
+                JMethod ithMethod = jMethods.get(i);
+                JMethod kthMethod = jMethods.get(k);
+
+                if (ithMethod.getReturnType().isAssignableFrom(kthMethod.getReturnType()) ||
+                        kthMethod.getReturnType().isAssignableFrom(ithMethod.getReturnType())) {
+                    return Optional.of(ithMethod);
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     private void validateMethodSignature(JMethodRequest jMethodRequest, JMethod jMethod) {
@@ -520,19 +546,21 @@ class JMethodResolver {
 
         ParamTypeConstraint[] constraints = jMethodRequest.paramTypeConstraints;
         List<JMethod> resolvedJMethods = new ArrayList<>();
-        for (JMethod jMethod : jMethods) {
-            boolean resolved = true;
-            Class<?>[] formalParamTypes = jMethod.getParamTypes();
-            for (int paramIndex = 0; paramIndex < formalParamTypes.length; paramIndex++) {
-                Class<?> formalParamType = formalParamTypes[paramIndex];
-                if (formalParamType.isAssignableFrom(constraints[paramIndex].get())) {
-                    continue;
+        if (constraints.length > 0) {
+            for (JMethod jMethod : jMethods) {
+                boolean resolved = true;
+                Class<?>[] formalParamTypes = jMethod.getParamTypes();
+                for (int paramIndex = 0; paramIndex < formalParamTypes.length; paramIndex++) {
+                    Class<?> formalParamType = formalParamTypes[paramIndex];
+                    if (formalParamType.isAssignableFrom(constraints[paramIndex].get())) {
+                        continue;
+                    }
+                    resolved = false;
+                    break;
                 }
-                resolved = false;
-                break;
-            }
-            if (resolved) {
-                resolvedJMethods.add(jMethod);
+                if (resolved) {
+                    resolvedJMethods.add(jMethod);
+                }
             }
         }
 

@@ -19,19 +19,20 @@
 package org.ballerinalang.net.uri;
 
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 /**
  * Utilities related to URI processing.
@@ -40,6 +41,7 @@ public class URIUtil {
 
     public static final String URI_PATH_DELIMITER = "/";
     public static final char DOT_SEGMENT = '.';
+    private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
     public static String[] getPathSegments(String path) {
         if (path.startsWith(URI_PATH_DELIMITER)) {
@@ -67,8 +69,16 @@ public class URIUtil {
                 continue;
             }
             String queryParamName = queryParam.substring(0, index).trim();
-            String queryParamValue = URLDecoder.decode(queryParam.substring(index + 1).trim(), "UTF-8");
-            List<String> values = Arrays.stream(queryParamValue.split(",")).distinct().collect(Collectors.toList());
+            String queryParamValue = queryParam.substring(index + 1).trim();
+            List<String> values = new ArrayList<>();
+            Set<String> uniqueValues = new HashSet<>();
+            for (String val : queryParamValue.split(",")) {
+                String decodedValue = URLDecoder.decode(val, "UTF-8");
+                if (uniqueValues.add(decodedValue)) {
+                    values.add(decodedValue);
+                }
+            }
+
             if (tempParamMap.containsKey(queryParamName)) {
                 tempParamMap.get(queryParamName).addAll(values);
             } else {
@@ -78,7 +88,8 @@ public class URIUtil {
 
         for (Map.Entry entry : tempParamMap.entrySet()) {
             List<String> entryValue = (List<String>) entry.getValue();
-            queryParamsMap.put(entry.getKey().toString(), new ArrayValueImpl(entryValue.toArray(new String[0])));
+            queryParamsMap.put(entry.getKey().toString(),
+                               BValueCreator.createArrayValue(entryValue.toArray(EMPTY_STRING_ARRAY)));
         }
     }
 

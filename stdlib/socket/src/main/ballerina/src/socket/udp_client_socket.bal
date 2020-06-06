@@ -16,12 +16,12 @@
 
 import ballerina/java;
 
-# Represents UDP socket client and related remote functions.
+# Initializes the UDP client based on the provided configurations.
 #
-# + localPort - the local port number to which this socket is bound
-# + localAddress - the local IP address string in textual presentation to which the socket is bound
-# + interface - network interface to bind to
-# + id - a unique identifier to identify each client
+# + localPort - The local port number to which this socket is bound
+# + localAddress - The local IP address string in textual presentation to which the socket is bound
+# + interface - The network interface to bind
+# + id - A unique identifier to identify each client
 public type UdpClient client object {
 
     private Address? localAddress = ();
@@ -29,10 +29,10 @@ public type UdpClient client object {
     public string? interface = ();
     public int id = 0;
 
-    # Initialize the UDP client based on provided configuration.
+    # Initializes the UDP client based on the provided configurations.
     #
-    # + localAddress - Locally binding interface and port
-    # + config - Configure additional details like read timeout etc.
+    # + localAddress - Local binding of the interface and port
+    # + config - The configurations for the UDP client
     public function __init(Address? localAddress = (), UdpClientConfig? config = ()) {
         UdpClientConfig configuration = config ?: {};
         self.localAddress = localAddress;
@@ -45,29 +45,38 @@ public type UdpClient client object {
         }
     }
 
-    # Send given data to the specified remote client.
-    #
-    # + content - the content that wish to send to the client socket
-    # + address - the address of the remote client socket
-    # + return - number of bytes got written or an error if encounters an error while writing
+# Sends the given data to the specified remote client.
+# ```ballerina
+# int|socket:Error result = socketClient->sendTo(c1, {host: "localhost", port: 48826});
+# ```
+#
+# + content - The content to be sent to the client socket
+# + address - The address of the remote client socket
+# + return - The number of bytes got written or else a `socket:Error` if the given data can't be sent
     public remote function sendTo(byte[] content, Address address) returns int|Error {
         return udpClientSendTo(self, content, address);
     }
 
-    # Reads data from the remote client. If the data has the specified length, then wait until that number of bytes
-    # are received from the client. Else, return the data available in the OS buffer or wait until data receive.
-    # If the request length is lesser than the data in the buffer, then the rest will be discarded.
-    #
-    # + length - Positive integer. Represents the number of bytes which should be read
-    # + return - Content as a byte array, the number of bytes read and the address of the sender
-    # or an error if encounters an error while reading
+# Reads data from the remote client. If the data has the specified length, then it waits until that number of bytes
+# are received from the client. Else, it returns the data available in the OS buffer or waits until the data is received.
+# If the request length is lesser than the data in the buffer, then the rest will be discarded.
+# ```ballerina
+# [byte[], int, Address]|ReadTimedOutError result = socketClient->receiveFrom();
+# ```
+#
+# + length - Represents the number of bytes, which should be read
+# + return - The content as a byte array, the number of bytes read, the address of the sender,
+#            or else a `socket:Error` if the data can't be read from the client
     public remote function receiveFrom(int length = -100) returns [byte[], int, Address]|ReadTimedOutError {
         return externReceiveFrom(self, length);
     }
 
-    # Closes the client socket connection.
-    #
-    # + return - - an error if encounters an error while closing the connection or returns nil otherwise
+# Closes the client socket connection.
+# ```ballerina
+# socket:Error? closeResult = socketClient->close();
+# ```
+#
+# + return - A `socket:Error` if it can't close the connection or else `()`
     public remote function close() returns Error? {
         return closeUdpClient(self);
     }
@@ -82,9 +91,10 @@ public type Address record {|
     int port;
 |};
 
-# Configuration for UDP client.
+# Configurations for the UDP client.
 #
-# + readTimeoutInMillis - Socket read timeout value to be used in milliseconds. Default is 300000 milliseconds (5 minutes)
+# + readTimeoutInMillis - The socket reading timeout value to be used in milliseconds. If this is not set,
+#                         the default value of 300000 milliseconds (5 minutes) will be used.
 public type UdpClientConfig record {|
     int readTimeoutInMillis = 300000;
 |};

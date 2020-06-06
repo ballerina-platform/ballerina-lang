@@ -14,52 +14,54 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents the Ballerina `AbstractCache` object and cache-related operations.
+# The `cache:AbstractCache` object is used for custom implementations of the Ballerina cache.
 # Any custom cache implementation should be object-wise similar.
 public type AbstractCache abstract object {
 
-    # Add the given key value pair to the cache. If the cache previously contained a value associated with the key, the
+    # Adds the given key value pair to the cache. If the cache previously contained a value associated with the key, the
     # old value is replaced by the new value.
     #
-    # + key - Key of the cached value
+    # + key - Key of the value to be cached
     # + value - Value to be cached
-    # + maxAgeInSeconds - The time in seconds during which the cache entry is valid. '-1' means, the entry is valid forever.
-    # + return - `()` if successfully added to the cache or
-    # `Error` if any error occurred while inserting the entry to the cache.
+    # + maxAgeInSeconds - The time in seconds during which the cache entry is valid. '-1' means, the entry is valid
+    #                     forever
+    # + return - `()` if successfully added to the cache or `Error` if any error occurred while inserting the entry
+    #            to the cache
     public function put(string key, any value, int maxAgeInSeconds = -1) returns Error?;
 
-    # Return the cached value associated with the given key.
+    # Returns the cached value associated with the provided key.
     #
-    # + key - Key, which is used to retrieve the cached value
-    # + return - The cached value associated with the given key,
-    # `Error` if the provided cache key is not available, or if any error occurred while retrieving from the cache.
+    # + key - The key used to retrieve the cached value
+    # + return - The cached value associated with the given key or an `Error` if the provided cache key is not
+    #            available or if any error occurred while retrieving from the cache
     public function get(string key) returns any|Error;
 
-    # Discard a cached value from the cache.
+    # Discards a cached value from the cache.
     #
-    # + key - Key of the cache entry, which needs to be discarded
-    # + return - `()` if successfully discarded,
-    # `Error` if the provided cache key is not available, or if any error occurred while discarding from the cache.
+    # + key - Key of the cache entry which needs to be discarded
+    # + return - `()` if successfully discarded or an `Error` if the provided cache key is not available or if any
+    #            error occurred while discarding from the cache
     public function invalidate(string key) returns Error?;
 
-    # Discard all the cached values from the cache.
+    # Discards all the cached values from the cache.
     #
-    # + return - `()` if successfully discarded all or
-    # `Error` if any error occurred while discarding all from the cache.
+    # + return - `()` if successfully discarded all or  an `Error` if any error occurred while discarding all from the
+    #            cache
     public function invalidateAll() returns Error?;
 
     # Checks whether the given key has an associated cache value.
     #
     # + key - The key to be checked
-    # + return - Whether an associated cache value is available in the cache or not
+    # + return - `true` if an associated cache value is available for the provided key or `false` if there is not a
+    #            cache value associated with the provided key
     public function hasKey(string key) returns boolean;
 
     # Returns all keys from the cache.
     #
-    # + return - Array of all keys from the cache
+    # + return - Array of all the keys from the cache
     public function keys() returns string[];
 
-    # Returns the size of the cache.
+    # Returns the current size of the cache.
     #
     # + return - The size of the cache
     public function size() returns int;
@@ -68,5 +70,4 @@ public type AbstractCache abstract object {
     #
     # + return - The capacity of the cache
     public function capacity() returns int;
-
 };

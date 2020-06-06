@@ -89,6 +89,21 @@ function testPushAfterSliceFixed() returns [int, int, int[]] {
      return [sl, slp, s];
 }
 
+function testSliceOnTupleWithRestDesc() {
+    [int, string...] x = [1, "hello", "world"];
+    (int|string)[] a = x.slice(1);
+    assertValueEquality(2, a.length());
+    assertValueEquality("hello", a[0]);
+    assertValueEquality("world", a[1]);
+
+    [int, int, boolean...] y = [1, 2, true, false, true];
+    (int|boolean)[] b = y.slice(1, 4);
+    assertValueEquality(3, b.length());
+    assertValueEquality(2, b[0]);
+    assertTrue(b[1]);
+    assertFalse(b[2]);
+}
+
 function testRemove() returns [string, string[]] {
     string[] arr = ["Foo", "Bar", "FooFoo", "BarBar"];
     string elem = arr.remove(2);
@@ -301,13 +316,6 @@ function testRemoveAllFixedLengthArray() returns int[] {
     return ar;
 }
 
-function testBytePush() returns boolean {
-    byte[] arr = [1, 2];
-    byte b = 255;
-    arr.push(b);
-    return arr.length() == 3 && arr[2] == <byte> 255;
-}
-
 function testTupleResize() returns [int, string] {
     [int, string] t = [1, "hello"];
     t.setLength(3);
@@ -365,4 +373,186 @@ function testSort2() returns int[] {
     });
 
     return sorted;
+}
+
+function testPush() {
+    testBooleanPush();
+    testBytePush();
+    testUnionArrayPush();
+    testPushOnUnionOfSameBasicType();
+    testInvalidPushOnUnionOfSameBasicType();
+}
+
+function testBooleanPush() {
+    boolean[] arr = [false, true];
+    boolean b = false;
+
+    boolean[] moreBooleans = [true, true];
+
+    arr.push(b);
+    arr.push(false, false);
+    arr.push(...moreBooleans);
+
+    array:push(arr, true);
+    array:push(arr, true, false);
+    array:push(arr, ...moreBooleans);
+
+    assertValueEquality(12, arr.length());
+
+    assertFalse(arr[0]);
+    assertTrue(arr[1]);
+    assertFalse(arr[2]);
+    assertFalse(arr[3]);
+    assertFalse(arr[4]);
+    assertTrue(arr[5]);
+    assertTrue(arr[6]);
+    assertTrue(arr[7]);
+    assertTrue(arr[8]);
+    assertFalse(arr[9]);
+    assertTrue(arr[10]);
+    assertTrue(arr[11]);
+}
+
+function testBytePush() {
+    byte[] arr = [1, 2];
+    byte b = 3;
+
+    byte[] moreBytes = [0, 3, 254];
+
+    arr.push(b);
+    arr.push(255, 254);
+    arr.push(...moreBytes);
+
+    array:push(arr, 65);
+    array:push(arr, 66, 67);
+    array:push(arr, ...moreBytes);
+
+    assertValueEquality(14, arr.length());
+
+    assertValueEquality(1, arr[0]);
+    assertValueEquality(2, arr[1]);
+    assertValueEquality(3, arr[2]);
+    assertValueEquality(<byte> 255, arr[3]);
+    assertValueEquality(254, arr[4]);
+    assertValueEquality(0, arr[5]);
+    assertValueEquality(3, arr[6]);
+    assertValueEquality(254, arr[7]);
+    assertValueEquality(65, arr[8]);
+    assertValueEquality(66, arr[9]);
+    assertValueEquality(67, arr[10]);
+    assertValueEquality(0, arr[11]);
+    assertValueEquality(3, arr[12]);
+    assertValueEquality(254, arr[13]);
+}
+
+function testUnionArrayPush() {
+    (Foo|Bar)[] arr = [{s: "a"}];
+
+    arr.push({s: "b"}, {i: 1});
+
+    (Foo|Bar)[] more = [{i: 2}, {s: "c"}];
+    array:push(arr, ...more);
+
+    assertValueEquality(5, arr.length());
+
+    Foo|Bar val = arr[0];
+    assertTrue(val is Foo && val.s == "a");
+
+    val = arr[1];
+    assertTrue(val is Foo && val.s == "b");
+
+    val = arr[2];
+    assertTrue(val is Bar && val.i == 1);
+
+    val = arr[3];
+    assertTrue(val is Bar && val.i == 2);
+
+    val = arr[4];
+    assertTrue(val is Foo && val.s == "c");
+}
+
+type Foo record {
+    string s;
+};
+
+type Bar record{
+    int i;
+};
+
+function testPushOnUnionOfSameBasicType() {
+    int[2]|int[] arr = [1, 7, 3];
+    arr.push(99);
+    'array:push(arr, 100, 101);
+
+    int[] moreInts = [999, 998];
+    arr.push(...moreInts);
+    'array:push(arr, ...moreInts);
+
+    assertValueEquality(10, arr.length());
+
+    assertValueEquality(1, arr[0]);
+    assertValueEquality(7, arr[1]);
+    assertValueEquality(3, arr[2]);
+    assertValueEquality(99, arr[3]);
+    assertValueEquality(100, arr[4]);
+    assertValueEquality(101, arr[5]);
+    assertValueEquality(999, arr[6]);
+    assertValueEquality(998, arr[7]);
+    assertValueEquality(999, arr[8]);
+    assertValueEquality(998, arr[9]);
+}
+
+function testInvalidPushOnUnionOfSameBasicType() {
+    int[]|string[] arr = [1, 2];
+
+    var fn = function () {
+        arr.push("foo");
+    };
+
+    error? res = trap fn();
+    assertTrue(res is error);
+
+    error err = <error> res;
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err.reason());
+    assertValueEquality("incompatible types: expected 'int', found 'string'", err.detail()?.message);
+
+    fn = function () {
+        arr.unshift("foo");
+    };
+
+    res = trap fn();
+    assertTrue(res is error);
+
+    err = <error> res;
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err.reason());
+    assertValueEquality("incompatible types: expected 'int', found 'string'", err.detail()?.message);
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertTrue(any|error actual) {
+    if actual is boolean && actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected 'true', found '" + actual.toString () + "'");
+}
+
+function assertFalse(any|error actual) {
+    if actual is boolean && !actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected 'false', found '" + actual.toString () + "'");
+}
+
+function assertValueEquality(anydata|error expected, anydata|error actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

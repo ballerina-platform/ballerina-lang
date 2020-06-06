@@ -9,6 +9,7 @@
       "label": "on",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "120",
       "insertText": "on ",
       "insertTextFormat": "Snippet"
     }

@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>1.2.0</version>
+    <version>1.2.4</version>
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
@@ -13,9 +13,7 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li> Added "Goto Definition" support for ballerina standard libraries.
-        <li> Added ballerina 1.2.0 syntax support.
-        <li> Fixed plugin error due to an NPE in language client during listener disposing events. </li>
+        <li> Fixed distribution auto-detection for homebrew based installations. </li>
       </ul>
     ]]>
     </change-notes>

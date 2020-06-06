@@ -7,23 +7,23 @@
   "items": [
     {
       "label": "MockListener",
-      "kind": "Class",
+      "kind": "Interface",
       "detail": "Object",
       "documentation": {
         "left": "Mock server endpoint which does not open a listening port."
       },
-      "sortText": "120",
+      "sortText": "190",
       "insertText": "MockListener",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "Listener",
-      "kind": "Class",
+      "kind": "Interface",
       "detail": "Object",
       "documentation": {
         "left": "This is used for creating HTTP server endpoints. An HTTP server endpoint is capable of responding to\nremote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations."
       },
-      "sortText": "120",
+      "sortText": "190",
       "insertText": "Listener",
       "insertTextFormat": "Snippet"
     }

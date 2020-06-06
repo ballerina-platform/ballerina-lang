@@ -52,12 +52,15 @@ public class RepoUtils {
     private static final String BALLERINA_CLI_WIDTH = "BALLERINA_CLI_WIDTH";
     private static final String PRODUCTION_URL = "https://api.central.ballerina.io/1.0";
     private static final String STAGING_URL = "https://api.staging-central.ballerina.io";
+    private static final String PREPROD_URL = "https://api.preprod-central.ballerina.io/1.0";
 
     private static final String BALLERINA_ORG = "ballerina";
     private static final String BALLERINAX_ORG = "ballerinax";
 
     public static final boolean BALLERINA_DEV_STAGE_CENTRAL = Boolean.parseBoolean(
             System.getenv("BALLERINA_DEV_STAGE_CENTRAL"));
+    public static final boolean BALLERINA_DEV_PREPROD_CENTRAL = Boolean.parseBoolean(
+            System.getenv("BALLERINA_DEV_PREPROD_CENTRAL"));
     
     /**
      * Create and get the home repository path.
@@ -138,6 +141,8 @@ public class RepoUtils {
     public static String getRemoteRepoURL() {
         if (BALLERINA_DEV_STAGE_CENTRAL) {
             return STAGING_URL;
+        } else if (BALLERINA_DEV_PREPROD_CENTRAL) {
+            return PREPROD_URL;
         }
         return PRODUCTION_URL;
     }

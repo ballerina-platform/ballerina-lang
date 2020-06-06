@@ -561,6 +561,8 @@ public class BIRPackageSymbolEnter {
                 this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
         annotationSymbol.type = new BAnnotationType(annotationSymbol);
 
+        defineMarkDownDocAttachment(annotationSymbol, readDocBytes(dataInStream));
+
         this.env.pkgSymbol.scope.define(annotationSymbol.name, annotationSymbol);
         if (annotationType != symTable.noType) { //TODO fix properly
             annotationSymbol.attachedType = annotationType.tsymbol;

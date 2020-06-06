@@ -18,8 +18,8 @@ import ballerina/log;
 
 # Record type to hold the details of an error.
 #
-# + message - Specific error message of the error.
-# + cause - Any other error, which causes this error.
+# + message - Specific error message of the error
+# + cause - Any other error, which causes this error
 public type Detail record {
     string message;
     error cause?;

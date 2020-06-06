@@ -35,8 +35,10 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -68,8 +70,12 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
         AnnotationAttachmentNode annotation = null;
         List<String> tags = new ArrayList<>();
         List<String> operations = new ArrayList<>();
+        List<String> excludeTags = new ArrayList<>();
+        List<String> excludeOperations = new ArrayList<>();
         this.openAPIComponentSummary = new OpenAPIComponentSummary();
         String contractURI = null;
+        Boolean failOnErrors = true;
+        Diagnostic.Kind kind;
 
         for (AnnotationAttachmentNode ann : annotations) {
             if (Constants.PACKAGE.equals(ann.getPackageAlias().getValue())
@@ -103,14 +109,18 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                         if (key.equals(Constants.CONTRACT)) {
                             if (valueExpr instanceof BLangLiteral) {
                                 BLangLiteral value = (BLangLiteral) valueExpr;
-                                String separator = File.separator;
                                 SourceDirectoryManager sourceDirectoryManager = SourceDirectoryManager.getInstance(
                                         compilerContext);
-                                String sourceDir = sourceDirectoryManager.getSourceDirectory().getPath().toString();
-                                String filePath = serviceNode.getPosition().getSource().getPackageName() + separator +
+                                Path sourceDir = sourceDirectoryManager.getSourceDirectory().getPath();
+                                Path pkg = Paths.get(serviceNode.getPosition().getSource().getPackageName());
+                                Path filePath = Paths.get((pkg.toString().equals(".") ? "" : pkg.toString()),
                                         serviceNode.getPosition().getSource().getCompilationUnitName().replaceAll(
-                                                "\\w*.bal", "");
-                                String projectDir = sourceDir + separator + "src" + separator + filePath;
+                                                "\\w*\\.bal", "").replaceAll("^/+", ""));
+
+                                String projectDir = filePath.toString().
+                                        contains(sourceDir.toString().replaceAll("^/+", "")) ?
+                                        sourceDir.toString() :
+                                        Paths.get(sourceDir.toString(), "src", filePath.toString()).toString();
                                 if (value.getValue() instanceof String) {
                                     String userUri = (String) value.getValue();
 
@@ -133,40 +143,47 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                 }
                             }
                         } else if (key.equals(Constants.TAGS)) {
-                            if (valueExpr instanceof BLangListConstructorExpr) {
-                                BLangListConstructorExpr bLangListConstructorExpr =
-                                        (BLangListConstructorExpr) valueExpr;
-                                for (BLangExpression bLangExpression : bLangListConstructorExpr.getExpressions()) {
-                                    if (bLangExpression instanceof BLangLiteral) {
-                                        BLangLiteral expression = (BLangLiteral) bLangExpression;
-                                        if (expression.getValue() instanceof String) {
-                                            tags.add((String) expression.getValue());
-                                        } else {
-                                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
-                                                    "Tags should be applied as string values");
-                                        }
-                                    }
-                                }
-                            }
+                            extractValues(annotation, tags, valueExpr, "Tags should be applied as string values");
                         } else if (key.equals(Constants.OPERATIONS)) {
-                            if (valueExpr instanceof BLangListConstructorExpr) {
-                                BLangListConstructorExpr bLangListConstructorExpr =
-                                        (BLangListConstructorExpr) valueExpr;
-                                for (BLangExpression bLangExpression : bLangListConstructorExpr.getExpressions()) {
-                                    if (bLangExpression instanceof BLangLiteral) {
-                                        BLangLiteral expression = (BLangLiteral) bLangExpression;
-                                        if (expression.getValue() instanceof String) {
-                                            operations.add((String) expression.getValue());
-                                        } else {
-                                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
-                                                    "Operations should be applied as string values");
-                                        }
-                                    }
+                            extractValues(annotation, operations, valueExpr,
+                                    "Operations should be applied as string values");
+                        }  else if (key.equals(Constants.FAILONERRORS)) {
+                            if (valueExpr instanceof BLangLiteral) {
+                                BLangLiteral value = (BLangLiteral) valueExpr;
+                                if (value.getValue() instanceof Boolean) {
+                                    failOnErrors = (Boolean) value.getValue();
+                                } else {
+                                    dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
+                                            "FailOnErrors should be applied as boolean values");
                                 }
                             }
+                        } else if (key.equals(Constants.EXCLUDETAGS)) {
+                            extractValues(annotation, excludeTags, valueExpr,
+                                    "ExcludeTags should be applied as string values");
+                        } else if (key.equals(Constants.EXCLUDEOPERATIONS)) {
+                            extractValues(annotation, excludeOperations, valueExpr,
+                                    "ExcludeOperations should be applied as string values");
                         }
                     }
                 }
+            }
+
+            if (failOnErrors) {
+                kind = Diagnostic.Kind.ERROR;
+            } else {
+                kind = Diagnostic.Kind.WARNING;
+            }
+
+//            Checking both tags and excludeTags include same tags and operations
+            if (!Collections.disjoint(tags, excludeTags)) {
+                dLog.logDiagnostic(Diagnostic.Kind.WARNING, annotation.getPosition(),
+                        ErrorMessages.tagFilterEnable());
+                excludeTags.clear();
+
+            } else if (!Collections.disjoint(operations, excludeOperations)) {
+                dLog.logDiagnostic(Diagnostic.Kind.WARNING, annotation.getPosition(),
+                        ErrorMessages.operationFilterEnable());
+                excludeOperations.clear();
             }
 
             if (contractURI != null) {
@@ -174,13 +191,36 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                     OpenAPI openAPI = ValidatorUtil.parseOpenAPIFile(contractURI);
                     ValidatorUtil.summarizeResources(this.resourceSummaryList, serviceNode);
                     ValidatorUtil.summarizeOpenAPI(this.openAPISummaryList, openAPI, this.openAPIComponentSummary);
-                    ValidatorUtil.validateOpenApiAgainstResources(serviceNode, tags, operations,
-                            this.resourceSummaryList, this.openAPISummaryList, this.openAPIComponentSummary, dLog);
-                    ValidatorUtil.validateResourcesAgainstOpenApi(tags, operations, this.resourceSummaryList,
-                            this.openAPISummaryList, this.openAPIComponentSummary, dLog);
+                    ValidatorUtil.validateOpenApiAgainstResources(serviceNode, tags, operations, kind, excludeTags,
+                            excludeOperations,
+                            this.resourceSummaryList, this.openAPISummaryList,
+                            this.openAPIComponentSummary, dLog);
+                    ValidatorUtil.validateResourcesAgainstOpenApi(tags, operations, kind, excludeTags,
+                            excludeOperations,
+                            this.resourceSummaryList,
+                            this.openAPISummaryList, this.openAPIComponentSummary,
+                            dLog);
                 } catch (OpenApiValidatorException e) {
                     dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
                             e.getMessage());
+                }
+            }
+        }
+    }
+
+    private void extractValues(AnnotationAttachmentNode annotation, List<String> operations,
+                               BLangExpression valueExpr, String s) {
+        if (valueExpr instanceof BLangListConstructorExpr) {
+            BLangListConstructorExpr bLangListConstructorExpr =
+                    (BLangListConstructorExpr) valueExpr;
+            for (BLangExpression bLangExpression : bLangListConstructorExpr.getExpressions()) {
+                if (bLangExpression instanceof BLangLiteral) {
+                    BLangLiteral expression = (BLangLiteral) bLangExpression;
+                    if (expression.getValue() instanceof String) {
+                        operations.add((String) expression.getValue());
+                    } else {
+                        dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(), s);
+                    }
                 }
             }
         }

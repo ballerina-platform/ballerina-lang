@@ -15,28 +15,34 @@
 // under the License.
 
 # Service validation codee
-# + contract - OpenApi Contract link
-# + tags - OpenApi Tags
-# + operations - OpenApi Operations
+        # + contract - OpenApi Contract link
+        # + tags - OpenApi Tags
+        # + operations - OpenApi Operations
+        # + failOnErrors - OpenApi Validator Enable
+        # + excludeTags - Openapi Validator Off for these tags
+        # + excludeOperations - Openapi Validator Off for these operations
 public type ServiceInformation record {|
-    string contract = "";
-    string[]? tags = [];
-    string[]? operations = [];
-|};
+        string contract = "";
+        string[]? tags = [];
+        string[]? operations = [];
+        boolean failOnErrors = true;
+        string[]? excludeTags = [];
+        string[]? excludeOperations = [];
+        |};
 
-# Configuration elements for client code generation.
-#
-# + generate - generates client code if set to true
+        # Configuration elements for client code generation.
+        #
+        # + generate - generates client code if set to true
 public type ClientInformation record {|
-    boolean generate = true;
-|};
+        boolean generate = true;
+        |};
 
-# Presence of this annotation will mark this endpoint to be used as a service endpoint for client generation
+        # Presence of this annotation will mark this endpoint to be used as a service endpoint for client generation
 public const annotation ClientEndpoint on source listener;
 
-# Annotation to configure client code generation.
+        # Annotation to configure client code generation.
 public annotation ClientInformation ClientConfig on service;
 
-# Annotation for additional OpenAPI information of a Ballerina service.
+        # Annotation for additional OpenAPI information of a Ballerina service.
 public annotation ServiceInformation ServiceInfo on service;
 

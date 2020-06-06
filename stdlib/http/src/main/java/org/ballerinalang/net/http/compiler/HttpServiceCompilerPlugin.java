@@ -85,8 +85,7 @@ public class HttpServiceCompilerPlugin extends AbstractCompilerPlugin {
                                        serviceNode.getName().getValue());
         }
         resources.forEach(res -> {
-            ResourceSignatureValidator.validate(res.getParameters(), dlog, res.pos);
-            ResourceSignatureValidator.validateResourceAnnotation(res, dlog);
+            ResourceSignatureValidator.validate(res, dlog, res.pos);
         });
     }
 

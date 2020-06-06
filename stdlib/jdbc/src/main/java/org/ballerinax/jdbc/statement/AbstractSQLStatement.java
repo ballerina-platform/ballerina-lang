@@ -38,11 +38,11 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.datasource.SQLDatasource;
 import org.ballerinax.jdbc.exceptions.ApplicationException;
@@ -89,6 +89,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     private static final BType SQL_PARAMETER_TYPE =
             BallerinaValues.createRecordValue(Constants.JDBC_PACKAGE_ID, Constants.SQL_PARAMETER).getType();
     Calendar utcCalendar = Calendar.getInstance(TimeZone.getTimeZone(Constants.TIMEZONE_UTC));
+    private static final BArrayType sqlParameterType = new BArrayType(SQL_PARAMETER_TYPE);
     Strand strand;
 
     AbstractSQLStatement(Strand strand) {
@@ -96,7 +97,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     }
 
     ArrayValue constructParameters(ArrayValue parameters) throws ApplicationException {
-        ArrayValue parametersNew = new ArrayValueImpl(new BArrayType(SQL_PARAMETER_TYPE));
+        ArrayValue parametersNew = (ArrayValue) BValueCreator.createArrayValue(sqlParameterType);
         int paramCount = parameters.size();
         for (int i = 0; i < paramCount; ++i) {
             Object value = parameters.get(i);

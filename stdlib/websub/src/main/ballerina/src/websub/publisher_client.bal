@@ -24,20 +24,26 @@ public type PublisherClient client object {
     private string url;
     private http:Client httpClient;
 
-    # Initializer function for the client.
-    #
-    # + url    - The URL to publish/notify updates to
-    # + config - The `http:ClientConfiguration` for the underlying client or `()`
+# Initializes the `websub:PublisherClient`.
+# ```ballerina
+# websub:PublisherClient websubHubClientEP = new ("http://localhost:9191/websub/publish");
+# ```
+#
+# + url    - The URL to publish/notify updates
+# + config - The `http:ClientConfiguration` for the underlying client or else `()`
     public function __init(string url, http:ClientConfiguration? config = ()) {
         self.url = url;
         self.httpClient = new (self.url, config);
     }
 
-    # Registers a topic in a Ballerina WebSub Hub against which subscribers can subscribe and the publisher will
-    # publish updates.
-    #
-    # + topic - The topic to register
-    # + return - `error` if an error occurred registering the topic
+# Registers a topic in a Ballerina WebSub Hub against which subscribers can subscribe and the publisher will
+# publish updates.
+# ```ballerina
+# error? registerTopic = websubHubClientEP->registerTopic("http://websubpubtopic.com");
+# ```
+#
+# + topic - The topic to register
+# + return - An `error` if an error occurred registering the topic or esle `()`
     public remote function registerTopic(string topic) returns @tainted error? {
         http:Client httpClient = self.httpClient;
         http:Request request = buildTopicRegistrationChangeRequest(MODE_REGISTER, topic);
@@ -57,10 +63,13 @@ public type PublisherClient client object {
         }
     }
 
-    # Unregisters a topic in a Ballerina WebSub Hub.
-    #
-    # + topic - The topic to unregister
-    # + return - `error` if an error occurred unregistering the topic
+# Unregisters a topic in a Ballerina WebSub Hub.
+# ```ballerina
+# error? unregisterTopic = websubHubClientEP->unregisterTopic("http://websubpubtopic.com");
+#  ```
+#
+# + topic - The topic to unregister
+# + return -  An `error`if an error occurred unregistering the topic or else `()`
     public remote function unregisterTopic(string topic) returns @tainted error? {
         http:Client httpClient = self.httpClient;
         http:Request request = buildTopicRegistrationChangeRequest(MODE_UNREGISTER, topic);
@@ -80,13 +89,17 @@ public type PublisherClient client object {
         }
     }
 
-    # Publishes an update to a remote Ballerina WebSub Hub.
-    #
-    # + topic - The topic for which the update occurred
-    # + payload - The update payload
-    # + contentType - The type of the update content, to set as the `ContentType` header
-    # + headers - The headers, if any, that need to be set
-    # + return - `error` if an error occurred with the update
+# Publishes an update to a remote Ballerina WebSub Hub.
+# ```ballerina
+# error? publishUpdate = websubHubClientEP->publishUpdate("http://websubpubtopic.com",{"action": "publish",
+# "mode": "remote-hub"});
+#  ```
+#
+# + topic - The topic for which the update occurred
+# + payload - The update payload
+# + contentType - The type of the update content to set as the `ContentType` header
+# + headers - The headers that need to be set (if any)
+# + return -  An `error`if an error occurred with the update or else `()`
     public remote function publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
                                          string? contentType = (), map<string>? headers = ()) returns @tainted error? {
         http:Client httpClient = self.httpClient;
@@ -118,12 +131,15 @@ public type PublisherClient client object {
         }
     }
 
-    # Notifies a remote WebSub Hub that an update is available to fetch, for hubs that require publishing to
-    # happen as such.
-    #
-    # + topic - The topic for which the update occurred
-    # + headers - The headers, if any, that need to be set
-    # + return - `error` if an error occurred with the notification
+# Notifies a remote WebSub Hub from which an update is available to fetch for hubs that require publishing to
+# happen as such.
+# ```ballerina
+#  error? notifyUpdate = websubHubClientEP->notifyUpdate("http://websubpubtopic.com");
+#   ```
+#
+# + topic - The topic for which the update occurred
+# + headers - The headers that need to be set (if any)
+# + return -  An `error`if an error occurred with the notification or else `()`
     public remote function notifyUpdate(string topic, map<string>? headers = ()) returns @tainted error? {
         http:Client httpClient = self.httpClient;
         http:Request request = new;
@@ -156,7 +172,7 @@ public type PublisherClient client object {
 #
 # + mode - Whether the request is for registration or unregistration
 # + topic - The topic to register/unregister
-# + return - `http:Request` The Request to send to the hub to register/unregister
+# + return - An `http:Request` to be sent to the hub to register/unregister
 function buildTopicRegistrationChangeRequest(@untainted string mode, @untainted string topic) returns (http:Request) {
     http:Request request = new;
     request.setTextPayload(HUB_MODE + "=" + mode + "&" + HUB_TOPIC + "=" + topic);

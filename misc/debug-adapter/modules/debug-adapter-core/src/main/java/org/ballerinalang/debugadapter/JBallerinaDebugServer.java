@@ -19,6 +19,7 @@ package org.ballerinalang.debugadapter;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.IncompatibleThreadStateException;
+import com.sun.jdi.Location;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
@@ -31,8 +32,10 @@ import org.ballerinalang.debugadapter.launchrequest.Launch;
 import org.ballerinalang.debugadapter.launchrequest.LaunchFactory;
 import org.ballerinalang.debugadapter.terminator.OSUtils;
 import org.ballerinalang.debugadapter.terminator.TerminatorFactory;
+import org.ballerinalang.debugadapter.variable.BCompoundVariable;
+import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
+import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
-import org.ballerinalang.debugadapter.variable.VariableImpl;
 import org.ballerinalang.toml.model.Manifest;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.Capabilities;
@@ -90,7 +93,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.debugadapter.PackageUtils.findProjectRoot;
+import javax.annotation.Nullable;
+
+import static org.ballerinalang.debugadapter.utils.PackageUtils.findProjectRoot;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDERR;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
 
@@ -153,7 +158,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return CompletableFuture.completedFuture(breakpointsResponse);
     }
 
-
     @Override
     public CompletableFuture<Void> configurationDone(ConfigurationDoneArguments args) {
         return CompletableFuture.completedFuture(null);
@@ -182,7 +186,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         try {
             launchedProcess = launcher.start();
         } catch (IOException e) {
-            sendOutput("Unable to launch debug adapter", STDERR);
+            sendOutput("Unable to launch debug adapter: " + e.toString(), STDERR);
             return CompletableFuture.completedFuture(null);
         }
         CompletableFuture.runAsync(() -> {
@@ -290,7 +294,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
             StackFrame[] filteredStackFrames = Arrays.stream(stackFrames)
                     .filter(stackFrame -> {
-                        if (stackFrame.getSource() == null || stackFrame.getSource().getPath() == null) {
+                        if (stackFrame == null || stackFrame.getSource() == null
+                                || stackFrame.getSource().getPath() == null) {
                             return false;
                         } else {
                             return stackFrame.getSource().getName().endsWith(".bal");
@@ -303,32 +308,27 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return CompletableFuture.completedFuture(stackTraceResponse);
     }
 
+    @Nullable
     private StackFrame toDapStackFrame(com.sun.jdi.StackFrame stackFrame) {
-        long variableReference = (long) nextVarReference.getAndIncrement();
+        long variableReference = nextVarReference.getAndIncrement();
         stackframesMap.put(variableReference, stackFrame);
 
-        StackFrame dapStackFrame = new StackFrame();
-        Source source = new Source();
         try {
-            String sourcePath = stackFrame.location().sourcePath();
-            sourcePath = sourcePath != null ? sourcePath : "";
-            sourcePath = sourcePath.replaceFirst("tests" + File.separator + "tests", "tests");
-            if (orgName.length() > 0 && sourcePath.startsWith(orgName)) {
-                sourcePath = sourcePath.replaceFirst(orgName, "src");
-            }
-
+            String sourcePath = getRectifiedPath(stackFrame.location());
+            Source source = new Source();
             source.setPath(projectRoot + File.separator + sourcePath);
             source.setName(stackFrame.location().sourceName());
+
+            StackFrame dapStackFrame = new StackFrame();
+            dapStackFrame.setId(variableReference);
+            dapStackFrame.setSource(source);
+            dapStackFrame.setLine((long) stackFrame.location().lineNumber());
+            dapStackFrame.setColumn(0L);
+            dapStackFrame.setName(stackFrame.location().method().name());
+            return dapStackFrame;
         } catch (AbsentInformationException e) {
+            return null;
         }
-        dapStackFrame.setId(variableReference);
-
-        dapStackFrame.setSource(source);
-        dapStackFrame.setLine((long) stackFrame.location().lineNumber());
-        dapStackFrame.setColumn(0L);
-        dapStackFrame.setName(stackFrame.location().method().name());
-
-        return dapStackFrame;
     }
 
     @Override
@@ -345,44 +345,43 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 String varTypeStr = (value == null) ? "null" : value.type().name();
                 String name = entry.getKey();
 
-                VariableImpl variable = new VariableFactory().getVariable(value, varTypeStr, name);
-                if (variable != null && variable.getChildVariables() != null) {
-                    long variableReference = (long) nextVarReference.getAndIncrement();
-                    variable.getDapVariable().setVariablesReference(variableReference);
-                    this.childVariables.put(variableReference, variable.getChildVariables());
-                }
+                BVariable variable = VariableFactory.getVariable(value, varTypeStr, name);
                 if (variable == null) {
                     return null;
+                } else if (variable instanceof BPrimitiveVariable) {
+                    variable.getDapVariable().setVariablesReference(0L);
+                } else if (variable instanceof BCompoundVariable) {
+                    long variableReference = nextVarReference.getAndIncrement();
+                    variable.getDapVariable().setVariablesReference(variableReference);
+                    this.childVariables.put(variableReference, ((BCompoundVariable) variable).getChildVariables());
                 }
                 return variable.getDapVariable();
             }).filter(Objects::nonNull).toArray(Variable[]::new);
         } else {
             try {
-                dapVariables = stackFrame.getValues(stackFrame.visibleVariables())
-                        .entrySet()
-                        .stream()
-                        .map(localVariableValueEntry -> {
+                dapVariables = stackFrame.getValues(stackFrame.visibleVariables()).entrySet().stream()
+                        .map(varValueEntry -> {
                             String varType;
                             try {
-                                varType = localVariableValueEntry.getKey().type().name();
+                                varType = varValueEntry.getKey().type().name();
                             } catch (ClassNotLoadedException e) {
-                                varType = localVariableValueEntry.getKey().toString();
+                                varType = varValueEntry.getKey().toString();
                             }
-                            String name = localVariableValueEntry.getKey() == null ? "" :
-                                    localVariableValueEntry.getKey().name();
+                            String name = varValueEntry.getKey() != null ? varValueEntry.getKey().name() : "";
                             if (name.equals("__strand")) {
                                 return null;
                             }
 
-                            VariableImpl variable = new VariableFactory()
-                                    .getVariable(localVariableValueEntry.getValue(), varType, name);
-                            if (variable != null && variable.getChildVariables() != null) {
-                                long variableReference = (long) nextVarReference.getAndIncrement();
-                                variable.getDapVariable().setVariablesReference(variableReference);
-                                this.childVariables.put(variableReference, variable.getChildVariables());
-                            }
+                            BVariable variable = VariableFactory.getVariable(varValueEntry.getValue(), varType, name);
                             if (variable == null) {
                                 return null;
+                            } else if (variable instanceof BPrimitiveVariable) {
+                                variable.getDapVariable().setVariablesReference(0L);
+                            } else if (variable instanceof BCompoundVariable) {
+                                long variableReference = nextVarReference.getAndIncrement();
+                                variable.getDapVariable().setVariablesReference(variableReference);
+                                this.childVariables.put(variableReference, ((BCompoundVariable) variable)
+                                        .getChildVariables());
                             }
                             return variable.getDapVariable();
                         }).filter(Objects::nonNull).toArray(Variable[]::new);
@@ -533,4 +532,22 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         this.client = client;
     }
 
+    /**
+     * Some additional processing is required to rectify the source path, as the source name will be the
+     * relative path instead of just the file name, for the ballerina module sources.
+     */
+    private String getRectifiedPath(Location location) throws AbsentInformationException {
+        String sourcePath = location.sourcePath();
+        String sourceName = location.sourceName();
+
+        // Note: directly using file separator as a regex will fail on windows.
+        String[] srcNames = sourceName.split(File.separatorChar == '\\' ? "\\\\" : File.separator);
+        String fileName = srcNames[srcNames.length - 1];
+        String relativePath = sourcePath.replace(sourceName, fileName);
+
+        if (!orgName.isEmpty() && relativePath.startsWith(orgName)) {
+            relativePath = relativePath.replaceFirst(orgName, "src");
+        }
+        return relativePath;
+    }
 }

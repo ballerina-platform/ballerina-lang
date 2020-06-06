@@ -102,6 +102,7 @@ DO          : {inQueryExpression}? 'do' { inQueryExpression = false; } ;
 WHERE       : {inQueryExpression}? 'where' ;
 LET         : 'let' ;
 DEPRECATED  : 'Deprecated';
+DEPRECATED_PARAMETERS  : 'Deprecated parameters';
 
 // Separators
 
@@ -492,6 +493,10 @@ DeprecatedDocumentation
     :   HASH DocumentationSpace HASH DocumentationSpace DEPRECATED DocumentationSpace* -> pushMode(MARKDOWN_DOCUMENTATION)
     ;
 
+DeprecatedParametersDocumentation
+    :   HASH DocumentationSpace HASH DocumentationSpace DEPRECATED_PARAMETERS DocumentationSpace* -> pushMode(MARKDOWN_DOCUMENTATION)
+    ;
+
 // Whitespace and comments
 
 WS
@@ -591,7 +596,7 @@ DoubleBacktickEnd
 mode TRIPLE_BACKTICKED_DOCUMENTATION;
 
 TripleBacktickContent
-    :   ((~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])* [\n])? (DocumentationLineStart (~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])* [\n]?)+
+    :   ((~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])* [\n])? (WS? DocumentationLineStart (~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])* [\n]?)+
     |   (~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])+
     ;
 

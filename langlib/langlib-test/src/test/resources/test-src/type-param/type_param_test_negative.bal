@@ -13,9 +13,10 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.array;
+import ballerina/lang.'map;
 
 function testAnyData() {
-
     int[] x = [];
     boolean[] x1 = x.clone();  // incompatible types: expected 'boolean[]', found 'int[]'
     int[] x2 = x.clone();  // No error;
@@ -86,4 +87,46 @@ function testTypedescFunctions() {
     Student p = { name : "Michel"};
     Person|error q = Person.constructFrom(p); // No error;
     string r = Person.constructFrom(p); // Error
+}
+
+function testInvalidArgForBoundRestParam() {
+    byte[] barr = [0, 1];
+    barr.push(-1);
+    array:push(barr, 256);
+    int[] x = [-10, 257];
+    array:push(barr, ...x);
+
+    barr.unshift(-3);
+    barr.unshift(-3, 257);
+    array:unshift(barr, ...x);
+}
+
+function testInvalidArgForBoundRequiredParam() {
+    map<int> m = {
+        a: 1,
+        b: 2
+    };
+
+    int s = m.reduce(function (int i, byte b) returns int {
+                        return i;
+                    },
+                    1.0);
+
+    s = 'map:reduce(m,
+                    function (int i, byte b) returns int {
+                        return i;
+                    },
+                    1.0);
+
+    byte[] barr = [0, 1];
+    int? index = barr.indexOf(257);
+
+    int i = -1;
+    index = barr.indexOf(i);
+}
+
+function testInvalidArgOnUnionTypedValue() {
+    int[]|string[] arr = [1, 2];
+    arr.push(true);
+    array:unshift(arr, 13.2);
 }

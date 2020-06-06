@@ -23,51 +23,72 @@ public type Process object {
 
     private int BUF_SIZE = 10240;
 
-    # Waits for the process to finish it's work and exit.
-    #
-    # + return - Returns the exit code for the process, or an `Error` if a failure occurs
-    public function waitForExit() returns int | Error {
+# Waits for the process to finish its work and exit.
+# ```ballerina
+# int|error exitCode = process.waitForExit();
+# ```
+#
+# + return - Returns the exit code for the process or else an `Error` if a failure occurs
+    public function waitForExit() returns int|Error {
         return nativeWaitForExit(self);
     }
 
-    # Returns the exit code of the process when it has finished the execution.
-    # Error if the process has not exited yet.
-    #
-    # + return - Returns the exit code of the process, or an `Error` if the process hasn't exited yet
-    public function exitCode() returns int | Error {
+# Returns the exit code of the process when it has finished the execution.
+# Error if the process has not exited yet.
+# ```ballerina
+# int|error exitCode = process.exitCode();
+# ```
+#
+# + return - Returns the exit code of the process or else an `Error` if the process hasn't exited yet
+    public function exitCode() returns int|Error {
         return nativeExitCode(self);
     }
 
-    # Destroys the process.
+# Destroys the process.
+# ```ballerina
+# process.destroy();
+# ```
     public function destroy() {
         return nativeDestroy(self);
     }
 
-    # Provides a channel (to write into), which is made available as the 'standard input' for the process.
-    #
-    # + return - The `io:WritableByteChannel` which represents the process's 'standard input'
+# Provides a channel (to write into), which is made available as the 'standard input' for the process.
+# ```ballerina
+# io:WritableByteChannel output = process.stdin();
+# ```
+#
+# + return - The `io:WritableByteChannel`, which represents the process's 'standard input'
     public function stdin() returns io:WritableByteChannel {
         return nativeStdin(self);
     }
 
-    # Provides a channel (to read from), which is made available as the 'standard output' of the process.
-    #
-    # + return - The `io:ReadableByteChannel` which represents the process's 'standard output'
+# Provides a channel (to read from), which is made available as the 'standard output' of the process.
+# ```ballerina
+# io:ReadableByteChannel input = process.stdout();
+# ```
+#
+# + return - The `io:ReadableByteChannel`, which represents the process's 'standard output'
     public function stdout() returns io:ReadableByteChannel {
         return nativeStdout(self);
     }
 
-    # Provides a channel (to read from), which is made available as the 'standard error' of the process.
-    #
-    # + return - The `io:ReadableByteChannel` which represents the process's 'standard error'
+# Provides a channel (to read from), which is made available as the 'standard error' of the process.
+# ```ballerina
+# io:ReadableByteChannel input = process.stderr();
+# ```
+#
+# + return - The `io:ReadableByteChannel`, which represents the process's 'standard error'
     public function stderr() returns io:ReadableByteChannel {
         return nativeStderr(self);
     }
 
-    # Pipes the standard output of the current process to the standard input of the given process.
-    #
-    # + process - The process to pipe the data to
-    # + return - The process that is passed in, which is used to help chain pipe operations
+# Pipes the standard output of the current process to the standard input of the given process.
+# ```ballerina
+# var x3out = x1.pipe(x2).pipe(x3).stdout();
+# ```
+#
+# + process - The process to pipe the data to
+# + return - The process that is passed to be used to help the chain pipe operations
     public function pipe(Process process) returns Process {
         io:ReadableByteChannel input = self.stdout();
         io:WritableByteChannel output = process.stdin();

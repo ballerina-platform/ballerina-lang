@@ -172,6 +172,11 @@ public class LangLibArrayTest {
     }
 
     @Test
+    public void testSliceOnTupleWithRestDesc() {
+        BRunUtil.invokeFunction(compileResult, "testSliceOnTupleWithRestDesc");
+    }
+
+    @Test
     public void testRemove() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRemove");
         assertEquals(returns[0].stringValue(), "FooFoo");
@@ -330,9 +335,8 @@ public class LangLibArrayTest {
     }
 
     @Test
-    public void testBytePush() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testBytePush");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    public void testPush() {
+        BRunUtil.invoke(compileResult, "testPush");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
