@@ -629,8 +629,8 @@ public class KafkaUtils {
         return createKafkaRecord(KafkaConstants.TOPIC_PARTITION_STRUCT_NAME);
     }
 
-    public static BError createKafkaError(String message, String reason) {
-        return BallerinaErrors.createDistinctError(reason, KafkaConstants.KAFKA_PACKAGE_ID, message);
+    public static BError createKafkaError(String message, String typeId) {
+        return BallerinaErrors.createDistinctError(typeId, KafkaConstants.KAFKA_PACKAGE_ID, message);
     }
 
     public static BError createKafkaError(String message, String reason, ErrorValue cause) {

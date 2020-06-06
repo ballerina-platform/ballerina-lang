@@ -17,7 +17,7 @@
 # Represents the NATS module related errors.
 public type NatsError distinct error;
 
-# Represents the NATS module related errors.
+# The union of the NATS module related errors.
 public type Error NatsError;
 
 # Prepare the `error` as a `Error`.

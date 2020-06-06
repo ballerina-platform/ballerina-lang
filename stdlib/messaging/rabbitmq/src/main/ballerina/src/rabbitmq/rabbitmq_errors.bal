@@ -17,5 +17,5 @@
 # Represents the RabbitMQ module related errors.
 public type RabbitMqError distinct error;
 
-# Represents the RabbitMQ module related errors.
+# The union of the RabbitMQ module related errors.
 public type Error RabbitMqError;
