@@ -627,8 +627,8 @@ public class ImmutableTypeCloner {
             Name funcName = names.fromString(Symbols.getAttachedFuncSymbolName(immutableObjectSymbol.name.value,
                                                                                origFunc.funcName.value));
             BInvokableSymbol immutableFuncSymbol =
-                    ASTBuilderUtil.duplicateInvokableSymbol(origFunc.symbol, immutableObjectSymbol,
-                                                            funcName, immutableObjectSymbol.pkgID);
+                    ASTBuilderUtil.duplicateFunctionDeclarationSymbol(origFunc.symbol, immutableObjectSymbol,
+                                                                      funcName, immutableObjectSymbol.pkgID);
             immutableFuncs.add(new BAttachedFunction(origFunc.funcName, immutableFuncSymbol,
                                                      (BInvokableType) immutableFuncSymbol.type));
             immutableObjectSymbol.methodScope.define(funcName, immutableFuncSymbol);
