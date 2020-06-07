@@ -164,7 +164,7 @@ public class ModuleExecutionFlowTests {
     @Test
     public void testModuleStartAndStopPanic() {
         CompileResult compileResult =
-                BCompileUtil.compile("test-src/execution/projectStartAndStopPanic", "current", false);
+                BCompileUtil.compile("test-src/execution/StartStopFailingProject", "current", false);
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module 'basic'\n" +
@@ -186,7 +186,7 @@ public class ModuleExecutionFlowTests {
 
     @Test
     public void testModuleStopPanic() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/execution/projectStopPanic", "current", false);
+        CompileResult compileResult = BCompileUtil.compile("test-src/execution/ModuleStopFailingProject", "current", false);
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module 'basic'\n" +
@@ -210,7 +210,7 @@ public class ModuleExecutionFlowTests {
     @Test(description = "Test 'init' is called only once for each module at runtime")
     public void testModuleDependencyChainForInit() {
         CompileResult compileResult =
-                BCompileUtil.compile("test-src/execution/projectModuleDependencyChainForInit", "current", false);
+                BCompileUtil.compile("test-src/execution/ModuleInitInvocationProject", "current", false);
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module 'basic'\n" +
@@ -233,7 +233,7 @@ public class ModuleExecutionFlowTests {
     @Test(description = "Test 'start' is called only once for each module at runtime")
     public void testModuleDependencyChainForStart() {
         CompileResult compileResult =
-                BCompileUtil.compile("test-src/execution/projectModuleDependencyChainForStart", "current", false);
+                BCompileUtil.compile("test-src/execution/ModuleStartInvocationProject", "current", false);
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module 'basic'\n" +
