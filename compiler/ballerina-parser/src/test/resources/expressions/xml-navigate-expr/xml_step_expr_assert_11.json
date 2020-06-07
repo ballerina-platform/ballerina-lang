@@ -1,0 +1,48 @@
+{
+    "kind": "INDEXED_EXPRESSION",
+    "children": [
+        {
+            "kind": "XML_STEP_EXPRESSION",
+            "children": [
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "a"
+                },
+                {
+                    "kind": "XML_NAME_PATTERN_CHAIN",
+                    "children": [
+                        {
+                            "kind": "DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN"
+                        },
+                        {
+                            "kind": "LIST",
+                            "children": [
+                                {
+                                    "kind": "ASTERISK_TOKEN"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "GT_TOKEN"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "OPEN_BRACKET_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "b"
+                }
+            ]
+        },
+        {
+            "kind": "CLOSE_BRACKET_TOKEN"
+        }
+    ]
+}

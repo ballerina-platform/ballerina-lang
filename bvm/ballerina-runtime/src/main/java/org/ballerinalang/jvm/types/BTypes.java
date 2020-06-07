@@ -98,6 +98,7 @@ public class BTypes {
     public static BType typeFuture = new BFutureType(TypeConstants.FUTURE_TNAME,
             new BPackage(null, null, null));
     public static BType typeNull = new BNullType(TypeConstants.NULL_TNAME, new BPackage(null, null, null));
+    public static BType typeNever = new BNeverType(new BPackage(null, null, null));
     public static BType typeXMLAttributes = new BXMLAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME,
                                                                    new BPackage(null, null, null));
     public static BType typeIterator = new BIteratorType(TypeConstants.ITERATOR_TNAME, new BPackage(null,

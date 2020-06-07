@@ -319,7 +319,7 @@
                           "isMissing": true
                         },
                         {
-                          "kind": "CAPTURE_BINDING_PATTERN",
+                          "kind": "WILDCARD_BINDING_PATTERN",
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
@@ -671,7 +671,7 @@
                                       "isMissing": true
                                     },
                                     {
-                                      "kind": "CAPTURE_BINDING_PATTERN",
+                                      "kind": "WILDCARD_BINDING_PATTERN",
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",

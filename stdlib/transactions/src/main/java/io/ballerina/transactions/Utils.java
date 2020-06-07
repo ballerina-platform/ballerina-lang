@@ -20,6 +20,7 @@
 package io.ballerina.transactions;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.transactions.TransactionConstants;
@@ -48,21 +49,21 @@ import static org.ballerinalang.jvm.transactions.TransactionConstants.TRANSACTIO
 public class Utils {
     private static final String STRUCT_TYPE_TRANSACTION_CONTEXT = "TransactionContext";
 
-    public static void notifyResourceManagerOnAbort(String transactionBlockId) {
+    public static void notifyResourceManagerOnAbort(BString transactionBlockId) {
         Strand strand = Scheduler.getStrand();
         org.ballerinalang.jvm.transactions.TransactionLocalContext transactionLocalContext =
                 strand.transactionLocalContext;
         org.ballerinalang.jvm.transactions.TransactionResourceManager.getInstance()
-                .notifyAbort(transactionLocalContext.getGlobalTransactionId(), transactionBlockId);
+                .notifyAbort(transactionLocalContext.getGlobalTransactionId(), transactionBlockId.getValue());
     }
 
-    public static void rollbackTransaction(String transactionBlockId) {
+    public static void rollbackTransaction(BString transactionBlockId) {
         Strand strand = Scheduler.getStrand();
         TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
-        transactionLocalContext.rollbackTransaction(transactionBlockId);
+        transactionLocalContext.rollbackTransaction(transactionBlockId.getValue());
     }
 
-    public static void cleanupTransactionContext(String transactionBlockId) {
+    public static void cleanupTransactionContext(BString transactionBlockId) {
         Strand strand = Scheduler.getStrand();
         strand.removeLocalTransactionContext();
     }
@@ -92,7 +93,7 @@ public class Utils {
         transactionLocalContext.notifyLocalParticipantFailure();
     }
 
-    public static Object registerRemoteParticipant(String transactionBlockId, FPValue fpCommitted, FPValue fpAborted) {
+    public static Object registerRemoteParticipant(BString transactionBlockId, FPValue fpCommitted, FPValue fpAborted) {
         Strand strand = Scheduler.getStrand();
         String gTransactionId = (String) strand.getProperty(GLOBAL_TRANSACTION_ID);
         if (gTransactionId == null) {
@@ -109,18 +110,17 @@ public class Utils {
         // Register committed and aborted function handler if exists.
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
         transactionResourceManager.registerParticipation(transactionLocalContext.getGlobalTransactionId(),
-                transactionBlockId, fpCommitted, fpAborted, strand);
+                transactionBlockId.getValue(), fpCommitted, fpAborted, strand);
         MapValue<BString, Object> trxContext = BallerinaValues.createRecordValue(TRANSACTION_PACKAGE_ID,
                                                                                  STRUCT_TYPE_TRANSACTION_CONTEXT);
         Object[] trxContextData = new Object[] {
                 TransactionConstants.DEFAULT_CONTEXT_VERSION, transactionLocalContext.getGlobalTransactionId(),
-                transactionBlockId, transactionLocalContext.getProtocol(), transactionLocalContext.getURL()
+                transactionBlockId.getValue(), transactionLocalContext.getProtocol(), transactionLocalContext.getURL()
         };
         return BallerinaValues.createRecord(trxContext, trxContextData);
     }
 
-    public static Object registerLocalParticipant(String transactionBlockId, FPValue fpCommitted,
-            FPValue fpAborted) {
+    public static Object registerLocalParticipant(BString transactionBlockId, FPValue fpCommitted, FPValue fpAborted) {
         Strand strand = Scheduler.getStrand();
         TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
         if (transactionLocalContext == null) {
@@ -132,12 +132,12 @@ public class Utils {
 
         // Register committed and aborted function handler if exists.
         transactionResourceManager.registerParticipation(transactionLocalContext.getGlobalTransactionId(),
-                transactionBlockId, fpCommitted, fpAborted, strand);
+                transactionBlockId.getValue(), fpCommitted, fpAborted, strand);
         MapValue<BString, Object> trxContext = BallerinaValues.createRecordValue(TRANSACTION_PACKAGE_ID,
                 STRUCT_TYPE_TRANSACTION_CONTEXT);
         Object[] trxContextData = new Object[] {
                 TransactionConstants.DEFAULT_CONTEXT_VERSION, transactionLocalContext.getGlobalTransactionId(),
-                transactionBlockId, transactionLocalContext.getProtocol(), transactionLocalContext.getURL()
+                transactionBlockId.getValue(), transactionLocalContext.getProtocol(), transactionLocalContext.getURL()
         };
         return BallerinaValues.createRecord(trxContext, trxContextData);
     }
@@ -159,7 +159,7 @@ public class Utils {
         return strand.transactionLocalContext != null;
     }
 
-    public static String getCurrentTransactionId() {
+    public static BString getCurrentTransactionId() {
         Strand strand = Scheduler.getStrand();
         String currentTransactionId = "";
         TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
@@ -167,21 +167,23 @@ public class Utils {
             currentTransactionId = transactionLocalContext.getGlobalTransactionId() + ":" + transactionLocalContext
                     .getCurrentTransactionBlockId();
         }
-        return currentTransactionId;
+        return StringUtils.fromString(currentTransactionId);
     }
 
-    public static boolean abortResourceManagers(String transactionId, String transactionBlockId) {
-        return TransactionResourceManager.getInstance().notifyAbort(transactionId, transactionBlockId);
+    public static boolean abortResourceManagers(BString transactionId, BString transactionBlockId) {
+        return TransactionResourceManager.getInstance().notifyAbort(transactionId.getValue(),
+                                                                    transactionBlockId.getValue());
     }
 
-    public static boolean commitResourceManagers(String transactionId, String transactionBlockId) {
+    public static boolean commitResourceManagers(BString transactionId, BString transactionBlockId) {
         Strand strand = Scheduler.getStrand();
         return org.ballerinalang.jvm.transactions.TransactionResourceManager
-                .getInstance().notifyCommit(strand, transactionId, transactionBlockId);
+                .getInstance().notifyCommit(strand, transactionId.getValue(), transactionBlockId.getValue());
     }
 
-    public static boolean prepareResourceManagers(String transactionId, String transactionBlockId) {
-        return TransactionResourceManager.getInstance().prepare(transactionId, transactionBlockId);
+    public static boolean prepareResourceManagers(BString transactionId, BString transactionBlockId) {
+        return TransactionResourceManager.getInstance().prepare(transactionId.getValue(),
+                                                                transactionBlockId.getValue());
     }
 
     public static long getAvailablePort() {
@@ -212,8 +214,8 @@ public class Utils {
         throw new IllegalStateException("Could not find a free TCP/IP port");
     }
 
-    public static String getHostAddress() {
-        return getLocalHostLANAddress().getHostAddress();
+    public static BString getHostAddress() {
+        return StringUtils.fromString(getLocalHostLANAddress().getHostAddress());
     }
 
     private static InetAddress getLocalHostLANAddress() throws RuntimeException {

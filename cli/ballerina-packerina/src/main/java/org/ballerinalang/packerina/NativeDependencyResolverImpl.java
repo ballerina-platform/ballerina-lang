@@ -60,7 +60,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DIST_BIR_
  * @since 2.0.0
  */
 public class NativeDependencyResolverImpl implements NativeDependencyResolver {
-    private static final CompilerContext.Key<NativeDependencyResolver> JAR_RESOLVER_KEY = new CompilerContext.Key<>();
+
     private List<String> supportedPlatforms = Arrays.stream(ProgramFileConstants.SUPPORTED_PLATFORMS)
             .collect(Collectors.toList());
     private final BuildContext buildContext;
@@ -303,8 +303,12 @@ public class NativeDependencyResolverImpl implements NativeDependencyResolver {
         }
 
         for (Object lib : libraries) {
-            Path fileName = Paths.get(((HashMap) lib).get("path").toString()).getFileName();
-            libPaths.add(Paths.get(balHomePath, "bre", "lib", fileName.toString()));
+            HashMap libInfo = (HashMap) lib;
+            if (!((libInfo.get("scope") != null) &&
+                    (libInfo.get("scope").toString().equalsIgnoreCase("testOnly")))) {
+                Path fileName = Paths.get(libInfo.get("path").toString()).getFileName();
+                libPaths.add(Paths.get(balHomePath, "bre", "lib", fileName.toString()));
+            }
         }
         return libPaths;
     }

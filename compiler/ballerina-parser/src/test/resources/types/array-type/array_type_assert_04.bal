@@ -3,6 +3,6 @@ public function foo() {
     T[ a;
     int[5 a;
     int[]] a;
-    int[{%] a;
+    int[&%] a;
     T 5] a;
 }

@@ -18,11 +18,13 @@
 
 package org.ballerinalang.stdlib.file.nativeimpl;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.stdlib.file.utils.FileConstants;
 import org.ballerinalang.stdlib.file.utils.FileUtils;
 import org.slf4j.Logger;
@@ -55,23 +57,23 @@ public class Utils {
     private static final String TEMP_DIR_PROPERTY_KEY = "java.io.tmpdir";
     private static BType fileInfoType;
 
-    public static String getCurrentDirectory() {
-        return FileUtils.getSystemProperty(CURRENT_DIR_PROPERTY_KEY);
+    public static BString getCurrentDirectory() {
+        return StringUtils.fromString(FileUtils.getSystemProperty(CURRENT_DIR_PROPERTY_KEY));
     }
 
-    public static boolean exists(String path) {
-        return Files.exists(Paths.get(path));
+    public static boolean exists(BString path) {
+        return Files.exists(Paths.get(path.getValue()));
     }
 
-    public static Object createDir(String dir, boolean parentDirs) {
+    public static Object createDir(BString dir, boolean parentDirs) {
         try {
             Path dirPath;
             if (parentDirs) {
-                dirPath = Files.createDirectories(Paths.get(dir));
+                dirPath = Files.createDirectories(Paths.get(dir.getValue()));
             } else {
-                dirPath = Files.createDirectory(Paths.get(dir));
+                dirPath = Files.createDirectory(Paths.get(dir.getValue()));
             }
-            return dirPath.toAbsolutePath().toString();
+            return StringUtils.fromString(dirPath.toAbsolutePath().toString());
         } catch (FileAlreadyExistsException e) {
             String msg = "File already exists. Failed to create the file: " + dir;
             log.error(msg, e);
@@ -91,9 +93,9 @@ public class Utils {
         }
     }
 
-    public static Object rename(String oldPath, String newPath) {
-        Path oldFilePath = Paths.get(oldPath);
-        Path newFilePath = Paths.get(newPath);
+    public static Object rename(BString oldPath, BString newPath) {
+        Path oldFilePath = Paths.get(oldPath.getValue());
+        Path newFilePath = Paths.get(newPath.getValue());
 
         if (Files.notExists(oldFilePath)) {
             return FileUtils.getBallerinaError(FileConstants.FILE_NOT_FOUND_ERROR,
@@ -113,14 +115,14 @@ public class Utils {
         }
     }
 
-    public static String tempDir() {
-        return FileUtils.getSystemProperty(TEMP_DIR_PROPERTY_KEY);
+    public static BString tempDir() {
+        return StringUtils.fromString(FileUtils.getSystemProperty(TEMP_DIR_PROPERTY_KEY));
     }
 
-    public static Object createFile(String path) {
+    public static Object createFile(BString path) {
         try {
-            Path filepath = Files.createFile(Paths.get(path));
-            return filepath.toAbsolutePath().toString();
+            Path filepath = Files.createFile(Paths.get(path.getValue()));
+            return StringUtils.fromString(filepath.toAbsolutePath().toString());
         } catch (FileAlreadyExistsException e) {
             String msg = "File already exists. Failed to create the file: " + path;
             log.error(msg, e);
@@ -143,8 +145,8 @@ public class Utils {
         }
     }
 
-    public static Object getFileInfo(String path) {
-        File inputFile = Paths.get(path).toAbsolutePath().toFile();
+    public static Object getFileInfo(BString path) {
+        File inputFile = Paths.get(path.getValue()).toAbsolutePath().toFile();
         if (!inputFile.exists()) {
             return FileUtils.getBallerinaError(FileConstants.FILE_NOT_FOUND_ERROR, "File not found: " + path);
         }
@@ -156,8 +158,8 @@ public class Utils {
         }
     }
 
-    public static Object remove(String path, boolean recursive) {
-        File removeFile = Paths.get(path).toAbsolutePath().toFile();
+    public static Object remove(BString path, boolean recursive) {
+        File removeFile = Paths.get(path.getValue()).toAbsolutePath().toFile();
         String wdBValue = FileUtils.getSystemProperty(CURRENT_DIR_PROPERTY_KEY);
         File wd = Paths.get(wdBValue).toAbsolutePath().toFile();
 
@@ -203,8 +205,8 @@ public class Utils {
         }
     }
 
-    public static Object readDir(String path, long maxDepth) {
-        File inputFile = Paths.get(path).toAbsolutePath().toFile();
+    public static Object readDir(BString path, long maxDepth) {
+        File inputFile = Paths.get(path.getValue()).toAbsolutePath().toFile();
 
         if (!inputFile.exists()) {
             return FileUtils.getBallerinaError(FileConstants.FILE_NOT_FOUND_ERROR,
@@ -248,9 +250,9 @@ public class Utils {
         }
     }
 
-    public static Object copy(String sourcePath, String destinationPath, boolean replaceExisting) {
-        Path srcPath = Paths.get(sourcePath);
-        Path destPath = Paths.get(destinationPath);
+    public static Object copy(BString sourcePath, BString destinationPath, boolean replaceExisting) {
+        Path srcPath = Paths.get(sourcePath.getValue());
+        Path destPath = Paths.get(destinationPath.getValue());
 
         if (Files.notExists(srcPath)) {
             return FileUtils.getBallerinaError(FileConstants.FILE_NOT_FOUND_ERROR,

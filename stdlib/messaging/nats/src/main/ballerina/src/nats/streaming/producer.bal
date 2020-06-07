@@ -30,7 +30,7 @@ public type StreamingProducer client object {
     public function __init(Connection connection, public string? clientId = (), public string clusterId = "test-cluster",
     public StreamingConfig? streamingConfig = ()) {
         self.conn = connection;
-        streamingProducerInit(self, connection, java:fromString(clusterId), clientId, streamingConfig);
+        streamingProducerInit(self, connection, clusterId, clientId, streamingConfig);
     }
 
     # Publishes data to a given subject.
@@ -53,18 +53,7 @@ public type StreamingProducer client object {
             if (converted is error) {
                 return prepareError("Error in data conversion", err = converted);
             } else {
-                handle|Error result =
-                    externStreamingPublish(self, java:fromString(subject), converted, natsConnection);
-                if (result is handle) {
-                    var stringResult = java:toString(result);
-                    if (stringResult is string) {
-                        return stringResult;
-                    } else {
-                        return prepareError("Error in value returned while publishing.");
-                    }
-                } else {
-                    return result;
-                }
+                return externStreamingPublish(self, subject, converted, natsConnection);
             }
         }
     }
@@ -82,7 +71,7 @@ public type StreamingProducer client object {
 };
 
 function streamingProducerInit(StreamingProducer streamingClient, Connection conn,
-    handle clusterId, string? clientId, StreamingConfig? streamingConfig) =
+    string clusterId, string? clientId, StreamingConfig? streamingConfig) =
 @java:Method {
     class: "org.ballerinalang.nats.streaming.producer.Init"
 } external;
@@ -92,8 +81,8 @@ function streamingProducerClose(StreamingProducer streamingClient, Connection na
     class: "org.ballerinalang.nats.streaming.producer.Close"
 } external;
 
-function externStreamingPublish(StreamingProducer producer, handle subject, string|byte[] data,
-    Connection connection) returns handle|Error =
+function externStreamingPublish(StreamingProducer producer, string subject, string|byte[] data,
+    Connection connection) returns string|Error =
 @java:Method {
     class: "org.ballerinalang.nats.streaming.producer.Publish"
 } external;

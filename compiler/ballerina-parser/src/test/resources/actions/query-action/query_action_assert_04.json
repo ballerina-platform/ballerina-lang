@@ -81,11 +81,21 @@
                               "kind": "FROM_KEYWORD"
                             },
                             {
-                              "kind": "VAR_KEYWORD"
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "person"
+                              "kind": "TYPED_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "VAR_KEYWORD"
+                                },
+                                {
+                                  "kind": "CAPTURE_BINDING_PATTERN",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "person"
+                                    }
+                                  ]
+                                }
+                              ]
                             },
                             {
                               "kind": "IN_KEYWORD"

@@ -316,6 +316,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(xMLNamespaceDeclarationNode);
     }
 
+    public T transform(ModuleXMLNamespaceDeclarationNode moduleXMLNamespaceDeclarationNode) {
+        return transformSyntaxNode(moduleXMLNamespaceDeclarationNode);
+    }
+
     public T transform(FunctionBodyBlockNode functionBodyBlockNode) {
         return transformSyntaxNode(functionBodyBlockNode);
     }
@@ -564,6 +568,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(captureBindingPatternNode);
     }
 
+    public T transform(WildcardBindingPatternNode wildcardBindingPatternNode) {
+        return transformSyntaxNode(wildcardBindingPatternNode);
+    }
+
     public T transform(ListBindingPatternNode listBindingPatternNode) {
         return transformSyntaxNode(listBindingPatternNode);
     }
@@ -678,6 +686,22 @@ public abstract class NodeTransformer<T> {
 
     public T transform(ByteArrayLiteralNode byteArrayLiteralNode) {
         return transformSyntaxNode(byteArrayLiteralNode);
+    }
+
+    public T transform(XMLFilterExpressionNode xMLFilterExpressionNode) {
+        return transformSyntaxNode(xMLFilterExpressionNode);
+    }
+
+    public T transform(XMLStepExpressionNode xMLStepExpressionNode) {
+        return transformSyntaxNode(xMLStepExpressionNode);
+    }
+
+    public T transform(XMLNamePatternChainingNode xMLNamePatternChainingNode) {
+        return transformSyntaxNode(xMLNamePatternChainingNode);
+    }
+
+    public T transform(XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
+        return transformSyntaxNode(xMLAtomicNamePatternNode);
     }
 
     // Tokens

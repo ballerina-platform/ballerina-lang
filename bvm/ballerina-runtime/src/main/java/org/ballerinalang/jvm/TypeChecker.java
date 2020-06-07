@@ -991,6 +991,9 @@ public class TypeChecker {
             if (sourceTupleType.getRestType() != null) {
                 tupleTypes.add(sourceTupleType.getRestType());
             }
+            if (tupleTypes.isEmpty()) {
+                return targetType.getState() == ArrayState.UNSEALED || targetType.getSize() == 0;
+            }
             sourceArrayType =
                     new BArrayType(new BUnionType(new ArrayList<>(tupleTypes), sourceTupleType.getTypeFlags()));
         }

@@ -805,6 +805,8 @@ public class BIRPackageSymbolEnter {
                     return isImmutable(flags) ? getEffectiveImmutableType(mutableXmlType) : mutableXmlType;
                 case TypeTags.NIL:
                     return symTable.nilType;
+                case TypeTags.NEVER:
+                    return symTable.neverType;
                 case TypeTags.ANYDATA:
                     BType anydataNominalType = typeParamAnalyzer.getNominalType(symTable.anydataType, name, flags);
                     return isImmutable(flags) ? getEffectiveImmutableType(anydataNominalType) : anydataNominalType;

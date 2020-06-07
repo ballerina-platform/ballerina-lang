@@ -110,7 +110,7 @@ public class LogLeecher {
             // Makes it graceful. Otherwise Leecher could exit before the printed logs are read.
             if (forcedExit) {
                 try {
-                    this.wait(5000);
+                    this.wait(10000);
                 } catch (InterruptedException e) {
                     throw new BallerinaTestException("Error while graceful exit of Leecher", e);
                 }

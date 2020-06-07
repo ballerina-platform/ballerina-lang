@@ -78,6 +78,7 @@ public enum TypeKind {
     INTERSECTION("&"),
     VOID(""),
     NIL("null"),
+    NEVER("never"),
     NONE(""),
     OTHER("other"),
     ERROR("error"),

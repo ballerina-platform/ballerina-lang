@@ -42,15 +42,15 @@ import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_U
  */
 public class HttpClientAction extends AbstractHTTPAction {
 
-    public static Object executeClientAction(ObjectValue httpClient, String path,
-                                             ObjectValue requestObj, String httpMethod) {
+    public static Object executeClientAction(ObjectValue httpClient, BString path,
+                                             ObjectValue requestObj, BString httpMethod) {
         Strand strand = Scheduler.getStrand();
         String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI).getValue();
         MapValue<BString, Object> config = (MapValue<BString, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
         HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
-        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, config, path.
+        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, config, path.getValue().
                 replaceAll(HttpConstants.REGEX, HttpConstants.SINGLE_SLASH), requestObj);
-        outboundRequestMsg.setHttpMethod(httpMethod);
+        outboundRequestMsg.setHttpMethod(httpMethod.getValue());
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
                                                   outboundRequestMsg);
         executeNonBlockingAction(dataContext, false);
