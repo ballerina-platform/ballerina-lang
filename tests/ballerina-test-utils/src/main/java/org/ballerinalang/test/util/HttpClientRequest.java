@@ -43,7 +43,7 @@ import java.util.Map;
  */
 public class HttpClientRequest {
     private static final Logger LOG = LoggerFactory.getLogger(HttpClientRequest.class);
-    private static final int DEFAULT_READ_TIMEOUT = 30000;
+    private static final int DEFAULT_READ_TIMEOUT = 60000;
 
     /**
      * Sends an HTTP GET request to a url.
