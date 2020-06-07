@@ -4287,6 +4287,22 @@ public class Desugar extends BLangNodeVisitor {
         result = rewriteExpr(constructStringTemplateConcatExpression(stringTemplateLiteral.exprs));
     }
 
+    /**
+     * The raw template literal gets desugared to an object value of type object:RawTemplate or a subtype of it,
+     * depending on the contextually expected type. For example, consider the following statement:
+     *      string name = "Pubudu";
+     *      'object:RawTemplate rt = `Hello ${name}!`;
+     *
+     * The raw template literal above is desugared to the following statement expression:
+     * {
+     *     'object:RawTemplate $template$ = new;
+     *     $template$.strings = ["Hello ", "!"];
+     *     $template$.insertions = [name];
+     *     return $template$;
+     * }
+     *
+     * @param rawTemplateLiteral The raw template literal to be desugared.
+     */
     @Override
     public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
         DiagnosticPos pos = rawTemplateLiteral.pos;

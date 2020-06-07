@@ -20,11 +20,11 @@ package org.ballerinalang.model.tree.expressions;
 import java.util.List;
 
 /**
- * Represents a backtick string template literal node.
+ * Represents a raw template literal node.
  *
- * @since 2.0.0-Preview1
+ * @since 2.0.0
  */
-public interface TemplateLiteralNode extends ExpressionNode {
+public interface RawTemplateLiteralNode extends ExpressionNode {
 
     List<? extends ExpressionNode> getInsertions();
 

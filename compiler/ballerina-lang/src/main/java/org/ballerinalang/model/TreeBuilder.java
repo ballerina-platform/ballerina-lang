@@ -83,7 +83,7 @@ import org.ballerinalang.model.tree.expressions.StatementExpressionNode;
 import org.ballerinalang.model.tree.expressions.StringTemplateLiteralNode;
 import org.ballerinalang.model.tree.expressions.TableConstructorExprNode;
 import org.ballerinalang.model.tree.expressions.TableMultiKeyExpressionNode;
-import org.ballerinalang.model.tree.expressions.TemplateLiteralNode;
+import org.ballerinalang.model.tree.expressions.RawTemplateLiteralNode;
 import org.ballerinalang.model.tree.expressions.TernaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.TrapExpressionNode;
 import org.ballerinalang.model.tree.expressions.TupleVariableReferenceNode;
@@ -844,7 +844,7 @@ public class TreeBuilder {
         return new BLangStringTemplateLiteral();
     }
 
-    public static TemplateLiteralNode createRawTemplateLiteralNode() {
+    public static RawTemplateLiteralNode createRawTemplateLiteralNode() {
         return new BLangRawTemplateLiteral();
     }
 

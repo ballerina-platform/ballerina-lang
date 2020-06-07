@@ -19,16 +19,19 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.TemplateLiteralNode;
+import org.ballerinalang.model.tree.expressions.RawTemplateLiteralNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @since 2.0.0-Preview1
+ * Represents a raw template literal of the form: `Hello ${name}!`. This gets desugared to an object:RawTemplate object
+ * or a subtype of this.
+ *
+ * @since 2.0.0
  */
-public class BLangRawTemplateLiteral extends BLangExpression implements TemplateLiteralNode {
+public class BLangRawTemplateLiteral extends BLangExpression implements RawTemplateLiteralNode {
 
     public List<BLangExpression> insertions;
     public List<BLangLiteral> strings;
