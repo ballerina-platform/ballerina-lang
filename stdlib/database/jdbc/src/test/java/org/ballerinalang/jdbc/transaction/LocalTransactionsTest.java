@@ -15,15 +15,14 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.sql.transaction;
+package org.ballerinalang.jdbc.transaction;
 
-import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jdbc.utils.SQLDBUtils;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.sql.utils.SQLDBUtils;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -31,24 +30,27 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.math.BigInteger;
+import java.io.File;
 import java.sql.SQLException;
 
 /**
- * This test class includes the basic test cases related to the execute operation of sql client.
+ * This test class includes local transactions test cases of sql client.
  *
  * @since 2.0.0
  */
-public class TransactionsTest {
+public class LocalTransactionsTest {
     private CompileResult result;
-    private static final String DB_NAME = "TEST_SQL_TRANSACTIONS";
-    private static final String URL = SQLDBUtils.URL_PREFIX + DB_NAME;
-    private BValue[] args = {new BString(URL), new BString(SQLDBUtils.DB_USER), new BString(SQLDBUtils.DB_PASSWORD)};
+    private static final String DB_NAME = "TEST_SQL_LOCAL_TRANSACTIONS";
+    private static final String JDBC_URL = "jdbc:h2:file:" + SQLDBUtils.DB_DIR + DB_NAME;
+    private BValue[] args = {new BString(JDBC_URL), new BString(SQLDBUtils.DB_USER),
+            new BString(SQLDBUtils.DB_PASSWORD)};
 
     @BeforeClass
     public void setup() throws SQLException {
-        result = BCompileUtil.compile(SQLDBUtils.getMockModuleDir(), "transaction");
-        SQLDBUtils.initHsqlDatabase(DB_NAME, SQLDBUtils.getSQLResourceDir("transaction",
+        result = BCompileUtil.compile(SQLDBUtils.getBalFilesDir("transaction",
+                "local-transaction-test.bal"));
+        SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME);
+        SQLDBUtils.initH2Database(SQLDBUtils.DB_DIR, DB_NAME, SQLDBUtils.getSQLResourceDir("transaction",
                 "local-transaction-test-data.sql"));
     }
 

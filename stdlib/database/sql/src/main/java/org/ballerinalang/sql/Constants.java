@@ -58,6 +58,9 @@ public final class Constants {
     public static final String READ_BYTE_CHANNEL_STRUCT = "ReadableByteChannel";
     public static final String READ_CHAR_CHANNEL_STRUCT = "ReadableCharacterChannel";
 
+    public static final String USERNAME = "user";
+    public static final String PASSWORD = "password";
+
     /**
      * Constants related connection pool.
      */
