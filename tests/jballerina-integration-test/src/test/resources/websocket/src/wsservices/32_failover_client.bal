@@ -27,7 +27,6 @@ service on new http:Listener(21032) {
 
         wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
         wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
-        checkpanic wsClientEp->ready();
     }
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
