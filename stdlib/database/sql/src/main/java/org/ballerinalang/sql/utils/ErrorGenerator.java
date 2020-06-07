@@ -19,13 +19,17 @@ package org.ballerinalang.sql.utils;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.sql.Constants;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,6 +39,17 @@ import java.util.Map;
  */
 public class ErrorGenerator {
     private ErrorGenerator() {
+    }
+
+    public static ErrorValue getSQLBatchExecuteError(SQLException exception,
+                                                     List<MapValue<BString, Object>> executionResults,
+                                                     String messagePrefix) {
+        String sqlErrorMessage =
+                exception.getMessage() != null ? exception.getMessage() : Constants.DATABASE_ERROR_MESSAGE;
+        int vendorCode = exception.getErrorCode();
+        String sqlState = exception.getSQLState();
+        String errorMessage = messagePrefix + sqlErrorMessage + ".";
+        return getSQLBatchExecuteError(errorMessage, vendorCode, sqlState, executionResults);
     }
 
     public static ErrorValue getSQLDatabaseError(SQLException exception, String messagePrefix) {
@@ -53,6 +68,22 @@ public class ErrorGenerator {
                 createRecordValue(Constants.SQL_PACKAGE_ID, Constants.APPLICATION_ERROR_DATA, valueMap);
         return BallerinaErrors.createError(Constants.APPLICATION_ERROR_CODE, sqlClientErrorDetailRecord);
     }
+
+    private static ErrorValue getSQLBatchExecuteError(String message, int vendorCode, String sqlState,
+                                                      List<MapValue<BString, Object>> executionResults) {
+        Map<String, Object> valueMap = new HashMap<>();
+        valueMap.put(Constants.ErrorRecordFields.MESSAGE, message);
+        valueMap.put(Constants.ErrorRecordFields.ERROR_CODE, vendorCode);
+        valueMap.put(Constants.ErrorRecordFields.SQL_STATE, sqlState);
+        valueMap.put(Constants.ErrorRecordFields.EXECUTION_RESULTS,
+                BValueCreator.createArrayValue(executionResults.toArray(), new BArrayType(
+                  new BRecordType(Constants.EXCUTE_RESULT_RECORD, Constants.SQL_PACKAGE_ID, 0 , false, 0))));
+
+        MapValue<BString, Object> sqlClientErrorDetailRecord = BallerinaValues.
+                createRecordValue(Constants.SQL_PACKAGE_ID, Constants.BATCH_EXECUTE_ERROR_DATA, valueMap);
+        return BallerinaErrors.createError(Constants.BATCH_EXECUTE_ERROR_CODE, sqlClientErrorDetailRecord);
+    }
+
 
     private static ErrorValue getSQLDatabaseError(String message, int vendorCode, String sqlState) {
         Map<String, Object> valueMap = new HashMap<>();

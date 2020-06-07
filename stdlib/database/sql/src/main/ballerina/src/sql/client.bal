@@ -38,6 +38,9 @@ public type Client abstract client object {
     #           if any error occured when executing the query
     public remote function execute(@untainted string|ParameterizedString sqlQuery) returns ExecuteResult|Error?;
 
+    public remote function batchExecute(ParameterizedString[] sqlQueries, boolean rollbackInFailure = false)
+                                                                       returns ExecuteResult[]|Error?;
+
     # Close the SQL client.
     #
     # + return - Possible error during closing the client

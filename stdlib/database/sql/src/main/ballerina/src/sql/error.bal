@@ -14,6 +14,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
+public const BATCH_EXECUTE_ERROR_REASON = "{ballerina/sql}BatchExecuteError";
+
+# Represents the properties belonging to a `BatchExecuteError`.
+#
+# + message - Error message
+# + errorCode - SQL error code
+# + sqlState - SQL state
+# + cause - Cause of the error
+# + executionResults - Result of execution of commands.
+public type BatchExecuteErrorData record {|
+    string message?;
+    int errorCode;
+    string sqlState;
+    error cause?;
+    ExecuteResult[] executionResults;
+|};
+
 public const DATABASE_ERROR_REASON = "{ballerina/sql}DatabaseError";
 
 # Represents the properties belonging to a `DatabaseError`.
@@ -43,6 +60,8 @@ public type ApplicationErrorData record {|
 # Represents an error caused by an issue related to database accessibility, erroneous queries, constraint violations,
 # database resource clean-up, and other similar scenarios.
 public type DatabaseError error<DATABASE_ERROR_REASON, DatabaseErrorData>;
+
+public type BatchExecuteError error<BATCH_EXECUTE_ERROR_REASON, BatchExecuteErrorData>;
 
 # Represents an error originating from application-level causes.
 public type ApplicationError error<APPLICATION_ERROR_REASON, ApplicationErrorData>;

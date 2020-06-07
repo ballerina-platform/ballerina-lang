@@ -318,6 +318,13 @@ public type ParameterizedString record {|
    Value[] insertions;
 |};
 
+# Constant indicating that the specific batch statement executed successfully
+# but that no count of the number of rows it affected is available.
+public const SUCCESS_NO_INFO = -1;
+
+#Constant indicating that the specific batch statement failed.
+public const EXECUTION_FAILED = -2;
+
 # The result of the query without returning the rows.
 #
 # + affectedRowCount - Number of rows affected by the execution of the query

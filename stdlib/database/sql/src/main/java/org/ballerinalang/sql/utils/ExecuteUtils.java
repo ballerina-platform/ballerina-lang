@@ -18,14 +18,20 @@
 package org.ballerinalang.sql.utils;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.sql.Constants;
+import org.ballerinalang.sql.ParameterisedBatch;
 import org.ballerinalang.sql.datasource.SQLDatasource;
 import org.ballerinalang.sql.exception.ApplicationError;
 
 import java.io.IOException;
+import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -33,8 +39,10 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -77,6 +85,93 @@ public class ExecuteUtils {
             } catch (ApplicationError | IOException e) {
                 return ErrorGenerator.getSQLApplicationError("Error while executing sql query: "
                         + sqlQuery + ". " + e.getMessage());
+            } finally {
+                Utils.closeResources(resultSet, statement, connection);
+            }
+        } else {
+            return ErrorGenerator.getSQLApplicationError(
+                    "Client is not properly initialized!");
+        }
+    }
+
+    public static Object nativeBatchExecute(ObjectValue client, ArrayValue paramSQLStrings,
+                                            boolean rollbackInFailure) {
+
+        Object dbClient = client.getNativeData(Constants.DATABASE_CLIENT);
+        if (dbClient != null) {
+
+            SQLDatasource sqlDatasource = (SQLDatasource) dbClient;
+            Connection connection = null;
+            PreparedStatement statement = null;
+            ResultSet resultSet = null;
+            List<ParameterisedBatch> batches = new ArrayList<>();
+            List<MapValue<BString, Object>> executionResults = new ArrayList<>();
+
+            try {
+                int batchCount = 0;
+                for (int i = 0; i < paramSQLStrings.size(); i++) {
+                    MapValue<BString, Object> parameterizedString = (MapValue<BString, Object>) paramSQLStrings.get(i);
+                    String paramSQLQuery = Utils.getSqlQuery(parameterizedString);
+
+                    if (!batches.isEmpty() && batches.get(batchCount - 1).getQuery().equals(paramSQLQuery)) {
+                        batches.get(batchCount - 1).addRecord(parameterizedString);
+                    } else {
+                        batchCount++;
+                        batches.add(new ParameterisedBatch(paramSQLQuery, parameterizedString));
+                    }
+                }
+
+                connection = sqlDatasource.getSQLConnection();
+
+                for (int i = 0; i < batchCount; i++) {
+                    ParameterisedBatch parameterisedBatch = batches.get(i);
+                    statement = connection.prepareStatement(parameterisedBatch.getQuery(),
+                                                                                    Statement.RETURN_GENERATED_KEYS);
+                    for (MapValue<BString, Object> param : parameterisedBatch.getParams()) {
+                        Utils.setParams(connection, statement, param);
+                        statement.addBatch();
+                    }
+                    int[] counts = statement.executeBatch();
+
+                    if (!isDdlStatement(parameterisedBatch.getQuery())) {
+                        resultSet = statement.getGeneratedKeys();
+                    }
+
+                    for (int count : counts) {
+                        Map<String, Object> resultField = new HashMap<>();
+                        resultField.put(Constants.AFFECTED_ROW_COUNT_FIELD, count);
+
+                        Object lastInsertedId = null;
+                        if (resultSet != null && resultSet.next()) {
+                            lastInsertedId = getGeneratedKeys(resultSet);
+                        }
+                        resultField.put(Constants.LAST_INSERTED_ID_FIELD, lastInsertedId);
+                        executionResults.add(BallerinaValues.createRecordValue(Constants.SQL_PACKAGE_ID,
+                                Constants.EXCUTE_RESULT_RECORD, resultField));
+                    }
+                    Utils.closeResources(resultSet, statement, null);
+                }
+
+                return BValueCreator.createArrayValue(executionResults.toArray(), new BArrayType(
+                        new BRecordType(Constants.EXCUTE_RESULT_RECORD, Constants.SQL_PACKAGE_ID, 0, false, 0)));
+            } catch (BatchUpdateException e) {
+                int[] updateCounts = e.getUpdateCounts();
+                for (int count : updateCounts) {
+                    Map<String, Object> resultField = new HashMap<>();
+                    resultField.put(Constants.AFFECTED_ROW_COUNT_FIELD, count);
+                    resultField.put(Constants.LAST_INSERTED_ID_FIELD, null);
+                    executionResults.add(BallerinaValues.createRecordValue(Constants.SQL_PACKAGE_ID,
+                            Constants.EXCUTE_RESULT_RECORD, resultField));
+                }
+
+                return ErrorGenerator.getSQLBatchExecuteError(e, executionResults,
+                        "Error while executing batch command starting with: " + batches.get(0).getQuery() + ". ");
+            } catch (SQLException e) {
+                return ErrorGenerator.getSQLDatabaseError(e,
+                        "Error while executing sql batch command starting with : " + batches.get(0).getQuery() + ". ");
+            } catch (ApplicationError | IOException e) {
+                return ErrorGenerator.getSQLApplicationError("Error while executing sql query: "
+                        + e.getMessage());
             } finally {
                 Utils.closeResources(resultSet, statement, connection);
             }
