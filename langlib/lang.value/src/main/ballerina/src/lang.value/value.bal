@@ -117,9 +117,9 @@ public function toString((any|error) v) returns string = external;
 
 # Returns the string that represents `v` in JSON format.
 #
-# + v - json value
+# + v - anydata value
 # + return - string representation of json
-public function toJsonString(json v) returns string = external;
+public function toJsonString(anydata v) returns string = external;
 
 # Converts a value of type `anydata` to `json`.
 # This does a deep copy of `v` converting values that do
