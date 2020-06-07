@@ -186,7 +186,8 @@ public class ModuleExecutionFlowTests {
 
     @Test
     public void testModuleStopPanic() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/execution/ModuleStopFailingProject", "current", false);
+        CompileResult compileResult =
+                BCompileUtil.compile("test-src/execution/ModuleStopFailingProject", "current", false);
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module 'basic'\n" +
