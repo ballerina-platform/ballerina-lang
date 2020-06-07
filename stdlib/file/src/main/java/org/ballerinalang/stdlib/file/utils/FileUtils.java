@@ -71,7 +71,7 @@ public class FileUtils {
      * @return Ballerina error object.
      */
     public static ErrorValue getBallerinaError(String error, String details) {
-        return BallerinaErrors.createError(error, populateSystemErrorRecord(details));
+        return BallerinaErrors.createDistinctError(error, FILE_PACKAGE_ID, error, populateSystemErrorRecord(details));
     }
 
     private static MapValue populateSystemErrorRecord(String message) {
