@@ -249,8 +249,8 @@ public class ObjectTypeReferenceTest {
                                           " found 'function test8(string s, public int i)'", 86, 5);
         BAssertUtil.validateError(result, index++,
                                   "mismatched function signatures: expected 'function test9(int:Signed16 anInt, Bar.." +
-                                          ". bars) returns int', found 'function test9(int:Signed16 anInt, Bar... " +
-                                          "bars) returns int:Signed16'",
+                                          ". bars) returns int:Signed16', found 'function test9(int:Signed16 anInt, " +
+                                          "Bar... bars) returns int'",
                                   91, 5);
         Assert.assertEquals(result.getErrorCount(), index);
     }

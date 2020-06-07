@@ -186,7 +186,7 @@ function testDefaultValueInitInBALOs() returns records:BManager {
 
 type DefaultPerson record {
     *records:AgedPerson;
-    int|string|float age = 18;
+    int|string age = 18;
     string name = "UNKNOWN";
 };
 

@@ -158,18 +158,6 @@ public function testAbstractObjectFuncWithDefaultVal() returns [string, float] {
 type Ant object {
     int id;
 
-    public function __init() {
-        self.id = 0;
-    }
-
-    public function getId() returns int {
-        return self.id;
-    }
-};
-
-type FireAnt object {
-    *Ant;
-
     public function __init(int id) {
         self.id = id;
     }
@@ -183,23 +171,38 @@ type FireAnt object {
     }
 };
 
+type FireAnt object {
+    *Ant;
+
+    public function __init(int id) {
+        self.id = id;
+    }
+
+    public function getId() returns int {
+        return self.id;
+    }
+};
+
 public function testNonAbstractObjectInclusion() {
     FireAnt notoriousFireAnt = new FireAnt(7);
     assertEquality(notoriousFireAnt.getId(), 7);
 
-    FireAnt dullAnt = new FireAnt(0);
-    assertEquality(dullAnt.getId(), ());
+    Ant dullAnt = new FireAnt(0);
+    assertEquality(dullAnt.getId(), 0);
+
+    Ant nullAnt = new Ant(0);
+    assertEquality(nullAnt.getId(), ());
 }
 
 // Type inclusion tests
 
 type AgeDataObject abstract object {
-    int age;
+    int|float age;
 };
 
 type DefaultPerson object {
     *AgeDataObject;
-    int|float age;
+    int age;
     string name;
 
     function __init(int age=18, string name = "UNKNOWN") {
@@ -222,7 +225,7 @@ type NameInterface abstract object {
 
 type AgeInterface abstract object {
     *AgeDataObject;
-    public function setAge(int|string age = 0) returns int;
+    public function setAge(int age = 0) returns int;
 };
 
 type DefaultPersonGreetedName object {
@@ -240,9 +243,13 @@ type DefaultPersonGreetedName object {
         return greeting + " " + self.name;
     }
 
-    public function setAge(int age = 0) returns int {
-        self.age = age;
-        return self.age;
+    public function setAge(int|float age = 0) returns int {
+        if (age is int) {
+            self.age = age;
+            return self.age;
+        }
+        self.age = <int>age;
+        return -1;
     }
 };
 

@@ -16,10 +16,10 @@
 
 public type ManagingDirector object {
     *Person1;
-    *Employee1;
+    *Employee3;
 
     int shares = 2000;
-    int|float salary;
+    float salary;
 
     public function __init(int age, string name) {
         self.age = age;

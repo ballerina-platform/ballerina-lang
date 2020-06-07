@@ -20,5 +20,5 @@ type Name record {
 
 public type AgedPerson record {
     *Name;
-    int|string age = 127;
+    int|string|float age = 127;
 };
