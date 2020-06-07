@@ -89,4 +89,24 @@ public class BError implements BRefType {
     public BError getCause() {
         return cause;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj instanceof  BError) {
+            BError that = (BError) obj;
+
+            boolean isCauseSame = false;
+            if (this.cause != null) {
+                isCauseSame = this.cause.equals(that.cause);
+            } else if (that.cause == null) {
+                isCauseSame = true;
+            }
+            return this.message.equals(that.message) && this.details.equals(that.details) && isCauseSame;
+        }
+        return false;
+    }
 }
