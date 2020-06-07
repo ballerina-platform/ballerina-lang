@@ -1545,6 +1545,24 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterTableRowList(BallerinaParser.TableRowListContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.startExprNodeList();
+    }
+
+    @Override
+    public void exitTableRowList(BallerinaParser.TableRowListContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.endExprNodeList(getWS(ctx), ctx.getChildCount() / 2 + 1);
+    }
+
+    @Override
     public void exitTableConstructorExpr(BallerinaParser.TableConstructorExprContext ctx) {
         if (isInErrorState) {
             return;
