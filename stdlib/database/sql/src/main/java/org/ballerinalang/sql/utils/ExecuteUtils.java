@@ -104,52 +104,48 @@ public class ExecuteUtils {
             Connection connection = null;
             PreparedStatement statement = null;
             ResultSet resultSet = null;
-            List<ParameterisedBatch> batches = new ArrayList<>();
+            ParameterisedBatch parameterisedBatch = null;
             List<MapValue<BString, Object>> executionResults = new ArrayList<>();
 
             try {
-                int batchCount = 0;
                 for (int i = 0; i < paramSQLStrings.size(); i++) {
                     MapValue<BString, Object> parameterizedString = (MapValue<BString, Object>) paramSQLStrings.get(i);
                     String paramSQLQuery = Utils.getSqlQuery(parameterizedString);
 
-                    if (!batches.isEmpty() && batches.get(batchCount - 1).getQuery().equals(paramSQLQuery)) {
-                        batches.get(batchCount - 1).addRecord(parameterizedString);
+                    if (parameterisedBatch == null) {
+                        parameterisedBatch = new ParameterisedBatch(paramSQLQuery, parameterizedString);
+                    } else if (parameterisedBatch.getQuery().equals(paramSQLQuery)) {
+                        parameterisedBatch.addRecord(parameterizedString);
                     } else {
-                        batchCount++;
-                        batches.add(new ParameterisedBatch(paramSQLQuery, parameterizedString));
+                        return ErrorGenerator.getSQLApplicationError("Batch Execute cannot contain different SQL " +
+                                "commands. These has to be executed in different function calls");
                     }
                 }
 
                 connection = sqlDatasource.getSQLConnection();
 
-                for (int i = 0; i < batchCount; i++) {
-                    ParameterisedBatch parameterisedBatch = batches.get(i);
-                    statement = connection.prepareStatement(parameterisedBatch.getQuery(),
-                                                                                    Statement.RETURN_GENERATED_KEYS);
-                    for (MapValue<BString, Object> param : parameterisedBatch.getParams()) {
-                        Utils.setParams(connection, statement, param);
-                        statement.addBatch();
-                    }
-                    int[] counts = statement.executeBatch();
+                statement = connection.prepareStatement(parameterisedBatch.getQuery(), Statement.RETURN_GENERATED_KEYS);
+                for (MapValue<BString, Object> param : parameterisedBatch.getParams()) {
+                    Utils.setParams(connection, statement, param);
+                    statement.addBatch();
+                }
+                int[] counts = statement.executeBatch();
 
-                    if (!isDdlStatement(parameterisedBatch.getQuery())) {
-                        resultSet = statement.getGeneratedKeys();
-                    }
+                if (!isDdlStatement(parameterisedBatch.getQuery())) {
+                    resultSet = statement.getGeneratedKeys();
+                }
 
-                    for (int count : counts) {
-                        Map<String, Object> resultField = new HashMap<>();
-                        resultField.put(Constants.AFFECTED_ROW_COUNT_FIELD, count);
+                for (int count : counts) {
+                    Map<String, Object> resultField = new HashMap<>();
+                    resultField.put(Constants.AFFECTED_ROW_COUNT_FIELD, count);
 
-                        Object lastInsertedId = null;
-                        if (resultSet != null && resultSet.next()) {
-                            lastInsertedId = getGeneratedKeys(resultSet);
-                        }
-                        resultField.put(Constants.LAST_INSERTED_ID_FIELD, lastInsertedId);
-                        executionResults.add(BallerinaValues.createRecordValue(Constants.SQL_PACKAGE_ID,
-                                Constants.EXCUTE_RESULT_RECORD, resultField));
+                    Object lastInsertedId = null;
+                    if (resultSet != null && resultSet.next()) {
+                        lastInsertedId = getGeneratedKeys(resultSet);
                     }
-                    Utils.closeResources(resultSet, statement, null);
+                    resultField.put(Constants.LAST_INSERTED_ID_FIELD, lastInsertedId);
+                    executionResults.add(BallerinaValues.createRecordValue(Constants.SQL_PACKAGE_ID,
+                            Constants.EXCUTE_RESULT_RECORD, resultField));
                 }
 
                 return BValueCreator.createArrayValue(executionResults.toArray(), new BArrayType(
@@ -165,10 +161,10 @@ public class ExecuteUtils {
                 }
 
                 return ErrorGenerator.getSQLBatchExecuteError(e, executionResults,
-                        "Error while executing batch command starting with: " + batches.get(0).getQuery() + ". ");
+                        "Error while executing batch command starting with: " + parameterisedBatch.getQuery() + ". ");
             } catch (SQLException e) {
-                return ErrorGenerator.getSQLDatabaseError(e,
-                        "Error while executing sql batch command starting with : " + batches.get(0).getQuery() + ". ");
+                return ErrorGenerator.getSQLDatabaseError(e, "Error while executing sql batch " +
+                        "command starting with : " + parameterisedBatch.getQuery() + ". ");
             } catch (ApplicationError | IOException e) {
                 return ErrorGenerator.getSQLApplicationError("Error while executing sql query: "
                         + e.getMessage());

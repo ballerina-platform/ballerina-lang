@@ -30,6 +30,10 @@ public class ParameterisedBatch {
     private String sqlQuery;
     private List<MapValue<BString, Object>> params;
 
+    public ParameterisedBatch() {
+        this.params = new ArrayList<>();
+    }
+
     public ParameterisedBatch(String sqlQuery, MapValue<BString, Object> param) {
         this.sqlQuery = sqlQuery;
         this.params = new ArrayList<>();
