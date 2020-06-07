@@ -1883,7 +1883,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return ((BStructureType) referredType).fields.values().stream().filter(f -> {
                 if (fieldNames.containsKey(f.name.value)) {
                     BLangSimpleVariable existingVariable = fieldNames.get(f.name.value);
-                    return !types.isAssignable(f.type, existingVariable.type);
+                    return !types.isAssignable(existingVariable.type, f.type);
                 }
                 return true;
             }).map(field -> {
@@ -1961,7 +1961,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return false;
         }
 
-        if (!types.isAssignable(referencedFuncSym.type, attachedFuncSym.type)) {
+        if (!types.isAssignable(attachedFuncSym.type, referencedFuncSym.type)) {
             return false;
         }
 
