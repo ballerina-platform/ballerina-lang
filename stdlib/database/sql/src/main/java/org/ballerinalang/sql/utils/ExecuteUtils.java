@@ -26,7 +26,6 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.sql.Constants;
-import org.ballerinalang.sql.ParameterisedBatch;
 import org.ballerinalang.sql.datasource.SQLDatasource;
 import org.ballerinalang.sql.exception.ApplicationError;
 
@@ -104,18 +103,23 @@ public class ExecuteUtils {
             Connection connection = null;
             PreparedStatement statement = null;
             ResultSet resultSet = null;
-            ParameterisedBatch parameterisedBatch = null;
+
+            String sqlQuery = null;
+            List<MapValue<BString, Object>> parameters = new ArrayList<>();
             List<MapValue<BString, Object>> executionResults = new ArrayList<>();
 
             try {
-                for (int i = 0; i < paramSQLStrings.size(); i++) {
-                    MapValue<BString, Object> parameterizedString = (MapValue<BString, Object>) paramSQLStrings.get(i);
+
+                MapValue<BString, Object> parameterizedString = (MapValue<BString, Object>) paramSQLStrings.get(0);
+                sqlQuery = Utils.getSqlQuery(parameterizedString);
+                parameters.add(parameterizedString);
+
+                for (int i = 1; i < paramSQLStrings.size(); i++) {
+                    parameterizedString = (MapValue<BString, Object>) paramSQLStrings.get(i);
                     String paramSQLQuery = Utils.getSqlQuery(parameterizedString);
 
-                    if (parameterisedBatch == null) {
-                        parameterisedBatch = new ParameterisedBatch(paramSQLQuery, parameterizedString);
-                    } else if (parameterisedBatch.getQuery().equals(paramSQLQuery)) {
-                        parameterisedBatch.addRecord(parameterizedString);
+                    if (sqlQuery.equals(paramSQLQuery)) {
+                        parameters.add(parameterizedString);
                     } else {
                         return ErrorGenerator.getSQLApplicationError("Batch Execute cannot contain different SQL " +
                                 "commands. These has to be executed in different function calls");
@@ -125,14 +129,14 @@ public class ExecuteUtils {
                 connection = sqlDatasource.getSQLConnection();
                 connection.setAutoCommit(false);
 
-                statement = connection.prepareStatement(parameterisedBatch.getQuery(), Statement.RETURN_GENERATED_KEYS);
-                for (MapValue<BString, Object> param : parameterisedBatch.getParams()) {
+                statement = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
+                for (MapValue<BString, Object> param : parameters) {
                     Utils.setParams(connection, statement, param);
                     statement.addBatch();
                 }
                 int[] counts = statement.executeBatch();
 
-                if (!isDdlStatement(parameterisedBatch.getQuery())) {
+                if (!isDdlStatement(sqlQuery)) {
                     resultSet = statement.getGeneratedKeys();
                 }
 
@@ -184,11 +188,11 @@ public class ExecuteUtils {
                 }
 
                 return ErrorGenerator.getSQLBatchExecuteError(e, executionResults,
-                        "Error while executing batch command starting with: '" + parameterisedBatch.getQuery() + "' " +
+                        "Error while executing batch command starting with: '" + sqlQuery + "' " +
                                 errorPostfix);
             } catch (SQLException e) {
                 return ErrorGenerator.getSQLDatabaseError(e, "Error while executing sql batch " +
-                        "command starting with : " + parameterisedBatch.getQuery() + ". ");
+                        "command starting with : " + sqlQuery + ". ");
             } catch (ApplicationError | IOException e) {
                 return ErrorGenerator.getSQLApplicationError("Error while executing sql query: "
                         + e.getMessage());
