@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+// TODO: Add docs
 public type RawTemplate object {
-   // When we have readonly object fields we can use them.
-   public string[] strings;
-   public (any|error)[] insertions;
+   public string[] strings = [];
+   public (any|error)[] insertions = [];
 };
