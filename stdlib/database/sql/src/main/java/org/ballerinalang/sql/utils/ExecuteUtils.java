@@ -123,6 +123,7 @@ public class ExecuteUtils {
                 }
 
                 connection = sqlDatasource.getSQLConnection();
+                connection.setAutoCommit(false);
 
                 statement = connection.prepareStatement(parameterisedBatch.getQuery(), Statement.RETURN_GENERATED_KEYS);
                 for (MapValue<BString, Object> param : parameterisedBatch.getParams()) {
@@ -147,7 +148,7 @@ public class ExecuteUtils {
                     executionResults.add(BallerinaValues.createRecordValue(Constants.SQL_PACKAGE_ID,
                             Constants.EXCUTE_RESULT_RECORD, resultField));
                 }
-
+                connection.commit();
                 return BValueCreator.createArrayValue(executionResults.toArray(), new BArrayType(
                         new BRecordType(Constants.EXCUTE_RESULT_RECORD, Constants.SQL_PACKAGE_ID, 0, false, 0)));
             } catch (BatchUpdateException e) {
@@ -160,8 +161,31 @@ public class ExecuteUtils {
                             Constants.EXCUTE_RESULT_RECORD, resultField));
                 }
 
+                // Depending on the driver, at this point, driver may or may not have executed the remaining commands in
+                // the batch which come after the command that failed.
+                // We could have rolled back the connection to keep a consistent behavior in Ballerina regardless of
+                // the driver. But, in Ballerina, we've decided to honor whatever the behavior of the driver and
+                // decide it based on the user input of `rollbackAllInFailure` property, because a Ballerina developer
+                // might have a requirement to ignore a few failed commands in the batch and let the rest of the
+                // commands run if driver allows it.
+                String errorPostfix = "";
+                if (rollbackInFailure) {
+                    try {
+                        connection.rollback();
+                    } catch (SQLException rbe) {
+                        errorPostfix = " and failed to rollback the intermediate changes";
+                    }
+                } else {
+                    try {
+                        connection.commit();
+                    } catch (SQLException rbe) {
+                        errorPostfix = " and failed to commit the intermediate changes";
+                    }
+                }
+
                 return ErrorGenerator.getSQLBatchExecuteError(e, executionResults,
-                        "Error while executing batch command starting with: " + parameterisedBatch.getQuery() + ". ");
+                        "Error while executing batch command starting with: '" + parameterisedBatch.getQuery() + "' " +
+                                errorPostfix);
             } catch (SQLException e) {
                 return ErrorGenerator.getSQLDatabaseError(e, "Error while executing sql batch " +
                         "command starting with : " + parameterisedBatch.getQuery() + ". ");
