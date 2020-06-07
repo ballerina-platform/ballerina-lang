@@ -997,6 +997,8 @@ class JvmTypeGen {
         String typeFieldName = "";
         if (bType == null || bType.tag == TypeTags.NIL) {
             typeFieldName = "typeNull";
+        } else if (bType.tag == TypeTags.NEVER) {
+            typeFieldName = "typeNever";
         } else if (bType.tag == TypeTags.INT) {
             typeFieldName = "typeInt";
         } else if (bType.tag == TypeTags.SIGNED32_INT) {
@@ -1495,7 +1497,7 @@ class JvmTypeGen {
             return String.format("L%s;", B_STRING_VALUE);
         } else if (bType.tag == TypeTags.BOOLEAN) {
             return "Z";
-        } else if (bType.tag == TypeTags.NIL) {
+        } else if (bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
             return String.format("L%s;", OBJECT);
         } else if (bType.tag == TypeTags.ARRAY || bType.tag == TypeTags.TUPLE) {
             return String.format("L%s;", ARRAY_VALUE);

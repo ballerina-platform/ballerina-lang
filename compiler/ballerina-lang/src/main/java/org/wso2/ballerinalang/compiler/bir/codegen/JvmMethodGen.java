@@ -320,6 +320,7 @@ public class JvmMethodGen {
                         String.format("L%s;", TYPEDESC_VALUE));
                 mv.visitVarInsn(ASTORE, index);
             } else if (bType.tag == TypeTags.NIL ||
+                    bType.tag == TypeTags.NEVER ||
                     bType.tag == TypeTags.ANY ||
                     bType.tag == TypeTags.ANYDATA ||
                     bType.tag == TypeTags.UNION ||
@@ -457,6 +458,7 @@ public class JvmMethodGen {
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", FUNCTION_POINTER));
             } else if (bType.tag == TypeTags.NIL ||
+                    bType.tag == TypeTags.NEVER ||
                     bType.tag == TypeTags.ANY ||
                     bType.tag == TypeTags.ANYDATA ||
                     bType.tag == TypeTags.UNION ||
@@ -561,6 +563,7 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.TYPEDESC) {
             jvmType = String.format("L%s;", TYPEDESC_VALUE);
         } else if (bType.tag == TypeTags.NIL
+                || bType.tag == TypeTags.NEVER
                 || bType.tag == TypeTags.ANY
                 || bType.tag == TypeTags.ANYDATA
                 || bType.tag == TypeTags.UNION
@@ -873,6 +876,7 @@ public class JvmMethodGen {
                 bType.tag == TypeTags.TABLE ||
                 bType.tag == TypeTags.ERROR ||
                 bType.tag == TypeTags.NIL ||
+                bType.tag == TypeTags.NEVER ||
                 bType.tag == TypeTags.ANY ||
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.OBJECT ||
@@ -947,6 +951,7 @@ public class JvmMethodGen {
                 bType.tag == TypeTags.ARRAY ||
                 bType.tag == TypeTags.ERROR ||
                 bType.tag == TypeTags.NIL ||
+                bType.tag == TypeTags.NEVER ||
                 bType.tag == TypeTags.ANY ||
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.OBJECT ||
@@ -1051,7 +1056,7 @@ public class JvmMethodGen {
             return String.format("L%s;", DECIMAL_VALUE);
         } else if (bType.tag == TypeTags.BOOLEAN) {
             return "Z";
-        } else if (bType.tag == TypeTags.NIL) {
+        } else if (bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
             return String.format("L%s;", OBJECT);
         } else if (bType.tag == TypeTags.ARRAY || bType.tag == TypeTags.TUPLE) {
             return String.format("L%s;", ARRAY_VALUE);
@@ -1090,7 +1095,7 @@ public class JvmMethodGen {
 
     private static String generateReturnType(BType bType, boolean isExtern /* = false */) {
 
-        if (bType == null || bType.tag == TypeTags.NIL) {
+        if (bType == null || bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
             if (isExtern) {
                 return ")V";
             }
@@ -1223,7 +1228,7 @@ public class JvmMethodGen {
             typeSig = String.format("L%s;", DECIMAL_VALUE);
         } else if (bType.tag == TypeTags.BOOLEAN) {
             typeSig = "Z";
-        } else if (bType.tag == TypeTags.NIL) {
+        } else if (bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
             typeSig = String.format("L%s;", OBJECT);
         } else if (bType.tag == TypeTags.MAP) {
             typeSig = String.format("L%s;", MAP_VALUE);

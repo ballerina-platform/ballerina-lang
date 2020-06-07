@@ -1080,6 +1080,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 memberTypes.add(keyTypeConstraint);
             }
 
+            if (tableConstructorExpr.tableKeySpecifier == null && keyTypeConstraint.tag == TypeTags.NEVER) {
+                return true;
+            }
+
             if (tableConstructorExpr.tableKeySpecifier == null ||
                     tableConstructorExpr.tableKeySpecifier.fieldNameIdentifierList.size() != memberTypes.size()) {
                 dlog.error(tableConstructorExpr.pos, DiagnosticCode.KEY_SPECIFIER_SIZE_MISMATCH_WITH_KEY_CONSTRAINT,
@@ -6017,6 +6021,9 @@ public class TypeChecker extends BLangNodeVisitor {
                     if (actualType == symTable.semanticError) {
                         actualType = checkRecordRestFieldAccess(accessExpr, names.fromString(fieldName), record);
                         if (actualType == symTable.semanticError) {
+                            return actualType;
+                        }
+                        if (actualType == symTable.neverType) {
                             return actualType;
                         }
                         return addNilForNillableAccessType(actualType);

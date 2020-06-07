@@ -318,7 +318,7 @@ public class JvmCastGen {
             generateCheckCastJToBBoolean(mv, sourceType);
         } else if (targetType.tag == TypeTags.BYTE) {
             generateCheckCastJToBByte(mv, sourceType);
-        } else if (targetType.tag == TypeTags.NIL) {
+        } else if (targetType.tag == TypeTags.NIL || targetType.tag == TypeTags.NEVER) {
             // Do nothing
         } else {
             if (targetType.tag == TypeTags.UNION) {
@@ -574,6 +574,7 @@ public class JvmCastGen {
     private static boolean isNillable(BType targetType) {
 
         if (targetType.tag == TypeTags.NIL ||
+                targetType.tag == TypeTags.NEVER ||
                 targetType.tag == TypeTags.JSON ||
                 targetType.tag == TypeTags.ANY ||
                 targetType.tag == TypeTags.ANYDATA) {
@@ -648,7 +649,7 @@ public class JvmCastGen {
         } else if (targetType.tag == TypeTags.BYTE) {
             generateCheckCastToByte(mv, sourceType);
             return;
-        } else if (targetType.tag == TypeTags.NIL) {
+        } else if (targetType.tag == TypeTags.NIL || targetType.tag == TypeTags.NEVER) {
             checkCast(mv, targetType);
             return;
         } else if (targetType.tag == TypeTags.UNION) {
@@ -1111,7 +1112,7 @@ public class JvmCastGen {
         } else if (targetType.tag == TypeTags.DECIMAL) {
             generateCastToDecimal(mv, sourceType);
             return;
-        } else if (targetType.tag == TypeTags.NIL) {
+        } else if (targetType.tag == TypeTags.NIL || targetType.tag == TypeTags.NEVER) {
             // do nothing
             return;
         } else if (targetType.tag == TypeTags.UNION ||

@@ -90,7 +90,7 @@ public type Caller client object {
     # + reason - Reason for cancelling the upgrade
     # + return - An `error` if an error occurs during cancelling the upgrade or nil
     public remote function cancelWebSocketUpgrade(int status, string reason) returns WebSocketError? {
-        return externCancelWebSocketUpgrade(self, status, java:fromString(reason));
+        return externCancelWebSocketUpgrade(self, status, reason);
     }
 
     # Sends a `100-continue` response to the caller.
@@ -240,7 +240,7 @@ public type Caller client object {
 #
 # + return - The hostname of the address or else `()` if it is unresolved
     public function getRemoteHostName() returns string? {
-        return java:toString(nativeGetRemoteHostName(self));
+        return nativeGetRemoteHostName(self);
     }
 };
 
@@ -249,7 +249,7 @@ function nativeRespond(Caller caller, Response response) returns ListenerError? 
     name: "nativeRespond"
 } external;
 
-function nativeGetRemoteHostName(Caller caller) returns handle = @java:Method {
+function nativeGetRemoteHostName(Caller caller) returns string = @java:Method {
     class: "org.ballerinalang.net.http.nativeimpl.connection.GetRemoteHostName",
     name: "nativeGetRemoteHostName"
 } external;
@@ -297,9 +297,9 @@ function externAcceptWebSocketUpgrade(Caller caller, map<string> headers) return
     name: "acceptWebSocketUpgrade"
 } external;
 
-function externCancelWebSocketUpgrade(Caller caller, int status, handle reason) returns WebSocketError? =
+function externCancelWebSocketUpgrade(Caller caller, int status, string reason) returns WebSocketError? =
 @java:Method {
     class: "org.ballerinalang.net.http.nativeimpl.connection.CancelWebSocketUpgrade",
     name: "cancelWebSocketUpgrade",
-    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "long", "java.lang.String"]
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "long", "org.ballerinalang.jvm.values.api.BString"]
 } external;

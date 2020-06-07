@@ -1089,7 +1089,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             constrainedType = new BTypedescType(constraintType, null);
         } else if (type.tag == TypeTags.XML) {
             if (constraintType.tag != TypeTags.UNION) {
-                if (!TypeTags.isXMLTypeTag(constraintType.tag)) {
+                if (!TypeTags.isXMLTypeTag(constraintType.tag) && constraintType.tag != TypeTags.NEVER) {
                     dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType,
                             constraintType);
                 }

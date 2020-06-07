@@ -76,6 +76,7 @@ public class TypeTags {
     public static final int XML_PI_TAG = XML_ELEMENT_TAG + 1;
     public static final int XML_COMMENT_TAG = XML_PI_TAG + 1;
     public static final int XML_TEXT_TAG = XML_COMMENT_TAG + 1;
+    public static final int NEVER_TAG = XML_TEXT_TAG + 1;
 
     public static boolean isIntegerTypeTag(int tag) {
 
