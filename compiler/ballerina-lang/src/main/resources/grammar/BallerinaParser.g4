@@ -263,6 +263,7 @@ simpleTypeName
     :   TYPE_ANY
     |   TYPE_ANYDATA
     |   TYPE_HANDLE
+    |   TYPE_NEVER
     |   TYPE_READONLY
     |   valueTypeName
     |   referenceTypeName
