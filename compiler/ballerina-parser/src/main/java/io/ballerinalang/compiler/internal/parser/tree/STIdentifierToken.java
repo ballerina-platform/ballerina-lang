@@ -52,8 +52,12 @@ public class STIdentifierToken extends STToken {
         return text;
     }
 
-    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STIdentifierToken(text, leadingMinutiae, trailingMinutiae, diagnostics);
+    public STToken modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STIdentifierToken(this.text, this.leadingMinutiae, this.trailingMinutiae, diagnostics);
+    }
+
+    public STToken modifyWith(STNode leadingMinutiae, STNode trailingMinutiae) {
+        return new STIdentifierToken(this.text, leadingMinutiae, trailingMinutiae, this.diagnostics);
     }
 
     @Override
