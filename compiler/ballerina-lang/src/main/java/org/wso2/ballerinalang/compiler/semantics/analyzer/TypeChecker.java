@@ -843,6 +843,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType inferTableMemberType(List<BType> memTypes, BLangTableConstructorExpr tableConstructorExpr) {
         BLangTableKeySpecifier keySpecifier = tableConstructorExpr.tableKeySpecifier;
+        List<String> keySpecifierFieldNames = new ArrayList<>();
         Set<BField> allFieldSet = new LinkedHashSet<>();
         for (BType memType : memTypes) {
             allFieldSet.addAll(((BRecordType) memType).fields.values());
@@ -857,6 +858,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (keySpecifier != null) {
             for (BLangIdentifier identifier : keySpecifier.fieldNameIdentifierList) {
                 requiredFieldNames.add(identifier.value);
+                keySpecifierFieldNames.add(identifier.value);
             }
         }
 
@@ -881,8 +883,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
             if (isOptional) {
                 field.symbol.flags = Flags.asMask(EnumSet.of(Flag.OPTIONAL));
-            } else if (requiredFieldNames.contains(fieldName)) {
+            } else if (requiredFieldNames.contains(fieldName) && keySpecifierFieldNames.contains(fieldName)) {
                 field.symbol.flags = Flags.asMask(EnumSet.of(Flag.REQUIRED)) + Flags.asMask(EnumSet.of(Flag.READONLY));
+            } else if (requiredFieldNames.contains(fieldName)) {
+                field.symbol.flags = Flags.asMask(EnumSet.of(Flag.REQUIRED));
             }
         }
 
@@ -1052,6 +1056,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             } else {
                 memberTypes.add(keyTypeConstraint);
+            }
+
+            if (tableConstructorExpr.tableKeySpecifier == null && keyTypeConstraint.tag == TypeTags.NEVER) {
+                return true;
             }
 
             if (tableConstructorExpr.tableKeySpecifier == null ||
@@ -3609,8 +3617,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (assignableSelectTypes.size() == 1) {
             actualType = assignableSelectTypes.get(0);
-            if (!queryExpr.isStream && !queryExpr.isTable) {
-                actualType = new BArrayType(actualType);
+            if ((!queryExpr.isStream && !queryExpr.isTable)) {
+                if (targetType.tag != TypeTags.STRING
+                        && targetType.tag != TypeTags.XML) {
+                    actualType = new BArrayType(actualType);
+                }
             }
         } else if (assignableSelectTypes.size() > 1) {
             dlog.error(selectExp.pos, DiagnosticCode.AMBIGUOUS_TYPES, assignableSelectTypes);
@@ -5660,8 +5671,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
 
                 for (int i = 0; i < multiKeyExpressionList.size(); i++) {
-                    BLangExpression keyExpr = multiKeyExpressionList.get(0);
-                    checkExpr(keyExpr, this.env, keyConstraintTypes.get(0));
+                    BLangExpression keyExpr = multiKeyExpressionList.get(i);
+                    checkExpr(keyExpr, this.env, keyConstraintTypes.get(i));
                     if (keyExpr.type == symTable.semanticError) {
                         dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.INVALID_KEY_CONSTRAINT_PROVIDED_FOR_ACCESS,
                                 keyTypeConstraint);
@@ -5930,6 +5941,9 @@ public class TypeChecker extends BLangNodeVisitor {
                     if (actualType == symTable.semanticError) {
                         actualType = checkRecordRestFieldAccess(accessExpr, names.fromString(fieldName), record);
                         if (actualType == symTable.semanticError) {
+                            return actualType;
+                        }
+                        if (actualType == symTable.neverType) {
                             return actualType;
                         }
                         return addNilForNillableAccessType(actualType);

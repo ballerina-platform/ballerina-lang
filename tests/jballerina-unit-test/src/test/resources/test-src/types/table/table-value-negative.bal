@@ -23,3 +23,18 @@ CustomerTable tab2 = table [
     { id: 13 , name: "Foo" , lname: "UYOR" }
     ];
 
+type Foo record {
+    readonly map<string> m;
+    int age;
+};
+
+type GlobalTable2 table<Foo> key(m);
+
+function testTableConstructExprWithDuplicateKeys() returns string {
+    GlobalTable2 tab2 = table [
+      { m: {"AAA":"DDDD"}, age: 31 },
+      { m: {"AAA":"DDDD"}, age: 34 }
+    ];
+
+    return tab2.toString();
+}

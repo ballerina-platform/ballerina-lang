@@ -212,6 +212,7 @@ public enum ParserRuleContext {
     FUNC_TYPE_DESC_OR_ANON_FUNC("func-desc-type-or-anon-func"),
     FUNC_TYPE_DESC_RHS_OR_ANON_FUNC_BODY("func-type-desc-rhs-or-anon-func-body"),
     STMT_LEVEL_AMBIGUOUS_FUNC_TYPE_DESC_RHS("stmt-level-func-type-desc-rhs"),
+    RECORD_FIELD_NAME_OR_TYPE_NAME("record-field-name-or-type-name"),
 
     // Statements
     STATEMENT("statement"),
@@ -316,6 +317,7 @@ public enum ParserRuleContext {
     ENUM_KEYWORD("enum"),
     BASE16_KEYWORD("base16"),
     BASE64_KEYWORD("base64"),
+    READONLY_KEYWORD("readonly"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -398,6 +400,7 @@ public enum ParserRuleContext {
     FIRST_MAPPING_FIELD("first-mapping-field"),
     MAPPING_FIELD_NAME("maping-field-name"),
     SPECIFIC_FIELD_RHS("specific-field-rhs"),
+    SPECIFIC_FIELD("specific-field"),
     COMPUTED_FIELD_NAME("computed-field-name"),
     MAPPING_FIELD_END("mapping-field-end"),
     TYPEOF_EXPRESSION("typeof-expr"),

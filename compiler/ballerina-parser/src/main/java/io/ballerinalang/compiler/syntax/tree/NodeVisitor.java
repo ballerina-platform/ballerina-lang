@@ -315,6 +315,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(xMLNamespaceDeclarationNode);
     }
 
+    public void visit(ModuleXMLNamespaceDeclarationNode moduleXMLNamespaceDeclarationNode) {
+        visitSyntaxNode(moduleXMLNamespaceDeclarationNode);
+    }
+
     public void visit(FunctionBodyBlockNode functionBodyBlockNode) {
         visitSyntaxNode(functionBodyBlockNode);
     }
@@ -551,8 +555,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(singletonTypeDescriptorNode);
     }
 
-    public void visit(FunctionDeclarationNode functionDeclarationNode) {
-        visitSyntaxNode(functionDeclarationNode);
+    public void visit(MethodDeclarationNode methodDeclarationNode) {
+        visitSyntaxNode(methodDeclarationNode);
     }
 
     public void visit(TypedBindingPatternNode typedBindingPatternNode) {

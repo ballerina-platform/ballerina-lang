@@ -339,6 +339,7 @@ public class ParserTestUtils {
                 try (BufferedWriter writer =
                         new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
                     writer.write(jsonString);
+                    writer.write("\n");
                 }
             } catch (Exception e) {
                 // Ignore
@@ -366,6 +367,8 @@ public class ParserTestUtils {
                 return SyntaxKind.MODULE_VAR_DECL;
             case "XML_NAMESPACE_DECLARATION":
                 return SyntaxKind.XML_NAMESPACE_DECLARATION;
+            case "MODULE_XML_NAMESPACE_DECLARATION":
+                return SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION;
             case "ANNOTATION_DECLARATION":
                 return SyntaxKind.ANNOTATION_DECLARATION;
             case "ENUM_DECLARATION":
@@ -975,7 +978,7 @@ public class ParserTestUtils {
             case "INFER_PARAM_LIST":
                 return SyntaxKind.INFER_PARAM_LIST;
             case "FUNCTION_DECLARATION":
-                return SyntaxKind.FUNCTION_DECLARATION;
+                return SyntaxKind.METHOD_DECLARATION;
             case "TYPED_BINDING_PATTERN":
                 return SyntaxKind.TYPED_BINDING_PATTERN;
             case "BINDING_PATTERN":

@@ -244,8 +244,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] FIRST_MAPPING_FIELD_START =
             { ParserRuleContext.MAPPING_FIELD, ParserRuleContext.CLOSE_BRACE };
 
-    private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
-            ParserRuleContext.STRING_LITERAL, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS };
+    private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.SPECIFIC_FIELD,
+            ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS, ParserRuleContext.READONLY_KEYWORD };
+
+    private static final ParserRuleContext[] SPECIFIC_FIELD =
+            { ParserRuleContext.MAPPING_FIELD_NAME, ParserRuleContext.STRING_LITERAL };
 
     private static final ParserRuleContext[] SPECIFIC_FIELD_RHS =
             { ParserRuleContext.COLON, ParserRuleContext.MAPPING_FIELD_END };
@@ -493,8 +496,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] XML_NAVIGATE_EXPR =
             { ParserRuleContext.XML_FILTER_EXPR, ParserRuleContext.XML_STEP_EXPR };
 
-    private static final ParserRuleContext[] XML_NAME_PATTERN_RHS =
-            { ParserRuleContext.GT, ParserRuleContext.PIPE };
+    private static final ParserRuleContext[] XML_NAME_PATTERN_RHS = { ParserRuleContext.GT, ParserRuleContext.PIPE };
 
     private static final ParserRuleContext[] XML_ATOMIC_NAME_PATTERN_START =
             { ParserRuleContext.ASTERISK, ParserRuleContext.XML_ATOMIC_NAME_IDENTIFIER };
@@ -502,9 +504,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] XML_ATOMIC_NAME_IDENTIFIER_RHS =
             { ParserRuleContext.ASTERISK, ParserRuleContext.IDENTIFIER };
 
-    private static final ParserRuleContext[] XML_STEP_START =
-            { ParserRuleContext.SLASH_ASTERISK_TOKEN, ParserRuleContext.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN,
-                    ParserRuleContext.SLASH_LT_TOKEN };
+    private static final ParserRuleContext[] XML_STEP_START = { ParserRuleContext.SLASH_ASTERISK_TOKEN,
+            ParserRuleContext.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN, ParserRuleContext.SLASH_LT_TOKEN };
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
@@ -1173,6 +1174,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ACCESS_EXPRESSION:
             case FIRST_MAPPING_FIELD:
             case MAPPING_FIELD:
+            case SPECIFIC_FIELD:
             case SPECIFIC_FIELD_RHS:
             case MAPPING_FIELD_END:
             case OPTIONAL_SERVICE_NAME:
@@ -1428,6 +1430,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case MAPPING_FIELD:
                 alternativeRules = MAPPING_FIELD_START;
+                break;
+            case SPECIFIC_FIELD:
+                alternativeRules = SPECIFIC_FIELD;
                 break;
             case SPECIFIC_FIELD_RHS:
                 alternativeRules = SPECIFIC_FIELD_RHS;
@@ -2637,6 +2642,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.BINDING_PATTERN;
             case UNION_OR_INTERSECTION_TOKEN:
                 return ParserRuleContext.TYPE_DESCRIPTOR;
+            case READONLY_KEYWORD:
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.MAPPING_CONSTRUCTOR ||
+                        parentCtx == ParserRuleContext.MAPPING_FIELD) {
+                    return ParserRuleContext.SPECIFIC_FIELD;
+                }
+                // fall through
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -3163,6 +3175,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 endContext(); // end record/object type def
                 return ParserRuleContext.TYPEDESC_RHS;
             case BLOCK_STMT:
+            case AMBIGUOUS_STMT:
                 endContext(); // end block stmt
                 parentCtx = getParentContext();
                 switch (parentCtx) {
