@@ -128,8 +128,8 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
                     return fullPkgName.endsWith("." + packageAlias) || fullPkgName.endsWith("/" + packageAlias);
                 })
                 .forEach(pkgEntry -> {
-                    String commandTitle = CommandConstants.IMPORT_MODULE_TITLE + " "
-                            + pkgEntry.getFullPackageNameAlias();
+                    String commandTitle = String.format(CommandConstants.IMPORT_MODULE_TITLE,
+                                                        pkgEntry.getFullPackageNameAlias());
                     String moduleName = CommonUtil.escapeModuleName(context, pkgEntry.getFullPackageNameAlias());
                     CodeAction action = new CodeAction(commandTitle);
                     Position insertPos = getImportPosition(bLangPackage, context);
