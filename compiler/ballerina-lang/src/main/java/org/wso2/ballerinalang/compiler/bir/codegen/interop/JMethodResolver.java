@@ -551,8 +551,8 @@ class JMethodResolver {
                 boolean resolved = true;
                 Class<?>[] formalParamTypes = jMethod.getParamTypes();
 
-                // skip if the given constraint params are less than of the method's params
-                if (constraints.length < formalParamTypes.length) {
+                // skip if the given constraint params are not of the same size as method's params
+                if (constraints.length != formalParamTypes.length) {
                     continue;
                 }
 
