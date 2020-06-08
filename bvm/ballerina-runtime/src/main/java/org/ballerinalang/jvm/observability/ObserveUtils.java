@@ -87,7 +87,6 @@ public class ObserveUtils {
 
     /**
      * Start observation of a resource invocation.
-     * This is used in the BString mode in the compiler.
      *
      * @param serviceName name of the service to which the observer context belongs
      * @param resourceName name of the resource being invoked
@@ -168,7 +167,6 @@ public class ObserveUtils {
 
     /**
      * Start observability for the synchronous function/action invocations.
-     * This is used in the BString mode in the compiler.
      *
      * @param isRemote True if this was a remove function invocation
      * @param isMainEntryPoint True if this was a main entry point invocation

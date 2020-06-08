@@ -52,7 +52,7 @@ public class Tags {
      * @param existingTags An existing set of {@link Tag Tags}.
      * @param tags         A collection of {@link Tag Tags}
      */
-    public static void tags(Set<Tag> existingTags, Iterable<Tag> tags) {
+    static void tags(Set<Tag> existingTags, Iterable<Tag> tags) {
         tags.forEach(existingTags::add);
     }
 

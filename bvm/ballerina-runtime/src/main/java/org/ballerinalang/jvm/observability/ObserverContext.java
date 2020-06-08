@@ -18,7 +18,6 @@
 package org.ballerinalang.jvm.observability;
 
 import org.ballerinalang.jvm.observability.metrics.Tag;
-import org.ballerinalang.jvm.observability.metrics.Tags;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -131,8 +130,8 @@ public class ObserverContext {
 
     public Set<Tag> getAllTags() {
         Set<Tag> allTags = new HashSet<>(mainTags.size() + additionalTags.size());
-        Tags.tags(allTags, mainTags.values());
-        Tags.tags(allTags, additionalTags.values());
+        allTags.addAll(mainTags.values());
+        allTags.addAll(additionalTags.values());
         return Collections.unmodifiableSet(allTags);
     }
 
