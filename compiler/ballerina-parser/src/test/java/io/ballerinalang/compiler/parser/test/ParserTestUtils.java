@@ -339,6 +339,7 @@ public class ParserTestUtils {
                 try (BufferedWriter writer =
                         new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
                     writer.write(jsonString);
+                    writer.write("\n");
                 }
             } catch (Exception e) {
                 // Ignore

@@ -703,6 +703,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(xMLAtomicNamePatternNode);
     }
 
+    public void visit(TypeReferenceTypeDescNode typeReferenceTypeDescNode) {
+        visitSyntaxNode(typeReferenceTypeDescNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {
