@@ -1404,7 +1404,7 @@ public class BallerinaParser extends AbstractParser {
                                              boolean isObjectMethod, STNode name, STNode funcSignature) {
         STNode body = parseFunctionBody(isObjectMethod);
         if (body.kind == SyntaxKind.SEMICOLON_TOKEN) {
-            return STNodeFactory.createFunctionDeclarationNode(metadata, visibilityQualifier, functionKeyword, name,
+            return STNodeFactory.createMethodDeclarationNode(metadata, visibilityQualifier, functionKeyword, name,
                     funcSignature, body);
         }
         return STNodeFactory.createFunctionDefinitionNode(metadata, visibilityQualifier, functionKeyword, name,
@@ -2508,7 +2508,6 @@ public class BallerinaParser extends AbstractParser {
             case TYPE_KEYWORD:
             case IF_KEYWORD:
             case WHILE_KEYWORD:
-            case OPEN_BRACE_TOKEN:
                 return true;
             default:
                 return endOfModuleLevelNode(1);

@@ -555,8 +555,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(singletonTypeDescriptorNode);
     }
 
-    public void visit(FunctionDeclarationNode functionDeclarationNode) {
-        visitSyntaxNode(functionDeclarationNode);
+    public void visit(MethodDeclarationNode methodDeclarationNode) {
+        visitSyntaxNode(methodDeclarationNode);
     }
 
     public void visit(TypedBindingPatternNode typedBindingPatternNode) {
