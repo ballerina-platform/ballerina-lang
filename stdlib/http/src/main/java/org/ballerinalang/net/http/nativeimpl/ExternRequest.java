@@ -76,9 +76,9 @@ public class ExternRequest {
         }
     }
 
-    public static MapValue<BString, Object> getMatrixParams(ObjectValue requestObj, String path) {
+    public static MapValue<BString, Object> getMatrixParams(ObjectValue requestObj, BString path) {
         HttpCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestObj, null);
-        return URIUtil.getMatrixParamsMap(path, httpCarbonMessage);
+        return URIUtil.getMatrixParamsMap(path.getValue(), httpCarbonMessage);
     }
 
     public static Object getEntity(ObjectValue requestObj) {

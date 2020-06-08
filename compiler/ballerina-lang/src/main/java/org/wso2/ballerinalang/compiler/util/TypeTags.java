@@ -74,6 +74,7 @@ public class TypeTags {
     public static final int XML_PI = XML_ELEMENT + 1;
     public static final int XML_COMMENT = XML_PI + 1;
     public static final int XML_TEXT = XML_COMMENT + 1;
+    public static final int NEVER = XML_TEXT + 1;
 
     public static final int NULL_SET = XML_TEXT + 1;
 

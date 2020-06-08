@@ -358,7 +358,12 @@
                     },
                     {
                       "kind": "LIST",
-                      "children": []
+                      "children": [
+                        {
+                          "kind": "XML_TEXT_CONTENT",
+                          "value": " "
+                        }
+                      ]
                     },
                     {
                       "kind": "BACKTICK_TOKEN"

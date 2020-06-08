@@ -67,8 +67,20 @@
                                   "kind": "FIELD_ACCESS",
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "bar"
+                                      "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "foo"
+                                        },
+                                        {
+                                          "kind": "COLON_TOKEN"
+                                        },
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "bar"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "DOT_TOKEN"
@@ -91,11 +103,85 @@
                                   "isMissing": true
                                 }
                               ]
+                            },
+                            {
+                              "kind": "BLOCK_STATEMENT",
+                              "children": [
+                                {
+                                  "kind": "OPEN_BRACE_TOKEN"
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": [
+                                    {
+                                      "kind": "ASSIGNMENT_STATEMENT",
+                                      "children": [
+                                        {
+                                          "kind": "BINARY_EXPRESSION",
+                                          "children": [
+                                            {
+                                              "kind": "QUALIFIED_NAME_REFERENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "foo"
+                                                },
+                                                {
+                                                  "kind": "COLON_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "bar"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "PLUS_TOKEN"
+                                            },
+                                            {
+                                              "kind": "BINARY_EXPRESSION",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "isMissing": true
+                                                },
+                                                {
+                                                  "kind": "SLASH_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "baz"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "EQUAL_TOKEN",
+                                          "isMissing": true
+                                        },
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "y"
+                                        },
+                                        {
+                                          "kind": "SEMICOLON_TOKEN",
+                                          "isMissing": true
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "CLOSE_BRACE_TOKEN"
+                                }
+                              ]
                             }
                           ]
                         },
                         {
-                          "kind": "CLOSE_BRACE_TOKEN"
+                          "kind": "CLOSE_BRACE_TOKEN",
+                          "isMissing": true
                         }
                       ]
                     }

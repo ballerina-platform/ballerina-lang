@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -28,6 +29,8 @@ import java.util.List;
  * @since 2.0.0
  */
 public interface NativeDependencyResolver {
+
+    CompilerContext.Key<NativeDependencyResolver> JAR_RESOLVER_KEY = new CompilerContext.Key<>();
 
     Path moduleJar(PackageID packageID, String platform);
 

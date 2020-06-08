@@ -77,4 +77,15 @@ class ErrorMessages {
                         "for the method '%s' of the path '%s' which is documented in the OpenAPI contract",
                 fieldName, paramName, operation, path);
     }
+
+    static String tagFilterEnable() {
+        return String.format("Both Tags and excludeTags fields include the same tag(s). Make sure to use one" +
+                " field of tag filtering when using the openapi annotation. ");
+    }
+
+    static String operationFilterEnable() {
+        return String.format("Both Operations and excludeOperations fields include" +
+                " the same operation(s). Make sure to use one field of operation filtering" +
+                " when using the openapi annotation.");
+    }
 }

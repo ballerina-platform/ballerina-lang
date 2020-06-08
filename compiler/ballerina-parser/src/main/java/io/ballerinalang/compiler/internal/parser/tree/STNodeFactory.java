@@ -592,11 +592,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createSpecificFieldNode(
+            STNode readonlyKeyword,
             STNode fieldName,
             STNode colon,
             STNode valueExpr) {
 
         return new STSpecificFieldNode(
+                readonlyKeyword,
                 fieldName,
                 colon,
                 valueExpr);
@@ -704,6 +706,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createObjectFieldNode(
             STNode metadata,
             STNode visibilityQualifier,
+            STNode readonlyKeyword,
             STNode typeName,
             STNode fieldName,
             STNode equalsToken,
@@ -713,6 +716,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STObjectFieldNode(
                 metadata,
                 visibilityQualifier,
+                readonlyKeyword,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -722,6 +726,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createRecordFieldNode(
             STNode metadata,
+            STNode readonlyKeyword,
             STNode typeName,
             STNode fieldName,
             STNode questionMarkToken,
@@ -729,6 +734,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STRecordFieldNode(
                 metadata,
+                readonlyKeyword,
                 typeName,
                 fieldName,
                 questionMarkToken,
@@ -737,6 +743,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createRecordFieldWithDefaultValueNode(
             STNode metadata,
+            STNode readonlyKeyword,
             STNode typeName,
             STNode fieldName,
             STNode equalsToken,
@@ -745,6 +752,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STRecordFieldWithDefaultValueNode(
                 metadata,
+                readonlyKeyword,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -914,6 +922,21 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode semicolonToken) {
 
         return new STXMLNamespaceDeclarationNode(
+                xmlnsKeyword,
+                namespaceuri,
+                asKeyword,
+                namespacePrefix,
+                semicolonToken);
+    }
+
+    public static STNode createModuleXMLNamespaceDeclarationNode(
+            STNode xmlnsKeyword,
+            STNode namespaceuri,
+            STNode asKeyword,
+            STNode namespacePrefix,
+            STNode semicolonToken) {
+
+        return new STModuleXMLNamespaceDeclarationNode(
                 xmlnsKeyword,
                 namespaceuri,
                 asKeyword,
@@ -1444,15 +1467,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createFromClauseNode(
             STNode fromKeyword,
-            STNode typeName,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode inKeyword,
             STNode expression) {
 
         return new STFromClauseNode(
                 fromKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 inKeyword,
                 expression);
     }
@@ -1564,20 +1585,20 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 simpleContExprNode);
     }
 
-    public static STNode createFunctionDeclarationNode(
+    public static STNode createMethodDeclarationNode(
             STNode metadata,
             STNode visibilityQualifier,
             STNode functionKeyword,
-            STNode functionName,
-            STNode functionSignature,
+            STNode methodName,
+            STNode methodSignature,
             STNode semicolon) {
 
-        return new STFunctionDeclarationNode(
+        return new STMethodDeclarationNode(
                 metadata,
                 visibilityQualifier,
                 functionKeyword,
-                functionName,
-                functionSignature,
+                methodName,
+                methodSignature,
                 semicolon);
     }
 
@@ -1595,6 +1616,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STCaptureBindingPatternNode(
                 variableName);
+    }
+
+    public static STNode createWildcardBindingPatternNode(
+            STNode underscoreToken) {
+
+        return new STWildcardBindingPatternNode(
+                underscoreToken);
     }
 
     public static STNode createListBindingPatternNode(
@@ -1914,6 +1942,53 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 startBacktick,
                 content,
                 endBacktick);
+    }
+
+    public static STNode createXMLFilterExpressionNode(
+            STNode expression,
+            STNode xmlPatternChain) {
+
+        return new STXMLFilterExpressionNode(
+                expression,
+                xmlPatternChain);
+    }
+
+    public static STNode createXMLStepExpressionNode(
+            STNode expression,
+            STNode xmlStepStart) {
+
+        return new STXMLStepExpressionNode(
+                expression,
+                xmlStepStart);
+    }
+
+    public static STNode createXMLNamePatternChainingNode(
+            STNode startToken,
+            STNode xmlNamePattern,
+            STNode gtToken) {
+
+        return new STXMLNamePatternChainingNode(
+                startToken,
+                xmlNamePattern,
+                gtToken);
+    }
+
+    public static STNode createXMLAtomicNamePatternNode(
+            STNode prefix,
+            STNode colon,
+            STNode name) {
+
+        return new STXMLAtomicNamePatternNode(
+                prefix,
+                colon,
+                name);
+    }
+
+    public static STNode createTypeReferenceTypeDescNode(
+            STNode typeRef) {
+
+        return new STTypeReferenceTypeDescNode(
+                typeRef);
     }
 }
 

@@ -48,6 +48,7 @@ public class TreeUtils {
         stringTypeKindMap.put("error", TypeKind.ERROR);
         stringTypeKindMap.put("()", TypeKind.NIL);
         stringTypeKindMap.put("null", TypeKind.NIL);
+        stringTypeKindMap.put("never", TypeKind.NEVER);
         stringTypeKindMap.put("channel", TypeKind.CHANNEL);
         stringTypeKindMap.put("service", TypeKind.SERVICE);
         stringTypeKindMap.put("handle", TypeKind.HANDLE);

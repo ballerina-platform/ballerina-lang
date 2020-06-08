@@ -36,20 +36,16 @@ public class FromClauseNode extends ClauseNode {
         return childInBucket(0);
     }
 
-    public Node typeName() {
+    public TypedBindingPatternNode typedBindingPattern() {
         return childInBucket(1);
     }
 
-    public Token variableName() {
+    public Token inKeyword() {
         return childInBucket(2);
     }
 
-    public Token inKeyword() {
-        return childInBucket(3);
-    }
-
     public ExpressionNode expression() {
-        return childInBucket(4);
+        return childInBucket(3);
     }
 
     @Override
@@ -66,22 +62,19 @@ public class FromClauseNode extends ClauseNode {
     protected String[] childNames() {
         return new String[]{
                 "fromKeyword",
-                "typeName",
-                "variableName",
+                "typedBindingPattern",
                 "inKeyword",
                 "expression"};
     }
 
     public FromClauseNode modify(
             Token fromKeyword,
-            Node typeName,
-            Token variableName,
+            TypedBindingPatternNode typedBindingPattern,
             Token inKeyword,
             ExpressionNode expression) {
         if (checkForReferenceEquality(
                 fromKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 inKeyword,
                 expression)) {
             return this;
@@ -89,8 +82,7 @@ public class FromClauseNode extends ClauseNode {
 
         return NodeFactory.createFromClauseNode(
                 fromKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 inKeyword,
                 expression);
     }
@@ -107,16 +99,14 @@ public class FromClauseNode extends ClauseNode {
     public static class FromClauseNodeModifier {
         private final FromClauseNode oldNode;
         private Token fromKeyword;
-        private Node typeName;
-        private Token variableName;
+        private TypedBindingPatternNode typedBindingPattern;
         private Token inKeyword;
         private ExpressionNode expression;
 
         public FromClauseNodeModifier(FromClauseNode oldNode) {
             this.oldNode = oldNode;
             this.fromKeyword = oldNode.fromKeyword();
-            this.typeName = oldNode.typeName();
-            this.variableName = oldNode.variableName();
+            this.typedBindingPattern = oldNode.typedBindingPattern();
             this.inKeyword = oldNode.inKeyword();
             this.expression = oldNode.expression();
         }
@@ -128,17 +118,10 @@ public class FromClauseNode extends ClauseNode {
             return this;
         }
 
-        public FromClauseNodeModifier withTypeName(
-                Node typeName) {
-            Objects.requireNonNull(typeName, "typeName must not be null");
-            this.typeName = typeName;
-            return this;
-        }
-
-        public FromClauseNodeModifier withVariableName(
-                Token variableName) {
-            Objects.requireNonNull(variableName, "variableName must not be null");
-            this.variableName = variableName;
+        public FromClauseNodeModifier withTypedBindingPattern(
+                TypedBindingPatternNode typedBindingPattern) {
+            Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
+            this.typedBindingPattern = typedBindingPattern;
             return this;
         }
 
@@ -159,8 +142,7 @@ public class FromClauseNode extends ClauseNode {
         public FromClauseNode apply() {
             return oldNode.modify(
                     fromKeyword,
-                    typeName,
-                    variableName,
+                    typedBindingPattern,
                     inKeyword,
                     expression);
         }

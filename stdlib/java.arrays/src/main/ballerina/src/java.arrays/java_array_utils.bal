@@ -73,3 +73,222 @@ public function set(public handle array, public int index, public handle element
 public function getLength(public handle array) returns int = @java:Method {
     class: "java.lang.reflect.Array"
 } external;
+
+# Returns a Ballerina array for a handle that holds a Java array.
+# ```ballerina
+# int[] array = <int[]> check jarrays:fromHandle(arrayHandle, "int");
+# ```
+#
+# + array - The `handle`, which refers to the Java array
+# + jType - The `string` parameter provided to specify the Java array element type
+# + bType - The optional `string` parameter provided to specify the Ballerina array element type
+# + return - Ballerina array `any[]|error` for the provided handle
+public function fromHandle(handle array, string jType, string bType = "default") returns any[]|error {
+    int count = getLength(array);
+    any[] returnArray = [];
+    if (!java:isNull(array)) {
+        if (jType == "string") {
+            string[] returnStringArray = [];
+            foreach int i in 0 ... count-1 {
+                string? element = java:toString(<handle>get(array, i));
+                if (element is string) {
+                    returnStringArray[i] = element;
+                }
+            }
+            return returnStringArray;
+        } else if (jType == "handle") {
+            handle[] returnHandleArray = [];
+            foreach int i in 0 ... count-1 {
+                returnHandleArray[i] = get(array, i);
+            }
+            return returnHandleArray;
+        } else if (jType == "boolean") {
+            boolean[] returnBooleanArray = [];
+            foreach int i in 0 ... count-1 {
+                boolean element = getBBooleanFromJBoolean(get(array, i));
+                returnBooleanArray[i] = element;
+            }
+            return returnBooleanArray;
+        } else if (jType == "float") {
+            float[] returnFloatArray = [];
+            foreach int i in 0 ... count-1 {
+                float element = getBFloatFromJFloat(get(array, i));
+                returnFloatArray[i] = element;
+            }
+            return returnFloatArray;
+        } else if (jType == "double") {
+            float[] returnFloatArray = [];
+            foreach int i in 0 ... count-1 {
+                float element = getBFloatFromJDouble(get(array, i));
+                returnFloatArray[i] = element;
+            }
+            return returnFloatArray;
+        } else if (jType == "int" && (bType == "default" || bType == "int")) {
+            int[] returnIntArray = [];
+            foreach int i in 0 ... count-1 {
+                int element = getBIntFromJInt(get(array, i));
+                returnIntArray[i] = element;
+            }
+            return returnIntArray;
+        } else if (jType == "int" && bType == "float") {
+            float[] returnFloatArray = [];
+            foreach int i in 0 ... count-1 {
+                float element = getBFloatFromJInt(get(array, i));
+                returnFloatArray[i] = element;
+            }
+            return returnFloatArray;
+        } else if (jType == "byte" && (bType == "default" || bType == "byte")) {
+            byte[] returnByteArray = [];
+            foreach int i in 0 ... count-1 {
+                byte element = getBByteFromJByte(get(array, i));
+                returnByteArray[i] = element;
+            }
+            return returnByteArray;
+        } else if (jType == "byte" && bType == "float") {
+            float[] returnFloatArray = [];
+            foreach int i in 0 ... count-1 {
+                float element = getBFloatFromJByte(get(array, i));
+                returnFloatArray[i] = element;
+            }
+            return returnFloatArray;
+        } else if (jType == "byte" && bType == "int") {
+            int[] returnIntArray = [];
+            foreach int i in 0 ... count-1 {
+                int element = getBIntFromJByte(get(array, i));
+                returnIntArray[i] = element;
+            }
+            return returnIntArray;
+        } else if (jType == "short" && (bType == "default" || bType == "int")) {
+            int[] returnIntArray = [];
+            foreach int i in 0 ... count-1 {
+                int element = getBIntFromJShort(get(array, i));
+                returnIntArray[i] = element;
+            }
+            return returnIntArray;
+        } else if (jType == "short" && bType == "float") {
+            float[] returnFloatArray = [];
+            foreach int i in 0 ... count-1 {
+                float element = getBFloatFromJShort(get(array, i));
+                returnFloatArray[i] = element;
+            }
+            return returnFloatArray;
+        } else if (jType == "long" && (bType == "default" || bType == "int")) {
+            int[] returnIntArray = [];
+            foreach int i in 0 ... count-1 {
+                int element = getBIntFromJLong(get(array, i));
+                returnIntArray[i] = element;
+            }
+            return returnIntArray;
+        } else if (jType == "long" && bType == "float") {
+            float[] returnFloatArray = [];
+            foreach int i in 0 ... count-1 {
+                float element = getBFloatFromJLong(get(array, i));
+                returnFloatArray[i] = element;
+            }
+            return returnFloatArray;
+        } else if (jType == "char" && (bType == "default" || bType == "int")) {
+            int[] returnIntArray = [];
+            foreach int i in 0 ... count-1 {
+                int element = getBIntFromJChar(get(array, i));
+                returnIntArray[i] = element;
+            }
+            return returnIntArray;
+        } else if (jType == "char" && bType == "float") {
+            float[] returnFloatArray = [];
+            foreach int i in 0 ... count-1 {
+                float element = getBFloatFromJChar(get(array, i));
+                returnFloatArray[i] = element;
+            }
+            return returnFloatArray;
+        } else {
+            return error("{ballerina/java.arrays} Handle to array conversion cannot be applied on the provided types");
+        }
+    }
+    return returnArray;
+}
+
+# Returns a handle value representation for a Ballerina array.
+# ```ballerina
+# handle handleValue = check java.arrays:toHandle(array, "char");
+# ```
+#
+# + array - Ballerina array which is to be converted to a handle reference
+# + jType - Java class name or the primitive type of the array elements referenced by the handle
+# + return - The `handle|error` after the conversion
+public function toHandle(any[] array, string jType) returns handle|error {
+    handle returnHandle = newInstance(check java:getClass(jType), array.length());
+    int count=0;
+    while (count < array.length()) {
+        if (array is byte[] && jType == "char") {
+            set(returnHandle, count, wrapByteToChar(array[count]));
+            count+=1;
+        } else if (array is byte[] && jType == "short") {
+            set(returnHandle, count, wrapByteToShort(array[count]));
+            count+=1;
+        } else if (array is byte[] && jType == "long") {
+            set(returnHandle, count, wrapByteToLong(array[count]));
+            count+=1;
+        } else if (array is byte[] && jType == "int") {
+            set(returnHandle, count, wrapByteToInt(array[count]));
+            count+=1;
+        } else if (array is byte[] && jType == "float") {
+            set(returnHandle, count, wrapByteToFloat(array[count]));
+            count+=1;
+        } else if (array is byte[] && jType == "double") {
+            set(returnHandle, count, wrapByteToDouble(array[count]));
+            count+=1;
+        } else if (array is byte[] && jType == "byte") {
+            set(returnHandle, count, wrapByteToByte(array[count]));
+            count+=1;
+        } else if (array is int[] && jType == "byte") {
+            set(returnHandle, count, wrapIntToByte(array[count]));
+            count+=1;
+        } else if (array is int[] && jType == "char") {
+            set(returnHandle, count, wrapIntToChar(array[count]));
+            count+=1;
+        } else if (array is int[] && jType == "short") {
+            set(returnHandle, count, wrapIntToShort(array[count]));
+            count+=1;
+        } else if (array is int[] && jType == "long") {
+            set(returnHandle, count, wrapIntToLong(array[count]));
+            count+=1;
+        } else if (array is int[] && jType == "int") {
+            set(returnHandle, count, wrapIntToInt(array[count]));
+            count+=1;
+        } else if (array is float[] && jType == "char") {
+            set(returnHandle, count, wrapFloatToChar(array[count]));
+            count+=1;
+        } else if (array is float[] && jType == "short") {
+            set(returnHandle, count, wrapFloatToShort(array[count]));
+            count+=1;
+        } else if (array is float[] && jType == "long") {
+            set(returnHandle, count, wrapFloatToLong(array[count]));
+            count+=1;
+        } else if (array is float[] && jType == "double") {
+            set(returnHandle, count, wrapFloatToDouble(array[count]));
+            count+=1;
+        } else if (array is float[] && jType == "byte") {
+            set(returnHandle, count, wrapFloatToByte(array[count]));
+            count+=1;
+        } else if (array is float[] && jType == "int") {
+            set(returnHandle, count, wrapFloatToInt(array[count]));
+            count+=1;
+        } else if (array is float[] && jType == "float") {
+            set(returnHandle, count, wrapFloatToFloat(array[count]));
+            count+=1;
+        } else if (array is boolean[]) {
+            set(returnHandle, count, wrapBooleanToBoolean(array[count]));
+            count+=1;
+        } else if (array is string[]) {
+            set(returnHandle, count, java:fromString(array[count]));
+            count+=1;
+        } else if (array is java:JObject[]) {
+            java:JObject jObject = array[count];
+            set(returnHandle, count, jObject.jObj);
+            count+=1;
+        } else {
+            return error("{ballerina/java.arrays} Array to handle conversion cannot be applied on the provided types");
+        }
+    }
+    return returnHandle;
+}

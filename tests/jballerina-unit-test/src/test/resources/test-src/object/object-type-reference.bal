@@ -153,3 +153,55 @@ public function testAbstractObjectFuncWithDefaultVal() returns [string, float] {
     Manager4 mgr = new Manager4("Jane");
     return [mgr.getName(), mgr.getBonus(0.1)];
 }
+
+// non abstract object inclusion
+type Ant object {
+    int id;
+
+    public function __init() {
+        self.id = 0;
+    }
+
+    public function getId() returns int {
+        return self.id;
+    }
+};
+
+type FireAnt object {
+    *Ant;
+
+    public function __init(int id) {
+        self.id = id;
+    }
+
+    public function getId() returns int|() {
+        if (self.id > 0) {
+            return self.id;
+        } else {
+            return ();
+        }
+    }
+};
+
+public function testNonAbstractObjectInclusion() {
+    FireAnt notoriousFireAnt = new FireAnt(7);
+    assertEquality(notoriousFireAnt.getId(), 7);
+
+    FireAnt dullAnt = new FireAnt(0);
+    assertEquality(dullAnt.getId(), ());
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

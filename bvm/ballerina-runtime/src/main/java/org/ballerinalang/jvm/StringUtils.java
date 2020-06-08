@@ -30,6 +30,7 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
@@ -65,7 +66,7 @@ public class StringUtils {
      * @param in Input stream to be converted to string
      * @return Converted string
      */
-    public static String getStringFromInputStream(InputStream in) {
+    public static BString getStringFromInputStream(InputStream in) {
         BufferedInputStream bis = new BufferedInputStream(in);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         String result;
@@ -83,10 +84,10 @@ public class StringUtils {
             } catch (IOException ignored) {
             }
         }
-        return result;
+        return StringUtils.fromString(result);
     }
 
-    public static String getStringFromInputStream(InputStream inputStream, String charset) {
+    public static BString getStringFromInputStream(InputStream inputStream, String charset) {
         StringBuilder textBuilder = new StringBuilder();
         try (Reader reader = new InputStreamReader(inputStream, Charset.forName(charset))) {
             int character;
@@ -96,7 +97,7 @@ public class StringUtils {
         } catch (IOException e) {
             throw new BallerinaException("Error occurred when reading input stream with the charset" + charset, e);
         }
-        return textBuilder.toString();
+        return StringUtils.fromString(textBuilder.toString());
     }
 
     public static String getStringAt(String s, long index) {
@@ -150,6 +151,16 @@ public class StringUtils {
         BString[] bStringArray = new BString[s.length];
         for (int i = 0; i < s.length; i++) {
             bStringArray[i] = StringUtils.fromString(s[i]);
+        }
+        return bStringArray;
+    }
+
+    public static BString[] fromStringSet(Set<String> set) {
+        BString[] bStringArray = new BString[set.size()];
+        int i = 0;
+        for (String s : set) {
+            bStringArray[i] = StringUtils.fromString(s);
+            i++;
         }
         return bStringArray;
     }

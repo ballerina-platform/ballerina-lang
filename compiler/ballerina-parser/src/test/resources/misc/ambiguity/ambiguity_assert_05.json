@@ -64,6 +64,10 @@
                               "kind": "LOCAL_VAR_DECL",
                               "children": [
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "TYPED_BINDING_PATTERN",
                                   "children": [
                                     {
@@ -165,7 +169,7 @@
                             },
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "c"
+                              "value": "w1"
                             }
                           ]
                         },
