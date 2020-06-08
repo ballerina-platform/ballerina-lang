@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STExplicitAnonymousFunctionExpressionNode extends STAnonymousFunctionExpressionNode {
     public final STNode annotations;
@@ -38,7 +41,21 @@ public class STExplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
             STNode functionKeyword,
             STNode functionSignature,
             STNode functionBody) {
-        super(SyntaxKind.EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION);
+        this(
+                annotations,
+                functionKeyword,
+                functionSignature,
+                functionBody,
+                Collections.emptyList());
+    }
+
+    STExplicitAnonymousFunctionExpressionNode(
+            STNode annotations,
+            STNode functionKeyword,
+            STNode functionSignature,
+            STNode functionBody,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION, diagnostics);
         this.annotations = annotations;
         this.functionKeyword = functionKeyword;
         this.functionSignature = functionSignature;
@@ -49,6 +66,15 @@ public class STExplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
                 functionKeyword,
                 functionSignature,
                 functionBody);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STExplicitAnonymousFunctionExpressionNode(
+                this.annotations,
+                this.functionKeyword,
+                this.functionSignature,
+                this.functionBody,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

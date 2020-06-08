@@ -19,6 +19,7 @@
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
 import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -42,6 +43,7 @@ import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
 
 import java.util.concurrent.Semaphore;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.ANN_SERVICE_DESCRIPTOR_FQN;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ERROR_MESSAGE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ITERATOR_LOCK;
@@ -107,7 +109,7 @@ public class FunctionUtils  extends AbstractGrpcNativeFunction  {
             } else {
                 servicesRegistryBuilder.addService(ServicesBuilderUtils.getServiceDefinition(
                         BRuntime.getCurrentRuntime(), service,
-                        service.getType().getAnnotation("ballerina/grpc:ServiceDescriptor")));
+                        service.getType().getAnnotation(StringUtils.fromString(ANN_SERVICE_DESCRIPTOR_FQN))));
                 return null;
             }
         } catch (GrpcServerException e) {

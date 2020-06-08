@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class MappingConstructorExpressionNode extends ExpressionNode {
 
@@ -34,8 +36,8 @@ public class MappingConstructorExpressionNode extends ExpressionNode {
         return childInBucket(0);
     }
 
-    public NodeList<MappingFieldNode> fields() {
-        return new NodeList<>(childInBucket(1));
+    public SeparatedNodeList<MappingFieldNode> fields() {
+        return new SeparatedNodeList<>(childInBucket(1));
     }
 
     public Token closeBrace() {
@@ -62,7 +64,7 @@ public class MappingConstructorExpressionNode extends ExpressionNode {
 
     public MappingConstructorExpressionNode modify(
             Token openBrace,
-            NodeList<MappingFieldNode> fields,
+            SeparatedNodeList<MappingFieldNode> fields,
             Token closeBrace) {
         if (checkForReferenceEquality(
                 openBrace,
@@ -75,5 +77,56 @@ public class MappingConstructorExpressionNode extends ExpressionNode {
                 openBrace,
                 fields,
                 closeBrace);
+    }
+
+    public MappingConstructorExpressionNodeModifier modify() {
+        return new MappingConstructorExpressionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class MappingConstructorExpressionNodeModifier {
+        private final MappingConstructorExpressionNode oldNode;
+        private Token openBrace;
+        private SeparatedNodeList<MappingFieldNode> fields;
+        private Token closeBrace;
+
+        public MappingConstructorExpressionNodeModifier(MappingConstructorExpressionNode oldNode) {
+            this.oldNode = oldNode;
+            this.openBrace = oldNode.openBrace();
+            this.fields = oldNode.fields();
+            this.closeBrace = oldNode.closeBrace();
+        }
+
+        public MappingConstructorExpressionNodeModifier withOpenBrace(
+                Token openBrace) {
+            Objects.requireNonNull(openBrace, "openBrace must not be null");
+            this.openBrace = openBrace;
+            return this;
+        }
+
+        public MappingConstructorExpressionNodeModifier withFields(
+                SeparatedNodeList<MappingFieldNode> fields) {
+            Objects.requireNonNull(fields, "fields must not be null");
+            this.fields = fields;
+            return this;
+        }
+
+        public MappingConstructorExpressionNodeModifier withCloseBrace(
+                Token closeBrace) {
+            Objects.requireNonNull(closeBrace, "closeBrace must not be null");
+            this.closeBrace = closeBrace;
+            return this;
+        }
+
+        public MappingConstructorExpressionNode apply() {
+            return oldNode.modify(
+                    openBrace,
+                    fields,
+                    closeBrace);
+        }
     }
 }

@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STFlushActionNode extends STExpressionNode {
     public final STNode flushKeyword;
@@ -34,13 +37,30 @@ public class STFlushActionNode extends STExpressionNode {
     STFlushActionNode(
             STNode flushKeyword,
             STNode peerWorker) {
-        super(SyntaxKind.FLUSH_ACTION);
+        this(
+                flushKeyword,
+                peerWorker,
+                Collections.emptyList());
+    }
+
+    STFlushActionNode(
+            STNode flushKeyword,
+            STNode peerWorker,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.FLUSH_ACTION, diagnostics);
         this.flushKeyword = flushKeyword;
         this.peerWorker = peerWorker;
 
         addChildren(
                 flushKeyword,
                 peerWorker);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STFlushActionNode(
+                this.flushKeyword,
+                this.peerWorker,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

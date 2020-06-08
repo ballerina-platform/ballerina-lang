@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class SpreadFieldNode extends MappingFieldNode {
 
@@ -30,16 +32,12 @@ public class SpreadFieldNode extends MappingFieldNode {
         super(internalNode, position, parent);
     }
 
-    public Token leadingComma() {
+    public Token ellipsis() {
         return childInBucket(0);
     }
 
-    public Token ellipsis() {
-        return childInBucket(1);
-    }
-
     public ExpressionNode valueExpr() {
-        return childInBucket(2);
+        return childInBucket(1);
     }
 
     @Override
@@ -55,25 +53,62 @@ public class SpreadFieldNode extends MappingFieldNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "leadingComma",
                 "ellipsis",
                 "valueExpr"};
     }
 
     public SpreadFieldNode modify(
-            Token leadingComma,
             Token ellipsis,
             ExpressionNode valueExpr) {
         if (checkForReferenceEquality(
-                leadingComma,
                 ellipsis,
                 valueExpr)) {
             return this;
         }
 
         return NodeFactory.createSpreadFieldNode(
-                leadingComma,
                 ellipsis,
                 valueExpr);
+    }
+
+    public SpreadFieldNodeModifier modify() {
+        return new SpreadFieldNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class SpreadFieldNodeModifier {
+        private final SpreadFieldNode oldNode;
+        private Token ellipsis;
+        private ExpressionNode valueExpr;
+
+        public SpreadFieldNodeModifier(SpreadFieldNode oldNode) {
+            this.oldNode = oldNode;
+            this.ellipsis = oldNode.ellipsis();
+            this.valueExpr = oldNode.valueExpr();
+        }
+
+        public SpreadFieldNodeModifier withEllipsis(
+                Token ellipsis) {
+            Objects.requireNonNull(ellipsis, "ellipsis must not be null");
+            this.ellipsis = ellipsis;
+            return this;
+        }
+
+        public SpreadFieldNodeModifier withValueExpr(
+                ExpressionNode valueExpr) {
+            Objects.requireNonNull(valueExpr, "valueExpr must not be null");
+            this.valueExpr = valueExpr;
+            return this;
+        }
+
+        public SpreadFieldNode apply() {
+            return oldNode.modify(
+                    ellipsis,
+                    valueExpr);
+        }
     }
 }

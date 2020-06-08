@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STReturnStatementNode extends STStatementNode {
     public final STNode returnKeyword;
@@ -36,7 +39,19 @@ public class STReturnStatementNode extends STStatementNode {
             STNode returnKeyword,
             STNode expression,
             STNode semicolonToken) {
-        super(SyntaxKind.RETURN_STATEMENT);
+        this(
+                returnKeyword,
+                expression,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STReturnStatementNode(
+            STNode returnKeyword,
+            STNode expression,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.RETURN_STATEMENT, diagnostics);
         this.returnKeyword = returnKeyword;
         this.expression = expression;
         this.semicolonToken = semicolonToken;
@@ -45,6 +60,14 @@ public class STReturnStatementNode extends STStatementNode {
                 returnKeyword,
                 expression,
                 semicolonToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STReturnStatementNode(
+                this.returnKeyword,
+                this.expression,
+                this.semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

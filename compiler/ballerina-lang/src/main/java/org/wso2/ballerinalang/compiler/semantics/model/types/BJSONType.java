@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
-import org.ballerinalang.model.types.Type;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -30,7 +29,7 @@ import org.wso2.ballerinalang.util.Flags;
 public class BJSONType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
 
     private boolean nullable = true;
-    public BJSONType immutableType;
+    public BIntersectionType immutableType;
 
     public BJSONType(int tag, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
@@ -66,7 +65,7 @@ public class BJSONType extends BBuiltInRefType implements SelectivelyImmutableRe
     }
 
     @Override
-    public Type getImmutableType() {
+    public BIntersectionType getImmutableType() {
         return this.immutableType;
     }
 

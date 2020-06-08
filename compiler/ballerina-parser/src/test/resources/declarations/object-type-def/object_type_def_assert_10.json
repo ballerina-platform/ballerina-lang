@@ -114,7 +114,7 @@
                           ]
                         },
                         {
-                          "kind": "FUNCTION_DEFINITION",
+                          "kind": "FUNCTION_DECLARATION",
                           "children": [
                             {
                               "kind": "METADATA",
@@ -148,20 +148,8 @@
                               ]
                             },
                             {
-                              "kind": "FUNCTION_BODY_BLOCK",
-                              "children": [
-                                {
-                                  "kind": "OPEN_BRACE_TOKEN",
-                                  "isMissing": true
-                                },
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "CLOSE_BRACE_TOKEN"
-                                }
-                              ]
+                              "kind": "SEMICOLON_TOKEN",
+                              "isMissing": true
                             }
                           ]
                         }

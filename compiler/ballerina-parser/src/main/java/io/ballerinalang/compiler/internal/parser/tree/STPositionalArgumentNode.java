@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STPositionalArgumentNode extends STFunctionArgumentNode {
     public final STNode leadingComma;
@@ -34,13 +37,30 @@ public class STPositionalArgumentNode extends STFunctionArgumentNode {
     STPositionalArgumentNode(
             STNode leadingComma,
             STNode expression) {
-        super(SyntaxKind.POSITIONAL_ARG);
+        this(
+                leadingComma,
+                expression,
+                Collections.emptyList());
+    }
+
+    STPositionalArgumentNode(
+            STNode leadingComma,
+            STNode expression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.POSITIONAL_ARG, diagnostics);
         this.leadingComma = leadingComma;
         this.expression = expression;
 
         addChildren(
                 leadingComma,
                 expression);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STPositionalArgumentNode(
+                this.leadingComma,
+                this.expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

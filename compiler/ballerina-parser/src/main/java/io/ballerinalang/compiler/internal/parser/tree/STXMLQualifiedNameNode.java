@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.XMLQualifiedNameNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STXMLQualifiedNameNode extends STXMLNameNode {
     public final STNode prefix;
@@ -36,7 +39,19 @@ public class STXMLQualifiedNameNode extends STXMLNameNode {
             STNode prefix,
             STNode colon,
             STNode name) {
-        super(SyntaxKind.XML_QUALIFIED_NAME);
+        this(
+                prefix,
+                colon,
+                name,
+                Collections.emptyList());
+    }
+
+    STXMLQualifiedNameNode(
+            STNode prefix,
+            STNode colon,
+            STNode name,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.XML_QUALIFIED_NAME, diagnostics);
         this.prefix = prefix;
         this.colon = colon;
         this.name = name;
@@ -45,6 +60,14 @@ public class STXMLQualifiedNameNode extends STXMLNameNode {
                 prefix,
                 colon,
                 name);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STXMLQualifiedNameNode(
+                this.prefix,
+                this.colon,
+                this.name,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

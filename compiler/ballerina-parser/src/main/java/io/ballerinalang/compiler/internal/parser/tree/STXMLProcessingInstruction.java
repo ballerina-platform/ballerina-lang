@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.XMLProcessingInstruction;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STXMLProcessingInstruction extends STXMLItemNode {
     public final STNode piStart;
@@ -38,7 +41,21 @@ public class STXMLProcessingInstruction extends STXMLItemNode {
             STNode target,
             STNode data,
             STNode piEnd) {
-        super(SyntaxKind.XML_PI);
+        this(
+                piStart,
+                target,
+                data,
+                piEnd,
+                Collections.emptyList());
+    }
+
+    STXMLProcessingInstruction(
+            STNode piStart,
+            STNode target,
+            STNode data,
+            STNode piEnd,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.XML_PI, diagnostics);
         this.piStart = piStart;
         this.target = target;
         this.data = data;
@@ -49,6 +66,15 @@ public class STXMLProcessingInstruction extends STXMLItemNode {
                 target,
                 data,
                 piEnd);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STXMLProcessingInstruction(
+                this.piStart,
+                this.target,
+                this.data,
+                this.piEnd,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

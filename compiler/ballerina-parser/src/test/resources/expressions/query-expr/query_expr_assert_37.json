@@ -1,104 +1,58 @@
 {
-    "kind": "BINARY_EXPRESSION",
-    "children": [
+  "kind": "QUERY_EXPRESSION",
+  "children": [
+    {
+      "kind": "QUERY_PIPELINE",
+      "children": [
         {
-            "kind": "QUERY_EXPRESSION",
-            "children": [
+          "kind": "FROM_CLAUSE",
+          "children": [
+            {
+              "kind": "FROM_KEYWORD"
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
                 {
-                    "kind": "QUERY_PIPELINE",
-                    "children": [
-                        {
-                            "kind": "FROM_CLAUSE",
-                            "children": [
-                                {
-                                    "kind": "FROM_KEYWORD"
-                                },
-                                {
-                                    "kind": "INT_KEYWORD"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "IN_KEYWORD"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "b"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LIST",
-                            "children": []
-                        }
-                    ]
+                  "kind": "INT_KEYWORD"
                 },
                 {
-                    "kind": "SELECT_CLAUSE",
-                    "children": [
-                        {
-                            "kind": "SELECT_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "c"
-                        }
-                    ]
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    }
+                  ]
                 }
-            ]
+              ]
+            },
+            {
+              "kind": "IN_KEYWORD"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "b"
+            }
+          ]
         },
         {
-            "kind": "PLUS_TOKEN"
-        },
-        {
-            "kind": "QUERY_EXPRESSION",
-            "children": [
-                {
-                    "kind": "QUERY_PIPELINE",
-                    "children": [
-                        {
-                            "kind": "FROM_CLAUSE",
-                            "children": [
-                                {
-                                    "kind": "FROM_KEYWORD"
-                                },
-                                {
-                                    "kind": "INT_KEYWORD"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "f"
-                                },
-                                {
-                                    "kind": "IN_KEYWORD"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "g"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LIST",
-                            "children": []
-                        }
-                    ]
-                },
-                {
-                    "kind": "SELECT_CLAUSE",
-                    "children": [
-                        {
-                            "kind": "SELECT_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "h"
-                        }
-                    ]
-                }
-            ]
+          "kind": "LIST",
+          "children": []
         }
-    ]
+      ]
+    },
+    {
+      "kind": "SELECT_CLAUSE",
+      "children": [
+        {
+          "kind": "SELECT_KEYWORD"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "c"
+        }
+      ]
+    }
+  ]
 }

@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * Represents an identifier in the internal syntax tree.
  *
@@ -31,13 +34,26 @@ public class STIdentifierToken extends STToken {
 
     public final String text;
 
-    STIdentifierToken(String text, STNode leadingTrivia, STNode trailingTrivia) {
-        super(SyntaxKind.IDENTIFIER_TOKEN, text.length(), leadingTrivia, trailingTrivia);
+    STIdentifierToken(String text,
+                      STNode leadingTrivia,
+                      STNode trailingTrivia) {
+        this(text, leadingTrivia, trailingTrivia, Collections.emptyList());
+    }
+
+    STIdentifierToken(String text,
+                      STNode leadingTrivia,
+                      STNode trailingTrivia,
+                      Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.IDENTIFIER_TOKEN, text.length(), leadingTrivia, trailingTrivia, diagnostics);
         this.text = text;
     }
 
     public String text() {
         return text;
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STIdentifierToken(text, leadingMinutiae, trailingMinutiae, diagnostics);
     }
 
     @Override
@@ -47,6 +63,6 @@ public class STIdentifierToken extends STToken {
 
     @Override
     public String toString() {
-        return leadingTrivia + text + trailingTrivia;
+        return leadingMinutiae + text + trailingMinutiae;
     }
 }

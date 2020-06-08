@@ -24,6 +24,7 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +68,16 @@ class OpenAPIPathSummary {
         if (operation == null) {
             return false;
         }
-        return operation.getTags().containsAll(tags);
+        return !Collections.disjoint(tags, operation.getTags());
+    }
+
+    boolean hasOperations(List<String> operationslist, String method) {
+        Operation operation = operations.get(method);
+        if (operation == null) {
+            return false;
+        }
+        return operationslist.contains(operation.getOperationId());
+
     }
 
     List<OpenAPIParameter> getParamNamesForOperation(String operation) {

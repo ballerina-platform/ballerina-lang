@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STBasicLiteralNode extends STExpressionNode {
     public final STNode literalToken;
@@ -33,11 +36,28 @@ public class STBasicLiteralNode extends STExpressionNode {
     STBasicLiteralNode(
             SyntaxKind kind,
             STNode literalToken) {
-        super(kind);
+        this(
+                kind,
+                literalToken,
+                Collections.emptyList());
+    }
+
+    STBasicLiteralNode(
+            SyntaxKind kind,
+            STNode literalToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(kind, diagnostics);
         this.literalToken = literalToken;
 
         addChildren(
                 literalToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STBasicLiteralNode(
+                this.kind,
+                this.literalToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

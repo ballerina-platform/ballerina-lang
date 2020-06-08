@@ -23,7 +23,6 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.langlib.string.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -32,6 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
 
 /**
  * Extern function ballerina.model.strings:indexOf.
@@ -39,7 +39,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string",
+        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION,
         functionName = "indexOf",
         args = {@Argument(name = "s", type = TypeKind.STRING),
                 @Argument(name = "substring", type = TypeKind.STRING)},
@@ -48,18 +48,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
 )
 public class IndexOf {
 
-    public static Object indexOf(Strand strand, String value, String subString, long startIndx) {
-        StringUtils.checkForNull(value, subString);
-        if (startIndx > Integer.MAX_VALUE) {
-            throw BLangExceptionHelper.getRuntimeException(getModulePrefixedReason(STRING_LANG_LIB,
-                    INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndx);
-        }
-        long index = value.indexOf(subString, (int) startIndx);
-        return index >= 0 ? index : null;
-    }
-
-    public static Object indexOf_bstring(Strand strand, BString bStr, BString subString, long startIndx) {
+    public static Object indexOf(Strand strand, BString bStr, BString subString, long startIndx) {
 
         if (bStr == null || subString == null) {
             throw BallerinaErrors.createNullReferenceError();

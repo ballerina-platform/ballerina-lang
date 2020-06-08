@@ -18,7 +18,7 @@
 package io.ballerinalang.compiler.parser.test.incremental;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
-import io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils;
+import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.parser.test.ParserTestUtils;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
@@ -61,7 +61,7 @@ public class AbstractIncrementalParserTest {
         DiffMatchPatch diffMatchPatch = new DiffMatchPatch();
         LinkedList<DiffMatchPatch.Diff> diffList = diffMatchPatch.diffMain(oldText, newText);
         diffMatchPatch.diffCleanupSemantic(diffList);
-        return new TextDocumentChange(getTextEdits(diffList));
+        return TextDocumentChange.from(getTextEdits(diffList));
     }
 
     public static Node[] populateNewNodes(SyntaxTree oldTree, SyntaxTree newTree) {
@@ -161,6 +161,6 @@ public class AbstractIncrementalParserTest {
             newTextChange = insertDiff.text;
             diffEnd = diffStart;
         }
-        return new TextEdit(new TextRange(diffStart, diffEnd - diffStart), newTextChange);
+        return TextEdit.from(TextRange.from(diffStart, diffEnd - diffStart), newTextChange);
     }
 }

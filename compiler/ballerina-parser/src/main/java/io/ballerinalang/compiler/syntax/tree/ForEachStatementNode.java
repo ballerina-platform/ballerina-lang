@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ForEachStatementNode extends StatementNode {
 
@@ -34,24 +36,20 @@ public class ForEachStatementNode extends StatementNode {
         return childInBucket(0);
     }
 
-    public Node typeDescriptor() {
+    public TypedBindingPatternNode typedBindingPattern() {
         return childInBucket(1);
     }
 
-    public Token variableName() {
+    public Token inKeyword() {
         return childInBucket(2);
     }
 
-    public Token inKeyword() {
+    public Node actionOrExpressionNode() {
         return childInBucket(3);
     }
 
-    public Node actionOrExpressionNode() {
-        return childInBucket(4);
-    }
-
     public StatementNode blockStatement() {
-        return childInBucket(5);
+        return childInBucket(4);
     }
 
     @Override
@@ -68,8 +66,7 @@ public class ForEachStatementNode extends StatementNode {
     protected String[] childNames() {
         return new String[]{
                 "forEachKeyword",
-                "typeDescriptor",
-                "variableName",
+                "typedBindingPattern",
                 "inKeyword",
                 "actionOrExpressionNode",
                 "blockStatement"};
@@ -77,15 +74,13 @@ public class ForEachStatementNode extends StatementNode {
 
     public ForEachStatementNode modify(
             Token forEachKeyword,
-            Node typeDescriptor,
-            Token variableName,
+            TypedBindingPatternNode typedBindingPattern,
             Token inKeyword,
             Node actionOrExpressionNode,
             StatementNode blockStatement) {
         if (checkForReferenceEquality(
                 forEachKeyword,
-                typeDescriptor,
-                variableName,
+                typedBindingPattern,
                 inKeyword,
                 actionOrExpressionNode,
                 blockStatement)) {
@@ -94,10 +89,80 @@ public class ForEachStatementNode extends StatementNode {
 
         return NodeFactory.createForEachStatementNode(
                 forEachKeyword,
-                typeDescriptor,
-                variableName,
+                typedBindingPattern,
                 inKeyword,
                 actionOrExpressionNode,
                 blockStatement);
+    }
+
+    public ForEachStatementNodeModifier modify() {
+        return new ForEachStatementNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ForEachStatementNodeModifier {
+        private final ForEachStatementNode oldNode;
+        private Token forEachKeyword;
+        private TypedBindingPatternNode typedBindingPattern;
+        private Token inKeyword;
+        private Node actionOrExpressionNode;
+        private StatementNode blockStatement;
+
+        public ForEachStatementNodeModifier(ForEachStatementNode oldNode) {
+            this.oldNode = oldNode;
+            this.forEachKeyword = oldNode.forEachKeyword();
+            this.typedBindingPattern = oldNode.typedBindingPattern();
+            this.inKeyword = oldNode.inKeyword();
+            this.actionOrExpressionNode = oldNode.actionOrExpressionNode();
+            this.blockStatement = oldNode.blockStatement();
+        }
+
+        public ForEachStatementNodeModifier withForEachKeyword(
+                Token forEachKeyword) {
+            Objects.requireNonNull(forEachKeyword, "forEachKeyword must not be null");
+            this.forEachKeyword = forEachKeyword;
+            return this;
+        }
+
+        public ForEachStatementNodeModifier withTypedBindingPattern(
+                TypedBindingPatternNode typedBindingPattern) {
+            Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
+            this.typedBindingPattern = typedBindingPattern;
+            return this;
+        }
+
+        public ForEachStatementNodeModifier withInKeyword(
+                Token inKeyword) {
+            Objects.requireNonNull(inKeyword, "inKeyword must not be null");
+            this.inKeyword = inKeyword;
+            return this;
+        }
+
+        public ForEachStatementNodeModifier withActionOrExpressionNode(
+                Node actionOrExpressionNode) {
+            Objects.requireNonNull(actionOrExpressionNode, "actionOrExpressionNode must not be null");
+            this.actionOrExpressionNode = actionOrExpressionNode;
+            return this;
+        }
+
+        public ForEachStatementNodeModifier withBlockStatement(
+                StatementNode blockStatement) {
+            Objects.requireNonNull(blockStatement, "blockStatement must not be null");
+            this.blockStatement = blockStatement;
+            return this;
+        }
+
+        public ForEachStatementNode apply() {
+            return oldNode.modify(
+                    forEachKeyword,
+                    typedBindingPattern,
+                    inKeyword,
+                    actionOrExpressionNode,
+                    blockStatement);
+        }
     }
 }

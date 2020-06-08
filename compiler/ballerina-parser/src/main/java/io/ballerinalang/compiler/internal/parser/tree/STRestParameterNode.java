@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.RestParameterNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STRestParameterNode extends STParameterNode {
     public final STNode leadingComma;
@@ -40,7 +43,23 @@ public class STRestParameterNode extends STParameterNode {
             STNode typeName,
             STNode ellipsisToken,
             STNode paramName) {
-        super(SyntaxKind.REST_PARAM);
+        this(
+                leadingComma,
+                annotations,
+                typeName,
+                ellipsisToken,
+                paramName,
+                Collections.emptyList());
+    }
+
+    STRestParameterNode(
+            STNode leadingComma,
+            STNode annotations,
+            STNode typeName,
+            STNode ellipsisToken,
+            STNode paramName,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.REST_PARAM, diagnostics);
         this.leadingComma = leadingComma;
         this.annotations = annotations;
         this.typeName = typeName;
@@ -53,6 +72,16 @@ public class STRestParameterNode extends STParameterNode {
                 typeName,
                 ellipsisToken,
                 paramName);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STRestParameterNode(
+                this.leadingComma,
+                this.annotations,
+                this.typeName,
+                this.ellipsisToken,
+                this.paramName,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

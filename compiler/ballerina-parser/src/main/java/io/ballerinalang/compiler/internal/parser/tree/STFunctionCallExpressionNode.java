@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STFunctionCallExpressionNode extends STExpressionNode {
     public final STNode functionName;
@@ -38,7 +41,21 @@ public class STFunctionCallExpressionNode extends STExpressionNode {
             STNode openParenToken,
             STNode arguments,
             STNode closeParenToken) {
-        super(SyntaxKind.FUNCTION_CALL);
+        this(
+                functionName,
+                openParenToken,
+                arguments,
+                closeParenToken,
+                Collections.emptyList());
+    }
+
+    STFunctionCallExpressionNode(
+            STNode functionName,
+            STNode openParenToken,
+            STNode arguments,
+            STNode closeParenToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.FUNCTION_CALL, diagnostics);
         this.functionName = functionName;
         this.openParenToken = openParenToken;
         this.arguments = arguments;
@@ -49,6 +66,15 @@ public class STFunctionCallExpressionNode extends STExpressionNode {
                 openParenToken,
                 arguments,
                 closeParenToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STFunctionCallExpressionNode(
+                this.functionName,
+                this.openParenToken,
+                this.arguments,
+                this.closeParenToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

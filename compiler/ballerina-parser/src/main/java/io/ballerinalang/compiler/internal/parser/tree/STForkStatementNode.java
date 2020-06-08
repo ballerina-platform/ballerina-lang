@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STForkStatementNode extends STStatementNode {
     public final STNode forkKeyword;
@@ -38,7 +41,21 @@ public class STForkStatementNode extends STStatementNode {
             STNode openBraceToken,
             STNode namedWorkerDeclarations,
             STNode closeBraceToken) {
-        super(SyntaxKind.FORK_STATEMENT);
+        this(
+                forkKeyword,
+                openBraceToken,
+                namedWorkerDeclarations,
+                closeBraceToken,
+                Collections.emptyList());
+    }
+
+    STForkStatementNode(
+            STNode forkKeyword,
+            STNode openBraceToken,
+            STNode namedWorkerDeclarations,
+            STNode closeBraceToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.FORK_STATEMENT, diagnostics);
         this.forkKeyword = forkKeyword;
         this.openBraceToken = openBraceToken;
         this.namedWorkerDeclarations = namedWorkerDeclarations;
@@ -49,6 +66,15 @@ public class STForkStatementNode extends STStatementNode {
                 openBraceToken,
                 namedWorkerDeclarations,
                 closeBraceToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STForkStatementNode(
+                this.forkKeyword,
+                this.openBraceToken,
+                this.namedWorkerDeclarations,
+                this.closeBraceToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

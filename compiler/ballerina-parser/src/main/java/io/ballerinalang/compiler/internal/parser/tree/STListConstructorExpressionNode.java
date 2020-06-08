@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STListConstructorExpressionNode extends STExpressionNode {
     public final STNode openBracket;
@@ -36,7 +39,19 @@ public class STListConstructorExpressionNode extends STExpressionNode {
             STNode openBracket,
             STNode expressions,
             STNode closeBracket) {
-        super(SyntaxKind.LIST_CONSTRUCTOR);
+        this(
+                openBracket,
+                expressions,
+                closeBracket,
+                Collections.emptyList());
+    }
+
+    STListConstructorExpressionNode(
+            STNode openBracket,
+            STNode expressions,
+            STNode closeBracket,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.LIST_CONSTRUCTOR, diagnostics);
         this.openBracket = openBracket;
         this.expressions = expressions;
         this.closeBracket = closeBracket;
@@ -45,6 +60,14 @@ public class STListConstructorExpressionNode extends STExpressionNode {
                 openBracket,
                 expressions,
                 closeBracket);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STListConstructorExpressionNode(
+                this.openBracket,
+                this.expressions,
+                this.closeBracket,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

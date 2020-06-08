@@ -21,6 +21,7 @@ package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -31,7 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina",
-        packageName = "observe",
+        packageName = "observe", version = "0.8.0",
         functionName = "addTagToSpan",
         args = {
                 @Argument(name = "tagKey", type = TypeKind.STRING),
@@ -43,8 +44,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class AddTagToSpan {
 
-    public static Object addTagToSpan(Strand strand, String tagKey, String tagValue, long spanId) {
-        boolean tagAdded = OpenTracerBallerinaWrapper.getInstance().addTag(tagKey, tagValue, spanId, strand);
+    public static Object addTagToSpan(Strand strand, BString tagKey, BString tagValue, long spanId) {
+        boolean tagAdded = OpenTracerBallerinaWrapper.getInstance().addTag(tagKey.getValue(), tagValue.getValue(),
+                                                                           spanId, strand);
 
         if (tagAdded) {
             return null;

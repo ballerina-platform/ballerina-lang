@@ -84,7 +84,7 @@ public class ExternalMethodGen {
 
         // filter out functions.
         List<BIRFunction> functions = module.functions;
-        if (functions.size() > 0) {
+        if (!functions.isEmpty()) {
             int funcSize = functions.size();
             int count = 3;
 
@@ -143,9 +143,8 @@ public class ExternalMethodGen {
 
         String jMethodName = birFunc.name.value;
         beginBB.terminator = new JavaMethodCall(birFunc.pos, InstructionKind.PLATFORM, args, retRef,
-                extFuncWrapper.jClassName,
-                extFuncWrapper.jMethodVMSigBString != null ? extFuncWrapper.jMethodVMSigBString : "<error>",
-                extFuncWrapper.jMethodVMSig, jMethodName, retBB);
+                                                extFuncWrapper.jClassName, extFuncWrapper.jMethodVMSig, jMethodName,
+                                                retBB);
 
         retBB.terminator = new BIRTerminator.Return(birFunc.pos);
     }
@@ -166,7 +165,7 @@ public class ExternalMethodGen {
                                                               BType attachedType, JvmPackageGen jvmPackageGen) {
 
         String lookupKey;
-        String currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
+        String currentPackageName = getPackageName(birModule.org.value, birModule.name.value, birModule.version.value);
 
         String birFuncName = birFunc.name.value;
 
@@ -213,14 +212,10 @@ public class ExternalMethodGen {
         BType attachedType = receiver != null ? receiver.type : null;
         String jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType, attachedType,
                 false);
-        String jvmMethodDescriptionBString = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
-                attachedType, false);
         String jMethodVMSig = getMethodDesc(jMethodPramTypes, functionTypeDesc.retType, attachedType, true);
-        String jMethodVMSigBString = getMethodDesc(jMethodPramTypes, functionTypeDesc.retType, attachedType, true);
 
         return new OldStyleExternalFunctionWrapper(orgName, moduleName, version, birFunc, birModuleClassName,
-                jvmMethodDescription, jvmMethodDescriptionBString, jClassName, jMethodPramTypes, jMethodVMSigBString,
-                jMethodVMSig);
+                                                   jvmMethodDescription, jClassName, jMethodPramTypes, jMethodVMSig);
     }
 
     public static boolean isBallerinaBuiltinModule(String orgName, String moduleName) {
@@ -238,7 +233,7 @@ public class ExternalMethodGen {
         InteropValidationRequest jInteropValidationReq = getInteropAnnotValue(birFunc);
         if (jInteropValidationReq == null) {
             // This is a old-style external Java interop function
-            String pkgName = getPackageName(orgName, moduleName);
+            String pkgName = getPackageName(orgName, moduleName, version);
             String jClassName = jvmPackageGen.lookupExternClassName(cleanupPackageName(pkgName), birFunc.name.value);
             if (jClassName != null) {
                 if (isBallerinaBuiltinModule(orgName, moduleName)) {

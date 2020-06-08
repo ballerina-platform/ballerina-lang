@@ -59,7 +59,7 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
      * @param attributeName Qualified name of the attribute
      * @return Value of the attribute
      */
-    public String getAttribute(BXMLQName attributeName) {
+    public BString getAttribute(BXMLQName attributeName) {
         return getAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix());
     }
 
@@ -72,7 +72,8 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
      */
     @Deprecated
     public void setAttribute(BXMLQName attributeName, String value) {
-        setAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(), value);
+        setAttributeOnInitialization(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(),
+                                     value);
     }
 
     /**
@@ -84,7 +85,8 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
      */
     @Deprecated
     public void setAttribute(BXMLQName attributeName, BString value) {
-        setAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(), value.getValue());
+        setAttributeOnInitialization(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(),
+                                     value.getValue());
     }
 
     /**
@@ -92,14 +94,14 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
      * 
      * @return Attributes as a {@link MapValueImpl}
      */
-    public abstract MapValue<String, ?> getAttributesMap();
+    public abstract MapValue<BString, ?> getAttributesMap();
 
     /**
      * Set the attributes of the XML{@link MapValueImpl}.
      * 
      * @param attributes Attributes to be set.
      */
-    public abstract void setAttributes(BMap<String, ?> attributes);
+    public abstract void setAttributes(BMap<BString, ?> attributes);
 
     /**
      * Get the type of the XML.
@@ -120,6 +122,11 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
     public BType getType() {
         return type;
     }
+
+    protected abstract void setAttributesOnInitialization(BMap<BString, ?> attributes);
+
+    protected abstract void setAttributeOnInitialization(String localName, String namespace, String prefix,
+                                                         String value);
 
     // private methods
 
@@ -145,7 +152,7 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
         int rParenIndex = qname.indexOf('}');
 
         if (qname.startsWith("{") && rParenIndex > 0) {
-            localname = qname.substring(rParenIndex + 1, qname.length());
+            localname = qname.substring(rParenIndex + 1);
             nsUri = qname.substring(1, rParenIndex);
         } else {
             localname = qname;

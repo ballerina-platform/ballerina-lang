@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
@@ -60,9 +61,9 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
     private String topicIdentifier;
     private String topicHeader;
 
-    private MapValue<String, Object> headerResourceMap;
-    private MapValue<String, MapValue<String, Object>> payloadKeyResourceMap;
-    private MapValue<String, MapValue<String, MapValue<String, Object>>> headerAndPayloadKeyResourceMap;
+    private MapValue<BString, Object> headerResourceMap;
+    private MapValue<BString, MapValue<BString, Object>> payloadKeyResourceMap;
+    private MapValue<BString, MapValue<BString, MapValue<BString, Object>>> headerAndPayloadKeyResourceMap;
     private HashMap<String, BRecordType> resourceDetails;
 
     private static final int CUSTOM_RESOURCE_PARAM_COUNT = 2;
@@ -73,9 +74,9 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
 
     public WebSubServicesRegistry(WebSocketServicesRegistry webSocketServicesRegistry,
                                   String topicIdentifier, String topicHeader,
-                                  MapValue<String, Object> headerResourceMap,
-                                  MapValue<String, MapValue<String, Object>> payloadKeyResourceMap,
-                                  MapValue<String, MapValue<String, MapValue<String, Object>>>
+                                  MapValue<BString, Object> headerResourceMap,
+                                  MapValue<BString, MapValue<BString, Object>> payloadKeyResourceMap,
+                                  MapValue<BString, MapValue<BString, MapValue<BString, Object>>>
                                           headerAndPayloadKeyResourceMap,
                                   HashMap<String, BRecordType> resourceDetails) {
         super(webSocketServicesRegistry);
@@ -106,11 +107,11 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
         return topicHeader;
     }
 
-    MapValue<String, Object> getHeaderResourceMap() {
+    MapValue<BString, Object> getHeaderResourceMap() {
         return headerResourceMap;
     }
 
-    MapValue<String, MapValue<String, Object>> getPayloadKeyResourceMap() {
+    MapValue<BString, MapValue<BString, Object>> getPayloadKeyResourceMap() {
         return payloadKeyResourceMap;
     }
 
@@ -119,7 +120,7 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
      *
      * @return the topic-resource map specified for the service
      */
-    MapValue<String, MapValue<String, MapValue<String, Object>>> getHeaderAndPayloadKeyResourceMap() {
+    MapValue<BString, MapValue<BString, MapValue<BString, Object>>> getHeaderAndPayloadKeyResourceMap() {
         return headerAndPayloadKeyResourceMap;
     }
 

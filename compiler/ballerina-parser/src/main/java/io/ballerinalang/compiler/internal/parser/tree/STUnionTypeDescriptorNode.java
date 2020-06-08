@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STUnionTypeDescriptorNode extends STTypeDescriptorNode {
     public final STNode leftTypeDesc;
@@ -36,7 +39,19 @@ public class STUnionTypeDescriptorNode extends STTypeDescriptorNode {
             STNode leftTypeDesc,
             STNode pipeToken,
             STNode rightTypeDesc) {
-        super(SyntaxKind.UNION_TYPE_DESC);
+        this(
+                leftTypeDesc,
+                pipeToken,
+                rightTypeDesc,
+                Collections.emptyList());
+    }
+
+    STUnionTypeDescriptorNode(
+            STNode leftTypeDesc,
+            STNode pipeToken,
+            STNode rightTypeDesc,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.UNION_TYPE_DESC, diagnostics);
         this.leftTypeDesc = leftTypeDesc;
         this.pipeToken = pipeToken;
         this.rightTypeDesc = rightTypeDesc;
@@ -45,6 +60,14 @@ public class STUnionTypeDescriptorNode extends STTypeDescriptorNode {
                 leftTypeDesc,
                 pipeToken,
                 rightTypeDesc);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STUnionTypeDescriptorNode(
+                this.leftTypeDesc,
+                this.pipeToken,
+                this.rightTypeDesc,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

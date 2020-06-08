@@ -19,12 +19,13 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
 
@@ -40,24 +41,20 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
         return optionalChildInBucket(1);
     }
 
-    public Node typeName() {
+    public TypedBindingPatternNode typedBindingPattern() {
         return childInBucket(2);
     }
 
-    public Token variableName() {
+    public Token equalsToken() {
         return childInBucket(3);
     }
 
-    public Token equalsToken() {
+    public ExpressionNode initializer() {
         return childInBucket(4);
     }
 
-    public ExpressionNode initializer() {
-        return childInBucket(5);
-    }
-
     public Token semicolonToken() {
-        return childInBucket(6);
+        return childInBucket(5);
     }
 
     @Override
@@ -75,8 +72,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
         return new String[]{
                 "metadata",
                 "finalKeyword",
-                "typeName",
-                "variableName",
+                "typedBindingPattern",
                 "equalsToken",
                 "initializer",
                 "semicolonToken"};
@@ -85,16 +81,14 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
     public ModuleVariableDeclarationNode modify(
             MetadataNode metadata,
             Token finalKeyword,
-            Node typeName,
-            Token variableName,
+            TypedBindingPatternNode typedBindingPattern,
             Token equalsToken,
             ExpressionNode initializer,
             Token semicolonToken) {
         if (checkForReferenceEquality(
                 metadata,
                 finalKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 initializer,
                 semicolonToken)) {
@@ -104,10 +98,90 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
         return NodeFactory.createModuleVariableDeclarationNode(
                 metadata,
                 finalKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 initializer,
                 semicolonToken);
+    }
+
+    public ModuleVariableDeclarationNodeModifier modify() {
+        return new ModuleVariableDeclarationNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ModuleVariableDeclarationNodeModifier {
+        private final ModuleVariableDeclarationNode oldNode;
+        private MetadataNode metadata;
+        private Token finalKeyword;
+        private TypedBindingPatternNode typedBindingPattern;
+        private Token equalsToken;
+        private ExpressionNode initializer;
+        private Token semicolonToken;
+
+        public ModuleVariableDeclarationNodeModifier(ModuleVariableDeclarationNode oldNode) {
+            this.oldNode = oldNode;
+            this.metadata = oldNode.metadata();
+            this.finalKeyword = oldNode.finalKeyword().orElse(null);
+            this.typedBindingPattern = oldNode.typedBindingPattern();
+            this.equalsToken = oldNode.equalsToken();
+            this.initializer = oldNode.initializer();
+            this.semicolonToken = oldNode.semicolonToken();
+        }
+
+        public ModuleVariableDeclarationNodeModifier withMetadata(
+                MetadataNode metadata) {
+            Objects.requireNonNull(metadata, "metadata must not be null");
+            this.metadata = metadata;
+            return this;
+        }
+
+        public ModuleVariableDeclarationNodeModifier withFinalKeyword(
+                Token finalKeyword) {
+            Objects.requireNonNull(finalKeyword, "finalKeyword must not be null");
+            this.finalKeyword = finalKeyword;
+            return this;
+        }
+
+        public ModuleVariableDeclarationNodeModifier withTypedBindingPattern(
+                TypedBindingPatternNode typedBindingPattern) {
+            Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
+            this.typedBindingPattern = typedBindingPattern;
+            return this;
+        }
+
+        public ModuleVariableDeclarationNodeModifier withEqualsToken(
+                Token equalsToken) {
+            Objects.requireNonNull(equalsToken, "equalsToken must not be null");
+            this.equalsToken = equalsToken;
+            return this;
+        }
+
+        public ModuleVariableDeclarationNodeModifier withInitializer(
+                ExpressionNode initializer) {
+            Objects.requireNonNull(initializer, "initializer must not be null");
+            this.initializer = initializer;
+            return this;
+        }
+
+        public ModuleVariableDeclarationNodeModifier withSemicolonToken(
+                Token semicolonToken) {
+            Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
+        public ModuleVariableDeclarationNode apply() {
+            return oldNode.modify(
+                    metadata,
+                    finalKeyword,
+                    typedBindingPattern,
+                    equalsToken,
+                    initializer,
+                    semicolonToken);
+        }
     }
 }

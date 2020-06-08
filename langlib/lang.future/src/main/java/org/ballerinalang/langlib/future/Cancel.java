@@ -21,11 +21,13 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
+import static org.ballerinalang.util.BLangCompilerConstants.FUTURE_VERSION;
+
 /**
  * Extern function future.cancel().
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.future",
+        orgName = "ballerina", packageName = "lang.future", version = FUTURE_VERSION,
         functionName = "cancel",
         args = {@Argument(name = "f", type = TypeKind.FUTURE)},
         isPublic = true

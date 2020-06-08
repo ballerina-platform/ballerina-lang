@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * Represents a terminal node in the internal syntax tree.
  * <p>
@@ -30,33 +33,55 @@ import io.ballerinalang.compiler.syntax.tree.Token;
  * @since 2.0.0
  */
 public class STToken extends STNode {
-
-    public final STNode leadingTrivia;
-    public final STNode trailingTrivia;
+    protected final STNode leadingMinutiae;
+    protected final STNode trailingMinutiae;
 
     // Number of preceding tokens whose lookahead reached lexeme
-    public final int lookback = 1; // TODO These is a default number
+    protected final int lookback = 1; // TODO These is a default number
     // Number of characters read beyond lexeme
-    public final int lookahead = 1; // TODO These is a default number
+    protected final int lookahead = 1; // TODO These is a default number
 
-    STToken(SyntaxKind kind, STNode leadingTrivia, STNode trailingTrivia) {
-        this(kind, kind.stringValue().length(), leadingTrivia, trailingTrivia);
+    STToken(SyntaxKind kind, STNode leadingMinutiae, STNode trailingMinutiae) {
+        this(kind, kind.stringValue().length(), leadingMinutiae, trailingMinutiae);
     }
 
     STToken(SyntaxKind kind, int width, STNode leadingTrivia, STNode trailingTrivia) {
-        super(kind);
-        this.leadingTrivia = leadingTrivia;
-        this.trailingTrivia = trailingTrivia;
+        this(kind, width, leadingTrivia, trailingTrivia, Collections.emptyList());
+    }
+
+    STToken(SyntaxKind kind,
+            int width,
+            STNode leadingTrivia,
+            STNode trailingTrivia,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(kind, diagnostics);
+        this.leadingMinutiae = leadingTrivia;
+        this.trailingMinutiae = trailingTrivia;
 
         this.width = width;
         this.widthWithLeadingMinutiae = this.width + leadingTrivia.width;
         this.widthWithTrailingMinutiae = this.width + trailingTrivia.width;
         this.widthWithMinutiae = this.width + leadingTrivia.width + trailingTrivia.width;
-
     }
 
     public String text() {
         return kind.stringValue();
+    }
+
+    public STNode leadingMinutiae() {
+        return leadingMinutiae;
+    }
+
+    public STNode trailingMinutiae() {
+        return trailingMinutiae;
+    }
+
+    public int lookbackTokenCount() {
+        return lookback;
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STToken(kind, width, leadingMinutiae, trailingMinutiae, diagnostics);
     }
 
     @Override
@@ -66,6 +91,6 @@ public class STToken extends STNode {
 
     @Override
     public String toString() {
-        return leadingTrivia + kind.stringValue() + trailingTrivia;
+        return leadingMinutiae + kind.stringValue() + trailingMinutiae;
     }
 }

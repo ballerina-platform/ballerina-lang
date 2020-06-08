@@ -26,24 +26,22 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
+
 /**
  * Native implementation of lang.map:get(map&lt;Type&gt;, string).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "get",
+        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION, functionName = "get",
         args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "k", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.ANY)},
         isPublic = true
 )
 public class Get {
 
-    public static Object get(Strand strand, MapValue<?, ?> m, String k) {
-        return m.getOrThrow(k);
-    }
-
-    public static Object get_bstring(Strand strand, MapValue<?, ?> m, BString k) {
+    public static Object get(Strand strand, MapValue<?, ?> m, BString k) {
         return m.getOrThrow(k);
     }
 }

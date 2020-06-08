@@ -5,6 +5,7 @@ import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -17,7 +18,6 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE;
 import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_RESOURCE_CONFIG;
 import static org.ballerinalang.net.http.HttpConstants.ANN_RESOURCE_ATTR_BODY;
 import static org.ballerinalang.net.http.HttpConstants.ANN_RESOURCE_ATTR_PATH;
@@ -40,7 +40,9 @@ public class ResourceSignatureValidator {
     private static final String CALLER_TYPE = PROTOCOL_PACKAGE_HTTP + ":" + CALLER;
     private static final String HTTP_REQUEST_TYPE = PROTOCOL_PACKAGE_HTTP + ":" + REQUEST;
 
-    public static void validate(List<BLangSimpleVariable> signatureParams, DiagnosticLog dlog, DiagnosticPos pos) {
+    @SuppressWarnings("unchecked")
+    public static void validate(FunctionNode resourceNode, DiagnosticLog dlog, DiagnosticPos pos) {
+        List<BLangSimpleVariable> signatureParams = (List<BLangSimpleVariable>) resourceNode.getParameters();
         final int nParams = signatureParams.size();
 
         if (nParams < COMPULSORY_PARAM_COUNT) {
@@ -56,6 +58,8 @@ public class ResourceSignatureValidator {
         if (!isValidResourceParam(signatureParams.get(1), HTTP_REQUEST_TYPE)) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "second parameter should be of type " + HTTP_REQUEST_TYPE);
         }
+
+        validateResourceAnnotation(resourceNode, dlog);
     }
 
     private static boolean isValidResourceParam(BLangSimpleVariable param, String expectedType) {
@@ -85,7 +89,7 @@ public class ResourceSignatureValidator {
 
         for (BLangRecordLiteral.BLangRecordKeyValueField keyValue : annVals) {
             switch (getAnnotationFieldKey(keyValue)) {
-                case ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE:
+                case HttpConstants.CONFIG_ATTR_WEBSOCKET_UPGRADE:
                     validateWebSocketUpgrade(resourceNode, dlog, annVals, paramSegments, keyValue);
                     break;
                 case ANN_RESOURCE_ATTR_PATH:
@@ -148,7 +152,7 @@ public class ResourceSignatureValidator {
         }
         // WebSocket upgrade path validation
         for (BLangRecordLiteral.BLangRecordKeyValueField upgradeField : upgradeFields) {
-            if (getAnnotationFieldKey(upgradeField).equals(ANN_WEBSOCKET_ATTR_UPGRADE_PATH)) {
+            if (getAnnotationFieldKey(upgradeField).equals(ANN_WEBSOCKET_ATTR_UPGRADE_PATH.getValue())) {
                 validateResourcePath(dlog, paramSegments, upgradeField);
             }
         }

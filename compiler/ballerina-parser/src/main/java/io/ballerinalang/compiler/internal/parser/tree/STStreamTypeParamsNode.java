@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.StreamTypeParamsNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STStreamTypeParamsNode extends STNode {
     public final STNode ltToken;
@@ -40,7 +43,23 @@ public class STStreamTypeParamsNode extends STNode {
             STNode commaToken,
             STNode rightTypeDescNode,
             STNode gtToken) {
-        super(SyntaxKind.STREAM_TYPE_PARAMS);
+        this(
+                ltToken,
+                leftTypeDescNode,
+                commaToken,
+                rightTypeDescNode,
+                gtToken,
+                Collections.emptyList());
+    }
+
+    STStreamTypeParamsNode(
+            STNode ltToken,
+            STNode leftTypeDescNode,
+            STNode commaToken,
+            STNode rightTypeDescNode,
+            STNode gtToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.STREAM_TYPE_PARAMS, diagnostics);
         this.ltToken = ltToken;
         this.leftTypeDescNode = leftTypeDescNode;
         this.commaToken = commaToken;
@@ -53,6 +72,16 @@ public class STStreamTypeParamsNode extends STNode {
                 commaToken,
                 rightTypeDescNode,
                 gtToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STStreamTypeParamsNode(
+                this.ltToken,
+                this.leftTypeDescNode,
+                this.commaToken,
+                this.rightTypeDescNode,
+                this.gtToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

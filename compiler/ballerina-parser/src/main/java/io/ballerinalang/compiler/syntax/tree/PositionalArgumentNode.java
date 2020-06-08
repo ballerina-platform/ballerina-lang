@@ -19,10 +19,13 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+import java.util.Optional;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class PositionalArgumentNode extends FunctionArgumentNode {
 
@@ -30,8 +33,8 @@ public class PositionalArgumentNode extends FunctionArgumentNode {
         super(internalNode, position, parent);
     }
 
-    public Token leadingComma() {
-        return childInBucket(0);
+    public Optional<Token> leadingComma() {
+        return optionalChildInBucket(0);
     }
 
     public ExpressionNode expression() {
@@ -67,5 +70,46 @@ public class PositionalArgumentNode extends FunctionArgumentNode {
         return NodeFactory.createPositionalArgumentNode(
                 leadingComma,
                 expression);
+    }
+
+    public PositionalArgumentNodeModifier modify() {
+        return new PositionalArgumentNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class PositionalArgumentNodeModifier {
+        private final PositionalArgumentNode oldNode;
+        private Token leadingComma;
+        private ExpressionNode expression;
+
+        public PositionalArgumentNodeModifier(PositionalArgumentNode oldNode) {
+            this.oldNode = oldNode;
+            this.leadingComma = oldNode.leadingComma().orElse(null);
+            this.expression = oldNode.expression();
+        }
+
+        public PositionalArgumentNodeModifier withLeadingComma(
+                Token leadingComma) {
+            Objects.requireNonNull(leadingComma, "leadingComma must not be null");
+            this.leadingComma = leadingComma;
+            return this;
+        }
+
+        public PositionalArgumentNodeModifier withExpression(
+                ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
+            return this;
+        }
+
+        public PositionalArgumentNode apply() {
+            return oldNode.modify(
+                    leadingComma,
+                    expression);
+        }
     }
 }

@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class XMLComment extends XMLItemNode {
 
@@ -75,5 +77,56 @@ public class XMLComment extends XMLItemNode {
                 commentStart,
                 content,
                 commentEnd);
+    }
+
+    public XMLCommentModifier modify() {
+        return new XMLCommentModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class XMLCommentModifier {
+        private final XMLComment oldNode;
+        private Token commentStart;
+        private NodeList<Node> content;
+        private Token commentEnd;
+
+        public XMLCommentModifier(XMLComment oldNode) {
+            this.oldNode = oldNode;
+            this.commentStart = oldNode.commentStart();
+            this.content = oldNode.content();
+            this.commentEnd = oldNode.commentEnd();
+        }
+
+        public XMLCommentModifier withCommentStart(
+                Token commentStart) {
+            Objects.requireNonNull(commentStart, "commentStart must not be null");
+            this.commentStart = commentStart;
+            return this;
+        }
+
+        public XMLCommentModifier withContent(
+                NodeList<Node> content) {
+            Objects.requireNonNull(content, "content must not be null");
+            this.content = content;
+            return this;
+        }
+
+        public XMLCommentModifier withCommentEnd(
+                Token commentEnd) {
+            Objects.requireNonNull(commentEnd, "commentEnd must not be null");
+            this.commentEnd = commentEnd;
+            return this;
+        }
+
+        public XMLComment apply() {
+            return oldNode.modify(
+                    commentStart,
+                    content,
+                    commentEnd);
+        }
     }
 }

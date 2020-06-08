@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TypeCastExpressionNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STTypeCastExpressionNode extends STExpressionNode {
     public final STNode ltToken;
@@ -38,7 +41,21 @@ public class STTypeCastExpressionNode extends STExpressionNode {
             STNode typeCastParam,
             STNode gtToken,
             STNode expression) {
-        super(SyntaxKind.TYPE_CAST_EXPRESSION);
+        this(
+                ltToken,
+                typeCastParam,
+                gtToken,
+                expression,
+                Collections.emptyList());
+    }
+
+    STTypeCastExpressionNode(
+            STNode ltToken,
+            STNode typeCastParam,
+            STNode gtToken,
+            STNode expression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.TYPE_CAST_EXPRESSION, diagnostics);
         this.ltToken = ltToken;
         this.typeCastParam = typeCastParam;
         this.gtToken = gtToken;
@@ -49,6 +66,15 @@ public class STTypeCastExpressionNode extends STExpressionNode {
                 typeCastParam,
                 gtToken,
                 expression);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STTypeCastExpressionNode(
+                this.ltToken,
+                this.typeCastParam,
+                this.gtToken,
+                this.expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

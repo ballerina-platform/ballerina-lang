@@ -22,12 +22,15 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
-public class STIntersectionTypeDescriptorNode extends STNode {
+public class STIntersectionTypeDescriptorNode extends STTypeDescriptorNode {
     public final STNode leftTypeDesc;
     public final STNode bitwiseAndToken;
     public final STNode rightTypeDesc;
@@ -36,7 +39,19 @@ public class STIntersectionTypeDescriptorNode extends STNode {
             STNode leftTypeDesc,
             STNode bitwiseAndToken,
             STNode rightTypeDesc) {
-        super(SyntaxKind.INTERSECTION_TYPE_DESC);
+        this(
+                leftTypeDesc,
+                bitwiseAndToken,
+                rightTypeDesc,
+                Collections.emptyList());
+    }
+
+    STIntersectionTypeDescriptorNode(
+            STNode leftTypeDesc,
+            STNode bitwiseAndToken,
+            STNode rightTypeDesc,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.INTERSECTION_TYPE_DESC, diagnostics);
         this.leftTypeDesc = leftTypeDesc;
         this.bitwiseAndToken = bitwiseAndToken;
         this.rightTypeDesc = rightTypeDesc;
@@ -45,6 +60,14 @@ public class STIntersectionTypeDescriptorNode extends STNode {
                 leftTypeDesc,
                 bitwiseAndToken,
                 rightTypeDesc);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STIntersectionTypeDescriptorNode(
+                this.leftTypeDesc,
+                this.bitwiseAndToken,
+                this.rightTypeDesc,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

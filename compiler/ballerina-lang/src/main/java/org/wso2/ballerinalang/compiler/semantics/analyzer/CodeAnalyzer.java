@@ -19,8 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.model.clauses.FromClauseNode;
-import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.ActionNode;
@@ -80,6 +78,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
@@ -417,10 +420,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (funcNode.body != null) {
             analyzeNode(funcNode.body, invokableEnv);
 
-            boolean isNilableReturn = funcNode.symbol.type.getReturnType().isNullable();
+            boolean isNeverOrNilableReturn = funcNode.symbol.type.getReturnType().tag == TypeTags.NEVER ||
+                    funcNode.symbol.type.getReturnType().isNullable();
             // If the return signature is nil-able, an implicit return will be added in Desugar.
             // Hence this only checks for non-nil-able return signatures and uncertain return in the body.
-            if (!isNilableReturn && !this.statementReturns) {
+            if (!isNeverOrNilableReturn && !this.statementReturns) {
                 this.dlog.error(funcNode.pos, DiagnosticCode.INVOKABLE_MUST_RETURN,
                         funcNode.getKind().toString().toLowerCase());
             }
@@ -2011,6 +2015,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (Symbols.isFlagOn(funcSymbol.flags, Flags.DEPRECATED)) {
                 dlog.warning(invocationExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, invocationExpr);
             }
+
+            if (((BInvokableSymbol) funcSymbol).getReturnType().tag == TypeTags.NEVER &&
+                    invocationExpr.parent.getKind() != NodeKind.EXPRESSION_STATEMENT) {
+                // Log an error if the function returns never and invoked invalidly.
+                dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_NEVER_RETURN_TYPED_FUNCTION_INVOCATION,
+                        funcSymbol.name);
+            }
         }
     }
 
@@ -2515,43 +2526,37 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangQueryExpr queryExpr) {
         int fromCount = 0;
-        for (FromClauseNode fromClauseNode : queryExpr.fromClauseList) {
-            fromCount++;
-            BLangExpression collection = (BLangExpression) fromClauseNode.getCollection();
-            if (fromCount > 1) {
-                if (TypeTags.STREAM == collection.type.tag) {
-                    this.dlog.error(collection.pos, DiagnosticCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
+        for (BLangNode clause : queryExpr.getQueryClauses()) {
+            if (clause.getKind() == NodeKind.FROM) {
+                fromCount++;
+                BLangFromClause fromClause = (BLangFromClause) clause;
+                BLangExpression collection = (BLangExpression) fromClause.getCollection();
+                if (fromCount > 1) {
+                    if (TypeTags.STREAM == collection.type.tag) {
+                        this.dlog.error(collection.pos, DiagnosticCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
+                    }
                 }
             }
-            analyzeNode((BLangFromClause) fromClauseNode, env);
+            analyzeNode(clause, env);
         }
-
-        for (WhereClauseNode whereClauseNode : queryExpr.whereClauseList) {
-            analyzeNode((BLangWhereClause) whereClauseNode, env);
-        }
-
-        analyzeNode(queryExpr.selectClause, env);
     }
 
     @Override
     public void visit(BLangQueryAction queryAction) {
         int fromCount = 0;
-        for (FromClauseNode fromClauseNode : queryAction.fromClauseList) {
-            fromCount++;
-            BLangExpression collection = (BLangExpression) fromClauseNode.getCollection();
-            if (fromCount > 1) {
-                if (TypeTags.STREAM == collection.type.tag) {
-                    this.dlog.error(collection.pos, DiagnosticCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
+        for (BLangNode clause : queryAction.getQueryClauses()) {
+            if (clause.getKind() == NodeKind.FROM) {
+                fromCount++;
+                BLangFromClause fromClause = (BLangFromClause) clause;
+                BLangExpression collection = (BLangExpression) fromClause.getCollection();
+                if (fromCount > 1) {
+                    if (TypeTags.STREAM == collection.type.tag) {
+                        this.dlog.error(collection.pos, DiagnosticCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
+                    }
                 }
             }
-            analyzeNode((BLangFromClause) fromClauseNode, env);
+            analyzeNode(clause, env);
         }
-
-        for (WhereClauseNode whereClauseNode : queryAction.whereClauseList) {
-            analyzeNode((BLangWhereClause) whereClauseNode, env);
-        }
-
-        analyzeNode(queryAction.doClause, env);
         validateActionParentNode(queryAction.pos, queryAction);
     }
 
@@ -2561,8 +2566,25 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangJoinClause joinClause) {
+        analyzeExpr(joinClause.collection);
+    }
+
+    @Override
+    public void visit(BLangLetClause letClause) {
+        for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
+            analyzeNode((BLangNode) letVariable.definitionNode, env);
+        }
+    }
+
+    @Override
     public void visit(BLangWhereClause whereClause) {
         analyzeExpr(whereClause.expression);
+    }
+
+    @Override
+    public void visit(BLangOnClause onClause) {
+        analyzeExpr(onClause.expression);
     }
 
     @Override
@@ -2571,8 +2593,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangOnConflictClause onConflictClause) {
+        analyzeExpr(onConflictClause.expression);
+    }
+
+    @Override
     public void visit(BLangDoClause doClause) {
         analyzeNode(doClause.body, env);
+    }
+
+    @Override
+    public void visit(BLangLimitClause limitClause) {
+        analyzeExpr(limitClause.expression);
     }
 
     @Override

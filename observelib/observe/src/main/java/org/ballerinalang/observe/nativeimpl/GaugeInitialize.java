@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -36,7 +37,7 @@ import java.time.Duration;
  */
 @BallerinaFunction(
         orgName = "ballerina",
-        packageName = "observe",
+        packageName = "observe", version = "0.8.0",
         functionName = "initialize",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = ObserveNativeImplConstants.GAUGE,
                 structPackage = ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH)
@@ -45,15 +46,14 @@ public class GaugeInitialize {
 
     public static void initialize(Strand strand, ObjectValue guage) {
         ArrayValue summaryConfigs = (ArrayValue) guage.get(ObserveNativeImplConstants.STATISTICS_CONFIG_FIELD);
-        Gauge.Builder gaugeBuilder = Gauge.builder((String) guage.get(ObserveNativeImplConstants.NAME_FIELD))
-                .description((String) guage.get(ObserveNativeImplConstants.DESCRIPTION_FIELD))
-                .tags(Utils.toStringMap((MapValue<?, ?>) guage.get(ObserveNativeImplConstants.TAGS_FIELD)));
+        Gauge.Builder gaugeBuilder = Gauge.builder(guage.get(ObserveNativeImplConstants.NAME_FIELD).toString())
+                .description(guage.get(ObserveNativeImplConstants.DESCRIPTION_FIELD).toString())
+                .tags(Utils.toStringMap((MapValue<BString, ?>) guage.get(ObserveNativeImplConstants.TAGS_FIELD)));
         if (summaryConfigs != null && summaryConfigs.size() > 0) {
             for (int i = 0; i < summaryConfigs.size(); i++) {
-                MapValue<String, Object> summaryConfigStruct = (MapValue<String, Object>) summaryConfigs.get(i);
-                StatisticConfig.Builder statisticBuilder = StatisticConfig.builder()
-                        .expiry(Duration
-                                .ofMillis(((long) summaryConfigStruct.get(ObserveNativeImplConstants.EXPIRY_FIELD))))
+                MapValue<BString, Object> summaryConfigStruct = (MapValue<BString, Object>) summaryConfigs.get(i);
+                StatisticConfig.Builder statisticBuilder = StatisticConfig.builder().expiry(
+                        Duration.ofMillis(((long) summaryConfigStruct.get(ObserveNativeImplConstants.EXPIRY_FIELD))))
                         .buckets(((long) summaryConfigStruct.get(ObserveNativeImplConstants.BUCKETS_FIELD)));
                 ArrayValue bFloatArray =
                         (ArrayValue) summaryConfigStruct.get(ObserveNativeImplConstants.PERCENTILES_FIELD);

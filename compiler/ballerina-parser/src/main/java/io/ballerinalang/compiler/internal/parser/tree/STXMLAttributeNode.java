@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.XMLAttributeNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STXMLAttributeNode extends STNode {
     public final STNode attributeName;
@@ -36,7 +39,19 @@ public class STXMLAttributeNode extends STNode {
             STNode attributeName,
             STNode equalToken,
             STNode value) {
-        super(SyntaxKind.XML_ATTRIBUTE);
+        this(
+                attributeName,
+                equalToken,
+                value,
+                Collections.emptyList());
+    }
+
+    STXMLAttributeNode(
+            STNode attributeName,
+            STNode equalToken,
+            STNode value,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.XML_ATTRIBUTE, diagnostics);
         this.attributeName = attributeName;
         this.equalToken = equalToken;
         this.value = value;
@@ -45,6 +60,14 @@ public class STXMLAttributeNode extends STNode {
                 attributeName,
                 equalToken,
                 value);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STXMLAttributeNode(
+                this.attributeName,
+                this.equalToken,
+                this.value,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

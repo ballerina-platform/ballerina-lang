@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STInterpolationNode extends STXMLItemNode {
     public final STNode interpolationStartToken;
@@ -36,7 +39,19 @@ public class STInterpolationNode extends STXMLItemNode {
             STNode interpolationStartToken,
             STNode expression,
             STNode interpolationEndToken) {
-        super(SyntaxKind.INTERPOLATION);
+        this(
+                interpolationStartToken,
+                expression,
+                interpolationEndToken,
+                Collections.emptyList());
+    }
+
+    STInterpolationNode(
+            STNode interpolationStartToken,
+            STNode expression,
+            STNode interpolationEndToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.INTERPOLATION, diagnostics);
         this.interpolationStartToken = interpolationStartToken;
         this.expression = expression;
         this.interpolationEndToken = interpolationEndToken;
@@ -45,6 +60,14 @@ public class STInterpolationNode extends STXMLItemNode {
                 interpolationStartToken,
                 expression,
                 interpolationEndToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STInterpolationNode(
+                this.interpolationStartToken,
+                this.expression,
+                this.interpolationEndToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

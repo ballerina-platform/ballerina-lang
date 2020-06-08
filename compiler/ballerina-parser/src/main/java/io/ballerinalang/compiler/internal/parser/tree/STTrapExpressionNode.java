@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TrapExpressionNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STTrapExpressionNode extends STExpressionNode {
     public final STNode trapKeyword;
@@ -35,13 +38,33 @@ public class STTrapExpressionNode extends STExpressionNode {
             SyntaxKind kind,
             STNode trapKeyword,
             STNode expression) {
-        super(kind);
+        this(
+                kind,
+                trapKeyword,
+                expression,
+                Collections.emptyList());
+    }
+
+    STTrapExpressionNode(
+            SyntaxKind kind,
+            STNode trapKeyword,
+            STNode expression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(kind, diagnostics);
         this.trapKeyword = trapKeyword;
         this.expression = expression;
 
         addChildren(
                 trapKeyword,
                 expression);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STTrapExpressionNode(
+                this.kind,
+                this.trapKeyword,
+                this.expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

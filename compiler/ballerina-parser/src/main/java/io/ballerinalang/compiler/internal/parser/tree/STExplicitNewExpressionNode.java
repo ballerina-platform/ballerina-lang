@@ -22,29 +22,52 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STExplicitNewExpressionNode extends STNewExpressionNode {
-    public final STNode NewKeyword;
-    public final STNode TypeDescriptor;
-    public final STNode ParenthesizedArgList;
+    public final STNode newKeyword;
+    public final STNode typeDescriptor;
+    public final STNode parenthesizedArgList;
 
     STExplicitNewExpressionNode(
-            STNode NewKeyword,
-            STNode TypeDescriptor,
-            STNode ParenthesizedArgList) {
-        super(SyntaxKind.EXPLICIT_NEW_EXPRESSION);
-        this.NewKeyword = NewKeyword;
-        this.TypeDescriptor = TypeDescriptor;
-        this.ParenthesizedArgList = ParenthesizedArgList;
+            STNode newKeyword,
+            STNode typeDescriptor,
+            STNode parenthesizedArgList) {
+        this(
+                newKeyword,
+                typeDescriptor,
+                parenthesizedArgList,
+                Collections.emptyList());
+    }
+
+    STExplicitNewExpressionNode(
+            STNode newKeyword,
+            STNode typeDescriptor,
+            STNode parenthesizedArgList,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.EXPLICIT_NEW_EXPRESSION, diagnostics);
+        this.newKeyword = newKeyword;
+        this.typeDescriptor = typeDescriptor;
+        this.parenthesizedArgList = parenthesizedArgList;
 
         addChildren(
-                NewKeyword,
-                TypeDescriptor,
-                ParenthesizedArgList);
+                newKeyword,
+                typeDescriptor,
+                parenthesizedArgList);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STExplicitNewExpressionNode(
+                this.newKeyword,
+                this.typeDescriptor,
+                this.parenthesizedArgList,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

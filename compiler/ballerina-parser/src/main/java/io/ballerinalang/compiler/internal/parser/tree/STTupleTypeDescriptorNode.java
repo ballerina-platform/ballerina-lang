@@ -22,33 +22,52 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TupleTypeDescriptorNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STTupleTypeDescriptorNode extends STTypeDescriptorNode {
     public final STNode openBracketToken;
     public final STNode memberTypeDesc;
-    public final STNode restTypeDesc;
     public final STNode closeBracketToken;
 
     STTupleTypeDescriptorNode(
             STNode openBracketToken,
             STNode memberTypeDesc,
-            STNode restTypeDesc,
             STNode closeBracketToken) {
-        super(SyntaxKind.TUPLE_TYPE_DESC);
+        this(
+                openBracketToken,
+                memberTypeDesc,
+                closeBracketToken,
+                Collections.emptyList());
+    }
+
+    STTupleTypeDescriptorNode(
+            STNode openBracketToken,
+            STNode memberTypeDesc,
+            STNode closeBracketToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.TUPLE_TYPE_DESC, diagnostics);
         this.openBracketToken = openBracketToken;
         this.memberTypeDesc = memberTypeDesc;
-        this.restTypeDesc = restTypeDesc;
         this.closeBracketToken = closeBracketToken;
 
         addChildren(
                 openBracketToken,
                 memberTypeDesc,
-                restTypeDesc,
                 closeBracketToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STTupleTypeDescriptorNode(
+                this.openBracketToken,
+                this.memberTypeDesc,
+                this.closeBracketToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

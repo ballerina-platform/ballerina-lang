@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.text;
 import io.ballerinalang.compiler.internal.parser.CharReader;
 
 /**
- * This is an abstract representation of a Ballerina source file (.bal)
+ * This is an abstract representation of a Ballerina source file (.bal).
  *
  * @since 2.0.0
  */
@@ -42,7 +42,7 @@ public abstract class TextDocument {
     }
 
     public int textPositionFrom(LinePosition linePosition) {
-        return lineMap.textPositionFrom(linePosition);
+        return lines().textPositionFrom(linePosition);
     }
 
     protected LineMap lines() {

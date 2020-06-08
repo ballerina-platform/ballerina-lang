@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STContinueStatementNode extends STStatementNode {
     public final STNode continueToken;
@@ -34,13 +37,30 @@ public class STContinueStatementNode extends STStatementNode {
     STContinueStatementNode(
             STNode continueToken,
             STNode semicolonToken) {
-        super(SyntaxKind.CONTINUE_STATEMENT);
+        this(
+                continueToken,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STContinueStatementNode(
+            STNode continueToken,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.CONTINUE_STATEMENT, diagnostics);
         this.continueToken = continueToken;
         this.semicolonToken = semicolonToken;
 
         addChildren(
                 continueToken,
                 semicolonToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STContinueStatementNode(
+                this.continueToken,
+                this.semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

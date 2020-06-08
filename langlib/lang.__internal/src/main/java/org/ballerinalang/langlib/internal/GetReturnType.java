@@ -34,7 +34,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", functionName = "getReturnType",
+        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0", functionName = "getReturnType",
         args = {@Argument(name = "func", type = TypeKind.ANY)},
         returnType = {@ReturnType(type = TypeKind.TYPEDESC)}
 )
@@ -44,8 +44,5 @@ public class GetReturnType {
         FPValue fpValue = (FPValue) obj;
         BFunctionType functionType = (BFunctionType) fpValue.getType();
         return (TypedescValue) BValueCreator.createTypedescValue(functionType.retType);
-    }
-    public static TypedescValue getReturnType_bstring(Strand strand, Object obj) {
-        return getReturnType(strand, obj);
     }
 }

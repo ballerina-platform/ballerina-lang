@@ -19,6 +19,7 @@ package org.ballerinalang.mysql;
 
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.sql.datasource.SQLDatasource;
 import org.ballerinalang.sql.utils.ClientUtils;
 
@@ -31,16 +32,19 @@ import java.util.Properties;
  */
 public class NativeImpl {
 
-    public static Object createClient(ObjectValue client, MapValue<String, Object> clientConfig,
-                                      MapValue<String, Object> globalPool) {
+    public static Object createClient(ObjectValue client, MapValue<BString, Object> clientConfig,
+                                      MapValue<BString, Object> globalPool) {
         String url = "jdbc:mysql://" + clientConfig.getStringValue(Constants.ClientConfiguration.HOST);
         Long portValue = clientConfig.getIntValue(Constants.ClientConfiguration.PORT);
         if (portValue > 0) {
             url += ":" + portValue.intValue();
         }
-        String user = clientConfig.getStringValue(Constants.ClientConfiguration.USER);
-        String password = clientConfig.getStringValue(Constants.ClientConfiguration.PASSWORD);
-        String database = clientConfig.getStringValue(Constants.ClientConfiguration.DATABASE);
+        BString userVal = clientConfig.getStringValue(Constants.ClientConfiguration.USER);
+        String user = userVal == null ? null : userVal.getValue();
+        BString passwordVal = clientConfig.getStringValue(Constants.ClientConfiguration.PASSWORD);
+        String password = passwordVal == null ? null : passwordVal.getValue();
+        BString databaseVal = clientConfig.getStringValue(Constants.ClientConfiguration.DATABASE);
+        String database = databaseVal == null ? null : databaseVal.getValue();
         if (database != null && !database.isEmpty()) {
             url += "/" + database;
         }

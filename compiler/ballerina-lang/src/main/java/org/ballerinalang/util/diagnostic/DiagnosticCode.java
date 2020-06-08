@@ -208,7 +208,6 @@ public enum DiagnosticCode {
     OPEN_RECORD_CONSTRAINT_NOT_ALLOWED("open.record.constraint.not.allowed"),
     INVALID_RECORD_REST_DESCRIPTOR("invalid.record.rest.descriptor"),
     MISSING_REQUIRED_RECORD_FIELD("missing.required.record.field"),
-    INVALID_FIELD_FOR_READONLY_RECORD_FIELD("invalid.field.for.readonly.record.field"),
     DEFAULT_VALUES_NOT_ALLOWED_FOR_OPTIONAL_FIELDS("default.values.not.allowed.for.optional.fields"),
     INVALID_FUNCTION_POINTER_INVOCATION("invalid.function.pointer.invocation"),
     AMBIGUOUS_TYPES("ambiguous.type"),
@@ -245,6 +244,7 @@ public enum DiagnosticCode {
     CANNOT_ASSIGN_VALUE_ENDPOINT("cannot.assign.value.to.endpoint"),
     CANNOT_UPDATE_READONLY_VALUE_OF_TYPE("cannot.update.readonly.value.of.type"),
     CANNOT_UPDATE_READONLY_RECORD_FIELD("cannot.update.readonly.record.field"),
+    CANNOT_UPDATE_READONLY_OBJECT_FIELD("cannot.update.readonly.object.field"),
     UNDERSCORE_NOT_ALLOWED("underscore.not.allowed"),
     OPERATION_DOES_NOT_SUPPORT_INDEXING("operation.does.not.support.indexing"),
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS("operation.does.not.support.field.access"),
@@ -356,6 +356,9 @@ public enum DiagnosticCode {
     USAGE_OF_DEPRECATED_CONSTRUCT("usage.of.deprecated.construct"),
     OPERATOR_NOT_SUPPORTED("operator.not.supported"),
     OPERATOR_NOT_ALLOWED_VARIABLE("operator.not.allowed.variable"),
+    NEVER_TYPE_NOT_ALLOWED_FOR_REQUIRED_FIELDS("never.type.not.allowed.for.required.fields"),
+    INVALID_NEVER_RETURN_TYPED_FUNCTION_INVOCATION("invalid.never.return.typed.function.invocation"),
+    NEVER_TYPED_VAR_DEF_NOT_ALLOWED("never.typed.var.def.not.allowed"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("iterable.not.supported.collection"),

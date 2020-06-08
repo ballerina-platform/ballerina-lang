@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STParameterizedTypeDescriptorNode extends STTypeDescriptorNode {
     public final STNode parameterizedType;
@@ -38,7 +41,21 @@ public class STParameterizedTypeDescriptorNode extends STTypeDescriptorNode {
             STNode ltToken,
             STNode typeNode,
             STNode gtToken) {
-        super(SyntaxKind.PARAMETERIZED_TYPE_DESC);
+        this(
+                parameterizedType,
+                ltToken,
+                typeNode,
+                gtToken,
+                Collections.emptyList());
+    }
+
+    STParameterizedTypeDescriptorNode(
+            STNode parameterizedType,
+            STNode ltToken,
+            STNode typeNode,
+            STNode gtToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.PARAMETERIZED_TYPE_DESC, diagnostics);
         this.parameterizedType = parameterizedType;
         this.ltToken = ltToken;
         this.typeNode = typeNode;
@@ -49,6 +66,15 @@ public class STParameterizedTypeDescriptorNode extends STTypeDescriptorNode {
                 ltToken,
                 typeNode,
                 gtToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STParameterizedTypeDescriptorNode(
+                this.parameterizedType,
+                this.ltToken,
+                this.typeNode,
+                this.gtToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

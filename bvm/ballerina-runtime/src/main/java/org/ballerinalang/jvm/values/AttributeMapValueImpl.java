@@ -18,43 +18,57 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.jvm.values.api.BString;
 
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
 import static org.ballerinalang.jvm.values.XMLItem.XMLNS_URL_PREFIX;
 
 /**
- *  Validating xml attribute map.
+ * Validating xml attribute map.
  *
  * @since 1.3
  */
-class AttributeMapValueImpl extends MapValueImpl<String, String> {
+class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
 
     public AttributeMapValueImpl() {
         super(new BMapType(BTypes.typeString));
     }
 
+    public AttributeMapValueImpl(boolean readonly) {
+        super(new BMapType(BTypes.typeString));
+
+        if (readonly) {
+            this.freezeDirect();
+        }
+    }
+
     @Override
-    public String put(String key, String value) {
-        synchronized (this) {
-            if (super.isFrozen()) {
-                ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
-            }
+    public BString put(BString keyBStr, BString value) {
+        if (isFrozen()) {
+            throw BallerinaErrors.createError(getModulePrefixedReason(XML_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
+                                              BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
         }
 
-        return insertValue(key, value);
+        return insertValue(keyBStr, value, false);
     }
 
     @Override
-    public void populateInitialValue(String key, String value) {
-        insertValue(key, value);
+    public void populateInitialValue(BString key, BString value) {
+        insertValue(key, value, true);
     }
 
-    public void setAttribute(String localName, String namespaceUri, String prefix, String value) {
+    void setAttribute(String localName, String namespaceUri, String prefix, String value, boolean onInitialization) {
+        PutAttributeFunction func = onInitialization ? super::populateInitialValue : super:: put;
 
         if (localName == null || localName.isEmpty()) {
             throw BallerinaErrors.createError("localname of the attribute cannot be empty");
@@ -71,33 +85,34 @@ class AttributeMapValueImpl extends MapValueImpl<String, String> {
         if ((namespaceUri == null && prefix != null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE))
                 || localName.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
             String nsNameDecl = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}" + localName;
-            super.put(nsNameDecl, value);
+            func.put(StringUtils.fromString(nsNameDecl), StringUtils.fromString(value));
             return;
         }
 
-        String nsOfPrefix = get(XMLNS_URL_PREFIX + prefix);
-        if (namespaceUri != null && nsOfPrefix != null && !namespaceUri.equals(nsOfPrefix)) {
+        BString nsOfPrefix = get(StringUtils.fromString(XMLNS_URL_PREFIX + prefix));
+        if (namespaceUri != null && nsOfPrefix != null && !namespaceUri.equals(nsOfPrefix.getValue())) {
             String errorMsg = String.format(
                     "failed to add attribute '%s:%s'. prefix '%s' is already bound to namespace '%s'",
-                    prefix, localName, prefix, nsOfPrefix);
+                    prefix, localName, prefix, nsOfPrefix.getValue());
             throw BallerinaErrors.createError(errorMsg);
         }
 
         if ((namespaceUri == null || namespaceUri.isEmpty())) {
-            super.put(localName, value);
+            func.put(StringUtils.fromString(localName), StringUtils.fromString(value));
         } else {
             // If the attribute already exists, update the value.
-            super.put("{" + namespaceUri + "}" + localName, value);
+            func.put(StringUtils.fromString("{" + namespaceUri + "}" + localName), StringUtils.fromString(value));
         }
 
         // If the prefix is 'xmlns' then this is a namespace addition
         if (prefix != null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
             String xmlnsPrefix = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}" + prefix;
-            super.put(xmlnsPrefix, namespaceUri);
+            func.put(StringUtils.fromString(xmlnsPrefix), StringUtils.fromString(namespaceUri));
         }
     }
 
-    private String insertValue(String key, String value) {
+    private BString insertValue(BString keyBStr, BString value, boolean onInitialization) {
+        String key = keyBStr.getValue();
         String localName = "";
         String namespaceUri = "";
         int closingCurlyPos = key.lastIndexOf('}');
@@ -115,9 +130,17 @@ class AttributeMapValueImpl extends MapValueImpl<String, String> {
         // Validate whether the attribute name is an XML supported qualified name, according to the XML recommendation.
         XMLValidator.validateXMLName(localName);
 
-        if (namespaceUri.isEmpty()) {
-            return super.put(localName, value);
+        BString keyToInsert = namespaceUri.isEmpty() ? StringUtils.fromString(localName) : keyBStr;
+
+        if (!onInitialization) {
+            return super.put(keyToInsert, value);
         }
-        return super.put(key, value);
+
+        super.populateInitialValue(keyToInsert, value);
+        return null;
+    }
+
+    private interface PutAttributeFunction {
+        void put(BString key, BString value);
     }
 }

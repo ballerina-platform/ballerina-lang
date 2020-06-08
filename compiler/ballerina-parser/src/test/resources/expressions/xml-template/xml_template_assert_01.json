@@ -73,8 +73,13 @@
                               "kind": "LT_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "foo"
+                              "kind": "XML_SIMPLE_NAME",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "foo"
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
@@ -132,8 +137,13 @@
                                   "kind": "LT_TOKEN"
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "foo"
+                                  "kind": "XML_SIMPLE_NAME",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "foo"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "LIST",
@@ -158,189 +168,88 @@
                                   "kind": "SLASH_TOKEN"
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "foo"
-                                },
-                                {
-                                  "kind": "GT_TOKEN"
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "x"
-                },
-                {
-                  "kind": "EQUAL_TOKEN"
-                },
-                {
-                  "kind": "XML_TEMPLATE_EXPRESSION",
-                  "children": [
-                    {
-                      "kind": "XML_KEYWORD"
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "XML_ELEMENT",
-                          "children": [
-                            {
-                              "kind": "XML_ELEMENT_START_TAG",
-                              "children": [
-                                {
-                                  "kind": "LT_TOKEN"
-                                },
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "foo"
-                                },
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "GT_TOKEN"
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "LIST",
-                              "children": [
-                                {
-                                  "kind": "XML_TEXT_CONTENT",
-                                  "value": " hello "
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "XML_ELEMENT_END_TAG",
-                              "children": [
-                                {
-                                  "kind": "LT_TOKEN"
-                                },
-                                {
-                                  "kind": "SLASH_TOKEN"
-                                },
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "foo"
-                                },
-                                {
-                                  "kind": "GT_TOKEN"
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "x"
-                },
-                {
-                  "kind": "EQUAL_TOKEN"
-                },
-                {
-                  "kind": "XML_TEMPLATE_EXPRESSION",
-                  "children": [
-                    {
-                      "kind": "XML_KEYWORD"
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "XML_ELEMENT",
-                          "children": [
-                            {
-                              "kind": "XML_ELEMENT_START_TAG",
-                              "children": [
-                                {
-                                  "kind": "LT_TOKEN"
-                                },
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "foo"
-                                },
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "GT_TOKEN"
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "LIST",
-                              "children": [
-                                {
-                                  "kind": "XML_TEXT_CONTENT",
-                                  "value": " hello "
-                                },
-                                {
-                                  "kind": "XML_EMPTY_ELEMENT",
+                                  "kind": "XML_SIMPLE_NAME",
                                   "children": [
                                     {
-                                      "kind": "LT_TOKEN"
-                                    },
-                                    {
                                       "kind": "IDENTIFIER_TOKEN",
-                                      "value": "bar"
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": []
-                                    },
-                                    {
-                                      "kind": "SLASH_TOKEN"
-                                    },
-                                    {
-                                      "kind": "GT_TOKEN"
+                                      "value": "foo"
                                     }
                                   ]
                                 },
                                 {
+                                  "kind": "GT_TOKEN"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "XML_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "XML_KEYWORD"
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "XML_ELEMENT",
+                          "children": [
+                            {
+                              "kind": "XML_ELEMENT_START_TAG",
+                              "children": [
+                                {
+                                  "kind": "LT_TOKEN"
+                                },
+                                {
+                                  "kind": "XML_SIMPLE_NAME",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "foo"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "GT_TOKEN"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
                                   "kind": "XML_TEXT_CONTENT",
-                                  "value": " "
+                                  "value": " hello "
                                 }
                               ]
                             },
@@ -354,8 +263,13 @@
                                   "kind": "SLASH_TOKEN"
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "foo"
+                                  "kind": "XML_SIMPLE_NAME",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "foo"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "GT_TOKEN"
@@ -408,15 +322,8 @@
                                   "kind": "LT_TOKEN"
                                 },
                                 {
-                                  "kind": "QUALIFIED_NAME_REFERENCE",
+                                  "kind": "XML_SIMPLE_NAME",
                                   "children": [
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "ns0"
-                                    },
-                                    {
-                                      "kind": "COLON_TOKEN"
-                                    },
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
                                       "value": "foo"
@@ -446,8 +353,13 @@
                                       "kind": "LT_TOKEN"
                                     },
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "bar"
+                                      "kind": "XML_SIMPLE_NAME",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "bar"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "LIST",
@@ -477,18 +389,171 @@
                                   "kind": "SLASH_TOKEN"
                                 },
                                 {
-                                  "kind": "QUALIFIED_NAME_REFERENCE",
+                                  "kind": "XML_SIMPLE_NAME",
                                   "children": [
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
-                                      "value": "ns0"
+                                      "value": "foo"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "GT_TOKEN"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "XML_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "XML_KEYWORD"
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "XML_ELEMENT",
+                          "children": [
+                            {
+                              "kind": "XML_ELEMENT_START_TAG",
+                              "children": [
+                                {
+                                  "kind": "LT_TOKEN"
+                                },
+                                {
+                                  "kind": "XML_QUALIFIED_NAME",
+                                  "children": [
+                                    {
+                                      "kind": "XML_SIMPLE_NAME",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "ns0"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "COLON_TOKEN"
                                     },
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "foo"
+                                      "kind": "XML_SIMPLE_NAME",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "foo"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "GT_TOKEN"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "XML_TEXT_CONTENT",
+                                  "value": " hello "
+                                },
+                                {
+                                  "kind": "XML_EMPTY_ELEMENT",
+                                  "children": [
+                                    {
+                                      "kind": "LT_TOKEN"
+                                    },
+                                    {
+                                      "kind": "XML_SIMPLE_NAME",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "bar"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "LIST",
+                                      "children": []
+                                    },
+                                    {
+                                      "kind": "SLASH_TOKEN"
+                                    },
+                                    {
+                                      "kind": "GT_TOKEN"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "XML_TEXT_CONTENT",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "XML_ELEMENT_END_TAG",
+                              "children": [
+                                {
+                                  "kind": "LT_TOKEN"
+                                },
+                                {
+                                  "kind": "SLASH_TOKEN"
+                                },
+                                {
+                                  "kind": "XML_QUALIFIED_NAME",
+                                  "children": [
+                                    {
+                                      "kind": "XML_SIMPLE_NAME",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "ns0"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "COLON_TOKEN"
+                                    },
+                                    {
+                                      "kind": "XML_SIMPLE_NAME",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "foo"
+                                        }
+                                      ]
                                     }
                                   ]
                                 },

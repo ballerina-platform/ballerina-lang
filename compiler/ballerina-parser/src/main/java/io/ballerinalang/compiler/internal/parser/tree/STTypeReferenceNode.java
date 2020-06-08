@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TypeReferenceNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STTypeReferenceNode extends STTypeDescriptorNode {
     public final STNode asteriskToken;
@@ -36,7 +39,19 @@ public class STTypeReferenceNode extends STTypeDescriptorNode {
             STNode asteriskToken,
             STNode typeName,
             STNode semicolonToken) {
-        super(SyntaxKind.TYPE_REFERENCE);
+        this(
+                asteriskToken,
+                typeName,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STTypeReferenceNode(
+            STNode asteriskToken,
+            STNode typeName,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.TYPE_REFERENCE, diagnostics);
         this.asteriskToken = asteriskToken;
         this.typeName = typeName;
         this.semicolonToken = semicolonToken;
@@ -45,6 +60,14 @@ public class STTypeReferenceNode extends STTypeDescriptorNode {
                 asteriskToken,
                 typeName,
                 semicolonToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STTypeReferenceNode(
+                this.asteriskToken,
+                this.typeName,
+                this.semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

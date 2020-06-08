@@ -22,25 +22,45 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QueryConstructTypeNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STQueryConstructTypeNode extends STNode {
     public final STNode tableKeyword;
-    public final STNode KeySpecifier;
+    public final STNode keySpecifier;
 
     STQueryConstructTypeNode(
             STNode tableKeyword,
-            STNode KeySpecifier) {
-        super(SyntaxKind.QUERY_CONSTRUCT_TYPE);
+            STNode keySpecifier) {
+        this(
+                tableKeyword,
+                keySpecifier,
+                Collections.emptyList());
+    }
+
+    STQueryConstructTypeNode(
+            STNode tableKeyword,
+            STNode keySpecifier,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.QUERY_CONSTRUCT_TYPE, diagnostics);
         this.tableKeyword = tableKeyword;
-        this.KeySpecifier = KeySpecifier;
+        this.keySpecifier = keySpecifier;
 
         addChildren(
                 tableKeyword,
-                KeySpecifier);
+                keySpecifier);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STQueryConstructTypeNode(
+                this.tableKeyword,
+                this.keySpecifier,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

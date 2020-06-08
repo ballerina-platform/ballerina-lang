@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.XMLStartTagNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STXMLStartTagNode extends STXMLElementTagNode {
     public final STNode ltToken;
@@ -38,7 +41,21 @@ public class STXMLStartTagNode extends STXMLElementTagNode {
             STNode name,
             STNode attributes,
             STNode getToken) {
-        super(SyntaxKind.XML_ELEMENT_START_TAG);
+        this(
+                ltToken,
+                name,
+                attributes,
+                getToken,
+                Collections.emptyList());
+    }
+
+    STXMLStartTagNode(
+            STNode ltToken,
+            STNode name,
+            STNode attributes,
+            STNode getToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.XML_ELEMENT_START_TAG, diagnostics);
         this.ltToken = ltToken;
         this.name = name;
         this.attributes = attributes;
@@ -49,6 +66,15 @@ public class STXMLStartTagNode extends STXMLElementTagNode {
                 name,
                 attributes,
                 getToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STXMLStartTagNode(
+                this.ltToken,
+                this.name,
+                this.attributes,
+                this.getToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

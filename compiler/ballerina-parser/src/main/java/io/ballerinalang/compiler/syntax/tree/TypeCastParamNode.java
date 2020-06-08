@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class TypeCastParamNode extends NonTerminalNode {
 
@@ -67,5 +69,46 @@ public class TypeCastParamNode extends NonTerminalNode {
         return NodeFactory.createTypeCastParamNode(
                 annotations,
                 type);
+    }
+
+    public TypeCastParamNodeModifier modify() {
+        return new TypeCastParamNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class TypeCastParamNodeModifier {
+        private final TypeCastParamNode oldNode;
+        private NodeList<AnnotationNode> annotations;
+        private Node type;
+
+        public TypeCastParamNodeModifier(TypeCastParamNode oldNode) {
+            this.oldNode = oldNode;
+            this.annotations = oldNode.annotations();
+            this.type = oldNode.type();
+        }
+
+        public TypeCastParamNodeModifier withAnnotations(
+                NodeList<AnnotationNode> annotations) {
+            Objects.requireNonNull(annotations, "annotations must not be null");
+            this.annotations = annotations;
+            return this;
+        }
+
+        public TypeCastParamNodeModifier withType(
+                Node type) {
+            Objects.requireNonNull(type, "type must not be null");
+            this.type = type;
+            return this;
+        }
+
+        public TypeCastParamNode apply() {
+            return oldNode.modify(
+                    annotations,
+                    type);
+        }
     }
 }

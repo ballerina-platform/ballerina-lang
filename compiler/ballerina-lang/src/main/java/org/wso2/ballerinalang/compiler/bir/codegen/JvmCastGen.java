@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -52,7 +53,6 @@ import static org.objectweb.asm.Opcodes.I2S;
 import static org.objectweb.asm.Opcodes.IFNE;
 import static org.objectweb.asm.Opcodes.IFNULL;
 import static org.objectweb.asm.Opcodes.INSTANCEOF;
-import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
@@ -73,7 +73,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.I_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NUMBER;
@@ -82,7 +81,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REF_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SIMPLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
@@ -90,7 +88,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHEC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CONVERTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addBoxInsn;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.IS_BSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.getSignatureForJType;
 
@@ -133,27 +130,12 @@ public class JvmCastGen {
         } else if (targetType.jTag == JTypeTags.JDOUBLE) {
             generateCheckCastBToJDouble(mv, sourceType);
         } else if (targetType.jTag == JTypeTags.JREF) {
-            if (!IS_BSTRING && ((JType.JRefType) targetType).typeValue.equals(B_STRING_VALUE)) {
-                generateCheckCastBToJString(mv, sourceType);
-            } else {
-                generateCheckCastBToJRef(mv, sourceType, targetType);
-            }
+            generateCheckCastBToJRef(mv, sourceType, targetType);
         } else if (targetType.jTag == JTypeTags.JARRAY) {
             generateCheckCastBToJRef(mv, sourceType, targetType);
         } else {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java %s'",
                     sourceType, targetType));
-        }
-    }
-
-    private static void generateCheckCastBToJString(MethodVisitor mv, BType sourceType) {
-
-        if (TypeTags.isStringTypeTag(sourceType.tag)) {
-            mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString",
-                    String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
-        } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java byte'",
-                    sourceType));
         }
     }
 
@@ -330,15 +312,13 @@ public class JvmCastGen {
             generateCheckCastJToBInt(mv, sourceType);
         } else if (targetType.tag == TypeTags.FLOAT) {
             generateCheckCastJToBFloat(mv, sourceType);
-        } else if (TypeTags.isStringTypeTag(targetType.tag)) {
-            generateCheckCastJToBString(mv, sourceType);
         } else if (targetType.tag == TypeTags.DECIMAL) {
             generateCheckCastJToBDecimal(mv, sourceType);
         } else if (targetType.tag == TypeTags.BOOLEAN) {
             generateCheckCastJToBBoolean(mv, sourceType);
         } else if (targetType.tag == TypeTags.BYTE) {
             generateCheckCastJToBByte(mv, sourceType);
-        } else if (targetType.tag == TypeTags.NIL) {
+        } else if (targetType.tag == TypeTags.NIL || targetType.tag == TypeTags.NEVER) {
             // Do nothing
         } else {
             if (targetType.tag == TypeTags.UNION) {
@@ -423,24 +403,6 @@ public class JvmCastGen {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'float'",
                     sourceType));
         }
-    }
-
-    private static void generateCheckCastJToBString(MethodVisitor mv, JType sourceType) {
-
-        if (sourceType.jTag == JTypeTags.JREF) {
-            String typeValue = ((JType.JRefType) sourceType).typeValue;
-            if (typeValue.equals(I_STRING_VALUE)) {
-                mv.visitMethodInsn(INVOKEINTERFACE, I_STRING_VALUE, "getValue", String.format("()L%s;",
-                        STRING_VALUE), true);
-                return;
-            } else if (typeValue.equals(B_STRING_VALUE)) {
-                mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;",
-                        STRING_VALUE), true);
-                return;
-            }
-        }
-        throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'string'",
-                sourceType));
     }
 
     private static void generateCheckCastJToBDecimal(MethodVisitor mv, JType sourceType) {
@@ -612,11 +574,12 @@ public class JvmCastGen {
     private static boolean isNillable(BType targetType) {
 
         if (targetType.tag == TypeTags.NIL ||
+                targetType.tag == TypeTags.NEVER ||
                 targetType.tag == TypeTags.JSON ||
                 targetType.tag == TypeTags.ANY ||
                 targetType.tag == TypeTags.ANYDATA) {
             return true;
-        } else if (targetType.tag == TypeTags.UNION) {
+        } else if (targetType.tag == TypeTags.UNION || targetType.tag == TypeTags.INTERSECTION) {
             return targetType.isNullable();
         } else if (targetType.tag == TypeTags.FINITE) {
             return targetType.isNullable();
@@ -686,11 +649,14 @@ public class JvmCastGen {
         } else if (targetType.tag == TypeTags.BYTE) {
             generateCheckCastToByte(mv, sourceType);
             return;
-        } else if (targetType.tag == TypeTags.NIL) {
+        } else if (targetType.tag == TypeTags.NIL || targetType.tag == TypeTags.NEVER) {
             checkCast(mv, targetType);
             return;
         } else if (targetType.tag == TypeTags.UNION) {
             generateCheckCastToUnionType(mv, sourceType, (BUnionType) targetType);
+            return;
+        } else if (targetType.tag == TypeTags.INTERSECTION) {
+            generateCheckCastToIntersectionType(mv, sourceType, (BIntersectionType) targetType);
             return;
         } else if (targetType.tag == TypeTags.ANYDATA) {
             generateCheckCastToAnyData(mv, sourceType);
@@ -941,11 +907,7 @@ public class JvmCastGen {
                 sourceType.tag == TypeTags.JSON ||
                 sourceType.tag == TypeTags.FINITE) {
             checkCast(mv, symbolTable.stringType);
-            if (IS_BSTRING) {
-                mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
-            } else {
-                mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
-            }
+            mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
             return;
         } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "toString", String.format("(J)L%s;", STRING_VALUE), false);
@@ -981,7 +943,7 @@ public class JvmCastGen {
 
         if (TypeTags.isStringTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "stringToChar",
-                    String.format("(L%s;)L%s;", OBJECT, STRING_VALUE), false);
+                    String.format("(L%s;)L%s;", OBJECT, B_STRING_VALUE), false);
         } else if (sourceType.tag == TypeTags.ANY ||
                 sourceType.tag == TypeTags.ANYDATA ||
                 sourceType.tag == TypeTags.UNION ||
@@ -992,7 +954,7 @@ public class JvmCastGen {
                 sourceType.tag == TypeTags.BOOLEAN ||
                 sourceType.tag == TypeTags.DECIMAL) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "anyToChar",
-                    String.format("(L%s;)L%s;", OBJECT, STRING_VALUE), false);
+                    String.format("(L%s;)L%s;", OBJECT, B_STRING_VALUE), false);
         } else {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'char'",
                     sourceType));
@@ -1038,7 +1000,8 @@ public class JvmCastGen {
 
     private static void generateCheckCastToAnyData(MethodVisitor mv, BType sourceType) {
 
-        if (sourceType.tag == TypeTags.ANY || sourceType.tag == TypeTags.UNION) {
+        if (sourceType.tag == TypeTags.ANY || sourceType.tag == TypeTags.UNION ||
+                sourceType.tag == TypeTags.INTERSECTION) {
             checkCast(mv, symbolTable.anydataType);
         } else {
             // if value types, then ad box instruction
@@ -1050,6 +1013,7 @@ public class JvmCastGen {
 
         if (sourceType.tag == TypeTags.ANY ||
                 sourceType.tag == TypeTags.UNION ||
+                sourceType.tag == TypeTags.INTERSECTION ||
                 sourceType.tag == TypeTags.MAP) {
             checkCast(mv, symbolTable.jsonType);
         } else {
@@ -1059,6 +1023,13 @@ public class JvmCastGen {
     }
 
     private static void generateCheckCastToUnionType(MethodVisitor mv, BType sourceType, BUnionType targetType) {
+
+        generateCastToAny(mv, sourceType);
+        checkCast(mv, targetType);
+    }
+
+    private static void generateCheckCastToIntersectionType(MethodVisitor mv, BType sourceType,
+                                                            BIntersectionType targetType) {
 
         generateCastToAny(mv, sourceType);
         checkCast(mv, targetType);
@@ -1141,7 +1112,7 @@ public class JvmCastGen {
         } else if (targetType.tag == TypeTags.DECIMAL) {
             generateCastToDecimal(mv, sourceType);
             return;
-        } else if (targetType.tag == TypeTags.NIL) {
+        } else if (targetType.tag == TypeTags.NIL || targetType.tag == TypeTags.NEVER) {
             // do nothing
             return;
         } else if (targetType.tag == TypeTags.UNION ||
@@ -1209,11 +1180,7 @@ public class JvmCastGen {
                 sourceType.tag == TypeTags.ANYDATA ||
                 sourceType.tag == TypeTags.UNION ||
                 sourceType.tag == TypeTags.JSON) {
-            if (IS_BSTRING) {
-                mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
-            } else {
-                mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
-            }
+            mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
         } else {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'string'",
                     sourceType));

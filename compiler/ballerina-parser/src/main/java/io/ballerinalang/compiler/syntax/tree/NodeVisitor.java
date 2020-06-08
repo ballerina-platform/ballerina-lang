@@ -35,7 +35,7 @@ package io.ballerinalang.compiler.syntax.tree;
  * This is a generated class.
  *
  * @see NodeTransformer
- * @since 1.3.0
+ * @since 2.0.0
  */
 public abstract class NodeVisitor {
 
@@ -315,6 +315,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(xMLNamespaceDeclarationNode);
     }
 
+    public void visit(ModuleXMLNamespaceDeclarationNode moduleXMLNamespaceDeclarationNode) {
+        visitSyntaxNode(moduleXMLNamespaceDeclarationNode);
+    }
+
     public void visit(FunctionBodyBlockNode functionBodyBlockNode) {
         visitSyntaxNode(functionBodyBlockNode);
     }
@@ -547,15 +551,168 @@ public abstract class NodeVisitor {
         visitSyntaxNode(flushActionNode);
     }
 
+    public void visit(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
+        visitSyntaxNode(singletonTypeDescriptorNode);
+    }
+
+    public void visit(MethodDeclarationNode methodDeclarationNode) {
+        visitSyntaxNode(methodDeclarationNode);
+    }
+
+    public void visit(TypedBindingPatternNode typedBindingPatternNode) {
+        visitSyntaxNode(typedBindingPatternNode);
+    }
+
+    public void visit(CaptureBindingPatternNode captureBindingPatternNode) {
+        visitSyntaxNode(captureBindingPatternNode);
+    }
+
+    public void visit(WildcardBindingPatternNode wildcardBindingPatternNode) {
+        visitSyntaxNode(wildcardBindingPatternNode);
+    }
+
+    public void visit(ListBindingPatternNode listBindingPatternNode) {
+        visitSyntaxNode(listBindingPatternNode);
+    }
+
+    public void visit(MappingBindingPatternNode mappingBindingPatternNode) {
+        visitSyntaxNode(mappingBindingPatternNode);
+    }
+
+    public void visit(FieldBindingPatternFullNode fieldBindingPatternFullNode) {
+        visitSyntaxNode(fieldBindingPatternFullNode);
+    }
+
+    public void visit(FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
+        visitSyntaxNode(fieldBindingPatternVarnameNode);
+    }
+
+    public void visit(RestBindingPatternNode restBindingPatternNode) {
+        visitSyntaxNode(restBindingPatternNode);
+    }
+
+    public void visit(AsyncSendActionNode asyncSendActionNode) {
+        visitSyntaxNode(asyncSendActionNode);
+    }
+
+    public void visit(SyncSendActionNode syncSendActionNode) {
+        visitSyntaxNode(syncSendActionNode);
+    }
+
+    public void visit(ReceiveActionNode receiveActionNode) {
+        visitSyntaxNode(receiveActionNode);
+    }
+
+    public void visit(ReceiveFieldsNode receiveFieldsNode) {
+        visitSyntaxNode(receiveFieldsNode);
+    }
+
+    public void visit(RestDescriptorNode restDescriptorNode) {
+        visitSyntaxNode(restDescriptorNode);
+    }
+
+    public void visit(DoubleGTTokenNode doubleGTTokenNode) {
+        visitSyntaxNode(doubleGTTokenNode);
+    }
+
+    public void visit(TrippleGTTokenNode trippleGTTokenNode) {
+        visitSyntaxNode(trippleGTTokenNode);
+    }
+
+    public void visit(WaitActionNode waitActionNode) {
+        visitSyntaxNode(waitActionNode);
+    }
+
+    public void visit(WaitFieldsListNode waitFieldsListNode) {
+        visitSyntaxNode(waitFieldsListNode);
+    }
+
+    public void visit(WaitFieldNode waitFieldNode) {
+        visitSyntaxNode(waitFieldNode);
+    }
+
+    public void visit(AnnotAccessExpressionNode annotAccessExpressionNode) {
+        visitSyntaxNode(annotAccessExpressionNode);
+    }
+
+    public void visit(QueryActionNode queryActionNode) {
+        visitSyntaxNode(queryActionNode);
+    }
+
+    public void visit(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+        visitSyntaxNode(optionalFieldAccessExpressionNode);
+    }
+
+    public void visit(ConditionalExpressionNode conditionalExpressionNode) {
+        visitSyntaxNode(conditionalExpressionNode);
+    }
+
+    public void visit(EnumDeclarationNode enumDeclarationNode) {
+        visitSyntaxNode(enumDeclarationNode);
+    }
+
+    public void visit(EnumMemberNode enumMemberNode) {
+        visitSyntaxNode(enumMemberNode);
+    }
+
+    public void visit(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+        visitSyntaxNode(arrayTypeDescriptorNode);
+    }
+
+    public void visit(TransactionStatementNode transactionStatementNode) {
+        visitSyntaxNode(transactionStatementNode);
+    }
+
+    public void visit(RollbackStatementNode rollbackStatementNode) {
+        visitSyntaxNode(rollbackStatementNode);
+    }
+
+    public void visit(RetryStatementNode retryStatementNode) {
+        visitSyntaxNode(retryStatementNode);
+    }
+
+    public void visit(CommitActionNode commitActionNode) {
+        visitSyntaxNode(commitActionNode);
+    }
+
+    public void visit(TransactionalExpressionNode transactionalExpressionNode) {
+        visitSyntaxNode(transactionalExpressionNode);
+    }
+
+    public void visit(ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
+        visitSyntaxNode(serviceConstructorExpressionNode);
+    }
+
+    public void visit(ByteArrayLiteralNode byteArrayLiteralNode) {
+        visitSyntaxNode(byteArrayLiteralNode);
+    }
+
+    public void visit(XMLFilterExpressionNode xMLFilterExpressionNode) {
+        visitSyntaxNode(xMLFilterExpressionNode);
+    }
+
+    public void visit(XMLStepExpressionNode xMLStepExpressionNode) {
+        visitSyntaxNode(xMLStepExpressionNode);
+    }
+
+    public void visit(XMLNamePatternChainingNode xMLNamePatternChainingNode) {
+        visitSyntaxNode(xMLNamePatternChainingNode);
+    }
+
+    public void visit(XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
+        visitSyntaxNode(xMLAtomicNamePatternNode);
+    }
+
+    public void visit(TypeReferenceTypeDescNode typeReferenceTypeDescNode) {
+        visitSyntaxNode(typeReferenceTypeDescNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {
     }
 
     // Misc
-
-    public void visit(Minutiae minutiae) {
-    }
 
     protected void visitSyntaxNode(Node node) {
         // TODO Find a better way to check for token

@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class FromClauseNode extends ClauseNode {
 
@@ -34,20 +36,16 @@ public class FromClauseNode extends ClauseNode {
         return childInBucket(0);
     }
 
-    public Node typeName() {
+    public TypedBindingPatternNode typedBindingPattern() {
         return childInBucket(1);
     }
 
-    public Token variableName() {
+    public Token inKeyword() {
         return childInBucket(2);
     }
 
-    public Token inKeyword() {
-        return childInBucket(3);
-    }
-
     public ExpressionNode expression() {
-        return childInBucket(4);
+        return childInBucket(3);
     }
 
     @Override
@@ -64,22 +62,19 @@ public class FromClauseNode extends ClauseNode {
     protected String[] childNames() {
         return new String[]{
                 "fromKeyword",
-                "typeName",
-                "variableName",
+                "typedBindingPattern",
                 "inKeyword",
                 "expression"};
     }
 
     public FromClauseNode modify(
             Token fromKeyword,
-            Node typeName,
-            Token variableName,
+            TypedBindingPatternNode typedBindingPattern,
             Token inKeyword,
             ExpressionNode expression) {
         if (checkForReferenceEquality(
                 fromKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 inKeyword,
                 expression)) {
             return this;
@@ -87,9 +82,69 @@ public class FromClauseNode extends ClauseNode {
 
         return NodeFactory.createFromClauseNode(
                 fromKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 inKeyword,
                 expression);
+    }
+
+    public FromClauseNodeModifier modify() {
+        return new FromClauseNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class FromClauseNodeModifier {
+        private final FromClauseNode oldNode;
+        private Token fromKeyword;
+        private TypedBindingPatternNode typedBindingPattern;
+        private Token inKeyword;
+        private ExpressionNode expression;
+
+        public FromClauseNodeModifier(FromClauseNode oldNode) {
+            this.oldNode = oldNode;
+            this.fromKeyword = oldNode.fromKeyword();
+            this.typedBindingPattern = oldNode.typedBindingPattern();
+            this.inKeyword = oldNode.inKeyword();
+            this.expression = oldNode.expression();
+        }
+
+        public FromClauseNodeModifier withFromKeyword(
+                Token fromKeyword) {
+            Objects.requireNonNull(fromKeyword, "fromKeyword must not be null");
+            this.fromKeyword = fromKeyword;
+            return this;
+        }
+
+        public FromClauseNodeModifier withTypedBindingPattern(
+                TypedBindingPatternNode typedBindingPattern) {
+            Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
+            this.typedBindingPattern = typedBindingPattern;
+            return this;
+        }
+
+        public FromClauseNodeModifier withInKeyword(
+                Token inKeyword) {
+            Objects.requireNonNull(inKeyword, "inKeyword must not be null");
+            this.inKeyword = inKeyword;
+            return this;
+        }
+
+        public FromClauseNodeModifier withExpression(
+                ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
+            return this;
+        }
+
+        public FromClauseNode apply() {
+            return oldNode.modify(
+                    fromKeyword,
+                    typedBindingPattern,
+                    inKeyword,
+                    expression);
+        }
     }
 }

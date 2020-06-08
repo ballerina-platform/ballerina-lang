@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STMetadataNode extends STNode {
     public final STNode documentationString;
@@ -34,13 +37,30 @@ public class STMetadataNode extends STNode {
     STMetadataNode(
             STNode documentationString,
             STNode annotations) {
-        super(SyntaxKind.METADATA);
+        this(
+                documentationString,
+                annotations,
+                Collections.emptyList());
+    }
+
+    STMetadataNode(
+            STNode documentationString,
+            STNode annotations,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.METADATA, diagnostics);
         this.documentationString = documentationString;
         this.annotations = annotations;
 
         addChildren(
                 documentationString,
                 annotations);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STMetadataNode(
+                this.documentationString,
+                this.annotations,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

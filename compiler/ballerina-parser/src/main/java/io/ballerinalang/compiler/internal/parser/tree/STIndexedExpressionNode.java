@@ -22,12 +22,15 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
-public class STIndexedExpressionNode extends STExpressionNode {
+public class STIndexedExpressionNode extends STTypeDescriptorNode {
     public final STNode containerExpression;
     public final STNode openBracket;
     public final STNode keyExpression;
@@ -38,7 +41,21 @@ public class STIndexedExpressionNode extends STExpressionNode {
             STNode openBracket,
             STNode keyExpression,
             STNode closeBracket) {
-        super(SyntaxKind.INDEXED_EXPRESSION);
+        this(
+                containerExpression,
+                openBracket,
+                keyExpression,
+                closeBracket,
+                Collections.emptyList());
+    }
+
+    STIndexedExpressionNode(
+            STNode containerExpression,
+            STNode openBracket,
+            STNode keyExpression,
+            STNode closeBracket,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.INDEXED_EXPRESSION, diagnostics);
         this.containerExpression = containerExpression;
         this.openBracket = openBracket;
         this.keyExpression = keyExpression;
@@ -49,6 +66,15 @@ public class STIndexedExpressionNode extends STExpressionNode {
                 openBracket,
                 keyExpression,
                 closeBracket);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STIndexedExpressionNode(
+                this.containerExpression,
+                this.openBracket,
+                this.keyExpression,
+                this.closeBracket,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

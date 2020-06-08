@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STAnnotationAttachPointNode extends STNode {
     public final STNode sourceKeyword;
@@ -36,7 +39,19 @@ public class STAnnotationAttachPointNode extends STNode {
             STNode sourceKeyword,
             STNode firstIdent,
             STNode secondIdent) {
-        super(SyntaxKind.ANNOTATION_ATTACH_POINT);
+        this(
+                sourceKeyword,
+                firstIdent,
+                secondIdent,
+                Collections.emptyList());
+    }
+
+    STAnnotationAttachPointNode(
+            STNode sourceKeyword,
+            STNode firstIdent,
+            STNode secondIdent,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.ANNOTATION_ATTACH_POINT, diagnostics);
         this.sourceKeyword = sourceKeyword;
         this.firstIdent = firstIdent;
         this.secondIdent = secondIdent;
@@ -45,6 +60,14 @@ public class STAnnotationAttachPointNode extends STNode {
                 sourceKeyword,
                 firstIdent,
                 secondIdent);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STAnnotationAttachPointNode(
+                this.sourceKeyword,
+                this.firstIdent,
+                this.secondIdent,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

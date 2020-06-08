@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STFunctionTypeDescriptorNode extends STTypeDescriptorNode {
     public final STNode functionKeyword;
@@ -34,13 +37,30 @@ public class STFunctionTypeDescriptorNode extends STTypeDescriptorNode {
     STFunctionTypeDescriptorNode(
             STNode functionKeyword,
             STNode functionSignature) {
-        super(SyntaxKind.FUNCTION_TYPE_DESC);
+        this(
+                functionKeyword,
+                functionSignature,
+                Collections.emptyList());
+    }
+
+    STFunctionTypeDescriptorNode(
+            STNode functionKeyword,
+            STNode functionSignature,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.FUNCTION_TYPE_DESC, diagnostics);
         this.functionKeyword = functionKeyword;
         this.functionSignature = functionSignature;
 
         addChildren(
                 functionKeyword,
                 functionSignature);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STFunctionTypeDescriptorNode(
+                this.functionKeyword,
+                this.functionSignature,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

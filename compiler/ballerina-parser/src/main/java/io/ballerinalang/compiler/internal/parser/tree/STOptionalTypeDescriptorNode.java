@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STOptionalTypeDescriptorNode extends STTypeDescriptorNode {
     public final STNode typeDescriptor;
@@ -34,13 +37,30 @@ public class STOptionalTypeDescriptorNode extends STTypeDescriptorNode {
     STOptionalTypeDescriptorNode(
             STNode typeDescriptor,
             STNode questionMarkToken) {
-        super(SyntaxKind.OPTIONAL_TYPE_DESC);
+        this(
+                typeDescriptor,
+                questionMarkToken,
+                Collections.emptyList());
+    }
+
+    STOptionalTypeDescriptorNode(
+            STNode typeDescriptor,
+            STNode questionMarkToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.OPTIONAL_TYPE_DESC, diagnostics);
         this.typeDescriptor = typeDescriptor;
         this.questionMarkToken = questionMarkToken;
 
         addChildren(
                 typeDescriptor,
                 questionMarkToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STOptionalTypeDescriptorNode(
+                this.typeDescriptor,
+                this.questionMarkToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

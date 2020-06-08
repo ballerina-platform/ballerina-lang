@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.XMLComment;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STXMLComment extends STXMLItemNode {
     public final STNode commentStart;
@@ -36,7 +39,19 @@ public class STXMLComment extends STXMLItemNode {
             STNode commentStart,
             STNode content,
             STNode commentEnd) {
-        super(SyntaxKind.XML_COMMENT);
+        this(
+                commentStart,
+                content,
+                commentEnd,
+                Collections.emptyList());
+    }
+
+    STXMLComment(
+            STNode commentStart,
+            STNode content,
+            STNode commentEnd,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.XML_COMMENT, diagnostics);
         this.commentStart = commentStart;
         this.content = content;
         this.commentEnd = commentEnd;
@@ -45,6 +60,14 @@ public class STXMLComment extends STXMLItemNode {
                 commentStart,
                 content,
                 commentEnd);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STXMLComment(
+                this.commentStart,
+                this.content,
+                this.commentEnd,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

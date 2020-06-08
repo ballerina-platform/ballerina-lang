@@ -17,7 +17,10 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
+import io.ballerinalang.compiler.diagnostics.Diagnostic;
+import io.ballerinalang.compiler.internal.diagnostics.SyntaxDiagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerinalang.compiler.text.LineRange;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextRange;
@@ -62,7 +65,7 @@ public abstract class Node {
         }
         int leadingMinutiaeDelta = internalNode.widthWithLeadingMinutiae() - internalNode.width();
         int positionWithoutLeadingMinutiae = this.position + leadingMinutiaeDelta;
-        textRange = new TextRange(positionWithoutLeadingMinutiae, internalNode.width());
+        textRange = TextRange.from(positionWithoutLeadingMinutiae, internalNode.width());
         return textRange;
     }
 
@@ -70,7 +73,7 @@ public abstract class Node {
         if (textRangeWithMinutiae != null) {
             return textRangeWithMinutiae;
         }
-        textRangeWithMinutiae = new TextRange(position, internalNode.widthWithMinutiae());
+        textRangeWithMinutiae = TextRange.from(position, internalNode.widthWithMinutiae());
         return textRangeWithMinutiae;
     }
 
@@ -80,6 +83,16 @@ public abstract class Node {
 
     public NodeLocation location() {
         return new NodeLocation(this);
+    }
+
+    public abstract Iterable<Diagnostic> diagnostics();
+
+    public boolean hasDiagnostics() {
+        return internalNode.hasDiagnostics();
+    }
+
+    public boolean isMissing() {
+        return internalNode.isMissing();
     }
 
     public SyntaxTree syntaxTree() {
@@ -93,10 +106,14 @@ public abstract class Node {
 
         SyntaxTree syntaxTree = syntaxTree();
         TextDocument textDocument = syntaxTree.textDocument();
-        lineRange = new LineRange(syntaxTree.filePath(), textDocument.linePositionFrom(textRange().startOffset()),
+        lineRange = LineRange.from(syntaxTree.filePath(), textDocument.linePositionFrom(textRange().startOffset()),
                 textDocument.linePositionFrom(textRange().endOffset()));
         return lineRange;
     }
+
+    public abstract MinutiaeList leadingMinutiae();
+
+    public abstract MinutiaeList trailingMinutiae();
 
     /**
      * Accepts an instance of the {@code NodeVisitor}, which can be used to
@@ -140,5 +157,9 @@ public abstract class Node {
 
     void setSyntaxTree(SyntaxTree syntaxTree) {
         this.syntaxTree = syntaxTree;
+    }
+
+    protected Diagnostic createSyntaxDiagnostic(STNodeDiagnostic nodeDiagnostic) {
+        return SyntaxDiagnostic.from(nodeDiagnostic, this.location());
     }
 }

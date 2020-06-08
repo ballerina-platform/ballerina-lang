@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STQueryExpressionNode extends STExpressionNode {
     public final STNode queryConstructType;
@@ -36,7 +39,19 @@ public class STQueryExpressionNode extends STExpressionNode {
             STNode queryConstructType,
             STNode queryPipeline,
             STNode selectClause) {
-        super(SyntaxKind.QUERY_EXPRESSION);
+        this(
+                queryConstructType,
+                queryPipeline,
+                selectClause,
+                Collections.emptyList());
+    }
+
+    STQueryExpressionNode(
+            STNode queryConstructType,
+            STNode queryPipeline,
+            STNode selectClause,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.QUERY_EXPRESSION, diagnostics);
         this.queryConstructType = queryConstructType;
         this.queryPipeline = queryPipeline;
         this.selectClause = selectClause;
@@ -45,6 +60,14 @@ public class STQueryExpressionNode extends STExpressionNode {
                 queryConstructType,
                 queryPipeline,
                 selectClause);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STQueryExpressionNode(
+                this.queryConstructType,
+                this.queryPipeline,
+                this.selectClause,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -40,6 +41,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.ITERATOR_MUTABILITY_ERROR;
+import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 
 /**
  * Native implementation of lang.table.TableIterator:next().
@@ -47,7 +49,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.ITERAT
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", functionName = "next",
+        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION, functionName = "next",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "TableIterator",
                 structPackage = "ballerina/lang.table"),
         returnType = {@ReturnType(type = TypeKind.RECORD)},
@@ -57,9 +59,9 @@ public class Next {
     //TODO: refactor hard coded values
     public static Object next(Strand strand, ObjectValue t) {
         IteratorValue tableIterator = (IteratorValue) t.getNativeData("&iterator&");
-        TableValueImpl table = (TableValueImpl) t.get("t");
-        ArrayValueImpl keys = (ArrayValueImpl) t.get("keys");
-        long initialSize = (long) t.get("size");
+        TableValueImpl table = (TableValueImpl) t.get(StringUtils.fromString("t"));
+        ArrayValueImpl keys = (ArrayValueImpl) t.get(StringUtils.fromString("keys"));
+        long initialSize = (long) t.get(StringUtils.fromString("size"));
         if (tableIterator == null) {
             tableIterator = table.getIterator();
             t.addNativeData("&iterator&", tableIterator);

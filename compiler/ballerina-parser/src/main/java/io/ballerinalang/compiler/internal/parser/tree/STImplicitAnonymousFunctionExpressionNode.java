@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STImplicitAnonymousFunctionExpressionNode extends STAnonymousFunctionExpressionNode {
     public final STNode params;
@@ -36,7 +39,19 @@ public class STImplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
             STNode params,
             STNode rightDoubleArrow,
             STNode expression) {
-        super(SyntaxKind.IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION);
+        this(
+                params,
+                rightDoubleArrow,
+                expression,
+                Collections.emptyList());
+    }
+
+    STImplicitAnonymousFunctionExpressionNode(
+            STNode params,
+            STNode rightDoubleArrow,
+            STNode expression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION, diagnostics);
         this.params = params;
         this.rightDoubleArrow = rightDoubleArrow;
         this.expression = expression;
@@ -45,6 +60,14 @@ public class STImplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
                 params,
                 rightDoubleArrow,
                 expression);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STImplicitAnonymousFunctionExpressionNode(
+                this.params,
+                this.rightDoubleArrow,
+                this.expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

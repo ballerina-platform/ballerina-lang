@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STExpressionStatementNode extends STStatementNode {
     public final STNode expression;
@@ -35,13 +38,33 @@ public class STExpressionStatementNode extends STStatementNode {
             SyntaxKind kind,
             STNode expression,
             STNode semicolonToken) {
-        super(kind);
+        this(
+                kind,
+                expression,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STExpressionStatementNode(
+            SyntaxKind kind,
+            STNode expression,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(kind, diagnostics);
         this.expression = expression;
         this.semicolonToken = semicolonToken;
 
         addChildren(
                 expression,
                 semicolonToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STExpressionStatementNode(
+                this.kind,
+                this.expression,
+                this.semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

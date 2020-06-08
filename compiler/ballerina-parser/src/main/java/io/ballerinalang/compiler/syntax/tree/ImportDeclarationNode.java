@@ -19,12 +19,13 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ImportDeclarationNode extends NonTerminalNode {
 
@@ -36,7 +37,7 @@ public class ImportDeclarationNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Optional<Node> orgName() {
+    public Optional<ImportOrgNameNode> orgName() {
         return optionalChildInBucket(1);
     }
 
@@ -44,11 +45,11 @@ public class ImportDeclarationNode extends NonTerminalNode {
         return new SeparatedNodeList<>(childInBucket(2));
     }
 
-    public Optional<Node> version() {
+    public Optional<ImportVersionNode> version() {
         return optionalChildInBucket(3);
     }
 
-    public Optional<Node> prefix() {
+    public Optional<ImportPrefixNode> prefix() {
         return optionalChildInBucket(4);
     }
 
@@ -79,10 +80,10 @@ public class ImportDeclarationNode extends NonTerminalNode {
 
     public ImportDeclarationNode modify(
             Token importKeyword,
-            Node orgName,
+            ImportOrgNameNode orgName,
             SeparatedNodeList<IdentifierToken> moduleName,
-            Node version,
-            Node prefix,
+            ImportVersionNode version,
+            ImportPrefixNode prefix,
             Token semicolon) {
         if (checkForReferenceEquality(
                 importKeyword,
@@ -101,5 +102,86 @@ public class ImportDeclarationNode extends NonTerminalNode {
                 version,
                 prefix,
                 semicolon);
+    }
+
+    public ImportDeclarationNodeModifier modify() {
+        return new ImportDeclarationNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ImportDeclarationNodeModifier {
+        private final ImportDeclarationNode oldNode;
+        private Token importKeyword;
+        private ImportOrgNameNode orgName;
+        private SeparatedNodeList<IdentifierToken> moduleName;
+        private ImportVersionNode version;
+        private ImportPrefixNode prefix;
+        private Token semicolon;
+
+        public ImportDeclarationNodeModifier(ImportDeclarationNode oldNode) {
+            this.oldNode = oldNode;
+            this.importKeyword = oldNode.importKeyword();
+            this.orgName = oldNode.orgName().orElse(null);
+            this.moduleName = oldNode.moduleName();
+            this.version = oldNode.version().orElse(null);
+            this.prefix = oldNode.prefix().orElse(null);
+            this.semicolon = oldNode.semicolon();
+        }
+
+        public ImportDeclarationNodeModifier withImportKeyword(
+                Token importKeyword) {
+            Objects.requireNonNull(importKeyword, "importKeyword must not be null");
+            this.importKeyword = importKeyword;
+            return this;
+        }
+
+        public ImportDeclarationNodeModifier withOrgName(
+                ImportOrgNameNode orgName) {
+            Objects.requireNonNull(orgName, "orgName must not be null");
+            this.orgName = orgName;
+            return this;
+        }
+
+        public ImportDeclarationNodeModifier withModuleName(
+                SeparatedNodeList<IdentifierToken> moduleName) {
+            Objects.requireNonNull(moduleName, "moduleName must not be null");
+            this.moduleName = moduleName;
+            return this;
+        }
+
+        public ImportDeclarationNodeModifier withVersion(
+                ImportVersionNode version) {
+            Objects.requireNonNull(version, "version must not be null");
+            this.version = version;
+            return this;
+        }
+
+        public ImportDeclarationNodeModifier withPrefix(
+                ImportPrefixNode prefix) {
+            Objects.requireNonNull(prefix, "prefix must not be null");
+            this.prefix = prefix;
+            return this;
+        }
+
+        public ImportDeclarationNodeModifier withSemicolon(
+                Token semicolon) {
+            Objects.requireNonNull(semicolon, "semicolon must not be null");
+            this.semicolon = semicolon;
+            return this;
+        }
+
+        public ImportDeclarationNode apply() {
+            return oldNode.modify(
+                    importKeyword,
+                    orgName,
+                    moduleName,
+                    version,
+                    prefix,
+                    semicolon);
+        }
     }
 }

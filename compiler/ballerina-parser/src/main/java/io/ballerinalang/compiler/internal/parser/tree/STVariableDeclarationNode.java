@@ -22,16 +22,18 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STVariableDeclarationNode extends STStatementNode {
     public final STNode annotations;
     public final STNode finalKeyword;
-    public final STNode typeName;
-    public final STNode variableName;
+    public final STNode typedBindingPattern;
     public final STNode equalsToken;
     public final STNode initializer;
     public final STNode semicolonToken;
@@ -39,16 +41,32 @@ public class STVariableDeclarationNode extends STStatementNode {
     STVariableDeclarationNode(
             STNode annotations,
             STNode finalKeyword,
-            STNode typeName,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode equalsToken,
             STNode initializer,
             STNode semicolonToken) {
-        super(SyntaxKind.LOCAL_VAR_DECL);
+        this(
+                annotations,
+                finalKeyword,
+                typedBindingPattern,
+                equalsToken,
+                initializer,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STVariableDeclarationNode(
+            STNode annotations,
+            STNode finalKeyword,
+            STNode typedBindingPattern,
+            STNode equalsToken,
+            STNode initializer,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.LOCAL_VAR_DECL, diagnostics);
         this.annotations = annotations;
         this.finalKeyword = finalKeyword;
-        this.typeName = typeName;
-        this.variableName = variableName;
+        this.typedBindingPattern = typedBindingPattern;
         this.equalsToken = equalsToken;
         this.initializer = initializer;
         this.semicolonToken = semicolonToken;
@@ -56,11 +74,21 @@ public class STVariableDeclarationNode extends STStatementNode {
         addChildren(
                 annotations,
                 finalKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 initializer,
                 semicolonToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STVariableDeclarationNode(
+                this.annotations,
+                this.finalKeyword,
+                this.typedBindingPattern,
+                this.equalsToken,
+                this.initializer,
+                this.semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

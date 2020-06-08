@@ -44,8 +44,8 @@ import java.nio.file.Paths;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.CHILDREN_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.IS_MISSING_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.KIND_FIELD;
-import static io.ballerinalang.compiler.parser.test.ParserTestConstants.LEADING_TRIVIA;
-import static io.ballerinalang.compiler.parser.test.ParserTestConstants.TRAILING_TRIVIA;
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.LEADING_MINUTIAE;
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.TRAILING_MINUTIAE;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.VALUE_FIELD;
 
 /**
@@ -81,10 +81,14 @@ public class SyntaxTreeJSONGenerator {
         return generateJSON(content, context);
     }
 
-    private static String generateJSON(String source, ParserRuleContext context) {
-        STNode tree = getParserTree(source, context);
+    public static String generateJSON(STNode treeNode) {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        return gson.toJson(getJSON(tree));
+        return gson.toJson(getJSON(treeNode));
+    }
+
+    public static String generateJSON(String source, ParserRuleContext context) {
+        STNode tree = getParserTree(source, context);
+        return generateJSON(tree);
     }
 
     private static STNode getParserTree(String source, ParserRuleContext context) {
@@ -152,7 +156,7 @@ public class SyntaxTreeJSONGenerator {
     }
 
     private static void addTrivia(STToken token, JsonObject jsonNode) {
-        addNodeList(token.leadingTrivia, jsonNode, LEADING_TRIVIA);
-        addNodeList(token.trailingTrivia, jsonNode, TRAILING_TRIVIA);
+        addNodeList(token.leadingMinutiae(), jsonNode, LEADING_MINUTIAE);
+        addNodeList(token.trailingMinutiae(), jsonNode, TRAILING_MINUTIAE);
     }
 }

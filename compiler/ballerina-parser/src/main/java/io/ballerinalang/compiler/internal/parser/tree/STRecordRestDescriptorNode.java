@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.RecordRestDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STRecordRestDescriptorNode extends STNode {
     public final STNode typeName;
@@ -36,7 +39,19 @@ public class STRecordRestDescriptorNode extends STNode {
             STNode typeName,
             STNode ellipsisToken,
             STNode semicolonToken) {
-        super(SyntaxKind.RECORD_REST_TYPE);
+        this(
+                typeName,
+                ellipsisToken,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STRecordRestDescriptorNode(
+            STNode typeName,
+            STNode ellipsisToken,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.RECORD_REST_TYPE, diagnostics);
         this.typeName = typeName;
         this.ellipsisToken = ellipsisToken;
         this.semicolonToken = semicolonToken;
@@ -45,6 +60,14 @@ public class STRecordRestDescriptorNode extends STNode {
                 typeName,
                 ellipsisToken,
                 semicolonToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STRecordRestDescriptorNode(
+                this.typeName,
+                this.ellipsisToken,
+                this.semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

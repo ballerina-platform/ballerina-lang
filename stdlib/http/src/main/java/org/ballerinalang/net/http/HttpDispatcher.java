@@ -18,6 +18,7 @@
 package org.ballerinalang.net.http;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
@@ -27,7 +28,8 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.langlib.typedesc.ConstructFrom;
+import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.langlib.value.CloneWithType;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.net.uri.URIUtil;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -143,7 +145,7 @@ public class HttpDispatcher {
     }
 
     public static Object[] getSignatureParameters(HttpResource httpResource, HttpCarbonMessage httpCarbonMessage,
-                                                  MapValue endpointConfig) {
+                                                  MapValue<BString, Object> endpointConfig) {
         ObjectValue httpCaller = ValueCreatorUtils.createCallerObject();
         ObjectValue inRequest = ValueCreatorUtils.createRequestObject();
         ObjectValue inRequestEntity = ValueCreatorUtils.createEntityObject();
@@ -192,7 +194,7 @@ public class HttpDispatcher {
                         paramValues[paramIndex++] = Boolean.parseBoolean(argumentValue);
                         break;
                     default:
-                        paramValues[paramIndex++] = argumentValue;
+                        paramValues[paramIndex++] = StringUtils.fromString(argumentValue);
                 }
                 paramValues[paramIndex] = true;
             } catch (Exception ex) {
@@ -221,7 +223,7 @@ public class HttpDispatcher {
         try {
             switch (entityBodyType.getTag()) {
                 case TypeTags.STRING_TAG:
-                    String stringDataSource = EntityBodyHandler.constructStringDataSource(inRequestEntity);
+                    BString stringDataSource = EntityBodyHandler.constructStringDataSource(inRequestEntity);
                     EntityBodyHandler.addMessageDataSource(inRequestEntity, stringDataSource);
                     return stringDataSource;
                 case TypeTags.JSON_TAG:
@@ -271,7 +273,7 @@ public class HttpDispatcher {
      */
     private static Object getRecord(BType entityBodyType, Object bjson) {
         try {
-            return ConstructFrom.convert(entityBodyType, bjson);
+            return CloneWithType.convert(entityBodyType, bjson);
         } catch (NullPointerException ex) {
             throw new BallerinaConnectorException("cannot convert payload to record type: " +
                     entityBodyType.getName());

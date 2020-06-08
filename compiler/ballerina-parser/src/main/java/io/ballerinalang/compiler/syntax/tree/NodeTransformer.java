@@ -36,7 +36,7 @@ package io.ballerinalang.compiler.syntax.tree;
  *
  * @param <T> the type of class that is returned by visit methods
  * @see NodeVisitor
- * @since 1.3.0
+ * @since 2.0.0
  */
 public abstract class NodeTransformer<T> {
 
@@ -316,6 +316,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(xMLNamespaceDeclarationNode);
     }
 
+    public T transform(ModuleXMLNamespaceDeclarationNode moduleXMLNamespaceDeclarationNode) {
+        return transformSyntaxNode(moduleXMLNamespaceDeclarationNode);
+    }
+
     public T transform(FunctionBodyBlockNode functionBodyBlockNode) {
         return transformSyntaxNode(functionBodyBlockNode);
     }
@@ -548,6 +552,162 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(flushActionNode);
     }
 
+    public T transform(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
+        return transformSyntaxNode(singletonTypeDescriptorNode);
+    }
+
+    public T transform(MethodDeclarationNode methodDeclarationNode) {
+        return transformSyntaxNode(methodDeclarationNode);
+    }
+
+    public T transform(TypedBindingPatternNode typedBindingPatternNode) {
+        return transformSyntaxNode(typedBindingPatternNode);
+    }
+
+    public T transform(CaptureBindingPatternNode captureBindingPatternNode) {
+        return transformSyntaxNode(captureBindingPatternNode);
+    }
+
+    public T transform(WildcardBindingPatternNode wildcardBindingPatternNode) {
+        return transformSyntaxNode(wildcardBindingPatternNode);
+    }
+
+    public T transform(ListBindingPatternNode listBindingPatternNode) {
+        return transformSyntaxNode(listBindingPatternNode);
+    }
+
+    public T transform(MappingBindingPatternNode mappingBindingPatternNode) {
+        return transformSyntaxNode(mappingBindingPatternNode);
+    }
+
+    public T transform(FieldBindingPatternFullNode fieldBindingPatternFullNode) {
+        return transformSyntaxNode(fieldBindingPatternFullNode);
+    }
+
+    public T transform(FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
+        return transformSyntaxNode(fieldBindingPatternVarnameNode);
+    }
+
+    public T transform(RestBindingPatternNode restBindingPatternNode) {
+        return transformSyntaxNode(restBindingPatternNode);
+    }
+
+    public T transform(AsyncSendActionNode asyncSendActionNode) {
+        return transformSyntaxNode(asyncSendActionNode);
+    }
+
+    public T transform(SyncSendActionNode syncSendActionNode) {
+        return transformSyntaxNode(syncSendActionNode);
+    }
+
+    public T transform(ReceiveActionNode receiveActionNode) {
+        return transformSyntaxNode(receiveActionNode);
+    }
+
+    public T transform(ReceiveFieldsNode receiveFieldsNode) {
+        return transformSyntaxNode(receiveFieldsNode);
+    }
+
+    public T transform(RestDescriptorNode restDescriptorNode) {
+        return transformSyntaxNode(restDescriptorNode);
+    }
+
+    public T transform(DoubleGTTokenNode doubleGTTokenNode) {
+        return transformSyntaxNode(doubleGTTokenNode);
+    }
+
+    public T transform(TrippleGTTokenNode trippleGTTokenNode) {
+        return transformSyntaxNode(trippleGTTokenNode);
+    }
+
+    public T transform(WaitActionNode waitActionNode) {
+        return transformSyntaxNode(waitActionNode);
+    }
+
+    public T transform(WaitFieldsListNode waitFieldsListNode) {
+        return transformSyntaxNode(waitFieldsListNode);
+    }
+
+    public T transform(WaitFieldNode waitFieldNode) {
+        return transformSyntaxNode(waitFieldNode);
+    }
+
+    public T transform(AnnotAccessExpressionNode annotAccessExpressionNode) {
+        return transformSyntaxNode(annotAccessExpressionNode);
+    }
+
+    public T transform(QueryActionNode queryActionNode) {
+        return transformSyntaxNode(queryActionNode);
+    }
+
+    public T transform(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+        return transformSyntaxNode(optionalFieldAccessExpressionNode);
+    }
+
+    public T transform(ConditionalExpressionNode conditionalExpressionNode) {
+        return transformSyntaxNode(conditionalExpressionNode);
+    }
+
+    public T transform(EnumDeclarationNode enumDeclarationNode) {
+        return transformSyntaxNode(enumDeclarationNode);
+    }
+
+    public T transform(EnumMemberNode enumMemberNode) {
+        return transformSyntaxNode(enumMemberNode);
+    }
+
+    public T transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+        return transformSyntaxNode(arrayTypeDescriptorNode);
+    }
+
+    public T transform(TransactionStatementNode transactionStatementNode) {
+        return transformSyntaxNode(transactionStatementNode);
+    }
+
+    public T transform(RollbackStatementNode rollbackStatementNode) {
+        return transformSyntaxNode(rollbackStatementNode);
+    }
+
+    public T transform(RetryStatementNode retryStatementNode) {
+        return transformSyntaxNode(retryStatementNode);
+    }
+
+    public T transform(CommitActionNode commitActionNode) {
+        return transformSyntaxNode(commitActionNode);
+    }
+
+    public T transform(TransactionalExpressionNode transactionalExpressionNode) {
+        return transformSyntaxNode(transactionalExpressionNode);
+    }
+
+    public T transform(ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
+        return transformSyntaxNode(serviceConstructorExpressionNode);
+    }
+
+    public T transform(ByteArrayLiteralNode byteArrayLiteralNode) {
+        return transformSyntaxNode(byteArrayLiteralNode);
+    }
+
+    public T transform(XMLFilterExpressionNode xMLFilterExpressionNode) {
+        return transformSyntaxNode(xMLFilterExpressionNode);
+    }
+
+    public T transform(XMLStepExpressionNode xMLStepExpressionNode) {
+        return transformSyntaxNode(xMLStepExpressionNode);
+    }
+
+    public T transform(XMLNamePatternChainingNode xMLNamePatternChainingNode) {
+        return transformSyntaxNode(xMLNamePatternChainingNode);
+    }
+
+    public T transform(XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
+        return transformSyntaxNode(xMLAtomicNamePatternNode);
+    }
+
+    public T transform(TypeReferenceTypeDescNode typeReferenceTypeDescNode) {
+        return transformSyntaxNode(typeReferenceTypeDescNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {
@@ -555,15 +715,10 @@ public abstract class NodeTransformer<T> {
     }
 
     public T transform(IdentifierToken identifier) {
-        return null;
+        return transform((Token) identifier);
     }
 
     // Misc
-
-    // TODO Why Minutiae is in this visitor? Check on this.
-    public T transform(Minutiae minutiae) {
-        return transformSyntaxNode(minutiae);
-    }
 
     /**
      * Transforms the given {@code Node} into an object of type T.

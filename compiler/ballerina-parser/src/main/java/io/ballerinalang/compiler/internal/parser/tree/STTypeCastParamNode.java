@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TypeCastParamNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STTypeCastParamNode extends STNode {
     public final STNode annotations;
@@ -34,13 +37,30 @@ public class STTypeCastParamNode extends STNode {
     STTypeCastParamNode(
             STNode annotations,
             STNode type) {
-        super(SyntaxKind.TYPE_CAST_PARAM);
+        this(
+                annotations,
+                type,
+                Collections.emptyList());
+    }
+
+    STTypeCastParamNode(
+            STNode annotations,
+            STNode type,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.TYPE_CAST_PARAM, diagnostics);
         this.annotations = annotations;
         this.type = type;
 
         addChildren(
                 annotations,
                 type);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STTypeCastParamNode(
+                this.annotations,
+                this.type,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

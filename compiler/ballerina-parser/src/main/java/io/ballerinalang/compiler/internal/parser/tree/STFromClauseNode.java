@@ -22,37 +22,59 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STFromClauseNode extends STClauseNode {
     public final STNode fromKeyword;
-    public final STNode typeName;
-    public final STNode variableName;
+    public final STNode typedBindingPattern;
     public final STNode inKeyword;
     public final STNode expression;
 
     STFromClauseNode(
             STNode fromKeyword,
-            STNode typeName,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode inKeyword,
             STNode expression) {
-        super(SyntaxKind.FROM_CLAUSE);
+        this(
+                fromKeyword,
+                typedBindingPattern,
+                inKeyword,
+                expression,
+                Collections.emptyList());
+    }
+
+    STFromClauseNode(
+            STNode fromKeyword,
+            STNode typedBindingPattern,
+            STNode inKeyword,
+            STNode expression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.FROM_CLAUSE, diagnostics);
         this.fromKeyword = fromKeyword;
-        this.typeName = typeName;
-        this.variableName = variableName;
+        this.typedBindingPattern = typedBindingPattern;
         this.inKeyword = inKeyword;
         this.expression = expression;
 
         addChildren(
                 fromKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 inKeyword,
                 expression);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STFromClauseNode(
+                this.fromKeyword,
+                this.typedBindingPattern,
+                this.inKeyword,
+                this.expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

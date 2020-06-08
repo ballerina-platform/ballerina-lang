@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -29,13 +30,16 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
+import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
+
 /**
  * Extern function lang.string:equalsIgnoreCase(string, string).
  *
  * @since 1.2
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "equalsIgnoreCaseAscii",
+        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION,
+        functionName = "equalsIgnoreCaseAscii",
         args = {@Argument(name = "str1", type = TypeKind.STRING), @Argument(name = "str2", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
@@ -48,11 +52,12 @@ public class EqualsIgnoreCaseAscii {
         decoder = Charset.forName("US-ASCII").newDecoder();
     }
 
-    public static boolean equalsIgnoreCaseAscii(Strand strand, String str1, String str2) {
-        if (str1.length() != str2.length()) {
+    public static boolean equalsIgnoreCaseAscii(Strand strand, BString s1, BString s2) {
+        if (s1.length() != s2.length()) {
             return false;
         }
-
+        String str1 = s1.getValue();
+        String str2 = s2.getValue();
         for (int i = 0; i < str1.length(); i++) {
             String charFromOne = Character.toString(str1.charAt(i));
             String charFromTwo = Character.toString(str2.charAt(i));

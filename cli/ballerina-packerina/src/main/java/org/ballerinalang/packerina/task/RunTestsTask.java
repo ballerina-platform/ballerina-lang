@@ -211,6 +211,7 @@ public class RunTestsTask implements Task {
         bLangPackage.functions.forEach(function -> {
             String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
                                                                        bLangPackage.packageID.name.value,
+                                                                       bLangPackage.packageID.version.value,
                                                                        getClassName(function.pos.src.cUnitName));
             suite.addTestUtilityFunction(function.name.value, functionClassName);
         });
@@ -222,6 +223,7 @@ public class RunTestsTask implements Task {
             bLangPackage.getTestablePkg().functions.forEach(function -> {
                 String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
                                                                            bLangPackage.packageID.name.value,
+                                                                           bLangPackage.packageID.version.value,
                                                                            getClassName(function.pos.src.cUnitName));
                 suite.addTestUtilityFunction(function.name.value, functionClassName);
             });
@@ -353,6 +355,7 @@ public class RunTestsTask implements Task {
         Path targetDir = Paths.get(buildContext.get(BuildContextField.TARGET_DIR).toString());
         String orgName = String.valueOf(bLangPackage.packageID.orgName);
         String packageName = String.valueOf(bLangPackage.packageID.name);
+        String version = String.valueOf(bLangPackage.packageID.version);
         try {
             String classPath = getClassPath(getTestRuntimeJar(buildContext), testDependencies);
             cmdArgs.addAll(Lists.of("-cp", classPath, mainClassName, jsonPath.toString()));
@@ -360,6 +363,7 @@ public class RunTestsTask implements Task {
             cmdArgs.add(testJarPath.toString());
             cmdArgs.add(orgName);
             cmdArgs.add(packageName);
+            cmdArgs.add(version);
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
             Process proc = processBuilder.start();
             return proc.waitFor();

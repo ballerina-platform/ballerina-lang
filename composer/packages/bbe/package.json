@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/ballerina-by-examples",
-  "version": "2.0.0-Preview1-M1",
+  "version": "2.0.0-Preview1-M3",
   "description": "Provides components for displaying Ballerina By Examples",
   "main": "lib/src/index.js",
   "scripts": {
@@ -19,7 +19,7 @@
     "lodash": "^4.17.11"
   },
   "devDependencies": {
-    "@ballerina/composer-cli": "^2.0.0-Preview1-M1",
+    "@ballerina/composer-cli": "^2.0.0-Preview1-M3",
     "@types/lodash": "^4.14.118"
   },
   "author": "ballerina.io",

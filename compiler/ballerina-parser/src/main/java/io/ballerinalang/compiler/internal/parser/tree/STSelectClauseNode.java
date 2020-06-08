@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SelectClauseNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STSelectClauseNode extends STClauseNode {
     public final STNode selectKeyword;
@@ -34,13 +37,30 @@ public class STSelectClauseNode extends STClauseNode {
     STSelectClauseNode(
             STNode selectKeyword,
             STNode expression) {
-        super(SyntaxKind.SELECT_CLAUSE);
+        this(
+                selectKeyword,
+                expression,
+                Collections.emptyList());
+    }
+
+    STSelectClauseNode(
+            STNode selectKeyword,
+            STNode expression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.SELECT_CLAUSE, diagnostics);
         this.selectKeyword = selectKeyword;
         this.expression = expression;
 
         addChildren(
                 selectKeyword,
                 expression);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STSelectClauseNode(
+                this.selectKeyword,
+                this.expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

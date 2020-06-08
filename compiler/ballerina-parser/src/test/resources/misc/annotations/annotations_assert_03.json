@@ -43,8 +43,7 @@
                           "kind": "MAPPING_CONSTRUCTOR",
                           "children": [
                             {
-                              "kind": "OPEN_BRACE_TOKEN",
-                              "isMissing": true
+                              "kind": "OPEN_BRACE_TOKEN"
                             },
                             {
                               "kind": "LIST",
@@ -60,37 +59,38 @@
                                       "kind": "COLON_TOKEN"
                                     },
                                     {
-                                      "kind": "STRING_LITERAL",
-                                      "value": "foo"
+                                      "kind": "CONDITIONAL_EXPRESSION",
+                                      "children": [
+                                        {
+                                          "kind": "STRING_LITERAL",
+                                          "value": "foo"
+                                        },
+                                        {
+                                          "kind": "QUESTION_MARK_TOKEN",
+                                          "isMissing": true
+                                        },
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "description"
+                                        },
+                                        {
+                                          "kind": "COLON_TOKEN",
+                                          "isMissing": true
+                                        },
+                                        {
+                                          "kind": "STRING_LITERAL",
+                                          "value": "some function"
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
                                 {
-                                  "kind": "SPECIFIC_FIELD",
-                                  "children": [
-                                    {
-                                      "kind": "COMMA_TOKEN",
-                                      "isMissing": true
-                                    },
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "description"
-                                    },
-                                    {
-                                      "kind": "COLON_TOKEN"
-                                    },
-                                    {
-                                      "kind": "STRING_LITERAL",
-                                      "value": "some function"
-                                    }
-                                  ]
+                                  "kind": "COMMA_TOKEN"
                                 },
                                 {
                                   "kind": "SPECIFIC_FIELD",
                                   "children": [
-                                    {
-                                      "kind": "COMMA_TOKEN"
-                                    },
                                     {
                                       "kind": "STRING_LITERAL",
                                       "value": "info"
@@ -125,11 +125,11 @@
                                               ]
                                             },
                                             {
+                                              "kind": "COMMA_TOKEN"
+                                            },
+                                            {
                                               "kind": "SPECIFIC_FIELD",
                                               "children": [
-                                                {
-                                                  "kind": "COMMA_TOKEN"
-                                                },
                                                 {
                                                   "kind": "IDENTIFIER_TOKEN",
                                                   "value": "status"

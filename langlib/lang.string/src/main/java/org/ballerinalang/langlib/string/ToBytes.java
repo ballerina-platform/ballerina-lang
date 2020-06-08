@@ -28,11 +28,13 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.nio.charset.StandardCharsets;
 
+import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
+
 /**
  * Convert String to byte array.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string",
+        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION,
         functionName = "toBytes",
         args = {@Argument(name = "string", type = TypeKind.STRING),
                 @Argument(name = "encoding", type = TypeKind.STRING)},
@@ -41,13 +43,9 @@ import java.nio.charset.StandardCharsets;
 )
 public class ToBytes {
 
-    public static ArrayValue toBytes(Strand strand, String value) {
+    public static ArrayValue toBytes(Strand strand, BString value) {
 
-        byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+        byte[] bytes = value.getValue().getBytes(StandardCharsets.UTF_8);
         return new ArrayValueImpl(bytes);
-    }
-
-    public static ArrayValue toBytes_bstring(Strand strand, BString str) {
-        return toBytes(strand, str.getValue());
     }
 }

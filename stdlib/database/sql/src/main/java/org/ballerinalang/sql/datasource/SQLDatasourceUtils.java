@@ -21,6 +21,7 @@ import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Map;
 import java.util.UUID;
@@ -36,12 +37,12 @@ public class SQLDatasourceUtils {
     private static final String POOL_MAP_KEY = UUID.randomUUID().toString();
 
     static Map<PoolKey, SQLDatasource> retrieveDatasourceContainer(
-            MapValue<String, Object> poolOptions) {
+            MapValue<BString, Object> poolOptions) {
         return (ConcurrentHashMap<PoolKey, SQLDatasource>) poolOptions.getNativeData(POOL_MAP_KEY);
     }
 
     public static synchronized Map<PoolKey, SQLDatasource> putDatasourceContainer(
-            MapValue<String, Object> poolOptions,
+            MapValue<BString, Object> poolOptions,
             ConcurrentHashMap<PoolKey, SQLDatasource> datasourceMap) {
         Map<PoolKey, SQLDatasource> existingDataSourceMap =
                 (Map<PoolKey, SQLDatasource>) poolOptions.getNativeData(POOL_MAP_KEY);

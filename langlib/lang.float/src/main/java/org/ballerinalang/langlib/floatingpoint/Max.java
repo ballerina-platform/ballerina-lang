@@ -25,13 +25,15 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.FLOAT_VERSION;
+
 /**
  * Native implementation of lang.float:max(float...).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.float", functionName = "max",
+        orgName = "ballerina", packageName = "lang.float", version = FLOAT_VERSION, functionName = "max",
         args = {@Argument(name = "ns", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.FLOAT)},
         isPublic = true
@@ -46,9 +48,5 @@ public class Max {
             max = current >= max ? current : max;
         }
         return max;
-    }
-
-    public static double max_bstring(Strand strand, ArrayValue ns) {
-        return max(strand, ns);
     }
 }

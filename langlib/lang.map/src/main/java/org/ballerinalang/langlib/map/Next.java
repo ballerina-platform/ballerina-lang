@@ -30,13 +30,15 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
+
 /**
  * Native implementation of lang.map.MapIterator:next().
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "next",
+        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION, functionName = "next",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "MapIterator", structPackage = "ballerina/lang.map"),
         returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true
@@ -44,23 +46,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class Next {
     //TODO: refactor hard coded values
     public static Object next(Strand strand, ObjectValue m) {
-        IteratorValue mapIterator = (IteratorValue) m.getNativeData("&iterator&");
-        MapValueImpl mapValue = (MapValueImpl) m.getMapValue("m");
-        if (mapIterator == null) {
-            mapIterator = mapValue.getIterator();
-            m.addNativeData("&iterator&", mapIterator);
-        }
-
-        if (mapIterator.hasNext()) {
-            ArrayValue keyValueTuple = (ArrayValue) mapIterator.next();
-            return BallerinaValues.createRecord(new MapValueImpl<>(mapValue.getIteratorNextReturnType()),
-                                                keyValueTuple.get(1));
-        }
-
-        return null;
-    }
-
-    public static Object next_bstring(Strand strand, ObjectValue m) {
         IteratorValue mapIterator = (IteratorValue) m.getNativeData("&iterator&");
         MapValueImpl mapValue = (MapValueImpl) m.get(StringUtils.fromString("m"));
         if (mapIterator == null) {
@@ -70,7 +55,7 @@ public class Next {
 
         if (mapIterator.hasNext()) {
             ArrayValue keyValueTuple = (ArrayValue) mapIterator.next();
-            return BallerinaValues.createRecord_bstring(new MapValueImpl<>(mapValue.getIteratorNextReturnType()),
+            return BallerinaValues.createRecord(new MapValueImpl<>(mapValue.getIteratorNextReturnType()),
                                                 keyValueTuple.get(1));
         }
 

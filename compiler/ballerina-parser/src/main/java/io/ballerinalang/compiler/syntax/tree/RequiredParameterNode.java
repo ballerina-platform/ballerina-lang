@@ -19,12 +19,13 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class RequiredParameterNode extends ParameterNode {
 
@@ -32,8 +33,8 @@ public class RequiredParameterNode extends ParameterNode {
         super(internalNode, position, parent);
     }
 
-    public Token leadingComma() {
-        return childInBucket(0);
+    public Optional<Token> leadingComma() {
+        return optionalChildInBucket(0);
     }
 
     public NodeList<AnnotationNode> annotations() {
@@ -48,8 +49,8 @@ public class RequiredParameterNode extends ParameterNode {
         return childInBucket(3);
     }
 
-    public Token paramName() {
-        return childInBucket(4);
+    public Optional<Token> paramName() {
+        return optionalChildInBucket(4);
     }
 
     @Override
@@ -93,5 +94,76 @@ public class RequiredParameterNode extends ParameterNode {
                 visibilityQualifier,
                 typeName,
                 paramName);
+    }
+
+    public RequiredParameterNodeModifier modify() {
+        return new RequiredParameterNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class RequiredParameterNodeModifier {
+        private final RequiredParameterNode oldNode;
+        private Token leadingComma;
+        private NodeList<AnnotationNode> annotations;
+        private Token visibilityQualifier;
+        private Node typeName;
+        private Token paramName;
+
+        public RequiredParameterNodeModifier(RequiredParameterNode oldNode) {
+            this.oldNode = oldNode;
+            this.leadingComma = oldNode.leadingComma().orElse(null);
+            this.annotations = oldNode.annotations();
+            this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
+            this.typeName = oldNode.typeName();
+            this.paramName = oldNode.paramName().orElse(null);
+        }
+
+        public RequiredParameterNodeModifier withLeadingComma(
+                Token leadingComma) {
+            Objects.requireNonNull(leadingComma, "leadingComma must not be null");
+            this.leadingComma = leadingComma;
+            return this;
+        }
+
+        public RequiredParameterNodeModifier withAnnotations(
+                NodeList<AnnotationNode> annotations) {
+            Objects.requireNonNull(annotations, "annotations must not be null");
+            this.annotations = annotations;
+            return this;
+        }
+
+        public RequiredParameterNodeModifier withVisibilityQualifier(
+                Token visibilityQualifier) {
+            Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
+            this.visibilityQualifier = visibilityQualifier;
+            return this;
+        }
+
+        public RequiredParameterNodeModifier withTypeName(
+                Node typeName) {
+            Objects.requireNonNull(typeName, "typeName must not be null");
+            this.typeName = typeName;
+            return this;
+        }
+
+        public RequiredParameterNodeModifier withParamName(
+                Token paramName) {
+            Objects.requireNonNull(paramName, "paramName must not be null");
+            this.paramName = paramName;
+            return this;
+        }
+
+        public RequiredParameterNode apply() {
+            return oldNode.modify(
+                    leadingComma,
+                    annotations,
+                    visibilityQualifier,
+                    typeName,
+                    paramName);
+        }
     }
 }

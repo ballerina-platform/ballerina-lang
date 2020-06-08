@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
     public final STNode metadata;
@@ -42,7 +45,25 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
             STNode functionName,
             STNode functionSignature,
             STNode functionBody) {
-        super(SyntaxKind.FUNCTION_DEFINITION);
+        this(
+                metadata,
+                visibilityQualifier,
+                functionKeyword,
+                functionName,
+                functionSignature,
+                functionBody,
+                Collections.emptyList());
+    }
+
+    STFunctionDefinitionNode(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode functionKeyword,
+            STNode functionName,
+            STNode functionSignature,
+            STNode functionBody,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.FUNCTION_DEFINITION, diagnostics);
         this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
         this.functionKeyword = functionKeyword;
@@ -57,6 +78,17 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
                 functionName,
                 functionSignature,
                 functionBody);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STFunctionDefinitionNode(
+                this.metadata,
+                this.visibilityQualifier,
+                this.functionKeyword,
+                this.functionName,
+                this.functionSignature,
+                this.functionBody,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

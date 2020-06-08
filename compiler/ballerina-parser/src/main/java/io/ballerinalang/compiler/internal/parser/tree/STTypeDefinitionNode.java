@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STTypeDefinitionNode extends STModuleMemberDeclarationNode {
     public final STNode metadata;
@@ -42,7 +45,25 @@ public class STTypeDefinitionNode extends STModuleMemberDeclarationNode {
             STNode typeName,
             STNode typeDescriptor,
             STNode semicolonToken) {
-        super(SyntaxKind.TYPE_DEFINITION);
+        this(
+                metadata,
+                visibilityQualifier,
+                typeKeyword,
+                typeName,
+                typeDescriptor,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STTypeDefinitionNode(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode typeKeyword,
+            STNode typeName,
+            STNode typeDescriptor,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.TYPE_DEFINITION, diagnostics);
         this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
         this.typeKeyword = typeKeyword;
@@ -57,6 +78,17 @@ public class STTypeDefinitionNode extends STModuleMemberDeclarationNode {
                 typeName,
                 typeDescriptor,
                 semicolonToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STTypeDefinitionNode(
+                this.metadata,
+                this.visibilityQualifier,
+                this.typeKeyword,
+                this.typeName,
+                this.typeDescriptor,
+                this.semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -202,34 +202,27 @@
                                       "value": "annot3"
                                     }
                                   ]
-                                },
-                                {
-                                  "kind": "MAPPING_CONSTRUCTOR",
-                                  "children": [
-                                    {
-                                      "kind": "OPEN_BRACE_TOKEN",
-                                      "isMissing": true
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": []
-                                    },
-                                    {
-                                      "kind": "CLOSE_BRACE_TOKEN",
-                                      "isMissing": true
-                                    }
-                                  ]
                                 }
                               ]
                             }
                           ]
                         },
                         {
-                          "kind": "SERVICE_KEYWORD"
-                        },
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "s"
+                          "kind": "TYPED_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "SERVICE_KEYWORD"
+                            },
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "s"
+                                }
+                              ]
+                            }
+                          ]
                         },
                         {
                           "kind": "EQUAL_TOKEN"
@@ -304,22 +297,6 @@
                         {
                           "kind": "IDENTIFIER_TOKEN",
                           "value": "annot4"
-                        },
-                        {
-                          "kind": "MAPPING_CONSTRUCTOR",
-                          "children": [
-                            {
-                              "kind": "OPEN_BRACE_TOKEN",
-                              "isMissing": true
-                            },
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            },
-                            {
-                              "kind": "CLOSE_BRACE_TOKEN"
-                            }
-                          ]
                         }
                       ]
                     }

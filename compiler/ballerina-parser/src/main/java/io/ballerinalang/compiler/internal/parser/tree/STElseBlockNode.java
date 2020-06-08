@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STElseBlockNode extends STNode {
     public final STNode elseKeyword;
@@ -34,13 +37,30 @@ public class STElseBlockNode extends STNode {
     STElseBlockNode(
             STNode elseKeyword,
             STNode elseBody) {
-        super(SyntaxKind.ELSE_BLOCK);
+        this(
+                elseKeyword,
+                elseBody,
+                Collections.emptyList());
+    }
+
+    STElseBlockNode(
+            STNode elseKeyword,
+            STNode elseBody,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.ELSE_BLOCK, diagnostics);
         this.elseKeyword = elseKeyword;
         this.elseBody = elseBody;
 
         addChildren(
                 elseKeyword,
                 elseBody);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STElseBlockNode(
+                this.elseKeyword,
+                this.elseBody,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

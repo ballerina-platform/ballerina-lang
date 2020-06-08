@@ -55,6 +55,7 @@ dependencies {
     testCompile 'org.scala-lang:scala-library'
     testCompile 'org.apache.zookeeper:zookeeper'
     testCompile 'io.dropwizard.metrics:metrics-core'
+    testCompile 'com.fasterxml.jackson.core:jackson-core'
 
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')

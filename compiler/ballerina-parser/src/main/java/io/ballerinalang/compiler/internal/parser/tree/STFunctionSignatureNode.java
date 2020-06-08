@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STFunctionSignatureNode extends STNode {
     public final STNode openParenToken;
@@ -38,7 +41,21 @@ public class STFunctionSignatureNode extends STNode {
             STNode parameters,
             STNode closeParenToken,
             STNode returnTypeDesc) {
-        super(SyntaxKind.FUNCTION_SIGNATURE);
+        this(
+                openParenToken,
+                parameters,
+                closeParenToken,
+                returnTypeDesc,
+                Collections.emptyList());
+    }
+
+    STFunctionSignatureNode(
+            STNode openParenToken,
+            STNode parameters,
+            STNode closeParenToken,
+            STNode returnTypeDesc,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.FUNCTION_SIGNATURE, diagnostics);
         this.openParenToken = openParenToken;
         this.parameters = parameters;
         this.closeParenToken = closeParenToken;
@@ -49,6 +66,15 @@ public class STFunctionSignatureNode extends STNode {
                 parameters,
                 closeParenToken,
                 returnTypeDesc);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STFunctionSignatureNode(
+                this.openParenToken,
+                this.parameters,
+                this.closeParenToken,
+                this.returnTypeDesc,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

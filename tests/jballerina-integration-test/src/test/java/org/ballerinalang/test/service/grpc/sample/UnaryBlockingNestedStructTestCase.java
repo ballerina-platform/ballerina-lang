@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.service.grpc.sample;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -60,7 +61,8 @@ public class UnaryBlockingNestedStructTestCase extends GrpcBaseTest {
 
     @Test
     public void testOutputNestedStructClient() {
-        BValue[] responses = BRunUtil.invoke(result, "testOutputNestedStruct", new Object[]{"WSO2"});
+        BValue[] responses = BRunUtil.invoke(result, "testOutputNestedStruct",
+                new Object[] { StringUtils.fromString("WSO2") });
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BMap);
         final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];

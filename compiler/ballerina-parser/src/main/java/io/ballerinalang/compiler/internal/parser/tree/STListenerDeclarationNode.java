@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STListenerDeclarationNode extends STModuleMemberDeclarationNode {
     public final STNode metadata;
@@ -46,7 +49,29 @@ public class STListenerDeclarationNode extends STModuleMemberDeclarationNode {
             STNode equalsToken,
             STNode initializer,
             STNode semicolonToken) {
-        super(SyntaxKind.LISTENER_DECLARATION);
+        this(
+                metadata,
+                visibilityQualifier,
+                listenerKeyword,
+                typeDescriptor,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STListenerDeclarationNode(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode listenerKeyword,
+            STNode typeDescriptor,
+            STNode variableName,
+            STNode equalsToken,
+            STNode initializer,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.LISTENER_DECLARATION, diagnostics);
         this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
         this.listenerKeyword = listenerKeyword;
@@ -65,6 +90,19 @@ public class STListenerDeclarationNode extends STModuleMemberDeclarationNode {
                 equalsToken,
                 initializer,
                 semicolonToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STListenerDeclarationNode(
+                this.metadata,
+                this.visibilityQualifier,
+                this.listenerKeyword,
+                this.typeDescriptor,
+                this.variableName,
+                this.equalsToken,
+                this.initializer,
+                this.semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

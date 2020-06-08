@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STImportOrgNameNode extends STNode {
     public final STNode orgName;
@@ -34,13 +37,30 @@ public class STImportOrgNameNode extends STNode {
     STImportOrgNameNode(
             STNode orgName,
             STNode slashToken) {
-        super(SyntaxKind.IMPORT_ORG_NAME);
+        this(
+                orgName,
+                slashToken,
+                Collections.emptyList());
+    }
+
+    STImportOrgNameNode(
+            STNode orgName,
+            STNode slashToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.IMPORT_ORG_NAME, diagnostics);
         this.orgName = orgName;
         this.slashToken = slashToken;
 
         addChildren(
                 orgName,
                 slashToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STImportOrgNameNode(
+                this.orgName,
+                this.slashToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

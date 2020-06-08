@@ -103,7 +103,7 @@ dependencies {
     dist project(':ballerina-filepath')
     dist project(':ballerina-grpc')
     dist project(':ballerina-sql')
-    dist project(':ballerina-jdbc2')
+    dist project(':ballerina-jdbc')
     dist project(':ballerina-mysql')
     dist project(':ballerina-http')
     dist project(':ballerina-openapi')
@@ -118,7 +118,6 @@ dependencies {
     dist project(':ballerina-observability')
     dist project(':ballerina-reflect')
     dist project(':ballerina-runtime-api')
-    dist project(':ballerina-socket')
     dist project(':ballerina-system')
     dist project(':ballerina-task')
     dist project(':ballerina-time')
@@ -158,5 +157,6 @@ dependencies {
     dist project(':ballerina-lang:value')
     dist project(':ballerina-lang:xml')
     dist project(':ballerina-lang:bool')
+    dist project(':ballerina-lang:query')
 
 }

@@ -22,25 +22,45 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STImplicitNewExpressionNode extends STNewExpressionNode {
-    public final STNode NewKeyword;
-    public final STNode ParenthesizedArgList;
+    public final STNode newKeyword;
+    public final STNode parenthesizedArgList;
 
     STImplicitNewExpressionNode(
-            STNode NewKeyword,
-            STNode ParenthesizedArgList) {
-        super(SyntaxKind.IMPLICIT_NEW_EXPRESSION);
-        this.NewKeyword = NewKeyword;
-        this.ParenthesizedArgList = ParenthesizedArgList;
+            STNode newKeyword,
+            STNode parenthesizedArgList) {
+        this(
+                newKeyword,
+                parenthesizedArgList,
+                Collections.emptyList());
+    }
+
+    STImplicitNewExpressionNode(
+            STNode newKeyword,
+            STNode parenthesizedArgList,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.IMPLICIT_NEW_EXPRESSION, diagnostics);
+        this.newKeyword = newKeyword;
+        this.parenthesizedArgList = parenthesizedArgList;
 
         addChildren(
-                NewKeyword,
-                ParenthesizedArgList);
+                newKeyword,
+                parenthesizedArgList);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STImplicitNewExpressionNode(
+                this.newKeyword,
+                this.parenthesizedArgList,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
