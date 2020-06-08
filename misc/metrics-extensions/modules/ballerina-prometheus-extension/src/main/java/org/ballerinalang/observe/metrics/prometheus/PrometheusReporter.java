@@ -38,6 +38,7 @@ public class PrometheusReporter implements MetricReporter {
 
     private static final PrintStream console = System.out;
     private static final String PROMETHEUS_PACKAGE = "prometheus";
+    private static final String PROMETHEUS_PACKAGE_VERSION = "0.0.0";
     private static final String PROMETHEUS_HOST_CONFIG = ObservabilityConstants.CONFIG_TABLE_METRICS
             + "." + PROMETHEUS_PACKAGE + ".host";
     private static final String PROMETHEUS_PORT_CONFIG = ObservabilityConstants.CONFIG_TABLE_METRICS + "."
@@ -52,7 +53,7 @@ public class PrometheusReporter implements MetricReporter {
         String port = ConfigRegistry.getInstance().getConfigOrDefault(PROMETHEUS_PORT_CONFIG,
                 DEFAULT_PROMETHEUS_PORT);
         EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
-        Optional<RuntimeException> prometheus = executor.executeService("prometheus");
+        Optional<RuntimeException> prometheus = executor.executeService(PROMETHEUS_PACKAGE, PROMETHEUS_PACKAGE_VERSION);
         if (prometheus.isPresent()) {
             console.println("ballerina: failed to start Prometheus HTTP listener " + hostname + ":" + port + " "
                     + prometheus.get().getMessage());

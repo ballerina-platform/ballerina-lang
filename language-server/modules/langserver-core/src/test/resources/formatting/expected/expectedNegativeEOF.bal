@@ -18,7 +18,7 @@ public function main() {
 }
 
 function getData(json payload) returns [string, string]? {
-    map<anydata>|error data = map<anydata>.constructFrom(payload);
+    map<anydata>|error data = payload.cloneWithType(map<anydata>);
     if (!(data is map<anydata>)) {
         return ();
     } else {
@@ -29,7 +29,7 @@ function getData(json payload) returns [string, string]? {
             foreach var alert in alerts {
                 //io:println("alert: ", alert);
 
-                var alertMap = map<anydata>.constructFrom(alert);
+                var alertMap = alert.cloneWithType(map<anydata>);
 
                 if (alertMap is map<anydata>) {
                     var status = alertMap["status"];
@@ -38,7 +38,7 @@ function getData(json payload) returns [string, string]? {
                         io:println("+++++ firing");
 
                         var labels = alertMap["labels"];
-                        var labelsMap = map<anydata>.constructFrom(labels);
+                        var labelsMap = labels.cloneWithType(map<anydata>);
 
                         if (labelsMap is map<anydata>) {
 

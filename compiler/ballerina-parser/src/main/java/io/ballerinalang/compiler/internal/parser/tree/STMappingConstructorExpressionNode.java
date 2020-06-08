@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STMappingConstructorExpressionNode extends STExpressionNode {
             STNode openBrace,
             STNode fields,
             STNode closeBrace) {
-        super(SyntaxKind.MAPPING_CONSTRUCTOR);
+        this(
+                openBrace,
+                fields,
+                closeBrace,
+                Collections.emptyList());
+    }
+
+    STMappingConstructorExpressionNode(
+            STNode openBrace,
+            STNode fields,
+            STNode closeBrace,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.MAPPING_CONSTRUCTOR, diagnostics);
         this.openBrace = openBrace;
         this.fields = fields;
         this.closeBrace = closeBrace;
@@ -45,6 +60,14 @@ public class STMappingConstructorExpressionNode extends STExpressionNode {
                 openBrace,
                 fields,
                 closeBrace);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STMappingConstructorExpressionNode(
+                this.openBrace,
+                this.fields,
+                this.closeBrace,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

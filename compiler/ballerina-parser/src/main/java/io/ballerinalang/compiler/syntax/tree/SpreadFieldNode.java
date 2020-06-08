@@ -32,16 +32,12 @@ public class SpreadFieldNode extends MappingFieldNode {
         super(internalNode, position, parent);
     }
 
-    public Token leadingComma() {
+    public Token ellipsis() {
         return childInBucket(0);
     }
 
-    public Token ellipsis() {
-        return childInBucket(1);
-    }
-
     public ExpressionNode valueExpr() {
-        return childInBucket(2);
+        return childInBucket(1);
     }
 
     @Override
@@ -57,24 +53,20 @@ public class SpreadFieldNode extends MappingFieldNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "leadingComma",
                 "ellipsis",
                 "valueExpr"};
     }
 
     public SpreadFieldNode modify(
-            Token leadingComma,
             Token ellipsis,
             ExpressionNode valueExpr) {
         if (checkForReferenceEquality(
-                leadingComma,
                 ellipsis,
                 valueExpr)) {
             return this;
         }
 
         return NodeFactory.createSpreadFieldNode(
-                leadingComma,
                 ellipsis,
                 valueExpr);
     }
@@ -90,22 +82,13 @@ public class SpreadFieldNode extends MappingFieldNode {
      */
     public static class SpreadFieldNodeModifier {
         private final SpreadFieldNode oldNode;
-        private Token leadingComma;
         private Token ellipsis;
         private ExpressionNode valueExpr;
 
         public SpreadFieldNodeModifier(SpreadFieldNode oldNode) {
             this.oldNode = oldNode;
-            this.leadingComma = oldNode.leadingComma();
             this.ellipsis = oldNode.ellipsis();
             this.valueExpr = oldNode.valueExpr();
-        }
-
-        public SpreadFieldNodeModifier withLeadingComma(
-                Token leadingComma) {
-            Objects.requireNonNull(leadingComma, "leadingComma must not be null");
-            this.leadingComma = leadingComma;
-            return this;
         }
 
         public SpreadFieldNodeModifier withEllipsis(
@@ -124,7 +107,6 @@ public class SpreadFieldNode extends MappingFieldNode {
 
         public SpreadFieldNode apply() {
             return oldNode.modify(
-                    leadingComma,
                     ellipsis,
                     valueExpr);
         }

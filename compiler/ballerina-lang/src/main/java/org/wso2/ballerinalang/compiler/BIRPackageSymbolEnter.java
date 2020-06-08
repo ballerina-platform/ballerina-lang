@@ -791,6 +791,8 @@ public class BIRPackageSymbolEnter {
                     return new BXMLType(constraintType, symTable.xmlType.tsymbol);
                 case TypeTags.NIL:
                     return symTable.nilType;
+                case TypeTags.NEVER:
+                    return symTable.neverType;
                 case TypeTags.ANYDATA:
                     return typeParamAnalyzer.getNominalType(symTable.anydataType, name, flags);
                 case TypeTags.RECORD:
@@ -918,6 +920,8 @@ public class BIRPackageSymbolEnter {
                     return typeParamAnalyzer.getNominalType(symTable.anyType, name, flags);
                 case TypeTags.HANDLE:
                     return symTable.handleType;
+                case TypeTags.READONLY:
+                    return symTable.readonlyType;
                 case TypeTags.ENDPOINT:
                     // TODO fix
                     break;

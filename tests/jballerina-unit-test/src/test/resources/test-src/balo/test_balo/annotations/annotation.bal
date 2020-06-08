@@ -37,5 +37,5 @@ function testBallerinaServiceAnnotations() returns http:HttpServiceConfig? {
 }
 
 function testBallerinaResourceAnnotations() returns any {
-    return reflect:getResourceAnnotations(MyService, "foo", "ResourceConfig", "ballerina/http");
+    return reflect:getResourceAnnotations(MyService, "foo", "ResourceConfig", "ballerina/http:1.0.0");
 }

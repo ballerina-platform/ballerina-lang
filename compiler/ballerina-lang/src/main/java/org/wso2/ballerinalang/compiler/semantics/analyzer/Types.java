@@ -1014,8 +1014,9 @@ public class Types {
                 return isInherentlyImmutableType(constraintType) ||
                         isSelectivelyImmutableType(constraintType, unresolvedTypes);
             case TypeTags.TABLE:
-                // TODO: see https://github.com/ballerina-platform/ballerina-lang/issues/23006
-                return true;
+                BType tableConstraintType = ((BTableType) type).constraint;
+                return isInherentlyImmutableType(tableConstraintType) ||
+                        isSelectivelyImmutableType(tableConstraintType, unresolvedTypes);
             case TypeTags.UNION:
                 boolean readonlyIntersectionExists = false;
                 for (BType memberType : ((BUnionType) type).getMemberTypes()) {
@@ -2220,14 +2221,29 @@ public class Types {
             targetTypes.add(target);
         }
 
-        return sourceTypes.stream()
-                .allMatch(s -> (targetTypes.stream().anyMatch(t -> isAssignable(s, t, unresolvedTypes,
-                                                                                unresolvedReadonlyTypes)))
-                        || (s.tag == TypeTags.FINITE  && isAssignable(s, target, unresolvedTypes,
-                                                                      unresolvedReadonlyTypes))
-                        || (s.tag == TypeTags.XML
-                            && isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes,
-                                                       unresolvedReadonlyTypes)));
+        for (BType s : sourceTypes) {
+            if (s.tag == TypeTags.NEVER) {
+                continue;
+            }
+
+            boolean isAssignableToAnyTargetType = true;
+
+            for (BType t : targetTypes) {
+                if (isAssignable(s, t, unresolvedTypes, unresolvedReadonlyTypes)) {
+                    isAssignableToAnyTargetType = false;
+                    break;
+                }
+            }
+
+            if (isAssignableToAnyTargetType && (s.tag != TypeTags.FINITE
+                    || !isAssignable(s, target, unresolvedTypes, unresolvedReadonlyTypes))
+                    && (s.tag != TypeTags.XML
+                    || !isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes,
+                    unresolvedReadonlyTypes))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean isFiniteTypeAssignable(BFiniteType finiteType, BType targetType, Set<TypePair> unresolvedTypes,

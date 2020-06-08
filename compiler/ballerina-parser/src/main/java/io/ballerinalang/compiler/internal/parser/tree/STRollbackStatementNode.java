@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.RollbackStatementNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STRollbackStatementNode extends STStatementNode {
             STNode rollbackKeyword,
             STNode expression,
             STNode semicolon) {
-        super(SyntaxKind.ROLLBACK_STATEMENT);
+        this(
+                rollbackKeyword,
+                expression,
+                semicolon,
+                Collections.emptyList());
+    }
+
+    STRollbackStatementNode(
+            STNode rollbackKeyword,
+            STNode expression,
+            STNode semicolon,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.ROLLBACK_STATEMENT, diagnostics);
         this.rollbackKeyword = rollbackKeyword;
         this.expression = expression;
         this.semicolon = semicolon;
@@ -45,6 +60,14 @@ public class STRollbackStatementNode extends STStatementNode {
                 rollbackKeyword,
                 expression,
                 semicolon);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STRollbackStatementNode(
+                this.rollbackKeyword,
+                this.expression,
+                this.semicolon,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

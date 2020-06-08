@@ -46,8 +46,8 @@ import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_INTERRUPTIBLE;
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_BASE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
 import static org.ballerinalang.net.http.HttpConstants.DOLLAR;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpUtil.checkConfigAnnotationAvailability;
 
 /**
@@ -328,7 +328,7 @@ public class HttpService implements Cloneable {
     }
 
     private static MapValue getHttpServiceConfigAnnotation(ObjectValue service) {
-        return getServiceConfigAnnotation(service, HTTP_PACKAGE_PATH, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
+        return getServiceConfigAnnotation(service, PROTOCOL_PACKAGE_HTTP, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
     }
 
     protected static MapValue getServiceConfigAnnotation(ObjectValue service, String packagePath,

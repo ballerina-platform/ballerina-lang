@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,13 +37,30 @@ public class STLetClauseNode extends STClauseNode {
     STLetClauseNode(
             STNode letKeyword,
             STNode letVarDeclarations) {
-        super(SyntaxKind.LET_CLAUSE);
+        this(
+                letKeyword,
+                letVarDeclarations,
+                Collections.emptyList());
+    }
+
+    STLetClauseNode(
+            STNode letKeyword,
+            STNode letVarDeclarations,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.LET_CLAUSE, diagnostics);
         this.letKeyword = letKeyword;
         this.letVarDeclarations = letVarDeclarations;
 
         addChildren(
                 letKeyword,
                 letVarDeclarations);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STLetClauseNode(
+                this.letKeyword,
+                this.letVarDeclarations,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

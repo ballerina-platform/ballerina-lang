@@ -30,7 +30,7 @@ type Teacher record {
 
 function stampAnydataToJSON() returns json|error  {
     anydata anydataValue = 3;
-    json|error  jsonValue = json.constructFrom(anydataValue);
+    json|error  jsonValue = anydataValue.cloneWithType(json);
 
     return jsonValue;
 }
@@ -38,7 +38,7 @@ function stampAnydataToJSON() returns json|error  {
 function stampAnydataToRecord() returns Employee|error  {
     Teacher t1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
     anydata anydataValue = t1;
-    Employee|error  employee = Employee.constructFrom(anydataValue);
+    Employee|error  employee = anydataValue.cloneWithType(Employee);
     return employee;
 }
 
@@ -46,14 +46,14 @@ function stampAnydataToJSONV2() returns json|error  {
     json t1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
     anydata anydataValue = t1;
 
-    json|error  jsonValue = json.constructFrom(anydataValue);
+    json|error  jsonValue = anydataValue.cloneWithType(json);
     return jsonValue;
 }
 
 function stampAnydataToXML() returns xml|error  {
     anydata anydataValue = xml `<book>The Lost World</book>`;
 
-    xml|error  xmlValue = xml.constructFrom(anydataValue);
+    xml|error  xmlValue = anydataValue.cloneWithType(xml);
     return xmlValue;
 }
 
@@ -63,7 +63,7 @@ function stampAnydataToMap() returns map<Employee>|error  {
 
     map<Teacher> teacherMap = { "a": p1, "b": p2 };
     anydata anydataValue = teacherMap;
-    map<Employee>|error  mapValue = map<Employee>.constructFrom(anydataValue);
+    map<Employee>|error  mapValue = anydataValue.cloneWithType(map<Employee>);
 
     return mapValue;
 }
@@ -74,7 +74,7 @@ function stampAnydataToRecordArray() returns Teacher[]|error  {
 
     Teacher[] teacherArray = [p1, p2];
     anydata anydataValue = teacherArray;
-    Teacher[]|error  returnValue = Teacher[].constructFrom(anydataValue);
+    Teacher[]|error  returnValue = anydataValue.cloneWithType(Teacher[]);
 
     return returnValue;
 }
@@ -84,7 +84,7 @@ function stampAnydataToTuple() returns [string,Teacher]|error  {
     "Hindu College" }];
 
     anydata anydataValue = tupleValue;
-    [string,Teacher]|error  returnValue = [string, Teacher].constructFrom(anydataValue);
+    [string,Teacher]|error  returnValue = anydataValue.cloneWithType([string, Teacher]);
 
     return returnValue;
 }
@@ -92,14 +92,14 @@ function stampAnydataToTuple() returns [string,Teacher]|error  {
 function stampAnydataMapToAnydataMap() returns map<anydata>|error {
     map<anydata> anydataMap = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
 
-    map<anydata>|error mapValue = map<anydata>.constructFrom(anydataMap);
+    map<anydata>|error mapValue = anydataMap.cloneWithType(map<anydata>);
     return mapValue;
 }
 
 function stampAnydataToAnydata() returns anydata|error {
     json jsonValue = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
     anydata anydataValue = jsonValue;
-    anydata|error returnValue = anydata.constructFrom(anydataValue);
+    anydata|error returnValue = anydataValue.cloneWithType(anydata);
 
     return returnValue;
 }
@@ -107,6 +107,6 @@ function stampAnydataToAnydata() returns anydata|error {
 function stampAnydataMapToUnion() returns json|xml|error {
     map<anydata> anydataMap = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
 
-    json|xml|error mapValue = json|xml.constructFrom(anydataMap);
+    json|xml|error mapValue = anydataMap.cloneWithType(json|xml);
     return mapValue;
 }

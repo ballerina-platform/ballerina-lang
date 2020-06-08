@@ -33,6 +33,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 
+import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
+
 
 /**
  * Native implementation of lang.string.StringIterator:next().
@@ -40,7 +42,7 @@ import java.text.StringCharacterIterator;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "next",
+        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "next",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "StringIterator",
                 structPackage = "ballerina/lang.string"),
         returnType = {@ReturnType(type = TypeKind.RECORD)},

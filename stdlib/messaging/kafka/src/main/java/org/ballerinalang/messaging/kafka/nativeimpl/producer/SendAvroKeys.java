@@ -49,74 +49,77 @@ public class SendAvroKeys {
     private static final Logger logger = LoggerFactory.getLogger(SendAvroKeys.class);
 
     // String and AvroRecord
-    public static Object sendStringValuesAvroKeys(ObjectValue producer, String value, String topic,
-                                                  MapValue<String, Object> key, Object partition, Object timestamp) {
+    public static Object sendStringValuesAvroKeys(ObjectValue producer, BString value, BString topic,
+                                                  MapValue<BString, Object> key, Object partition, Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(key);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<GenericRecord, String> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
-                                                                                 genericRecord, value);
+        ProducerRecord<GenericRecord, String> kafkaRecord = new ProducerRecord<>(topic.getValue(), partitionValue,
+                                                                                 timestampValue, genericRecord,
+                                                                                 value.getValue());
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
     // ballerina int and AvroRecord
-    public static Object sendIntValuesAvroKeys(ObjectValue producer, long value, String topic,
-                                               MapValue<String, Object> key, Object partition, Object timestamp) {
+    public static Object sendIntValuesAvroKeys(ObjectValue producer, long value, BString topic,
+                                               MapValue<BString, Object> key, Object partition, Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(key);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<GenericRecord, Long> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
-                                                                               genericRecord, value);
+        ProducerRecord<GenericRecord, Long> kafkaRecord = new ProducerRecord<>(topic.getValue(), partitionValue,
+                                                                               timestampValue, genericRecord, value);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
     // ballerina float and AvroRecord
-    public static Object sendFloatValuesAvroKeys(ObjectValue producer, double value, String topic,
-                                                 MapValue<String, Object> key, Object partition, Object timestamp) {
+    public static Object sendFloatValuesAvroKeys(ObjectValue producer, double value, BString topic,
+                                                 MapValue<BString, Object> key, Object partition, Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(key);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<GenericRecord, Double> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
-                                                                                 genericRecord, value);
+        ProducerRecord<GenericRecord, Double> kafkaRecord = new ProducerRecord<>(topic.getValue(), partitionValue,
+                                                                                 timestampValue, genericRecord, value);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
     // ballerina byte[] and AvroRecord
-    public static Object sendByteArrayValuesAvroKeys(ObjectValue producer, BArray value, String topic,
-                                                     MapValue<String, Object> key, Object partition, Object timestamp) {
+    public static Object sendByteArrayValuesAvroKeys(ObjectValue producer, BArray value, BString topic,
+                                                     MapValue<BString, Object> key, Object partition,
+                                                     Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(key);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<GenericRecord, byte[]> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
-                                                                                 genericRecord, value.getBytes());
+        ProducerRecord<GenericRecord, byte[]> kafkaRecord = new ProducerRecord<>(topic.getValue(), partitionValue,
+                                                                                 timestampValue, genericRecord,
+                                                                                 value.getBytes());
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
     // ballerina AvroRecord and AvroRecord
-    public static Object sendAvroValuesAvroKeys(ObjectValue producer, MapValue<String, Object> value, String topic,
-                                                MapValue<String, Object> key, Object partition, Object timestamp) {
+    public static Object sendAvroValuesAvroKeys(ObjectValue producer, MapValue<BString, Object> value, BString topic,
+                                                MapValue<BString, Object> key, Object partition, Object timestamp) {
         GenericRecord valueRecord = createGenericRecord(value);
         GenericRecord keyRecord = createGenericRecord(key);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<GenericRecord, GenericRecord> kafkaRecord = new ProducerRecord<>(topic, partitionValue,
-                                                                                        timestampValue,
+        ProducerRecord<GenericRecord, GenericRecord> kafkaRecord = new ProducerRecord<>(topic.getValue(),
+                                                                                        partitionValue, timestampValue,
                                                                                         keyRecord, valueRecord);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
     // ballerina anydata and AvroRecord
-    public static Object sendCustomValuesAvroKeys(ObjectValue producer, Object value, String topic,
-                                                  MapValue<String, Object> key, Object partition, Object timestamp) {
+    public static Object sendCustomValuesAvroKeys(ObjectValue producer, Object value, BString topic,
+                                                  MapValue<BString, Object> key, Object partition, Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(key);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<GenericRecord, Object> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
-                                                                                 genericRecord, value);
+        ProducerRecord<GenericRecord, Object> kafkaRecord = new ProducerRecord<>(topic.getValue(), partitionValue,
+                                                                                 timestampValue, genericRecord, value);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
-    protected static GenericRecord createGenericRecord(MapValue<String, Object> value) {
+    protected static GenericRecord createGenericRecord(MapValue<BString, Object> value) {
         GenericRecord genericRecord = createRecord(value);
         MapValue data = value.getMapValue(KafkaConstants.AVRO_DATA_RECORD_NAME);
         populateAvroRecord(genericRecord, data);

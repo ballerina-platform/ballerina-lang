@@ -285,7 +285,7 @@ public class Desugar extends BLangNodeVisitor {
     private static final String TO_STRING_FUNCTION_NAME = "toString";
     private static final String LENGTH_FUNCTION_NAME = "length";
     private static final String ERROR_REASON_NULL_REFERENCE_ERROR = "NullReferenceException";
-    private static final String CONSTRUCT_FROM = "constructFrom";
+    private static final String CLONE_WITH_TYPE = "cloneWithType";
     private static final String SLICE_LANGLIB_METHOD = "slice";
     private static final String PUSH_LANGLIB_METHOD = "push";
     private static final String DESUGARED_VARARG_KEY = "$vararg$";
@@ -1080,9 +1080,8 @@ public class Desugar extends BLangNodeVisitor {
 
         BSymbol trxModSym = env.enclPkg.imports
                 .stream()
-                .filter(importPackage -> importPackage.symbol.
-                        pkgID.toString().equals(Names.TRANSACTION_ORG.value + Names.ORG_NAME_SEPARATOR.value
-                                                        + Names.TRANSACTION_PACKAGE.value))
+                .filter(importPackage -> importPackage.symbol.pkgID.orgName.value.equals(Names.TRANSACTION_ORG.value) &&
+                        importPackage.symbol.pkgID.name.value.equals(Names.TRANSACTION_PACKAGE.value))
                 .findAny().get().symbol;
         // Retrieve the symbol from main symbol space assuming at this level symbols are resolved properly
         BInvokableSymbol invokableSymbol =
@@ -1704,7 +1703,7 @@ public class Desugar extends BLangNodeVisitor {
                 filteredVarName);
 
         String filteredRestVarName = "$restVar$" + restNum;
-        BLangInvocation constructed = generateConstructFromInvocation(pos, targetType, filtered.symbol);
+        BLangInvocation constructed = generateCloneWithTypeInvocation(pos, targetType, filtered.symbol);
         return defVariable(pos, targetType, parentBlockStmt,
                 addConversionExprIfRequired(constructed, targetType),
                 filteredRestVarName);
@@ -1905,19 +1904,19 @@ public class Desugar extends BLangNodeVisitor {
         return createLangLibInvocationNode(ERROR_REASON_FUNCTION_NAME, onExpr, new ArrayList<>(), reasonType, pos);
     }
 
-    private BLangInvocation generateConstructFromInvocation(DiagnosticPos pos,
+    private BLangInvocation generateCloneWithTypeInvocation(DiagnosticPos pos,
                                                             BType targetType,
                                                             BVarSymbol source) {
         BType typedescType = new BTypedescType(targetType, symTable.typeDesc.tsymbol);
-        BLangInvocation invocationNode = createInvocationNode(CONSTRUCT_FROM, new ArrayList<>(), typedescType);
+        BLangInvocation invocationNode = createInvocationNode(CLONE_WITH_TYPE, new ArrayList<>(), typedescType);
 
         BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
         typedescExpr.resolvedType = targetType;
         typedescExpr.type = typedescType;
 
         invocationNode.expr = typedescExpr;
-        invocationNode.symbol = symResolver.lookupLangLibMethod(typedescType, names.fromString(CONSTRUCT_FROM));
-        invocationNode.requiredArgs = Lists.of(typedescExpr, ASTBuilderUtil.createVariableRef(pos, source));
+        invocationNode.symbol = symResolver.lookupLangLibMethod(typedescType, names.fromString(CLONE_WITH_TYPE));
+        invocationNode.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, source), typedescExpr);
         invocationNode.type = BUnionType.create(null, targetType, symTable.errorType);
         return invocationNode;
     }
@@ -3087,7 +3086,8 @@ public class Desugar extends BLangNodeVisitor {
         trxAbortedFunc.capturedClosureEnv = env.createClone();
 
         // Retrive the symbol for beginTransactionInitiator function.
-        PackageID packageID = new PackageID(Names.BALLERINA_ORG, Names.TRANSACTION_PACKAGE, Names.EMPTY);
+        PackageID packageID = new PackageID(Names.BALLERINA_ORG, Names.TRANSACTION_PACKAGE,
+                                            Names.TRANSACTION_PACKAGE_VERSION);
         BPackageSymbol transactionPkgSymbol = new BPackageSymbol(packageID, null, 0);
         BInvokableSymbol invokableSymbol =
                 (BInvokableSymbol) symResolver.lookupSymbolInMainSpace(symTable.pkgEnvMap.get(transactionPkgSymbol),
@@ -5160,9 +5160,10 @@ public class Desugar extends BLangNodeVisitor {
         //This will only check whether last statement is a return and just add a return statement.
         //This won't analyse if else blocks etc to see whether return statements are present
         BLangBlockFunctionBody funcBody = (BLangBlockFunctionBody) invokableNode.body;
-        if (invokableNode.workers.size() == 0 && invokableNode.symbol.type.getReturnType().isNullable()
-                && (funcBody.stmts.size() < 1
-                || funcBody.stmts.get(funcBody.stmts.size() - 1).getKind() != NodeKind.RETURN)) {
+        boolean isNeverOrNilableReturn = invokableNode.symbol.type.getReturnType().tag == TypeTags.NEVER ||
+                invokableNode.symbol.type.getReturnType().isNullable();
+        if (invokableNode.workers.size() == 0 && isNeverOrNilableReturn && (funcBody.stmts.size() < 1 ||
+                funcBody.stmts.get(funcBody.stmts.size() - 1).getKind() != NodeKind.RETURN)) {
             DiagnosticPos invPos = invokableNode.pos;
             DiagnosticPos returnStmtPos = new DiagnosticPos(invPos.src, invPos.eLine, invPos.eLine, invPos.sCol,
                                                             invPos.sCol);

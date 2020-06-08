@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
+import io.ballerinalang.compiler.diagnostics.Diagnostic;
 import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 import io.ballerinalang.compiler.internal.parser.ParserFactory;
 import io.ballerinalang.compiler.text.TextDocument;
@@ -83,6 +84,14 @@ public class SyntaxTree {
     public SyntaxTree replaceNode(Node target, Node replacement) {
         ModulePartNode newRootNode = rootNode.replace(target, replacement);
         return this.updateWith(newRootNode);
+    }
+
+    public Iterable<Diagnostic> diagnostics() {
+        return rootNode.diagnostics();
+    }
+
+    public boolean hasDiagnostics() {
+        return rootNode.hasDiagnostics();
     }
 
     @Override

@@ -90,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -2123,6 +2124,14 @@ public class BLangPackageBuilder {
         queryClauseStack.push(onConflictClause);
     }
 
+    void createLimitClause(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangLimitClause limitClause = (BLangLimitClause) TreeBuilder.createLimitClauseNode();
+        limitClause.addWS(ws);
+        limitClause.pos = pos;
+        limitClause.expression = (BLangExpression) this.exprNodeStack.pop();
+        queryClauseStack.push(limitClause);
+    }
+
     void createWhereClause(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangWhereClause whereClause = (BLangWhereClause) TreeBuilder.createWhereClauseNode();
         whereClause.addWS(ws);
@@ -2199,11 +2208,10 @@ public class BLangPackageBuilder {
             tableConstructorExpr.tableKeySpecifier = (BLangTableKeySpecifier) tableKeySpecifierNodeStack.pop();
         }
 
-        Collections.reverse(exprNodeStack);
-        while (exprNodeStack.size() > 0) {
-            ExpressionNode expression = exprNodeStack.pop();
-            BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
-            tableConstructorExpr.addRecordLiteral(recordLiteral);
+        if (exprNodeListStack.size() != 0) {
+            List<ExpressionNode> tableRecordLiteralList = exprNodeListStack.pop();
+            tableRecordLiteralList.forEach(recordLiteral -> tableConstructorExpr.
+                    addRecordLiteral((BLangRecordLiteral) recordLiteral));
         }
         addExpressionNode(tableConstructorExpr);
     }

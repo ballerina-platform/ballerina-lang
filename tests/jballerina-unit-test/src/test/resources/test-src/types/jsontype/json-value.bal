@@ -292,17 +292,17 @@ function testUpdateNestedElement () returns (json) {
 
 function testEmptyStringToJson () returns (json|error) {
     string s = "";
-    return json.constructFrom(s);
+    return s.cloneWithType(json);
 }
 
 function testJsonStringToJson () returns (json|error) {
     string s = "{\"name\", \"supun\"}";
-    return json.constructFrom(s);
+    return s.cloneWithType(json);
 }
 
 function testStringWithEscapedCharsToJson () returns (json|error) {
     string s = "{\\\"name\\\", \"supun\"}";
-    return json.constructFrom(s);
+    return s.cloneWithType(json);
 }
 
 function testJsonLength () returns (int) {
@@ -322,7 +322,7 @@ function testJsonToJsonArrayCasting() returns [any, json[][]|error, json[][]|err
 
     json[] j2 = <json[]>j1;
     json[][]|error j3 = trap <json[][]>j1;
-    json[][]|error j4 = json[][].constructFrom(j1);
+    json[][]|error j4 = j1.cloneWithType(json[][]);
 
     return [j2, j3, j4];
 }
@@ -330,7 +330,7 @@ function testJsonToJsonArrayCasting() returns [any, json[][]|error, json[][]|err
 function testJsonToJsonArrayInvalidCasting () returns (json[][][] | error) {
     json j1 = [[1, 2, 3], [3, 4, 5], [7, 8, 9]];
 
-    var j2 = (json[][][]).constructFrom(j1);
+    var j2 = j1.cloneWithType(json[][][]);
 
     return j2;
 }
@@ -374,7 +374,7 @@ function testNullJsonToBoolean() returns (boolean) {
 
 function testNullJsonToMap() returns (map<any>) {
     json j = null;
-    var m = map<json>.constructFrom(j);
+    var m = j.cloneWithType(map<json>);
     if (m is map<json>) {
         return m;
     } else {

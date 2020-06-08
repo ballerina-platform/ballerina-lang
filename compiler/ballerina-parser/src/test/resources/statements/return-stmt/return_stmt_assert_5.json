@@ -1,16 +1,16 @@
 {
-    "kind": "RETURN_STATEMENT",
-    "children": [
-        {
-            "kind": "RETURN_KEYWORD"
-        },
-        {
-            "kind": "DECIMAL_INTEGER_LITERAL",
-            "value": 6
-        },
-        {
-            "kind": "SEMICOLON_TOKEN",
-            "isMissing": true
-        }
-    ]
+  "kind": "RETURN_STATEMENT",
+  "children": [
+    {
+      "kind": "RETURN_KEYWORD"
+    },
+    {
+      "kind": "DECIMAL_INTEGER_LITERAL",
+      "value": "6"
+    },
+    {
+      "kind": "SEMICOLON_TOKEN",
+      "isMissing": true
+    }
+  ]
 }

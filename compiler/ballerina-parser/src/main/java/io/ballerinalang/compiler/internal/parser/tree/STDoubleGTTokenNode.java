@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,13 +37,30 @@ public class STDoubleGTTokenNode extends STNode {
     STDoubleGTTokenNode(
             STNode openGTToken,
             STNode endGTToken) {
-        super(SyntaxKind.DOUBLE_GT_TOKEN);
+        this(
+                openGTToken,
+                endGTToken,
+                Collections.emptyList());
+    }
+
+    STDoubleGTTokenNode(
+            STNode openGTToken,
+            STNode endGTToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.DOUBLE_GT_TOKEN, diagnostics);
         this.openGTToken = openGTToken;
         this.endGTToken = endGTToken;
 
         addChildren(
                 openGTToken,
                 endGTToken);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STDoubleGTTokenNode(
+                this.openGTToken,
+                this.endGTToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

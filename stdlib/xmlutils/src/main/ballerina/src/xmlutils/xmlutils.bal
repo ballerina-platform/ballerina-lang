@@ -39,12 +39,7 @@ public type JsonOptions record {
 # + options - The `xmlutils:JsonOptions` record for JSON to XML conversion properties
 # + return - XML representation of the given JSON if the JSON is
 #            successfully converted or else an `error`
-public function fromJSON(json? jsonValue, JsonOptions options = {}) returns xml|error {
-    return externFromJson(jsonValue, options);
-}
-
-// This is a temporary fix until resolve the #19917
-function externFromJson(json? jsonValue, JsonOptions options = {}) returns xml|error = @java:Method {
+public function fromJSON(json? jsonValue, JsonOptions options = {}) returns xml|error = @java:Method {
     name: "fromJSON",
     class: "org.ballerinalang.stdlib.xmlutils.ConvertUtils"
 } external;

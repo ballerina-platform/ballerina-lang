@@ -25,13 +25,15 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
+
 /**
  * Native implementation of lang.table:get(table&lt;Type&gt;, KeyType).
  *
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", functionName = "get",
+        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION, functionName = "get",
         args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "key", type = TypeKind.ANYDATA)},
         returnType = {@ReturnType(type = TypeKind.ANY)},
         isPublic = true

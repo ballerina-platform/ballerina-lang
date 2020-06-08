@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Language Intelligence, Diagram View, Debugging, code formatting and refactoring for Ballerina",
-    "version": "2.0.0-Preview1-M1",
+    "version": "2.0.0-Preview1-M3",
     "publisher": "ballerina",
     "repository": {
         "type": "git",

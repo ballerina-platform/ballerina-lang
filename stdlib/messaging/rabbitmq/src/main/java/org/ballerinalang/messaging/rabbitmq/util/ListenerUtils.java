@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.messaging.rabbitmq.MessageDispatcher;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
@@ -95,12 +96,12 @@ public class ListenerUtils {
         }
         for (ObjectValue service : services) {
             if (startedServices == null || !startedServices.contains(service)) {
-                MapValue serviceConfig =
-                        (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
-                                RabbitMQConstants.SERVICE_CONFIG);
+                MapValue serviceConfig = (MapValue) service.getType()
+                        .getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ_FQN,
+                                       RabbitMQConstants.SERVICE_CONFIG);
                 @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-                MapValue<String, Object> queueConfig =
-                        (MapValue<String, Object>) serviceConfig.getMapValue(RabbitMQConstants.ALIAS_QUEUE_CONFIG);
+                MapValue<BString, Object> queueConfig =
+                        (MapValue<BString, Object>) serviceConfig.getMapValue(RabbitMQConstants.ALIAS_QUEUE_CONFIG);
                 autoAck = getAckMode(service);
                 boolean isQosSet = channelObject.getNativeData(RabbitMQConstants.QOS_STATUS) != null;
                 if (!isQosSet) {
@@ -159,8 +160,8 @@ public class ListenerUtils {
     }
 
     private static void declareQueueIfNotExists(ObjectValue service, Channel channel) throws IOException {
-        MapValue serviceConfig = (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
-                RabbitMQConstants.SERVICE_CONFIG);
+        MapValue serviceConfig = (MapValue) service.getType()
+                .getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ_FQN, RabbitMQConstants.SERVICE_CONFIG);
         @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         MapValue<Strand, Object> queueConfig =
                 (MapValue) serviceConfig.getMapValue(RabbitMQConstants.ALIAS_QUEUE_CONFIG);
@@ -206,7 +207,7 @@ public class ListenerUtils {
 
     }
 
-    private static void handleBasicQos(Channel channel, MapValue<String, Object> serviceConfig) {
+    private static void handleBasicQos(Channel channel, MapValue<BString, Object> serviceConfig) {
         long prefetchCount = RabbitMQConstants.DEFAULT_PREFETCH;
 
         if (serviceConfig.getIntValue(RabbitMQConstants.ALIAS_PREFETCH_COUNT) != null) {
@@ -232,8 +233,8 @@ public class ListenerUtils {
 
     private static boolean getAckMode(ObjectValue service) {
         boolean autoAck;
-        MapValue serviceConfig = (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
-                RabbitMQConstants.SERVICE_CONFIG);
+        MapValue serviceConfig = (MapValue) service.getType()
+                .getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ_FQN, RabbitMQConstants.SERVICE_CONFIG);
         @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         String ackMode = serviceConfig.getStringValue(RabbitMQConstants.ALIAS_ACK_MODE).getValue();
         switch (ackMode) {

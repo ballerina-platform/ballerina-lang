@@ -484,7 +484,7 @@ public function workerWithFutureTest1() returns int {
     @strand{thread:"any"}
     worker w2 returns int {
       // Delay the execution of worker w2
-      runtime:sleep(200);
+      runtime:sleep(1000);
       int i = wait f1;
       return i;
     }
@@ -499,7 +499,7 @@ public function workerWithFutureTest2() returns int {
     worker w1 {
       int i = 40;
       // Delay the execution of worker w1
-      runtime:sleep(200);
+      runtime:sleep(1000);
       f1.cancel();
     }
 
@@ -523,7 +523,7 @@ public function workerWithFutureTest3() returns int {
     @strand{thread:"any"}
     worker w2 returns int {
       // Delay the execution of worker w1
-      runtime:sleep(5);
+      runtime:sleep(1000);
       int i = wait f1;
       return i;
     }

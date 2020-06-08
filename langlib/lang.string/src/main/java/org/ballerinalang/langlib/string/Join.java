@@ -29,13 +29,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.StringJoiner;
 
+import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
+
 /**
  * Extern function lang.string:join(string, string...).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "join",
+        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "join",
         args = {@Argument(name = "separator", type = TypeKind.STRING), @Argument(name = "strs", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true

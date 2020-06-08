@@ -41,24 +41,20 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
         return optionalChildInBucket(1);
     }
 
-    public Node typeName() {
+    public TypedBindingPatternNode typedBindingPattern() {
         return childInBucket(2);
     }
 
-    public Token variableName() {
+    public Token equalsToken() {
         return childInBucket(3);
     }
 
-    public Token equalsToken() {
+    public ExpressionNode initializer() {
         return childInBucket(4);
     }
 
-    public ExpressionNode initializer() {
-        return childInBucket(5);
-    }
-
     public Token semicolonToken() {
-        return childInBucket(6);
+        return childInBucket(5);
     }
 
     @Override
@@ -76,8 +72,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
         return new String[]{
                 "metadata",
                 "finalKeyword",
-                "typeName",
-                "variableName",
+                "typedBindingPattern",
                 "equalsToken",
                 "initializer",
                 "semicolonToken"};
@@ -86,16 +81,14 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
     public ModuleVariableDeclarationNode modify(
             MetadataNode metadata,
             Token finalKeyword,
-            Node typeName,
-            Token variableName,
+            TypedBindingPatternNode typedBindingPattern,
             Token equalsToken,
             ExpressionNode initializer,
             Token semicolonToken) {
         if (checkForReferenceEquality(
                 metadata,
                 finalKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 initializer,
                 semicolonToken)) {
@@ -105,8 +98,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
         return NodeFactory.createModuleVariableDeclarationNode(
                 metadata,
                 finalKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 initializer,
                 semicolonToken);
@@ -125,8 +117,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
         private final ModuleVariableDeclarationNode oldNode;
         private MetadataNode metadata;
         private Token finalKeyword;
-        private Node typeName;
-        private Token variableName;
+        private TypedBindingPatternNode typedBindingPattern;
         private Token equalsToken;
         private ExpressionNode initializer;
         private Token semicolonToken;
@@ -135,8 +126,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
             this.oldNode = oldNode;
             this.metadata = oldNode.metadata();
             this.finalKeyword = oldNode.finalKeyword().orElse(null);
-            this.typeName = oldNode.typeName();
-            this.variableName = oldNode.variableName();
+            this.typedBindingPattern = oldNode.typedBindingPattern();
             this.equalsToken = oldNode.equalsToken();
             this.initializer = oldNode.initializer();
             this.semicolonToken = oldNode.semicolonToken();
@@ -156,17 +146,10 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
             return this;
         }
 
-        public ModuleVariableDeclarationNodeModifier withTypeName(
-                Node typeName) {
-            Objects.requireNonNull(typeName, "typeName must not be null");
-            this.typeName = typeName;
-            return this;
-        }
-
-        public ModuleVariableDeclarationNodeModifier withVariableName(
-                Token variableName) {
-            Objects.requireNonNull(variableName, "variableName must not be null");
-            this.variableName = variableName;
+        public ModuleVariableDeclarationNodeModifier withTypedBindingPattern(
+                TypedBindingPatternNode typedBindingPattern) {
+            Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
+            this.typedBindingPattern = typedBindingPattern;
             return this;
         }
 
@@ -195,8 +178,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
             return oldNode.modify(
                     metadata,
                     finalKeyword,
-                    typeName,
-                    variableName,
+                    typedBindingPattern,
                     equalsToken,
                     initializer,
                     semicolonToken);

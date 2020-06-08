@@ -49,6 +49,8 @@ public class BinaryExpressionsTest extends AbstractExpressionsTest {
     public void testSimpleRangeExpression() {
         test("a ... b", "binary-expr/range_expr_assert_1.json");
         test("a ..< b", "binary-expr/range_expr_assert_2.json");
+        test("1...10", "binary-expr/range_expr_assert_5.json");
+        test("1..<10", "binary-expr/range_expr_assert_6.json");
     }
 
     @Test
