@@ -28,8 +28,8 @@ import org.ballerinalang.net.http.HttpUtil;
 import java.util.Arrays;
 
 import static org.ballerinalang.mime.util.MimeConstants.COMMA;
-import static org.ballerinalang.mime.util.MimeConstants.PARSER_ERROR;
-import static org.ballerinalang.mime.util.MimeConstants.READING_HEADER_FAILED;
+import static org.ballerinalang.mime.util.MimeConstants.FAILED_TO_PARSE;
+import static org.ballerinalang.mime.util.MimeConstants.HEADER_READ_ERROR;
 import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
 import static org.ballerinalang.net.http.HttpErrorType.GENERIC_CLIENT_ERROR;
 
@@ -46,7 +46,7 @@ public class ParseHeader {
     public static Object parseHeader(String headerValue) {
         if (headerValue == null) {
             return HttpUtil.createHttpError(GENERIC_CLIENT_ERROR.getReason(), GENERIC_CLIENT_ERROR.getErrorName(),
-                                            READING_HEADER_FAILED, PARSER_ERROR + "header value cannot be null");
+                                            HEADER_READ_ERROR, "failed to parse: header value cannot be null");
         }
         try {
             if (headerValue.contains(COMMA)) {
@@ -62,9 +62,9 @@ public class ParseHeader {
             contentTuple.add(1, HeaderUtil.getParamMap(headerValue));
             return contentTuple;
         } catch (Exception ex) {
-            String errMsg = ex instanceof ErrorValue ? PARSER_ERROR + ex.toString() : PARSER_ERROR + ex.getMessage();
+            String errMsg = ex instanceof ErrorValue ? ex.toString() : ex.getMessage();
             return HttpUtil.createHttpError(GENERIC_CLIENT_ERROR.getReason(), GENERIC_CLIENT_ERROR.getErrorName(),
-                                            READING_HEADER_FAILED, errMsg);
+                                            HEADER_READ_ERROR, FAILED_TO_PARSE + errMsg);
         }
     }
 }
