@@ -26,7 +26,6 @@ import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
-
 /**
  * This class contains various utility functions required to provide the 'ballerina/java' module API.
  *
@@ -45,7 +44,7 @@ public class JavaUtils {
     private static final String longTypeName = "long";
     private static final String floatTypeName = "float";
     private static final String doubleTypeName = "double";
-    private static final BPackage JAVA_PACKAGE_ID = new BPackage(BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX,"java");
+    private static final BPackage JAVA_PACKAGE_ID = new BPackage(BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX, "java");
 
     /**
      * Returns the Java Class object associated with the class or interface with the given string name.
