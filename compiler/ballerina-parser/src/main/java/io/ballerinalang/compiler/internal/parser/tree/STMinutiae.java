@@ -48,6 +48,12 @@ public class STMinutiae extends STNode {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        // TODO visiting minutiae is not yet supported
+        throw new IllegalStateException();
+    }
+
     public String text() {
         return text;
     }

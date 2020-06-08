@@ -697,6 +697,11 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(typeReferenceTypeDescNode);
     }
 
+    // STNodeList
+    public void visit(STNodeList nodeList) {
+        visitChildren(nodeList);
+    }
+
     // Tokens
 
     public void visit(STToken token) {
@@ -710,6 +715,10 @@ public abstract class STNodeVisitor {
             return;
         }
 
+        visitChildren(node);
+    }
+
+    private void visitChildren(STNode node) {
         for (int bucket = 0; bucket < node.bucketCount(); bucket++) {
             STNode child = node.childInBucket(bucket);
             if (SyntaxUtils.isSTNodePresent(child)) {

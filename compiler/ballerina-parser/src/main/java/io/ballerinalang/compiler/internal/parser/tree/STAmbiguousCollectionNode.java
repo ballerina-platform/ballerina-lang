@@ -44,4 +44,9 @@ public class STAmbiguousCollectionNode extends STNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        throw new IllegalStateException();
+    }
 }

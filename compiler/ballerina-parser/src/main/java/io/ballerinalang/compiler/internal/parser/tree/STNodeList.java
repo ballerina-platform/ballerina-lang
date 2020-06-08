@@ -136,6 +136,11 @@ public final class STNodeList extends STNode {
         return new ExternalTreeNodeList(this, position, parent);
     }
 
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
     private STNodeList removeFirstNullValue() {
         for (int bucket = 0; bucket < bucketCount; bucket++) {
             if (childBuckets[bucket] == null) {

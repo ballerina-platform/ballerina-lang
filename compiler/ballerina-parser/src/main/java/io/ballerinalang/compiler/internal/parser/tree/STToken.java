@@ -94,6 +94,11 @@ public class STToken extends STNode {
     }
 
     @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
     public String toString() {
         return leadingMinutiae + kind.stringValue() + trailingMinutiae;
     }
