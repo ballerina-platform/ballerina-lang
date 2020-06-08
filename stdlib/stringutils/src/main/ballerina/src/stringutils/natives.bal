@@ -142,9 +142,8 @@ public function replaceAll(string originalString, string regex, string replaceme
 #                 matches the `regex`
 # + return - The resultant string with the replaced substring
 public function replaceFirst(string originalString, string regex, string replacement) returns string {
-    handle value = replaceFirstExternal(java:fromString(originalString),
-                                java:fromString(regex),
-                                java:fromString(replacement));
+    handle value = replaceFirstExternal(java:fromString(originalString), java:fromString(regex),
+                                        java:fromString(replacement));
     string? updatedString = java:toString(value);
     if (updatedString is string) {
         return updatedString;
@@ -206,7 +205,8 @@ function matchesExternal(handle stringToMatch, handle regex) returns boolean = @
     paramTypes: ["java.lang.String"]
 } external;
 
-function replaceExternal(handle originalString, handle stringToReplace, handle replacement) returns handle = @java:Method {
+function replaceExternal(handle originalString, handle stringToReplace, handle replacement)
+                         returns handle = @java:Method {
     name: "replace",
     class: "java.lang.String",
     paramTypes: ["java.lang.String", "java.lang.String"]
@@ -218,8 +218,7 @@ function replaceAllExternal(handle originalString, handle regex, handle replacem
     paramTypes: ["java.lang.String", "java.lang.String"]
 } external;
 
-function replaceFirstExternal(handle originalString, handle regex, handle replacement) returns
-                            handle = @java:Method {
+function replaceFirstExternal(handle originalString, handle regex, handle replacement) returns handle = @java:Method {
     name: "replaceFirst",
     class: "java.lang.String",
     paramTypes: ["java.lang.String", "java.lang.String"]

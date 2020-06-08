@@ -90,7 +90,7 @@ public class MessageUtils {
     public static Object getTextContent(ArrayValue messageContent) {
         byte[] messageCont = messageContent.getBytes();
         try {
-            return new String(messageCont, StandardCharsets.UTF_8.name());
+            return StringUtils.fromString(new String(messageCont, StandardCharsets.UTF_8.name()));
         } catch (UnsupportedEncodingException exception) {
             RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_GET_MSG_CONTENT);
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.TEXT_CONTENT_ERROR

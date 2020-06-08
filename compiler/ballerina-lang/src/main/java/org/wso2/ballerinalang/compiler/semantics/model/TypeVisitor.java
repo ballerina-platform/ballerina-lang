@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -75,6 +76,8 @@ public interface TypeVisitor {
     void visit(BStreamType bStreamType);
 
     void visit(BTypedescType bTypedescType);
+
+    void visit(BNeverType bNeverType);
 
     void visit(BNilType bNilType);
 

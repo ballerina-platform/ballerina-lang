@@ -1139,7 +1139,7 @@ public class JvmTerminatorGen {
             emitStopObservationInvocation(this.mv, localVarOffset);
         }
         BType bType = func.type.retType;
-        if (bType.tag == TypeTags.NIL) {
+        if (bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
             this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             this.mv.visitInsn(ARETURN);
         } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
