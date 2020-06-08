@@ -69,7 +69,7 @@ public class AsyncFunctionCallBack implements CallableUnitCallback {
 
     @Override
     public void notifyFailure(ErrorValue error) {
-        RuntimeUtils.handleRuntimeErrorsAndExit(error);
+        RuntimeUtils.handleRuntimeErrors(error);
         strand.setReturnValues(error);
         strand.scheduler.unblockStrand(strand);
     }

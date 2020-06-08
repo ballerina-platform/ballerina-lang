@@ -41,7 +41,7 @@ public abstract class AsyncFunctionCallback implements CallableUnitCallback {
     }
 
     public void handleRuntimeErrors(ErrorValue error) {
-        RuntimeUtils.handleRuntimeErrorsAndExit(error);
+        RuntimeUtils.handleRuntimeErrors(error);
         strand.setReturnValues(error);
         strand.scheduler.unblockStrand(strand);
     }
