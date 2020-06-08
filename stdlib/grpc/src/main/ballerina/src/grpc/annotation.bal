@@ -21,16 +21,10 @@
 #                   type is derived from the input argument of the resource
 # + responseType - Response message type of the resource. This is an optional field. If it is not specified, the response
 #                   type is derived from the value passed to the send() expression
-# + clientStreaming - Client streaming flag. This applies only for client streaming and
-#                     bidirectional streaming. The flag should be set to true if the service is defined as client/bidirectional streaming
-# + serverStreaming - Server streaming flag. This applies only for bidirectional streaming. The flag
-#                     should be set to true if the service is defined as bidirectional streaming
 public type GrpcServiceConfig record {|
     string name = "";
     typedesc<anydata> requestType?;
     typedesc<anydata> responseType?;
-    boolean clientStreaming = false;
-    boolean serverStreaming = false;
 |};
 
 # Service configuration annotation.

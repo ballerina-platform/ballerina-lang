@@ -20,32 +20,28 @@ import ballerina/io;
 // Server endpoint configuration
 listener grpc:Listener ep4 = new (9094);
 
-@grpc:ServiceConfig {name:"HelloWorld7",
-    clientStreaming:true}
+@grpc:ServiceConfig {name:"HelloWorld7"}
 @grpc:ServiceDescriptor {
     descriptor: ROOT_DESCRIPTOR_4,
     descMap: getDescriptorMap4()
 }
 service HelloWorld7 on ep4 {
-    resource function onOpen(grpc:Caller caller) {
+
+    resource function lotsOfGreetings(grpc:Caller caller, stream<string, error>clientStream) {
         io:println("connected sucessfully.");
-    }
-
-    resource function onMessage(grpc:Caller caller, string name) {
-        io:println("greet received: " + name);
-    }
-
-    resource function onError(grpc:Caller caller, error err) {
-        io:println("Something unexpected happens at server : " + err.reason());
-    }
-
-    resource function onComplete(grpc:Caller caller) {
-        io:println("Server Response");
-        grpc:Error? err = caller->send("Ack");
-        if (err is grpc:Error) {
-            io:println("Error from Connector: " + err.reason());
-        } else {
-            io:println("Server send response : Ack");
+        error? e = clientStream.forEach(function(string name) {
+            io:println("greet received: " + name);
+        });
+        if (e is grpc:EOS) {
+            io:println("Server Response");
+            grpc:Error? err = caller->send("Ack");
+            if (err is grpc:Error) {
+                io:println("Error from Connector: " + err.reason());
+            } else {
+                io:println("Server send response : Ack");
+            }
+        } else if (e is error) {
+            io:println("Something unexpected happens at server : " + e.reason());
         }
     }
 }

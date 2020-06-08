@@ -113,17 +113,27 @@ public type ResiliencyErrorType ALL_RETRY_ATTEMPTS_FAILED;
 # Represents all the resiliency-related errors.
 public type ResiliencyError AllRetryAttemptsFailed;
 
+# Represents the reason of calling next after the stream has closed.
+public const STREAM_END_REASON = "{ballerina/grpc}StreamEndError";
+# Represents an error when calling next when the stream has closed.
+public type StreamEndError error<STREAM_END_REASON, Detail>;
+
+# Represents the reason of reaching the end of the client stream.
+public const EOS_REASON = "{ballerina/grpc}EOS";
+# Represents an error when reaching the end of the client stream.
+public type EOS error<EOS_REASON, Detail>;
+
 # Represents gRPC related error types.
 public type ErrorType CANCELLED_ERROR | UNKNOWN_ERROR | INVALID_ARGUMENT_ERROR | DEADLINE_EXCEEDED_ERROR
 | NOT_FOUND_ERROR | ALREADY_EXISTS_ERROR | PERMISSION_DENIED_ERROR | UNAUTHENTICATED_ERROR | RESOURCE_EXHAUSTED_ERROR
 | FAILED_PRECONDITION_ERROR | ABORTED_ERROR | OUT_OF_RANGE_ERROR | UNIMPLEMENTED_ERROR |
-INTERNAL_ERROR|UNAVAILABLE_ERROR | DATA_LOSS_ERROR | ResiliencyErrorType;
+INTERNAL_ERROR|UNAVAILABLE_ERROR | DATA_LOSS_ERROR | ResiliencyErrorType | STREAM_END_REASON | EOS_REASON;
 
 # Represents gRPC related errors.
 public type Error CancelledError | UnKnownError | InvalidArgumentError | DeadlineExceededError | NotFoundError
 | AleadyExistsError | PermissionDeniedError | UnauthenticatedError | ResourceExhaustedError | FailedPreconditionError
 | AbortedError | OutOfRangeError | UnimplementedError | InternalError | UnavailableError | DataLossError
-| ResiliencyError;
+| ResiliencyError | StreamEndError | EOS;
 
 
 # Prepare the `error` as a gRPC-specific `Error`.

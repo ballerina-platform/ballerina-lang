@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.ServerConnectorListener;
 import org.ballerinalang.net.grpc.ServerConnectorPortBindingListener;
@@ -39,9 +40,17 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
 
+import java.util.concurrent.Semaphore;
+
+import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
+import static org.ballerinalang.net.grpc.GrpcConstants.ERROR_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.ITERATOR_LOCK;
+import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER_LOCK;
+import static org.ballerinalang.net.grpc.GrpcConstants.NEXT_MESSAGE;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVER_CONNECTOR;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_REGISTRY_BUILDER;
 import static org.ballerinalang.net.grpc.GrpcUtil.getListenerConfig;
+import static org.ballerinalang.net.grpc.nativeimpl.caller.FunctionUtils.externComplete;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PORT;
 
 /**
@@ -151,5 +160,48 @@ public class FunctionUtils  extends AbstractGrpcNativeFunction  {
         getServerConnector(serverEndpoint).stop();
         serverEndpoint.addNativeData(HttpConstants.CONNECTOR_STARTED, false);
         return null;
+    }
+
+    public static Object nextResult(ObjectValue streamIterator) {
+        Semaphore iteratorSemaphore = (Semaphore) streamIterator.getNativeData(ITERATOR_LOCK);
+        Semaphore listenerSemaphore = (Semaphore) streamIterator.getNativeData(LISTENER_LOCK);
+        try {
+            iteratorSemaphore.acquire();
+            Object nextMessage = streamIterator.getNativeData(NEXT_MESSAGE);
+            Object errorVal = streamIterator.getNativeData(ERROR_MESSAGE);
+            if (errorVal instanceof ErrorValue) {
+                while (listenerSemaphore.hasQueuedThreads()) {
+                    listenerSemaphore.release();
+                }
+                return errorVal;
+            } else if (nextMessage instanceof Message) {
+                listenerSemaphore.release();
+                return ((Message) nextMessage).getbMessage();
+            } else {
+                return null;
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            String message = "Internal error occurred. The current thread got interrupted";
+            throw MessageUtils.getConnectorError(new StatusRuntimeException(Status
+                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription(message)));
+        }
+    }
+
+    public static Object closeStream(ObjectValue streamIterator) {
+        Semaphore listenerSemaphore = (Semaphore) streamIterator.getNativeData(LISTENER_LOCK);
+        ObjectValue clientEndpoint = (ObjectValue) streamIterator.getNativeData(CLIENT_ENDPOINT_TYPE);
+        Object errorVal = streamIterator.getNativeData(ERROR_MESSAGE);
+        ErrorValue returnError;
+        if (errorVal instanceof ErrorValue) {
+            returnError = (ErrorValue) errorVal;
+        } else {
+            externComplete(clientEndpoint);
+            returnError = null;
+        }
+        while (listenerSemaphore.hasQueuedThreads()) {
+            listenerSemaphore.release();
+        }
+        return returnError;
     }
 }

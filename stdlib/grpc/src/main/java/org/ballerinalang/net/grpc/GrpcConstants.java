@@ -51,6 +51,11 @@ public class GrpcConstants {
     public static final String RESPONSE_OBSERVER = "RESPONSE_OBSERVER";
     public static final String RESPONSE_MESSAGE_DEFINITION = "RESPONSE_DEFINITION";
     public static final String CALLER_ID = "instanceId";
+    public static final String ITERATOR_LOCK = "iteratorLock";
+    public static final String LISTENER_LOCK = "listenerLock";
+    public static final String NEXT_MESSAGE = "nextMessage";
+    public static final String ERROR_MESSAGE = "errorMessage";
+    public static final String ITERATOR_OBJECT_NAME = "StreamIterator";
 
     // Service Descriptor Annotation
     public static final String DESCRIPTOR_MAP = "getDescriptorMap";
