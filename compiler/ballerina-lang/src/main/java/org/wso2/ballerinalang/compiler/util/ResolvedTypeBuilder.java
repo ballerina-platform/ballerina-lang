@@ -111,7 +111,7 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
         }
 
         BMapType newMType = new BMapType(originalType.tag, newConstraint, null);
-        newMType.flags = originalType.flags;
+        setFlags(newMType, originalType.flags);
         return newMType;
     }
 
@@ -124,7 +124,7 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
         }
 
         BXMLType newXMLType = new BXMLType(newConstraint, null);
-        newXMLType.flags = originalType.flags;
+        setFlags(newXMLType, originalType.flags);
         return newXMLType;
     }
 
@@ -142,7 +142,7 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
         }
 
         BArrayType newArrayType = new BArrayType(newElemType, null, originalType.size, originalType.state);
-        newArrayType.flags = originalType.flags;
+        setFlags(newArrayType, originalType.flags);
         return newArrayType;
     }
 
@@ -181,8 +181,8 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
 
         BRecordType newRecordType = new BRecordType(null);
         newRecordType.fields = newFields;
-        newRecordType.flags = originalType.flags;
         newRecordType.restFieldType = newRestType;
+        setFlags(newRecordType, originalType.flags);
         return originalType;
     }
 
@@ -192,7 +192,6 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
         List<BType> members = new ArrayList<>();
         for (BType member : originalType.tupleTypes) {
             BType newMem = member.accept(this, null);
-            newMem.flags = member.flags;
             members.add(newMem);
 
             if (newMem != member) {
@@ -203,7 +202,6 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
         BType rest = originalType.restType;
         if (rest != null) {
             rest = rest.accept(this, null);
-            rest.flags = originalType.restType.flags;
 
             if (rest != originalType.restType) {
                 hasNewType = true;
@@ -216,7 +214,7 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
 
         BTupleType type = new BTupleType(null, members);
         type.restType = rest;
-        type.flags = originalType.flags;
+        setFlags(type, originalType.flags);
         return type;
     }
 
@@ -230,7 +228,7 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
         }
 
         BStreamType type = new BStreamType(originalType.tag, newConstraint, newError, null);
-        type.flags = originalType.flags;
+        setFlags(type, originalType.flags);
         return type;
     }
 
@@ -249,6 +247,7 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
         newTableType.fieldNameList = originalType.fieldNameList;
         newTableType.constraintPos = originalType.constraintPos;
         newTableType.keyPos = originalType.keyPos;
+        setFlags(newTableType, originalType.flags);
         return newTableType;
     }
 
@@ -258,7 +257,6 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
         List<BType> paramTypes = new ArrayList<>();
         for (BType type : originalType.paramTypes) {
             BType newT = type.accept(this, null);
-            newT.flags = type.flags;
             paramTypes.add(newT);
 
             if (newT != type) {
@@ -269,7 +267,6 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
         BType rest = originalType.restType;
         if (rest != null) {
             rest = rest.accept(this, null);
-            rest.flags = originalType.restType.flags;
 
             if (rest != originalType.restType) {
                 hasNewType = true;
@@ -277,14 +274,13 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
         }
 
         BType retType = originalType.retType.accept(this, null);
-        retType.flags = originalType.retType.flags;
 
         if (!hasNewType && retType != originalType.retType) {
             return originalType;
         }
 
         BType type = new BInvokableType(paramTypes, rest, retType, null);
-        type.flags = originalType.flags;
+        setFlags(type, originalType.flags);
         return type;
     }
 
@@ -307,12 +303,21 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
         }
 
         BUnionType type = BUnionType.create(null, newMemberTypes);
-        type.flags = originalType.flags;
+        setFlags(type, originalType.flags);
         return type;
     }
 
     @Override
     public BType visit(BIntersectionType originalType, BType newType) {
+        BType newEffectiveType = originalType.effectiveType.accept(this, null);
+
+        if (newEffectiveType == originalType.effectiveType) {
+            return originalType;
+        }
+
+        BIntersectionType type = new BIntersectionType(null, (LinkedHashSet<BType>) originalType.getConstituentTypes(),
+                                                       newEffectiveType);
+        setFlags(type, originalType.flags);
         return originalType;
     }
 
@@ -326,7 +331,7 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
         }
 
         BErrorType type = new BErrorType(null, newReason, newDetail);
-        type.flags = originalType.flags;
+        setFlags(type, originalType.flags);
         return type;
     }
 
@@ -340,7 +345,7 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
 
         BFutureType newFutureType = new BFutureType(originalType.tag, newConstraint, null,
                                                     originalType.workerDerivative);
-        newFutureType.flags = originalType.flags;
+        setFlags(newFutureType, originalType.flags);
         return newFutureType;
     }
 
@@ -364,7 +369,7 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
         }
 
         BTypedescType newTypedescType = new BTypedescType(newConstraint, null);
-        newTypedescType.flags = originalType.flags;
+        setFlags(newTypedescType, originalType.flags);
         return newTypedescType;
     }
 
@@ -410,6 +415,10 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
 
             paramValueTypes.put(param.name.value, invocation.requiredArgs.get(i).type);
         }
+    }
+
+    private void setFlags(BType type, int originalFlags) {
+        type.flags = originalFlags & (~Flags.PARAMETERIZED);
     }
 
     private void reset() {
