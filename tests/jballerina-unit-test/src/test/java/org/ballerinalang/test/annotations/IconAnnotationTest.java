@@ -63,9 +63,9 @@ public class IconAnnotationTest {
 
     @Test void testIconAnnotationNegative() {
         BAssertUtil.validateError(negative, 0,
-                "cannot specify more than one annotation value for annotation 'icon'", 1, 1);
+                "cannot specify more than one annotation value for annotation 'icon'", 17, 1);
         BAssertUtil.validateError(negative, 1,
-                "annotation 'ballerina/lang.annotations:1.0.0:icon' is not allowed on var", 7, 1);
+                "annotation 'ballerina/lang.annotations:1.0.0:icon' is not allowed on var", 23, 1);
         Assert.assertEquals(negative.getErrorCount(), 2);
     }
 }

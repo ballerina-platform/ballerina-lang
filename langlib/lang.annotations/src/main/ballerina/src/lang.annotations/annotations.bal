@@ -68,5 +68,5 @@ public type StrandData record {|
 # Denotes new Strand execution semantics.
 public const annotation StrandData strand on source worker;
 
-# This annotation specify icon meta-data about types and functions.
+# Denotes icon metadata related to types and functions.
 public const annotation record {| string path; |} icon on source type, source function;
