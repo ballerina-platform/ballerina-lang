@@ -28,7 +28,7 @@ public type BatchExecuteErrorData record {|
     int errorCode;
     string sqlState;
     error cause?;
-    ExecuteResult[] executionResults;
+    ExecutionResult[] executionResults;
 |};
 
 public const DATABASE_ERROR_REASON = "{ballerina/sql}DatabaseError";

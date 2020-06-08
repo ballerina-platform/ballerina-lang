@@ -77,7 +77,7 @@ public class ExecuteUtils {
                 resultFields.put(Constants.AFFECTED_ROW_COUNT_FIELD, count);
                 resultFields.put(Constants.LAST_INSERTED_ID_FIELD, lastInsertedId);
                 return BallerinaValues.createRecordValue(Constants.SQL_PACKAGE_ID,
-                        Constants.EXCUTE_RESULT_RECORD, resultFields);
+                        Constants.EXECUTION_RESULT_RECORD, resultFields);
             } catch (SQLException e) {
                 return ErrorGenerator.getSQLDatabaseError(e,
                         "Error while executing sql query: " + sqlQuery + ". ");
@@ -150,11 +150,11 @@ public class ExecuteUtils {
                     }
                     resultField.put(Constants.LAST_INSERTED_ID_FIELD, lastInsertedId);
                     executionResults.add(BallerinaValues.createRecordValue(Constants.SQL_PACKAGE_ID,
-                            Constants.EXCUTE_RESULT_RECORD, resultField));
+                            Constants.EXECUTION_RESULT_RECORD, resultField));
                 }
                 connection.commit();
                 return BValueCreator.createArrayValue(executionResults.toArray(), new BArrayType(
-                        new BRecordType(Constants.EXCUTE_RESULT_RECORD, Constants.SQL_PACKAGE_ID, 0, false, 0)));
+                        new BRecordType(Constants.EXECUTION_RESULT_RECORD, Constants.SQL_PACKAGE_ID, 0, false, 0)));
             } catch (BatchUpdateException e) {
                 int[] updateCounts = e.getUpdateCounts();
                 for (int count : updateCounts) {
@@ -162,7 +162,7 @@ public class ExecuteUtils {
                     resultField.put(Constants.AFFECTED_ROW_COUNT_FIELD, count);
                     resultField.put(Constants.LAST_INSERTED_ID_FIELD, null);
                     executionResults.add(BallerinaValues.createRecordValue(Constants.SQL_PACKAGE_ID,
-                            Constants.EXCUTE_RESULT_RECORD, resultField));
+                            Constants.EXECUTION_RESULT_RECORD, resultField));
                 }
 
                 // Depending on the driver, at this point, driver may or may not have executed the remaining commands in

@@ -148,7 +148,7 @@ function testDateTime(string url, string user, string password) returns @tainted
     mockclient:Client dbClient = check new (url = url, user = user, password = password);
     string insertQuery = string `Insert into DateTimeTypes (row_id, date_type, time_type, timestamp_type, datetime_type)
      values (1,'2017-05-23','14:15:23','2017-01-25 16:33:55','2017-01-25 16:33:55')`;
-    sql:ExecuteResult? result = check dbClient->execute(insertQuery);
+    sql:ExecutionResult? result = check dbClient->execute(insertQuery);
     stream<record{}, error> queryResult = dbClient->query("SELECT date_type, time_type, timestamp_type, datetime_type"
         + " from DateTimeTypes where row_id = 1", ResultDates);
     record {|record {} value;|}? data = check queryResult.next();
@@ -178,7 +178,7 @@ function testColumnAlias(string url, string user, string password) returns @tain
 function testQueryRowId(string url, string user, string password)
 returns @tainted record{}[]|error? {
     mockclient:Client dbClient = check new (url = url, user = user, password = password);
-    sql:ExecuteResult? result = check dbClient->execute("SET DATABASE SQL SYNTAX ORA TRUE");
+    sql:ExecutionResult? result = check dbClient->execute("SET DATABASE SQL SYNTAX ORA TRUE");
     stream<record{}, error> streamData = dbClient->query("SELECT ROWNUM, int_array, long_array, float_array, boolean_array," +
         "string_array from ArrayTypes");
     record{}[] recordMap = [];
