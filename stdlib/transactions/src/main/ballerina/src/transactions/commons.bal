@@ -387,11 +387,7 @@ function getAvailablePort() returns int = @java:Method {
     name: "getAvailablePort"
 } external;
 
-function getHostAddress() returns string {
-    return <string>java:toString(externGetHostAddress());
-}
-
-function externGetHostAddress() returns handle = @java:Method {
+function getHostAddress() returns string = @java:Method {
     class: "io.ballerina.transactions.Utils",
     name: "getHostAddress"
 } external;

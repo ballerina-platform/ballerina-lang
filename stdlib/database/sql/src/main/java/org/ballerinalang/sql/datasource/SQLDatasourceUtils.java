@@ -42,7 +42,7 @@ public class SQLDatasourceUtils {
     }
 
     public static synchronized Map<PoolKey, SQLDatasource> putDatasourceContainer(
-            MapValue<String, Object> poolOptions,
+            MapValue<BString, Object> poolOptions,
             ConcurrentHashMap<PoolKey, SQLDatasource> datasourceMap) {
         Map<PoolKey, SQLDatasource> existingDataSourceMap =
                 (Map<PoolKey, SQLDatasource>) poolOptions.getNativeData(POOL_MAP_KEY);

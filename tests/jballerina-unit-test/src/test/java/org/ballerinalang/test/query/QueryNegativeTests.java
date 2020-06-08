@@ -35,7 +35,7 @@ public class QueryNegativeTests {
     @Test
     public void testFromClauseWithInvalidType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 18);
+        Assert.assertEquals(compileResult.getErrorCount(), 21);
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'Person', found 'Teacher'",
@@ -60,6 +60,10 @@ public class QueryNegativeTests {
                 "'(string|float)'", 222, 10);
         validateError(compileResult, index++, "incompatible types: expected 'Address', found 'map<string>'", 241, 13);
         validateError(compileResult, index++, "cannot assign a value to final 'twiceScore'", 259, 10);
-        validateError(compileResult, index, "incompatible types: expected 'FullName[]', found 'error?'", 266, 13);
+        validateError(compileResult, index++, "incompatible types: expected 'FullName[]', found 'error?'", 266, 13);
+        validateError(compileResult, index++, "incompatible types: expected 'xml', found '(xml|string)'", 283, 24);
+        validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 297, 24);
+        validateError(compileResult, index, "a type compatible with mapping constructor expressions " +
+                "not found in type 'string'", 311, 24);
     }
 }
