@@ -82,8 +82,7 @@ public class ChoreoClientHolder {
 
             String nodeId = getNodeId();
 
-            ChoreoClient.RegisterResponse registerResponse =
-                    newChoreoClient.register(metadataReader, nodeId);
+            ChoreoClient.RegisterResponse registerResponse = newChoreoClient.register(metadataReader, nodeId);
             try {
                 appSecretHandler.associate(registerResponse.getObsId());
             } catch (IOException e) {
@@ -128,7 +127,8 @@ public class ChoreoClientHolder {
         return new ChoreoClient(hostname, port, useSSL, projectSecret);
     }
 
-    private static AppSecretHandler getAppSecretHandler(ConfigRegistry configRegistry) throws IOException {
+    private static AppSecretHandler getAppSecretHandler(ConfigRegistry configRegistry) throws IOException,
+            ChoreoClientException {
         String appSecretFromConfig = configRegistry.getConfigOrDefault(getFullQualifiedConfig(APPLICATION_ID_CONFIG),
                 EMPTY_APPLICATION_SECRET);
 

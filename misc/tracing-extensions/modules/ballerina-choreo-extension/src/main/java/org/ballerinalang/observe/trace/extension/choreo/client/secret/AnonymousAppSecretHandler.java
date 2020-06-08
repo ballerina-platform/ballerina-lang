@@ -18,7 +18,10 @@
 
 package org.ballerinalang.observe.trace.extension.choreo.client.secret;
 
+import com.google.common.base.Strings;
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoConfigHelper;
+import org.ballerinalang.observe.trace.extension.choreo.client.error.ChoreoClientException;
+import org.ballerinalang.observe.trace.extension.choreo.client.error.ChoreoErrors;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -37,14 +40,13 @@ import java.util.UUID;
  * Manages storage and retrieval of app secret for anonymous apps.
  */
 public class AnonymousAppSecretHandler implements AppSecretHandler {
-    public static final String PROJECT_SECRET_CONFIG_KEY = "PROJECT_SECRET";
     public static final String PROJECT_OBSERVABILITY_ID_CONFIG_KEY = "PROJECT_OBSERVABILITY_ID";
 
     private final String appSecret;
     private final Path propertiesFilePath;
     private boolean fileDirty = false;
 
-    public AnonymousAppSecretHandler() throws IOException {
+    public AnonymousAppSecretHandler() throws IOException, ChoreoClientException {
         propertiesFilePath = getPropertiesFilePath();
         appSecret = getAppSecretForProject(propertiesFilePath);
     }
@@ -54,7 +56,7 @@ public class AnonymousAppSecretHandler implements AppSecretHandler {
         return Paths.get(workingDir + File.separator + ".choreoproject");
     }
 
-    private String getAppSecretForProject(Path propertiesFilePath) throws IOException {
+    private String getAppSecretForProject(Path propertiesFilePath) throws IOException, ChoreoClientException {
         if (Files.exists(propertiesFilePath)) {
             return readStoredSecret(propertiesFilePath);
         } else {
@@ -63,7 +65,7 @@ public class AnonymousAppSecretHandler implements AppSecretHandler {
         }
     }
 
-    private String readStoredSecret(Path propertiesFileLocation) throws IOException {
+    private String readStoredSecret(Path propertiesFileLocation) throws IOException, ChoreoClientException {
         final String obsId = readStoredObsId(propertiesFileLocation);
         final Path projectSecretPath = getProjectSecretPath(obsId);
 
@@ -72,8 +74,22 @@ public class AnonymousAppSecretHandler implements AppSecretHandler {
         }
 
         try (BufferedReader reader = Files.newBufferedReader(projectSecretPath)) {
-            return reader.readLine();
+            final String projectSecret = validateSecret(reader.readLine());
+            return projectSecret;
         }
+    }
+
+    private static String validateSecret(String secretString) throws ChoreoClientException {
+        if (Strings.isNullOrEmpty(secretString)) {
+            throw ChoreoErrors.createValidationError("Read project secret is empty");
+        }
+
+        final int projectSecretLength = secretString.length();
+        if (projectSecretLength != 36) {
+            throw ChoreoErrors.createValidationError("Project secret length(" + projectSecretLength + ") is incorrect");
+        }
+
+        return secretString;
     }
 
     private String readStoredObsId(Path propertiesFileLocation) throws IOException {

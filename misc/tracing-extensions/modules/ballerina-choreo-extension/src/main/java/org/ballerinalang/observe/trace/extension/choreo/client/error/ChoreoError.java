@@ -57,7 +57,12 @@ public class ChoreoError implements Serializable {
         /**
          * The service is currently unavailable.
          */
-        UNAVAILABLE(3);
+        UNAVAILABLE(3),
+
+        /**
+         * User input or config input is not valid.
+         */
+        VALIDATION_ERROR(4);
 
         private final int value;
 
