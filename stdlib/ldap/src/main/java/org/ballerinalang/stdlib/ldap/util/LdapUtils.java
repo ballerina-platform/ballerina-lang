@@ -36,6 +36,8 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import static org.ballerinalang.stdlib.ldap.LdapConstants.LDAP_PACKAGE_ID;
+
 /**
  * Utility class for LDAP related common operations.
  *
@@ -255,6 +257,6 @@ public class LdapUtils {
     }
 
     public static ErrorValue createError(String errMsg) {
-        return BallerinaErrors.createError(LdapConstants.LDAP_ERROR_CODE, errMsg);
+        return BallerinaErrors.createDistinctError(LdapConstants.LDAP_ERROR_TYPE, LDAP_PACKAGE_ID, errMsg);
     }
 }
