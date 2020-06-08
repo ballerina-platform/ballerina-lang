@@ -1234,7 +1234,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetryTransaction retryTransaction) {
-        //TODO Transactions
+        analyzeNode(retryTransaction.transaction, env);
     }
 
     @Override

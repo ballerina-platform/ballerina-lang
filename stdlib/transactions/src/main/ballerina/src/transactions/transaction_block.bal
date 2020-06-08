@@ -490,7 +490,7 @@ function externRollbackTransaction(handle transactionBlockId) = @java:Method {
 # Cleanup the transaction context.
 #
 # + transactionBlockId - ID of the transaction block.
-function cleanupTransactionContext(string transactionBlockId) {
+public function cleanupTransactionContext(string transactionBlockId) {
     externCleanupTransactionContext(java:fromString(transactionBlockId));
 }
 

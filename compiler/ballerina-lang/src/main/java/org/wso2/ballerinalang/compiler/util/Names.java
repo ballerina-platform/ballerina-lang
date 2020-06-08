@@ -117,6 +117,7 @@ public class Names {
     public static final Name ROLLBACK_TRANSACTION = new Name("rollbackTransaction");
     public static final Name END_TRANSACTION = new Name("endTransaction");
     public static final Name GET_AND_CLEAR_FAILURE_TRANSACTION = new Name("getAndClearFailure");
+    public static final Name CLEAN_UP_TRANSACTION = new Name("cleanupTransactionContext");
 
     public static final Name CONSTRUCT_STREAM = new Name("construct");
 
