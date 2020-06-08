@@ -308,7 +308,7 @@ public abstract class AbstractParserErrorHandler {
             case ASTERISK_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_ASTERISK_TOKEN;
             case PIPE_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_ASTERISK_TOKEN;
+                return DiagnosticErrorCode.ERROR_MISSING_PIPE_TOKEN;
 
             case DEFAULT_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_DEFAULT_KEYWORD;

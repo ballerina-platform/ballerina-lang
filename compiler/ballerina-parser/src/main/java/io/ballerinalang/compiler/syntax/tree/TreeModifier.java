@@ -2723,7 +2723,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             MatchClauseNode matchClauseNode) {
         SeparatedNodeList<Node> matchPatterns =
                 modifySeparatedNodeList(matchClauseNode.matchPatterns());
-        Node matchGuard =
+        MatchGuardNode matchGuard =
                 modifyNode(matchClauseNode.matchGuard().orElse(null));
         Token rightDoubleArrow =
                 modifyToken(matchClauseNode.rightDoubleArrow());
@@ -2734,6 +2734,18 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 matchGuard,
                 rightDoubleArrow,
                 blockStatement);
+    }
+
+    @Override
+    public MatchGuardNode transform(
+            MatchGuardNode matchGuardNode) {
+        Token ifKeyword =
+                modifyToken(matchGuardNode.ifKeyword());
+        ExpressionNode expression =
+                modifyNode(matchGuardNode.expression());
+        return matchGuardNode.modify(
+                ifKeyword,
+                expression);
     }
 
     // Tokens

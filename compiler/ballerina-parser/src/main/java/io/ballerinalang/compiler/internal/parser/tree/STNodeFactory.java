@@ -2018,5 +2018,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 rightDoubleArrow,
                 blockStatement);
     }
+
+    public static STNode createMatchGuardNode(
+            STNode ifKeyword,
+            STNode expression) {
+
+        return new STMatchGuardNode(
+                ifKeyword,
+                expression);
+    }
 }
 

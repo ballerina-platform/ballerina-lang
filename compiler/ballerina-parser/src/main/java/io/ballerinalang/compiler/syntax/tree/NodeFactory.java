@@ -2685,7 +2685,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static MatchClauseNode createMatchClauseNode(
             SeparatedNodeList<Node> matchPatterns,
-            Node matchGuard,
+            MatchGuardNode matchGuard,
             Token rightDoubleArrow,
             BlockStatement blockStatement) {
         Objects.requireNonNull(matchPatterns, "matchPatterns must not be null");
@@ -2698,6 +2698,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 rightDoubleArrow.internalNode(),
                 blockStatement.internalNode());
         return stMatchClauseNode.createUnlinkedFacade();
+    }
+
+    public static MatchGuardNode createMatchGuardNode(
+            Token ifKeyword,
+            ExpressionNode expression) {
+        Objects.requireNonNull(ifKeyword, "ifKeyword must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stMatchGuardNode = STNodeFactory.createMatchGuardNode(
+                ifKeyword.internalNode(),
+                expression.internalNode());
+        return stMatchGuardNode.createUnlinkedFacade();
     }
 }
 

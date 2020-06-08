@@ -716,6 +716,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(matchClauseNode);
     }
 
+    public T transform(MatchGuardNode matchGuardNode) {
+        return transformSyntaxNode(matchGuardNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

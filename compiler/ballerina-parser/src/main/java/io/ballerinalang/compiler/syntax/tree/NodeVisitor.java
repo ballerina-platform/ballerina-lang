@@ -715,6 +715,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(matchClauseNode);
     }
 
+    public void visit(MatchGuardNode matchGuardNode) {
+        visitSyntaxNode(matchGuardNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {
