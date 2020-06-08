@@ -3622,52 +3622,73 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
-        BType type = types.checkType(rawTemplateLiteral, expType, symTable.rawTemplateType);
+        BType type;
+
+        if (expType != symTable.noType) {
+            type = types.checkType(rawTemplateLiteral, expType, symTable.rawTemplateType);
+        } else {
+            // When `var` is used, consider the literal as of type RawTemplate
+            type = symTable.rawTemplateType;
+        }
 
         if (type == symTable.semanticError) {
             resultType = type;
             return;
         }
 
-        checkExprs(rawTemplateLiteral.strings, env, symTable.stringType);
-
         BObjectType literalType = (BObjectType) type;
+        BType stringsType = literalType.fields.get("strings").type;
+
+        if (validateRawTemplateExprs(rawTemplateLiteral.strings, stringsType, rawTemplateLiteral.pos)
+                == symTable.semanticError) {
+            resultType = symTable.semanticError;
+            return;
+        }
+
         BType insertionsType = literalType.fields.get("insertions").type;
 
-        if (insertionsType.tag == TypeTags.ARRAY) {
-            BArrayType arrayType = (BArrayType) insertionsType;
-            for (BLangExpression insertion : rawTemplateLiteral.insertions) {
+        if (validateRawTemplateExprs(rawTemplateLiteral.insertions, insertionsType, rawTemplateLiteral.pos)
+                == symTable.semanticError) {
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        resultType = type;
+    }
+
+    private BType validateRawTemplateExprs(List<? extends BLangExpression> exprs, BType listType, DiagnosticPos pos) {
+        if (listType.tag == TypeTags.ARRAY) {
+            BArrayType arrayType = (BArrayType) listType;
+            for (BLangExpression insertion : exprs) {
                 checkExpr(insertion, env, arrayType.eType);
             }
             // TODO: Consider fixed-length arrays
-        } else if (insertionsType.tag == TypeTags.TUPLE) {
-            BTupleType tupleType = (BTupleType) insertionsType;
-            List<BLangExpression> insertions = rawTemplateLiteral.insertions;
-            int size = insertions.size();
+        } else if (listType.tag == TypeTags.TUPLE) {
+            BTupleType tupleType = (BTupleType) listType;
+            int size = exprs.size();
             int requiredInsertions = tupleType.tupleTypes.size();
 
             if (size < requiredInsertions || (size > requiredInsertions && tupleType.restType == null)) {
-                dlog.error(rawTemplateLiteral.pos, DiagnosticCode.INVALID_RAW_TEMPLATE_LITERAL,
+                dlog.error(pos, DiagnosticCode.INVALID_RAW_TEMPLATE_LITERAL,
                            requiredInsertions, size);
-                resultType = symTable.semanticError;
-                return;
+                return symTable.semanticError;
             }
 
             int i;
             for (i = 0; i < requiredInsertions; i++) {
-                checkExpr(insertions.get(i), env, tupleType.tupleTypes.get(i));
+                checkExpr(exprs.get(i), env, tupleType.tupleTypes.get(i));
             }
 
             if (size > requiredInsertions) {
                 for (; i < size; i++) {
-                    checkExpr(insertions.get(i), env, tupleType.restType);
+                    checkExpr(exprs.get(i), env, tupleType.restType);
                 }
             }
         } else {
-            throw new IllegalStateException("Expected a list type, but found: " + insertionsType);
+            throw new IllegalStateException("Expected a list type, but found: " + listType);
         }
 
-        resultType = type;
+        return null;
     }
 
     @Override
