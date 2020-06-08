@@ -34,6 +34,9 @@ public final class Constants {
     public static final String DATABASE_CLIENT = "Client";
     public static final String SQL_CONNECTOR_TRANSACTION_ID = "sql-transaction-id";
 
+    public static final String BATCH_EXECUTE_ERROR_DATA = "BatchExecuteErrorData";
+    public static final String BATCH_EXECUTE_ERROR_CODE = "{ballerina/sql}BatchExecuteError";
+
     public static final String DATABASE_ERROR_DATA = "DatabaseErrorData";
     public static final String DATABASE_ERROR_CODE = "{ballerina/sql}DatabaseError";
 
@@ -51,7 +54,7 @@ public final class Constants {
 
     public static final BString TIMEZONE_UTC = StringUtils.fromString("UTC");
 
-    public static final String EXCUTE_RESULT_RECORD = "ExecuteResult";
+    public static final String EXECUTION_RESULT_RECORD = "ExecutionResult";
     public static final String AFFECTED_ROW_COUNT_FIELD = "affectedRowCount";
     public static final String LAST_INSERTED_ID_FIELD = "lastInsertId";
 
@@ -85,6 +88,7 @@ public final class Constants {
         public static final String MESSAGE = "message";
         public static final String ERROR_CODE = "errorCode";
         public static final String SQL_STATE = "sqlState";
+        public static final String EXECUTION_RESULTS = "executionResults";
 
     }
 

@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -195,6 +196,11 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BHandleType bHandleType) {
+    }
+
+    @Override
+    public void visit(BNeverType bNeverType) {
+        // Nothing to do
     }
 
     @Override

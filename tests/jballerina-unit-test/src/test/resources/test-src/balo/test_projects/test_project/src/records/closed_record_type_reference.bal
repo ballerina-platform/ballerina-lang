@@ -34,3 +34,8 @@ public type ClosedAddress record {|
     string city;
     string country;
 |};
+
+public type ClosedVehicleWithNever record {|
+    int j;
+    never p?;
+|};

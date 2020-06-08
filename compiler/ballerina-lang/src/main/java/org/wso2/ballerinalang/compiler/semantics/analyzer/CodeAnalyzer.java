@@ -420,10 +420,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (funcNode.body != null) {
             analyzeNode(funcNode.body, invokableEnv);
 
-            boolean isNilableReturn = funcNode.symbol.type.getReturnType().isNullable();
+            boolean isNeverOrNilableReturn = funcNode.symbol.type.getReturnType().tag == TypeTags.NEVER ||
+                    funcNode.symbol.type.getReturnType().isNullable();
             // If the return signature is nil-able, an implicit return will be added in Desugar.
             // Hence this only checks for non-nil-able return signatures and uncertain return in the body.
-            if (!isNilableReturn && !this.statementReturns) {
+            if (!isNeverOrNilableReturn && !this.statementReturns) {
                 this.dlog.error(funcNode.pos, DiagnosticCode.INVOKABLE_MUST_RETURN,
                         funcNode.getKind().toString().toLowerCase());
             }
@@ -2013,6 +2014,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             BSymbol funcSymbol = invocationExpr.symbol;
             if (Symbols.isFlagOn(funcSymbol.flags, Flags.DEPRECATED)) {
                 dlog.warning(invocationExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, invocationExpr);
+            }
+
+            if (((BInvokableSymbol) funcSymbol).getReturnType().tag == TypeTags.NEVER &&
+                    invocationExpr.parent.getKind() != NodeKind.EXPRESSION_STATEMENT) {
+                // Log an error if the function returns never and invoked invalidly.
+                dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_NEVER_RETURN_TYPED_FUNCTION_INVOCATION,
+                        funcSymbol.name);
             }
         }
     }

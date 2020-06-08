@@ -18,7 +18,7 @@ import ballerina/io;
 import ballerina/sql;
 import ballerina/time;
 
-function insertIntoDataTable(string url, string user, string password) returns sql:ExecuteResult|sql:Error? {
+function insertIntoDataTable(string url, string user, string password) returns sql:ExecutionResult|sql:Error? {
     sql:ParameterizedString sqlQuery = {
                 parts: ["INSERT INTO DataTable (row_id, int_type, long_type, " +
                 "float_type, double_type, boolean_type, string_type, decimal_type) " +
@@ -28,7 +28,7 @@ function insertIntoDataTable(string url, string user, string password) returns s
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
 
-function insertIntoDataTable2(string url, string user, string password) returns sql:ExecuteResult|sql:Error? {
+function insertIntoDataTable2(string url, string user, string password) returns sql:ExecutionResult|sql:Error? {
     sql:ParameterizedString sqlQuery = {
                 parts: ["INSERT INTO DataTable (row_id) " +
                 "VALUES(", ")"],
@@ -37,7 +37,7 @@ function insertIntoDataTable2(string url, string user, string password) returns 
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
 
-function insertIntoDataTable3(string url, string user, string password) returns sql:ExecuteResult|sql:Error? {
+function insertIntoDataTable3(string url, string user, string password) returns sql:ExecutionResult|sql:Error? {
     sql:ParameterizedString sqlQuery = {
                 parts: ["INSERT INTO DataTable (row_id, int_type, long_type, " +
                 "float_type, double_type, boolean_type, string_type, decimal_type) " +
@@ -47,7 +47,7 @@ function insertIntoDataTable3(string url, string user, string password) returns 
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
 
-function insertIntoDataTable4(string url, string user, string password) returns sql:ExecuteResult|sql:Error? {
+function insertIntoDataTable4(string url, string user, string password) returns sql:ExecutionResult|sql:Error? {
     sql:IntegerValue rowId = new (7);
     sql:IntegerValue intType = new (2);
     sql:BigIntValue longType = new (9372036854774807);
@@ -67,7 +67,7 @@ function insertIntoDataTable4(string url, string user, string password) returns 
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
 
-function deleteDataTable1(string url, string user, string password) returns sql:ExecuteResult|sql:Error? {
+function deleteDataTable1(string url, string user, string password) returns sql:ExecutionResult|sql:Error? {
     sql:ParameterizedString sqlQuery = {
                 parts: ["DELETE FROM DataTable where row_id=" , "AND int_type=", " AND long_type=",
                 "AND float_type=" , "AND double_type=", "AND boolean_type=", "AND string_type=", "AND decimal_type=", ""],
@@ -76,7 +76,7 @@ function deleteDataTable1(string url, string user, string password) returns sql:
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
 
-function deleteDataTable2(string url, string user, string password) returns sql:ExecuteResult|sql:Error? {
+function deleteDataTable2(string url, string user, string password) returns sql:ExecutionResult|sql:Error? {
     sql:ParameterizedString sqlQuery = {
                 parts: ["DELETE FROM DataTable where row_id=", ""],
                 insertions: [2]
@@ -84,7 +84,7 @@ function deleteDataTable2(string url, string user, string password) returns sql:
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
 
-function deleteDataTable3(string url, string user, string password) returns sql:ExecuteResult|sql:Error? {
+function deleteDataTable3(string url, string user, string password) returns sql:ExecutionResult|sql:Error? {
     sql:IntegerValue rowId = new (3);
     sql:IntegerValue intType = new (1);
     sql:BigIntValue longType = new (9372036854774807);
@@ -103,7 +103,7 @@ function deleteDataTable3(string url, string user, string password) returns sql:
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
 
-function insertIntoComplexTable(string url, string user, string password) returns sql:ExecuteResult|sql:Error? {
+function insertIntoComplexTable(string url, string user, string password) returns sql:ExecutionResult|sql:Error? {
     record {}|error? value = queryMockClient(url, user, password, "Select * from ComplexTypes where row_id = 1");
     byte[] binaryData = <byte[]>getUntaintedData(value, "BLOB_TYPE");
     
@@ -115,7 +115,7 @@ function insertIntoComplexTable(string url, string user, string password) return
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
 
-function insertIntoComplexTable2(string url, string user, string password) returns sql:ExecuteResult|error? {
+function insertIntoComplexTable2(string url, string user, string password) returns sql:ExecutionResult|error? {
     io:ReadableByteChannel blobChannel = check getBlobColumnChannel();
     io:ReadableCharacterChannel clobChannel = check getClobColumnChannel();
     io:ReadableByteChannel byteChannel = check getByteColumnChannel();
@@ -132,7 +132,7 @@ function insertIntoComplexTable2(string url, string user, string password) retur
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
 
-function insertIntoComplexTable3(string url, string user, string password) returns sql:ExecuteResult|sql:Error|error? {
+function insertIntoComplexTable3(string url, string user, string password) returns sql:ExecutionResult|sql:Error|error? {
     sql:ParameterizedString sqlQuery = {
                 parts: ["INSERT INTO ComplexTypes (row_id, blob_type, clob_type, binary_type, var_binary_type) " +
                 "VALUES (", ", " , ", " , " ," , ", ", ")" ],
@@ -141,7 +141,7 @@ function insertIntoComplexTable3(string url, string user, string password) retur
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
 
-function deleteComplexTable(string url, string user, string password) returns sql:ExecuteResult|sql:Error? {
+function deleteComplexTable(string url, string user, string password) returns sql:ExecutionResult|sql:Error? {
     record {}|error? value = queryMockClient(url, user, password, "Select * from ComplexTypes where row_id = 1");
     byte[] binaryData = <byte[]>getUntaintedData(value, "BLOB_TYPE");
 
@@ -152,7 +152,7 @@ function deleteComplexTable(string url, string user, string password) returns sq
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
 
-function deleteComplexTable2(string url, string user, string password) returns sql:ExecuteResult|sql:Error|error? {
+function deleteComplexTable2(string url, string user, string password) returns sql:ExecutionResult|sql:Error|error? {
     sql:BlobValue blobType = new ();
     sql:ClobValue clobType = new ();
     sql:BinaryValue binaryType = new ();
@@ -165,7 +165,7 @@ function deleteComplexTable2(string url, string user, string password) returns s
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
 
-function insertIntoNumericTable(string url, string user, string password) returns sql:ExecuteResult|sql:Error? {
+function insertIntoNumericTable(string url, string user, string password) returns sql:ExecutionResult|sql:Error? {
     sql:BitValue bitType = new (1);
     sql:ParameterizedString sqlQuery = {
         parts: ["INSERT INTO NumericTypes (id, int_type, bigint_type, smallint_type, tinyint_type, bit_type," +
@@ -176,7 +176,7 @@ function insertIntoNumericTable(string url, string user, string password) return
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
 
-function insertIntoNumericTable2(string url, string user, string password) returns sql:ExecuteResult|sql:Error? {
+function insertIntoNumericTable2(string url, string user, string password) returns sql:ExecutionResult|sql:Error? {
     sql:ParameterizedString sqlQuery = {
         parts: ["INSERT INTO NumericTypes (id, int_type, bigint_type, smallint_type, tinyint_type, bit_type," +
                 " decimal_type, numeric_type, float_type, real_type) " +
@@ -186,7 +186,7 @@ function insertIntoNumericTable2(string url, string user, string password) retur
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
 
-function insertIntoNumericTable3(string url, string user, string password) returns sql:ExecuteResult|sql:Error? {
+function insertIntoNumericTable3(string url, string user, string password) returns sql:ExecutionResult|sql:Error? {
     sql:IntegerValue id = new (5);
     sql:IntegerValue intType = new (2147483647);
     sql:BigIntValue bigIntType = new (9223372036854774807);
@@ -209,7 +209,7 @@ function insertIntoNumericTable3(string url, string user, string password) retur
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
 
-function insertIntoDateTimeTable(string url, string user, string password) returns sql:ExecuteResult|sql:Error? {
+function insertIntoDateTimeTable(string url, string user, string password) returns sql:ExecutionResult|sql:Error? {
     sql:ParameterizedString sqlQuery = {
         parts: ["INSERT INTO DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type, time_type2," +
                 " timestamp_type2) VALUES(", ", ", ", ", ", ", " ,", " , ", ",", ")"],
@@ -219,7 +219,7 @@ function insertIntoDateTimeTable(string url, string user, string password) retur
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
 
-function insertIntoDateTimeTable2(string url, string user, string password) returns sql:ExecuteResult|error? {
+function insertIntoDateTimeTable2(string url, string user, string password) returns sql:ExecutionResult|error? {
     sql:DateValue dateVal = new ("2017-02-03");
     sql:TimeValue timeVal = new ("11:35:45");
     sql:DateTimeValue dateTimeVal =  new ("2017-02-03 11:53:00");
@@ -234,7 +234,7 @@ function insertIntoDateTimeTable2(string url, string user, string password) retu
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
 
-function insertIntoDateTimeTable3(string url, string user, string password) returns sql:ExecuteResult|error? {
+function insertIntoDateTimeTable3(string url, string user, string password) returns sql:ExecutionResult|error? {
     sql:DateValue dateVal = new ();
     sql:TimeValue timeVal = new ();
     sql:DateTimeValue dateTimeVal =  new ();
@@ -249,7 +249,7 @@ function insertIntoDateTimeTable3(string url, string user, string password) retu
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
 
-function insertIntoDateTimeTable4(string url, string user, string password) returns sql:ExecuteResult|error? {
+function insertIntoDateTimeTable4(string url, string user, string password) returns sql:ExecutionResult|error? {
     sql:ParameterizedString sqlQuery = {
         parts: ["INSERT INTO DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type, time_type2," +
                 " timestamp_type2) VALUES(", ", ", ", ", ", ", " ,", " , ", ",", ")"],
@@ -258,7 +258,7 @@ function insertIntoDateTimeTable4(string url, string user, string password) retu
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
 
-function insertIntoArrayTable(string url, string user, string password) returns sql:ExecuteResult|error? {
+function insertIntoArrayTable(string url, string user, string password) returns sql:ExecutionResult|error? {
     int[] dataint = [1, 2, 3];
     int[] datalong = [100000000, 200000000, 300000000];
     float[] datafloat = [245.23, 5559.49, 8796.123];
@@ -288,7 +288,7 @@ function insertIntoArrayTable(string url, string user, string password) returns 
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
 
-function insertIntoArrayTable2(string url, string user, string password) returns sql:ExecuteResult|error? {
+function insertIntoArrayTable2(string url, string user, string password) returns sql:ExecutionResult|error? {
     sql:ArrayValue paraInt = new ();
     sql:ArrayValue paraLong = new ();
     sql:ArrayValue paraFloat = new ();
@@ -308,9 +308,9 @@ function insertIntoArrayTable2(string url, string user, string password) returns
 }
 
 function executeQueryMockClient(string jdbcURL, string user, string password, sql:ParameterizedString sqlQuery)
-returns sql:ExecuteResult|sql:Error? {
+returns sql:ExecutionResult|sql:Error? {
     mockclient:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    sql:ExecuteResult? result = check dbClient->execute(sqlQuery);
+    sql:ExecutionResult? result = check dbClient->execute(sqlQuery);
     check dbClient.close();
     return result;
 }
