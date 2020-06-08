@@ -527,4 +527,32 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             noOfAddedEntries++;
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        TableValueImpl<?, ?> tableValue = (TableValueImpl<?, ?>) o;
+
+        if (tableValue.type.getTag() != this.type.getTag()) {
+            return false;
+        }
+
+        if (this.entrySet().size() != tableValue.entrySet().size()) {
+            return false;
+        }
+
+        return entrySet().equals(tableValue.entrySet());
+    }
+
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
 }
