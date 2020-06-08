@@ -176,8 +176,8 @@ type Manager object {
 };
 
 function testUnionTypeWithFunctionPointerAccess() returns int {
-    Employee e = new;
-    Employee|Manager person = e;
+    Employee employee = new;
+    Employee|Manager person = employee;
     person.age = 25;
     var setMinAge = function () {
         person.age = 30;
