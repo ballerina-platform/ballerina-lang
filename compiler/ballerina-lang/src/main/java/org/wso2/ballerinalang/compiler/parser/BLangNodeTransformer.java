@@ -1496,14 +1496,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         // TODO : Add BLangTableMultiKeyExpr for indexExpr if it is available
         indexBasedAccess.indexExpr = createExpression(indexedExpressionNode.keyExpression().get(0));
 
-        BLangExpression expression = createExpression(indexedExpressionNode.containerExpression());
-        if (expression instanceof BLangGroupExpr) {
+        Node containerExpr = indexedExpressionNode.containerExpression();
+        BLangExpression expression = createExpression(containerExpr);
+        if (containerExpr.kind() == SyntaxKind.BRACED_EXPRESSION) {
             indexBasedAccess.expr = ((BLangGroupExpr) expression).expression;
             BLangGroupExpr group = (BLangGroupExpr) TreeBuilder.createGroupExpressionNode();
             group.expression = indexBasedAccess;
             group.pos = getPosition(indexedExpressionNode);
             return group;
-        } else if (expression instanceof BLangXMLNavigationAccess) {
+        } else if (containerExpr.kind() == SyntaxKind.XML_STEP_EXPRESSION) {
             // TODO : This check will be removed after changes are done for spec issue #536
             ((BLangXMLNavigationAccess) expression).childIndex = indexBasedAccess.indexExpr;
             return expression;
