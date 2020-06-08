@@ -71,7 +71,7 @@ The CREATE statement is executed via the `execute` remote function of the client
 // Create the ‘Students’ table with fields ‘id’, 'name' and ‘age’.
 var ret = dbClient->execute("CREATE TABLE student(id INT AUTO_INCREMENT, " +
                          "age INT, name VARCHAR(255), PRIMARY KEY (id))");
-if (ret is sql:ExecuteResult) {
+if (ret is sql:ExecutionResult) {
     io:println("Students table create status in DB: ", ret.affectedRowCount);
 } else {
     error err = ret;
@@ -91,7 +91,7 @@ remote function:
 ```ballerina
 var ret = dbClient->execute("INSERT INTO student(age, name) " +
                          "values (23, 'john')");
-if (ret is sql:ExecuteResult) {
+if (ret is sql:ExecutionResult) {
     io:println("Inserted row count to Students table: ", ret.affectedRowCount);
 } else {
     error err = ret;
@@ -110,7 +110,7 @@ string name = "Anne";
 int age = 8;
 
 var ret = dbClient->execute(`INSERT INTO student(age, name) values (${age}, ${name})`);
-if (ret is sql:ExecuteResult) {
+if (ret is sql:ExecutionResult) {
     io:println("Inserted row count to Students table: ", ret.affectedRowCount);
 } else {
     error err = ret;
@@ -128,7 +128,7 @@ sql:Varchar name = new ("James");
 sql:Integer age = new (10);
 
 var ret = dbClient->execute(`INSERT INTO student(age, name) values (${age}, ${name})`);
-if (ret is sql:ExecuteResult) {
+if (ret is sql:ExecutionResult) {
     io:println("Inserted row count to Students table: ", ret.affectedRowCount);
 } else {
     error err = ret;
@@ -146,7 +146,7 @@ This example demonstrates inserting data while returning the auto-generated keys
 int age = 31;
 string name = "Kate";
 var ret = dbClient->execute(`INSERT INTO student(age, name) values (${age}, ${name})`);
-if (ret is sql:ExecuteResult) {
+if (ret is sql:ExecutionResult) {
     int? count = ret.affectedRowCount;
     string|int? generatedKey = ret.lastInsertId;
     io:println("Inserted row count: ", count);
@@ -222,7 +222,7 @@ the client.
 ```ballerina
 int age = 23;
 var ret = dbClient->execute(`UPDATE student SET name = 'John' WHERE age = ${age}`);
-if (ret is sql:ExecuteResult) {
+if (ret is sql:ExecutionResult) {
     io:println("Updated row count in Students table: ", ret.affectedRowCount);
 } else {
     error err = ret;

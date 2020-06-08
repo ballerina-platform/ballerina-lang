@@ -105,22 +105,18 @@ public class ExecuteUtils {
 
         Object dbClient = client.getNativeData(Constants.DATABASE_CLIENT);
         if (dbClient != null) {
-
             SQLDatasource sqlDatasource = (SQLDatasource) dbClient;
             Connection connection = null;
             PreparedStatement statement = null;
             ResultSet resultSet = null;
-
+            Strand strand = Scheduler.getStrand();
             String sqlQuery = null;
             List<MapValue<BString, Object>> parameters = new ArrayList<>();
             List<MapValue<BString, Object>> executionResults = new ArrayList<>();
-
             try {
-
                 MapValue<BString, Object> parameterizedString = (MapValue<BString, Object>) paramSQLStrings.get(0);
                 sqlQuery = Utils.getSqlQuery(parameterizedString);
                 parameters.add(parameterizedString);
-
                 for (int i = 1; i < paramSQLStrings.size(); i++) {
                     parameterizedString = (MapValue<BString, Object>) paramSQLStrings.get(i);
                     String paramSQLQuery = Utils.getSqlQuery(parameterizedString);
@@ -132,8 +128,7 @@ public class ExecuteUtils {
                                 "commands. These has to be executed in different function calls");
                     }
                 }
-
-                connection = sqlDatasource.getSQLConnection();
+                connection = SQLDatasourceUtils.getConnection(strand, client, sqlDatasource);
                 connection.setAutoCommit(false);
 
                 statement = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
@@ -204,7 +199,7 @@ public class ExecuteUtils {
                 return ErrorGenerator.getSQLApplicationError("Error while executing sql query: "
                         + e.getMessage());
             } finally {
-                Utils.closeResources(resultSet, statement, connection);
+                Utils.closeResources(strand, resultSet, statement, connection);
             }
         } else {
             return ErrorGenerator.getSQLApplicationError(

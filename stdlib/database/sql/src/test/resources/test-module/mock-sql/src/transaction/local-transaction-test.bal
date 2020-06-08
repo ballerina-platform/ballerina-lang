@@ -27,7 +27,7 @@ function testLocalTransaction(string jdbcURL, string user, string password) retu
     boolean committedBlockExecuted = false;
     boolean abortedBlockExecuted = false;
     transaction {
-        sql:ExecuteResult|sql:Error? res = dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+        sql:ExecutionResult|sql:Error? res = dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
                                 "values ('James', 'Clerk', 200, 5000.75, 'USA')");
         res = dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
                                 "values ('James', 'Clerk', 200, 5000.75, 'USA')");
