@@ -207,6 +207,13 @@ function testUsageWithQueryExpressions2() {
     }
 }
 
+function testUseWithVar() {
+    string name = "Pubudu";
+    var rt = `Hello ${name}!`;
+    typedesc<any> td = typeof rt;
+
+    assert("typedesc lang.object:RawTemplate", td.toString());
+}
 
 // Util functions
 

@@ -24,6 +24,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.testng.Assert.assertEquals;
+
 /**
  * Test cases for the raw template literals.
  */
@@ -34,6 +37,38 @@ public class RawTemplateLiteralTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/expressions/rawtemplate/raw_template_literal_test.bal");
+    }
+
+    @Test
+    public void testNegatives() {
+        CompileResult errors = BCompileUtil.compile(
+                "test-src/expressions/rawtemplate/raw_template_literal_negative.bal");
+        int indx = 0;
+
+        validateError(errors, indx++, "incompatible types: expected 'ballerina/lang.object:1.0.0:RawTemplate'" +
+                ", found 'string'", 21, 18);
+        validateError(errors, indx++, "incompatible types: expected 'ballerina/lang.object:1.0.0:RawTemplate'" +
+                ", found 'anydata'", 22, 19);
+        validateError(errors, indx++, "incompatible types: expected 'ballerina/lang.object:1.0.0:RawTemplate', found " +
+                "'object { public string[] strings; public int insertions; }'", 32, 15);
+        validateError(errors, indx++, "incompatible types: expected 'ballerina/lang.object:1.0.0:RawTemplate', found " +
+                "'object { public string strings; public int[] insertions; }'", 37, 15);
+        validateError(errors, indx++, "invalid raw template literal: expected 2 insertions, but found " +
+                "3 insertions", 50, 19);
+        validateError(errors, indx++, "invalid raw template literal: expected 2 insertions, but found " +
+                "1 insertions", 51, 19);
+        validateError(errors, indx++, "incompatible types: expected 'anydata', found 'Template'", 61, 46);
+        validateError(errors, indx++, "incompatible types: expected '(Foo|Bar)', found 'string'", 75, 16);
+
+        assertEquals(errors.getErrorCount(), indx);
+    }
+
+    @Test
+    public void testCodeAnalyzerNegatives() {
+        CompileResult errors = BCompileUtil.compile(
+                "test-src/expressions/rawtemplate/raw_template_negative_code_analyzer.bal");
+        validateError(errors, 0, "action invocation as an expression not allowed here", 22, 40);
+        assertEquals(errors.getErrorCount(), 1);
     }
 
     @Test(dataProvider = "FunctionNames")
@@ -54,6 +89,7 @@ public class RawTemplateLiteralTest {
                 {"testSubtyping3"},
                 {"testUsageWithQueryExpressions"},
                 {"testUsageWithQueryExpressions2"},
+                {"testUseWithVar"}
         };
     }
 }
