@@ -51,6 +51,9 @@ function testImmutableTypes() {
     testImmutableRecordWithDefaultValues();
     testImmutableObjects();
     testImmutableJson();
+    testImmutableAnydata();
+    testImmutableAny();
+    testImmutableUnion();
 }
 
 function testSimpleInitializationForSelectivelyImmutableTypes() {
@@ -746,6 +749,73 @@ function testImmutableJson() {
     assertTrue(an is map<json> & readonly);
     assertTrue(an is readonly);
     assertTrue(a.isReadOnly());
+    assertEquality(<map<json>> {a: 1, b: "hello"}, a);
+
+    json & readonly k = 1;
+    a = k;
+    an = k;
+    assertTrue(an is json & readonly);
+    assertTrue(an is int);
+    assertTrue(an is readonly);
+    assertTrue(a.isReadOnly());
+    assertEquality(1, a);
+}
+
+function testImmutableAnydata() {
+    anydata & readonly j = {a: 1, b: "hello"};
+    anydata a = j;
+    any an = j;
+    assertTrue(an is anydata & readonly);
+    assertTrue(an is map<anydata> & readonly);
+    assertTrue(an is readonly);
+    assertTrue(a.isReadOnly());
+    assertEquality(<map<anydata>> {a: 1, b: "hello"}, a);
+
+    anydata & readonly k = 12.0d;
+    a = k;
+    an = k;
+    assertTrue(an is anydata & readonly);
+    assertTrue(an is decimal);
+    assertTrue(an is readonly);
+    assertTrue(a.isReadOnly());
+    assertEquality(12.0d, a);
+}
+
+function testImmutableAny() {
+    any & readonly j = {a: 1, b: "hello"};
+    any an = j;
+    assertTrue(an is any & readonly);
+    assertTrue(an is map<any> & readonly);
+    assertTrue(an is readonly);
+    map<any> anyMap = <map<any>> an;
+    assertEquality(anyMap["a"], 1);
+    assertEquality(anyMap["b"], "hello");
+
+    any & readonly k = "string value";
+    an = k;
+    assertTrue(an is any & readonly);
+    assertTrue(an is string);
+    assertTrue(an is readonly);
+    assertEquality("string value", an);
+}
+
+function testImmutableUnion() {
+    (json|xml|future<int>) & readonly j = {a: 1, b: "hello"};
+    any an = j;
+    assertTrue(an is json & readonly);
+    assertTrue(an is map<json> & readonly);
+    assertTrue(an is readonly);
+    anydata a = <anydata> j;
+    assertTrue(a.isReadOnly());
+    assertEquality(<map<json>> {a: 1, b: "hello"}, a);
+
+    (float|string[]) & readonly k = 12.0;
+    a = k;
+    an = k;
+    assertTrue(an is float);
+    assertTrue(an is readonly);
+    assertTrue(a.isReadOnly());
+    assertEquality(12.0f, an);
 }
 
 type AssertionError error<ASSERTION_ERROR_REASON>;

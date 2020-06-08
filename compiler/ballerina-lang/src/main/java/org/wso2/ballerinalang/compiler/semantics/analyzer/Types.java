@@ -1685,6 +1685,8 @@ public class Types {
         BType newTargetType = targetType;
         if ((targetType.tag == TypeTags.UNION || targetType.tag == TypeTags.FINITE) && isValueType(actualType)) {
             newTargetType = symTable.anyType;   // TODO : Check for correctness.
+        } else if (targetType.tag == TypeTags.INTERSECTION) {
+            newTargetType = ((BIntersectionType) targetType).effectiveType;
         }
 
         TypeTestResult result = isBuiltInTypeWidenPossible(actualType, newTargetType);

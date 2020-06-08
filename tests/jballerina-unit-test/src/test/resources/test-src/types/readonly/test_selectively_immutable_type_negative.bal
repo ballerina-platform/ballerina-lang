@@ -75,7 +75,14 @@ type Obj object {
 type ABAny AB|any;
 
 function testInvalidAssignmentToWideReadOnlyIntersection() {
-    ABAny & readonly x = new Obj(1);
+    ABAny & readonly w = new Obj(1);
+
+    string[] arr = ["foo"];
+    anydata & readonly x = arr;
+
+    any & readonly y = start testInvalidReaoOnlyRecordInit();
+
+    (Obj|int[]) & readonly z = arr;
 }
 
 type Employee record {|
