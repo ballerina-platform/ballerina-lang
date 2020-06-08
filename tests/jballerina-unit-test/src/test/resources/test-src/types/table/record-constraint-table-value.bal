@@ -249,6 +249,34 @@ function testVarTypeTableInvalidMemberAccess() {
     Customer customer = customerTable[18, "Mohan"];
 }
 
+type Details record {|
+    string name;
+    string id;
+|};
+
+type TableRec record {|
+    table<Details> detTable;
+|};
+
+function testTableAsRecordField()  {
+    TableRec tableRecord1 = {
+            detTable: table [
+                {name: "Jo", id: "azqw"},
+                {name: "Amy", id: "ldhe"}
+            ]
+    };
+
+    table<Details> tb = table [
+            {name: "Jo", id: "azqw"},
+            {name: "Amy", id: "ldhe"}
+        ];
+
+     TableRec tableRecord2 = {detTable: tb};
+
+    assertEquality("detTable=name=Jo id=azqw\nname=Amy id=ldhe", tableRecord1.toString());
+    assertEquality("detTable=name=Jo id=azqw\nname=Amy id=ldhe", tableRecord2.toString());
+}
+
 type AssertionError error<ASSERTION_ERROR_REASON>;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
