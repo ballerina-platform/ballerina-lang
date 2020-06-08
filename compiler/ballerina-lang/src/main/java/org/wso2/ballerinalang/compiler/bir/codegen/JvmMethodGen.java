@@ -167,6 +167,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_U
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER_START_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_FUNCTION_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_FUNCTION_SUFFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_FUNCTION_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
@@ -1492,7 +1494,7 @@ public class JvmMethodGen {
         LabelGenerator labelGen = new LabelGenerator();
 
         mv.visitCode();
-        if (isModuleStartFunction(module, func)) {
+        if (isModuleStartFunction(module, funcName)) {
             mv.visitInsn(ICONST_1);
             mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_START_ATTEMPTED, "Z");
         }
@@ -1744,8 +1746,9 @@ public class JvmMethodGen {
         mv.visitEnd();
     }
 
-    private static boolean isModuleStartFunction(BIRPackage module, BIRFunction function) {
-        return function.name.value.equals(calculateModuleSpecialFuncName(packageToModuleId(module), "<start>"));
+    private static boolean isModuleStartFunction(BIRPackage module, String functionName) {
+        return functionName.equals(cleanupFunctionName(calculateModuleSpecialFuncName(packageToModuleId(module),
+                START_FUNCTION_SUFFIX)));
     }
 
     public void generateBasicBlocks(MethodVisitor mv, List<BIRBasicBlock> basicBlocks,
@@ -1948,7 +1951,7 @@ public class JvmMethodGen {
                                                                           module.version.value));
                 }
                 //set module start success to true for ___init class
-                if (isModuleStartFunction(module, func) && terminator.kind == InstructionKind.RETURN) {
+                if (isModuleStartFunction(module, funcName) && terminator.kind == InstructionKind.RETURN) {
                     mv.visitInsn(ICONST_1);
                     mv.visitFieldInsn(PUTSTATIC, getModuleLevelClassName(module.org.value, module.name.value,
                             module.version.value, MODULE_INIT_CLASS_NAME), MODULE_STARTED, "Z");
@@ -2482,14 +2485,13 @@ public class JvmMethodGen {
         // generate another lambda for start function as well
         generateLambdaForModuleFunction(cw, MODULE_START, initClass, false);
 
-        String stopFuncName = "<stop>";
         PackageID currentModId = packageToModuleId(pkg);
-        String fullFuncName = calculateModuleSpecialFuncName(currentModId, stopFuncName);
+        String fullFuncName = calculateModuleSpecialFuncName(currentModId, STOP_FUNCTION_SUFFIX);
 
         generateLambdaForDepModStopFunc(cw, cleanupFunctionName(fullFuncName), initClass);
 
         for (PackageID id : depMods) {
-            fullFuncName = calculateModuleSpecialFuncName(id, stopFuncName);
+            fullFuncName = calculateModuleSpecialFuncName(id, STOP_FUNCTION_SUFFIX);
             // String lookupKey = getPackageName(id.orgName, id.name, id.version) + fullFuncName;
 
             // String jvmClass = lookupFullQualifiedClassName(lookupKey);
@@ -2554,7 +2556,7 @@ public class JvmMethodGen {
         javaClass.functions.add(initFunc);
         pkg.functions.add(initFunc);
 
-        BIRFunction startFunc = generateDepModInit(moduleImports, pkg, MODULE_START, "<start>");
+        BIRFunction startFunc = generateDepModInit(moduleImports, pkg, MODULE_START, START_FUNCTION_SUFFIX);
         javaClass.functions.add(startFunc);
         pkg.functions.add(startFunc);
 
@@ -2797,12 +2799,11 @@ public class JvmMethodGen {
 
         mv.visitVarInsn(ASTORE, schedulerIndex);
 
-        String stopFuncName = "<stop>";
 
         PackageID currentModId = packageToModuleId(module);
         String moduleInitClass = getModuleLevelClassName(currentModId.orgName.value, currentModId.name.value,
                 currentModId.version.value, MODULE_INIT_CLASS_NAME);
-        String fullFuncName = calculateModuleSpecialFuncName(currentModId, stopFuncName);
+        String fullFuncName = calculateModuleSpecialFuncName(currentModId, STOP_FUNCTION_SUFFIX);
 
         scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), schedulerIndex, futureIndex,
                 moduleInitClass);
@@ -2811,7 +2812,7 @@ public class JvmMethodGen {
         while (i >= 0) {
             PackageID id = imprtMods.get(i);
             i -= 1;
-            fullFuncName = calculateModuleSpecialFuncName(id, stopFuncName);
+            fullFuncName = calculateModuleSpecialFuncName(id, STOP_FUNCTION_SUFFIX);
             moduleInitClass = getModuleLevelClassName(id.orgName.value, id.name.value, id.version.value,
                     MODULE_INIT_CLASS_NAME);
             scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), schedulerIndex,

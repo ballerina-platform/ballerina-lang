@@ -189,6 +189,8 @@ public class JvmConstants {
     public static final String BUILT_IN_PACKAGE_NAME = "lang.annotations";
     public static final String MODULE_START_ATTEMPTED = "$moduleStartAttempted";
     public static final String MODULE_STARTED = "$moduleStarted";
+    public static final String START_FUNCTION_SUFFIX = "<start>";
+    public static final String STOP_FUNCTION_SUFFIX = "<stop>";
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";
