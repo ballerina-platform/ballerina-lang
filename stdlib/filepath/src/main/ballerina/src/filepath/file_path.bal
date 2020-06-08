@@ -40,8 +40,7 @@ public function absolute(@untainted string path) returns string|Error {
         if (stringResult is string) {
             return stringResult;
         } else {
-            Error e = prepareError(GENERIC_ERROR, "Error occurred while retrieving the absolute path.");
-            return e;
+            return GenericError("Error occurred while retrieving the absolute path.");
         }
     }
 }
@@ -355,7 +354,7 @@ public function relative(string base, string target) returns string|Error {
     int targetOffset;
     [targetRoot, targetOffset] = check getRoot(cleanTarget);
     if (!isSamePath(baseRoot, targetRoot)) {
-        return prepareError(RELATIVE_PATH_ERROR, "Can't make: " + target + " relative to " + base);
+        return RelativePathError("Can't make: " + target + " relative to " + base);
     }
     int b0 = baseOffset;
     int bi = baseOffset;
@@ -383,7 +382,7 @@ public function relative(string base, string target) returns string|Error {
         t0 = ti;
     }
     if (cleanBase.substring(b0, bi) == "..") {
-        return prepareError(RELATIVE_PATH_ERROR, "Can't make: " + target + " relative to " + base);
+        return RelativePathError("Can't make: " + target + " relative to " + base);
     }
     if (b0 != bl) {
         string remainder = cleanBase.substring(b0, bl);
@@ -422,7 +421,7 @@ public function resolve(@untainted string path) returns string|Error {
         if (stringResult is string) {
             return stringResult;
         } else {
-            Error e = prepareError(GENERIC_ERROR, "Error occurred while resolving the path.");
+            Error e = GenericError("Error occurred while resolving the path.");
             return e;
         }
     }
@@ -548,7 +547,7 @@ function getOffsetIndexes(string path) returns int[]|Error {
 function charAt(string input, int index) returns string|Error {
     int length = input.length();
     if (index > length) {
-        return prepareError(GENERIC_ERROR, io:sprintf("Character index %d is greater then path string length %d",
+        return GenericError(io:sprintf("Character index %d is greater then path string length %d",
         index, length));
     }
     return input.substring(index, index + 1);
