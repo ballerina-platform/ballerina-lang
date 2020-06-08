@@ -142,7 +142,6 @@ public class UnionTypeTest {
 
     @Test(description = "Test union type with a function pointer accessing")
     public void testUnionTypeWithFunctionPointerAccess() {
-        BValue[] returns = BRunUtil.invoke(result, "testUnionTypeWithFunctionPointerAccess");
-        Assert.assertEquals(returns[0], new BInteger(30));
+        BRunUtil.invoke(result, "testUnionTypeWithFunctionPointerAccess");
     }
 }

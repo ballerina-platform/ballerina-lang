@@ -167,21 +167,69 @@ function testUnionLhsWithDiscriminatedFloatDecimalLiterals() returns [(float|dec
     return [a, b, c];
 }
 
-type Employee object {
-    int age = 20;
+type Employee abstract object {
+    public int age;
+    public string firstName;
+    public string lastName;
+
+    function getFullName() returns string;
+};
+
+type Engineer object {
+    public int age;
+    public string firstName;
+    public string lastName;
+
+    function __init(int age, string firstName, string lastName) {
+        self.age = age;
+        self.firstName = firstName;
+        self.lastName = lastName;
+    }
+
+    function getFullName() returns string {
+        return self.firstName + self.lastName;
+    }
+
 };
 
 type Manager object {
-    int age = 20;
+    int age;
+    string firstName;
+    string lastName;
+
+    function __init(int age, string firstName, string lastName) {
+        self.age = age;
+        self.firstName = firstName;
+        self.lastName = lastName;
+    }
 };
 
-function testUnionTypeWithFunctionPointerAccess() returns int {
-    Employee employee = new;
-    Employee|Manager person = employee;
-    person.age = 25;
-    var setMinAge = function () {
-        person.age = 30;
+function testUnionTypeWithFunctionPointerAccess() {
+    Engineer engineer = new Engineer(20, "John", "Doe");
+    Employee employee = new Engineer(20, "Jane", "Doe");
+
+    Engineer|Manager person1 = engineer;
+    Employee|Manager person2 = employee;
+
+    person1.age = 25;
+    person2.age = 25;
+
+    var setAge = function () {
+        person1.age = 30;
+        person2.age = 30;
     };
-    setMinAge();
-    return person.age;
+    setAge();
+    assertEquality(30, person1.age);
+    assertEquality(30, person2.age);
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+    if expected === actual {
+        return;
+    }
+    panic error(ASSERTION_ERR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
