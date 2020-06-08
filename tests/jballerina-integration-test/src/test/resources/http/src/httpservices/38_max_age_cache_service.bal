@@ -39,7 +39,7 @@ service maxAgeProxyService on new http:Listener(9245) {
         } else {
             http:Response res = new;
             res.statusCode = 500;
-            res.setPayload(response.reason());
+            res.setPayload(<@untainted> response.message());
             checkpanic caller->respond(res);
         }
     }
