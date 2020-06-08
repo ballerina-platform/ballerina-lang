@@ -51,6 +51,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamValue;
+import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.TypedescValueImpl;
 import org.ballerinalang.jvm.values.XMLSequence;
@@ -2026,6 +2027,9 @@ public class TypeChecker {
                         isEqual((ErrorValue) lhsValue, (ErrorValue) rhsValue, checkedValues);
             case TypeTags.SERVICE_TAG:
                 break;
+            case TypeTags.TABLE_TAG:
+                return rhsValTypeTag == TypeTags.TABLE_TAG &&
+                        isEqual((TableValueImpl) lhsValue, (TableValueImpl) rhsValue, checkedValues);
         }
         return false;
     }
@@ -2097,6 +2101,29 @@ public class TypeChecker {
         }
         return true;
     }
+
+    /**
+     * Deep equality check for a table.
+     *
+     * @param lhsTable      Table on the left hand side
+     * @param rhsTable      Table on the right hand side
+     * @param checkedValues Structured value pairs already compared or being compared
+     * @return True if the table values are equal, else false.
+     */
+    private static boolean isEqual(TableValueImpl lhsTable, TableValueImpl rhsTable, List<ValuePair> checkedValues) {
+        ValuePair compValuePair = new ValuePair(lhsTable, rhsTable);
+        if (checkedValues.contains(compValuePair)) {
+            return true;
+        }
+        checkedValues.add(compValuePair);
+
+        if (lhsTable.size() != rhsTable.size()) {
+            return false;
+        }
+
+        return lhsTable.entrySet().equals(rhsTable.entrySet());
+    }
+
 
     /**
      * Deep equality check for error.

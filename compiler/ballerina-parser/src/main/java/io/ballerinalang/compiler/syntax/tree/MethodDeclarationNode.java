@@ -27,9 +27,9 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class FunctionDeclarationNode extends NonTerminalNode {
+public class MethodDeclarationNode extends NonTerminalNode {
 
-    public FunctionDeclarationNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public MethodDeclarationNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
@@ -45,11 +45,11 @@ public class FunctionDeclarationNode extends NonTerminalNode {
         return childInBucket(2);
     }
 
-    public IdentifierToken functionName() {
+    public IdentifierToken methodName() {
         return childInBucket(3);
     }
 
-    public FunctionSignatureNode functionSignature() {
+    public FunctionSignatureNode methodSignature() {
         return childInBucket(4);
     }
 
@@ -73,39 +73,39 @@ public class FunctionDeclarationNode extends NonTerminalNode {
                 "metadata",
                 "visibilityQualifier",
                 "functionKeyword",
-                "functionName",
-                "functionSignature",
+                "methodName",
+                "methodSignature",
                 "semicolon"};
     }
 
-    public FunctionDeclarationNode modify(
+    public MethodDeclarationNode modify(
             MetadataNode metadata,
             Token visibilityQualifier,
             Token functionKeyword,
-            IdentifierToken functionName,
-            FunctionSignatureNode functionSignature,
+            IdentifierToken methodName,
+            FunctionSignatureNode methodSignature,
             Token semicolon) {
         if (checkForReferenceEquality(
                 metadata,
                 visibilityQualifier,
                 functionKeyword,
-                functionName,
-                functionSignature,
+                methodName,
+                methodSignature,
                 semicolon)) {
             return this;
         }
 
-        return NodeFactory.createFunctionDeclarationNode(
+        return NodeFactory.createMethodDeclarationNode(
                 metadata,
                 visibilityQualifier,
                 functionKeyword,
-                functionName,
-                functionSignature,
+                methodName,
+                methodSignature,
                 semicolon);
     }
 
-    public FunctionDeclarationNodeModifier modify() {
-        return new FunctionDeclarationNodeModifier(this);
+    public MethodDeclarationNodeModifier modify() {
+        return new MethodDeclarationNodeModifier(this);
     }
 
     /**
@@ -113,74 +113,74 @@ public class FunctionDeclarationNode extends NonTerminalNode {
      *
      * @since 2.0.0
      */
-    public static class FunctionDeclarationNodeModifier {
-        private final FunctionDeclarationNode oldNode;
+    public static class MethodDeclarationNodeModifier {
+        private final MethodDeclarationNode oldNode;
         private MetadataNode metadata;
         private Token visibilityQualifier;
         private Token functionKeyword;
-        private IdentifierToken functionName;
-        private FunctionSignatureNode functionSignature;
+        private IdentifierToken methodName;
+        private FunctionSignatureNode methodSignature;
         private Token semicolon;
 
-        public FunctionDeclarationNodeModifier(FunctionDeclarationNode oldNode) {
+        public MethodDeclarationNodeModifier(MethodDeclarationNode oldNode) {
             this.oldNode = oldNode;
             this.metadata = oldNode.metadata();
             this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
             this.functionKeyword = oldNode.functionKeyword();
-            this.functionName = oldNode.functionName();
-            this.functionSignature = oldNode.functionSignature();
+            this.methodName = oldNode.methodName();
+            this.methodSignature = oldNode.methodSignature();
             this.semicolon = oldNode.semicolon();
         }
 
-        public FunctionDeclarationNodeModifier withMetadata(
+        public MethodDeclarationNodeModifier withMetadata(
                 MetadataNode metadata) {
             Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
 
-        public FunctionDeclarationNodeModifier withVisibilityQualifier(
+        public MethodDeclarationNodeModifier withVisibilityQualifier(
                 Token visibilityQualifier) {
             Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
             this.visibilityQualifier = visibilityQualifier;
             return this;
         }
 
-        public FunctionDeclarationNodeModifier withFunctionKeyword(
+        public MethodDeclarationNodeModifier withFunctionKeyword(
                 Token functionKeyword) {
             Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
             this.functionKeyword = functionKeyword;
             return this;
         }
 
-        public FunctionDeclarationNodeModifier withFunctionName(
-                IdentifierToken functionName) {
-            Objects.requireNonNull(functionName, "functionName must not be null");
-            this.functionName = functionName;
+        public MethodDeclarationNodeModifier withMethodName(
+                IdentifierToken methodName) {
+            Objects.requireNonNull(methodName, "methodName must not be null");
+            this.methodName = methodName;
             return this;
         }
 
-        public FunctionDeclarationNodeModifier withFunctionSignature(
-                FunctionSignatureNode functionSignature) {
-            Objects.requireNonNull(functionSignature, "functionSignature must not be null");
-            this.functionSignature = functionSignature;
+        public MethodDeclarationNodeModifier withMethodSignature(
+                FunctionSignatureNode methodSignature) {
+            Objects.requireNonNull(methodSignature, "methodSignature must not be null");
+            this.methodSignature = methodSignature;
             return this;
         }
 
-        public FunctionDeclarationNodeModifier withSemicolon(
+        public MethodDeclarationNodeModifier withSemicolon(
                 Token semicolon) {
             Objects.requireNonNull(semicolon, "semicolon must not be null");
             this.semicolon = semicolon;
             return this;
         }
 
-        public FunctionDeclarationNode apply() {
+        public MethodDeclarationNode apply() {
             return oldNode.modify(
                     metadata,
                     visibilityQualifier,
                     functionKeyword,
-                    functionName,
-                    functionSignature,
+                    methodName,
+                    methodSignature,
                     semicolon);
         }
     }

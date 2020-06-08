@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.FunctionDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -30,68 +30,68 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STFunctionDeclarationNode extends STNode {
+public class STMethodDeclarationNode extends STNode {
     public final STNode metadata;
     public final STNode visibilityQualifier;
     public final STNode functionKeyword;
-    public final STNode functionName;
-    public final STNode functionSignature;
+    public final STNode methodName;
+    public final STNode methodSignature;
     public final STNode semicolon;
 
-    STFunctionDeclarationNode(
+    STMethodDeclarationNode(
             STNode metadata,
             STNode visibilityQualifier,
             STNode functionKeyword,
-            STNode functionName,
-            STNode functionSignature,
+            STNode methodName,
+            STNode methodSignature,
             STNode semicolon) {
         this(
                 metadata,
                 visibilityQualifier,
                 functionKeyword,
-                functionName,
-                functionSignature,
+                methodName,
+                methodSignature,
                 semicolon,
                 Collections.emptyList());
     }
 
-    STFunctionDeclarationNode(
+    STMethodDeclarationNode(
             STNode metadata,
             STNode visibilityQualifier,
             STNode functionKeyword,
-            STNode functionName,
-            STNode functionSignature,
+            STNode methodName,
+            STNode methodSignature,
             STNode semicolon,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.FUNCTION_DECLARATION, diagnostics);
+        super(SyntaxKind.METHOD_DECLARATION, diagnostics);
         this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
         this.functionKeyword = functionKeyword;
-        this.functionName = functionName;
-        this.functionSignature = functionSignature;
+        this.methodName = methodName;
+        this.methodSignature = methodSignature;
         this.semicolon = semicolon;
 
         addChildren(
                 metadata,
                 visibilityQualifier,
                 functionKeyword,
-                functionName,
-                functionSignature,
+                methodName,
+                methodSignature,
                 semicolon);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STFunctionDeclarationNode(
+        return new STMethodDeclarationNode(
                 this.metadata,
                 this.visibilityQualifier,
                 this.functionKeyword,
-                this.functionName,
-                this.functionSignature,
+                this.methodName,
+                this.methodSignature,
                 this.semicolon,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new FunctionDeclarationNode(this, position, parent);
+        return new MethodDeclarationNode(this, position, parent);
     }
 }

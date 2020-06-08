@@ -66,6 +66,11 @@ public class RecordTypeDefinitionTest extends AbstractDeclarationTest {
         test("record-type-def/record_type_def_source_15.bal", "record-type-def/record_type_def_assert_15.json");
     }
 
+    @Test
+    public void testRecordFieldsWithReadonlyQualifier() {
+        test("record-type-def/record_type_def_source_19.bal", "record-type-def/record_type_def_assert_19.json");
+    }
+    
     // Recovery tests
 
     @Test

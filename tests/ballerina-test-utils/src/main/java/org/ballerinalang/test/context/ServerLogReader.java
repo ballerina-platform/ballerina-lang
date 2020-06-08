@@ -124,16 +124,14 @@ public class ServerLogReader implements Runnable {
                     if (s == null) {
                         break;
                     }
-                    if (STREAM_TYPE_IN.equals(streamType)) {
-                        feedLeechers(s);
-                        log.info(s);
-                    } else if (STREAM_TYPE_ERROR.equals(streamType)) {
-                        feedLeechers(s);
-                        log.error(s);
-                    }
+                    feedAndPrint(s);
                 } else {
                     TimeUnit.MILLISECONDS.sleep(1);
                 }
+            }
+            String s = bufferedReader.readLine();
+            if (s != null) {
+                feedAndPrint(s);
             }
         } catch (Exception ex) {
             log.error("Problem reading the [" + streamType + "] due to: " + ex.getMessage(), ex);
@@ -153,6 +151,16 @@ public class ServerLogReader implements Runnable {
                     log.error("Error occurred while closing the server log stream: " + e.getMessage(), e);
                 }
             }
+        }
+    }
+
+    private void feedAndPrint(String s) {
+        if (STREAM_TYPE_IN.equals(streamType)) {
+            feedLeechers(s);
+            log.info(s);
+        } else if (STREAM_TYPE_ERROR.equals(streamType)) {
+            feedLeechers(s);
+            log.error(s);
         }
     }
 }
