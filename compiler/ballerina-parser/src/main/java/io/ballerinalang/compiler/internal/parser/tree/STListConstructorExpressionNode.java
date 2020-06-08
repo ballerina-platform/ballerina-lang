@@ -70,6 +70,23 @@ public class STListConstructorExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STListConstructorExpressionNode modify(
+            STNode openBracket,
+            STNode expressions,
+            STNode closeBracket) {
+        if (checkForReferenceEquality(
+                openBracket,
+                expressions,
+                closeBracket)) {
+            return this;
+        }
+
+        return new STListConstructorExpressionNode(
+                openBracket,
+                expressions,
+                closeBracket);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ListConstructorExpressionNode(this, position, parent);
     }

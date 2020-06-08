@@ -70,6 +70,23 @@ public class STXMLAtomicNamePatternNode extends STNode {
                 diagnostics);
     }
 
+    public STXMLAtomicNamePatternNode modify(
+            STNode prefix,
+            STNode colon,
+            STNode name) {
+        if (checkForReferenceEquality(
+                prefix,
+                colon,
+                name)) {
+            return this;
+        }
+
+        return new STXMLAtomicNamePatternNode(
+                prefix,
+                colon,
+                name);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLAtomicNamePatternNode(this, position, parent);
     }

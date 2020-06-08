@@ -63,6 +63,20 @@ public class STOptionalTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STOptionalTypeDescriptorNode modify(
+            STNode typeDescriptor,
+            STNode questionMarkToken) {
+        if (checkForReferenceEquality(
+                typeDescriptor,
+                questionMarkToken)) {
+            return this;
+        }
+
+        return new STOptionalTypeDescriptorNode(
+                typeDescriptor,
+                questionMarkToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new OptionalTypeDescriptorNode(this, position, parent);
     }

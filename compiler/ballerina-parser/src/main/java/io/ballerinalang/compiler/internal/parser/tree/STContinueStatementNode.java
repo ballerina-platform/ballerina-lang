@@ -63,6 +63,20 @@ public class STContinueStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STContinueStatementNode modify(
+            STNode continueToken,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                continueToken,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STContinueStatementNode(
+                continueToken,
+                semicolonToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ContinueStatementNode(this, position, parent);
     }

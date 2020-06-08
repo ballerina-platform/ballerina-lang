@@ -56,6 +56,17 @@ public class STCommitActionNode extends STActionNode {
                 diagnostics);
     }
 
+    public STCommitActionNode modify(
+            STNode commitKeyword) {
+        if (checkForReferenceEquality(
+                commitKeyword)) {
+            return this;
+        }
+
+        return new STCommitActionNode(
+                commitKeyword);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new CommitActionNode(this, position, parent);
     }

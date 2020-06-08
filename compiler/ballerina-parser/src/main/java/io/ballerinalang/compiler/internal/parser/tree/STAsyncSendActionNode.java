@@ -70,6 +70,23 @@ public class STAsyncSendActionNode extends STActionNode {
                 diagnostics);
     }
 
+    public STAsyncSendActionNode modify(
+            STNode expression,
+            STNode rightArrowToken,
+            STNode peerWorker) {
+        if (checkForReferenceEquality(
+                expression,
+                rightArrowToken,
+                peerWorker)) {
+            return this;
+        }
+
+        return new STAsyncSendActionNode(
+                expression,
+                rightArrowToken,
+                peerWorker);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new AsyncSendActionNode(this, position, parent);
     }

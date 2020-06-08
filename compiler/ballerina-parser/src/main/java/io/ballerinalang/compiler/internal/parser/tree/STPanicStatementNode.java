@@ -70,6 +70,23 @@ public class STPanicStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STPanicStatementNode modify(
+            STNode panicKeyword,
+            STNode expression,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                panicKeyword,
+                expression,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STPanicStatementNode(
+                panicKeyword,
+                expression,
+                semicolonToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new PanicStatementNode(this, position, parent);
     }

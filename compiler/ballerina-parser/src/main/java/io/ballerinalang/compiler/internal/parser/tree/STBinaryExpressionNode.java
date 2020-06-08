@@ -74,6 +74,25 @@ public class STBinaryExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STBinaryExpressionNode modify(
+            SyntaxKind kind,
+            STNode lhsExpr,
+            STNode operator,
+            STNode rhsExpr) {
+        if (checkForReferenceEquality(
+                lhsExpr,
+                operator,
+                rhsExpr)) {
+            return this;
+        }
+
+        return new STBinaryExpressionNode(
+                kind,
+                lhsExpr,
+                operator,
+                rhsExpr);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BinaryExpressionNode(this, position, parent);
     }

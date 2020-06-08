@@ -70,6 +70,23 @@ public class STFieldBindingPatternFullNode extends STFieldBindingPatternNode {
                 diagnostics);
     }
 
+    public STFieldBindingPatternFullNode modify(
+            STNode variableName,
+            STNode colon,
+            STNode bindingPattern) {
+        if (checkForReferenceEquality(
+                variableName,
+                colon,
+                bindingPattern)) {
+            return this;
+        }
+
+        return new STFieldBindingPatternFullNode(
+                variableName,
+                colon,
+                bindingPattern);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FieldBindingPatternFullNode(this, position, parent);
     }

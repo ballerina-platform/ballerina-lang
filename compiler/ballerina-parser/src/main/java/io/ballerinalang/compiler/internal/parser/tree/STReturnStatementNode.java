@@ -70,6 +70,23 @@ public class STReturnStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STReturnStatementNode modify(
+            STNode returnKeyword,
+            STNode expression,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                returnKeyword,
+                expression,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STReturnStatementNode(
+                returnKeyword,
+                expression,
+                semicolonToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReturnStatementNode(this, position, parent);
     }

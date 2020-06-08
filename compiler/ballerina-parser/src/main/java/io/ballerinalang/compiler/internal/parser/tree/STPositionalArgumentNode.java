@@ -63,6 +63,20 @@ public class STPositionalArgumentNode extends STFunctionArgumentNode {
                 diagnostics);
     }
 
+    public STPositionalArgumentNode modify(
+            STNode leadingComma,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                leadingComma,
+                expression)) {
+            return this;
+        }
+
+        return new STPositionalArgumentNode(
+                leadingComma,
+                expression);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new PositionalArgumentNode(this, position, parent);
     }

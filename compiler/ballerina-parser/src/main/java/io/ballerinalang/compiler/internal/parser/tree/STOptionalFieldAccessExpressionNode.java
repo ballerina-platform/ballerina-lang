@@ -70,6 +70,23 @@ public class STOptionalFieldAccessExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STOptionalFieldAccessExpressionNode modify(
+            STNode expression,
+            STNode optionalChainingToken,
+            STNode fieldName) {
+        if (checkForReferenceEquality(
+                expression,
+                optionalChainingToken,
+                fieldName)) {
+            return this;
+        }
+
+        return new STOptionalFieldAccessExpressionNode(
+                expression,
+                optionalChainingToken,
+                fieldName);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new OptionalFieldAccessExpressionNode(this, position, parent);
     }

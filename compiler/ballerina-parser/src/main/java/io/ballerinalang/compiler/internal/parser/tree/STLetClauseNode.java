@@ -63,6 +63,20 @@ public class STLetClauseNode extends STClauseNode {
                 diagnostics);
     }
 
+    public STLetClauseNode modify(
+            STNode letKeyword,
+            STNode letVarDeclarations) {
+        if (checkForReferenceEquality(
+                letKeyword,
+                letVarDeclarations)) {
+            return this;
+        }
+
+        return new STLetClauseNode(
+                letKeyword,
+                letVarDeclarations);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new LetClauseNode(this, position, parent);
     }

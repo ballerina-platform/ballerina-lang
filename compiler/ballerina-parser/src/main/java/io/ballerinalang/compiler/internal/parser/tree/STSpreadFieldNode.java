@@ -63,6 +63,20 @@ public class STSpreadFieldNode extends STMappingFieldNode {
                 diagnostics);
     }
 
+    public STSpreadFieldNode modify(
+            STNode ellipsis,
+            STNode valueExpr) {
+        if (checkForReferenceEquality(
+                ellipsis,
+                valueExpr)) {
+            return this;
+        }
+
+        return new STSpreadFieldNode(
+                ellipsis,
+                valueExpr);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new SpreadFieldNode(this, position, parent);
     }

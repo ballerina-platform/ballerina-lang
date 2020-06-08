@@ -63,6 +63,20 @@ public class STQueryPipelineNode extends STNode {
                 diagnostics);
     }
 
+    public STQueryPipelineNode modify(
+            STNode fromClause,
+            STNode intermediateClauses) {
+        if (checkForReferenceEquality(
+                fromClause,
+                intermediateClauses)) {
+            return this;
+        }
+
+        return new STQueryPipelineNode(
+                fromClause,
+                intermediateClauses);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new QueryPipelineNode(this, position, parent);
     }

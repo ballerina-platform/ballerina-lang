@@ -63,6 +63,20 @@ public class STRestDescriptorNode extends STNode {
                 diagnostics);
     }
 
+    public STRestDescriptorNode modify(
+            STNode typeDescriptor,
+            STNode ellipsisToken) {
+        if (checkForReferenceEquality(
+                typeDescriptor,
+                ellipsisToken)) {
+            return this;
+        }
+
+        return new STRestDescriptorNode(
+                typeDescriptor,
+                ellipsisToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RestDescriptorNode(this, position, parent);
     }

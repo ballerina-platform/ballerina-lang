@@ -77,6 +77,26 @@ public class STIndexedExpressionNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STIndexedExpressionNode modify(
+            STNode containerExpression,
+            STNode openBracket,
+            STNode keyExpression,
+            STNode closeBracket) {
+        if (checkForReferenceEquality(
+                containerExpression,
+                openBracket,
+                keyExpression,
+                closeBracket)) {
+            return this;
+        }
+
+        return new STIndexedExpressionNode(
+                containerExpression,
+                openBracket,
+                keyExpression,
+                closeBracket);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new IndexedExpressionNode(this, position, parent);
     }

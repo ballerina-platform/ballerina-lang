@@ -63,6 +63,20 @@ public class STExpressionListItemNode extends STNode {
                 diagnostics);
     }
 
+    public STExpressionListItemNode modify(
+            STNode leadingComma,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                leadingComma,
+                expression)) {
+            return this;
+        }
+
+        return new STExpressionListItemNode(
+                leadingComma,
+                expression);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ExpressionListItemNode(this, position, parent);
     }

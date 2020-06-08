@@ -70,6 +70,23 @@ public class STRollbackStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STRollbackStatementNode modify(
+            STNode rollbackKeyword,
+            STNode expression,
+            STNode semicolon) {
+        if (checkForReferenceEquality(
+                rollbackKeyword,
+                expression,
+                semicolon)) {
+            return this;
+        }
+
+        return new STRollbackStatementNode(
+                rollbackKeyword,
+                expression,
+                semicolon);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RollbackStatementNode(this, position, parent);
     }

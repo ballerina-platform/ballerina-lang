@@ -70,6 +70,23 @@ public class STInterpolationNode extends STXMLItemNode {
                 diagnostics);
     }
 
+    public STInterpolationNode modify(
+            STNode interpolationStartToken,
+            STNode expression,
+            STNode interpolationEndToken) {
+        if (checkForReferenceEquality(
+                interpolationStartToken,
+                expression,
+                interpolationEndToken)) {
+            return this;
+        }
+
+        return new STInterpolationNode(
+                interpolationStartToken,
+                expression,
+                interpolationEndToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new InterpolationNode(this, position, parent);
     }

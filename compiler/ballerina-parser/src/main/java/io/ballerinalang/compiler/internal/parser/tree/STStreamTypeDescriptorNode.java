@@ -63,6 +63,20 @@ public class STStreamTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STStreamTypeDescriptorNode modify(
+            STNode streamKeywordToken,
+            STNode streamTypeParamsNode) {
+        if (checkForReferenceEquality(
+                streamKeywordToken,
+                streamTypeParamsNode)) {
+            return this;
+        }
+
+        return new STStreamTypeDescriptorNode(
+                streamKeywordToken,
+                streamTypeParamsNode);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new StreamTypeDescriptorNode(this, position, parent);
     }

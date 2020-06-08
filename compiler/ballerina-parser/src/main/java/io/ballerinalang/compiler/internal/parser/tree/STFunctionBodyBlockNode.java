@@ -77,6 +77,26 @@ public class STFunctionBodyBlockNode extends STFunctionBodyNode {
                 diagnostics);
     }
 
+    public STFunctionBodyBlockNode modify(
+            STNode openBraceToken,
+            STNode namedWorkerDeclarator,
+            STNode statements,
+            STNode closeBraceToken) {
+        if (checkForReferenceEquality(
+                openBraceToken,
+                namedWorkerDeclarator,
+                statements,
+                closeBraceToken)) {
+            return this;
+        }
+
+        return new STFunctionBodyBlockNode(
+                openBraceToken,
+                namedWorkerDeclarator,
+                statements,
+                closeBraceToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FunctionBodyBlockNode(this, position, parent);
     }

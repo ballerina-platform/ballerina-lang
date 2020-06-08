@@ -84,6 +84,29 @@ public class STForEachStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STForEachStatementNode modify(
+            STNode forEachKeyword,
+            STNode typedBindingPattern,
+            STNode inKeyword,
+            STNode actionOrExpressionNode,
+            STNode blockStatement) {
+        if (checkForReferenceEquality(
+                forEachKeyword,
+                typedBindingPattern,
+                inKeyword,
+                actionOrExpressionNode,
+                blockStatement)) {
+            return this;
+        }
+
+        return new STForEachStatementNode(
+                forEachKeyword,
+                typedBindingPattern,
+                inKeyword,
+                actionOrExpressionNode,
+                blockStatement);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ForEachStatementNode(this, position, parent);
     }

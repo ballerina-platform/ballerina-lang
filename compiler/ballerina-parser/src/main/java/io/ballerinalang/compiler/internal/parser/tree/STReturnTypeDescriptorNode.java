@@ -70,6 +70,23 @@ public class STReturnTypeDescriptorNode extends STNode {
                 diagnostics);
     }
 
+    public STReturnTypeDescriptorNode modify(
+            STNode returnsKeyword,
+            STNode annotations,
+            STNode type) {
+        if (checkForReferenceEquality(
+                returnsKeyword,
+                annotations,
+                type)) {
+            return this;
+        }
+
+        return new STReturnTypeDescriptorNode(
+                returnsKeyword,
+                annotations,
+                type);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReturnTypeDescriptorNode(this, position, parent);
     }

@@ -63,6 +63,20 @@ public class STUnaryExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STUnaryExpressionNode modify(
+            STNode unaryOperator,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                unaryOperator,
+                expression)) {
+            return this;
+        }
+
+        return new STUnaryExpressionNode(
+                unaryOperator,
+                expression);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new UnaryExpressionNode(this, position, parent);
     }

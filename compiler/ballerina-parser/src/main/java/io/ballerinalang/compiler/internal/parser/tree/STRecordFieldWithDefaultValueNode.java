@@ -98,6 +98,35 @@ public class STRecordFieldWithDefaultValueNode extends STNode {
                 diagnostics);
     }
 
+    public STRecordFieldWithDefaultValueNode modify(
+            STNode metadata,
+            STNode readonlyKeyword,
+            STNode typeName,
+            STNode fieldName,
+            STNode equalsToken,
+            STNode expression,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                metadata,
+                readonlyKeyword,
+                typeName,
+                fieldName,
+                equalsToken,
+                expression,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STRecordFieldWithDefaultValueNode(
+                metadata,
+                readonlyKeyword,
+                typeName,
+                fieldName,
+                equalsToken,
+                expression,
+                semicolonToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RecordFieldWithDefaultValueNode(this, position, parent);
     }

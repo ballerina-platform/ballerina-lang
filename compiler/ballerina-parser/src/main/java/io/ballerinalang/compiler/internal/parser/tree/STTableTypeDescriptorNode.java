@@ -70,6 +70,23 @@ public class STTableTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STTableTypeDescriptorNode modify(
+            STNode tableKeywordToken,
+            STNode rowTypeParameterNode,
+            STNode keyConstraintNode) {
+        if (checkForReferenceEquality(
+                tableKeywordToken,
+                rowTypeParameterNode,
+                keyConstraintNode)) {
+            return this;
+        }
+
+        return new STTableTypeDescriptorNode(
+                tableKeywordToken,
+                rowTypeParameterNode,
+                keyConstraintNode);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TableTypeDescriptorNode(this, position, parent);
     }

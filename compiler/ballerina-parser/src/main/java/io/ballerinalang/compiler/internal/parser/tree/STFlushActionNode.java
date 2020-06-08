@@ -63,6 +63,20 @@ public class STFlushActionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STFlushActionNode modify(
+            STNode flushKeyword,
+            STNode peerWorker) {
+        if (checkForReferenceEquality(
+                flushKeyword,
+                peerWorker)) {
+            return this;
+        }
+
+        return new STFlushActionNode(
+                flushKeyword,
+                peerWorker);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FlushActionNode(this, position, parent);
     }

@@ -63,6 +63,20 @@ public class STErrorTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STErrorTypeDescriptorNode modify(
+            STNode errorKeywordToken,
+            STNode errorTypeParamsNode) {
+        if (checkForReferenceEquality(
+                errorKeywordToken,
+                errorTypeParamsNode)) {
+            return this;
+        }
+
+        return new STErrorTypeDescriptorNode(
+                errorKeywordToken,
+                errorTypeParamsNode);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ErrorTypeDescriptorNode(this, position, parent);
     }

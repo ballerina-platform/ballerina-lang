@@ -91,6 +91,32 @@ public class STMethodCallExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STMethodCallExpressionNode modify(
+            STNode expression,
+            STNode dotToken,
+            STNode methodName,
+            STNode openParenToken,
+            STNode arguments,
+            STNode closeParenToken) {
+        if (checkForReferenceEquality(
+                expression,
+                dotToken,
+                methodName,
+                openParenToken,
+                arguments,
+                closeParenToken)) {
+            return this;
+        }
+
+        return new STMethodCallExpressionNode(
+                expression,
+                dotToken,
+                methodName,
+                openParenToken,
+                arguments,
+                closeParenToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MethodCallExpressionNode(this, position, parent);
     }

@@ -70,6 +70,23 @@ public class STRestArgumentNode extends STFunctionArgumentNode {
                 diagnostics);
     }
 
+    public STRestArgumentNode modify(
+            STNode leadingComma,
+            STNode ellipsis,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                leadingComma,
+                ellipsis,
+                expression)) {
+            return this;
+        }
+
+        return new STRestArgumentNode(
+                leadingComma,
+                ellipsis,
+                expression);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RestArgumentNode(this, position, parent);
     }

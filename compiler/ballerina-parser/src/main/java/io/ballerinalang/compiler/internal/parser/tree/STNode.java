@@ -204,6 +204,15 @@ public abstract class STNode {
         updateWidth(children);
     }
 
+    protected boolean checkForReferenceEquality(STNode... children) {
+        for (int index = 0; index < children.length; index++) {
+            if (childBuckets[index] != children[index]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /**
      * Update various field properties during the internal node creation time.
      * <p>

@@ -56,6 +56,17 @@ public class STSimpleNameReferenceNode extends STNameReferenceNode {
                 diagnostics);
     }
 
+    public STSimpleNameReferenceNode modify(
+            STNode name) {
+        if (checkForReferenceEquality(
+                name)) {
+            return this;
+        }
+
+        return new STSimpleNameReferenceNode(
+                name);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new SimpleNameReferenceNode(this, position, parent);
     }

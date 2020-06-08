@@ -77,6 +77,26 @@ public class STExternalFunctionBodyNode extends STFunctionBodyNode {
                 diagnostics);
     }
 
+    public STExternalFunctionBodyNode modify(
+            STNode equalsToken,
+            STNode annotations,
+            STNode externalKeyword,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                equalsToken,
+                annotations,
+                externalKeyword,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STExternalFunctionBodyNode(
+                equalsToken,
+                annotations,
+                externalKeyword,
+                semicolonToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ExternalFunctionBodyNode(this, position, parent);
     }

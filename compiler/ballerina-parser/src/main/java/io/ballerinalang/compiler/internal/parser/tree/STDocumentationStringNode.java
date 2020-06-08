@@ -56,6 +56,17 @@ public class STDocumentationStringNode extends STNode {
                 diagnostics);
     }
 
+    public STDocumentationStringNode modify(
+            STNode documentationLines) {
+        if (checkForReferenceEquality(
+                documentationLines)) {
+            return this;
+        }
+
+        return new STDocumentationStringNode(
+                documentationLines);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new DocumentationStringNode(this, position, parent);
     }

@@ -63,6 +63,20 @@ public class STKeyTypeConstraintNode extends STNode {
                 diagnostics);
     }
 
+    public STKeyTypeConstraintNode modify(
+            STNode keyKeywordToken,
+            STNode typeParameterNode) {
+        if (checkForReferenceEquality(
+                keyKeywordToken,
+                typeParameterNode)) {
+            return this;
+        }
+
+        return new STKeyTypeConstraintNode(
+                keyKeywordToken,
+                typeParameterNode);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new KeyTypeConstraintNode(this, position, parent);
     }

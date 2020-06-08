@@ -77,6 +77,26 @@ public class STByteArrayLiteralNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STByteArrayLiteralNode modify(
+            STNode type,
+            STNode startBacktick,
+            STNode content,
+            STNode endBacktick) {
+        if (checkForReferenceEquality(
+                type,
+                startBacktick,
+                content,
+                endBacktick)) {
+            return this;
+        }
+
+        return new STByteArrayLiteralNode(
+                type,
+                startBacktick,
+                content,
+                endBacktick);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ByteArrayLiteralNode(this, position, parent);
     }

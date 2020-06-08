@@ -77,6 +77,26 @@ public class STForkStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STForkStatementNode modify(
+            STNode forkKeyword,
+            STNode openBraceToken,
+            STNode namedWorkerDeclarations,
+            STNode closeBraceToken) {
+        if (checkForReferenceEquality(
+                forkKeyword,
+                openBraceToken,
+                namedWorkerDeclarations,
+                closeBraceToken)) {
+            return this;
+        }
+
+        return new STForkStatementNode(
+                forkKeyword,
+                openBraceToken,
+                namedWorkerDeclarations,
+                closeBraceToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ForkStatementNode(this, position, parent);
     }

@@ -70,6 +70,23 @@ public class STXMLAttributeValue extends STNode {
                 diagnostics);
     }
 
+    public STXMLAttributeValue modify(
+            STNode startQuote,
+            STNode value,
+            STNode endQuote) {
+        if (checkForReferenceEquality(
+                startQuote,
+                value,
+                endQuote)) {
+            return this;
+        }
+
+        return new STXMLAttributeValue(
+                startQuote,
+                value,
+                endQuote);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLAttributeValue(this, position, parent);
     }

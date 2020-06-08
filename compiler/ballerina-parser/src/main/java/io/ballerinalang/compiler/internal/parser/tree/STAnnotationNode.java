@@ -70,6 +70,23 @@ public class STAnnotationNode extends STNode {
                 diagnostics);
     }
 
+    public STAnnotationNode modify(
+            STNode atToken,
+            STNode annotReference,
+            STNode annotValue) {
+        if (checkForReferenceEquality(
+                atToken,
+                annotReference,
+                annotValue)) {
+            return this;
+        }
+
+        return new STAnnotationNode(
+                atToken,
+                annotReference,
+                annotValue);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new AnnotationNode(this, position, parent);
     }

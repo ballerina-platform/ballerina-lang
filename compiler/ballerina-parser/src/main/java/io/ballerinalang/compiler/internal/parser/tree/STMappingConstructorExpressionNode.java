@@ -70,6 +70,23 @@ public class STMappingConstructorExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STMappingConstructorExpressionNode modify(
+            STNode openBrace,
+            STNode fields,
+            STNode closeBrace) {
+        if (checkForReferenceEquality(
+                openBrace,
+                fields,
+                closeBrace)) {
+            return this;
+        }
+
+        return new STMappingConstructorExpressionNode(
+                openBrace,
+                fields,
+                closeBrace);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MappingConstructorExpressionNode(this, position, parent);
     }

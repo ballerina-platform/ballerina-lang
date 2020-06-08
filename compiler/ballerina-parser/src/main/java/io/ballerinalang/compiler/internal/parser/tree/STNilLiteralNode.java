@@ -63,6 +63,20 @@ public class STNilLiteralNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STNilLiteralNode modify(
+            STNode openParenToken,
+            STNode closeParenToken) {
+        if (checkForReferenceEquality(
+                openParenToken,
+                closeParenToken)) {
+            return this;
+        }
+
+        return new STNilLiteralNode(
+                openParenToken,
+                closeParenToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new NilLiteralNode(this, position, parent);
     }

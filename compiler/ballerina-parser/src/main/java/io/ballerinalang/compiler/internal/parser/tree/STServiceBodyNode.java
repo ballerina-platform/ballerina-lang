@@ -70,6 +70,23 @@ public class STServiceBodyNode extends STNode {
                 diagnostics);
     }
 
+    public STServiceBodyNode modify(
+            STNode openBraceToken,
+            STNode resources,
+            STNode closeBraceToken) {
+        if (checkForReferenceEquality(
+                openBraceToken,
+                resources,
+                closeBraceToken)) {
+            return this;
+        }
+
+        return new STServiceBodyNode(
+                openBraceToken,
+                resources,
+                closeBraceToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ServiceBodyNode(this, position, parent);
     }

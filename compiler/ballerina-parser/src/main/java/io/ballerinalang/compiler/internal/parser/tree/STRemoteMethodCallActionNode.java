@@ -91,6 +91,32 @@ public class STRemoteMethodCallActionNode extends STActionNode {
                 diagnostics);
     }
 
+    public STRemoteMethodCallActionNode modify(
+            STNode expression,
+            STNode rightArrowToken,
+            STNode methodName,
+            STNode openParenToken,
+            STNode arguments,
+            STNode closeParenToken) {
+        if (checkForReferenceEquality(
+                expression,
+                rightArrowToken,
+                methodName,
+                openParenToken,
+                arguments,
+                closeParenToken)) {
+            return this;
+        }
+
+        return new STRemoteMethodCallActionNode(
+                expression,
+                rightArrowToken,
+                methodName,
+                openParenToken,
+                arguments,
+                closeParenToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RemoteMethodCallActionNode(this, position, parent);
     }

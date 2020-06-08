@@ -70,6 +70,23 @@ public class STParenthesisedTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STParenthesisedTypeDescriptorNode modify(
+            STNode openParenToken,
+            STNode typedesc,
+            STNode closeParenToken) {
+        if (checkForReferenceEquality(
+                openParenToken,
+                typedesc,
+                closeParenToken)) {
+            return this;
+        }
+
+        return new STParenthesisedTypeDescriptorNode(
+                openParenToken,
+                typedesc,
+                closeParenToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ParenthesisedTypeDescriptorNode(this, position, parent);
     }

@@ -70,6 +70,23 @@ public class STExpressionFunctionBodyNode extends STFunctionBodyNode {
                 diagnostics);
     }
 
+    public STExpressionFunctionBodyNode modify(
+            STNode rightDoubleArrow,
+            STNode expression,
+            STNode semicolon) {
+        if (checkForReferenceEquality(
+                rightDoubleArrow,
+                expression,
+                semicolon)) {
+            return this;
+        }
+
+        return new STExpressionFunctionBodyNode(
+                rightDoubleArrow,
+                expression,
+                semicolon);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ExpressionFunctionBodyNode(this, position, parent);
     }

@@ -56,6 +56,17 @@ public class STXMLTextNode extends STXMLItemNode {
                 diagnostics);
     }
 
+    public STXMLTextNode modify(
+            STNode content) {
+        if (checkForReferenceEquality(
+                content)) {
+            return this;
+        }
+
+        return new STXMLTextNode(
+                content);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLTextNode(this, position, parent);
     }

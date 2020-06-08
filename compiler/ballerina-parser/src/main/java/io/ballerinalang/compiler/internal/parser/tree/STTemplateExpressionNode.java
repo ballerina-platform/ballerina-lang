@@ -81,6 +81,28 @@ public class STTemplateExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STTemplateExpressionNode modify(
+            SyntaxKind kind,
+            STNode type,
+            STNode startBacktick,
+            STNode content,
+            STNode endBacktick) {
+        if (checkForReferenceEquality(
+                type,
+                startBacktick,
+                content,
+                endBacktick)) {
+            return this;
+        }
+
+        return new STTemplateExpressionNode(
+                kind,
+                type,
+                startBacktick,
+                content,
+                endBacktick);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TemplateExpressionNode(this, position, parent);
     }

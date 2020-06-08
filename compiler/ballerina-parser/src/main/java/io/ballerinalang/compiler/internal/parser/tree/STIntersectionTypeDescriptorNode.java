@@ -70,6 +70,23 @@ public class STIntersectionTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STIntersectionTypeDescriptorNode modify(
+            STNode leftTypeDesc,
+            STNode bitwiseAndToken,
+            STNode rightTypeDesc) {
+        if (checkForReferenceEquality(
+                leftTypeDesc,
+                bitwiseAndToken,
+                rightTypeDesc)) {
+            return this;
+        }
+
+        return new STIntersectionTypeDescriptorNode(
+                leftTypeDesc,
+                bitwiseAndToken,
+                rightTypeDesc);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new IntersectionTypeDescriptorNode(this, position, parent);
     }

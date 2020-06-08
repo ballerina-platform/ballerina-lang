@@ -75,6 +75,17 @@ public{{#isAbstract}} abstract{{/isAbstract}} class {{internalClassName}} extend
                 diagnostics);
     }
 
+    public {{internalClassName}} modify(
+            {{^syntaxKind}}SyntaxKind kind, &#10;            {{/syntaxKind}}{{#fields}}STNode {{fieldName}}{{^isLast}}, &#10;            {{/isLast}}{{/fields}}) {
+        if (checkForReferenceEquality(
+                {{#fields}}{{fieldName}}{{^isLast}}, &#10;                {{/isLast}}{{/fields}})) {
+            return this;
+        }
+
+        return new {{internalClassName}}(
+                {{^syntaxKind}}kind, &#10;                {{/syntaxKind}}{{#fields}}{{fieldName}}{{^isLast}}, &#10;                {{/isLast}}{{/fields}});
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new {{externalClassName}}(this, position, parent);
     }

@@ -63,6 +63,20 @@ public class STTransactionStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STTransactionStatementNode modify(
+            STNode transactionKeyword,
+            STNode blockStatement) {
+        if (checkForReferenceEquality(
+                transactionKeyword,
+                blockStatement)) {
+            return this;
+        }
+
+        return new STTransactionStatementNode(
+                transactionKeyword,
+                blockStatement);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TransactionStatementNode(this, position, parent);
     }

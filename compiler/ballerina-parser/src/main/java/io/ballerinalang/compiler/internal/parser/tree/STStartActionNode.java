@@ -70,6 +70,23 @@ public class STStartActionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STStartActionNode modify(
+            STNode annotations,
+            STNode startKeyword,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                annotations,
+                startKeyword,
+                expression)) {
+            return this;
+        }
+
+        return new STStartActionNode(
+                annotations,
+                startKeyword,
+                expression);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new StartActionNode(this, position, parent);
     }

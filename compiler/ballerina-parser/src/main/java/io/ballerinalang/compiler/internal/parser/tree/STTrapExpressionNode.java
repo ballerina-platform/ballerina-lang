@@ -67,6 +67,22 @@ public class STTrapExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STTrapExpressionNode modify(
+            SyntaxKind kind,
+            STNode trapKeyword,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                trapKeyword,
+                expression)) {
+            return this;
+        }
+
+        return new STTrapExpressionNode(
+                kind,
+                trapKeyword,
+                expression);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TrapExpressionNode(this, position, parent);
     }

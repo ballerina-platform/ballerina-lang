@@ -98,6 +98,35 @@ public class STDefaultableParameterNode extends STParameterNode {
                 diagnostics);
     }
 
+    public STDefaultableParameterNode modify(
+            STNode leadingComma,
+            STNode annotations,
+            STNode visibilityQualifier,
+            STNode typeName,
+            STNode paramName,
+            STNode equalsToken,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                leadingComma,
+                annotations,
+                visibilityQualifier,
+                typeName,
+                paramName,
+                equalsToken,
+                expression)) {
+            return this;
+        }
+
+        return new STDefaultableParameterNode(
+                leadingComma,
+                annotations,
+                visibilityQualifier,
+                typeName,
+                paramName,
+                equalsToken,
+                expression);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new DefaultableParameterNode(this, position, parent);
     }

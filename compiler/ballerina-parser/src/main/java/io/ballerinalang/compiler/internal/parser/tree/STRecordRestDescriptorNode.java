@@ -70,6 +70,23 @@ public class STRecordRestDescriptorNode extends STNode {
                 diagnostics);
     }
 
+    public STRecordRestDescriptorNode modify(
+            STNode typeName,
+            STNode ellipsisToken,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                typeName,
+                ellipsisToken,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STRecordRestDescriptorNode(
+                typeName,
+                ellipsisToken,
+                semicolonToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RecordRestDescriptorNode(this, position, parent);
     }

@@ -60,6 +60,19 @@ public class STBuiltinSimpleNameReferenceNode extends STNameReferenceNode {
                 diagnostics);
     }
 
+    public STBuiltinSimpleNameReferenceNode modify(
+            SyntaxKind kind,
+            STNode name) {
+        if (checkForReferenceEquality(
+                name)) {
+            return this;
+        }
+
+        return new STBuiltinSimpleNameReferenceNode(
+                kind,
+                name);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BuiltinSimpleNameReferenceNode(this, position, parent);
     }

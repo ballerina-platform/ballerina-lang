@@ -70,6 +70,23 @@ public class STXMLNamePatternChainingNode extends STNode {
                 diagnostics);
     }
 
+    public STXMLNamePatternChainingNode modify(
+            STNode startToken,
+            STNode xmlNamePattern,
+            STNode gtToken) {
+        if (checkForReferenceEquality(
+                startToken,
+                xmlNamePattern,
+                gtToken)) {
+            return this;
+        }
+
+        return new STXMLNamePatternChainingNode(
+                startToken,
+                xmlNamePattern,
+                gtToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLNamePatternChainingNode(this, position, parent);
     }

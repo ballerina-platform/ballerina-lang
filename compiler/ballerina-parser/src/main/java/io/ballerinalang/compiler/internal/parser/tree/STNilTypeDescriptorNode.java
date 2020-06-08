@@ -63,6 +63,20 @@ public class STNilTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STNilTypeDescriptorNode modify(
+            STNode openParenToken,
+            STNode closeParenToken) {
+        if (checkForReferenceEquality(
+                openParenToken,
+                closeParenToken)) {
+            return this;
+        }
+
+        return new STNilTypeDescriptorNode(
+                openParenToken,
+                closeParenToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new NilTypeDescriptorNode(this, position, parent);
     }

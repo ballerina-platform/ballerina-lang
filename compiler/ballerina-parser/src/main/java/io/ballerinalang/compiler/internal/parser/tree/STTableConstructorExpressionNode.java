@@ -84,6 +84,29 @@ public class STTableConstructorExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STTableConstructorExpressionNode modify(
+            STNode tableKeyword,
+            STNode keySpecifier,
+            STNode openBracket,
+            STNode mappingConstructors,
+            STNode closeBracket) {
+        if (checkForReferenceEquality(
+                tableKeyword,
+                keySpecifier,
+                openBracket,
+                mappingConstructors,
+                closeBracket)) {
+            return this;
+        }
+
+        return new STTableConstructorExpressionNode(
+                tableKeyword,
+                keySpecifier,
+                openBracket,
+                mappingConstructors,
+                closeBracket);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TableConstructorExpressionNode(this, position, parent);
     }

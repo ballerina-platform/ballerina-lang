@@ -105,6 +105,38 @@ public class STConstantDeclarationNode extends STModuleMemberDeclarationNode {
                 diagnostics);
     }
 
+    public STConstantDeclarationNode modify(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode constKeyword,
+            STNode typeDescriptor,
+            STNode variableName,
+            STNode equalsToken,
+            STNode initializer,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                metadata,
+                visibilityQualifier,
+                constKeyword,
+                typeDescriptor,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STConstantDeclarationNode(
+                metadata,
+                visibilityQualifier,
+                constKeyword,
+                typeDescriptor,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ConstantDeclarationNode(this, position, parent);
     }

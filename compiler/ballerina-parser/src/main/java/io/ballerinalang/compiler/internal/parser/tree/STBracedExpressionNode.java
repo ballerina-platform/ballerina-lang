@@ -74,6 +74,25 @@ public class STBracedExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STBracedExpressionNode modify(
+            SyntaxKind kind,
+            STNode openParen,
+            STNode expression,
+            STNode closeParen) {
+        if (checkForReferenceEquality(
+                openParen,
+                expression,
+                closeParen)) {
+            return this;
+        }
+
+        return new STBracedExpressionNode(
+                kind,
+                openParen,
+                expression,
+                closeParen);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BracedExpressionNode(this, position, parent);
     }

@@ -70,6 +70,23 @@ public class STAnnotationAttachPointNode extends STNode {
                 diagnostics);
     }
 
+    public STAnnotationAttachPointNode modify(
+            STNode sourceKeyword,
+            STNode firstIdent,
+            STNode secondIdent) {
+        if (checkForReferenceEquality(
+                sourceKeyword,
+                firstIdent,
+                secondIdent)) {
+            return this;
+        }
+
+        return new STAnnotationAttachPointNode(
+                sourceKeyword,
+                firstIdent,
+                secondIdent);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new AnnotationAttachPointNode(this, position, parent);
     }

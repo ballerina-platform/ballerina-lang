@@ -63,6 +63,20 @@ public class STDoubleGTTokenNode extends STNode {
                 diagnostics);
     }
 
+    public STDoubleGTTokenNode modify(
+            STNode openGTToken,
+            STNode endGTToken) {
+        if (checkForReferenceEquality(
+                openGTToken,
+                endGTToken)) {
+            return this;
+        }
+
+        return new STDoubleGTTokenNode(
+                openGTToken,
+                endGTToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new DoubleGTTokenNode(this, position, parent);
     }

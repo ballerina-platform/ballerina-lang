@@ -84,6 +84,29 @@ public class STStreamTypeParamsNode extends STNode {
                 diagnostics);
     }
 
+    public STStreamTypeParamsNode modify(
+            STNode ltToken,
+            STNode leftTypeDescNode,
+            STNode commaToken,
+            STNode rightTypeDescNode,
+            STNode gtToken) {
+        if (checkForReferenceEquality(
+                ltToken,
+                leftTypeDescNode,
+                commaToken,
+                rightTypeDescNode,
+                gtToken)) {
+            return this;
+        }
+
+        return new STStreamTypeParamsNode(
+                ltToken,
+                leftTypeDescNode,
+                commaToken,
+                rightTypeDescNode,
+                gtToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new StreamTypeParamsNode(this, position, parent);
     }

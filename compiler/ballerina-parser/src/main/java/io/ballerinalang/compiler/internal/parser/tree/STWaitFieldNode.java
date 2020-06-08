@@ -70,6 +70,23 @@ public class STWaitFieldNode extends STNode {
                 diagnostics);
     }
 
+    public STWaitFieldNode modify(
+            STNode fieldName,
+            STNode colon,
+            STNode waitFutureExpr) {
+        if (checkForReferenceEquality(
+                fieldName,
+                colon,
+                waitFutureExpr)) {
+            return this;
+        }
+
+        return new STWaitFieldNode(
+                fieldName,
+                colon,
+                waitFutureExpr);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new WaitFieldNode(this, position, parent);
     }

@@ -63,6 +63,20 @@ public class STWhereClauseNode extends STClauseNode {
                 diagnostics);
     }
 
+    public STWhereClauseNode modify(
+            STNode whereKeyword,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                whereKeyword,
+                expression)) {
+            return this;
+        }
+
+        return new STWhereClauseNode(
+                whereKeyword,
+                expression);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new WhereClauseNode(this, position, parent);
     }

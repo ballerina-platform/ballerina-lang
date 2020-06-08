@@ -84,6 +84,29 @@ public class STLocalTypeDefinitionStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STLocalTypeDefinitionStatementNode modify(
+            STNode annotations,
+            STNode typeKeyword,
+            STNode typeName,
+            STNode typeDescriptor,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                annotations,
+                typeKeyword,
+                typeName,
+                typeDescriptor,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STLocalTypeDefinitionStatementNode(
+                annotations,
+                typeKeyword,
+                typeName,
+                typeDescriptor,
+                semicolonToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new LocalTypeDefinitionStatementNode(this, position, parent);
     }

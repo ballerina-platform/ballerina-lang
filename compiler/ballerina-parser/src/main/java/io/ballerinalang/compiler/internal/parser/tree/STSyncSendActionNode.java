@@ -70,6 +70,23 @@ public class STSyncSendActionNode extends STActionNode {
                 diagnostics);
     }
 
+    public STSyncSendActionNode modify(
+            STNode expression,
+            STNode syncSendToken,
+            STNode peerWorker) {
+        if (checkForReferenceEquality(
+                expression,
+                syncSendToken,
+                peerWorker)) {
+            return this;
+        }
+
+        return new STSyncSendActionNode(
+                expression,
+                syncSendToken,
+                peerWorker);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new SyncSendActionNode(this, position, parent);
     }

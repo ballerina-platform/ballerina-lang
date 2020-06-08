@@ -63,6 +63,20 @@ public class STElseBlockNode extends STNode {
                 diagnostics);
     }
 
+    public STElseBlockNode modify(
+            STNode elseKeyword,
+            STNode elseBody) {
+        if (checkForReferenceEquality(
+                elseKeyword,
+                elseBody)) {
+            return this;
+        }
+
+        return new STElseBlockNode(
+                elseKeyword,
+                elseBody);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ElseBlockNode(this, position, parent);
     }

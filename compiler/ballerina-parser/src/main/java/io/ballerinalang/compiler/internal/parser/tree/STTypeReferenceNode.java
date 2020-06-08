@@ -70,6 +70,23 @@ public class STTypeReferenceNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STTypeReferenceNode modify(
+            STNode asteriskToken,
+            STNode typeName,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                asteriskToken,
+                typeName,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STTypeReferenceNode(
+                asteriskToken,
+                typeName,
+                semicolonToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypeReferenceNode(this, position, parent);
     }

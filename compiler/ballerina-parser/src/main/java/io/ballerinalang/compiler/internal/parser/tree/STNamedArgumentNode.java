@@ -77,6 +77,26 @@ public class STNamedArgumentNode extends STFunctionArgumentNode {
                 diagnostics);
     }
 
+    public STNamedArgumentNode modify(
+            STNode leadingComma,
+            STNode argumentName,
+            STNode equalsToken,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                leadingComma,
+                argumentName,
+                equalsToken,
+                expression)) {
+            return this;
+        }
+
+        return new STNamedArgumentNode(
+                leadingComma,
+                argumentName,
+                equalsToken,
+                expression);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new NamedArgumentNode(this, position, parent);
     }

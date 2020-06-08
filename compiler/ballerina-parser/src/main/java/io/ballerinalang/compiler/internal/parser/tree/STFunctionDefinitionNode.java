@@ -91,6 +91,32 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
                 diagnostics);
     }
 
+    public STFunctionDefinitionNode modify(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode functionKeyword,
+            STNode functionName,
+            STNode functionSignature,
+            STNode functionBody) {
+        if (checkForReferenceEquality(
+                metadata,
+                visibilityQualifier,
+                functionKeyword,
+                functionName,
+                functionSignature,
+                functionBody)) {
+            return this;
+        }
+
+        return new STFunctionDefinitionNode(
+                metadata,
+                visibilityQualifier,
+                functionKeyword,
+                functionName,
+                functionSignature,
+                functionBody);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FunctionDefinitionNode(this, position, parent);
     }

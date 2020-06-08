@@ -105,6 +105,38 @@ public class STListenerDeclarationNode extends STModuleMemberDeclarationNode {
                 diagnostics);
     }
 
+    public STListenerDeclarationNode modify(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode listenerKeyword,
+            STNode typeDescriptor,
+            STNode variableName,
+            STNode equalsToken,
+            STNode initializer,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                metadata,
+                visibilityQualifier,
+                listenerKeyword,
+                typeDescriptor,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STListenerDeclarationNode(
+                metadata,
+                visibilityQualifier,
+                listenerKeyword,
+                typeDescriptor,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ListenerDeclarationNode(this, position, parent);
     }

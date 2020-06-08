@@ -56,6 +56,17 @@ public class STTransactionalExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STTransactionalExpressionNode modify(
+            STNode transactionalKeyword) {
+        if (checkForReferenceEquality(
+                transactionalKeyword)) {
+            return this;
+        }
+
+        return new STTransactionalExpressionNode(
+                transactionalKeyword);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TransactionalExpressionNode(this, position, parent);
     }

@@ -77,6 +77,26 @@ public class STArrayTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STArrayTypeDescriptorNode modify(
+            STNode memberTypeDesc,
+            STNode openBracket,
+            STNode arrayLength,
+            STNode closeBracket) {
+        if (checkForReferenceEquality(
+                memberTypeDesc,
+                openBracket,
+                arrayLength,
+                closeBracket)) {
+            return this;
+        }
+
+        return new STArrayTypeDescriptorNode(
+                memberTypeDesc,
+                openBracket,
+                arrayLength,
+                closeBracket);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ArrayTypeDescriptorNode(this, position, parent);
     }

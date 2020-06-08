@@ -84,6 +84,29 @@ public class STRestParameterNode extends STParameterNode {
                 diagnostics);
     }
 
+    public STRestParameterNode modify(
+            STNode leadingComma,
+            STNode annotations,
+            STNode typeName,
+            STNode ellipsisToken,
+            STNode paramName) {
+        if (checkForReferenceEquality(
+                leadingComma,
+                annotations,
+                typeName,
+                ellipsisToken,
+                paramName)) {
+            return this;
+        }
+
+        return new STRestParameterNode(
+                leadingComma,
+                annotations,
+                typeName,
+                ellipsisToken,
+                paramName);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RestParameterNode(this, position, parent);
     }

@@ -70,6 +70,23 @@ public class STWhileStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STWhileStatementNode modify(
+            STNode whileKeyword,
+            STNode condition,
+            STNode whileBody) {
+        if (checkForReferenceEquality(
+                whileKeyword,
+                condition,
+                whileBody)) {
+            return this;
+        }
+
+        return new STWhileStatementNode(
+                whileKeyword,
+                condition,
+                whileBody);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new WhileStatementNode(this, position, parent);
     }

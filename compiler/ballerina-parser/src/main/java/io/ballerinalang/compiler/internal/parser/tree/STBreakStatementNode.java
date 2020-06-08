@@ -63,6 +63,20 @@ public class STBreakStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STBreakStatementNode modify(
+            STNode breakToken,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                breakToken,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STBreakStatementNode(
+                breakToken,
+                semicolonToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BreakStatementNode(this, position, parent);
     }

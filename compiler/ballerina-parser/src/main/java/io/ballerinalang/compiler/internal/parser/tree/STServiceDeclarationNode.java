@@ -91,6 +91,32 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
                 diagnostics);
     }
 
+    public STServiceDeclarationNode modify(
+            STNode metadata,
+            STNode serviceKeyword,
+            STNode serviceName,
+            STNode onKeyword,
+            STNode expressions,
+            STNode serviceBody) {
+        if (checkForReferenceEquality(
+                metadata,
+                serviceKeyword,
+                serviceName,
+                onKeyword,
+                expressions,
+                serviceBody)) {
+            return this;
+        }
+
+        return new STServiceDeclarationNode(
+                metadata,
+                serviceKeyword,
+                serviceName,
+                onKeyword,
+                expressions,
+                serviceBody);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ServiceDeclarationNode(this, position, parent);
     }

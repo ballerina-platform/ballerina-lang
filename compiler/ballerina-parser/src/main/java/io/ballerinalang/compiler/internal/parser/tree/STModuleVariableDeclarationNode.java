@@ -91,6 +91,32 @@ public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNo
                 diagnostics);
     }
 
+    public STModuleVariableDeclarationNode modify(
+            STNode metadata,
+            STNode finalKeyword,
+            STNode typedBindingPattern,
+            STNode equalsToken,
+            STNode initializer,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                metadata,
+                finalKeyword,
+                typedBindingPattern,
+                equalsToken,
+                initializer,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STModuleVariableDeclarationNode(
+                metadata,
+                finalKeyword,
+                typedBindingPattern,
+                equalsToken,
+                initializer,
+                semicolonToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ModuleVariableDeclarationNode(this, position, parent);
     }

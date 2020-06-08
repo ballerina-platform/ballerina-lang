@@ -70,6 +70,23 @@ public class STModulePartNode extends STNode {
                 diagnostics);
     }
 
+    public STModulePartNode modify(
+            STNode imports,
+            STNode members,
+            STNode eofToken) {
+        if (checkForReferenceEquality(
+                imports,
+                members,
+                eofToken)) {
+            return this;
+        }
+
+        return new STModulePartNode(
+                imports,
+                members,
+                eofToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ModulePartNode(this, position, parent);
     }

@@ -63,6 +63,20 @@ public class STSelectClauseNode extends STClauseNode {
                 diagnostics);
     }
 
+    public STSelectClauseNode modify(
+            STNode selectKeyword,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                selectKeyword,
+                expression)) {
+            return this;
+        }
+
+        return new STSelectClauseNode(
+                selectKeyword,
+                expression);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new SelectClauseNode(this, position, parent);
     }

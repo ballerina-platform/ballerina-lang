@@ -63,6 +63,20 @@ public class STTypedBindingPatternNode extends STNode {
                 diagnostics);
     }
 
+    public STTypedBindingPatternNode modify(
+            STNode typeDescriptor,
+            STNode bindingPattern) {
+        if (checkForReferenceEquality(
+                typeDescriptor,
+                bindingPattern)) {
+            return this;
+        }
+
+        return new STTypedBindingPatternNode(
+                typeDescriptor,
+                bindingPattern);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypedBindingPatternNode(this, position, parent);
     }

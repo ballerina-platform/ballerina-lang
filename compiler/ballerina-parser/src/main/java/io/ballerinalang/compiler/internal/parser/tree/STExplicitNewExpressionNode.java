@@ -70,6 +70,23 @@ public class STExplicitNewExpressionNode extends STNewExpressionNode {
                 diagnostics);
     }
 
+    public STExplicitNewExpressionNode modify(
+            STNode newKeyword,
+            STNode typeDescriptor,
+            STNode parenthesizedArgList) {
+        if (checkForReferenceEquality(
+                newKeyword,
+                typeDescriptor,
+                parenthesizedArgList)) {
+            return this;
+        }
+
+        return new STExplicitNewExpressionNode(
+                newKeyword,
+                typeDescriptor,
+                parenthesizedArgList);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ExplicitNewExpressionNode(this, position, parent);
     }

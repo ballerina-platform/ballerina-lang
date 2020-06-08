@@ -70,6 +70,23 @@ public class STServiceConstructorExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STServiceConstructorExpressionNode modify(
+            STNode annotations,
+            STNode serviceKeyword,
+            STNode serviceBody) {
+        if (checkForReferenceEquality(
+                annotations,
+                serviceKeyword,
+                serviceBody)) {
+            return this;
+        }
+
+        return new STServiceConstructorExpressionNode(
+                annotations,
+                serviceKeyword,
+                serviceBody);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ServiceConstructorExpressionNode(this, position, parent);
     }

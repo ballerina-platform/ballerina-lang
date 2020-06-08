@@ -70,6 +70,23 @@ public class STParenthesizedArgList extends STNode {
                 diagnostics);
     }
 
+    public STParenthesizedArgList modify(
+            STNode openParenToken,
+            STNode arguments,
+            STNode closeParenToken) {
+        if (checkForReferenceEquality(
+                openParenToken,
+                arguments,
+                closeParenToken)) {
+            return this;
+        }
+
+        return new STParenthesizedArgList(
+                openParenToken,
+                arguments,
+                closeParenToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ParenthesizedArgList(this, position, parent);
     }

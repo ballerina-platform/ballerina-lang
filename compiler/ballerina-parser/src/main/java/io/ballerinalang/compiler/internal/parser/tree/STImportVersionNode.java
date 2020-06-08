@@ -63,6 +63,20 @@ public class STImportVersionNode extends STNode {
                 diagnostics);
     }
 
+    public STImportVersionNode modify(
+            STNode versionKeyword,
+            STNode versionNumber) {
+        if (checkForReferenceEquality(
+                versionKeyword,
+                versionNumber)) {
+            return this;
+        }
+
+        return new STImportVersionNode(
+                versionKeyword,
+                versionNumber);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ImportVersionNode(this, position, parent);
     }

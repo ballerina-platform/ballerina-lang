@@ -70,6 +70,23 @@ public class STTypeTestExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STTypeTestExpressionNode modify(
+            STNode expression,
+            STNode isKeyword,
+            STNode typeDescriptor) {
+        if (checkForReferenceEquality(
+                expression,
+                isKeyword,
+                typeDescriptor)) {
+            return this;
+        }
+
+        return new STTypeTestExpressionNode(
+                expression,
+                isKeyword,
+                typeDescriptor);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypeTestExpressionNode(this, position, parent);
     }

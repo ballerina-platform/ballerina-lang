@@ -91,6 +91,32 @@ public class STTypeDefinitionNode extends STModuleMemberDeclarationNode {
                 diagnostics);
     }
 
+    public STTypeDefinitionNode modify(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode typeKeyword,
+            STNode typeName,
+            STNode typeDescriptor,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                metadata,
+                visibilityQualifier,
+                typeKeyword,
+                typeName,
+                typeDescriptor,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STTypeDefinitionNode(
+                metadata,
+                visibilityQualifier,
+                typeKeyword,
+                typeName,
+                typeDescriptor,
+                semicolonToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypeDefinitionNode(this, position, parent);
     }

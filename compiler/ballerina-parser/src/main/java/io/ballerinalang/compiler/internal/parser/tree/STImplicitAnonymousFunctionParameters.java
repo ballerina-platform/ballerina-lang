@@ -70,6 +70,23 @@ public class STImplicitAnonymousFunctionParameters extends STNode {
                 diagnostics);
     }
 
+    public STImplicitAnonymousFunctionParameters modify(
+            STNode openParenToken,
+            STNode parameters,
+            STNode closeParenToken) {
+        if (checkForReferenceEquality(
+                openParenToken,
+                parameters,
+                closeParenToken)) {
+            return this;
+        }
+
+        return new STImplicitAnonymousFunctionParameters(
+                openParenToken,
+                parameters,
+                closeParenToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ImplicitAnonymousFunctionParameters(this, position, parent);
     }

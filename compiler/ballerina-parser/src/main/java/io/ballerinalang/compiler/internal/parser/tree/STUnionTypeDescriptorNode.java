@@ -70,6 +70,23 @@ public class STUnionTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STUnionTypeDescriptorNode modify(
+            STNode leftTypeDesc,
+            STNode pipeToken,
+            STNode rightTypeDesc) {
+        if (checkForReferenceEquality(
+                leftTypeDesc,
+                pipeToken,
+                rightTypeDesc)) {
+            return this;
+        }
+
+        return new STUnionTypeDescriptorNode(
+                leftTypeDesc,
+                pipeToken,
+                rightTypeDesc);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new UnionTypeDescriptorNode(this, position, parent);
     }

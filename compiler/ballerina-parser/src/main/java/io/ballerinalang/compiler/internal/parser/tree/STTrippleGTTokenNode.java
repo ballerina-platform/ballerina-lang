@@ -70,6 +70,23 @@ public class STTrippleGTTokenNode extends STNode {
                 diagnostics);
     }
 
+    public STTrippleGTTokenNode modify(
+            STNode openGTToken,
+            STNode middleGTToken,
+            STNode endGTToken) {
+        if (checkForReferenceEquality(
+                openGTToken,
+                middleGTToken,
+                endGTToken)) {
+            return this;
+        }
+
+        return new STTrippleGTTokenNode(
+                openGTToken,
+                middleGTToken,
+                endGTToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TrippleGTTokenNode(this, position, parent);
     }

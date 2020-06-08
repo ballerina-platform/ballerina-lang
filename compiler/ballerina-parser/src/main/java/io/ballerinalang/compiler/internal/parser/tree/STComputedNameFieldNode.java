@@ -84,6 +84,29 @@ public class STComputedNameFieldNode extends STMappingFieldNode {
                 diagnostics);
     }
 
+    public STComputedNameFieldNode modify(
+            STNode openBracket,
+            STNode fieldNameExpr,
+            STNode closeBracket,
+            STNode colonToken,
+            STNode valueExpr) {
+        if (checkForReferenceEquality(
+                openBracket,
+                fieldNameExpr,
+                closeBracket,
+                colonToken,
+                valueExpr)) {
+            return this;
+        }
+
+        return new STComputedNameFieldNode(
+                openBracket,
+                fieldNameExpr,
+                closeBracket,
+                colonToken,
+                valueExpr);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ComputedNameFieldNode(this, position, parent);
     }

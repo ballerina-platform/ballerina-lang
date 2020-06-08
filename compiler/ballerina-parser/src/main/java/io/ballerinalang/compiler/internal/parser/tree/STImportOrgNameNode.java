@@ -63,6 +63,20 @@ public class STImportOrgNameNode extends STNode {
                 diagnostics);
     }
 
+    public STImportOrgNameNode modify(
+            STNode orgName,
+            STNode slashToken) {
+        if (checkForReferenceEquality(
+                orgName,
+                slashToken)) {
+            return this;
+        }
+
+        return new STImportOrgNameNode(
+                orgName,
+                slashToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ImportOrgNameNode(this, position, parent);
     }

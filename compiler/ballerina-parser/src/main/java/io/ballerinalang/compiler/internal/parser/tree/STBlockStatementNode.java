@@ -70,6 +70,23 @@ public class STBlockStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STBlockStatementNode modify(
+            STNode openBraceToken,
+            STNode statements,
+            STNode closeBraceToken) {
+        if (checkForReferenceEquality(
+                openBraceToken,
+                statements,
+                closeBraceToken)) {
+            return this;
+        }
+
+        return new STBlockStatementNode(
+                openBraceToken,
+                statements,
+                closeBraceToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BlockStatementNode(this, position, parent);
     }

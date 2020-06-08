@@ -77,6 +77,26 @@ public class STAssignmentStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STAssignmentStatementNode modify(
+            STNode varRef,
+            STNode equalsToken,
+            STNode expression,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                varRef,
+                equalsToken,
+                expression,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STAssignmentStatementNode(
+                varRef,
+                equalsToken,
+                expression,
+                semicolonToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new AssignmentStatementNode(this, position, parent);
     }

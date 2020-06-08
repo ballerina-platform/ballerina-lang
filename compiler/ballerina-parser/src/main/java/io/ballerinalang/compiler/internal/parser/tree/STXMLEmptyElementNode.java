@@ -84,6 +84,29 @@ public class STXMLEmptyElementNode extends STXMLItemNode {
                 diagnostics);
     }
 
+    public STXMLEmptyElementNode modify(
+            STNode ltToken,
+            STNode name,
+            STNode attributes,
+            STNode slashToken,
+            STNode getToken) {
+        if (checkForReferenceEquality(
+                ltToken,
+                name,
+                attributes,
+                slashToken,
+                getToken)) {
+            return this;
+        }
+
+        return new STXMLEmptyElementNode(
+                ltToken,
+                name,
+                attributes,
+                slashToken,
+                getToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLEmptyElementNode(this, position, parent);
     }

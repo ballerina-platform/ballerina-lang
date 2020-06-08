@@ -98,6 +98,35 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
                 diagnostics);
     }
 
+    public STEnumDeclarationNode modify(
+            STNode metadata,
+            STNode qualifier,
+            STNode enumKeywordToken,
+            STNode identifier,
+            STNode openBraceToken,
+            STNode enumMemberList,
+            STNode closeBraceToken) {
+        if (checkForReferenceEquality(
+                metadata,
+                qualifier,
+                enumKeywordToken,
+                identifier,
+                openBraceToken,
+                enumMemberList,
+                closeBraceToken)) {
+            return this;
+        }
+
+        return new STEnumDeclarationNode(
+                metadata,
+                qualifier,
+                enumKeywordToken,
+                identifier,
+                openBraceToken,
+                enumMemberList,
+                closeBraceToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new EnumDeclarationNode(this, position, parent);
     }

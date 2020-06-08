@@ -63,6 +63,20 @@ public class STMetadataNode extends STNode {
                 diagnostics);
     }
 
+    public STMetadataNode modify(
+            STNode documentationString,
+            STNode annotations) {
+        if (checkForReferenceEquality(
+                documentationString,
+                annotations)) {
+            return this;
+        }
+
+        return new STMetadataNode(
+                documentationString,
+                annotations);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MetadataNode(this, position, parent);
     }

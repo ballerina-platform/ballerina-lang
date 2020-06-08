@@ -63,6 +63,20 @@ public class STLockStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STLockStatementNode modify(
+            STNode lockKeyword,
+            STNode blockStatement) {
+        if (checkForReferenceEquality(
+                lockKeyword,
+                blockStatement)) {
+            return this;
+        }
+
+        return new STLockStatementNode(
+                lockKeyword,
+                blockStatement);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new LockStatementNode(this, position, parent);
     }

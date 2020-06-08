@@ -63,6 +63,20 @@ public class STTypeCastParamNode extends STNode {
                 diagnostics);
     }
 
+    public STTypeCastParamNode modify(
+            STNode annotations,
+            STNode type) {
+        if (checkForReferenceEquality(
+                annotations,
+                type)) {
+            return this;
+        }
+
+        return new STTypeCastParamNode(
+                annotations,
+                type);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypeCastParamNode(this, position, parent);
     }

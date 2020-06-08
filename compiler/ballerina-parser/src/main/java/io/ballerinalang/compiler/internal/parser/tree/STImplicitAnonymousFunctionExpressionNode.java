@@ -70,6 +70,23 @@ public class STImplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
                 diagnostics);
     }
 
+    public STImplicitAnonymousFunctionExpressionNode modify(
+            STNode params,
+            STNode rightDoubleArrow,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                params,
+                rightDoubleArrow,
+                expression)) {
+            return this;
+        }
+
+        return new STImplicitAnonymousFunctionExpressionNode(
+                params,
+                rightDoubleArrow,
+                expression);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ImplicitAnonymousFunctionExpressionNode(this, position, parent);
     }

@@ -70,6 +70,23 @@ public class STXMLComment extends STXMLItemNode {
                 diagnostics);
     }
 
+    public STXMLComment modify(
+            STNode commentStart,
+            STNode content,
+            STNode commentEnd) {
+        if (checkForReferenceEquality(
+                commentStart,
+                content,
+                commentEnd)) {
+            return this;
+        }
+
+        return new STXMLComment(
+                commentStart,
+                content,
+                commentEnd);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLComment(this, position, parent);
     }

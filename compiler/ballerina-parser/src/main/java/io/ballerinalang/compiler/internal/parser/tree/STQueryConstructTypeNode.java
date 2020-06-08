@@ -63,6 +63,20 @@ public class STQueryConstructTypeNode extends STNode {
                 diagnostics);
     }
 
+    public STQueryConstructTypeNode modify(
+            STNode tableKeyword,
+            STNode keySpecifier) {
+        if (checkForReferenceEquality(
+                tableKeyword,
+                keySpecifier)) {
+            return this;
+        }
+
+        return new STQueryConstructTypeNode(
+                tableKeyword,
+                keySpecifier);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new QueryConstructTypeNode(this, position, parent);
     }

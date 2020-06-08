@@ -77,6 +77,26 @@ public class STRecordTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STRecordTypeDescriptorNode modify(
+            STNode objectKeyword,
+            STNode bodyStartDelimiter,
+            STNode fields,
+            STNode bodyEndDelimiter) {
+        if (checkForReferenceEquality(
+                objectKeyword,
+                bodyStartDelimiter,
+                fields,
+                bodyEndDelimiter)) {
+            return this;
+        }
+
+        return new STRecordTypeDescriptorNode(
+                objectKeyword,
+                bodyStartDelimiter,
+                fields,
+                bodyEndDelimiter);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RecordTypeDescriptorNode(this, position, parent);
     }

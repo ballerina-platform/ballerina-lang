@@ -63,6 +63,20 @@ public class STRestBindingPatternNode extends STNode {
                 diagnostics);
     }
 
+    public STRestBindingPatternNode modify(
+            STNode ellipsisToken,
+            STNode variableName) {
+        if (checkForReferenceEquality(
+                ellipsisToken,
+                variableName)) {
+            return this;
+        }
+
+        return new STRestBindingPatternNode(
+                ellipsisToken,
+                variableName);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RestBindingPatternNode(this, position, parent);
     }

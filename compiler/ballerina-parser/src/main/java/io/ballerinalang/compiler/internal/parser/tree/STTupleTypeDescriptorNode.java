@@ -70,6 +70,23 @@ public class STTupleTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STTupleTypeDescriptorNode modify(
+            STNode openBracketToken,
+            STNode memberTypeDesc,
+            STNode closeBracketToken) {
+        if (checkForReferenceEquality(
+                openBracketToken,
+                memberTypeDesc,
+                closeBracketToken)) {
+            return this;
+        }
+
+        return new STTupleTypeDescriptorNode(
+                openBracketToken,
+                memberTypeDesc,
+                closeBracketToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TupleTypeDescriptorNode(this, position, parent);
     }

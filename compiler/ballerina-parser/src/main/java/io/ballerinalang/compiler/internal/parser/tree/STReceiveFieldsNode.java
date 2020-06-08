@@ -70,6 +70,23 @@ public class STReceiveFieldsNode extends STNode {
                 diagnostics);
     }
 
+    public STReceiveFieldsNode modify(
+            STNode openBrace,
+            STNode receiveFields,
+            STNode closeBrace) {
+        if (checkForReferenceEquality(
+                openBrace,
+                receiveFields,
+                closeBrace)) {
+            return this;
+        }
+
+        return new STReceiveFieldsNode(
+                openBrace,
+                receiveFields,
+                closeBrace);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReceiveFieldsNode(this, position, parent);
     }

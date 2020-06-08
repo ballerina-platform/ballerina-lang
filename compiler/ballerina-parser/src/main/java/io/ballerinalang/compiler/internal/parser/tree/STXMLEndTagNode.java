@@ -77,6 +77,26 @@ public class STXMLEndTagNode extends STXMLElementTagNode {
                 diagnostics);
     }
 
+    public STXMLEndTagNode modify(
+            STNode ltToken,
+            STNode slashToken,
+            STNode name,
+            STNode getToken) {
+        if (checkForReferenceEquality(
+                ltToken,
+                slashToken,
+                name,
+                getToken)) {
+            return this;
+        }
+
+        return new STXMLEndTagNode(
+                ltToken,
+                slashToken,
+                name,
+                getToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLEndTagNode(this, position, parent);
     }

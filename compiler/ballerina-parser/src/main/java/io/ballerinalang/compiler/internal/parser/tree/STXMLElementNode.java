@@ -70,6 +70,23 @@ public class STXMLElementNode extends STXMLItemNode {
                 diagnostics);
     }
 
+    public STXMLElementNode modify(
+            STNode startTag,
+            STNode content,
+            STNode endTag) {
+        if (checkForReferenceEquality(
+                startTag,
+                content,
+                endTag)) {
+            return this;
+        }
+
+        return new STXMLElementNode(
+                startTag,
+                content,
+                endTag);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLElementNode(this, position, parent);
     }

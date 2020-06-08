@@ -67,6 +67,22 @@ public class STCheckExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STCheckExpressionNode modify(
+            SyntaxKind kind,
+            STNode checkKeyword,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                checkKeyword,
+                expression)) {
+            return this;
+        }
+
+        return new STCheckExpressionNode(
+                kind,
+                checkKeyword,
+                expression);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new CheckExpressionNode(this, position, parent);
     }

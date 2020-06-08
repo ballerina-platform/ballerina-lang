@@ -77,6 +77,26 @@ public class STTypeCastExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STTypeCastExpressionNode modify(
+            STNode ltToken,
+            STNode typeCastParam,
+            STNode gtToken,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                ltToken,
+                typeCastParam,
+                gtToken,
+                expression)) {
+            return this;
+        }
+
+        return new STTypeCastExpressionNode(
+                ltToken,
+                typeCastParam,
+                gtToken,
+                expression);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypeCastExpressionNode(this, position, parent);
     }

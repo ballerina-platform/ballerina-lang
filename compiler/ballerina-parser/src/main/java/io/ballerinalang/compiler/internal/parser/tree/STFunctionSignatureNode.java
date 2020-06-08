@@ -77,6 +77,26 @@ public class STFunctionSignatureNode extends STNode {
                 diagnostics);
     }
 
+    public STFunctionSignatureNode modify(
+            STNode openParenToken,
+            STNode parameters,
+            STNode closeParenToken,
+            STNode returnTypeDesc) {
+        if (checkForReferenceEquality(
+                openParenToken,
+                parameters,
+                closeParenToken,
+                returnTypeDesc)) {
+            return this;
+        }
+
+        return new STFunctionSignatureNode(
+                openParenToken,
+                parameters,
+                closeParenToken,
+                returnTypeDesc);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FunctionSignatureNode(this, position, parent);
     }

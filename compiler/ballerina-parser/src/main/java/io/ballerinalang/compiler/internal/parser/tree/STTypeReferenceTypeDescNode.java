@@ -56,6 +56,17 @@ public class STTypeReferenceTypeDescNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STTypeReferenceTypeDescNode modify(
+            STNode typeRef) {
+        if (checkForReferenceEquality(
+                typeRef)) {
+            return this;
+        }
+
+        return new STTypeReferenceTypeDescNode(
+                typeRef);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypeReferenceTypeDescNode(this, position, parent);
     }

@@ -77,6 +77,26 @@ public class STLetExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STLetExpressionNode modify(
+            STNode letKeyword,
+            STNode letVarDeclarations,
+            STNode inKeyword,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                letKeyword,
+                letVarDeclarations,
+                inKeyword,
+                expression)) {
+            return this;
+        }
+
+        return new STLetExpressionNode(
+                letKeyword,
+                letVarDeclarations,
+                inKeyword,
+                expression);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new LetExpressionNode(this, position, parent);
     }

@@ -77,6 +77,26 @@ public class STParameterizedTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STParameterizedTypeDescriptorNode modify(
+            STNode parameterizedType,
+            STNode ltToken,
+            STNode typeNode,
+            STNode gtToken) {
+        if (checkForReferenceEquality(
+                parameterizedType,
+                ltToken,
+                typeNode,
+                gtToken)) {
+            return this;
+        }
+
+        return new STParameterizedTypeDescriptorNode(
+                parameterizedType,
+                ltToken,
+                typeNode,
+                gtToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ParameterizedTypeDescriptorNode(this, position, parent);
     }

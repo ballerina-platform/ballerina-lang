@@ -91,6 +91,32 @@ public class STImportDeclarationNode extends STNode {
                 diagnostics);
     }
 
+    public STImportDeclarationNode modify(
+            STNode importKeyword,
+            STNode orgName,
+            STNode moduleName,
+            STNode version,
+            STNode prefix,
+            STNode semicolon) {
+        if (checkForReferenceEquality(
+                importKeyword,
+                orgName,
+                moduleName,
+                version,
+                prefix,
+                semicolon)) {
+            return this;
+        }
+
+        return new STImportDeclarationNode(
+                importKeyword,
+                orgName,
+                moduleName,
+                version,
+                prefix,
+                semicolon);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ImportDeclarationNode(this, position, parent);
     }

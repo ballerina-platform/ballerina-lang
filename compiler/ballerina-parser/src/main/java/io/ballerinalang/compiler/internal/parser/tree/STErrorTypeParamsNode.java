@@ -70,6 +70,23 @@ public class STErrorTypeParamsNode extends STNode {
                 diagnostics);
     }
 
+    public STErrorTypeParamsNode modify(
+            STNode ltToken,
+            STNode parameter,
+            STNode gtToken) {
+        if (checkForReferenceEquality(
+                ltToken,
+                parameter,
+                gtToken)) {
+            return this;
+        }
+
+        return new STErrorTypeParamsNode(
+                ltToken,
+                parameter,
+                gtToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ErrorTypeParamsNode(this, position, parent);
     }

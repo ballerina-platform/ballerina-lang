@@ -77,6 +77,26 @@ public class STXMLProcessingInstruction extends STXMLItemNode {
                 diagnostics);
     }
 
+    public STXMLProcessingInstruction modify(
+            STNode piStart,
+            STNode target,
+            STNode data,
+            STNode piEnd) {
+        if (checkForReferenceEquality(
+                piStart,
+                target,
+                data,
+                piEnd)) {
+            return this;
+        }
+
+        return new STXMLProcessingInstruction(
+                piStart,
+                target,
+                data,
+                piEnd);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLProcessingInstruction(this, position, parent);
     }

@@ -70,6 +70,23 @@ public class STQualifiedNameReferenceNode extends STNameReferenceNode {
                 diagnostics);
     }
 
+    public STQualifiedNameReferenceNode modify(
+            STNode modulePrefix,
+            STNode colon,
+            STNode identifier) {
+        if (checkForReferenceEquality(
+                modulePrefix,
+                colon,
+                identifier)) {
+            return this;
+        }
+
+        return new STQualifiedNameReferenceNode(
+                modulePrefix,
+                colon,
+                identifier);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new QualifiedNameReferenceNode(this, position, parent);
     }

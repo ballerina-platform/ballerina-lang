@@ -70,6 +70,23 @@ public class STAnnotAccessExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STAnnotAccessExpressionNode modify(
+            STNode expression,
+            STNode annotChainingToken,
+            STNode annotTagReference) {
+        if (checkForReferenceEquality(
+                expression,
+                annotChainingToken,
+                annotTagReference)) {
+            return this;
+        }
+
+        return new STAnnotAccessExpressionNode(
+                expression,
+                annotChainingToken,
+                annotTagReference);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new AnnotAccessExpressionNode(this, position, parent);
     }

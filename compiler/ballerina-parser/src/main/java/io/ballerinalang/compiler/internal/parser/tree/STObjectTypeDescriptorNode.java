@@ -84,6 +84,29 @@ public class STObjectTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STObjectTypeDescriptorNode modify(
+            STNode objectTypeQualifiers,
+            STNode objectKeyword,
+            STNode openBrace,
+            STNode members,
+            STNode closeBrace) {
+        if (checkForReferenceEquality(
+                objectTypeQualifiers,
+                objectKeyword,
+                openBrace,
+                members,
+                closeBrace)) {
+            return this;
+        }
+
+        return new STObjectTypeDescriptorNode(
+                objectTypeQualifiers,
+                objectKeyword,
+                openBrace,
+                members,
+                closeBrace);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ObjectTypeDescriptorNode(this, position, parent);
     }

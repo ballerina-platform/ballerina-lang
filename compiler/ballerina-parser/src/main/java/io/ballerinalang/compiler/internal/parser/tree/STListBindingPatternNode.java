@@ -77,6 +77,26 @@ public class STListBindingPatternNode extends STBindingPatternNode {
                 diagnostics);
     }
 
+    public STListBindingPatternNode modify(
+            STNode openBracket,
+            STNode bindingPatterns,
+            STNode restBindingPattern,
+            STNode closeBracket) {
+        if (checkForReferenceEquality(
+                openBracket,
+                bindingPatterns,
+                restBindingPattern,
+                closeBracket)) {
+            return this;
+        }
+
+        return new STListBindingPatternNode(
+                openBracket,
+                bindingPatterns,
+                restBindingPattern,
+                closeBracket);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ListBindingPatternNode(this, position, parent);
     }

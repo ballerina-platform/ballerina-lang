@@ -70,6 +70,23 @@ public class STQueryExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STQueryExpressionNode modify(
+            STNode queryConstructType,
+            STNode queryPipeline,
+            STNode selectClause) {
+        if (checkForReferenceEquality(
+                queryConstructType,
+                queryPipeline,
+                selectClause)) {
+            return this;
+        }
+
+        return new STQueryExpressionNode(
+                queryConstructType,
+                queryPipeline,
+                selectClause);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new QueryExpressionNode(this, position, parent);
     }

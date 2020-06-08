@@ -63,6 +63,20 @@ public class STXMLFilterExpressionNode extends STXMLNavigateExpressionNode {
                 diagnostics);
     }
 
+    public STXMLFilterExpressionNode modify(
+            STNode expression,
+            STNode xmlPatternChain) {
+        if (checkForReferenceEquality(
+                expression,
+                xmlPatternChain)) {
+            return this;
+        }
+
+        return new STXMLFilterExpressionNode(
+                expression,
+                xmlPatternChain);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLFilterExpressionNode(this, position, parent);
     }

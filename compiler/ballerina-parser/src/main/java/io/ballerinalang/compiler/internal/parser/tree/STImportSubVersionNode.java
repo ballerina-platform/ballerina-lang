@@ -63,6 +63,20 @@ public class STImportSubVersionNode extends STNode {
                 diagnostics);
     }
 
+    public STImportSubVersionNode modify(
+            STNode leadingDot,
+            STNode versionNumber) {
+        if (checkForReferenceEquality(
+                leadingDot,
+                versionNumber)) {
+            return this;
+        }
+
+        return new STImportSubVersionNode(
+                leadingDot,
+                versionNumber);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ImportSubVersionNode(this, position, parent);
     }

@@ -77,6 +77,26 @@ public class STXMLStartTagNode extends STXMLElementTagNode {
                 diagnostics);
     }
 
+    public STXMLStartTagNode modify(
+            STNode ltToken,
+            STNode name,
+            STNode attributes,
+            STNode getToken) {
+        if (checkForReferenceEquality(
+                ltToken,
+                name,
+                attributes,
+                getToken)) {
+            return this;
+        }
+
+        return new STXMLStartTagNode(
+                ltToken,
+                name,
+                attributes,
+                getToken);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLStartTagNode(this, position, parent);
     }
