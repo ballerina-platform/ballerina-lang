@@ -70,7 +70,7 @@ public class AnonymousAppSecretHandler implements AppSecretHandler {
         final Path projectSecretPath = getProjectSecretPath(obsId);
 
         if (!Files.exists(projectSecretPath)) {
-            throw new FileNotFoundException(projectSecretPath.toString() + " is missing");
+            throw ChoreoErrors.createValidationError(projectSecretPath.toString() + " is missing");
         }
 
         try (BufferedReader reader = Files.newBufferedReader(projectSecretPath)) {
