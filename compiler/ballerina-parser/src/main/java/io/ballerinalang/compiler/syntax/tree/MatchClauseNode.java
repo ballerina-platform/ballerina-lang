@@ -45,7 +45,7 @@ public class MatchClauseNode extends NonTerminalNode {
         return childInBucket(2);
     }
 
-    public BlockStatement blockStatement() {
+    public BlockStatementNode blockStatement() {
         return childInBucket(3);
     }
 
@@ -72,7 +72,7 @@ public class MatchClauseNode extends NonTerminalNode {
             SeparatedNodeList<Node> matchPatterns,
             MatchGuardNode matchGuard,
             Token rightDoubleArrow,
-            BlockStatement blockStatement) {
+            BlockStatementNode blockStatement) {
         if (checkForReferenceEquality(
                 matchPatterns.underlyingListNode(),
                 matchGuard,
@@ -102,7 +102,7 @@ public class MatchClauseNode extends NonTerminalNode {
         private SeparatedNodeList<Node> matchPatterns;
         private MatchGuardNode matchGuard;
         private Token rightDoubleArrow;
-        private BlockStatement blockStatement;
+        private BlockStatementNode blockStatement;
 
         public MatchClauseNodeModifier(MatchClauseNode oldNode) {
             this.oldNode = oldNode;
@@ -134,7 +134,7 @@ public class MatchClauseNode extends NonTerminalNode {
         }
 
         public MatchClauseNodeModifier withBlockStatement(
-                BlockStatement blockStatement) {
+                BlockStatementNode blockStatement) {
             Objects.requireNonNull(blockStatement, "blockStatement must not be null");
             this.blockStatement = blockStatement;
             return this;

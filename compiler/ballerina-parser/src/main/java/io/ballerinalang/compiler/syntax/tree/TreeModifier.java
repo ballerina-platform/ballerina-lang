@@ -2727,7 +2727,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(matchClauseNode.matchGuard().orElse(null));
         Token rightDoubleArrow =
                 modifyToken(matchClauseNode.rightDoubleArrow());
-        BlockStatement blockStatement =
+        BlockStatementNode blockStatement =
                 modifyNode(matchClauseNode.blockStatement());
         return matchClauseNode.modify(
                 matchPatterns,

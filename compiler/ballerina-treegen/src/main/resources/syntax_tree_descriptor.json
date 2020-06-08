@@ -3633,7 +3633,7 @@
                 },
                 {
                     "name": "blockStatement",
-                    "type": "BlockStatement"
+                    "type": "BlockStatementNode"
                 }
             ]
         },

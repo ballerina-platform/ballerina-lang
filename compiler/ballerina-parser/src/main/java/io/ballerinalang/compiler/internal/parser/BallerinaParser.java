@@ -11612,10 +11612,6 @@ public class BallerinaParser extends AbstractParser {
         List<STNode> matchClauses = new ArrayList<>();
         while (!isEndOfMatchClauses(peek().kind)) {
             STNode clause = parseMatchClause();
-            if (clause == null) {
-                break;
-            }
-
             matchClauses.add(clause);
         }
         return STNodeFactory.createNodeList(matchClauses);

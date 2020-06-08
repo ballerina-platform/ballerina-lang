@@ -2687,7 +2687,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             SeparatedNodeList<Node> matchPatterns,
             MatchGuardNode matchGuard,
             Token rightDoubleArrow,
-            BlockStatement blockStatement) {
+            BlockStatementNode blockStatement) {
         Objects.requireNonNull(matchPatterns, "matchPatterns must not be null");
         Objects.requireNonNull(rightDoubleArrow, "rightDoubleArrow must not be null");
         Objects.requireNonNull(blockStatement, "blockStatement must not be null");
