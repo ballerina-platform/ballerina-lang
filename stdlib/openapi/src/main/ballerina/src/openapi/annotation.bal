@@ -18,12 +18,17 @@
 # + contract - OpenApi Contract link
 # + tags - OpenApi Tags
 # + operations - OpenApi Operations
+# + excludeTags - Openapi Validator Off for these tags
+# + excludeOperations - Openapi Validator Off for these operations
 # + failOnErrors - OpenApi Validator Enable
 public type ServiceInformation record {|
     string contract = "";
     string[]? tags = [];
     string[]? operations = [];
+    string[]? excludeTags = [];
+    string[]? excludeOperations = [];
     boolean failOnErrors = true;
+
 |};
 
 # Configuration elements for client code generation.

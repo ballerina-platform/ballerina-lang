@@ -2221,14 +2221,29 @@ public class Types {
             targetTypes.add(target);
         }
 
-        return sourceTypes.stream()
-                .allMatch(s -> (targetTypes.stream().anyMatch(t -> isAssignable(s, t, unresolvedTypes,
-                                                                                unresolvedReadonlyTypes)))
-                        || (s.tag == TypeTags.FINITE  && isAssignable(s, target, unresolvedTypes,
-                                                                      unresolvedReadonlyTypes))
-                        || (s.tag == TypeTags.XML
-                            && isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes,
-                                                       unresolvedReadonlyTypes)));
+        for (BType s : sourceTypes) {
+            if (s.tag == TypeTags.NEVER) {
+                continue;
+            }
+
+            boolean isAssignableToAnyTargetType = true;
+
+            for (BType t : targetTypes) {
+                if (isAssignable(s, t, unresolvedTypes, unresolvedReadonlyTypes)) {
+                    isAssignableToAnyTargetType = false;
+                    break;
+                }
+            }
+
+            if (isAssignableToAnyTargetType && (s.tag != TypeTags.FINITE
+                    || !isAssignable(s, target, unresolvedTypes, unresolvedReadonlyTypes))
+                    && (s.tag != TypeTags.XML
+                    || !isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes,
+                    unresolvedReadonlyTypes))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean isFiniteTypeAssignable(BFiniteType finiteType, BType targetType, Set<TypePair> unresolvedTypes,

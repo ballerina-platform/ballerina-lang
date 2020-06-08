@@ -148,7 +148,6 @@ import io.ballerinalang.compiler.syntax.tree.XMLAttributeNode;
 import io.ballerinalang.compiler.syntax.tree.XMLAttributeValue;
 import io.ballerinalang.compiler.syntax.tree.XMLComment;
 import io.ballerinalang.compiler.syntax.tree.XMLElementNode;
-import io.ballerinalang.compiler.syntax.tree.XMLEmptyElementNode;
 import io.ballerinalang.compiler.syntax.tree.XMLEndTagNode;
 import io.ballerinalang.compiler.syntax.tree.XMLNamespaceDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.XMLProcessingInstruction;
@@ -293,7 +292,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -314,26 +312,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private BLangCompilationUnit currentCompilationUnit;
     private static final Pattern UNICODE_PATTERN = Pattern.compile(Constants.UNICODE_REGEX);
-    public Set<String> unImplNodes = new TreeSet<>();
     private BLangAnonymousModelHelper anonymousModelHelper;
     private BLangMissingNodesHelper missingNodesHelper;
 
     /* To keep track of additional statements produced from multi-BLangNode resultant transformations */
     private Stack<BLangStatement> additionalStatements = new Stack<>();
-
     /* To keep track if we are inside a block statment for the use of type definition creation */
     private boolean isInLocalContext = false;
 
     public BLangNodeTransformer(CompilerContext context, BDiagnosticSource diagnosticSource) {
-        this.dlog = new BLangDiagnosticLogHelper(new CompilerContext()) {
-            @Override
-            public void error(DiagnosticPos pos, DiagnosticCode code, Object... args) {
-            }
-
-            @Override
-            public void warning(DiagnosticPos pos, DiagnosticCode code, Object... args) {
-            }
-        }; //BLangDiagnosticLogHelper.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.diagnosticSource = diagnosticSource;
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
@@ -1600,6 +1588,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         // Set Parameters
         Node param = implicitAnonymousFunctionExpressionNode.params();
         if (param.kind() == SyntaxKind.INFER_PARAM_LIST) {
+
             ImplicitAnonymousFunctionParameters paramsNode = (ImplicitAnonymousFunctionParameters) param;
             SeparatedNodeList<SimpleNameReferenceNode> paramList = paramsNode.parameters();
 
@@ -1608,7 +1597,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 BLangSimpleVariable parameter = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
                 parameter.name = userDefinedType.typeName;
                 arrowFunction.params.add(parameter);
-
             }
 
         } else {
@@ -2236,18 +2224,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
-    public BLangNode transform(XMLEmptyElementNode xMLEmptyElementNode) {
-        BLangXMLElementLiteral xmlEmptyElement = (BLangXMLElementLiteral) TreeBuilder.createXMLElementLiteralNode();
-        xmlEmptyElement.startTagName = createExpression(xMLEmptyElementNode.name());
-
-        for (XMLAttributeNode attribute : xMLEmptyElementNode.attributes()) {
-            xmlEmptyElement.attributes.add((BLangXMLAttribute) attribute.apply(this));
-        }
-        xmlEmptyElement.pos = getPosition(xMLEmptyElementNode);
-        return xmlEmptyElement;
-    }
-
-    @Override
     public BLangNode transform(RemoteMethodCallActionNode remoteMethodCallActionNode) {
         BLangInvocation.BLangActionInvocation bLangActionInvocation = (BLangInvocation.BLangActionInvocation)
                 TreeBuilder.createActionInvocation();
@@ -2298,9 +2274,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     protected BLangNode transformSyntaxNode(Node node) {
         // TODO: Remove this RuntimeException once all nodes covered
-//        throw new RuntimeException("Node not supported: " + node.getClass().getSimpleName());
-        this.unImplNodes.add(node.getClass().getSimpleName());
-        return null;
+        throw new RuntimeException("Node not supported: " + node.getClass().getSimpleName());
     }
 
     // ------------------------------------------private methods--------------------------------------------------------
