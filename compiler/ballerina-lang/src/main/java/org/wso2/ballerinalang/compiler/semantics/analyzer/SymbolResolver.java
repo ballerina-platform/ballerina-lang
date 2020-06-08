@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
+import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -128,6 +129,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     private DiagnosticCode diagCode;
     private SymbolEnter symbolEnter;
     private BLangAnonymousModelHelper anonymousModelHelper;
+    private BLangMissingNodesHelper missingNodesHelper;
 
     public static SymbolResolver getInstance(CompilerContext context) {
         SymbolResolver symbolResolver = context.get(SYMBOL_RESOLVER_KEY);
@@ -147,6 +149,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
+        this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
     }
 
     public boolean checkForUniqueSymbol(DiagnosticPos pos, SymbolEnv env, BSymbol symbol) {
@@ -1139,7 +1142,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             constrainedType = new BTypedescType(constraintType, null);
         } else if (type.tag == TypeTags.XML) {
             if (constraintType.tag != TypeTags.UNION) {
-                if (!TypeTags.isXMLTypeTag(constraintType.tag)) {
+                if (!TypeTags.isXMLTypeTag(constraintType.tag) && constraintType.tag != TypeTags.NEVER) {
                     dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType,
                             constraintType);
                 }
@@ -1202,7 +1205,9 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         if (this.env.logErrors && symbol == symTable.notFoundSymbol) {
-            dlog.error(userDefinedTypeNode.pos, diagCode, typeName);
+            if (!missingNodesHelper.isMissingNode(pkgAlias) && !missingNodesHelper.isMissingNode(typeName)) {
+                dlog.error(userDefinedTypeNode.pos, diagCode, typeName);
+            }
             resultType = symTable.semanticError;
             return;
         }

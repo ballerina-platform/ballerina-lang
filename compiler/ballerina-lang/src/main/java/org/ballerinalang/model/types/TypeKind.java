@@ -77,6 +77,7 @@ public enum TypeKind {
     UNION("|"),
     VOID(""),
     NIL("null"),
+    NEVER("never"),
     NONE(""),
     OTHER("other"),
     ERROR("error"),

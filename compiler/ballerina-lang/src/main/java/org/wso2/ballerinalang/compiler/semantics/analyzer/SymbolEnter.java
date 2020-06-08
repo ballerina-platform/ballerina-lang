@@ -119,6 +119,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -1040,6 +1041,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             symbol.restParam = tsymbol.restParam;
             symbol.retType = tsymbol.returnType;
         }
+
+        if (varSymbol.type.tag == TypeTags.NEVER && ((env.scope.owner.tag & SymTag.RECORD) != SymTag.RECORD)) {
+            // check if the variable is defined as a 'never' type (except inside a record type)
+            // if so, log an error
+            dlog.error(varNode.pos, DiagnosticCode.NEVER_TYPED_VAR_DEF_NOT_ALLOWED, varSymbol.name);
+        }
     }
 
     @Override
@@ -1432,7 +1439,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     defineNode(f, objMethodsEnv);
                 });
 
-                List<String> referencedFunctions = new ArrayList<>();
+                Set<String> includedFunctionNames = new HashSet<>();
                 // Add the attached functions of the referenced types to this object.
                 // Here it is assumed that all the attached functions of the referred type are
                 // resolved by the time we reach here. It is achieved by ordering the typeDefs
@@ -1444,7 +1451,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                     List<BAttachedFunction> functions = ((BObjectTypeSymbol) typeRef.type.tsymbol).attachedFuncs;
                     for (BAttachedFunction function : functions) {
-                        defineReferencedFunction(typeDef, objMethodsEnv, typeRef, function, referencedFunctions);
+                        defineReferencedFunction(typeDef, objMethodsEnv, typeRef, function, includedFunctionNames);
                     }
                 }
             }
@@ -1819,8 +1826,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             if (structureTypeNode.type.tag == TypeTags.OBJECT) {
-                if (referredType.tag != TypeTags.OBJECT ||
-                        !Symbols.isFlagOn(referredType.tsymbol.flags, Flags.ABSTRACT)) {
+                if (referredType.tag != TypeTags.OBJECT) {
                     dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_TYPE_REFERENCE, typeRef);
                     invalidTypeRefs.add(typeRef);
                     return Stream.empty();
@@ -1869,18 +1875,17 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineReferencedFunction(BLangTypeDefinition typeDef, SymbolEnv objEnv, BLangType typeRef,
-                                          BAttachedFunction referencedFunc, List<String> referencedFunctions) {
+                                          BAttachedFunction referencedFunc, Set<String> includedFunctionNames) {
         String referencedFuncName = referencedFunc.funcName.value;
         Name funcName = names.fromString(
                 Symbols.getAttachedFuncSymbolName(typeDef.symbol.name.value, referencedFuncName));
         BSymbol matchingObjFuncSym = symResolver.lookupSymbolInMainSpace(objEnv, funcName);
 
         if (matchingObjFuncSym != symTable.notFoundSymbol) {
-            if (referencedFunctions.contains(referencedFuncName)) {
+            if (!includedFunctionNames.add(referencedFuncName)) {
                 dlog.error(typeRef.pos, DiagnosticCode.REDECLARED_SYMBOL, referencedFuncName);
                 return;
             }
-            referencedFunctions.add(referencedFuncName);
 
             if (Symbols.isFunctionDeclaration(matchingObjFuncSym) && Symbols.isFunctionDeclaration(
                     referencedFunc.symbol)) {
@@ -1909,8 +1914,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // If not, define the function symbol within the object.
         // Take a copy of the symbol, with the new name, and the package ID same as the object type.
-        BInvokableSymbol funcSymbol = ASTBuilderUtil.duplicateInvokableSymbol(referencedFunc.symbol, typeDef.symbol,
-                                                                              funcName, typeDef.symbol.pkgID);
+        BInvokableSymbol funcSymbol = ASTBuilderUtil.duplicateFunctionDeclarationSymbol(referencedFunc.symbol,
+                                                                                        typeDef.symbol, funcName,
+                                                                                        typeDef.symbol.pkgID);
         defineSymbol(typeRef.pos, funcSymbol, objEnv);
 
         // Create and define the parameters and receiver. This should be done after defining the function symbol.

@@ -315,6 +315,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(xMLNamespaceDeclarationNode);
     }
 
+    public void visit(ModuleXMLNamespaceDeclarationNode moduleXMLNamespaceDeclarationNode) {
+        visitSyntaxNode(moduleXMLNamespaceDeclarationNode);
+    }
+
     public void visit(FunctionBodyBlockNode functionBodyBlockNode) {
         visitSyntaxNode(functionBodyBlockNode);
     }
@@ -551,8 +555,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(singletonTypeDescriptorNode);
     }
 
-    public void visit(FunctionDeclarationNode functionDeclarationNode) {
-        visitSyntaxNode(functionDeclarationNode);
+    public void visit(MethodDeclarationNode methodDeclarationNode) {
+        visitSyntaxNode(methodDeclarationNode);
     }
 
     public void visit(TypedBindingPatternNode typedBindingPatternNode) {
@@ -681,6 +685,26 @@ public abstract class NodeVisitor {
 
     public void visit(ByteArrayLiteralNode byteArrayLiteralNode) {
         visitSyntaxNode(byteArrayLiteralNode);
+    }
+
+    public void visit(XMLFilterExpressionNode xMLFilterExpressionNode) {
+        visitSyntaxNode(xMLFilterExpressionNode);
+    }
+
+    public void visit(XMLStepExpressionNode xMLStepExpressionNode) {
+        visitSyntaxNode(xMLStepExpressionNode);
+    }
+
+    public void visit(XMLNamePatternChainingNode xMLNamePatternChainingNode) {
+        visitSyntaxNode(xMLNamePatternChainingNode);
+    }
+
+    public void visit(XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
+        visitSyntaxNode(xMLAtomicNamePatternNode);
+    }
+
+    public void visit(TypeReferenceTypeDescNode typeReferenceTypeDescNode) {
+        visitSyntaxNode(typeReferenceTypeDescNode);
     }
 
     // Tokens
