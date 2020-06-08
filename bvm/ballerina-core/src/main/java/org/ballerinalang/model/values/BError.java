@@ -34,11 +34,12 @@ public class BError implements BRefType {
     private String message;
     private BRefType details;
     public List<BMap<String, BValue>> callStack;
-    public BError cause;
+    private BError cause;
 
-    public BError(BType type, String message, BRefType details) {
+    public BError(BType type, String message, BError cause, BRefType details) {
         this.type = type;
         this.message = message;
+        this.cause = cause;
         this.details = details;
         callStack = new ArrayList<>();
     }
@@ -83,5 +84,29 @@ public class BError implements BRefType {
     @Override
     public boolean isFrozen() {
         return true;
+    }
+
+    public BError getCause() {
+        return cause;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj instanceof  BError) {
+            BError that = (BError) obj;
+
+            boolean isCauseSame = false;
+            if (this.cause != null) {
+                isCauseSame = this.cause.equals(that.cause);
+            } else if (that.cause == null) {
+                isCauseSame = true;
+            }
+            return this.message.equals(that.message) && this.details.equals(that.details) && isCauseSame;
+        }
+        return false;
     }
 }

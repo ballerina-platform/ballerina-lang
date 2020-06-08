@@ -14,17 +14,5 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Record type to hold the details of an error.
-#
-# + message - Specific error message of the error.
-# + cause - Any other error, which causes this error.
-public type Detail record {
-    string message;
-    error cause?;
-};
-
-# Represents the reason string for the `math:Error`.
-public const ARITHMETIC_ERROR = "{ballerina/math}Error";
-
 # Represents an error occurred in the `math` operation.
-public type Error error<ARITHMETIC_ERROR, Detail>;
+public type Error distinct error;

@@ -16,7 +16,6 @@
 
 import ballerina/http;
 
-
 const string DEFAULT_HOST = "0.0.0.0";
 const int DEFAULT_LEASE_SECONDS_VALUE = 86400; //one day
 const string DEFAULT_SIGNATURE_METHOD = "SHA256";

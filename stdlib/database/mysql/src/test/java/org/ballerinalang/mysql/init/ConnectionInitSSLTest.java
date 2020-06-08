@@ -18,7 +18,6 @@
 package org.ballerinalang.mysql.init;
 
 import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.mysql.BaseTest;
 import org.ballerinalang.mysql.utils.SQLDBUtils;
@@ -77,10 +76,7 @@ public class ConnectionInitSSLTest {
     public void testSSLVerifyIdentity() {
         BValue[] returnVal = BRunUtil.invoke(result, "testSSLVerifyIdentity");
         Assert.assertTrue(returnVal[0] instanceof BError);
-        BError error = (BError) returnVal[0];
-        Assert.assertEquals(error.getReason(), SQLDBUtils.SQL_APPLICATION_ERROR_REASON);
-        String errMessage = ((BMap) ((BError) returnVal[0]).getDetails())
-                .get(SQLDBUtils.SQL_ERROR_MESSAGE).stringValue();
+        String errMessage = ((BError) returnVal[0]).getMessage();
         Assert.assertTrue(errMessage.contains("The certificate Common Name 'Ballerina MySQL/Connector' " +
                 "does not match with 'localhost'"), "Found error message: " + errMessage);
     }

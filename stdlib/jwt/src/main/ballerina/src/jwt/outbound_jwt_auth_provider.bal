@@ -62,7 +62,7 @@ public type OutboundJwtAuthProvider object {
         if (jwtIssuerConfig is JwtIssuerConfig) {
             string|Error result = getJwtAuthToken(jwtIssuerConfig);
             if (result is error) {
-                return prepareAuthError(result.reason(), result);
+                return prepareAuthError(result.message(), result);
             }
             authToken = <string>result;
         } else {
