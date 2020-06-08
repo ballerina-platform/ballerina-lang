@@ -68,13 +68,5 @@ public type StrandData record {|
 # Denotes new Strand execution semantics.
 public const annotation StrandData strand on source worker;
 
-
-# Icon meta-data for types and functions.
-#
-# + path - relative filepath to module resource directory or url path to read the image.
-public type IconData record {|
-    string path;
-|};
-
-# icon annotation.
-public const annotation IconData icon on source type, source function;
+# This annotation specify icon meta-data about types and functions.
+public const annotation record {| string path; |} icon on source type, source function;
