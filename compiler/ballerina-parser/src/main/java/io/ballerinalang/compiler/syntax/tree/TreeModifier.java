@@ -2697,6 +2697,45 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 typeRef);
     }
 
+    @Override
+    public MatchStatementNode transform(
+            MatchStatementNode matchStatementNode) {
+        Token matchKeyword =
+                modifyToken(matchStatementNode.matchKeyword());
+        ExpressionNode condition =
+                modifyNode(matchStatementNode.condition());
+        Token openBrace =
+                modifyToken(matchStatementNode.openBrace());
+        SeparatedNodeList<MatchClauseNode> matchClauses =
+                modifySeparatedNodeList(matchStatementNode.matchClauses());
+        Token closeBrace =
+                modifyToken(matchStatementNode.closeBrace());
+        return matchStatementNode.modify(
+                matchKeyword,
+                condition,
+                openBrace,
+                matchClauses,
+                closeBrace);
+    }
+
+    @Override
+    public MatchClauseNode transform(
+            MatchClauseNode matchClauseNode) {
+        SeparatedNodeList<Node> matchPatterns =
+                modifySeparatedNodeList(matchClauseNode.matchPatterns());
+        Node matchGuard =
+                modifyNode(matchClauseNode.matchGuard().orElse(null));
+        Token rightDoubleArrow =
+                modifyToken(matchClauseNode.rightDoubleArrow());
+        BlockStatement blockStatement =
+                modifyNode(matchClauseNode.blockStatement());
+        return matchClauseNode.modify(
+                matchPatterns,
+                matchGuard,
+                rightDoubleArrow,
+                blockStatement);
+    }
+
     // Tokens
 
     @Override

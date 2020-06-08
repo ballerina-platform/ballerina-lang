@@ -92,6 +92,7 @@ public enum SyntaxKind {
     ENUM_KEYWORD(238, "enum"),
     BASE16_KEYWORD(239, "base16"),
     BASE64_KEYWORD(240, "base64"),
+    MATCH_KEYWORD(241, "match"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
