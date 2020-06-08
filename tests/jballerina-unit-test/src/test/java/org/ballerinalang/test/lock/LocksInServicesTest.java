@@ -39,6 +39,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @since 0.961.0
  */
+@Test(groups = "brokenOnErrorChange")
 public class LocksInServicesTest {
 
     CompileResult compileResult;

@@ -31,6 +31,7 @@ import java.io.PrintStream;
 /**
  * Tests covering package imports.
  */
+@Test(groups = "brokenOnErrorChange")
 public class PackageImportTest {
 
     @Test

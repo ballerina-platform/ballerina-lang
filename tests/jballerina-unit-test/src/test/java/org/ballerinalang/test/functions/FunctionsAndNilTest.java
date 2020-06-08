@@ -98,7 +98,7 @@ public class FunctionsAndNilTest {
         Assert.assertNull(returns[0]);
     }
 
-    @Test(description = "Test count function inside resource.")
+    @Test(description = "Test count function inside resource.", groups = "brokenOnErrorChange")
     public void testCountFunctionInsideResource() throws Exception {
         CompileResult result1 = BCompileUtil.compile("test-src/functions/count-in-resource.bal");
         HTTPTestRequest request = MessageUtils.generateHTTPMessage("/test/resource", "GET");

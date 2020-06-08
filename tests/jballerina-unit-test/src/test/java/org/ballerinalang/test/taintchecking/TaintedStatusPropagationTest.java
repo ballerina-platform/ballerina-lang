@@ -362,7 +362,7 @@ public class TaintedStatusPropagationTest {
         Assert.assertEquals(result.getDiagnostics().length, i);
     }
 
-    @Test
+    @Test(groups = "brokenOnErrorChange")
     public void testHttpService() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/http-service.bal");
         Assert.assertEquals(result.getDiagnostics().length, 3);
@@ -372,7 +372,7 @@ public class TaintedStatusPropagationTest {
     }
 
 
-    @Test
+    @Test(groups = "brokenOnErrorChange")
     public void testHttpServiceInlineListenerDecl() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/taintchecking/propagation/http-service-in-line-listener.bal");

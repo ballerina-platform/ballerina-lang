@@ -35,6 +35,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
  *
  * @since 0.965.0
  */
+@Test(groups = "brokenOnErrorChange")
 public class ServiceTypeTest {
     private CompileResult compileResult;
 

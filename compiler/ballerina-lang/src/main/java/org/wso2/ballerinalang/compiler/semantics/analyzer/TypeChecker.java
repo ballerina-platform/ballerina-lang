@@ -2005,10 +2005,10 @@ public class TypeChecker extends BLangNodeVisitor {
         if (fSym != null) {
             if (fSym.type.getKind() == TypeKind.MAP) {
                 BType constraint = ((BMapType) fSym.type).constraint;
-                if (types.isAssignable(constraint, symTable.pureType)) {
+                if (types.isAssignable(constraint, symTable.anydataOrReadonly)) {
                     varRefExpr.restVar.type = constraint;
                 } else {
-                    varRefExpr.restVar.type = symTable.pureType;
+                    varRefExpr.restVar.type = symTable.anydataOrReadonly;
                 }
             } else {
                 throw new UnsupportedOperationException("rec field base access");

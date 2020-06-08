@@ -19,7 +19,6 @@
 package org.ballerinalang.nats.basic.producer;
 
 import io.nats.client.Connection;
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.TypeTags;
@@ -50,7 +49,7 @@ public class Publish {
                     (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
             if (natsConnection == null) {
                 natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
-                return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, Constants.PRODUCER_ERROR + subject +
+                return Utils.createNatsError(Constants.PRODUCER_ERROR + subject +
                         ". NATS connection doesn't exist.");
             }
             byte[] byteContent = convertDataIntoByteArray(data);
@@ -74,12 +73,12 @@ public class Publish {
                 natsMetricsReporter.reportPublish(subject, byteContent.length);
             } catch (IllegalArgumentException | IllegalStateException ex) {
                 natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
-                return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, Constants.PRODUCER_ERROR + subject +
+                return Utils.createNatsError(Constants.PRODUCER_ERROR + subject +
                         ". " + ex.getMessage());
             }
         } else {
             NatsMetricsReporter.reportProducerError(NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
-            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, Constants.PRODUCER_ERROR + subject +
+            return Utils.createNatsError(Constants.PRODUCER_ERROR + subject +
                     ". Producer is logically disconnected.");
         }
         return null;

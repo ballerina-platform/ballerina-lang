@@ -139,13 +139,13 @@ function testErrorInTupleWithDestructure() returns [int, string, string, map<any
     return [intVar, stringVar, reasonVar, detailVar, booleanVar];
 }
 
-function testErrorInTupleWithDestructure2() returns [int, string, string, anydata|error, boolean] {
+function testErrorInTupleWithDestructure2() returns [int, string, string, anydata|readonly, boolean] {
     [int, string, [error, boolean]] t1 = [12, "Bal", [error("Err2", message = "Something Wrong2"), true]];
 
     int intVar;
     string stringVar;
     string reasonVar;
-    anydata|error message;
+    anydata|readonly message;
     boolean booleanVar;
 
     [intVar, stringVar, [error(reasonVar, message = message), booleanVar]] = t1;
@@ -158,24 +158,24 @@ type Bar record {
     error e;
 };
 
-function testErrorInRecordWithDestructure() returns [int, string, anydata|error] {
+function testErrorInRecordWithDestructure() returns [int, string, anydata|readonly] {
     Bar b = { x: 1000, e: error("Err3", message = "Something Wrong3") };
 
     int x;
     string reason;
-    map<anydata|error> detail;
+    map<anydata|readonly> detail;
     { x, e: error (reason, ... detail) } = b;
 
     return [x, reason, detail["message"]];
 }
 
-function testErrorInRecordWithDestructure2() returns [int, string, anydata|error, anydata|error] {
+function testErrorInRecordWithDestructure2() returns [int, string, anydata|readonly, anydata|readonly] {
     Bar b = { x: 1000, e: error("Err3", message = "Something Wrong3") };
 
     int x;
     string reason;
-    anydata|error message;
-    anydata|error extra;
+    anydata|readonly message;
+    anydata|readonly extra;
 
     { x, e: error (reason, message = message, extra = extra) } = b;
 
@@ -188,7 +188,7 @@ function testErrorWithRestParam() returns map<string|readonly> {
     StrError errWithMap = StrError("Error", message = "Fatal", fatal = "true");
 
     string reason;
-    string? message;
+    string|readonly message;
     map<string|readonly> detailMap;
     error(reason, message = message, ...detailMap) = errWithMap;
     detailMap["extra"] = "extra";
@@ -217,11 +217,11 @@ function testDefaultErrorRefBindingPattern() returns string {
     return reason;
 }
 
-function testIndirectErrorRefBindingPattern() returns [string?, any|error] {
+function testIndirectErrorRefBindingPattern() returns [anydata|readonly, any|readonly] {
     SampleError e = error("the reason", message="msg");
-    string? message;
-    any|error other;
-    map<anydata|error> rest;
+    anydata|readonly message;
+    any|readonly other;
+    map<anydata|readonly> rest;
     SampleError(_, message=message, other=other, ...rest) = e;
     return [message, other];
 }
@@ -237,7 +237,7 @@ type FileOpenErrorDetail record {|
 type FileOpenError error<FileOpenErrorDetail>;
 
 function testIndirectErrorRefMandatoryFields() returns
-        [string, string, int, int?, map<anydata|error>,
+        [string, string, int, int?, map<anydata|readonly>,
             string, map<string|int|error>] {
     FileOpenError e = FileOpenError(FILE_OPN, message="file open failed",
                                 targetFileName="/usr/bhah/a.log",
@@ -254,7 +254,7 @@ function testIndirectErrorRefMandatoryFields() returns
                     flags=flags) = e;
 
     error upcast = e;
-    map<anydata|error> rest;
+    map<anydata|readonly> rest;
     error(_, ...rest) = upcast;
 
     string messageX;
@@ -268,16 +268,16 @@ function testIndirectErrorRefMandatoryFields() returns
 public function testNoErrorReasonGiven() returns string? {
     error e = error("errorCode", message = "message");
 
-    string? message;
+    anydata|readonly message;
     anydata|error other;
 
     error(_, message = message) = e; // no simple-binding-pattern here
-    return message;
+    return <string?>message;
 }
 
-public function testErrorDestructuringInATuppleDestructuring() returns [string, string?] {
+public function testErrorDestructuringInATuppleDestructuring() returns [string, anydata|readonly] {
     string r;
-    string? message;
+    anydata|readonly message;
     int i;
 
     error e = error("r2", message = "msg");
@@ -297,9 +297,9 @@ function testIndirectErrorVarRefInTuppleRef() returns [string?, string?, int] {
     return [message, detail, i];
 }
 
-public function testErrorRefAndCtorInSameStatement() returns [string, string?, int] {
+public function testErrorRefAndCtorInSameStatement() returns [string, anydata|readonly, int] {
     string r;
-    string? message;
+    anydata|readonly message;
     int i;
 
     [i, error(r, message = message)] = [1, error("r2", message = "Detail Msg")];
