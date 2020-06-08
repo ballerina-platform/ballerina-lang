@@ -125,7 +125,7 @@ public class NegativeValidationTest {
 
         CompileResult compileResult = BCompileUtil.compileInProc(path);
         compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 2);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 4);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/java}METHOD_NOT_FOUND 'No such public method 'getFuture' that matches with parameter " +
                         "types '(org.ballerinalang.jvm.values.api.BTypedesc)' found in class " +
@@ -137,6 +137,20 @@ public class NegativeValidationTest {
                         "types '(org.ballerinalang.jvm.values.api.BFuture)' found in class " +
                         "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
                 "method_not_found6.bal", 9, 1);
+
+        BAssertUtil.validateError(compileResult, 2,
+                "{ballerina/java}METHOD_NOT_FOUND 'No such public method 'getFutureOnly' that " +
+                        "matches with parameter types " +
+                        "'(org.ballerinalang.jvm.values.api.BFuture,org.ballerinalang.jvm.values.api.BTypedesc)' " +
+                        "found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
+                "method_not_found6.bal", 15, 1);
+
+        BAssertUtil.validateError(compileResult, 3,
+                "{ballerina/java}METHOD_NOT_FOUND 'No such public method 'getTypeDescOnly' that " +
+                        "matches with parameter types " +
+                        "'(org.ballerinalang.jvm.values.api.BTypedesc,org.ballerinalang.jvm.values.api.BFuture)' " +
+                        "found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
+                "method_not_found6.bal", 21, 1);
     }
 
     @Test

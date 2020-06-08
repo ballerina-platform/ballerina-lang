@@ -384,4 +384,12 @@ public class StaticMethods {
     public static void getTypeDesc(BTypedesc typedesc, BFuture future) {
 
     }
+
+    public static void getFutureOnly(BFuture future) {
+
+    }
+
+    public static void getTypeDescOnly(BTypedesc typedesc) {
+
+    }
 }
