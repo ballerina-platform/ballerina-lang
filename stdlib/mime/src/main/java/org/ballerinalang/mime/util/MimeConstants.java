@@ -43,7 +43,6 @@ public class MimeConstants {
     // Mime error type names
     public static final String PARSER_ERROR = "ParserError";
     public static final String INVALID_CONTENT_TYPE_ERROR = "InvalidContentTypeError";
-    public static final String HEADER_READ_ERROR = "HeaderReadError";
     public static final String INVALID_HEADER_VALUE_ERROR = "InvalidHeaderValueError";
     public static final String INVALID_HEADER_PARAM_ERROR = "InvalidHeaderParamError";
     public static final String INVALID_CONTENT_LENGTH_ERROR = "InvalidContentLengthError";

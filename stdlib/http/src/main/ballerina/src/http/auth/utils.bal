@@ -277,11 +277,9 @@ function createResponseHeaderMap(Response resp) returns @tainted map<anydata> {
 function prepareAuthenticationError(string message, error? err = ()) returns AuthenticationError {
     log:printDebug(function () returns string { return message; });
     if (err is error) {
-        AuthenticationError preparedError = error(AUTHN_FAILED, message = message, cause = err);
-        return preparedError;
+        return AuthenticationError(message, err);
     }
-    AuthenticationError preparedError = error(AUTHN_FAILED, message = message);
-    return preparedError;
+    return AuthenticationError(message);
 }
 
 # Logs, prepares, and returns the `AuthorizationError`.
@@ -292,9 +290,8 @@ function prepareAuthenticationError(string message, error? err = ()) returns Aut
 function prepareAuthorizationError(string message, error? err = ()) returns AuthorizationError {
     log:printDebug(function () returns string { return message; });
     if (err is error) {
-        AuthorizationError preparedError = error(AUTHZ_FAILED, message = message, cause = err);
-        return preparedError;
+        return AuthorizationError(message, err);
     }
-    AuthorizationError preparedError = error(AUTHZ_FAILED, message = message);
-    return preparedError;
+    return AuthorizationError(message);
 }
+

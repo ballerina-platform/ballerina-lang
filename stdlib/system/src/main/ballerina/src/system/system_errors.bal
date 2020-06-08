@@ -29,5 +29,5 @@ public type FileNotFoundError distinct error;
 # Represents an `ProcessExecError` with the message and the cause.
 public type ProcessExecError distinct error;
 
-# Represents System related errors.
+# The union of all the System related errors.
 public type Error InvalidOperationError|PermissionError|FileSystemError|FileNotFoundError|ProcessExecError;

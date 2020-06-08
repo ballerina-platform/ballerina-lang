@@ -94,7 +94,7 @@ public class Constants {
     public static final String CERTIFICATE_RECORD_SIGNATURE_ALG_FIELD = "signingAlgorithm";
 
     // Crypto error type ID
-    static final String CRYPTO_ERROR = "Error";
+    static final String CRYPTO_ERROR = "CryptoError";
 
     // Message field within error record.
     public static final String MESSAGE = "message";

@@ -16,11 +16,11 @@
 
 import ballerina/log;
 
-# Represents the Auth distinct error.
-public type AuthError distinct error;
-
 # Represents the Auth error. This will be returned if an error occurred while inbound auth providers
 # try to authenticate the received credentials and outbound auth providers try to generate the token.
+public type AuthError distinct error;
+
+# Represents the Auth module related error.
 public type Error AuthError;
 
 # Log and prepare `error` as a `Error`.

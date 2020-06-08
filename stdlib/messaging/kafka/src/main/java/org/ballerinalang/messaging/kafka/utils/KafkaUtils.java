@@ -633,8 +633,8 @@ public class KafkaUtils {
         return BallerinaErrors.createDistinctError(typeId, KafkaConstants.KAFKA_PACKAGE_ID, message);
     }
 
-    public static BError createKafkaError(String message, String reason, ErrorValue cause) {
-        return BallerinaErrors.createDistinctError(reason, KafkaConstants.KAFKA_PACKAGE_ID, message, cause);
+    public static BError createKafkaError(String message, String typeId, ErrorValue cause) {
+        return BallerinaErrors.createDistinctError(typeId, KafkaConstants.KAFKA_PACKAGE_ID, message, cause);
     }
 
     public static MapValue<BString, Object> createKafkaRecord(String recordName) {

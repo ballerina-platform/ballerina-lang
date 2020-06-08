@@ -27,9 +27,6 @@ public type GenericMimeError distinct error;
 # Represents a `SetHeaderError` with the message and the cause.
 public type SetHeaderError distinct error;
 
-# Represents a `HeaderReadError` error with the message and the cause.
-public type HeaderReadError distinct error;
-
 # Represents a `InvalidHeaderValueError` error with the message and the cause.
 public type InvalidHeaderValueError distinct error;
 
@@ -65,9 +62,9 @@ public type NoContentError distinct error;
 
 # Represents MIME related errors.
 public type Error ParserError|EncodeError|DecodeError|GenericMimeError|SetHeaderError|InvalidContentTypeError
-                |HeaderReadError|HeaderUnavailableError|IdleTimeoutTriggeredError|NoContentError
-                |InvalidHeaderValueError|InvalidHeaderParamError|InvalidContentLengthError
-                |HeaderNotFoundError|InvalidHeaderOperationError|SerializationError;
+                |HeaderUnavailableError|IdleTimeoutTriggeredError|NoContentError|SerializationError
+                |InvalidHeaderValueError|InvalidHeaderParamError|InvalidContentLengthError|HeaderNotFoundError
+                |InvalidHeaderOperationError;
 
 # Constructs an `EncodeError` with the given details.
 #
