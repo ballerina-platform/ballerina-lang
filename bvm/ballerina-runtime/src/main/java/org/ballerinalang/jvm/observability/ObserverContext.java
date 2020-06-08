@@ -59,9 +59,9 @@ public class ObserverContext {
 
     private String resourceName;
 
-    private String connectorName;
+    private String objectName;
 
-    private String actionName;
+    private String functionName;
 
     private boolean server;
 
@@ -152,20 +152,20 @@ public class ObserverContext {
         this.resourceName = Objects.requireNonNull(resourceName);
     }
 
-    public String getConnectorName() {
-        return connectorName;
+    public String getObjectName() {
+        return objectName;
     }
 
-    public void setConnectorName(String connectorName) {
-        this.connectorName = Objects.requireNonNull(connectorName);
+    public void setObjectName(String objectName) {
+        this.objectName = Objects.requireNonNull(objectName);
     }
 
-    public String getActionName() {
-        return actionName;
+    public String getFunctionName() {
+        return functionName;
     }
 
-    public void setActionName(String actionName) {
-        this.actionName = Objects.requireNonNull(actionName);
+    public void setFunctionName(String functionName) {
+        this.functionName = Objects.requireNonNull(functionName);
     }
 
     public boolean isServer() {

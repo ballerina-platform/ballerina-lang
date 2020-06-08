@@ -61,7 +61,7 @@ public class OpenTracerBallerinaWrapper {
     }
 
     private long startSpan(ObserverContext observerContext, boolean isClient, String spanName) {
-        observerContext.setActionName(spanName);
+        observerContext.setFunctionName(spanName);
         TracingUtils.startObservation(observerContext, isClient);
         long spanId = this.spanId.getAndIncrement();
         observerContextList.put(spanId, observerContext);

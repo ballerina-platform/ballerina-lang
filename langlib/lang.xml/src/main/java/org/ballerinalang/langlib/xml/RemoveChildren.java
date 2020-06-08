@@ -25,6 +25,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+
 /**
  * Remove any children that matches a given name, from an XML.
  * This operation has no effect if the XML is not of element type.
@@ -32,7 +34,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.982.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
         functionName = "removeChildren",
         args = {@Argument(name = "qname", type = TypeKind.STRING)},
         isPublic = true

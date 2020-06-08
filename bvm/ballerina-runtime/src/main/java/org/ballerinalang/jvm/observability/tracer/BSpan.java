@@ -25,8 +25,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.jvm.observability.tracer.TraceConstants.DEFAULT_ACTION_NAME;
-import static org.ballerinalang.jvm.observability.tracer.TraceConstants.DEFAULT_CONNECTOR_NAME;
+import static org.ballerinalang.jvm.observability.tracer.TraceConstants.DEFAULT_OPERATION_NAME;
+import static org.ballerinalang.jvm.observability.tracer.TraceConstants.DEFAULT_SERVICE_NAME;
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.KEY_SPAN;
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.TAG_KEY_STR_ERROR;
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.TAG_STR_TRUE;
@@ -52,15 +52,15 @@ public class BSpan {
     /**
      * Name of the service.
      */
-    private String connectorName = DEFAULT_CONNECTOR_NAME;
+    private String serviceName = DEFAULT_SERVICE_NAME;
     /**
-     * Name of the resource.
+     * Name of the operation.
      */
-    private String actionName = DEFAULT_ACTION_NAME;
+    private String operationName = DEFAULT_OPERATION_NAME;
     /**
      * Active Ballerina {@link ObserverContext}.
      */
-    private ObserverContext observerContext = null;
+    private ObserverContext observerContext;
     /**
      * Open tracer specific span.
      */
@@ -105,20 +105,20 @@ public class BSpan {
 
     }
 
-    public String getConnectorName() {
-        return connectorName;
+    public String getServiceName() {
+        return serviceName;
     }
 
-    public void setConnectorName(String connectorName) {
-        this.connectorName = connectorName;
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 
-    public String getActionName() {
-        return actionName;
+    public String getOperationName() {
+        return operationName;
     }
 
-    public void setActionName(String actionName) {
-        this.actionName = actionName;
+    public void setOperationName(String operationName) {
+        this.operationName = operationName;
     }
 
     public Map<String, String> getProperties() {
@@ -151,7 +151,7 @@ public class BSpan {
     }
 
     public Map<String, String> getTraceContext() {
-        return manager.extractTraceContext(span, connectorName);
+        return manager.extractTraceContext(span, serviceName);
     }
 
     private BSpan getParentBSpan() {

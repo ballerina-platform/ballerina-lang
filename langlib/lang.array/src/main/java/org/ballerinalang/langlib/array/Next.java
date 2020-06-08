@@ -30,13 +30,15 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
+
 /**
  * Native implementation of lang.array.ArrayIterator:next().
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "next",
+        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "next",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "ArrayIterator",
                 structPackage = "ballerina/lang.array"),
         returnType = {@ReturnType(type = TypeKind.RECORD)},

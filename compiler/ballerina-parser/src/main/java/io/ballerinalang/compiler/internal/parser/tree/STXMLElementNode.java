@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.XMLElementNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STXMLElementNode extends STXMLItemNode {
             STNode startTag,
             STNode content,
             STNode endTag) {
-        super(SyntaxKind.XML_ELEMENT);
+        this(
+                startTag,
+                content,
+                endTag,
+                Collections.emptyList());
+    }
+
+    STXMLElementNode(
+            STNode startTag,
+            STNode content,
+            STNode endTag,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.XML_ELEMENT, diagnostics);
         this.startTag = startTag;
         this.content = content;
         this.endTag = endTag;
@@ -45,6 +60,14 @@ public class STXMLElementNode extends STXMLItemNode {
                 startTag,
                 content,
                 endTag);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STXMLElementNode(
+                this.startTag,
+                this.content,
+                this.endTag,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

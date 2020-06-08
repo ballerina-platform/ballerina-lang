@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.WaitFieldsListNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STWaitFieldsListNode extends STNode {
             STNode openBrace,
             STNode waitFields,
             STNode closeBrace) {
-        super(SyntaxKind.WAIT_FIELDS_LIST);
+        this(
+                openBrace,
+                waitFields,
+                closeBrace,
+                Collections.emptyList());
+    }
+
+    STWaitFieldsListNode(
+            STNode openBrace,
+            STNode waitFields,
+            STNode closeBrace,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.WAIT_FIELDS_LIST, diagnostics);
         this.openBrace = openBrace;
         this.waitFields = waitFields;
         this.closeBrace = closeBrace;
@@ -45,6 +60,14 @@ public class STWaitFieldsListNode extends STNode {
                 openBrace,
                 waitFields,
                 closeBrace);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STWaitFieldsListNode(
+                this.openBrace,
+                this.waitFields,
+                this.closeBrace,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

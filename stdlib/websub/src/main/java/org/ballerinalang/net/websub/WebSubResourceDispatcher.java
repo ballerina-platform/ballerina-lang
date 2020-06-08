@@ -40,7 +40,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NA
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.TOPIC_ID_HEADER;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.TOPIC_ID_PAYLOAD_KEY;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE_FULL_QUALIFIED_NAME;
 import static org.ballerinalang.net.websub.WebSubUtils.getHttpRequest;
 import static org.ballerinalang.net.websub.WebSubUtils.getJsonBody;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_RESOURCE;
@@ -91,9 +91,8 @@ class WebSubResourceDispatcher {
                 //if the request is a GET request indicating an intent verification request, and the user has not
                 //specified an onIntentVerification resource, assume auto intent verification
                 Object target = ((MapValue) service.getBalService().getType()
-                        .getAnnotation(WEBSUB_PACKAGE, ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG))
+                        .getAnnotation(WEBSUB_PACKAGE_FULL_QUALIFIED_NAME, ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG))
                         .get(ANN_WEBSUB_ATTR_TARGET);
-
                 String annotatedTopic = "";
 
                 if (target instanceof ArrayValue) {

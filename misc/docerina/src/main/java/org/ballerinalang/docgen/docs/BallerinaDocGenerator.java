@@ -42,6 +42,9 @@ import org.ballerinalang.docgen.generator.model.Record;
 import org.ballerinalang.docgen.generator.model.RecordPageContext;
 import org.ballerinalang.docgen.generator.model.TypesPageContext;
 import org.ballerinalang.docgen.model.ModuleDoc;
+import org.ballerinalang.docgen.model.search.ConstructSearchJson;
+import org.ballerinalang.docgen.model.search.ModuleSearchJson;
+import org.ballerinalang.docgen.model.search.SearchJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -79,6 +82,9 @@ public class BallerinaDocGenerator {
     private static final Path BAL_BUILTIN = Paths.get("ballerina", "builtin");
     private static final String HTML = ".html";
     private static final String JSON = ".json";
+    private static final String MODULE_SEARCH = "search";
+    private static final String SEARCH_DATA = "search-data.js";
+    private static final String SEARCH_DIR = "doc-search";
     private static Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     /**
@@ -116,6 +122,7 @@ public class BallerinaDocGenerator {
                 }
             }
         }
+        mergeSearchJsons(apiDocsRoot);
         Project project = new Project();
         project.modules = moduleList;
         String projectTemplateName = System.getProperty(BallerinaDocConstants.PROJECT_TEMPLATE_NAME_KEY, "index");
@@ -274,6 +281,8 @@ public class BallerinaDocGenerator {
                 }
                 // Create module json
                 genModuleJson(module, modDir + File.separator + module.id + JSON);
+                // Create search json
+                genSearchJson(module, modDir + File.separator + MODULE_SEARCH + JSON);
 
                 if (BallerinaDocUtils.isDebugEnabled()) {
                     out.println("docerina: generated docs for module: " + module.id);
@@ -287,7 +296,8 @@ public class BallerinaDocGenerator {
 
         // Generate index.html for the project
         genIndexHtml(output, project);
-
+        // Merge search JSONS of modules
+        mergeSearchJsons(output);
         // Copy template resources to output dir
         if (BallerinaDocUtils.isDebugEnabled()) {
             out.println("docerina: copying HTML theme into " + output);
@@ -295,6 +305,7 @@ public class BallerinaDocGenerator {
         try {
             BallerinaDocUtils.copyResources("html-template-resources", output);
             BallerinaDocUtils.copyResources("syntax-highlighter", output);
+            BallerinaDocUtils.copyResources("doc-search", output);
         } catch (IOException e) {
             out.println(String.format("docerina: failed to copy the docerina-theme resource. Cause: %s", e.getMessage
                     ()));
@@ -367,6 +378,118 @@ public class BallerinaDocGenerator {
         } catch (IOException e) {
             out.println(String.format("docerina: failed to create the module.json. Cause: %s", e.getMessage()));
             log.error("Failed to create module.json file.", e);
+        }
+    }
+
+    private static void genSearchJson(Module module, String jsonPath) {
+        List<ModuleSearchJson> searchModules = new ArrayList<>();
+        List<ConstructSearchJson> searchFunctions = new ArrayList<>();
+        List<ConstructSearchJson> searchObjects = new ArrayList<>();
+        List<ConstructSearchJson> searchRecords = new ArrayList<>();
+        List<ConstructSearchJson> searchConstants = new ArrayList<>();
+        List<ConstructSearchJson> searchErrors = new ArrayList<>();
+        List<ConstructSearchJson> searchTypes = new ArrayList<>();
+
+        if (module.summary != null) {
+            searchModules.add(new ModuleSearchJson(module.id, getFirstLine(module.summary)));
+        }
+        module.functions.forEach((function) ->
+                searchFunctions.add(new ConstructSearchJson(function.name, module.id,
+                        getFirstLine(function.description))));
+
+        module.objects.forEach((object) ->
+                searchObjects.add(new ConstructSearchJson(object.name, module.id, getFirstLine(object.description))));
+
+        module.records.forEach((record) ->
+                searchRecords.add(new ConstructSearchJson(record.name, module.id, getFirstLine(record.description))));
+
+        module.constants.forEach((constant) ->
+                searchConstants.add(new ConstructSearchJson(constant.name, module.id,
+                        getFirstLine(constant.description))));
+
+        module.errors.forEach((error) ->
+                searchErrors.add(new ConstructSearchJson(error.name, module.id, getFirstLine(error.description))));
+
+        module.unionTypes.forEach((unionType) ->
+                searchTypes.add(new ConstructSearchJson(unionType.name, module.id,
+                        getFirstLine(unionType.description))));
+
+
+        SearchJson searchJson = new SearchJson(searchModules, searchObjects, searchFunctions, searchRecords,
+                searchConstants, searchErrors, searchTypes);
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        File jsonFile = new File(jsonPath);
+        try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
+            String json = gson.toJson(searchJson);
+            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            out.println(String.format("docerina: failed to create the search.json. Cause: %s", e.getMessage()));
+            log.error("Failed to create search.json file.", e);
+        }
+
+    }
+
+    private static String getFirstLine(String description) {
+        String[] splits = description.split("\\.", 2);
+        if (splits.length < 2) {
+            return splits[0];
+        } else {
+            if (splits[0].contains("<p>")) {
+                return splits[0] + ".</p>";
+            }
+            return splits[0] + ".";
+        }
+    }
+
+    private static void mergeSearchJsons(String docRoot) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        File directory = new File(docRoot);
+        // get all the files from a directory
+        File[] fList = directory.listFiles();
+        if (fList != null) {
+            Arrays.sort(fList);
+
+            SearchJson searchJson = new SearchJson();
+            for (File file : fList) {
+                if (file.isDirectory()) {
+                    Path moduleJsonPath = Paths.get(file.getAbsolutePath(), MODULE_SEARCH + JSON);
+                    if (moduleJsonPath.toFile().exists()) {
+                        try (BufferedReader br = Files.newBufferedReader(moduleJsonPath, StandardCharsets.UTF_8)) {
+                            SearchJson modSearchJson = gson.fromJson(br, SearchJson.class);
+                            searchJson.getModules().addAll(modSearchJson.getModules());
+                            searchJson.getFunctions().addAll(modSearchJson.getFunctions());
+                            searchJson.getObjects().addAll(modSearchJson.getObjects());
+                            searchJson.getRecords().addAll(modSearchJson.getRecords());
+                            searchJson.getConstants().addAll(modSearchJson.getConstants());
+                            searchJson.getErrors().addAll(modSearchJson.getErrors());
+                            searchJson.getTypes().addAll(modSearchJson.getTypes());
+                        } catch (IOException e) {
+                            String errorMsg = String.format("API documentation generation failed. Cause: %s",
+                                    e.getMessage());
+                            out.println(errorMsg);
+                            log.error(errorMsg, e);
+                            return;
+                        }
+                    }
+                }
+            }
+            File docSearchDir = new File(docRoot + File.separator + SEARCH_DIR);
+            boolean docSearchDirExists = docSearchDir.exists() || docSearchDir.mkdir();
+            if (!docSearchDirExists) {
+                out.println("docerina: failed to create " + SEARCH_DIR + " directory");
+                log.error("Failed to create " + SEARCH_DIR + " directory.");
+            }
+            File jsonFile = new File(docRoot + File.separator + SEARCH_DIR + File.separator + SEARCH_DATA);
+            try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile),
+                    StandardCharsets.UTF_8)) {
+                String json = gson.toJson(searchJson);
+                String js = "var searchData = " + json + ";";
+                writer.write(new String(js.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+            } catch (IOException e) {
+                out.println(String.format("docerina: failed to create the " + SEARCH_DATA + ". Cause: %s",
+                        e.getMessage()));
+                log.error("Failed to create " + SEARCH_DATA + " file.", e);
+            }
         }
     }
 

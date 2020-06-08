@@ -25,18 +25,12 @@ import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_SERVICE;
-
 /**
  * Observe the runtime and collect measurements.
  */
 public class BallerinaMetricsObserver implements BallerinaObserver {
 
     private static final String PROPERTY_START_TIME = "_observation_start_time_";
-    private static final String TAG_KEY_SERVICE = "service";
-    private static final String TAG_KEY_RESOURCE = "resource";
-    private static final String TAG_KEY_ACTION = "action";
-    private static final String TAG_KEY_CONNECTOR_NAME = "connector_name";
 
     private static final PrintStream consoleError = System.err;
 
@@ -59,21 +53,11 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
 
     @Override
     public void startServerObservation(ObserverContext observerContext) {
-        observerContext.addMainTag(TAG_KEY_SERVICE, observerContext.getServiceName());
-        observerContext.addMainTag(TAG_KEY_RESOURCE, observerContext.getResourceName());
-        observerContext.addMainTag(TAG_KEY_CONNECTOR_NAME, observerContext.getConnectorName());
         startObservation(observerContext);
     }
 
     @Override
     public void startClientObservation(ObserverContext observerContext) {
-        observerContext.addMainTag(TAG_KEY_ACTION, observerContext.getActionName());
-        observerContext.addMainTag(TAG_KEY_CONNECTOR_NAME, observerContext.getConnectorName());
-        if (!UNKNOWN_SERVICE.equals(observerContext.getServiceName())) {
-            // If service is present, resource should be too
-            observerContext.addMainTag(TAG_KEY_SERVICE, observerContext.getServiceName());
-            observerContext.addMainTag(TAG_KEY_RESOURCE, observerContext.getResourceName());
-        }
         startObservation(observerContext);
     }
 
@@ -101,8 +85,7 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
         try {
             getInprogressGauge(mainTags).increment();
         } catch (RuntimeException e) {
-            String connectorName = observerContext.getConnectorName();
-            handleError(connectorName, mainTags, e);
+            handleError("inprogress_requests", mainTags, e);
         }
     }
 
@@ -125,8 +108,7 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
             metricRegistry.counter(new MetricId("requests_total",
                     "Total number of requests", allTagsForCounts)).increment();
         } catch (RuntimeException e) {
-            String connectorName = observerContext.getConnectorName();
-            handleError(connectorName, allTags, e);
+            handleError("multiple metrics", allTags, e);
         }
     }
 
@@ -134,9 +116,9 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
         return metricRegistry.gauge(new MetricId("inprogress_requests", "Inprogress Requests", tags));
     }
 
-    private void handleError(String connectorName, Set<Tag> tags, RuntimeException e) {
+    private void handleError(String metricName, Set<Tag> tags, RuntimeException e) {
         // Metric Provider may throw exceptions if there is a mismatch in tags.
-        consoleError.println("error: error collecting metrics for " + connectorName + " with tags " + tags +
+        consoleError.println("error: error collecting metrics for " + metricName + " with tags " + tags +
                 ": " + e.getMessage());
     }
 }

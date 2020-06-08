@@ -1,52 +1,52 @@
 {
-    "kind": "TABLE_CONSTRUCTOR",
-    "children": [
+  "kind": "TABLE_CONSTRUCTOR",
+  "children": [
+    {
+      "kind": "TABLE_KEYWORD"
+    },
+    {
+      "kind": "OPEN_BRACKET_TOKEN",
+      "isMissing": true
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "TABLE_KEYWORD"
-        },
-        {
-            "kind": "OPEN_BRACKET_TOKEN",
-            "isMissing": true
-        },
-        {
-            "kind": "LIST",
-            "children": [
+          "kind": "MAPPING_CONSTRUCTOR",
+          "children": [
+            {
+              "kind": "OPEN_BRACE_TOKEN"
+            },
+            {
+              "kind": "LIST",
+              "children": [
                 {
-                    "kind": "MAPPING_CONSTRUCTOR",
-                    "children": [
-                        {
-                            "kind": "OPEN_BRACE_TOKEN"
-                        },
-                        {
-                            "kind": "LIST",
-                            "children": [
-                                {
-                                    "kind": "SPECIFIC_FIELD",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "age"
-                                        },
-                                        {
-                                            "kind": "COLON_TOKEN"
-                                        },
-                                        {
-                                            "kind": "DECIMAL_INTEGER_LITERAL",
-                                            "value": "24"
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "CLOSE_BRACE_TOKEN"
-                        }
-                    ]
+                  "kind": "SPECIFIC_FIELD",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "age"
+                    },
+                    {
+                      "kind": "COLON_TOKEN"
+                    },
+                    {
+                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "value": "24"
+                    }
+                  ]
                 }
-            ]
-        },
-        {
-            "kind": "CLOSE_BRACKET_TOKEN"
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACE_TOKEN"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACKET_TOKEN"
+    }
+  ]
 }

@@ -37,7 +37,7 @@ class WebSocketServiceResourceValidator extends WebSocketResourceValidator {
     }
 
     void validateEndpointParameter() {
-        if (paramDetails != null && !paramDetails.isEmpty() && !WebSocketConstants.FULL_WEBSOCKET_CALLER_NAME.equals(
+        if (paramDetails != null && !paramDetails.isEmpty() && !WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(
                 paramDetails.get(0).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
                     + resource.getName().getValue() + RESOURCE_IN_SERVICE +

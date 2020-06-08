@@ -1,169 +1,176 @@
 {
-    "kind": "FUNCTION_DEFINITION",
-    "children": [
+  "kind": "FUNCTION_DEFINITION",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
         {
-            "kind": "METADATA",
-            "children": [
-                {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "FUNCTION_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "foo"
-        },
-        {
-            "kind": "FUNCTION_SIGNATURE",
-            "children": [
-                {
-                    "kind": "OPEN_PAREN_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                },
-                {
-                    "kind": "CLOSE_PAREN_TOKEN"
-                }
-            ]
-        },
-        {
-            "kind": "FUNCTION_BODY_BLOCK",
-            "children": [
-                {
-                    "kind": "OPEN_BRACE_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "b"
-                                        },
-                                        {
-                                            "kind": "RIGHT_DOUBLE_ARROW"
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "isMissing": true
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "b"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN",
-                                    "isMissing": true
-                                },
-                                {
-                                    "kind": "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "isMissing": true
-                                        },
-                                        {
-                                            "kind": "RIGHT_DOUBLE_ARROW"
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "c"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
-                                    "children": [
-                                        {
-                                            "kind": "BINARY_EXPRESSION",
-                                            "children": [
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "b"
-                                                },
-                                                {
-                                                    "kind": "PLUS_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "c"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "RIGHT_DOUBLE_ARROW"
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "d"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "kind": "CLOSE_BRACE_TOKEN"
-                }
-            ]
+          "kind": "LIST",
+          "children": []
         }
-    ]
+      ]
+    },
+    {
+      "kind": "FUNCTION_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "foo"
+    },
+    {
+      "kind": "FUNCTION_SIGNATURE",
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN"
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_BODY_BLOCK",
+      "children": [
+        {
+          "kind": "OPEN_BRACE_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "b"
+                    },
+                    {
+                      "kind": "RIGHT_DOUBLE_ARROW_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "b"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN",
+                  "isMissing": true
+                },
+                {
+                  "kind": "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true
+                    },
+                    {
+                      "kind": "RIGHT_DOUBLE_ARROW_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "c"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "BINARY_EXPRESSION",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "b"
+                        },
+                        {
+                          "kind": "PLUS_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "c"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "RIGHT_DOUBLE_ARROW_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "d"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_BRACE_TOKEN"
+        }
+      ]
+    }
+  ]
 }

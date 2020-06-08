@@ -1,34 +1,34 @@
 {
-    "kind": "COMPOUND_ASSIGNMENT_STATEMENT",
-    "children": [
+  "kind": "COMPOUND_ASSIGNMENT_STATEMENT",
+  "children": [
+    {
+      "kind": "QUALIFIED_NAME_REFERENCE",
+      "children": [
         {
-            "kind": "QUALIFIED_NAME_REFERENCE",
-            "children": [
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "pkg"
-                },
-                {
-                    "kind": "COLON_TOKEN"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "a"
-                }
-            ]
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "pkg"
         },
         {
-            "kind": "PLUS_TOKEN"
+          "kind": "COLON_TOKEN"
         },
         {
-            "kind": "EQUAL_TOKEN"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "b"
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "PLUS_TOKEN"
+    },
+    {
+      "kind": "EQUAL_TOKEN"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "b"
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

@@ -24,7 +24,7 @@ package io.ballerinalang.compiler.internal.parser;
  */
 public enum OperatorPrecedence {
 
-    MEMBER_ACCESS(0),       //  x.k, x.@a, f(x), x.f(y), x[y], x?.k
+    MEMBER_ACCESS(0),       //  x.k, x.@a, f(x), x.f(y), x[y], x?.k, x.<y>, x/<y>, x/**/<y>, x/*xml-step-extend
     UNARY(1),               //  (+x), (-x), (~x), (!x), (<T>x), (typeof x),
     EXPRESSION_ACTION(1),   //  Expression that can also be an action. eg: (check x), (checkpanic x). Same as unary.
     MULTIPLICATIVE(2),      //  (x * y), (x / y), (x % y)
