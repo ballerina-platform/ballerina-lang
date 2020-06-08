@@ -22,12 +22,11 @@ service on new http:Listener(21032) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketFailoverClient wsClientEp = new({ callbackService: failoverClientCallbackService,
-            readyOnConnect: false, targetUrls: ["ws://localhost:15300/websocket", "ws://localhost:15200/websocket",
-            "ws://localhost:15400/websocket"], failoverIntervalInMillis: 900});
+            targetUrls: ["ws://localhost:15300/websocket", "ws://localhost:15200/websocket",
+            "ws://localhost:15400/websocket"], failoverIntervalInMillis: 3000});
 
         wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
         wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
-        checkpanic wsClientEp->ready();
     }
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
