@@ -84,7 +84,8 @@ public class STServiceConstructorExpressionNode extends STExpressionNode {
         return new STServiceConstructorExpressionNode(
                 annotations,
                 serviceKeyword,
-                serviceBody);
+                serviceBody,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

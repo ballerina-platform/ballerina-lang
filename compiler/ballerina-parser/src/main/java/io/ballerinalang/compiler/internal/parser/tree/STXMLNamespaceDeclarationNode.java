@@ -104,7 +104,8 @@ public class STXMLNamespaceDeclarationNode extends STStatementNode {
                 namespaceuri,
                 asKeyword,
                 namespacePrefix,
-                semicolonToken);
+                semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

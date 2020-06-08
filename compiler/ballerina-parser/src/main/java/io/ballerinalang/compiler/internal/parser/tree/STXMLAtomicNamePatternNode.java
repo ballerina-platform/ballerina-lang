@@ -84,7 +84,8 @@ public class STXMLAtomicNamePatternNode extends STNode {
         return new STXMLAtomicNamePatternNode(
                 prefix,
                 colon,
-                name);
+                name,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

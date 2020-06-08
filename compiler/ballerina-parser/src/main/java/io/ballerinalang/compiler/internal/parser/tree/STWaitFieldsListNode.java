@@ -84,7 +84,8 @@ public class STWaitFieldsListNode extends STNode {
         return new STWaitFieldsListNode(
                 openBrace,
                 waitFields,
-                closeBrace);
+                closeBrace,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

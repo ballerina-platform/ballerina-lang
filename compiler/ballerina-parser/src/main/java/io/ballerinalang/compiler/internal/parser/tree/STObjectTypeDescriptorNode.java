@@ -104,7 +104,8 @@ public class STObjectTypeDescriptorNode extends STTypeDescriptorNode {
                 objectKeyword,
                 openBrace,
                 members,
-                closeBrace);
+                closeBrace,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -114,7 +114,8 @@ public class STImportDeclarationNode extends STNode {
                 moduleName,
                 version,
                 prefix,
-                semicolon);
+                semicolon,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

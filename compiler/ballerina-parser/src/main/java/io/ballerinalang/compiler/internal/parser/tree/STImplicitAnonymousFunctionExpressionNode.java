@@ -84,7 +84,8 @@ public class STImplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
         return new STImplicitAnonymousFunctionExpressionNode(
                 params,
                 rightDoubleArrow,
-                expression);
+                expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

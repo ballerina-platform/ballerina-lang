@@ -104,7 +104,8 @@ public class STConditionalExpressionNode extends STExpressionNode {
                 questionMarkToken,
                 middleExpression,
                 colonToken,
-                endExpression);
+                endExpression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

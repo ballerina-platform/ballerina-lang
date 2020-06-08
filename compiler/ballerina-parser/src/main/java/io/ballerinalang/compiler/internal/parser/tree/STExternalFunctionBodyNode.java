@@ -94,7 +94,8 @@ public class STExternalFunctionBodyNode extends STFunctionBodyNode {
                 equalsToken,
                 annotations,
                 externalKeyword,
-                semicolonToken);
+                semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

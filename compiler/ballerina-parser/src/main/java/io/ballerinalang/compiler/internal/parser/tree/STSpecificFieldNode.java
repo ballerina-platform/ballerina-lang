@@ -94,7 +94,8 @@ public class STSpecificFieldNode extends STMappingFieldNode {
                 readonlyKeyword,
                 fieldName,
                 colon,
-                valueExpr);
+                valueExpr,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

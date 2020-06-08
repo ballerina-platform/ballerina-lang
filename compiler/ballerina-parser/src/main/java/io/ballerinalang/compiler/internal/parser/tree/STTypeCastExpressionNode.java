@@ -94,7 +94,8 @@ public class STTypeCastExpressionNode extends STExpressionNode {
                 ltToken,
                 typeCastParam,
                 gtToken,
-                expression);
+                expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

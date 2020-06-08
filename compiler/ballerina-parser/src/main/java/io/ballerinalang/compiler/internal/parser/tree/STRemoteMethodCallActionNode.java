@@ -114,7 +114,8 @@ public class STRemoteMethodCallActionNode extends STActionNode {
                 methodName,
                 openParenToken,
                 arguments,
-                closeParenToken);
+                closeParenToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

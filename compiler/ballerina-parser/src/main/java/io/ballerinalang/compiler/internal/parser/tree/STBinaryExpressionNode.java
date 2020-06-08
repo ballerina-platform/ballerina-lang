@@ -90,7 +90,8 @@ public class STBinaryExpressionNode extends STExpressionNode {
                 kind,
                 lhsExpr,
                 operator,
-                rhsExpr);
+                rhsExpr,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

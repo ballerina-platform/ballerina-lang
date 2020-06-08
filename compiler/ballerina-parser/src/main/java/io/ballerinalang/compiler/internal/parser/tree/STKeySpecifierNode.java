@@ -94,7 +94,8 @@ public class STKeySpecifierNode extends STNode {
                 keyKeyword,
                 openParenToken,
                 fieldNames,
-                closeParenToken);
+                closeParenToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

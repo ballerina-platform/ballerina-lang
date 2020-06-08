@@ -94,7 +94,8 @@ public class STFunctionSignatureNode extends STNode {
                 openParenToken,
                 parameters,
                 closeParenToken,
-                returnTypeDesc);
+                returnTypeDesc,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

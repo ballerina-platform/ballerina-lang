@@ -84,7 +84,8 @@ public class STInterpolationNode extends STXMLItemNode {
         return new STInterpolationNode(
                 interpolationStartToken,
                 expression,
-                interpolationEndToken);
+                interpolationEndToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

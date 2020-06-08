@@ -74,7 +74,8 @@ public class STRestBindingPatternNode extends STNode {
 
         return new STRestBindingPatternNode(
                 ellipsisToken,
-                variableName);
+                variableName,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

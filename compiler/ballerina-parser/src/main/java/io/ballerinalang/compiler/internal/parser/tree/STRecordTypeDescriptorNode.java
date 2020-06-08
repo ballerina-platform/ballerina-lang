@@ -94,7 +94,8 @@ public class STRecordTypeDescriptorNode extends STTypeDescriptorNode {
                 objectKeyword,
                 bodyStartDelimiter,
                 fields,
-                bodyEndDelimiter);
+                bodyEndDelimiter,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

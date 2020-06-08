@@ -84,7 +84,8 @@ public class STXMLNamePatternChainingNode extends STNode {
         return new STXMLNamePatternChainingNode(
                 startToken,
                 xmlNamePattern,
-                gtToken);
+                gtToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

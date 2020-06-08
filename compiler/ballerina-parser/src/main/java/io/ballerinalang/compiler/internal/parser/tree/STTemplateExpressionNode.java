@@ -100,7 +100,8 @@ public class STTemplateExpressionNode extends STExpressionNode {
                 type,
                 startBacktick,
                 content,
-                endBacktick);
+                endBacktick,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

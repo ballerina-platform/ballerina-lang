@@ -84,7 +84,8 @@ public class STPanicStatementNode extends STStatementNode {
         return new STPanicStatementNode(
                 panicKeyword,
                 expression,
-                semicolonToken);
+                semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -84,7 +84,8 @@ public class STXMLElementNode extends STXMLItemNode {
         return new STXMLElementNode(
                 startTag,
                 content,
-                endTag);
+                endTag,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

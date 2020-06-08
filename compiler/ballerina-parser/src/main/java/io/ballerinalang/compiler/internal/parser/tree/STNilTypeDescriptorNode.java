@@ -74,7 +74,8 @@ public class STNilTypeDescriptorNode extends STTypeDescriptorNode {
 
         return new STNilTypeDescriptorNode(
                 openParenToken,
-                closeParenToken);
+                closeParenToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -94,7 +94,8 @@ public class STForkStatementNode extends STStatementNode {
                 forkKeyword,
                 openBraceToken,
                 namedWorkerDeclarations,
-                closeBraceToken);
+                closeBraceToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

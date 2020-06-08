@@ -84,7 +84,8 @@ public class STSyncSendActionNode extends STActionNode {
         return new STSyncSendActionNode(
                 expression,
                 syncSendToken,
-                peerWorker);
+                peerWorker,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

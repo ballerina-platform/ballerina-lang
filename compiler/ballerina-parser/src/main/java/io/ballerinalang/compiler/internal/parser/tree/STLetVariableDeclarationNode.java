@@ -94,7 +94,8 @@ public class STLetVariableDeclarationNode extends STNode {
                 annotations,
                 typedBindingPattern,
                 equalsToken,
-                expression);
+                expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

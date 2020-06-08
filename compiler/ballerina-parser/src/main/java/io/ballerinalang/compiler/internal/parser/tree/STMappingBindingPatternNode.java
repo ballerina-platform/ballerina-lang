@@ -94,7 +94,8 @@ public class STMappingBindingPatternNode extends STBindingPatternNode {
                 openBrace,
                 fieldBindingPatterns,
                 restBindingPattern,
-                closeBrace);
+                closeBrace,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

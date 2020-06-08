@@ -74,7 +74,8 @@ public class STUnaryExpressionNode extends STExpressionNode {
 
         return new STUnaryExpressionNode(
                 unaryOperator,
-                expression);
+                expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

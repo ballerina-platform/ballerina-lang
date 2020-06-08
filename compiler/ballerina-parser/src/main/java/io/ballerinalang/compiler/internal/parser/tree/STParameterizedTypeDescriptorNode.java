@@ -94,7 +94,8 @@ public class STParameterizedTypeDescriptorNode extends STTypeDescriptorNode {
                 parameterizedType,
                 ltToken,
                 typeNode,
-                gtToken);
+                gtToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -94,7 +94,8 @@ public class STFunctionBodyBlockNode extends STFunctionBodyNode {
                 openBraceToken,
                 namedWorkerDeclarator,
                 statements,
-                closeBraceToken);
+                closeBraceToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

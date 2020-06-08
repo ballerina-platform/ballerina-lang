@@ -84,7 +84,8 @@ public class STQueryExpressionNode extends STExpressionNode {
         return new STQueryExpressionNode(
                 queryConstructType,
                 queryPipeline,
-                selectClause);
+                selectClause,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

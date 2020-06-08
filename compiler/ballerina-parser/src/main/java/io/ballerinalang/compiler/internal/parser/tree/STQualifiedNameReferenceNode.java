@@ -84,7 +84,8 @@ public class STQualifiedNameReferenceNode extends STNameReferenceNode {
         return new STQualifiedNameReferenceNode(
                 modulePrefix,
                 colon,
-                identifier);
+                identifier,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

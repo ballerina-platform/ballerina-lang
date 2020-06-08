@@ -84,7 +84,8 @@ public class STBlockStatementNode extends STStatementNode {
         return new STBlockStatementNode(
                 openBraceToken,
                 statements,
-                closeBraceToken);
+                closeBraceToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

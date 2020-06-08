@@ -84,7 +84,8 @@ public class STListConstructorExpressionNode extends STExpressionNode {
         return new STListConstructorExpressionNode(
                 openBracket,
                 expressions,
-                closeBracket);
+                closeBracket,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

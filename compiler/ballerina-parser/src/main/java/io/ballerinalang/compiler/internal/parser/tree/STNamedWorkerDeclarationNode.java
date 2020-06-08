@@ -104,7 +104,8 @@ public class STNamedWorkerDeclarationNode extends STNode {
                 workerKeyword,
                 workerName,
                 returnTypeDesc,
-                workerBody);
+                workerBody,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

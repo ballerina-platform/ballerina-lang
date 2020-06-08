@@ -104,7 +104,8 @@ public class STXMLEmptyElementNode extends STXMLItemNode {
                 name,
                 attributes,
                 slashToken,
-                getToken);
+                getToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

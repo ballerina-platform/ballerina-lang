@@ -104,7 +104,8 @@ public class STRestParameterNode extends STParameterNode {
                 annotations,
                 typeName,
                 ellipsisToken,
-                paramName);
+                paramName,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -94,7 +94,8 @@ public class STFromClauseNode extends STClauseNode {
                 fromKeyword,
                 typedBindingPattern,
                 inKeyword,
-                expression);
+                expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -74,7 +74,8 @@ public class STFlushActionNode extends STExpressionNode {
 
         return new STFlushActionNode(
                 flushKeyword,
-                peerWorker);
+                peerWorker,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

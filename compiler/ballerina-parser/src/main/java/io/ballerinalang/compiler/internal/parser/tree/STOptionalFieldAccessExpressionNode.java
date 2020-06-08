@@ -84,7 +84,8 @@ public class STOptionalFieldAccessExpressionNode extends STExpressionNode {
         return new STOptionalFieldAccessExpressionNode(
                 expression,
                 optionalChainingToken,
-                fieldName);
+                fieldName,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

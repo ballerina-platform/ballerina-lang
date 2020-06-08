@@ -74,7 +74,8 @@ public class STTypeCastParamNode extends STNode {
 
         return new STTypeCastParamNode(
                 annotations,
-                type);
+                type,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

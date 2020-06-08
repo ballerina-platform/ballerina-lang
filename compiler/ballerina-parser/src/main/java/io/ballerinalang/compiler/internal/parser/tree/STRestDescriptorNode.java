@@ -74,7 +74,8 @@ public class STRestDescriptorNode extends STNode {
 
         return new STRestDescriptorNode(
                 typeDescriptor,
-                ellipsisToken);
+                ellipsisToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -84,7 +84,8 @@ public class STFieldBindingPatternFullNode extends STFieldBindingPatternNode {
         return new STFieldBindingPatternFullNode(
                 variableName,
                 colon,
-                bindingPattern);
+                bindingPattern,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

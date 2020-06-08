@@ -84,7 +84,8 @@ public class STParenthesizedArgList extends STNode {
         return new STParenthesizedArgList(
                 openParenToken,
                 arguments,
-                closeParenToken);
+                closeParenToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

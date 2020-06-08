@@ -84,7 +84,8 @@ public class STExplicitNewExpressionNode extends STNewExpressionNode {
         return new STExplicitNewExpressionNode(
                 newKeyword,
                 typeDescriptor,
-                parenthesizedArgList);
+                parenthesizedArgList,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

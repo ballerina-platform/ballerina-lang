@@ -74,7 +74,8 @@ public class STFunctionTypeDescriptorNode extends STTypeDescriptorNode {
 
         return new STFunctionTypeDescriptorNode(
                 functionKeyword,
-                functionSignature);
+                functionSignature,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

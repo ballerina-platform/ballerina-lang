@@ -74,7 +74,8 @@ public class STImportOrgNameNode extends STNode {
 
         return new STImportOrgNameNode(
                 orgName,
-                slashToken);
+                slashToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

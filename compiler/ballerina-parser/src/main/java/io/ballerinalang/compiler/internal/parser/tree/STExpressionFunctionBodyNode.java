@@ -84,7 +84,8 @@ public class STExpressionFunctionBodyNode extends STFunctionBodyNode {
         return new STExpressionFunctionBodyNode(
                 rightDoubleArrow,
                 expression,
-                semicolon);
+                semicolon,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

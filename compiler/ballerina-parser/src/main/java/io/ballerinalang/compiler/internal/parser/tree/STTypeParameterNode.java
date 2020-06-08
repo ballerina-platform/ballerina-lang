@@ -84,7 +84,8 @@ public class STTypeParameterNode extends STNode {
         return new STTypeParameterNode(
                 ltToken,
                 typeNode,
-                gtToken);
+                gtToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

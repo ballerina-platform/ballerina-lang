@@ -104,7 +104,8 @@ public class STLocalTypeDefinitionStatementNode extends STStatementNode {
                 typeKeyword,
                 typeName,
                 typeDescriptor,
-                semicolonToken);
+                semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

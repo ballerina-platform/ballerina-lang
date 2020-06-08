@@ -74,7 +74,8 @@ public class STXMLFilterExpressionNode extends STXMLNavigateExpressionNode {
 
         return new STXMLFilterExpressionNode(
                 expression,
-                xmlPatternChain);
+                xmlPatternChain,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

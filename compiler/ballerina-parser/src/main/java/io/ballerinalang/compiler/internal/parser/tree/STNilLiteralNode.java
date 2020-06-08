@@ -74,7 +74,8 @@ public class STNilLiteralNode extends STExpressionNode {
 
         return new STNilLiteralNode(
                 openParenToken,
-                closeParenToken);
+                closeParenToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

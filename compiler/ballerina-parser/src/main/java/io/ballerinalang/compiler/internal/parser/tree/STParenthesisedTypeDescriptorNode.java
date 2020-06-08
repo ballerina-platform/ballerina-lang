@@ -84,7 +84,8 @@ public class STParenthesisedTypeDescriptorNode extends STTypeDescriptorNode {
         return new STParenthesisedTypeDescriptorNode(
                 openParenToken,
                 typedesc,
-                closeParenToken);
+                closeParenToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

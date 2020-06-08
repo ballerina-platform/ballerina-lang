@@ -114,7 +114,8 @@ public class STMethodCallExpressionNode extends STExpressionNode {
                 methodName,
                 openParenToken,
                 arguments,
-                closeParenToken);
+                closeParenToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

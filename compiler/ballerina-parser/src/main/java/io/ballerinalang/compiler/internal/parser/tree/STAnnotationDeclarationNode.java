@@ -144,7 +144,8 @@ public class STAnnotationDeclarationNode extends STModuleMemberDeclarationNode {
                 annotationTag,
                 onKeyword,
                 attachPoints,
-                semicolonToken);
+                semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

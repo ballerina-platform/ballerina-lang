@@ -84,7 +84,8 @@ public class STAnnotationNode extends STNode {
         return new STAnnotationNode(
                 atToken,
                 annotReference,
-                annotValue);
+                annotValue,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

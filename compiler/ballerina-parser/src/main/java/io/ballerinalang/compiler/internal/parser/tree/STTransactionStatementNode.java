@@ -74,7 +74,8 @@ public class STTransactionStatementNode extends STStatementNode {
 
         return new STTransactionStatementNode(
                 transactionKeyword,
-                blockStatement);
+                blockStatement,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

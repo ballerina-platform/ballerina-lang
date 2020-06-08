@@ -74,7 +74,8 @@ public class STElseBlockNode extends STNode {
 
         return new STElseBlockNode(
                 elseKeyword,
-                elseBody);
+                elseBody,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

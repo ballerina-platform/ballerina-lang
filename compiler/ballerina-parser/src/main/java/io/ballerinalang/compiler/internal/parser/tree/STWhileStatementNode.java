@@ -84,7 +84,8 @@ public class STWhileStatementNode extends STStatementNode {
         return new STWhileStatementNode(
                 whileKeyword,
                 condition,
-                whileBody);
+                whileBody,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

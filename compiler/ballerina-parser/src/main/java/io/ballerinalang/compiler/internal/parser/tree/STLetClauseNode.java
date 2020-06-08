@@ -74,7 +74,8 @@ public class STLetClauseNode extends STClauseNode {
 
         return new STLetClauseNode(
                 letKeyword,
-                letVarDeclarations);
+                letVarDeclarations,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

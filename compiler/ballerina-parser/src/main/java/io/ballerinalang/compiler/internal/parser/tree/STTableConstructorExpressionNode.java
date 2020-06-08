@@ -104,7 +104,8 @@ public class STTableConstructorExpressionNode extends STExpressionNode {
                 keySpecifier,
                 openBracket,
                 mappingConstructors,
-                closeBracket);
+                closeBracket,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -80,7 +80,8 @@ public class STTrapExpressionNode extends STExpressionNode {
         return new STTrapExpressionNode(
                 kind,
                 trapKeyword,
-                expression);
+                expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

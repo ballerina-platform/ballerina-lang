@@ -84,7 +84,8 @@ public class STXMLAttributeValue extends STNode {
         return new STXMLAttributeValue(
                 startQuote,
                 value,
-                endQuote);
+                endQuote,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

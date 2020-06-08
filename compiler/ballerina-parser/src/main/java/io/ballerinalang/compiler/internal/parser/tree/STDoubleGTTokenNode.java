@@ -74,7 +74,8 @@ public class STDoubleGTTokenNode extends STNode {
 
         return new STDoubleGTTokenNode(
                 openGTToken,
-                endGTToken);
+                endGTToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

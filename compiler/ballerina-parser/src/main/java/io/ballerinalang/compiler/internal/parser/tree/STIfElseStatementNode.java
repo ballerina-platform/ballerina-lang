@@ -94,7 +94,8 @@ public class STIfElseStatementNode extends STStatementNode {
                 ifKeyword,
                 condition,
                 ifBody,
-                elseBody);
+                elseBody,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -74,7 +74,8 @@ public class STLockStatementNode extends STStatementNode {
 
         return new STLockStatementNode(
                 lockKeyword,
-                blockStatement);
+                blockStatement,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

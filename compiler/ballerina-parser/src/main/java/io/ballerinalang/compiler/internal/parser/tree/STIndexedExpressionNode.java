@@ -94,7 +94,8 @@ public class STIndexedExpressionNode extends STTypeDescriptorNode {
                 containerExpression,
                 openBracket,
                 keyExpression,
-                closeBracket);
+                closeBracket,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

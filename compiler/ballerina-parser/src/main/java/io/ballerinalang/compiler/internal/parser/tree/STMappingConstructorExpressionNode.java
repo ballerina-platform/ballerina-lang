@@ -84,7 +84,8 @@ public class STMappingConstructorExpressionNode extends STExpressionNode {
         return new STMappingConstructorExpressionNode(
                 openBrace,
                 fields,
-                closeBrace);
+                closeBrace,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

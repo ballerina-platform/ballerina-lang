@@ -84,7 +84,8 @@ public class STImplicitAnonymousFunctionParameters extends STNode {
         return new STImplicitAnonymousFunctionParameters(
                 openParenToken,
                 parameters,
-                closeParenToken);
+                closeParenToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -84,7 +84,8 @@ public class STTypeTestExpressionNode extends STExpressionNode {
         return new STTypeTestExpressionNode(
                 expression,
                 isKeyword,
-                typeDescriptor);
+                typeDescriptor,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

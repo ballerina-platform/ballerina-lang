@@ -114,7 +114,8 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
                 serviceName,
                 onKeyword,
                 expressions,
-                serviceBody);
+                serviceBody,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

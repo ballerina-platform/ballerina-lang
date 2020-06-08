@@ -64,7 +64,8 @@ public class STXMLTextNode extends STXMLItemNode {
         }
 
         return new STXMLTextNode(
-                content);
+                content,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

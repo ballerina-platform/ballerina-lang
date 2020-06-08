@@ -64,7 +64,8 @@ public class STSingletonTypeDescriptorNode extends STTypeDescriptorNode {
         }
 
         return new STSingletonTypeDescriptorNode(
-                simpleContExprNode);
+                simpleContExprNode,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -104,7 +104,8 @@ public class STCompoundAssignmentStatementNode extends STStatementNode {
                 binaryOperator,
                 equalsToken,
                 rhsExpression,
-                semicolonToken);
+                semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

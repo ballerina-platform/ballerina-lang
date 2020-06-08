@@ -74,7 +74,8 @@ public class STBreakStatementNode extends STStatementNode {
 
         return new STBreakStatementNode(
                 breakToken,
-                semicolonToken);
+                semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -64,7 +64,8 @@ public class STCommitActionNode extends STActionNode {
         }
 
         return new STCommitActionNode(
-                commitKeyword);
+                commitKeyword,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

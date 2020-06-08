@@ -84,7 +84,8 @@ public class STQueryActionNode extends STActionNode {
         return new STQueryActionNode(
                 queryPipeline,
                 doKeyword,
-                blockStatement);
+                blockStatement,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

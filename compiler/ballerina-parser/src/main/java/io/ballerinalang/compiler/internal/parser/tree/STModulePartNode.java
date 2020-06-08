@@ -84,7 +84,8 @@ public class STModulePartNode extends STNode {
         return new STModulePartNode(
                 imports,
                 members,
-                eofToken);
+                eofToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -94,7 +94,8 @@ public class STNamedArgumentNode extends STFunctionArgumentNode {
                 leadingComma,
                 argumentName,
                 equalsToken,
-                expression);
+                expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

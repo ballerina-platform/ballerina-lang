@@ -74,7 +74,8 @@ public class STErrorTypeDescriptorNode extends STTypeDescriptorNode {
 
         return new STErrorTypeDescriptorNode(
                 errorKeywordToken,
-                errorTypeParamsNode);
+                errorTypeParamsNode,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

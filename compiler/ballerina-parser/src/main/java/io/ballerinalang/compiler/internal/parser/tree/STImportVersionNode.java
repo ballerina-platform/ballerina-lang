@@ -74,7 +74,8 @@ public class STImportVersionNode extends STNode {
 
         return new STImportVersionNode(
                 versionKeyword,
-                versionNumber);
+                versionNumber,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

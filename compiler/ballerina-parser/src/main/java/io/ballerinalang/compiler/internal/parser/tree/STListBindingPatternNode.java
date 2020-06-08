@@ -94,7 +94,8 @@ public class STListBindingPatternNode extends STBindingPatternNode {
                 openBracket,
                 bindingPatterns,
                 restBindingPattern,
-                closeBracket);
+                closeBracket,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

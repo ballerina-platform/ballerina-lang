@@ -84,7 +84,8 @@ public class STXMLComment extends STXMLItemNode {
         return new STXMLComment(
                 commentStart,
                 content,
-                commentEnd);
+                commentEnd,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

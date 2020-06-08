@@ -80,7 +80,8 @@ public class STExpressionStatementNode extends STStatementNode {
         return new STExpressionStatementNode(
                 kind,
                 expression,
-                semicolonToken);
+                semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

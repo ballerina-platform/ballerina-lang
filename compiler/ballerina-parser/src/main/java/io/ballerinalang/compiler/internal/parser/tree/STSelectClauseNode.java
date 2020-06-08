@@ -74,7 +74,8 @@ public class STSelectClauseNode extends STClauseNode {
 
         return new STSelectClauseNode(
                 selectKeyword,
-                expression);
+                expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

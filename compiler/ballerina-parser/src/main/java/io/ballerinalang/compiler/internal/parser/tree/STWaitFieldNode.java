@@ -84,7 +84,8 @@ public class STWaitFieldNode extends STNode {
         return new STWaitFieldNode(
                 fieldName,
                 colon,
-                waitFutureExpr);
+                waitFutureExpr,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

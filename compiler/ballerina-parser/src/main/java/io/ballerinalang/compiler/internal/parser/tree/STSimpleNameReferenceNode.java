@@ -64,7 +64,8 @@ public class STSimpleNameReferenceNode extends STNameReferenceNode {
         }
 
         return new STSimpleNameReferenceNode(
-                name);
+                name,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

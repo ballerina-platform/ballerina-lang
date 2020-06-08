@@ -74,7 +74,8 @@ public class STQueryConstructTypeNode extends STNode {
 
         return new STQueryConstructTypeNode(
                 tableKeyword,
-                keySpecifier);
+                keySpecifier,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

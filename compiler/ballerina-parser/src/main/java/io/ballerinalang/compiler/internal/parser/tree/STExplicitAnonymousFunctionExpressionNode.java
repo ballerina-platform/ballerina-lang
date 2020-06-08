@@ -94,7 +94,8 @@ public class STExplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
                 annotations,
                 functionKeyword,
                 functionSignature,
-                functionBody);
+                functionBody,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

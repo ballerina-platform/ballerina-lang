@@ -64,7 +64,8 @@ public class STTransactionalExpressionNode extends STExpressionNode {
         }
 
         return new STTransactionalExpressionNode(
-                transactionalKeyword);
+                transactionalKeyword,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

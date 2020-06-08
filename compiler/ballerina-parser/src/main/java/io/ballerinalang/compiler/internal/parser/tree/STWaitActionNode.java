@@ -74,7 +74,8 @@ public class STWaitActionNode extends STActionNode {
 
         return new STWaitActionNode(
                 waitKeyword,
-                waitFutureExpr);
+                waitFutureExpr,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -94,7 +94,8 @@ public class STLetExpressionNode extends STExpressionNode {
                 letKeyword,
                 letVarDeclarations,
                 inKeyword,
-                expression);
+                expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

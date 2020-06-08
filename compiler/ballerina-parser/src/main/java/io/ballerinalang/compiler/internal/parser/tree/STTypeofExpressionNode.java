@@ -74,7 +74,8 @@ public class STTypeofExpressionNode extends STExpressionNode {
 
         return new STTypeofExpressionNode(
                 typeofKeyword,
-                expression);
+                expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

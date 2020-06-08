@@ -104,7 +104,8 @@ public class STModuleXMLNamespaceDeclarationNode extends STModuleMemberDeclarati
                 namespaceuri,
                 asKeyword,
                 namespacePrefix,
-                semicolonToken);
+                semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

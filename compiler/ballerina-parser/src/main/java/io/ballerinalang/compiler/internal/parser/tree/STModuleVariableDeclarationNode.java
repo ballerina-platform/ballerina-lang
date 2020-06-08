@@ -114,7 +114,8 @@ public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNo
                 typedBindingPattern,
                 equalsToken,
                 initializer,
-                semicolonToken);
+                semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

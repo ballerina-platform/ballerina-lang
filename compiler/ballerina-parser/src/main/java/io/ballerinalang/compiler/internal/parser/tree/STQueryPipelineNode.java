@@ -74,7 +74,8 @@ public class STQueryPipelineNode extends STNode {
 
         return new STQueryPipelineNode(
                 fromClause,
-                intermediateClauses);
+                intermediateClauses,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -74,7 +74,8 @@ public class STNamedWorkerDeclarator extends STNode {
 
         return new STNamedWorkerDeclarator(
                 workerInitStatements,
-                namedWorkerDeclarations);
+                namedWorkerDeclarations,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

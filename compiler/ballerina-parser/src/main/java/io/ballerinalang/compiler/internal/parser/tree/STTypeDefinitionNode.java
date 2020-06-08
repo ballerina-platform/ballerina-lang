@@ -114,7 +114,8 @@ public class STTypeDefinitionNode extends STModuleMemberDeclarationNode {
                 typeKeyword,
                 typeName,
                 typeDescriptor,
-                semicolonToken);
+                semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

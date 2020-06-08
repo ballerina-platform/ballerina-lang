@@ -74,7 +74,8 @@ public class STKeyTypeConstraintNode extends STNode {
 
         return new STKeyTypeConstraintNode(
                 keyKeywordToken,
-                typeParameterNode);
+                typeParameterNode,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

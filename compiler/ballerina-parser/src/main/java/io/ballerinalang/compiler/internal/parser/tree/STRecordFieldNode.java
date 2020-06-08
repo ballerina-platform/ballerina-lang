@@ -114,7 +114,8 @@ public class STRecordFieldNode extends STNode {
                 typeName,
                 fieldName,
                 questionMarkToken,
-                semicolonToken);
+                semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

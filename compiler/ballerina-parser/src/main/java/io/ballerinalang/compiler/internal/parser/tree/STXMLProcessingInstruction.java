@@ -94,7 +94,8 @@ public class STXMLProcessingInstruction extends STXMLItemNode {
                 piStart,
                 target,
                 data,
-                piEnd);
+                piEnd,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

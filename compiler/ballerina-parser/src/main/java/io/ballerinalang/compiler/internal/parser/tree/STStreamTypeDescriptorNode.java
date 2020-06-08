@@ -74,7 +74,8 @@ public class STStreamTypeDescriptorNode extends STTypeDescriptorNode {
 
         return new STStreamTypeDescriptorNode(
                 streamKeywordToken,
-                streamTypeParamsNode);
+                streamTypeParamsNode,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

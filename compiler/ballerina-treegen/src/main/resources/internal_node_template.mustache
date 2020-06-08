@@ -83,7 +83,7 @@ public{{#isAbstract}} abstract{{/isAbstract}} class {{internalClassName}} extend
         }
 
         return new {{internalClassName}}(
-                {{^syntaxKind}}kind, &#10;                {{/syntaxKind}}{{#fields}}{{fieldName}}{{^isLast}}, &#10;                {{/isLast}}{{/fields}});
+                {{^syntaxKind}}kind, &#10;                {{/syntaxKind}}{{#fields}}{{fieldName}}, &#10;                {{/fields}}diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

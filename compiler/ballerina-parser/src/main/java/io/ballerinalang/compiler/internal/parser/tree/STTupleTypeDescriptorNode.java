@@ -84,7 +84,8 @@ public class STTupleTypeDescriptorNode extends STTypeDescriptorNode {
         return new STTupleTypeDescriptorNode(
                 openBracketToken,
                 memberTypeDesc,
-                closeBracketToken);
+                closeBracketToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

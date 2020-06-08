@@ -84,7 +84,8 @@ public class STXMLQualifiedNameNode extends STXMLNameNode {
         return new STXMLQualifiedNameNode(
                 prefix,
                 colon,
-                name);
+                name,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

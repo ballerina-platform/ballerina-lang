@@ -74,7 +74,8 @@ public class STWhereClauseNode extends STClauseNode {
 
         return new STWhereClauseNode(
                 whereKeyword,
-                expression);
+                expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

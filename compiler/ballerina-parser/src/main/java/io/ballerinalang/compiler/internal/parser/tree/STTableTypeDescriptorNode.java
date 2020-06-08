@@ -84,7 +84,8 @@ public class STTableTypeDescriptorNode extends STTypeDescriptorNode {
         return new STTableTypeDescriptorNode(
                 tableKeywordToken,
                 rowTypeParameterNode,
-                keyConstraintNode);
+                keyConstraintNode,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

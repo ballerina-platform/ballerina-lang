@@ -64,7 +64,8 @@ public class STTypeReferenceTypeDescNode extends STTypeDescriptorNode {
         }
 
         return new STTypeReferenceTypeDescNode(
-                typeRef);
+                typeRef,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

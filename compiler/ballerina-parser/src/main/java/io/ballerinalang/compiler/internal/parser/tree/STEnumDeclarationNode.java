@@ -124,7 +124,8 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
                 identifier,
                 openBraceToken,
                 enumMemberList,
-                closeBraceToken);
+                closeBraceToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

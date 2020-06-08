@@ -84,7 +84,8 @@ public class STRestArgumentNode extends STFunctionArgumentNode {
         return new STRestArgumentNode(
                 leadingComma,
                 ellipsis,
-                expression);
+                expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

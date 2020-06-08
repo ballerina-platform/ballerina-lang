@@ -84,7 +84,8 @@ public class STAnnotAccessExpressionNode extends STExpressionNode {
         return new STAnnotAccessExpressionNode(
                 expression,
                 annotChainingToken,
-                annotTagReference);
+                annotTagReference,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

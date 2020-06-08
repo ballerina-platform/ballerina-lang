@@ -84,7 +84,8 @@ public class STTypeReferenceNode extends STTypeDescriptorNode {
         return new STTypeReferenceNode(
                 asteriskToken,
                 typeName,
-                semicolonToken);
+                semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

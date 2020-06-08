@@ -84,7 +84,8 @@ public class STFieldAccessExpressionNode extends STExpressionNode {
         return new STFieldAccessExpressionNode(
                 expression,
                 dotToken,
-                fieldName);
+                fieldName,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

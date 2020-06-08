@@ -84,7 +84,8 @@ public class STServiceBodyNode extends STNode {
         return new STServiceBodyNode(
                 openBraceToken,
                 resources,
-                closeBraceToken);
+                closeBraceToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

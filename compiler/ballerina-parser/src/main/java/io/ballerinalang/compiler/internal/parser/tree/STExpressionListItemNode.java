@@ -74,7 +74,8 @@ public class STExpressionListItemNode extends STNode {
 
         return new STExpressionListItemNode(
                 leadingComma,
-                expression);
+                expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

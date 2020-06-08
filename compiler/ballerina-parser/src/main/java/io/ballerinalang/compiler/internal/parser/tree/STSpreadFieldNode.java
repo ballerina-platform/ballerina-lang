@@ -74,7 +74,8 @@ public class STSpreadFieldNode extends STMappingFieldNode {
 
         return new STSpreadFieldNode(
                 ellipsis,
-                valueExpr);
+                valueExpr,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

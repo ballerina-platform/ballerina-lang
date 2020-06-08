@@ -74,7 +74,8 @@ public class STTypedBindingPatternNode extends STNode {
 
         return new STTypedBindingPatternNode(
                 typeDescriptor,
-                bindingPattern);
+                bindingPattern,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

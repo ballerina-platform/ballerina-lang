@@ -74,7 +74,8 @@ public class STOptionalTypeDescriptorNode extends STTypeDescriptorNode {
 
         return new STOptionalTypeDescriptorNode(
                 typeDescriptor,
-                questionMarkToken);
+                questionMarkToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

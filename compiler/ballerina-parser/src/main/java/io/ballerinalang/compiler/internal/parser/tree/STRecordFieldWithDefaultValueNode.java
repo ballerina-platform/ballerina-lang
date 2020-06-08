@@ -124,7 +124,8 @@ public class STRecordFieldWithDefaultValueNode extends STNode {
                 fieldName,
                 equalsToken,
                 expression,
-                semicolonToken);
+                semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

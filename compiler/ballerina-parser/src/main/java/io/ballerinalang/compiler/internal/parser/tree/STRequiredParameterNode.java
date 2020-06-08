@@ -104,7 +104,8 @@ public class STRequiredParameterNode extends STParameterNode {
                 annotations,
                 visibilityQualifier,
                 typeName,
-                paramName);
+                paramName,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

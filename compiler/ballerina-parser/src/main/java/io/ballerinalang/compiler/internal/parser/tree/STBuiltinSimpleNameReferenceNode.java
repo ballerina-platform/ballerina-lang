@@ -70,7 +70,8 @@ public class STBuiltinSimpleNameReferenceNode extends STNameReferenceNode {
 
         return new STBuiltinSimpleNameReferenceNode(
                 kind,
-                name);
+                name,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

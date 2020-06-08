@@ -84,7 +84,8 @@ public class STIntersectionTypeDescriptorNode extends STTypeDescriptorNode {
         return new STIntersectionTypeDescriptorNode(
                 leftTypeDesc,
                 bitwiseAndToken,
-                rightTypeDesc);
+                rightTypeDesc,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

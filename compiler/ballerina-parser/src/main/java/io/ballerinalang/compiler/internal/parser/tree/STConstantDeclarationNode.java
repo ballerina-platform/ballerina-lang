@@ -134,7 +134,8 @@ public class STConstantDeclarationNode extends STModuleMemberDeclarationNode {
                 variableName,
                 equalsToken,
                 initializer,
-                semicolonToken);
+                semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

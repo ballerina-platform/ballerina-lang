@@ -74,7 +74,8 @@ public class STXMLStepExpressionNode extends STXMLNavigateExpressionNode {
 
         return new STXMLStepExpressionNode(
                 expression,
-                xmlStepStart);
+                xmlStepStart,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

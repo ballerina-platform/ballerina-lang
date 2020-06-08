@@ -84,7 +84,8 @@ public class STStartActionNode extends STExpressionNode {
         return new STStartActionNode(
                 annotations,
                 startKeyword,
-                expression);
+                expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

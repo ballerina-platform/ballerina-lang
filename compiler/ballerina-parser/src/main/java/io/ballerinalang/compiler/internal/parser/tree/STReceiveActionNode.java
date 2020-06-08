@@ -74,7 +74,8 @@ public class STReceiveActionNode extends STActionNode {
 
         return new STReceiveActionNode(
                 leftArrow,
-                receiveWorkers);
+                receiveWorkers,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -84,7 +84,8 @@ public class STAsyncSendActionNode extends STActionNode {
         return new STAsyncSendActionNode(
                 expression,
                 rightArrowToken,
-                peerWorker);
+                peerWorker,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

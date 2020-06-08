@@ -94,7 +94,8 @@ public class STEnumMemberNode extends STNode {
                 metadata,
                 identifier,
                 equalToken,
-                constExprNode);
+                constExprNode,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

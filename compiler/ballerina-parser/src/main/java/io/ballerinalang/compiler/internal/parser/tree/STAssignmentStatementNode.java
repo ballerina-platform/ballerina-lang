@@ -94,7 +94,8 @@ public class STAssignmentStatementNode extends STStatementNode {
                 varRef,
                 equalsToken,
                 expression,
-                semicolonToken);
+                semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -74,7 +74,8 @@ public class STImportPrefixNode extends STNode {
 
         return new STImportPrefixNode(
                 asKeyword,
-                prefix);
+                prefix,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

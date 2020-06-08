@@ -124,7 +124,8 @@ public class STDefaultableParameterNode extends STParameterNode {
                 typeName,
                 paramName,
                 equalsToken,
-                expression);
+                expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

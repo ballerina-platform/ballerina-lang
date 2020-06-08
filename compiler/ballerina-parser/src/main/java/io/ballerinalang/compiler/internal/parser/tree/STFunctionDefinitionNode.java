@@ -114,7 +114,8 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
                 functionKeyword,
                 functionName,
                 functionSignature,
-                functionBody);
+                functionBody,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

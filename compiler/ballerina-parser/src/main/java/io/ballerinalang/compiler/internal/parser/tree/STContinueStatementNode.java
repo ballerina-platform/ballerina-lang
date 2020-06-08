@@ -74,7 +74,8 @@ public class STContinueStatementNode extends STStatementNode {
 
         return new STContinueStatementNode(
                 continueToken,
-                semicolonToken);
+                semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

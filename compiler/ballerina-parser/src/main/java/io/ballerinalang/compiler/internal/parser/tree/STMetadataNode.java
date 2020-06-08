@@ -74,7 +74,8 @@ public class STMetadataNode extends STNode {
 
         return new STMetadataNode(
                 documentationString,
-                annotations);
+                annotations,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

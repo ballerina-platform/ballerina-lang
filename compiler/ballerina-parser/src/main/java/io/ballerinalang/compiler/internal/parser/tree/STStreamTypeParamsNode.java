@@ -104,7 +104,8 @@ public class STStreamTypeParamsNode extends STNode {
                 leftTypeDescNode,
                 commaToken,
                 rightTypeDescNode,
-                gtToken);
+                gtToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

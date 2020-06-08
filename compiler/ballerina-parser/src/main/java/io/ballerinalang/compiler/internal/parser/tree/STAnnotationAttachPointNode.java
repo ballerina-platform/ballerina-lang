@@ -84,7 +84,8 @@ public class STAnnotationAttachPointNode extends STNode {
         return new STAnnotationAttachPointNode(
                 sourceKeyword,
                 firstIdent,
-                secondIdent);
+                secondIdent,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

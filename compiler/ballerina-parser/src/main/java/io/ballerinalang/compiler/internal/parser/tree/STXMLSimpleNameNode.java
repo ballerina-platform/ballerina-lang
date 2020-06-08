@@ -64,7 +64,8 @@ public class STXMLSimpleNameNode extends STXMLNameNode {
         }
 
         return new STXMLSimpleNameNode(
-                name);
+                name,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

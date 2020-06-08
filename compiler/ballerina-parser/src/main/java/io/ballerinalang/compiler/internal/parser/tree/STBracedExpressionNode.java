@@ -90,7 +90,8 @@ public class STBracedExpressionNode extends STExpressionNode {
                 kind,
                 openParen,
                 expression,
-                closeParen);
+                closeParen,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

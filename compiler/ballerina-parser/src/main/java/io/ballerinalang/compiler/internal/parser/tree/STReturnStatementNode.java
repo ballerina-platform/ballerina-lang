@@ -84,7 +84,8 @@ public class STReturnStatementNode extends STStatementNode {
         return new STReturnStatementNode(
                 returnKeyword,
                 expression,
-                semicolonToken);
+                semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

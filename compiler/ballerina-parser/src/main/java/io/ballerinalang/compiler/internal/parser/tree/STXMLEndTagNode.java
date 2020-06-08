@@ -94,7 +94,8 @@ public class STXMLEndTagNode extends STXMLElementTagNode {
                 ltToken,
                 slashToken,
                 name,
-                getToken);
+                getToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

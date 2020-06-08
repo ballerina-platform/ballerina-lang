@@ -84,7 +84,8 @@ public class STReceiveFieldsNode extends STNode {
         return new STReceiveFieldsNode(
                 openBrace,
                 receiveFields,
-                closeBrace);
+                closeBrace,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

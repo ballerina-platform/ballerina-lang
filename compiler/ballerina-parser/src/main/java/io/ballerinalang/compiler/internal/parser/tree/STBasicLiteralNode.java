@@ -70,7 +70,8 @@ public class STBasicLiteralNode extends STExpressionNode {
 
         return new STBasicLiteralNode(
                 kind,
-                literalToken);
+                literalToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

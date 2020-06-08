@@ -64,7 +64,8 @@ public class STWildcardBindingPatternNode extends STBindingPatternNode {
         }
 
         return new STWildcardBindingPatternNode(
-                underscoreToken);
+                underscoreToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

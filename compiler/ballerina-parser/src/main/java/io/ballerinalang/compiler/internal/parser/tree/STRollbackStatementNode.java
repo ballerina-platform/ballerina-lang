@@ -84,7 +84,8 @@ public class STRollbackStatementNode extends STStatementNode {
         return new STRollbackStatementNode(
                 rollbackKeyword,
                 expression,
-                semicolon);
+                semicolon,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

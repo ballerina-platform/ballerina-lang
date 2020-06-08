@@ -84,7 +84,8 @@ public class STErrorTypeParamsNode extends STNode {
         return new STErrorTypeParamsNode(
                 ltToken,
                 parameter,
-                gtToken);
+                gtToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

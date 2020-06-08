@@ -104,7 +104,8 @@ public class STComputedNameFieldNode extends STMappingFieldNode {
                 fieldNameExpr,
                 closeBracket,
                 colonToken,
-                valueExpr);
+                valueExpr,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

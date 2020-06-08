@@ -74,7 +74,8 @@ public class STPositionalArgumentNode extends STFunctionArgumentNode {
 
         return new STPositionalArgumentNode(
                 leadingComma,
-                expression);
+                expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

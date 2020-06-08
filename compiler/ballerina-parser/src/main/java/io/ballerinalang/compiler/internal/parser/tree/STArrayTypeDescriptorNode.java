@@ -94,7 +94,8 @@ public class STArrayTypeDescriptorNode extends STTypeDescriptorNode {
                 memberTypeDesc,
                 openBracket,
                 arrayLength,
-                closeBracket);
+                closeBracket,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

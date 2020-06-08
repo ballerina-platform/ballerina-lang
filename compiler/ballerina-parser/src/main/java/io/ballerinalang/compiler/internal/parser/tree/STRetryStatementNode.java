@@ -94,7 +94,8 @@ public class STRetryStatementNode extends STStatementNode {
                 retryKeyword,
                 typeParameter,
                 arguments,
-                retryBody);
+                retryBody,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

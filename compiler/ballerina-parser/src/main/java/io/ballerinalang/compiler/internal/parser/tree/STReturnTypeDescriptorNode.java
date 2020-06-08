@@ -84,7 +84,8 @@ public class STReturnTypeDescriptorNode extends STNode {
         return new STReturnTypeDescriptorNode(
                 returnsKeyword,
                 annotations,
-                type);
+                type,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

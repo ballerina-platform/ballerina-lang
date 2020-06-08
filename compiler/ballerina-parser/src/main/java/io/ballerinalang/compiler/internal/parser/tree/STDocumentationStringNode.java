@@ -64,7 +64,8 @@ public class STDocumentationStringNode extends STNode {
         }
 
         return new STDocumentationStringNode(
-                documentationLines);
+                documentationLines,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

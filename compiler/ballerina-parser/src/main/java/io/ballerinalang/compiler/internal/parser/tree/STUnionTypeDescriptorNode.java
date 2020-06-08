@@ -84,7 +84,8 @@ public class STUnionTypeDescriptorNode extends STTypeDescriptorNode {
         return new STUnionTypeDescriptorNode(
                 leftTypeDesc,
                 pipeToken,
-                rightTypeDesc);
+                rightTypeDesc,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

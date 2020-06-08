@@ -84,7 +84,8 @@ public class STRecordRestDescriptorNode extends STNode {
         return new STRecordRestDescriptorNode(
                 typeName,
                 ellipsisToken,
-                semicolonToken);
+                semicolonToken,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

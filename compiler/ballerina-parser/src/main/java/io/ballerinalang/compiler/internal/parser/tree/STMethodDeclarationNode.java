@@ -114,7 +114,8 @@ public class STMethodDeclarationNode extends STNode {
                 functionKeyword,
                 methodName,
                 methodSignature,
-                semicolon);
+                semicolon,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

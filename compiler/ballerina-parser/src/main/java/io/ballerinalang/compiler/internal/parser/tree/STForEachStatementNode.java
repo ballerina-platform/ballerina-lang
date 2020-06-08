@@ -104,7 +104,8 @@ public class STForEachStatementNode extends STStatementNode {
                 typedBindingPattern,
                 inKeyword,
                 actionOrExpressionNode,
-                blockStatement);
+                blockStatement,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

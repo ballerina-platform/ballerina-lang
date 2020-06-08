@@ -80,7 +80,8 @@ public class STCheckExpressionNode extends STExpressionNode {
         return new STCheckExpressionNode(
                 kind,
                 checkKeyword,
-                expression);
+                expression,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
