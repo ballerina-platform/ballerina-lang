@@ -37,6 +37,7 @@ public class TreeGenConfig {
     public static final String INTERNAL_NODE_FACTORY_TEMPLATE_KEY = "internal.node.factory.template";
     public static final String INTERNAL_NODE_VISITOR_TEMPLATE_KEY = "internal.node.visitor.template";
     public static final String INTERNAL_NODE_TRANSFORMER_TEMPLATE_KEY = "internal.node.transformer.template";
+    public static final String INTERNAL_TREE_MODIFIER_TEMPLATE_KEY = "internal.tree.modifier.template";
 
     public static final String EXTERNAL_NODE_OUTPUT_DIR_KEY = "external.node.output.dir";
     public static final String EXTERNAL_NODE_TEMPLATE_KEY = "external.node.template";
