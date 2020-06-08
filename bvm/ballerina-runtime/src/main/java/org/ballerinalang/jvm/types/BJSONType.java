@@ -28,7 +28,7 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 public class BJSONType extends BType {
 
     private final boolean readonly;
-    private BJSONType immutableType;
+    private BIntersectionType immutableType;
 
     /**
      * Create a {@code BJSONType} which represents the JSON type.
@@ -42,14 +42,20 @@ public class BJSONType extends BType {
         this.readonly = readonly;
 
         if (!readonly) {
-            this.immutableType = new BJSONType(TypeConstants.READONLY_JSON_TNAME, pkg, true);
+            BJSONType immutableJsonType = new BJSONType(TypeConstants.READONLY_JSON_TNAME, pkg, true);
+            this.immutableType = new BIntersectionType(new BType[]{ this, BTypes.typeReadonly }, immutableJsonType,
+                                                       TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
+                                                                        TypeFlags.PURETYPE), true);
         }
     }
 
     public BJSONType() {
         super(TypeConstants.JSON_TNAME, null, MapValueImpl.class);
         this.readonly = false;
-        this.immutableType = new BJSONType(TypeConstants.READONLY_JSON_TNAME, pkg, true);
+        BJSONType immutableJsonType = new BJSONType(TypeConstants.READONLY_JSON_TNAME, pkg, true);
+        this.immutableType = new BIntersectionType(new BType[]{ this, BTypes.typeReadonly }, immutableJsonType,
+                                                   TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
+                                                                    TypeFlags.PURETYPE), true);
     }
 
     @Override
@@ -91,7 +97,7 @@ public class BJSONType extends BType {
     }
 
     @Override
-    public void setImmutableType(BType immutableType) {
-        this.immutableType = (BJSONType) immutableType;
+    public void setImmutableType(BIntersectionType immutableType) {
+        this.immutableType = immutableType;
     }
 }
