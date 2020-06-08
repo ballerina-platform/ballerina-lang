@@ -12,12 +12,12 @@ import java.util.List;
 public class GenericPackageSource implements PackageSource {
     private final PackageID pkgId;
     private final List<CompilerInput> sourceFiles;
-    private final RepoHierarchy hierarchy;
+//    private final RepoHierarchy hierarchy;
 
-    public GenericPackageSource(PackageID pkgId, List<CompilerInput> sourceFiles, RepoHierarchy hierarchy) {
+    public GenericPackageSource(PackageID pkgId, List<CompilerInput> sourceFiles) { // RepoHierarchy hierarchy
         this.pkgId = pkgId;
         this.sourceFiles = sourceFiles;
-        this.hierarchy = hierarchy;
+//        this.hierarchy = hierarchy;
     }
 
     @Override
@@ -40,10 +40,10 @@ public class GenericPackageSource implements PackageSource {
         return null;
     }
 
-    @Override
-    public RepoHierarchy getRepoHierarchy() {
-        return hierarchy;
-    }
+//    @Override
+//    public RepoHierarchy getRepoHierarchy() {
+//        return hierarchy;
+//    }
 
     @Override
     public CompilerInput getPackageSourceEntry(String name) {

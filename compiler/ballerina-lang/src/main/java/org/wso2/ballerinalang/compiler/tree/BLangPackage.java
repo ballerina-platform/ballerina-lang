@@ -79,8 +79,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     // TODO Revisit these instance variables
     public BDiagnosticCollector diagCollector;
 
-    public RepoHierarchy repos;
-
     public BLangPackage() {
         this.compUnits = new ArrayList<>();
         this.imports = new ArrayList<>();

@@ -247,11 +247,6 @@ public class GeneralFSPackageRepository implements PackageRepository {
         }
 
         @Override
-        public RepoHierarchy getRepoHierarchy() {
-            return null;
-        }
-
-        @Override
         public CompilerInput getPackageSourceEntry(String name) {
             return new FSCompilerInput(name);
         }

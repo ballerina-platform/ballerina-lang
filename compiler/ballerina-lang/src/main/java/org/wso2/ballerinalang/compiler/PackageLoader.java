@@ -17,12 +17,10 @@
  */
 package org.wso2.ballerinalang.compiler;
 
-import org.ballerinalang.cli.module.util.ErrorUtil;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompiledPackage;
-import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.CompilerOutputEntry;
 import org.ballerinalang.repository.PackageBinary;
 import org.ballerinalang.repository.PackageEntity;
@@ -30,27 +28,22 @@ import org.ballerinalang.repository.PackageEntity.Kind;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.LockFile;
-import org.ballerinalang.toml.model.LockFileImport;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.LockFileProcessor;
 import org.ballerinalang.toml.parser.ManifestProcessor;
-import org.wso2.ballerinalang.compiler.packaging.module.resolver.ModuleResolver;
-import org.wso2.ballerinalang.compiler.packaging.module.resolver.ModuleResolverImpl;
-import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.Module;
-import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.Project;
-import org.wso2.ballerinalang.compiler.packaging.GenericPackageSource;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder.RepoNode;
-import org.wso2.ballerinalang.compiler.packaging.Resolution;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.URIDryConverter;
+import org.wso2.ballerinalang.compiler.packaging.module.resolver.ModuleResolver;
+import org.wso2.ballerinalang.compiler.packaging.module.resolver.ModuleResolverImpl;
+import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.Project;
 import org.wso2.ballerinalang.compiler.packaging.repo.BinaryRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.BirRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeBirRepo;
-import org.wso2.ballerinalang.compiler.packaging.repo.PathBaloRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProgramingSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
@@ -61,23 +54,19 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.util.RepoUtils;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -129,7 +118,7 @@ public class PackageLoader {
      */
     private Project project;
     private org.wso2.ballerinalang.compiler.packaging.module.resolver.RepoHierarchy repoHierarchy;
-    private ModuleResolver moduleLoader;
+    private ModuleResolver moduleResolver;
 
     /**
      * Holds the manifests of modules resolved by dependency paths.
@@ -171,8 +160,8 @@ public class PackageLoader {
 
         this.project = new Project(this.manifest, this.lockFile);
         this.repoHierarchy = new org.wso2.ballerinalang.compiler.packaging.module.resolver.RepoHierarchy(
-                this.project.getProject().getOrgName(), this.project.getProject().getVersion());
-        this.moduleLoader = new ModuleResolverImpl(this.project, this.repoHierarchy, this.lockEnabled);
+                this.project.getProject().getOrgName(), this.project.getProject().getVersion(), this.offline);
+        this.moduleResolver = new ModuleResolverImpl(this.project, this.repoHierarchy, this.lockEnabled);
     }
     
     /**
@@ -250,126 +239,6 @@ public class PackageLoader {
 
     }
 
-    private PackageEntity loadPackageEntity(PackageID pkgId) {
-        return loadPackageEntity(pkgId, null, null);
-    }
-    
-    private PackageEntity loadPackageEntity(PackageID pkgId, PackageID enclPackageId,
-                                            RepoHierarchy encPkgRepoHierarchy) {
-        try {
-            pkgId = moduleLoader.resolveVersion(pkgId, enclPackageId);
-        } catch (IOException e) {
-            throw ErrorUtil.createCommandException(e.getMessage());
-        }
-        Module resolvedPackage = moduleLoader.resolveModule(pkgId);
-
-        if (resolvedPackage != null) {
-//            paths = patten.convertToSources(converter, pkg).collect(Collectors.toList());
-        }
-
-//        updateModuleIDVersion(pkgId, enclPackageId);
-        Resolution resolution = resolveModuleByPath(pkgId);
-        // if a resolution is found by dependency path
-        if (resolution != Resolution.NOT_FOUND) {
-            // update repo hierarchy of the resolution back to normal.
-            if (null != encPkgRepoHierarchy) {
-                resolution.resolvedBy = encPkgRepoHierarchy;
-            } else {
-                resolution.resolvedBy = this.repos;
-            }
-        } else {
-            if (null != encPkgRepoHierarchy) {
-                resolution = encPkgRepoHierarchy.resolve(pkgId);
-            } else {
-                resolution = this.repos.resolve(pkgId);
-            }
-        }
-    
-        if (resolution == Resolution.NOT_FOUND) {
-            return null;
-        }
-        
-        CompilerInput firstEntry = resolution.inputs.get(0);
-        if (firstEntry.getEntryName().endsWith(Kind.COMPILED.getExtension())) {
-            // Binary package has only one file, so using first entry
-            return new GenericPackageBinary(pkgId, firstEntry, resolution.resolvedBy, Kind.COMPILED);
-        } else if (firstEntry.getEntryName().endsWith(Kind.COMPILED_BIR.getExtension())) {
-            return new GenericPackageBinary(pkgId, firstEntry, resolution.resolvedBy, Kind.COMPILED_BIR);
-        } else {
-            return new GenericPackageSource(pkgId, resolution.inputs, resolution.resolvedBy);
-        }
-    }
-    
-    /**
-     * Resolve a module by path if given.
-     *
-     * @param moduleID The module's ID
-     * @return The resolution.
-     */
-    private Resolution resolveModuleByPath(PackageID moduleID) {
-        Repo pathBaloRepo = new PathBaloRepo(this.manifest, this.dependencyManifests);
-        RepoHierarchy pathRepoHierarchy = RepoHierarchyBuilder.build(node(pathBaloRepo));
-        return pathRepoHierarchy.resolve(moduleID);
-    }
-    
-    /**
-     * Update the version of a moduleID if a version is available. Priority order:
-     * 1. If a version is available in the Ballerina.lock file.
-     * 2. If a version is available on the Ballerina.toml
-     * 3. If a version is available in the Ballerina.toml of the enclosing module's balo.
-     *
-     * @param moduleID      The ID of the module.
-     * @param enclPackageId The ID of the parent module.
-     */
-    private void updateModuleIDVersion(PackageID moduleID, PackageID enclPackageId) {
-        String orgName = moduleID.orgName.value;
-        String moduleName = moduleID.name.value;
-
-        // Set the version from the Ballerina.lock file found in the current project.
-        if (enclPackageId != null && this.hasLockFile(Paths.get(this.options.get(PROJECT_DIR)))) {
-            // Not a top level package or bal
-            if (this.lockFile.getImports().containsKey(enclPackageId.toString())) {
-                List<LockFileImport> foundBaseImport = lockFile.getImports().get(enclPackageId.toString());
-
-                for (LockFileImport nestedImport : foundBaseImport) {
-                    if (moduleID.orgName.value.equals(nestedImport.getOrgName()) &&
-                            moduleID.name.value.equals(nestedImport.getName())) {
-                        moduleID.version = new Name(nestedImport.getVersion());
-                        return;
-                    }
-                }
-            }
-        }
-
-        // Set version from the Ballerina.toml of the current project.
-        if (enclPackageId != null && this.manifest != null) {
-
-            for (Dependency dependency : this.manifest.getDependencies()) {
-                if (dependency.getModuleName().equals(moduleName) && dependency.getOrgName().equals(orgName) &&
-                        dependency.getMetadata().getVersion() != null &&
-                        !"*".equals(dependency.getMetadata().getVersion())) {
-                    moduleID.version = new Name(dependency.getMetadata().getVersion());
-                    return;
-                }
-            }
-        }
-
-        // Set the version from Ballerina.toml found in dependent balos.
-        if (enclPackageId != null && this.dependencyManifests.size() > 0
-                && this.dependencyManifests.containsKey(enclPackageId)) {
-
-            for (Dependency manifestDependency : this.dependencyManifests.get(enclPackageId).getDependencies()) {
-                if (manifestDependency.getOrgName().equals(moduleID.orgName.value) &&
-                        manifestDependency.getModuleName().equals(moduleID.name.value) &&
-                        manifestDependency.getMetadata().getVersion() != null &&
-                        !"*".equals(manifestDependency.getMetadata().getVersion())) {
-                    moduleID.version = new Name(manifestDependency.getMetadata().getVersion());
-                    return;
-                }
-            }
-        }
-    }
-
     public BLangPackage loadEntryPackage(PackageID pkgId, PackageID enclPackageId, PrintStream outStream) {
         if (null == outStream) {
             outStream = System.out;
@@ -382,7 +251,16 @@ public class PackageLoader {
         if (bLangPackage != null) {
             return bLangPackage;
         }
-        PackageEntity pkgEntity = loadPackageEntity(pkgId, enclPackageId, null);
+        // PackageEntity pkgEntity = loadPackageEntity(pkgId, enclPackageId, null);
+        // resolve the module version
+        pkgId = moduleResolver.resolveVersion(pkgId, enclPackageId);
+        // if module resolve version fails return null
+        if (pkgId == null || pkgId.version.getValue() == null || "".equals(pkgId.version.getValue())) {
+            return null;
+        }
+        // resolve module
+        PackageEntity pkgEntity = moduleResolver.resolveModule(pkgId);
+
         if (pkgEntity == null) {
             // Do not throw an error here. Otherwise package build will terminate immediately if
             // there are errors in atleast one package during the build. But instead we should
@@ -402,12 +280,23 @@ public class PackageLoader {
 
     private BLangPackage loadPackage(PackageID pkgId) {
         // TODO Remove this method()
+        System.out.println("PPPPPPPPP");
+        System.out.println(pkgId);
         BLangPackage bLangPackage = packageCache.get(pkgId);
         if (bLangPackage != null) {
             return bLangPackage;
         }
-    
-        BLangPackage packageNode = loadPackageFromEntity(pkgId, loadPackageEntity(pkgId));
+
+        // resolve the module version
+        System.out.println("%%%%%%%%%%%%");
+        System.out.println(pkgId);
+        pkgId = moduleResolver.resolveVersion(pkgId, null);
+        System.out.println(pkgId);
+
+        // resolve module
+        PackageEntity pkgEntity = moduleResolver.resolveModule(pkgId);
+
+        BLangPackage packageNode = loadPackageFromEntity(pkgId, pkgEntity);
         if (packageNode == null) {
             throw ProjectDirs.getPackageNotFoundError(pkgId);
         }
@@ -426,18 +315,23 @@ public class PackageLoader {
         return bLangPackage;
     }
 
-    public BPackageSymbol loadPackageSymbol(PackageID packageId, PackageID enclPackageId,
-                                            RepoHierarchy encPkgRepoHierarchy) {
+    public BPackageSymbol loadPackageSymbol(PackageID packageId, PackageID enclPackageId) {
+        // resolve the module version
+        packageId = moduleResolver.resolveVersion(packageId, enclPackageId);
+
+        // if module resolve version fails return null
+        if (packageId == null || packageId.version.getValue() == null || "".equals(packageId.version.getValue())) {
+            return null;
+        }
+
+        // check if the module version exists in the package cache
         BPackageSymbol packageSymbol = this.packageCache.getSymbol(packageId);
         if (packageSymbol != null) {
             return packageSymbol;
         }
 
-        PackageEntity pkgEntity = loadPackageEntity(packageId, enclPackageId, encPkgRepoHierarchy);
-
-        if (pkgEntity == null) {
-            return null;
-        }
+        // resolve module
+        PackageEntity pkgEntity = moduleResolver.resolveModule(packageId);
 
         // lookup symbol cache again as the updated pkg from repo resolving can reside in the cache
         packageSymbol = this.packageCache.getSymbol(pkgEntity.getPackageId());
@@ -450,26 +344,11 @@ public class PackageLoader {
         } else if (pkgEntity.getKind() == Kind.COMPILED || pkgEntity.getKind() == Kind.COMPILED_BIR) {
             return loadCompiledPackageAndDefine(packageId, (PackageBinary) pkgEntity);
         }
-
         return null;
     }
 
 
     // Private methods
-
-    private PackageID getPackageID(String org, String sourcePkg, String version) {
-        // split from '.', '\' and '/'
-        List<Name> pkgNameComps = getPackageNameComps(sourcePkg);
-        Name orgName = new Name(org);
-        return new PackageID(orgName, pkgNameComps, new Name(version));
-    }
-
-    private List<Name> getPackageNameComps(String sourcePkg) {
-        String[] pkgParts = sourcePkg.split("\\.|\\\\|\\/");
-        return Arrays.stream(pkgParts)
-                     .map(names::fromString)
-                     .collect(Collectors.toList());
-    }
 
     private BPackageSymbol parseAndDefine(PackageID pkgId, PackageSource pkgSource) {
         // 1) Parse the source package
@@ -518,7 +397,7 @@ public class PackageLoader {
     private BPackageSymbol loadCompiledPackageAndDefine(PackageID pkgId, PackageBinary pkgBinary) {
         byte[] pkgBinaryContent = pkgBinary.getCompilerInput().getCode();
         BPackageSymbol pkgSymbol;
-        pkgSymbol = this.birPackageSymbolEnter.definePackage(pkgId, pkgBinary.getRepoHierarchy(), pkgBinaryContent);
+        pkgSymbol = this.birPackageSymbolEnter.definePackage(pkgId, pkgBinaryContent);
         this.packageCache.putSymbol(pkgId, pkgSymbol);
 
         // TODO create CompiledPackage
@@ -554,18 +433,5 @@ public class PackageLoader {
                     .ifPresent(pkgEntry -> compiledPackage.pkgMDEntry = pkgEntry);
         }
         return compiledPackage;
-    }
-    
-    /**
-     * Check if lock file is empty.
-     *
-     * @param sourceRoot The sourceroot of the project.
-     * @return True if lock file is valid, else false.
-     */
-    private boolean hasLockFile(Path sourceRoot) {
-        return RepoUtils.isBallerinaProject(sourceRoot) &&
-               null != this.lockFile &&
-               null != this.lockFile.getImports() &&
-               this.lockFile.getImports().size() > 0;
     }
 }

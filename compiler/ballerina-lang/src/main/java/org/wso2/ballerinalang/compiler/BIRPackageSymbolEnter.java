@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
-import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeParamAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -142,10 +141,8 @@ public class BIRPackageSymbolEnter {
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
     }
 
-    BPackageSymbol definePackage(PackageID packageId, RepoHierarchy packageRepositoryHierarchy,
-                                 byte[] packageBinaryContent) {
-        BPackageSymbol pkgSymbol = definePackage(packageId, packageRepositoryHierarchy,
-                new ByteArrayInputStream(packageBinaryContent));
+    BPackageSymbol definePackage(PackageID packageId, byte[] packageBinaryContent) {
+        BPackageSymbol pkgSymbol = definePackage(packageId, new ByteArrayInputStream(packageBinaryContent));
 
         // Strip magic value (4 bytes) and the version (2 bytes) off from the binary content of the package.
         byte[] modifiedPkgBinaryContent = Arrays.copyOfRange(
@@ -157,14 +154,12 @@ public class BIRPackageSymbolEnter {
         return pkgSymbol;
     }
 
-    private BPackageSymbol definePackage(PackageID packageId, RepoHierarchy packageRepositoryHierarchy,
-                                         InputStream programFileInStream) {
+    private BPackageSymbol definePackage(PackageID packageId, InputStream programFileInStream) {
         // TODO packageID --> package to be loaded. this is required for error reporting..
         try (DataInputStream dataInStream = new DataInputStream(programFileInStream)) {
             BIRPackageSymbolEnv prevEnv = this.env;
             this.env = new BIRPackageSymbolEnv();
             this.env.requestedPackageId = packageId;
-            this.env.repoHierarchy = packageRepositoryHierarchy;
 
             BPackageSymbol pkgSymbol = definePackage(dataInStream);
             this.env = prevEnv;
@@ -312,8 +307,7 @@ public class BIRPackageSymbolEnter {
         String pkgName = getStringCPEntryValue(dataInStream);
         String pkgVersion = getStringCPEntryValue(dataInStream);
         PackageID importPkgID = createPackageID(orgName, pkgName, pkgVersion);
-        BPackageSymbol importPackageSymbol = packageLoader.loadPackageSymbol(importPkgID, this.env.pkgSymbol.pkgID,
-                this.env.repoHierarchy);
+        BPackageSymbol importPackageSymbol = packageLoader.loadPackageSymbol(importPkgID, this.env.pkgSymbol.pkgID);
         //TODO: after balo_change try to not to add to scope, it's duplicated with 'imports'
         // Define the import package with the alias being the package name
         this.env.pkgSymbol.scope.define(importPkgID.name, importPackageSymbol);
@@ -736,7 +730,6 @@ public class BIRPackageSymbolEnter {
      */
     private static class BIRPackageSymbolEnv {
         PackageID requestedPackageId;
-        RepoHierarchy repoHierarchy;
         Map<Integer, byte[]> unparsedBTypeCPs = new HashMap<>();
         BPackageSymbol pkgSymbol;
         CPEntry[] constantPool;
@@ -863,7 +856,7 @@ public class BIRPackageSymbolEnter {
                         return recordType;
                     }
 
-                    BPackageSymbol pkgSymbol = packageLoader.loadPackageSymbol(pkgId, null, null);
+                    BPackageSymbol pkgSymbol = packageLoader.loadPackageSymbol(pkgId, null);
                     SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
                     return symbolResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(recordName)).type;
                 case TypeTags.TYPEDESC:
@@ -1077,7 +1070,7 @@ public class BIRPackageSymbolEnter {
                         return objectType;
                     }
 
-                    pkgSymbol = packageLoader.loadPackageSymbol(pkgId, null, null);
+                    pkgSymbol = packageLoader.loadPackageSymbol(pkgId, null);
                     pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
                     return symbolResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(objName)).type;
                 case TypeTags.BYTE_ARRAY:

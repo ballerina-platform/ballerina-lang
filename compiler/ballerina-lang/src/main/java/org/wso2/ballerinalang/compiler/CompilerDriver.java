@@ -136,26 +136,26 @@ public class CompilerDriver {
     void loadLangModules(List<PackageID> pkgIdList) {
         // This logic interested in loading lang modules from source. For others we can load from balo.
         if (!LOAD_BUILTIN_FROM_SOURCE) {
-            symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
-            symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
+            symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null);
+            symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null);
             symResolver.reloadErrorAndDependentTypes();
             symResolver.reloadIntRangeType();
-            symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
-            symbolTable.langDecimalModuleSymbol = pkgLoader.loadPackageSymbol(DECIMAL, null, null);
-            symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
-            symbolTable.langFloatModuleSymbol = pkgLoader.loadPackageSymbol(FLOAT, null, null);
-            symbolTable.langFutureModuleSymbol = pkgLoader.loadPackageSymbol(FUTURE, null, null);
-            symbolTable.langIntModuleSymbol = pkgLoader.loadPackageSymbol(INT, null, null);
-            symbolTable.langMapModuleSymbol = pkgLoader.loadPackageSymbol(MAP, null, null);
-            symbolTable.langObjectModuleSymbol = pkgLoader.loadPackageSymbol(OBJECT, null, null);
-            symbolTable.langStreamModuleSymbol = pkgLoader.loadPackageSymbol(STREAM, null, null);
-            symbolTable.langTableModuleSymbol = pkgLoader.loadPackageSymbol(TABLE, null, null);
-            symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
-            symbolTable.langTypedescModuleSymbol = pkgLoader.loadPackageSymbol(TYPEDESC, null, null);
-            symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
-            symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
-            symbolTable.langBooleanModuleSymbol = pkgLoader.loadPackageSymbol(BOOLEAN, null, null);
-            symbolTable.langQueryModuleSymbol = pkgLoader.loadPackageSymbol(QUERY, null, null);
+            symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null);
+            symbolTable.langDecimalModuleSymbol = pkgLoader.loadPackageSymbol(DECIMAL, null);
+            symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null);
+            symbolTable.langFloatModuleSymbol = pkgLoader.loadPackageSymbol(FLOAT, null);
+            symbolTable.langFutureModuleSymbol = pkgLoader.loadPackageSymbol(FUTURE, null);
+            symbolTable.langIntModuleSymbol = pkgLoader.loadPackageSymbol(INT, null);
+            symbolTable.langMapModuleSymbol = pkgLoader.loadPackageSymbol(MAP, null);
+            symbolTable.langObjectModuleSymbol = pkgLoader.loadPackageSymbol(OBJECT, null);
+            symbolTable.langStreamModuleSymbol = pkgLoader.loadPackageSymbol(STREAM, null);
+            symbolTable.langTableModuleSymbol = pkgLoader.loadPackageSymbol(TABLE, null);
+            symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null);
+            symbolTable.langTypedescModuleSymbol = pkgLoader.loadPackageSymbol(TYPEDESC, null);
+            symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null);
+            symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null);
+            symbolTable.langBooleanModuleSymbol = pkgLoader.loadPackageSymbol(BOOLEAN, null);
+            symbolTable.langQueryModuleSymbol = pkgLoader.loadPackageSymbol(QUERY, null);
             symResolver.loadFunctionalConstructors();
             return;
         }
@@ -171,7 +171,7 @@ public class CompilerDriver {
         }
 
         // Other lang modules requires annotation module. Hence loading it first.
-        symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
+        symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null);
 
         symResolver.reloadErrorAndDependentTypes();
 
@@ -182,17 +182,17 @@ public class CompilerDriver {
 
         // Other lang modules requires internal module. Hence loading it.
 
-        symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
+        symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null);
 
         if (langLib.equals(QUERY)) {
             // Query module requires stream, array, map, string, table, xml & value modules. Hence loading them.
-            symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
-            symbolTable.langMapModuleSymbol = pkgLoader.loadPackageSymbol(MAP, null, null);
-            symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
-            symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
-            symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
-            symbolTable.langTableModuleSymbol = pkgLoader.loadPackageSymbol(TABLE, null, null);
-            symbolTable.langStreamModuleSymbol = pkgLoader.loadPackageSymbol(STREAM, null, null);
+            symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null);
+            symbolTable.langMapModuleSymbol = pkgLoader.loadPackageSymbol(MAP, null);
+            symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null);
+            symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null);
+            symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null);
+            symbolTable.langTableModuleSymbol = pkgLoader.loadPackageSymbol(TABLE, null);
+            symbolTable.langStreamModuleSymbol = pkgLoader.loadPackageSymbol(STREAM, null);
         }
 
         symResolver.reloadIntRangeType();
@@ -331,6 +331,9 @@ public class CompilerDriver {
     }
 
     private BPackageSymbol getLangModuleFromSource(PackageID modID) {
+
+        System.out.println("OOOOOOO");
+        System.out.println(modID);
 
         BLangPackage pkg = taintAnalyze(
                 documentationAnalyzer.analyze(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(modID)))));

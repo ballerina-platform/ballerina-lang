@@ -120,11 +120,6 @@ public class WorkspacePackageRepository extends GeneralFSPackageRepository {
         }
 
         @Override
-        public RepoHierarchy getRepoHierarchy() {
-            return null;
-        }
-
-        @Override
         public CompilerInput getPackageSourceEntry(String name) {
             return new WorkspaceCompilerInput(name);
         }

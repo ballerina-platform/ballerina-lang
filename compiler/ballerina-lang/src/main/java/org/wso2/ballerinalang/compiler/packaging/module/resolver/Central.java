@@ -8,6 +8,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.ModuleResolveException;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 import org.wso2.ballerinalang.util.TomlParserUtils;
@@ -33,7 +34,7 @@ public class Central implements Repo {
     private static final String PRODUCTION_URL = "https://api.central.ballerina.io/1.0";
 
     @Override
-    public List<String> resolveVersions(PackageID moduleId, String filter) throws IOException {
+    public List<String> resolveVersions(PackageID moduleId, String filter) throws ModuleResolveException {
         try {
             List<String> versions = getCentralVersions(moduleId.getOrgName().getValue(), moduleId.getName().getValue());
             for (String version : versions) {
@@ -43,9 +44,8 @@ public class Central implements Repo {
             }
             return versions;
         } catch (IOException e) {
-            throw new IOException(
-                    "retrieving versions from central failed for " + moduleId.getOrgName() + "/" + moduleId.getName(),
-                    e);
+            throw new ModuleResolveException("retrieving versions from central failed for " + moduleId.getOrgName()
+                    + "/" + moduleId.getName(), e);
         }
     }
 

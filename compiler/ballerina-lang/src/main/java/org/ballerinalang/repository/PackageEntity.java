@@ -61,6 +61,6 @@ public interface PackageEntity {
      * Repo structure used to load this and should be used for any import resolution.
      * @return Repo structure used to load this.
      */
-    RepoHierarchy getRepoHierarchy();
+//    RepoHierarchy getRepoHierarchy();
 
 }

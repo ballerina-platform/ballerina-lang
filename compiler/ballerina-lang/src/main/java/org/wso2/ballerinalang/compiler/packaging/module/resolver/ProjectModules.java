@@ -1,7 +1,8 @@
 package org.wso2.ballerinalang.compiler.packaging.module.resolver;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.Module;
+import org.ballerinalang.repository.PackageEntity;
+import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.PackageFileSystem;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -48,8 +49,8 @@ public class ProjectModules extends Cache {
     }
 
     @Override
-    public Module getModule(PackageID moduleId) {
+    public PackageEntity getModule(PackageID moduleId) {
         Path srcPath = Paths.get(String.valueOf(this.projectPath), "src", moduleId.getName().getValue());
-        return new Module(moduleId, srcPath);
+        return new PackageFileSystem(moduleId, srcPath);
     }
 }

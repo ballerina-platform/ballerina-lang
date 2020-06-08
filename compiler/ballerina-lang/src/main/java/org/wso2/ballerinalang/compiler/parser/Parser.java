@@ -110,7 +110,6 @@ public class Parser {
         }
 
         pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgId, pkgSource.getName()), 1, 1, 1, 1);
-        pkgNode.repos = pkgSource.getRepoHierarchy();
         return pkgNode;
     }
 
@@ -167,7 +166,6 @@ public class Parser {
         }
         pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgId,
                 pkgSource.getName()), 1, 1, 1, 1);
-        pkgNode.repos = pkgSource.getRepoHierarchy();
         return pkgNode;
     }
 

@@ -1,17 +1,17 @@
 package org.wso2.ballerinalang.compiler.packaging.module.resolver;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.LockFileImport;
 import org.ballerinalang.toml.model.Manifest;
-import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.Module;
+import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.ModuleResolveException;
+import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.PackageBalo;
 import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.Project;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,9 +25,11 @@ public class ModuleResolverImpl implements ModuleResolver {
     private Project project;
     private RepoHierarchy repoHierarchy;
     private boolean isLockEnabled;
-    private boolean offline;
+
     // store moduleId and Repo which module exists
-    Map<PackageID, Repo> resolvedModules = new HashMap<>();
+    private Map<PackageID, Cache> resolvedModules = new HashMap<>();
+
+    private static final String DEFAULT_VERSION = "0.0.0";
 
     public ModuleResolverImpl(Project project, RepoHierarchy repoHierarchy, boolean isLockEnabled) {
         this.project = project;
@@ -36,7 +38,7 @@ public class ModuleResolverImpl implements ModuleResolver {
     }
 
     @Override
-    public PackageID resolveVersion(PackageID packageID, PackageID enclPackageID) throws IOException {
+    public PackageID resolveVersion(PackageID packageID, PackageID enclPackageID) {
         // if version already exists in moduleId
         if (isVersionExists(packageID)) {
             PackageID resolvedModuleId = resolveModuleVersionFromRepos(this.repoHierarchy.getRepoList(), packageID,
@@ -52,8 +54,11 @@ public class ModuleResolverImpl implements ModuleResolver {
             if (!resolvedVersions.isEmpty()) {
                 packageID.version = new Name(resolvedVersions.get(0));
                 resolvedModules.put(packageID, this.repoHierarchy.getDistributionBirCache());
-            }
                 return packageID;
+            }
+//            else {
+//                packageID.version = new Name(DEFAULT_VERSION);
+//            }
         }
 
         // if module is in the current project
@@ -96,7 +101,7 @@ public class ModuleResolverImpl implements ModuleResolver {
         // if it is a transitive we need to check the toml file of the dependent module
         if (enclPackageID != null && !this.project.isModuleExists(enclPackageID)) {
             BaloCache homeBaloCache = this.repoHierarchy.getHomeBaloCache();
-            Module parentModule = homeBaloCache.getModule(enclPackageID);
+            PackageBalo parentModule = (PackageBalo) homeBaloCache.getModule(enclPackageID);
             Manifest parentManifest = RepoUtils.getManifestFromBalo(parentModule.getSourcePath());
             versionFromManifest = resolveVersionFromManifest(packageID, parentManifest);
             if (versionFromManifest != null) {
@@ -108,14 +113,20 @@ public class ModuleResolverImpl implements ModuleResolver {
             }
         }
 
+        // version is not resolved
+        if (packageID.version.getValue() == null || "".equals(packageID.version.getValue().trim())) {
+            throw new ModuleResolveException(
+                    "module not found: " + packageID.getOrgName().getValue() + "/" + packageID.getName().getValue());
+        }
+
         return packageID;
     }
 
     @Override
-    public Module resolveModule(PackageID moduleId) {
+    public PackageEntity resolveModule(PackageID moduleId) {
         // if moduleId exists in `resolvedModules` map
         if (resolvedModules.containsKey(moduleId)) {
-            Cache cache = (Cache) resolvedModules.get(moduleId);
+            Cache cache = resolvedModules.get(moduleId);
             return cache.getModule(moduleId);
         }
 
@@ -155,16 +166,16 @@ public class ModuleResolverImpl implements ModuleResolver {
         return null;
     }
 
-    private PackageID resolveModuleVersionFromRepos(List<Repo> repos, PackageID moduleId, String filter) throws IOException {
+    private PackageID resolveModuleVersionFromRepos(List<Repo> repos, PackageID moduleId, String filter) {
         TreeMap<String, Repo> moduleVersions = new TreeMap<>();
 
         for (Repo repo : repos) {
             List<String> resolvedVersions = repo.resolveVersions(moduleId, filter);
 
             // if absolute version
-            if (isAbsoluteVersion(filter)) {
+            if (isAbsoluteVersion(filter) && repo instanceof Cache) {
                 moduleId.version = new Name(resolvedVersions.get(resolvedVersions.size() - 1));
-                resolvedModules.put(moduleId, repo);
+                resolvedModules.put(moduleId, (Cache) repo);
                 return moduleId;
             }
 
@@ -179,17 +190,17 @@ public class ModuleResolverImpl implements ModuleResolver {
             // pull if the module is in a remote repo.
             Repo versionResolvedRepo = moduleVersions.lastEntry().getValue();
             if (versionResolvedRepo instanceof Central) {
-                ((Central) versionResolvedRepo).pullModule(moduleId);
+                versionResolvedRepo.pullModule(moduleId);
 
                 // when pulled, module is in the Balo cache
-                if (!moduleVersions.lastEntry().getKey().equals("0.0.0")) {
+                if (!moduleVersions.lastEntry().getKey().equals(DEFAULT_VERSION)) {
                     moduleId.version = new Name(moduleVersions.lastEntry().getKey());
                     resolvedModules.put(moduleId, this.repoHierarchy.getHomeBaloCache());
                 }
-            } else {
-                if (!moduleVersions.lastEntry().getKey().equals("0.0.0")) {
+            } else { // if not Central, repo is a cache
+                if (!moduleVersions.lastEntry().getKey().equals(DEFAULT_VERSION)) {
                     moduleId.version = new Name(moduleVersions.lastEntry().getKey());
-                    resolvedModules.put(moduleId, moduleVersions.lastEntry().getValue());
+                    resolvedModules.put(moduleId, (Cache) moduleVersions.lastEntry().getValue());
                 }
             }
         }
@@ -198,6 +209,6 @@ public class ModuleResolverImpl implements ModuleResolver {
 
     private boolean isVersionExists(PackageID packageID) {
         return packageID.version != null && !"".equals(packageID.version.getValue()) && packageID.version != Names.DEFAULT_VERSION
-                && !packageID.version.getValue().equals("0.0.0");
+                && !packageID.version.getValue().equals(DEFAULT_VERSION);
     }
 }

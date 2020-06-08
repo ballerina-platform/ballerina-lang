@@ -13,11 +13,12 @@ public class RepoHierarchy {
     private static final String USER_DIR = "user.dir";
     private static final String BIR_CACHE = "bir-cache";
 
-    public RepoHierarchy(String projectOrgName, String projectVersion) {
-        generateRepoHierarchy(this.repoList, projectOrgName, projectVersion);
+    public RepoHierarchy(String projectOrgName, String projectVersion, boolean offline) {
+        generateRepoHierarchy(this.repoList, projectOrgName, projectVersion, offline);
     }
 
-    private void generateRepoHierarchy(List<Repo> repos, String projectOrgName, String projectVersion) {
+    // if online -> no central repo in the hierarchy
+    private void generateRepoHierarchy(List<Repo> repos, String projectOrgName, String projectVersion, boolean offline) {
         // 1. product modules
         ProjectModules projectModules = new ProjectModules(Paths.get(System.getProperty(USER_DIR)), projectOrgName,
                 // this.project.getManifest().getProject().getOrgName()
@@ -47,9 +48,11 @@ public class RepoHierarchy {
                 RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME));
         repos.add(homeBaloCache);
 
-        // 6. central repo
-        Central central = new Central();
-        repos.add(central);
+        if (!offline) {
+            // 6. central repo
+            Central central = new Central();
+            repos.add(central);
+        }
     }
 
     public List<Repo> getRepoList() {

@@ -1,7 +1,6 @@
 package org.wso2.ballerinalang.compiler.packaging.module.resolver;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.Module;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -40,12 +39,5 @@ public abstract class FileSystemCache extends Cache {
         Path modulePath = Paths.get(String.valueOf(this.fileSystemCachePath), moduleId.getOrgName().getValue(),
                 moduleId.getName().getValue(), moduleId.version.getValue());
         return modulePath.toFile().exists();
-    }
-
-    @Override
-    public Module getModule(PackageID moduleId) {
-        Path srcPath = Paths.get(String.valueOf(this.fileSystemCachePath), moduleId.getOrgName().getValue(),
-                moduleId.getName().getValue(), moduleId.version.getValue());
-        return new Module(moduleId, srcPath);
     }
 }

@@ -502,7 +502,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        BPackageSymbol pkgSymbol = pkgLoader.loadPackageSymbol(pkgId, enclPackageID, this.env.enclPkg.repos);
+        BPackageSymbol pkgSymbol = pkgLoader.loadPackageSymbol(pkgId, enclPackageID);
         if (pkgSymbol == null) {
             dlog.error(importPkgNode.pos, DiagnosticCode.MODULE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());
