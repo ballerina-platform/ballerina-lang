@@ -448,18 +448,6 @@ public class HttpUtil {
         response.setHttpStatusCode(statusCode);
     }
 
-//    /**
-//     * Get HTTP error value with a given error detail.
-//     *
-//     * @param errMsg  Error message
-//     * @return Error value
-//     */
-//    public static ErrorValue getError(String errMsg) {
-//        MapValue<BString, Object> httpErrorRecord = createHttpErrorDetailRecord(errMsg, null);
-//        httpErrorRecord.put(HTTP_ERROR_MESSAGE, org.ballerinalang.jvm.StringUtils.fromString(errMsg));
-//        return BallerinaErrors.createError(HTTP_ERROR_CODE, httpErrorRecord);
-//    }
-
     /**
      * Get error value from throwable.
      *
@@ -512,13 +500,6 @@ public class HttpUtil {
     public static ErrorValue createHttpError(String message, HttpErrorType errorType, ErrorValue cause) {
         return BallerinaErrors.createDistinctError(errorType.getErrorName(), PROTOCOL_HTTP_PKG_ID, message, cause);
     }
-
-//    private static MapValue<BString, Object> createHttpErrorDetailRecord(String message, ErrorValue cause) {
-//        MapValue<BString, Object> detail = BallerinaValues.
-//                createRecordValue(PROTOCOL_HTTP_PKG_ID, HTTP_ERROR_DETAIL_RECORD);
-//        return cause == null ? BallerinaValues.createRecord(detail, message) :
-//                BallerinaValues.createRecord(detail, message, cause);
-//    }
 
     // TODO: Find a better way to get the error type than String matching.
     private static HttpErrorType getErrorType(String errorMessage) {
