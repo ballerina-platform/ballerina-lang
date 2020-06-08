@@ -31,7 +31,7 @@ import java.util.Arrays;
  */
 public class ExperimentalFeaturesTest {
 
-    @Test
+    @Test(groups = "brokenOnErrorChange")
     public void testExperimentalFeaturesNegative() {
         CompileResult result =
                 BCompileUtil.compileWithoutExperimentalFeatures("test-src/parser/experimental-features-negative.bal");

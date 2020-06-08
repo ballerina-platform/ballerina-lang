@@ -2008,7 +2008,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BErrorType rhsErrorType = (BErrorType) rhsType;
 
         // Wrong error detail type in error type def, error already emitted  to dlog.
-        if (rhsErrorType.detailType.tag != TypeTags.RECORD) {
+        if (!(rhsErrorType.detailType.tag == TypeTags.RECORD || rhsErrorType.detailType.tag == TypeTags.MAP)) {
             return;
         }
         BRecordType rhsDetailType = getDetailAsARecordType(rhsErrorType);

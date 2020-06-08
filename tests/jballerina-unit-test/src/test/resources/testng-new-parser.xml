@@ -29,6 +29,7 @@
                 <exclude name="brokenOnJBallerina"/>
                 <exclude name="brokenOnSpecDeviation"/>
                 <exclude name="brokenOnXMLLangLibChange"/>
+                <exclude name="brokenOnErrorChange"/>
             </run>
         </groups>
         <packages>

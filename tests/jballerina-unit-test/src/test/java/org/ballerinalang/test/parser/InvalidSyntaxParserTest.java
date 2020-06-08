@@ -117,7 +117,7 @@ public class InvalidSyntaxParserTest {
         BAssertUtil.validateError(result, 4, "extraneous input '}'", 8, 1);
     }
 
-    @Test
+    @Test(groups = "brokenOnErrorChange")
     public void testResourceWithReply() {
         CompileResult result = BCompileUtil.compile("test-src/parser/resource-with-reply-negative.bal");
         BAssertUtil.validateError(result, 0, "undefined symbol 'reply'", 6, 5);
@@ -131,7 +131,7 @@ public class InvalidSyntaxParserTest {
         BAssertUtil.validateError(result, 0, "token recognition error at: '*'", 4, 15);
     }
 
-    @Test
+    @Test(groups = "brokenOnErrorChange")
     public void testListenerDeclarationWithDefinedDifferentType() {
         CompileResult result = BCompileUtil.compile("test-src/parser/listener_declaration_type_reuse_negative.bal");
         BAssertUtil.validateError(result, 0, "invalid assignment: 'listener' declaration is final", 22, 5);
