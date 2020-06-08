@@ -42,8 +42,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.ConcreteBTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -120,7 +120,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPacka
  */
 public class InteropMethodGen {
 
-    private static final ConcreteBTypeBuilder typeBuilder = new ConcreteBTypeBuilder();
+    private static final ResolvedTypeBuilder typeBuilder = new ResolvedTypeBuilder();
 
     static void genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
                                          ClassWriter classWriter,
@@ -142,7 +142,7 @@ public class InteropMethodGen {
         BType retType = birFunc.type.retType;
 
         if (Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
-            retType = typeBuilder.buildType(birFunc.type.retType);
+            retType = typeBuilder.build(birFunc.type.retType);
         }
 
         String desc = getMethodDesc(birFunc.type.paramTypes, retType, null, false);
@@ -296,7 +296,7 @@ public class InteropMethodGen {
         // resetting the variable generation index
         BType retType = birFunc.type.retType;
         if (Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
-            retType = typeBuilder.buildType(birFunc.type.retType);
+            retType = typeBuilder.build(birFunc.type.retType);
         }
         JMethod jMethod = extFuncWrapper.jMethod;
         Class<?>[] jMethodParamTypes = jMethod.getParamTypes();

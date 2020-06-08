@@ -54,9 +54,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.ConcreteBTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.util.Flags;
@@ -129,7 +129,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethod
 public class JvmPackageGen {
 
     private static final CompilerContext.Key<JvmPackageGen> JVM_PACKAGE_GEN_KEY = new CompilerContext.Key<>();
-    private static ConcreteBTypeBuilder typeBuilder;
+    private static ResolvedTypeBuilder typeBuilder;
 
     public final SymbolTable symbolTable;
     public final PackageCache packageCache;
@@ -150,7 +150,7 @@ public class JvmPackageGen {
         this.packageCache = packageCache;
         this.dlog = dlog;
         jvmMethodGen = new JvmMethodGen(this);
-        typeBuilder = new ConcreteBTypeBuilder();
+        typeBuilder = new ResolvedTypeBuilder();
 
         JvmCastGen.symbolTable = symbolTable;
         JvmInstructionGen.anyType = symbolTable.anyType;
@@ -356,7 +356,7 @@ public class JvmPackageGen {
 
         BType retType = functionTypeDesc.retType;
         if (isExternFunc(currentFunc) && Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
-            retType = typeBuilder.buildType(retType);
+            retType = typeBuilder.build(retType);
         }
 
         String jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, retType, attachedType, false);

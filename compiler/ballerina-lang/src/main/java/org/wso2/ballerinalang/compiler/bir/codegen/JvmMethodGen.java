@@ -66,8 +66,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.util.ConcreteBTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
@@ -233,7 +233,7 @@ import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.FP_LOAD;
 public class JvmMethodGen {
 
     private static final FunctionParamComparator FUNCTION_PARAM_COMPARATOR = new FunctionParamComparator();
-    private static ConcreteBTypeBuilder typeBuilder = new ConcreteBTypeBuilder();
+    private static ResolvedTypeBuilder typeBuilder = new ResolvedTypeBuilder();
     private int nextId = -1;
     private int nextVarId = -1;
     private JvmPackageGen jvmPackageGen;
@@ -1105,7 +1105,7 @@ public class JvmMethodGen {
     }
 
     private static String generateReturnType(BType bType, boolean isExtern /* = false */) {
-        bType = typeBuilder.buildType(bType);
+        bType = typeBuilder.build(bType);
 
         if (bType == null || bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
             if (isExtern) {
@@ -1476,7 +1476,7 @@ public class JvmMethodGen {
         // generate method desc
         BType retType = func.type.retType;
         if (isExternFunc(func) && Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
-            retType = typeBuilder.buildType(func.type.retType);
+            retType = typeBuilder.build(func.type.retType);
         }
 
         String desc = getMethodDesc(func.type.paramTypes, retType, null, false);

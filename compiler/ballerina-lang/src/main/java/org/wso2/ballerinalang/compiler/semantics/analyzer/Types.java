@@ -69,9 +69,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.ConcreteBTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
+import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -116,7 +116,7 @@ public class Types {
 
     private static final CompilerContext.Key<Types> TYPES_KEY =
             new CompilerContext.Key<>();
-    private final ConcreteBTypeBuilder typeBuilder;
+    private final ResolvedTypeBuilder typeBuilder;
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
@@ -144,7 +144,7 @@ public class Types {
         this.expandedXMLBuiltinSubtypes = BUnionType.create(null,
                                                             symTable.xmlElementType, symTable.xmlCommentType,
                                                             symTable.xmlPIType, symTable.xmlTextType);
-        this.typeBuilder = new ConcreteBTypeBuilder();
+        this.typeBuilder = new ResolvedTypeBuilder();
     }
 
     public List<BType> checkTypes(BLangExpression node,
@@ -646,8 +646,8 @@ public class Types {
         }
 
         if (sourceTag == TypeTags.PARAMETERIZED_TYPE) {
-            BType resolvedType = typeBuilder.buildType(source);
-            return isAssignable(resolvedType, target, unresolvedTypes, unresolvedReadonlyTypes);
+            BType resolvedType = typeBuilder.build(source);
+            return isAssignable(resolvedType, target, unresolvedTypes);
         }
 
         return sourceTag == TypeTags.ARRAY && targetTag == TypeTags.ARRAY &&

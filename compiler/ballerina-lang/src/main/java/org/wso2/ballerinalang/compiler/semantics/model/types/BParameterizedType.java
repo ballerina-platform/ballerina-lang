@@ -29,7 +29,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
  * that parameter. This contains the symbol of the parameter referred, and if there is one, the default value of the
  * parameter.
  *
- * @since 2.0.0-Preview1
+ * @since 2.0.0
  */
 public class BParameterizedType extends BType {
 
@@ -45,8 +45,6 @@ public class BParameterizedType extends BType {
 
     @Override
     public boolean isNullable() {
-        // TODO: Check what the correct behaviour is for this
-//        return this.paramSymbol.type.isNullable();
         return false;
     }
 

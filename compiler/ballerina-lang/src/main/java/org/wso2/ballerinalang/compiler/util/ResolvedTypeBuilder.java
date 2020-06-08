@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -58,15 +59,15 @@ import java.util.Set;
 /**
  * Util class for building concrete BType types from parameterized types.
  *
- * @since 2.0.0-preview1
+ * @since 2.0.0
  */
-public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
+public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
 
     private Map<String, BType> paramValueTypes;
     private Set<BType> visitedTypes;
     private boolean isInvocation;
 
-    public BType buildType(BType originalType, BLangInvocation invocation) {
+    public BType build(BType originalType, BLangInvocation invocation) {
         this.isInvocation = invocation != null;
         this.visitedTypes = new HashSet<>();
         if (this.isInvocation) {
@@ -77,8 +78,8 @@ public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
         return newType;
     }
 
-    public BType buildType(BType originalType) {
-        return buildType(originalType, null);
+    public BType build(BType originalType) {
+        return build(originalType, null);
     }
 
     @Override
@@ -308,6 +309,11 @@ public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
         BUnionType type = BUnionType.create(null, newMemberTypes);
         type.flags = originalType.flags;
         return type;
+    }
+
+    @Override
+    public BType visit(BIntersectionType originalType, BType newType) {
+        return originalType;
     }
 
     @Override

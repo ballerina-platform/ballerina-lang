@@ -30,7 +30,7 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
 /**
  * Test cases for interop functions with variable return types through typedesc refs.
  *
- * @since 2.0.0-preview1
+ * @since 2.0.0
  */
 public class VariableReturnTypeTest {
 
