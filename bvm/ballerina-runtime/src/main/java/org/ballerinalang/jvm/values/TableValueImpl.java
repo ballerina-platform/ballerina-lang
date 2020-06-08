@@ -545,9 +545,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return false;
         }
 
-        return Objects.equals(values, tableValue.values) &&
-                Objects.equals(keys, tableValue.keys) &&
-                Arrays.equals(fieldNames, tableValue.fieldNames);
+        if (this.entrySet().size() != tableValue.entrySet().size()) {
+            return false;
+        }
+
+        return entrySet().equals(tableValue.entrySet());
     }
 
     @Override
