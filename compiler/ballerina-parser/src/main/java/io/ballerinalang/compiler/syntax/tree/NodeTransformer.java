@@ -556,8 +556,8 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(singletonTypeDescriptorNode);
     }
 
-    public T transform(FunctionDeclarationNode functionDeclarationNode) {
-        return transformSyntaxNode(functionDeclarationNode);
+    public T transform(MethodDeclarationNode methodDeclarationNode) {
+        return transformSyntaxNode(methodDeclarationNode);
     }
 
     public T transform(TypedBindingPatternNode typedBindingPatternNode) {

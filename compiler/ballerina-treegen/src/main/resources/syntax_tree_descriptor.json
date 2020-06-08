@@ -2858,9 +2858,9 @@
             ]
         },
         {
-            "name": "FunctionDeclarationNode",
+            "name": "MethodDeclarationNode",
             "base": "Node",
-            "kind": "FUNCTION_DECLARATION",
+            "kind": "METHOD_DECLARATION",
             "attributes": [
                 {
                     "name": "metadata",
@@ -2876,11 +2876,11 @@
                     "type": "Token"
                 },
                 {
-                    "name": "functionName",
+                    "name": "methodName",
                     "type": "IdentifierToken"
                 },
                 {
-                    "name": "functionSignature",
+                    "name": "methodSignature",
                     "type": "FunctionSignatureNode"
                 },
                 {
