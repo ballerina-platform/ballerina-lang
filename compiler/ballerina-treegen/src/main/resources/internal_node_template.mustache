@@ -78,5 +78,10 @@ public{{#isAbstract}} abstract{{/isAbstract}} class {{internalClassName}} extend
     public Node createFacade(int position, NonTerminalNode parent) {
         return new {{externalClassName}}(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
     {{/isAbstract}}
 }
