@@ -140,7 +140,7 @@ type RemoteParticipant object {
                 return NOTIFY_RESULT_COMMITTED;
             }
         }
-        return TransactionError("Unknown status on notify remote participant");
+        panic TransactionError("Unknown status on notify remote participant");
     }
 };
 

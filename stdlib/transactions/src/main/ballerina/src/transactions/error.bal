@@ -14,5 +14,5 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents a `JavaError` with the message and the cause.
+# Represents a `TransactionError` with the message and the cause.
 public type TransactionError distinct error;
