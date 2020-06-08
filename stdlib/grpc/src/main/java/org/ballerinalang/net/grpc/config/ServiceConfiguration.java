@@ -29,28 +29,15 @@ public class ServiceConfiguration {
     private String rpcEndpoint;
     private BType requestType;
     private BType responseType;
-    private boolean clientStreaming;
-    private boolean serverStreaming;
 
-    public ServiceConfiguration(String rpcEndpoint, BType requestType, BType responseType, boolean clientStreaming,
-                                boolean serverStreaming) {
+    public ServiceConfiguration(String rpcEndpoint, BType requestType, BType responseType) {
         this.rpcEndpoint = rpcEndpoint;
         this.requestType = requestType;
         this.responseType = responseType;
-        this.clientStreaming = clientStreaming;
-        this.serverStreaming = serverStreaming;
     }
 
     public String getRpcEndpoint() {
         return rpcEndpoint;
-    }
-    
-    public boolean isClientStreaming() {
-        return clientStreaming;
-    }
-    
-    public boolean isServerStreaming() {
-        return serverStreaming;
     }
 
     public BType getRequestType() {

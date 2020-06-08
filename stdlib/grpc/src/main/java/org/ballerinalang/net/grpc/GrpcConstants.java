@@ -122,7 +122,6 @@ public class GrpcConstants {
     public static final String WRAPPER_BYTES_MESSAGE = "BytesValue";
 
     // Server Streaming method resources.
-    public static final String ON_OPEN_RESOURCE = "onOpen";
     public static final String ON_COMPLETE_RESOURCE = "onComplete";
     public static final String ON_MESSAGE_RESOURCE = "onMessage";
     public static final String ON_ERROR_RESOURCE = "onError";
