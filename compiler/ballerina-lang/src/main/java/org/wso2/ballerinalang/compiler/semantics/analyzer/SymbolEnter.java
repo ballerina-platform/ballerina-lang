@@ -1041,6 +1041,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             symbol.restParam = tsymbol.restParam;
             symbol.retType = tsymbol.returnType;
         }
+
+        if (varSymbol.type.tag == TypeTags.NEVER && ((env.scope.owner.tag & SymTag.RECORD) != SymTag.RECORD)) {
+            // check if the variable is defined as a 'never' type (except inside a record type)
+            // if so, log an error
+            dlog.error(varNode.pos, DiagnosticCode.NEVER_TYPED_VAR_DEF_NOT_ALLOWED, varSymbol.name);
+        }
     }
 
     @Override

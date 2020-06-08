@@ -1643,6 +1643,33 @@
             ]
         },
         {
+            "name": "ModuleXMLNamespaceDeclarationNode",
+            "base": "ModuleMemberDeclarationNode",
+            "kind": "MODULE_XML_NAMESPACE_DECLARATION",
+            "attributes": [
+                {
+                    "name": "xmlnsKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "namespaceuri",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "asKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "namespacePrefix",
+                    "type": "IdentifierToken"
+                },
+                {
+                    "name": "semicolonToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
             "name": "FunctionBodyBlockNode",
             "base": "FunctionBodyNode",
             "kind": "FUNCTION_BODY_BLOCK",
