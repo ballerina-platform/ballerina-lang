@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.internal.syntax.NodeListUtils;
 import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
@@ -103,6 +104,55 @@ public abstract class STNode {
 
     public boolean isMissing() {
         return this instanceof STMissingToken;
+    }
+
+    public STToken firstToken() {
+        return (STToken) firstTokenInternal();
+    }
+
+    protected STNode firstTokenInternal() {
+        for (STNode child : childBuckets) {
+            if (SyntaxUtils.isToken(child)) {
+                return child;
+            }
+
+            if (!SyntaxUtils.isSTNodePresent(child) ||
+                    NodeListUtils.isSTNodeList(child) && child.bucketCount == 0) {
+                continue;
+            }
+
+            // Some nodes have non-empty child nodes that contain empty STNodeList child. e.g. STMetadata
+            STNode firstToken = child.firstTokenInternal();
+            if (SyntaxUtils.isSTNodePresent(firstToken)) {
+                return firstToken;
+            }
+        }
+        return null;
+    }
+
+    public STToken lastToken() {
+        return (STToken) lastTokenInternal();
+    }
+
+    protected STNode lastTokenInternal() {
+        for (int bucket = childBuckets.length - 1; bucket >= 0; bucket--) {
+            STNode child = childInBucket(bucket);
+            if (SyntaxUtils.isToken(child)) {
+                return child;
+            }
+
+            if (!SyntaxUtils.isSTNodePresent(child) ||
+                    NodeListUtils.isSTNodeList(child) && child.bucketCount == 0) {
+                continue;
+            }
+
+            // Some nodes have non-empty child nodes that contain empty STNodeList child. e.g. STMetadata
+            STNode lastToken = child.lastTokenInternal();
+            if (SyntaxUtils.isSTNodePresent(lastToken)) {
+                return lastToken;
+            }
+        }
+        return null;
     }
 
     // Modification methods
