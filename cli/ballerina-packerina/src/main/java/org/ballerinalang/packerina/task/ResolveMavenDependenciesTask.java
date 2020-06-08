@@ -51,7 +51,7 @@ public class ResolveMavenDependenciesTask implements Task {
         buildContext.out().println();
         for (Library library : manifest.getPlatform().getLibraries()) {
             if (library.getPath() == null) {
-                buildContext.out().println("Resolving " + library.getArtifactId());
+                buildContext.out().println("Resolving maven dependencies...");
                 try {
                     Dependency dependency = resolver.resolve(library.getGroupId(), library.getArtifactId(),
                             library.getVersion(), false);
