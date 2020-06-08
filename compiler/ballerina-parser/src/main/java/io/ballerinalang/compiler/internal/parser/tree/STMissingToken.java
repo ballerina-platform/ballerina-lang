@@ -67,6 +67,11 @@ public class STMissingToken extends STToken {
     }
 
     @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
+    }
+
+    @Override
     public String toString() {
         // TODO for testing purpose only
         return " MISSING[" + kind.stringValue() + "]";

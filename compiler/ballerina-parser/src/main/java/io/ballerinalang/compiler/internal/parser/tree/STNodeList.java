@@ -141,6 +141,11 @@ public final class STNodeList extends STNode {
         visitor.visit(this);
     }
 
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
+    }
+
     private STNodeList removeFirstNullValue() {
         for (int bucket = 0; bucket < bucketCount; bucket++) {
             if (childBuckets[bucket] == null) {

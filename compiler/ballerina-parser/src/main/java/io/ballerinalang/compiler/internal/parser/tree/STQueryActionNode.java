@@ -78,4 +78,9 @@ public class STQueryActionNode extends STActionNode {
     public void accept(STNodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
+    }
 }

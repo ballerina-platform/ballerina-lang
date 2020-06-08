@@ -66,6 +66,11 @@ public class STDocumentationLineToken extends STToken {
     }
 
     @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
+    }
+
+    @Override
     public String toString() {
         return leadingMinutiae + text + trailingMinutiae;
     }

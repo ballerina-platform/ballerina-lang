@@ -99,6 +99,11 @@ public class STToken extends STNode {
     }
 
     @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
+    }
+
+    @Override
     public String toString() {
         return leadingMinutiae + kind.stringValue() + trailingMinutiae;
     }

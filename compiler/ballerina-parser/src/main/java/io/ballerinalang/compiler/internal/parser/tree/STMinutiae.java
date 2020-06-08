@@ -54,6 +54,12 @@ public class STMinutiae extends STNode {
         throw new IllegalStateException();
     }
 
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        // TODO transforming minutiae is not yet supported
+        throw new IllegalStateException();
+    }
+
     public String text() {
         return text;
     }

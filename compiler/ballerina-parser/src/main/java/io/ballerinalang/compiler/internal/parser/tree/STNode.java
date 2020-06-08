@@ -176,6 +176,16 @@ public abstract class STNode {
      */
     public abstract void accept(STNodeVisitor visitor);
 
+    /**
+     * Applies the given {@code STNodeTransformer} to this node and returns
+     * the transformed object.
+     *
+     * @param transformer an instance of the {@code STNodeTransformer}
+     * @param <T>         the type of transformed object
+     * @return the transformed object
+     */
+    public abstract <T> T apply(STNodeTransformer<T> transformer);
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (STNode child : this.childBuckets) {

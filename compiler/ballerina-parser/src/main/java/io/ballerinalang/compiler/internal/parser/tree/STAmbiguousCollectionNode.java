@@ -49,4 +49,9 @@ public class STAmbiguousCollectionNode extends STNode {
     public void accept(STNodeVisitor visitor) {
         throw new IllegalStateException();
     }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        throw new IllegalStateException();
+    }
 }
