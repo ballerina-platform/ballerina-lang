@@ -24,7 +24,9 @@ import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
 import org.wso2.ballerinalang.compiler.SourceDirectoryManager;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -52,7 +54,12 @@ public class CleanTargetDirTask implements Task {
                 deleteResource(buildContext.getJarPathFromTargetCache(packageID));
                 deleteResource(buildContext.getTestJarPathFromTargetCache(packageID));
             } else {
-                deleteResource(targetDir);
+                deleteResource(new File(targetDir.toAbsolutePath().toString()
+                        + File.separator + ProjectDirConstants.BIN_DIR_NAME).toPath());
+                deleteResource(new File(targetDir.toAbsolutePath().toString()
+                        + File.separator + ProjectDirConstants.TARGET_BALO_DIRECTORY).toPath());
+                deleteResource(new File(targetDir.toAbsolutePath().toString()
+                        + File.separator + ProjectDirConstants.CACHES_DIR_NAME).toPath());
             }
         } catch (IOException e) {
             throw createLauncherException("Unable to clean target : " + targetDir.toString() + "\n", e);
