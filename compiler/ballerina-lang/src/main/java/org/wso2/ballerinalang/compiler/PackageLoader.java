@@ -155,12 +155,12 @@ public class PackageLoader {
         this.lockEnabled = Boolean.parseBoolean(options.get(LOCK_ENABLED));
         this.newParserEnabled = Boolean.parseBoolean(options.get(CompilerOptionName.NEW_PARSER_ENABLED));
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
-        this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
+        this.repos = genRepoHierarchy();
         this.lockFile = LockFileProcessor.getInstance(context, this.lockEnabled).getLockFile();
 
         this.project = new Project(this.manifest, this.lockFile);
         this.repoHierarchy = new org.wso2.ballerinalang.compiler.packaging.module.resolver.RepoHierarchy(
-                this.project.getProject().getOrgName(), this.project.getProject().getVersion(), this.offline);
+                this.project.getProject().getOrgName(), this.project.getProject().getVersion(), this.offline, this.sourceDirectory);
         this.moduleResolver = new ModuleResolverImpl(this.project, this.repoHierarchy, this.lockEnabled);
     }
     
@@ -174,10 +174,9 @@ public class PackageLoader {
      * 5. System Repo
      * 6. Central
      * 7. System Repo
-     * @param sourceRoot Project path.
      * @return Repository Hierarchy.
      */
-    private RepoHierarchy genRepoHierarchy(Path sourceRoot) {
+    private RepoHierarchy genRepoHierarchy() {
         Converter<Path> converter = sourceDirectory.getConverter();
     
         Path ballerinaHome = Paths.get(System.getProperty(ProjectDirConstants.BALLERINA_HOME));
@@ -316,13 +315,11 @@ public class PackageLoader {
     }
 
     public BPackageSymbol loadPackageSymbol(PackageID packageId, PackageID enclPackageId) {
-        // resolve the module version
-        packageId = moduleResolver.resolveVersion(packageId, enclPackageId);
 
         // if module resolve version fails return null
-        if (packageId == null || packageId.version.getValue() == null || "".equals(packageId.version.getValue())) {
-            return null;
-        }
+        //if (packageId == null || packageId.version.getValue() == null || "".equals(packageId.version.getValue())) {
+        //    return null;
+        //}
 
         // check if the module version exists in the package cache
         BPackageSymbol packageSymbol = this.packageCache.getSymbol(packageId);
@@ -330,6 +327,8 @@ public class PackageLoader {
             return packageSymbol;
         }
 
+        // resolve the module version
+        packageId = moduleResolver.resolveVersion(packageId, enclPackageId);
         // resolve module
         PackageEntity pkgEntity = moduleResolver.resolveModule(packageId);
 

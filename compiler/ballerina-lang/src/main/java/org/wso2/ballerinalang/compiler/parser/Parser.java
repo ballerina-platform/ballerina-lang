@@ -32,6 +32,8 @@ import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageSource;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceInput;
+import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.CompilerInputImpl;
+import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.PackageFileSystem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorListener;
@@ -150,7 +152,7 @@ public class Parser {
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         this.pkgCache.put(pkgId, pkgNode);
         for (CompilerInput sourceInput: pkgSource.getPackageSourceEntries()) {
-            if (ProjectDirs.isTestSource(((FileSystemSourceInput) sourceInput).getPath(),
+            if (ProjectDirs.isTestSource(((CompilerInputImpl) sourceInput).getPath(),
                     sourceRootPath , pkgId.getName().value)) {
                 // This check is added to ensure that there is exactly one testable package per bLangPackage
                 if (!pkgNode.containsTestablePkg()) {

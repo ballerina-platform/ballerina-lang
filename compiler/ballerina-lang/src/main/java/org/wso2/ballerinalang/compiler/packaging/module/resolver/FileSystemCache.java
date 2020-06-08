@@ -12,7 +12,7 @@ import static org.wso2.ballerinalang.compiler.packaging.module.resolver.Util.isV
 
 public abstract class FileSystemCache extends Cache {
 
-     Path fileSystemCachePath;
+    Path fileSystemCachePath;
 
     FileSystemCache(Path fileSystemCachePath) {
         this.fileSystemCachePath = fileSystemCachePath;
@@ -23,6 +23,7 @@ public abstract class FileSystemCache extends Cache {
         List<String> versions = new ArrayList<>();
         Path modulePath = Paths.get(String.valueOf(this.fileSystemCachePath), moduleId.getOrgName().getValue(),
                 moduleId.getName().getValue());
+        System.out.println(modulePath);
         File[] fileEntries = new File(String.valueOf(modulePath)).listFiles();
         if (modulePath.toFile().exists() && fileEntries != null) {
             for (final File fileEntry : fileEntries) {

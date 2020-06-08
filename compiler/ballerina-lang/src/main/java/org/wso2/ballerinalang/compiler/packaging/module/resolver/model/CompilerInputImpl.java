@@ -42,4 +42,8 @@ public class CompilerInputImpl implements CompilerInput {
     public byte[] getCode() {
         return this.code;
     }
+
+    public Path getPath() {
+        return this.path;
+    }
 }

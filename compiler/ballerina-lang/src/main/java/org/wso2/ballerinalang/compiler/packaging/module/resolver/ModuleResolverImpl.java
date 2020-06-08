@@ -173,7 +173,7 @@ public class ModuleResolverImpl implements ModuleResolver {
             List<String> resolvedVersions = repo.resolveVersions(moduleId, filter);
 
             // if absolute version
-            if (isAbsoluteVersion(filter) && repo instanceof Cache) {
+            if (isAbsoluteVersion(filter) && repo instanceof Cache && !resolvedVersions.isEmpty()) {
                 moduleId.version = new Name(resolvedVersions.get(resolvedVersions.size() - 1));
                 resolvedModules.put(moduleId, (Cache) repo);
                 return moduleId;
