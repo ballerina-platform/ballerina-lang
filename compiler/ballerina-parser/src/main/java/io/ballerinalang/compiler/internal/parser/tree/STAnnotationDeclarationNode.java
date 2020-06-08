@@ -115,4 +115,9 @@ public class STAnnotationDeclarationNode extends STModuleMemberDeclarationNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new AnnotationDeclarationNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

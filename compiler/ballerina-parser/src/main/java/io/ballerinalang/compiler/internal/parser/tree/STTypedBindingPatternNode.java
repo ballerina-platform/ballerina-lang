@@ -66,4 +66,9 @@ public class STTypedBindingPatternNode extends STNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypedBindingPatternNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

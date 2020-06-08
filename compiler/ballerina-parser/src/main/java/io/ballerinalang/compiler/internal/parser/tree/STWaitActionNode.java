@@ -66,4 +66,9 @@ public class STWaitActionNode extends STActionNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new WaitActionNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

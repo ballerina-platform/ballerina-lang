@@ -80,4 +80,9 @@ public class STLetExpressionNode extends STExpressionNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new LetExpressionNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

@@ -101,4 +101,9 @@ public class STDefaultableParameterNode extends STParameterNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new DefaultableParameterNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

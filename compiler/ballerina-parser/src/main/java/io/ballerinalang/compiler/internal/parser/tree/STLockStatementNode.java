@@ -66,4 +66,9 @@ public class STLockStatementNode extends STStatementNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new LockStatementNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

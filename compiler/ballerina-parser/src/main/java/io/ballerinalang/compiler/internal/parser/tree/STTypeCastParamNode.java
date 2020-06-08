@@ -66,4 +66,9 @@ public class STTypeCastParamNode extends STNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypeCastParamNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

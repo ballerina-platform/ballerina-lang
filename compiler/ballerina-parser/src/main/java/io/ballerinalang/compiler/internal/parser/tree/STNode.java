@@ -168,6 +168,14 @@ public abstract class STNode {
 
     public abstract Node createFacade(int position, NonTerminalNode parent);
 
+    /**
+     * Accepts an instance of the {@code STNodeVisitor}, which can be used to
+     * traverse the syntax tree.
+     *
+     * @param visitor an instance of the {@code STNodeVisitor}
+     */
+    public abstract void accept(STNodeVisitor visitor);
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (STNode child : this.childBuckets) {

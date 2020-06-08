@@ -73,4 +73,9 @@ public class STModulePartNode extends STNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ModulePartNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

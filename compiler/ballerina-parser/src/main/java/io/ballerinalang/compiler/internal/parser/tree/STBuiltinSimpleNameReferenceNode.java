@@ -63,4 +63,9 @@ public class STBuiltinSimpleNameReferenceNode extends STNameReferenceNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BuiltinSimpleNameReferenceNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

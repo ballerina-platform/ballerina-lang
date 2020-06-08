@@ -66,4 +66,9 @@ public class STBreakStatementNode extends STStatementNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BreakStatementNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

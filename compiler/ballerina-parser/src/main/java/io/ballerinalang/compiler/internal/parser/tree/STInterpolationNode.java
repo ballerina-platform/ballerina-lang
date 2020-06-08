@@ -73,4 +73,9 @@ public class STInterpolationNode extends STXMLItemNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new InterpolationNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

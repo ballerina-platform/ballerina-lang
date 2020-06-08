@@ -66,4 +66,9 @@ public class STReceiveActionNode extends STActionNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReceiveActionNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

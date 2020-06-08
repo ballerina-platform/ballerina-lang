@@ -66,4 +66,9 @@ public class STXMLFilterExpressionNode extends STXMLNavigateExpressionNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLFilterExpressionNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

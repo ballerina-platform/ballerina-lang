@@ -73,4 +73,9 @@ public class STXMLAttributeValue extends STNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLAttributeValue(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

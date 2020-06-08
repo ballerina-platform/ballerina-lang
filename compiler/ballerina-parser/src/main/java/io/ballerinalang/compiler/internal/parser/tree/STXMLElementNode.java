@@ -73,4 +73,9 @@ public class STXMLElementNode extends STXMLItemNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLElementNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

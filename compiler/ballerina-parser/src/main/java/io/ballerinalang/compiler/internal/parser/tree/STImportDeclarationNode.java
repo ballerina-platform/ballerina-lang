@@ -94,4 +94,9 @@ public class STImportDeclarationNode extends STNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ImportDeclarationNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

@@ -80,4 +80,9 @@ public class STRecordTypeDescriptorNode extends STTypeDescriptorNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RecordTypeDescriptorNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

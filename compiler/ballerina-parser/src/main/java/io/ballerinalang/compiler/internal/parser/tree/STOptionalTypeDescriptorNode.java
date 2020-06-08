@@ -66,4 +66,9 @@ public class STOptionalTypeDescriptorNode extends STTypeDescriptorNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new OptionalTypeDescriptorNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

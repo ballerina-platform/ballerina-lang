@@ -73,4 +73,9 @@ public class STIntersectionTypeDescriptorNode extends STTypeDescriptorNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new IntersectionTypeDescriptorNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

@@ -80,4 +80,9 @@ public class STFunctionBodyBlockNode extends STFunctionBodyNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FunctionBodyBlockNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

@@ -73,4 +73,9 @@ public class STAnnotAccessExpressionNode extends STExpressionNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new AnnotAccessExpressionNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

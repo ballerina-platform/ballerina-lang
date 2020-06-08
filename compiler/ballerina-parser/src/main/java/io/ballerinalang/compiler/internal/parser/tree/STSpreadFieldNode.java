@@ -66,4 +66,9 @@ public class STSpreadFieldNode extends STMappingFieldNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new SpreadFieldNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

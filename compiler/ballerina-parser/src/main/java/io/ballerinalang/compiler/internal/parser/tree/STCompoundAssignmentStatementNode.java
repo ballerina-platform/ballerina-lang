@@ -87,4 +87,9 @@ public class STCompoundAssignmentStatementNode extends STStatementNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new CompoundAssignmentStatementNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

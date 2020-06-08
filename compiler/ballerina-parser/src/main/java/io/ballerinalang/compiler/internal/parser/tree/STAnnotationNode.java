@@ -73,4 +73,9 @@ public class STAnnotationNode extends STNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new AnnotationNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

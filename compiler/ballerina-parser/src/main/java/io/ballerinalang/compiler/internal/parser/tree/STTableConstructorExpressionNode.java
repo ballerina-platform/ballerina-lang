@@ -87,4 +87,9 @@ public class STTableConstructorExpressionNode extends STExpressionNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TableConstructorExpressionNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

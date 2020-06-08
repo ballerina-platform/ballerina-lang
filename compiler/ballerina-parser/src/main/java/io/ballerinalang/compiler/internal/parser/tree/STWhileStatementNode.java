@@ -73,4 +73,9 @@ public class STWhileStatementNode extends STStatementNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new WhileStatementNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

@@ -87,4 +87,9 @@ public class STModuleXMLNamespaceDeclarationNode extends STModuleMemberDeclarati
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ModuleXMLNamespaceDeclarationNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

@@ -80,4 +80,9 @@ public class STNamedArgumentNode extends STFunctionArgumentNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new NamedArgumentNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

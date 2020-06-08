@@ -80,4 +80,9 @@ public class STListBindingPatternNode extends STBindingPatternNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ListBindingPatternNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

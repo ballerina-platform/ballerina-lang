@@ -66,4 +66,9 @@ public class STMetadataNode extends STNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MetadataNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

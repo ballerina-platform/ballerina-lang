@@ -73,4 +73,9 @@ public class STXMLComment extends STXMLItemNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLComment(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

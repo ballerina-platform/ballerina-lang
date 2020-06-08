@@ -80,4 +80,9 @@ public class STIndexedExpressionNode extends STTypeDescriptorNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new IndexedExpressionNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

@@ -80,4 +80,9 @@ public class STExplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ExplicitAnonymousFunctionExpressionNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

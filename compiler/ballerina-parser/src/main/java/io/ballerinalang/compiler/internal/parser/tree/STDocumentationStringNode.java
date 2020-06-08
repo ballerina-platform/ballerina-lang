@@ -59,4 +59,9 @@ public class STDocumentationStringNode extends STNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new DocumentationStringNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

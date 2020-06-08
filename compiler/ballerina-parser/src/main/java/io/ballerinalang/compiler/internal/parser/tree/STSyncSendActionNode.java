@@ -73,4 +73,9 @@ public class STSyncSendActionNode extends STActionNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new SyncSendActionNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

@@ -66,4 +66,9 @@ public class STContinueStatementNode extends STStatementNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ContinueStatementNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

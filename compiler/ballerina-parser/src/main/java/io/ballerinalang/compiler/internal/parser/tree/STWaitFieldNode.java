@@ -73,4 +73,9 @@ public class STWaitFieldNode extends STNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new WaitFieldNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

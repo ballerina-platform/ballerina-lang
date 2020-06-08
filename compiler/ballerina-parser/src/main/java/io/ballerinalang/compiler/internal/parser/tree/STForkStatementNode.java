@@ -80,4 +80,9 @@ public class STForkStatementNode extends STStatementNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ForkStatementNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

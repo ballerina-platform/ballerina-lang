@@ -73,4 +73,9 @@ public class STReceiveFieldsNode extends STNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReceiveFieldsNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

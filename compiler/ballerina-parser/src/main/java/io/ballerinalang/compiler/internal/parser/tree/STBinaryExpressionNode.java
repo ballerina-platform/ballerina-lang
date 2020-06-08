@@ -77,4 +77,9 @@ public class STBinaryExpressionNode extends STExpressionNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BinaryExpressionNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

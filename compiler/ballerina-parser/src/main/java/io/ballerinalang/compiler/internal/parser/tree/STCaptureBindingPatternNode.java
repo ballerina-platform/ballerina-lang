@@ -59,4 +59,9 @@ public class STCaptureBindingPatternNode extends STBindingPatternNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new CaptureBindingPatternNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

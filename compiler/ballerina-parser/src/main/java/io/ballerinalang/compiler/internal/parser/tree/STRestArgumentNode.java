@@ -73,4 +73,9 @@ public class STRestArgumentNode extends STFunctionArgumentNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RestArgumentNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

@@ -94,4 +94,9 @@ public class STVariableDeclarationNode extends STStatementNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new VariableDeclarationNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

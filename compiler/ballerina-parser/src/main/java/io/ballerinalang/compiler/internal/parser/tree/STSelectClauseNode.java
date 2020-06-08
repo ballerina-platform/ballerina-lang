@@ -66,4 +66,9 @@ public class STSelectClauseNode extends STClauseNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new SelectClauseNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

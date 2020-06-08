@@ -66,4 +66,9 @@ public class STTransactionStatementNode extends STStatementNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TransactionStatementNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

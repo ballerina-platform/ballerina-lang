@@ -73,4 +73,9 @@ public class STBlockStatementNode extends STStatementNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BlockStatementNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

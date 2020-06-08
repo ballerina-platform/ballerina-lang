@@ -80,4 +80,9 @@ public class STSpecificFieldNode extends STMappingFieldNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new SpecificFieldNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

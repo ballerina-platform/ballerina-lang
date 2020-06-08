@@ -80,4 +80,9 @@ public class STXMLEndTagNode extends STXMLElementTagNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLEndTagNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

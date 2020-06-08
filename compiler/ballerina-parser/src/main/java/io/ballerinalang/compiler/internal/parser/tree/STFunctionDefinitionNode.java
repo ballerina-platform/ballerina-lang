@@ -94,4 +94,9 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FunctionDefinitionNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

@@ -108,4 +108,9 @@ public class STConstantDeclarationNode extends STModuleMemberDeclarationNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ConstantDeclarationNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

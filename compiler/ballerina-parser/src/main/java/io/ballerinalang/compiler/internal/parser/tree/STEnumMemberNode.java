@@ -80,4 +80,9 @@ public class STEnumMemberNode extends STNode {
     public Node createFacade(int position, NonTerminalNode parent) {
         return new EnumMemberNode(this, position, parent);
     }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }
