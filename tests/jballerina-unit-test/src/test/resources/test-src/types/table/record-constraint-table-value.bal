@@ -286,6 +286,7 @@ function testTableEquality() {
     testSameTable();
     testIdenticalTable();
     testUnidenticalTable();
+    testInEqualityTableV1();
 }
 
 function testSameTable() {
@@ -323,6 +324,34 @@ function testUnidenticalTable() {
                             ];
 
     assertEquality(false, t1 == t2);
+}
+
+function testInEqualityTableV1() {
+    table<Bar> t1 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                        ];
+
+    table<Bar> t2 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x56", y: "y2"}
+                            ];
+
+    assertEquality(true, t1 != t2);
+}
+
+function testInEqualityTableV2() {
+    table<Bar> t1 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                        ];
+
+    table<Bar> t2 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x1", y: "y2"}
+                            ];
+
+    assertEquality(false, t1 != t2);
 }
 
 type AssertionError error<ASSERTION_ERROR_REASON>;
