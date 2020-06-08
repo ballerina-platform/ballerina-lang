@@ -18,11 +18,9 @@
 
 <FindBugsFilter>
     <Match>
-        <AND>
+        <And>
             <Package name="org.ballerinalang.debugadapter.variable.types*"/>
-        </AND>
-        <AND>
             <Bug pattern="REC_CATCH_EXCEPTION"/>
-        </AND>
+        </And>
     </Match>
 </FindBugsFilter>
