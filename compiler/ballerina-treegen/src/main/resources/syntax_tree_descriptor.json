@@ -1026,7 +1026,8 @@
                 },
                 {
                     "name": "versionNumber",
-                    "type": "Node"
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
                 }
             ]
         },

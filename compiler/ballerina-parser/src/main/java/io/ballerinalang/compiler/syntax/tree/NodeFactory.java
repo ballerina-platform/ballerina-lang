@@ -767,13 +767,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ImportVersionNode createImportVersionNode(
             Token versionKeyword,
-            Node versionNumber) {
+            NodeList<Node> versionNumber) {
         Objects.requireNonNull(versionKeyword, "versionKeyword must not be null");
         Objects.requireNonNull(versionNumber, "versionNumber must not be null");
 
         STNode stImportVersionNode = STNodeFactory.createImportVersionNode(
                 versionKeyword.internalNode(),
-                versionNumber.internalNode());
+                versionNumber.underlyingListNode().internalNode());
         return stImportVersionNode.createUnlinkedFacade();
     }
 

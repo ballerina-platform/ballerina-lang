@@ -64,6 +64,7 @@ import io.ballerinalang.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerinalang.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerinalang.compiler.syntax.tree.ImportSubVersionNode;
 import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
 import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.InterpolationNode;
@@ -413,9 +414,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             if (versionNode.isMissing()) {
                 version = missingNodesHelper.getNextMissingNodeName(diagnosticSource.pkgID);
             }
-
-            // TODO: toString will contain trivia such as comments as well.
-            version = versionNode.versionNumber().toString();
+            version = extractVersion(versionNode.versionNumber());
         }
 
         List<BLangIdentifier> pkgNameComps = new ArrayList<>();
@@ -1872,7 +1871,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             default:
                 BLangExpressionStmt bLExpressionStmt =
                         (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
-                bLExpressionStmt.expr = (BLangExpression) expressionStatement.expression().apply(this);
+                bLExpressionStmt.expr = createExpression(expressionStatement.expression());
                 bLExpressionStmt.pos = getPosition(expressionStatement);
                 return bLExpressionStmt;
         }
@@ -2305,6 +2304,18 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
         }
         return statements;
+    }
+
+    private String extractVersion(NodeList<Node> versionNumbers) {
+        StringBuilder version = null;
+        for (Node versionNumber : versionNumbers) {
+            if (versionNumber.kind() == SyntaxKind.IMPORT_SUB_VERSION) {
+                version.append(".").append(((ImportSubVersionNode) versionNumber).versionNumber().text());
+                continue;
+            }
+            version = new StringBuilder(((Token) versionNumber).text());
+        }
+        return version.toString();
     }
 
     private VariableDefinitionNode createVarDefNode(TypedBindingPatternNode typedBindingPatternNode,
