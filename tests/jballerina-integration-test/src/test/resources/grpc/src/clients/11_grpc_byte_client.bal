@@ -60,7 +60,7 @@ function testLargeByteArray(string filePath) returns (string) {
             }
         } else {
             error err = resultBytes;
-            return io:sprintf("File read error: %s - %s", err.message());
+            return io:sprintf("File read error: %s", err.message());
         }
 
     }
