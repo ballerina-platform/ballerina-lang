@@ -20,6 +20,8 @@ package org.ballerinalang.observe.trace.extension.choreo.client.secret;
 
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoConfigHelper;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -69,10 +71,8 @@ public class AnonymousAppSecretHandler implements AppSecretHandler {
             throw new FileNotFoundException(projectSecretPath.toString() + " is missing");
         }
 
-        try (InputStream inputStream = Files.newInputStream(projectSecretPath)) {
-            Properties props = new Properties();
-            props.load(inputStream);
-            return props.getProperty(PROJECT_SECRET_CONFIG_KEY);
+        try (BufferedReader reader = Files.newBufferedReader(projectSecretPath)) {
+            return reader.readLine();
         }
     }
 
@@ -116,10 +116,9 @@ public class AnonymousAppSecretHandler implements AppSecretHandler {
         final Path projectSecretPath = getProjectSecretPath(obsId);
         projectSecretPath.getParent().toFile().mkdirs();
 
-        try (OutputStream outputStream = Files.newOutputStream(projectSecretPath)) {
-            Properties props = new Properties();
-            props.setProperty(PROJECT_SECRET_CONFIG_KEY, appSecret);
-            props.store(outputStream, null);
+        try (BufferedWriter writer = Files.newBufferedWriter(projectSecretPath)) {
+            writer.write(appSecret);
+            writer.newLine();
         }
     }
 
