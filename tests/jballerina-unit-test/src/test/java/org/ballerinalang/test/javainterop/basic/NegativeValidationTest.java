@@ -119,6 +119,27 @@ public class NegativeValidationTest {
     }
 
     @Test
+    public void testMethodNotFound6() {
+
+        String path = "test-src/javainterop/negative/method_not_found6.bal";
+
+        CompileResult compileResult = BCompileUtil.compileInProc(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 2);
+        BAssertUtil.validateError(compileResult, 0,
+                "{ballerina/java}METHOD_NOT_FOUND 'No such public method 'getFuture' that matches with parameter " +
+                        "types '(org.ballerinalang.jvm.values.api.BTypedesc)' found in class " +
+                        "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
+                "method_not_found6.bal", 3, 1);
+
+        BAssertUtil.validateError(compileResult, 1,
+                "{ballerina/java}METHOD_NOT_FOUND 'No such public method 'getTypeDesc' that matches with parameter " +
+                        "types '(org.ballerinalang.jvm.values.api.BFuture)' found in class " +
+                        "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
+                "method_not_found6.bal", 9, 1);
+    }
+
+    @Test
     public void testMethodSignatureNotMatch1() {
 
         String path = "test-src/javainterop/negative/method_sig_not_match1.bal";
