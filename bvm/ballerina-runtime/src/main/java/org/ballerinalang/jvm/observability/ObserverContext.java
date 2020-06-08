@@ -94,6 +94,9 @@ public class ObserverContext {
      * @param value The tag value
      */
     public void addMainTag(String key, String value) {
+        if (isStarted()) {
+            throw new IllegalStateException("main tags cannot be added after the observation had been started");
+        }
         addTag(mainTags, key, value);
     }
 
