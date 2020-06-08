@@ -269,7 +269,7 @@ public class SubscriberNativeOperationHandler {
      * @param webSubServiceName         the name of the service for which subscription happened for a topic
      * @param topic                     the topic the subscription happened for
      */
-    public static void setTopic(ObjectValue subscriberServiceListener, String webSubServiceName, String topic) {
+    public static void setTopic(ObjectValue subscriberServiceListener, BString webSubServiceName, BString topic) {
         ObjectValue serviceEndpoint = (ObjectValue) subscriberServiceListener.get(
                 StringUtils.fromString(WEBSUB_HTTP_ENDPOINT));
         WebSubServicesRegistry webSubServicesRegistry = ((WebSubServicesRegistry) serviceEndpoint.getNativeData(
@@ -279,12 +279,13 @@ public class SubscriberNativeOperationHandler {
         }
         Optional<HttpService> webSubHttpService =
                 webSubServicesRegistry.getServicesByHost(DEFAULT_HOST).values().stream().filter(
-                        httpService -> webSubServiceName.equals(httpService.getBalService().getType().getName()))
+                        httpService ->
+                                webSubServiceName.getValue().equals(httpService.getBalService().getType().getName()))
                         .findFirst();
 
         HttpService httpService = webSubHttpService.orElse(null);
         if (httpService instanceof WebSubHttpService) {
-            ((WebSubHttpService) httpService).setTopic(topic);
+            ((WebSubHttpService) httpService).setTopic(topic.getValue());
         }
     }
 

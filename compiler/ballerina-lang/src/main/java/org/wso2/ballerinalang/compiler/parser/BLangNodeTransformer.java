@@ -2686,11 +2686,31 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             typeText = ((Token) type).text(); // TODO: Remove this once map<string> returns Nodes for `map`
         }
 
-        BLangBuiltInRefTypeNode bLValueType =
-                (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
-        bLValueType.typeKind = TreeUtils.stringToTypeKind(typeText.replaceAll("\\s+", ""));
-        bLValueType.pos = getPosition(type);
-        return bLValueType;
+        TypeKind typeKind = TreeUtils.stringToTypeKind(typeText.replaceAll("\\s+", ""));
+
+        SyntaxKind kind = type.kind();
+        switch (kind) {
+            case BOOLEAN_TYPE_DESC:
+            case INT_TYPE_DESC:
+            case BYTE_TYPE_DESC:
+            case FLOAT_TYPE_DESC:
+            case DECIMAL_TYPE_DESC:
+            case STRING_TYPE_DESC:
+            case ANY_TYPE_DESC:
+            case NIL_TYPE_DESC:
+            case HANDLE_TYPE_DESC:
+            case ANYDATA_TYPE_DESC:
+                BLangValueType valueType = (BLangValueType) TreeBuilder.createValueTypeNode();
+                valueType.typeKind = typeKind;
+                valueType.pos = getPosition(type);
+                return valueType;
+            default:
+                BLangBuiltInRefTypeNode builtInValueType =
+                        (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
+                builtInValueType.typeKind = typeKind;
+                builtInValueType.pos = getPosition(type);
+                return builtInValueType;
+        }
     }
 
     private VariableNode createBasicVarNodeWithoutType(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
