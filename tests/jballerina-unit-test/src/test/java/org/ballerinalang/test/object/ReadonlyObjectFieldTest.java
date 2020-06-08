@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.record;
+package org.ballerinalang.test.object;
 
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -27,30 +27,28 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
- * Tests for `readonly` record fields.
+ * Tests for `readonly` object fields.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
-public class ReadonlyRecordFieldTest {
+public class ReadonlyObjectFieldTest {
 
     @Test
     public void testReadonlyRecordFields() {
-        CompileResult result = BCompileUtil.compile("test-src/record/readonly_record_fields.bal");
-        BRunUtil.invoke(result, "testReadonlyRecordFields");
+        CompileResult result = BCompileUtil.compile("test-src/object/readonly_object_fields.bal");
+        BRunUtil.invoke(result, "testReadonlyObjectFields");
     }
 
     @Test
     public void testReadonlyRecordFieldsNegative() {
-        CompileResult result = BCompileUtil.compile("test-src/record/readonly_record_fields_negative.bal");
+        CompileResult result = BCompileUtil.compile("test-src/object/readonly_object_fields_negative.bal");
         int index = 0;
 
-        validateError(result, index++, "cannot update 'readonly' record field 'name' in 'Student'", 27, 5);
-        validateError(result, index++, "cannot update 'readonly' record field 'name' in 'Student'", 28, 5);
-        validateError(result, index++, "incompatible types: expected '(Details & readonly)', found 'Details'", 52, 9);
-        validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 56, 5);
-        validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 57, 5);
-        validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 58, 5);
-        validateError(result, index++, "cannot update 'readonly' record field 'name' in '(Student|Customer)'", 77, 5);
+        validateError(result, index++, "cannot update 'readonly' object field 'name' in 'Student'", 30, 5);
+        validateError(result, index++, "incompatible types: expected '(Details & readonly)', found 'Details'", 54, 23);
+        validateError(result, index++, "cannot update 'readonly' object field 'details' in 'Employee'", 56, 5);
+        validateError(result, index++, "cannot update 'readonly' object field 'details' in 'Employee'", 57, 5);
+        validateError(result, index++, "cannot update 'readonly' object field 'name' in '(Student|Customer)'", 74, 5);
         assertEquals(result.getErrorCount(), index);
     }
 }

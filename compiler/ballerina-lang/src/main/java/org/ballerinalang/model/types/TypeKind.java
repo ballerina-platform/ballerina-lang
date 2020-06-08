@@ -75,6 +75,7 @@ public enum TypeKind {
     ANNOTATION("annotation"),
     ARRAY("[]"),
     UNION("|"),
+    INTERSECTION("&"),
     VOID(""),
     NIL("null"),
     NEVER("never"),

@@ -244,6 +244,7 @@ public enum DiagnosticCode {
     CANNOT_ASSIGN_VALUE_ENDPOINT("cannot.assign.value.to.endpoint"),
     CANNOT_UPDATE_READONLY_VALUE_OF_TYPE("cannot.update.readonly.value.of.type"),
     CANNOT_UPDATE_READONLY_RECORD_FIELD("cannot.update.readonly.record.field"),
+    CANNOT_UPDATE_READONLY_OBJECT_FIELD("cannot.update.readonly.object.field"),
     UNDERSCORE_NOT_ALLOWED("underscore.not.allowed"),
     OPERATION_DOES_NOT_SUPPORT_INDEXING("operation.does.not.support.indexing"),
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS("operation.does.not.support.field.access"),

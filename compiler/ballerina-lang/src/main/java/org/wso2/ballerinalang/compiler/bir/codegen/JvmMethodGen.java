@@ -324,6 +324,7 @@ public class JvmMethodGen {
                     bType.tag == TypeTags.ANY ||
                     bType.tag == TypeTags.ANYDATA ||
                     bType.tag == TypeTags.UNION ||
+                    bType.tag == TypeTags.INTERSECTION ||
                     bType.tag == TypeTags.JSON ||
                     bType.tag == TypeTags.FINITE ||
                     bType.tag == TypeTags.READONLY) {
@@ -461,6 +462,7 @@ public class JvmMethodGen {
                     bType.tag == TypeTags.ANY ||
                     bType.tag == TypeTags.ANYDATA ||
                     bType.tag == TypeTags.UNION ||
+                    bType.tag == TypeTags.INTERSECTION ||
                     bType.tag == TypeTags.JSON ||
                     bType.tag == TypeTags.FINITE ||
                     bType.tag == TypeTags.READONLY) {
@@ -565,6 +567,7 @@ public class JvmMethodGen {
                 || bType.tag == TypeTags.ANY
                 || bType.tag == TypeTags.ANYDATA
                 || bType.tag == TypeTags.UNION
+                || bType.tag == TypeTags.INTERSECTION
                 || bType.tag == TypeTags.JSON
                 || bType.tag == TypeTags.FINITE
                 || bType.tag == TypeTags.READONLY) {
@@ -880,6 +883,7 @@ public class JvmMethodGen {
                 bType.tag == TypeTags.CHAR_STRING ||
                 bType.tag == TypeTags.DECIMAL ||
                 bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.INTERSECTION ||
                 bType.tag == TypeTags.RECORD ||
                 bType.tag == TypeTags.TUPLE ||
                 bType.tag == TypeTags.FUTURE ||
@@ -952,6 +956,7 @@ public class JvmMethodGen {
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.OBJECT ||
                 bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.INTERSECTION ||
                 bType.tag == TypeTags.RECORD ||
                 bType.tag == TypeTags.TUPLE ||
                 bType.tag == TypeTags.FUTURE ||
@@ -1059,6 +1064,7 @@ public class JvmMethodGen {
             return String.format("L%s;", ERROR_VALUE);
         } else if (bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.INTERSECTION ||
                 bType.tag == TypeTags.JSON ||
                 bType.tag == TypeTags.FINITE ||
                 bType.tag == TypeTags.ANY ||
@@ -1125,6 +1131,7 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.ANY ||
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.INTERSECTION ||
                 bType.tag == TypeTags.JSON ||
                 bType.tag == TypeTags.FINITE ||
                 bType.tag == TypeTags.READONLY) {
@@ -1247,6 +1254,7 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.ANY ||
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.INTERSECTION ||
                 bType.tag == TypeTags.JSON ||
                 bType.tag == TypeTags.FINITE ||
                 bType.tag == TypeTags.READONLY) {
