@@ -42,6 +42,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.UUID;
@@ -526,5 +527,31 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             indexToKeyMap.put(noOfAddedEntries, hash);
             noOfAddedEntries++;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        TableValueImpl<?, ?> tableValue = (TableValueImpl<?, ?>) o;
+
+        if (tableValue.type.getTag() != this.type.getTag()) {
+            return false;
+        }
+
+        return Objects.equals(values, tableValue.values) &&
+                Objects.equals(keys, tableValue.keys) &&
+                Arrays.equals(fieldNames, tableValue.fieldNames);
+    }
+
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
     }
 }

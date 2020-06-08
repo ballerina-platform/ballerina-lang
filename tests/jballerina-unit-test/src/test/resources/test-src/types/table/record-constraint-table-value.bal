@@ -277,6 +277,54 @@ function testTableAsRecordField()  {
     assertEquality("detTable=name=Jo id=azqw\nname=Amy id=ldhe", tableRecord2.toString());
 }
 
+type Bar record {|
+    string x;
+    string y;
+|};
+
+function testTableEquality() {
+    testSameTable();
+    testIdenticalTable();
+    testUnidenticalTable();
+}
+
+function testSameTable() {
+    table<Bar> t1 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                        ];
+
+    assertEquality(true, t1 == t1);
+}
+
+function testIdenticalTable() {
+    table<Bar> t1 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                        ];
+
+    table<Bar> t2 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                            ];
+
+    assertEquality(true, t1 == t2);
+}
+
+function testUnidenticalTable() {
+    table<Bar> t1 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                        ];
+
+    table<Bar> t2 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x56", y: "y2"}
+                            ];
+
+    assertEquality(false, t1 == t2);
+}
+
 type AssertionError error<ASSERTION_ERROR_REASON>;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
