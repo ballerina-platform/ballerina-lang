@@ -25,6 +25,7 @@ import io.ballerinalang.compiler.internal.treegen.targets.Target;
 import io.ballerinalang.compiler.internal.treegen.targets.node.ExternalNodeTarget;
 import io.ballerinalang.compiler.internal.treegen.targets.node.InternalNodeTarget;
 import io.ballerinalang.compiler.internal.treegen.targets.nodevisitor.ExternalNodeVisitorTarget;
+import io.ballerinalang.compiler.internal.treegen.targets.nodevisitor.InternalNodeTransformerTarget;
 import io.ballerinalang.compiler.internal.treegen.targets.nodevisitor.InternalNodeVisitorTarget;
 import io.ballerinalang.compiler.internal.treegen.targets.nodevisitor.NodeFactoryTarget;
 import io.ballerinalang.compiler.internal.treegen.targets.nodevisitor.NodeTransformerTarget;
@@ -72,6 +73,7 @@ public class TreeGen {
         targetList.add(new InternalNodeVisitorTarget(config));
         targetList.add(new ExternalNodeVisitorTarget(config));
         targetList.add(new NodeTransformerTarget(config));
+        targetList.add(new InternalNodeTransformerTarget(config));
         targetList.add(new TreeModifierTarget(config));
         targetList.add(new NodeFactoryTarget(config));
         return targetList;

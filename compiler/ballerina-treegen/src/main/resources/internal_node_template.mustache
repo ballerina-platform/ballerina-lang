@@ -83,5 +83,10 @@ public{{#isAbstract}} abstract{{/isAbstract}} class {{internalClassName}} extend
     public void accept(STNodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
+    }
     {{/isAbstract}}
 }
