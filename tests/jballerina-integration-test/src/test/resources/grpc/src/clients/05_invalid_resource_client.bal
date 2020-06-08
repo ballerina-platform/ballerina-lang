@@ -31,7 +31,7 @@ HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9095");
 function testInvalidRemoteMethod(string name) returns (string) {
     [string, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->hello(name);
     if (unionResp is grpc:Error) {
-        return io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string> unionResp.detail()["message"]);
+        return io:sprintf("Error from Connector: %s", unionResp.message());
     } else {
         io:println("Client Got Response : ");
         string result = "";
@@ -44,7 +44,7 @@ function testInvalidRemoteMethod(string name) returns (string) {
 function testInvalidInputParameter(int age) returns (int) {
     [int, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->testInt(age);
     if (unionResp is grpc:Error) {
-        string message = io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string> unionResp.detail()["message"]);
+        string message = io:sprintf("Error from Connector: %s", unionResp.message());
         io:println(message);
         return -1;
     } else {
@@ -59,7 +59,7 @@ function testInvalidInputParameter(int age) returns (int) {
 function testInvalidOutputResponse(float salary) returns (float|string) {
     [float, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->testFloat(salary);
     if (unionResp is grpc:Error) {
-        string message = io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string> unionResp.detail()["message"]);
+        string message = io:sprintf("Error from Connector: %s", unionResp.message());
         io:println(message);
         return message;
     } else {
@@ -100,7 +100,7 @@ public type HelloWorldBlockingClient client object {
         if (value is int) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 
@@ -113,7 +113,7 @@ public type HelloWorldBlockingClient client object {
         if (value is float) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 };

@@ -52,8 +52,8 @@ public class InvalidServiceMethodTestCase extends GrpcBaseTest {
             "with missing method descriptor.")
     public void testInvalidRemoteMethod() {
         BString request = new BString("WSO2");
-        final String expectedMsg = "Error from Connector: {ballerina/grpc}InternalError - No registered method " +
-                "descriptor for 'grpcservices.HelloWorld98/hello1'";
+        final String expectedMsg = "Error from Connector: No registered method descriptor for " +
+                "'grpcservices.HelloWorld98/hello1'";
 
         BValue[] responses = BRunUtil.invoke(result, "testInvalidRemoteMethod", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);
@@ -77,8 +77,7 @@ public class InvalidServiceMethodTestCase extends GrpcBaseTest {
             "error is expected with Invalid protobuf byte sequence")
     public void testInvalidOutputResponse() {
         BFloat request = new BFloat(1000.5);
-        final String expectedMsg = "Error from Connector: {ballerina/grpc}InternalError - Error while constructing " +
-                "the message";
+        final String expectedMsg = "Error from Connector: Error while constructing the message";
 
         BValue[] responses = BRunUtil.invoke(result, "testInvalidOutputResponse", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);

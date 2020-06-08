@@ -14,12 +14,52 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function checkErrorForRetry(Error e, ErrorType[] errors) returns boolean {
-    string reason = e.reason();
-    foreach var errorType in errors {
-        if (errorType == reason) {
-            return true;
+function checkErrorForRetry(Error err, ErrorType[] errors) returns boolean {
+    var typeOfError = getErrorType(err);
+    if (typeOfError is ErrorType) {
+        foreach var errorType in errors {
+            if (errorType == typeOfError) {
+                return true;
+            }
         }
     }
     return false;
+}
+
+function getErrorType(Error err) returns ErrorType? {
+    if (err is CancelledError) {
+        return CANCELLED_ERROR;
+    } else if (err is UnKnownError) {
+        return UNKNOWN_ERROR;
+    } else if (err is InvalidArgumentError) {
+        return INVALID_ARGUMENT_ERROR;
+    } else if (err is DeadlineExceededError) {
+        return DEADLINE_EXCEEDED_ERROR;
+    } else if (err is NotFoundError) {
+        return NOT_FOUND_ERROR;
+    } else if (err is AlreadyExistsError) {
+        return ALREADY_EXISTS_ERROR;
+    } else if (err is PermissionDeniedError) {
+        return PERMISSION_DENIED_ERROR;
+    } else if (err is UnauthenticatedError) {
+        return UNAUTHENTICATED_ERROR;
+    } else if (err is ResourceExhaustedError) {
+        return RESOURCE_EXHAUSTED_ERROR;
+    } else if (err is FailedPreconditionError) {
+        return FAILED_PRECONDITION_ERROR;
+    } else if (err is AbortedError) {
+        return ABORTED_ERROR;
+    } else if (err is OutOfRangeError) {
+        return OUT_OF_RANGE_ERROR;
+    } else if (err is UnimplementedError) {
+        return UNIMPLEMENTED_ERROR;
+    } else if (err is InternalError) {
+        return INTERNAL_ERROR;
+    } else if (err is UnavailableError) {
+        return UNAVAILABLE_ERROR;
+    } else if (err is DataLossError) {
+        return DATA_LOSS_ERROR;
+    } else {
+        return ALL_RETRY_ATTEMPTS_FAILED;
+    }
 }
