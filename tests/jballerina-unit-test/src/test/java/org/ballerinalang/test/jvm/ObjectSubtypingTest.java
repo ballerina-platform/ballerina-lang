@@ -58,19 +58,6 @@ public class ObjectSubtypingTest {
         BRunUtil.invoke(compileResult, "testCastingRuntimeError");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'FakeEmail' cannot be cast to 'Email'.*")
-    public void testSubtypingBetweenNonClientAndClientObject1() {
-        BRunUtil.invoke(compileResult, "testSubtypingBetweenNonClientAndClientObject1");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*invalid value for record field 'f': " +
-                    "expected value of type 'Email', found 'FakeEmail'.*")
-    public void testSubtypingBetweenNonClientAndClientObject2() {
-        BRunUtil.invoke(compileResult, "testSubtypingBetweenNonClientAndClientObject2");
-    }
-
     @Test
     public void testSubtypingAPublicAbstractObject() {
         BValue[] result = BRunUtil.invoke(compileResult, "testSubtypingAPublicAbstractObject");
@@ -93,6 +80,11 @@ public class ObjectSubtypingTest {
     public void testSubtypingAnAbsObjectInSameModule() {
         BValue[] result = BRunUtil.invoke(compileResult, "testSubtypingAnAbsObjectInSameModule");
         assertEquals(result[0].stringValue(), "Rocky walked 50 meters");
+    }
+
+    @Test(description = "Test object subtyping")
+    public void testObjectEqualityBetweenNonClientAndClientObject() {
+        BRunUtil.invoke(compileResult, "testObjectEqualityBetweenNonClientAndClientObject");
     }
 
     @Test

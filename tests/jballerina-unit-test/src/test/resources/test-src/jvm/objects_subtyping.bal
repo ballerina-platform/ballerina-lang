@@ -156,31 +156,28 @@ function testSubtypingAnAbsObjectInSameModule() returns string {
 //    return dbClient;
 //}
 
-type Email client object {
-    public remote function send(string message) returns error? {
-    }
-};
+public function testObjectEqualityBetweenNonClientAndClientObject() {
+    subtyping:NonClientObject obj1 = new subtyping:NonClientObject("NonClientObject");
+    subtyping:ClientObjectWithoutRemoteMethod o2 = new subtyping:ClientObjectWithoutRemoteMethod("ClientObjectWithoutRemoteMethod");
 
-type FakeEmail object {
-    public function send(string message) returns error? {
-    }
-};
+    subtyping:NonClientObject obj3 = o2;
+    subtyping:ClientObjectWithoutRemoteMethod obj4 = obj1;
 
-type Message record {|
-    Email f;
-|};
-
-function testSubtypingBetweenNonClientAndClientObject1() {
-    FakeEmail p = new();
-    any e = p;
-    Email email = <Email> e;
+    assertEquality("NonClientObject", obj4.name);
+    assertEquality("ClientObjectWithoutRemoteMethod", obj3.name);
 }
 
-function testSubtypingBetweenNonClientAndClientObject2() {
-    Message b = {f: new};
-    record {|
-        object {}...;
-    |} r = b;
+const ASSERTION_ERROR_REASON = "AssertionError";
 
-    r["f"] = new FakeEmail();
+function assertEquality(any|error expected, any|error actual) {
+    if (expected is anydata && actual is anydata && expected == actual) {
+        return;
+    }
+
+    if (expected === actual) {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                 message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

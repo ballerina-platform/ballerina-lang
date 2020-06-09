@@ -47,3 +47,29 @@ public type ModuleLevelSubtypableObj2 object {
         self.age = age;
     }
 };
+
+public type ClientObjectWithoutRemoteMethod client object {
+    public string name;
+    public string id = "";
+
+    public function __init(string name) {
+        self.name = name;
+    }
+    public function send(string message) returns error? {
+    }
+    public function receive(string message) {
+    }
+};
+
+public type NonClientObject object {
+    public string name;
+    public string id = "";
+
+    public function __init(string name) {
+        self.name = name;
+    }
+    public function send(string message) returns error? {
+    }
+    public function receive(string message) {
+    }
+};
