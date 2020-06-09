@@ -23,10 +23,13 @@ package org.ballerinalang.observe.trace.extension.choreo.client.error;
  */
 public class ChoreoErrors {
 
-    public static final ChoreoClientException CHOREO_CLIENT_UNAVAILABLE_EXCEPTION = new ChoreoClientException(
-            new ChoreoError(ChoreoError.Code.UNAVAILABLE, "Choreo services not available.", null));
-
     public static ChoreoClientException getUnavailableError() {
-        return CHOREO_CLIENT_UNAVAILABLE_EXCEPTION;
+        return new ChoreoClientException(
+                new ChoreoError(ChoreoError.Code.UNAVAILABLE, "Choreo services not available.", null)
+        );
+    }
+
+    public static ChoreoClientException createValidationError(String message) {
+        return new ChoreoClientException(new ChoreoError(ChoreoError.Code.VALIDATION_ERROR, message, null));
     }
 }
