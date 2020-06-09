@@ -15,11 +15,49 @@
 // under the License.
 
 function checkErrorForRetry(Error receivedError, ErrorType[] errorTypes) returns boolean {
-    ErrorType receivedErrorType = typeof receivedError;
+    ErrorType receivedErrorType = getErrorType(receivedError);
     foreach var errorType in errorTypes {
-        if (errorType === receivedErrorType) {
+        if (errorType.toString() == receivedErrorType.toString()) {
             return true;
         }
     }
     return false;
+}
+
+function getErrorType(Error err) returns ErrorType {
+    if (err is CancelledError) {
+        return CancelledError;
+    } else if (err is UnKnownError) {
+        return UnKnownError;
+    } else if (err is InvalidArgumentError) {
+        return InvalidArgumentError;
+    } else if (err is DeadlineExceededError) {
+        return DeadlineExceededError;
+    } else if (err is NotFoundError) {
+        return NotFoundError;
+    } else if (err is AlreadyExistsError) {
+        return AlreadyExistsError;
+    } else if (err is PermissionDeniedError) {
+        return PermissionDeniedError;
+    } else if (err is UnauthenticatedError) {
+        return UnauthenticatedError;
+    } else if (err is ResourceExhaustedError) {
+        return ResourceExhaustedError;
+    } else if (err is FailedPreconditionError) {
+        return FailedPreconditionError;
+    } else if (err is AbortedError) {
+        return AbortedError;
+    } else if (err is OutOfRangeError) {
+        return OutOfRangeError;
+    } else if (err is UnimplementedError) {
+        return UnimplementedError;
+    } else if (err is InternalError) {
+        return InternalError;
+    } else if (err is UnavailableError) {
+        return UnavailableError;
+    } else if (err is DataLossError) {
+        return DataLossError;
+    } else {
+        return ResiliencyError;
+    }
 }
