@@ -20,6 +20,7 @@ package org.ballerinalang.jvm.types;
 import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.util.Flags;
+import org.ballerinalang.jvm.values.ReadOnlyUtils;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -49,28 +50,25 @@ public class BTypes {
     public static BType typeIntUnsigned8 = new BIntegerType(TypeConstants.UNSIGNED8,
             new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null), TypeTags.UNSIGNED8_INT_TAG);
 
-    public static BType typeReadonlyElement =
-            new BXMLType(TypeConstants.READONLY_XML_ELEMENT, new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
-                                                                          null),
-                         TypeTags.XML_ELEMENT_TAG, true, null);
+    public static BType typeReadonly = new BReadonlyType(TypeConstants.READONLY_TNAME, new BPackage(null, null, null));
     public static BType typeElement =
             new BXMLType(TypeConstants.XML_ELEMENT, new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, null),
-                         TypeTags.XML_ELEMENT_TAG, false, (BXMLType) typeReadonlyElement);
-    public static BType typeReadonlyProcessingInstruction =
-            new BXMLType(TypeConstants.READONLY_XML_PI, new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
-                                                                     null), TypeTags.XML_PI_TAG, true, null);
+                         TypeTags.XML_ELEMENT_TAG, false);
+    public static BType typeReadonlyElement = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(typeElement);
+
     public static BType typeProcessingInstruction =
             new BXMLType(TypeConstants.XML_PI, new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, null),
-                         TypeTags.XML_PI_TAG, false, (BXMLType) typeReadonlyProcessingInstruction);
-    public static BType typeReadonlyComment =
-            new BXMLType(TypeConstants.READONLY_XML_COMMENT, new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
-                                                                          null),
-                         TypeTags.XML_COMMENT_TAG, true, null);
+                         TypeTags.XML_PI_TAG, false);
+    public static BType typeReadonlyProcessingInstruction =
+            ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(typeProcessingInstruction);;
+
     public static BType typeComment =
             new BXMLType(TypeConstants.XML_COMMENT, new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, null),
-                         TypeTags.XML_COMMENT_TAG, false, (BXMLType) typeReadonlyComment);
+                         TypeTags.XML_COMMENT_TAG, false);
+    public static BType typeReadonlyComment = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(typeComment);
+
     public static BType typeText = new BXMLType(TypeConstants.XML_TEXT,
-            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, null), TypeTags.XML_TEXT_TAG, true, null);
+            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, null), TypeTags.XML_TEXT_TAG, true);
 
     public static BType typeByte = new BByteType(TypeConstants.BYTE_TNAME, new BPackage(null, null, null));
     public static BType typeFloat = new BFloatType(TypeConstants.FLOAT_TNAME, new BPackage(null, null, null));
@@ -114,7 +112,6 @@ public class BTypes {
     public static BType typePureType = new BUnionType(Arrays.asList(typeAnydata, typeError));
     public static BType typeAllType = new BUnionType(Arrays.asList(typeAny, typeError));
     public static BType typeHandle = new BHandleType(TypeConstants.HANDLE_TNAME, new BPackage(null, null, null));
-    public static BType typeReadonly = new BReadonlyType(TypeConstants.READONLY_TNAME, new BPackage(null, null, null));
 
     public static BRecordType stringItrNextReturnType = IteratorUtils.createIteratorNextReturnType(BTypes.typeString);
     public static BRecordType xmlItrNextReturnType = IteratorUtils
