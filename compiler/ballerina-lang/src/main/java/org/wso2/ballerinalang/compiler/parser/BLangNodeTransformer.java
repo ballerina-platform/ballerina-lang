@@ -449,6 +449,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         DiagnosticPos identifierPos = getPosition(constantDeclarationNode.variableName());
         constantNode.name = createIdentifier(pos, constantDeclarationNode.variableName());
         constantNode.expr = createExpression(constantDeclarationNode.initializer());
+        constantNode.pos = pos;
         if (constantDeclarationNode.typeDescriptor() != null) {
             constantNode.typeNode = createTypeNode(constantDeclarationNode.typeDescriptor());
         }
@@ -1098,6 +1099,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangSimpleVariableDef lamdaWrkr = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
         DiagnosticPos workerNamePos = getPosition(namedWorkerDeclNode.workerName());
         lamdaWrkr.pos = workerNamePos;
+        var.pos = workerNamePos;
         lamdaWrkr.setVariable(var);
         lamdaWrkr.isWorker = true;
 //        if (!this.forkJoinNodesStack.empty()) {
