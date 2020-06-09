@@ -76,6 +76,12 @@ public function barTwo(int i, string s = "hello", string... t) returns [int, str
     return [i, s, checkpanic t.cloneWithType(string[])];
 }
 
+
+// ------------------- Test function signature with 'never' return type ----------------
+public function sigma() returns never {
+    int age = 1;
+}
+
 // ------------------- Test function signature for attached functions ------------------
 
 public type Employee object {

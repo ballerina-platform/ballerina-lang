@@ -66,6 +66,41 @@ public class AmbiguityResolutionTest extends AbstractMiscTest {
         testFile("ambiguity/ambiguity_source_11.bal", "ambiguity/ambiguity_assert_11.json");
     }
 
+    @Test
+    public void testStatementStartWithUnionOfAbogiousNodes() {
+        testFile("ambiguity/ambiguity_source_12.bal", "ambiguity/ambiguity_assert_12.json");
+    }
+
+    @Test
+    public void testStatementStartWithParenthesis() {
+        testFile("ambiguity/ambiguity_source_13.bal", "ambiguity/ambiguity_assert_13.json");
+    }
+
+    @Test
+    public void testStatementStartWithFunctionKeyword() {
+        testFile("ambiguity/ambiguity_source_14.bal", "ambiguity/ambiguity_assert_14.json");
+    }
+
+    @Test
+    public void testStatementStartWithBasicLiteral() {
+        testFile("ambiguity/ambiguity_source_15.bal", "ambiguity/ambiguity_assert_15.json");
+    }
+
+    @Test
+    public void testStatementStartWithImplicitFunParam() {
+        testFile("ambiguity/ambiguity_source_17.bal", "ambiguity/ambiguity_assert_17.json");
+    }
+
+    @Test
+    public void testStmtStartsWithTwoAmbiguousLists() {
+        testFile("ambiguity/ambiguity_source_20.bal", "ambiguity/ambiguity_assert_20.json");
+    }
+
+    @Test
+    public void testStmtStartsBracketedListsWithStringKeys() {
+        testFile("ambiguity/ambiguity_source_21.bal", "ambiguity/ambiguity_assert_21.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -81,5 +116,15 @@ public class AmbiguityResolutionTest extends AbstractMiscTest {
     @Test
     public void testInvalidTokenAfterColonInStmtStartMappingField() {
         testFile("ambiguity/ambiguity_source_09.bal", "ambiguity/ambiguity_assert_09.json");
+    }
+
+    @Test
+    public void testStatementStartWithFunctionKeywordRecovery() {
+        testFile("ambiguity/ambiguity_source_16.bal", "ambiguity/ambiguity_assert_16.json");
+    }
+
+    @Test
+    public void testStatementStartWithParenthesisRecovery() {
+        testFile("ambiguity/ambiguity_source_18.bal", "ambiguity/ambiguity_assert_18.json");
     }
 }

@@ -20,7 +20,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nExtracts `xml` payload from the request. If the content type is not XML, an `http:ClientError` is returned.\n  \n  \n  \n**Returns** `(xml|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The `xml` payload or `http:ClientError` in case of errors  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nExtracts `xml` payload from the request. If the content type is not XML, an `http:ClientError` is returned.\n  \n  \n  \n**Returns** `(xml|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The `xml` payload or `http:ClientError` in case of errors  \n  \n"
         }
       },
       "sortText": "120",
@@ -34,7 +34,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets a `ByteChannel` as the payload.\n  \n**Params**  \n- `io:ReadableByteChannel` payload: A `ByteChannel` through which the message payload can be read  \n- `string` contentType: The content type of the payload. Set this to override the default `content-type`\n                header value(Defaultable)"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nSets a `ByteChannel` as the payload.\n  \n**Params**  \n- `io:ReadableByteChannel` payload: A `ByteChannel` through which the message payload can be read  \n- `string` contentType: The content type of the payload. Set this to override the default `content-type`\n                header value(Defaultable)"
         }
       },
       "sortText": "120",
@@ -52,7 +52,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nExtracts `json` payload from the request. If the content type is not JSON, an `http:ClientError` is returned.\n  \n  \n  \n**Returns** `(json|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The `json` payload or `http:ClientError` in case of errors  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nExtracts `json` payload from the request. If the content type is not JSON, an `http:ClientError` is returned.\n  \n  \n  \n**Returns** `(json|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The `json` payload or `http:ClientError` in case of errors  \n  \n"
         }
       },
       "sortText": "120",
@@ -66,7 +66,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the request payload as a `byte[]`.\n  \n  \n  \n**Returns** `(byte[]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The byte[] representation of the message payload or `http:ClientError` in case of errors  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nGets the request payload as a `byte[]`.\n  \n  \n  \n**Returns** `(byte[]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The byte[] representation of the message payload or `http:ClientError` in case of errors  \n  \n"
         }
       },
       "sortText": "120",
@@ -80,7 +80,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nExtracts `text` payload from the request. If the content type is not of type text, an `http:ClientError` is returned.\n  \n  \n  \n**Returns** `(string|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The `text` payload or `http:ClientError` in case of errors  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nExtracts `text` payload from the request. If the content type is not of type text, an `http:ClientError` is returned.\n  \n  \n  \n**Returns** `(string|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The `text` payload or `http:ClientError` in case of errors  \n  \n"
         }
       },
       "sortText": "120",
@@ -94,7 +94,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nReturns the value of the specified header. If the specified header key maps to multiple values, the first of\nthese values is returned.\n  \n**Params**  \n- `string` headerName: The header name  \n  \n**Returns** `string`   \n- The first header value for the specified header name. Panic if the header is not found. Use the  \n           `Request.hasHeader()` beforehand to check the existence of a header.  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nReturns the value of the specified header. If the specified header key maps to multiple values, the first of\nthese values is returned.\n  \n**Params**  \n- `string` headerName: The header name  \n  \n**Returns** `string`   \n- The first header value for the specified header name. Panic if the header is not found. Use the  \n           `Request.hasHeader()` beforehand to check the existence of a header.  \n  \n"
         }
       },
       "sortText": "120",
@@ -112,7 +112,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the request payload as a `ByteChannel` except in the case of multiparts. To retrieve multiparts, use\n`Request.getBodyParts()`.\n  \n  \n  \n**Returns** `(io:ReadableByteChannel|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- A byte channel from which the message payload can be read or `http:ClientError` in case of errors  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nGets the request payload as a `ByteChannel` except in the case of multiparts. To retrieve multiparts, use\n`Request.getBodyParts()`.\n  \n  \n  \n**Returns** `(io:ReadableByteChannel|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- A byte channel from which the message payload can be read or `http:ClientError` in case of errors  \n  \n"
         }
       },
       "sortText": "120",
@@ -134,7 +134,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets a `string` as the payload.\n  \n**Params**  \n- `string` payload: The `string` payload  \n- `string` contentType: The content type of the payload. Set this to override the default `content-type` header value\n                for `string`(Defaultable)"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nSets a `string` as the payload.\n  \n**Params**  \n- `string` payload: The `string` payload  \n- `string` contentType: The content type of the payload. Set this to override the default `content-type` header value\n                for `string`(Defaultable)"
         }
       },
       "sortText": "120",
@@ -152,7 +152,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets the `content-type` header to the request.\n  \n**Params**  \n- `string` contentType: Content type value to be set as the `content-type` header  \n  \n**Returns** `(()|error)`   \n- Nil if successful, error in case of invalid content-type  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nSets the `content-type` header to the request.\n  \n**Params**  \n- `string` contentType: Content type value to be set as the `content-type` header  \n  \n**Returns** `(()|error)`   \n- Nil if successful, error in case of invalid content-type  \n  \n"
         }
       },
       "sortText": "120",
@@ -170,7 +170,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n  \n  \n**Returns** `_StreamFunction`   \n  \n"
+          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n  \n  \n**Returns** `_StreamFunction`   \n  \n"
         }
       },
       "sortText": "120",
@@ -184,7 +184,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets the request payload. Note that any string value is set as `text/plain`. To send a JSON-compatible string,\nset the content-type header to `application/json` or use the `setJsonPayload` method instead.\n  \n**Params**  \n- `(string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` payload: Payload can be of type `string`, `xml`, `json`, `byte[]`, `ByteChannel`, or `Entity[]` (i.e., a set\nof body parts)."
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nSets the request payload. Note that any string value is set as `text/plain`. To send a JSON-compatible string,\nset the content-type header to `application/json` or use the `setJsonPayload` method instead.\n  \n**Params**  \n- `(string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` payload: Payload can be of type `string`, `xml`, `json`, `byte[]`, `ByteChannel`, or `Entity[]` (i.e., a set\nof body parts)."
         }
       },
       "sortText": "120",
@@ -202,7 +202,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets all the query param values associated with the given key.\n  \n**Params**  \n- `string` key: Represents the query param key  \n  \n**Returns** `(string[]|())`   \n- All the query param values associated with the given key as a `string[]`. `()` is returned if no key  \n           is found.  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nGets all the query param values associated with the given key.\n  \n**Params**  \n- `string` key: Represents the query param key  \n  \n**Returns** `(string[]|())`   \n- All the query param values associated with the given key as a `string[]`. `()` is returned if no key  \n           is found.  \n  \n"
         }
       },
       "sortText": "120",
@@ -220,7 +220,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets the content of the specified file as the entity body of the request.\n  \n**Params**  \n- `string` filePath: Path to the file to be set as the payload  \n- `string` contentType: The content type of the specified file. Set this to override the default `content-type`\n                header value(Defaultable)"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nSets the content of the specified file as the entity body of the request.\n  \n**Params**  \n- `string` filePath: Path to the file to be set as the payload  \n- `string` contentType: The content type of the specified file. Set this to override the default `content-type`\n                header value(Defaultable)"
         }
       },
       "sortText": "120",
@@ -246,7 +246,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nAdds the specified header to the request. Existing header values are not replaced. Panic if an illegal header is passed.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nAdds the specified header to the request. Existing header values are not replaced. Panic if an illegal header is passed.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value"
         }
       },
       "sortText": "120",
@@ -264,7 +264,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the `Entity` associated with the request.\n  \n  \n  \n**Returns** `(mime:Entity|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The `Entity` of the request. An `http:ClientError` is returned, if entity construction fails  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nGets the `Entity` associated with the request.\n  \n  \n  \n**Returns** `(mime:Entity|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The `Entity` of the request. An `http:ClientError` is returned, if entity construction fails  \n  \n"
         }
       },
       "sortText": "120",
@@ -278,7 +278,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nChecks whether the requested header key exists in the header map.\n  \n**Params**  \n- `string` headerName: The header name  \n  \n**Returns** `boolean`   \n- Returns true if the specified header key exists  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nChecks whether the requested header key exists in the header map.\n  \n**Params**  \n- `string` headerName: The header name  \n  \n**Returns** `boolean`   \n- Returns true if the specified header key exists  \n  \n"
         }
       },
       "sortText": "120",
@@ -304,7 +304,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets a `json` as the payload.\n  \n**Params**  \n- `json` payload: The `json` payload  \n- `string` contentType: The content type of the payload. Set this to override the default `content-type` header value\n                for `json`(Defaultable)"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nSets a `json` as the payload.\n  \n**Params**  \n- `json` payload: The `json` payload  \n- `string` contentType: The content type of the payload. Set this to override the default `content-type` header value\n                for `json`(Defaultable)"
         }
       },
       "sortText": "120",
@@ -322,7 +322,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n**Params**  \n- `_StreamFunction` streamFunction"
+          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n**Params**  \n- `_StreamFunction` streamFunction"
         }
       },
       "sortText": "120",
@@ -340,7 +340,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets all the names of the headers of the request.\n  \n  \n  \n**Returns** `string[]`   \n- An array of all the header names  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nGets all the names of the headers of the request.\n  \n  \n  \n**Returns** `string[]`   \n- An array of all the header names  \n  \n"
         }
       },
       "sortText": "120",
@@ -354,7 +354,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nExtracts body parts from the request. If the content type is not a composite media type, an error\nis returned.  \n  \n  \n**Returns** `(mime:Entity[]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The body parts as an array of entities or else an `http:ClientError` if there were any errors  \n           constructing the body parts from the request  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nExtracts body parts from the request. If the content type is not a composite media type, an error\nis returned.  \n  \n  \n**Returns** `(mime:Entity[]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The body parts as an array of entities or else an `http:ClientError` if there were any errors  \n           constructing the body parts from the request  \n  \n"
         }
       },
       "sortText": "120",
@@ -368,7 +368,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the form parameters from the HTTP request as a `map` when content type is application/x-www-form-urlencoded.\n  \n  \n  \n**Returns** `(map<string>|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The map of form params or `http:ClientError` in case of errors  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nGets the form parameters from the HTTP request as a `map` when content type is application/x-www-form-urlencoded.\n  \n  \n  \n**Returns** `(map<string>|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The map of form params or `http:ClientError` in case of errors  \n  \n"
         }
       },
       "sortText": "120",
@@ -382,7 +382,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets all the header values to which the specified header key maps to.\n  \n**Params**  \n- `string` headerName: The header name  \n  \n**Returns** `string[]`   \n- The header values the specified header key maps to. Panic if the header is not found. Use the  \n           `Request.hasHeader()` beforehand to check the existence of a header.  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nGets all the header values to which the specified header key maps to.\n  \n**Params**  \n- `string` headerName: The header name  \n  \n**Returns** `string[]`   \n- The header values the specified header key maps to. Panic if the header is not found. Use the  \n           `Request.hasHeader()` beforehand to check the existence of a header.  \n  \n"
         }
       },
       "sortText": "120",
@@ -400,7 +400,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets a `byte[]` as the payload.\n  \n**Params**  \n- `byte[]` payload: The `byte[]` payload  \n- `string` contentType: The content type of the payload. Set this to override the default `content-type` header value\n                for `byte[]`(Defaultable)"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nSets a `byte[]` as the payload.\n  \n**Params**  \n- `byte[]` payload: The `byte[]` payload  \n- `string` contentType: The content type of the payload. Set this to override the default `content-type` header value\n                for `byte[]`(Defaultable)"
         }
       },
       "sortText": "120",
@@ -418,7 +418,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nChecks whether the client expects a `100-continue` response.\n  \n  \n  \n**Returns** `boolean`   \n- Returns true if the client expects a `100-continue` response  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nChecks whether the client expects a `100-continue` response.\n  \n  \n  \n**Returns** `boolean`   \n- Returns true if the client expects a `100-continue` response  \n  \n"
         }
       },
       "sortText": "120",
@@ -432,7 +432,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the query param value associated with the given key.\n  \n**Params**  \n- `string` key: Represents the query param key  \n  \n**Returns** `(string|())`   \n- The query param value associated with the given key as a string. If multiple param values are  \n           present, then the first value is returned. `()` is returned if no key is found.  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nGets the query param value associated with the given key.\n  \n**Params**  \n- `string` key: Represents the query param key  \n  \n**Returns** `(string|())`   \n- The query param value associated with the given key as a string. If multiple param values are  \n           present, then the first value is returned. `()` is returned if no key is found.  \n  \n"
         }
       },
       "sortText": "120",
@@ -450,7 +450,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n"
+          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n"
         }
       },
       "sortText": "120",
@@ -464,7 +464,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets the provided `Entity` to the request.\n  \n**Params**  \n- `mime:Entity` e: The `Entity` to be set to the request"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nSets the provided `Entity` to the request.\n  \n**Params**  \n- `mime:Entity` e: The `Entity` to be set to the request"
         }
       },
       "sortText": "120",
@@ -482,7 +482,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets the specified header to the request. If a mapping already exists for the specified header key, the existing\nheader value is replaced with the specified header value. Panic if an illegal header is passed.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nSets the specified header to the request. If a mapping already exists for the specified header key, the existing\nheader value is replaced with the specified header value. Panic if an illegal header is passed.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value"
         }
       },
       "sortText": "120",
@@ -516,7 +516,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets cookies from the request.\n  \n  \n  \n**Returns** `http:Cookie[]`   \n- An array of cookie objects, which are included in the request  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nGets cookies from the request.\n  \n  \n  \n**Returns** `http:Cookie[]`   \n- An array of cookie objects, which are included in the request  \n  \n"
         }
       },
       "sortText": "120",
@@ -530,7 +530,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nAdds cookies to the request.\n  \n**Params**  \n- `http:Cookie[]` cookiesToAdd: Represents the cookies to be added"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nAdds cookies to the request.\n  \n**Params**  \n- `http:Cookie[]` cookiesToAdd: Represents the cookies to be added"
         }
       },
       "sortText": "120",
@@ -548,7 +548,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nRemoves all the headers from the request.  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nRemoves all the headers from the request.  \n"
         }
       },
       "sortText": "120",
@@ -570,7 +570,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSet multiparts as the payload.\n  \n**Params**  \n- `mime:Entity[]` bodyParts: The entities which make up the message body  \n- `string` contentType: The content type of the top level message. Set this to override the default\n                `content-type` header value(Defaultable)"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nSet multiparts as the payload.\n  \n**Params**  \n- `mime:Entity[]` bodyParts: The entities which make up the message body  \n- `string` contentType: The content type of the top level message. Set this to override the default\n                `content-type` header value(Defaultable)"
         }
       },
       "sortText": "120",
@@ -596,7 +596,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets an `xml` as the payload.\n  \n**Params**  \n- `xml` payload: The `xml` payload  \n- `string` contentType: The content type of the payload. Set this to override the default `content-type` header value\n                for `xml`(Defaultable)"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nSets an `xml` as the payload.\n  \n**Params**  \n- `xml` payload: The `xml` payload  \n- `string` contentType: The content type of the payload. Set this to override the default `content-type` header value\n                for `xml`(Defaultable)"
         }
       },
       "sortText": "120",
@@ -614,7 +614,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nRemoves the specified header from the request.\n  \n**Params**  \n- `string` key: The header name"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nRemoves the specified header from the request.\n  \n**Params**  \n- `string` key: The header name"
         }
       },
       "sortText": "120",
@@ -632,7 +632,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n"
+          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n"
         }
       },
       "sortText": "120",
@@ -646,7 +646,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the query parameters of the request as a map consisting of a string array.\n  \n  \n  \n**Returns** `map<string[]>`   \n- String array map of the query params  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nGets the query parameters of the request as a map consisting of a string array.\n  \n  \n  \n**Returns** `map<string[]>`   \n- String array map of the query params  \n  \n"
         }
       },
       "sortText": "120",
@@ -660,7 +660,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the matrix parameters of the request.\n  \n**Params**  \n- `string` path: Path to the location of matrix parameters  \n  \n**Returns** `map<any>`   \n- A map of matrix parameters which can be found for the given path  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nGets the matrix parameters of the request.\n  \n**Params**  \n- `string` path: Path to the location of matrix parameters  \n  \n**Returns** `map<any>`   \n- A map of matrix parameters which can be found for the given path  \n  \n"
         }
       },
       "sortText": "120",
@@ -678,25 +678,11 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the type of the payload of the request (i.e: the `content-type` header value).\n  \n  \n  \n**Returns** `string`   \n- The `content-type` header value as a string  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nGets the type of the payload of the request (i.e: the `content-type` header value).\n  \n  \n  \n**Returns** `string`   \n- The `content-type` header value as a string  \n  \n"
         }
       },
       "sortText": "120",
       "insertText": "getContentType()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "toString()(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nPerforms a minimal conversion of a value to a string.\nThe conversion is minimal in particular in the sense\nthat the conversion applied to a value that is already\na string does nothing.  \n  \n  \n**Returns** `string`   \n- a string resulting from the conversion  \n  \nThe result of `toString(v)` is as follows:  \n  \n- if `v` is a string, then returns `v`  \n- if `v` is `()`, then returns an empty string  \n- if `v` is boolean, then the string `true` or `false`  \n- if `v` is an int, then return `v` represented as a decimal string  \n- if `v` is a float or decimal, then return `v` represented as a decimal string,  \n  with a decimal point only if necessary, but without any suffix indicating the type of `v`;  \n  return `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity  \n- if `v` is a list, then returns the results toString on each member of the list  \n  separated by a space character  \n- if `v` is a map, then returns key=value for each member separated by a space character  \n- if `v` is xml, then returns `v` in XML format (as if it occurred within an XML element)  \n- if `v` is table, TBD  \n- if `v` is an error, then a string consisting of the following in order  \n    1. the string `error`  \n    2. a space character  \n    3. the reason string  \n    4. if the detail record is non-empty  \n        1. a space character  \n        2. the result of calling toString on the detail record  \n- if `v` is an object, then  \n    - if `v` provides a `toString` method with a string return type and no required methods,  \n      then the result of calling that method on `v`  \n    - otherwise, `object` followed by some implementation-dependent string  \n- if `v` is any other behavioral type, then the identifier for the behavioral type  \n  (`function`, `future`, `service`, `typedesc` or `handle`)  \n  followed by some implementation-dependent string  \n  \nNote that `toString` may produce the same string for two Ballerina values  \nthat are not equal (in the sense of the `==` operator).  \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "toString()",
       "insertTextFormat": "Snippet"
     }
   ]

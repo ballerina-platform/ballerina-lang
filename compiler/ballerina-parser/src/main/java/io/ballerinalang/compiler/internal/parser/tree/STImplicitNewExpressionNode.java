@@ -63,7 +63,32 @@ public class STImplicitNewExpressionNode extends STNewExpressionNode {
                 diagnostics);
     }
 
+    public STImplicitNewExpressionNode modify(
+            STNode newKeyword,
+            STNode parenthesizedArgList) {
+        if (checkForReferenceEquality(
+                newKeyword,
+                parenthesizedArgList)) {
+            return this;
+        }
+
+        return new STImplicitNewExpressionNode(
+                newKeyword,
+                parenthesizedArgList,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ImplicitNewExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

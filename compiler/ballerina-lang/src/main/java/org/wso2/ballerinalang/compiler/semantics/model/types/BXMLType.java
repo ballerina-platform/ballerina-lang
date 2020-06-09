@@ -17,7 +17,6 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
-import org.ballerinalang.model.types.Type;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -33,7 +32,7 @@ import org.wso2.ballerinalang.util.Flags;
 public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
 
     public BType constraint;
-    public BXMLType immutableType;
+    public BIntersectionType immutableType;
 
     public BXMLType(BType constraint, BTypeSymbol tsymbol) {
         super(TypeTags.XML, tsymbol);
@@ -70,7 +69,7 @@ public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableRef
     }
 
     @Override
-    public Type getImmutableType() {
+    public BIntersectionType getImmutableType() {
         return this.immutableType;
     }
 }

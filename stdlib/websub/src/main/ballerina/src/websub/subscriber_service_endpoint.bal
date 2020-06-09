@@ -191,7 +191,7 @@ public type Listener object {
     # + webSubServiceName - The name of the service for which subscription happened for a topic
     # + topic - The topic the subscription happened for
     function setTopic(string webSubServiceName, string topic) {
-        externSetTopic(self, java:fromString(webSubServiceName), java:fromString(topic));
+        externSetTopic(self, webSubServiceName, topic);
     }
 };
 
@@ -214,7 +214,7 @@ function externStartWebSubSubscriberServiceEndpoint(Listener subscriberListener)
     class: "org.ballerinalang.net.websub.nativeimpl.SubscriberNativeOperationHandler"
 } external;
 
-function externSetTopic(Listener subscriberListener, handle webSubServiceName, handle topic) = @java:Method {
+function externSetTopic(Listener subscriberListener, string webSubServiceName, string topic) = @java:Method {
     name: "setTopic",
     class: "org.ballerinalang.net.websub.nativeimpl.SubscriberNativeOperationHandler"
 } external;

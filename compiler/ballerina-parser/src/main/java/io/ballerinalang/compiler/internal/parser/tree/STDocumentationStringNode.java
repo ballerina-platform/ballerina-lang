@@ -56,7 +56,29 @@ public class STDocumentationStringNode extends STNode {
                 diagnostics);
     }
 
+    public STDocumentationStringNode modify(
+            STNode documentationLines) {
+        if (checkForReferenceEquality(
+                documentationLines)) {
+            return this;
+        }
+
+        return new STDocumentationStringNode(
+                documentationLines,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new DocumentationStringNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

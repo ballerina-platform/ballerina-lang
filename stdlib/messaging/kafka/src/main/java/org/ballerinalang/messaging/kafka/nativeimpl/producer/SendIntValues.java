@@ -21,6 +21,7 @@ package org.ballerinalang.messaging.kafka.nativeimpl.producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,61 +42,62 @@ public class SendIntValues extends Send {
     private static final Logger logger = LoggerFactory.getLogger(SendIntValues.class);
 
     // ballerina int and ()
-    public static Object sendIntValuesNilKeys(ObjectValue producer, long value, String topic, Object partition,
+    public static Object sendIntValuesNilKeys(ObjectValue producer, long value, BString topic, Object partition,
                                               Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<?, Long> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, null, value);
+        ProducerRecord<?, Long> kafkaRecord = new ProducerRecord<>(topic.getValue(), partitionValue, timestampValue,
+                                                                   null, value);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
     // ballerina int and String
-    public static Object sendIntValuesStringKeys(ObjectValue producer, long value, String topic, String key,
+    public static Object sendIntValuesStringKeys(ObjectValue producer, long value, BString topic, BString key,
                                                  Object partition, Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<String, Long> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, key,
-                                                                        value);
+        ProducerRecord<String, Long> kafkaRecord = new ProducerRecord<>(topic.getValue(), partitionValue,
+                                                                        timestampValue, key.getValue(), value);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
     // ballerina int and ballerina int
-    public static Object sendIntValuesIntKeys(ObjectValue producer, long value, String topic, long key,
+    public static Object sendIntValuesIntKeys(ObjectValue producer, long value, BString topic, long key,
                                               Object partition, Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<Long, Long> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, key,
-                                                                      value);
+        ProducerRecord<Long, Long> kafkaRecord = new ProducerRecord<>(topic.getValue(), partitionValue, timestampValue,
+                                                                      key, value);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
     // ballerina int and ballerina float
-    public static Object sendIntValuesFloatKeys(ObjectValue producer, long value, String topic, double key,
+    public static Object sendIntValuesFloatKeys(ObjectValue producer, long value, BString topic, double key,
                                                 Object partition, Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<Double, Long> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, key,
-                                                                        value);
+        ProducerRecord<Double, Long> kafkaRecord = new ProducerRecord<>(topic.getValue(), partitionValue,
+                                                                        timestampValue, key, value);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
     // ballerina int and ballerina byte[]
-    public static Object sendIntValuesByteArrayKeys(ObjectValue producer, long value, String topic, BArray key,
+    public static Object sendIntValuesByteArrayKeys(ObjectValue producer, long value, BString topic, BArray key,
                                                     Object partition, Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<byte[], Long> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
-                                                                        key.getBytes(), value);
+        ProducerRecord<byte[], Long> kafkaRecord = new ProducerRecord<>(topic.getValue(), partitionValue,
+                                                                        timestampValue, key.getBytes(), value);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
     // ballerina int and ballerina anydata
-    public static Object sendIntValuesCustomKeys(ObjectValue producer, long value, String topic, Object key,
+    public static Object sendIntValuesCustomKeys(ObjectValue producer, long value, BString topic, Object key,
                                                  Object partition, Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<Object, Long> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, key,
-                                                                        value);
+        ProducerRecord<Object, Long> kafkaRecord = new ProducerRecord<>(topic.getValue(), partitionValue,
+                                                                        timestampValue, key, value);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 }

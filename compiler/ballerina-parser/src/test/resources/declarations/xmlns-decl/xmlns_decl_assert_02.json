@@ -9,7 +9,7 @@
       "kind": "LIST",
       "children": [
         {
-          "kind": "XML_NAMESPACE_DECLARATION",
+          "kind": "MODULE_XML_NAMESPACE_DECLARATION",
           "children": [
             {
               "kind": "XMLNS_KEYWORD"
@@ -25,7 +25,7 @@
           ]
         },
         {
-          "kind": "XML_NAMESPACE_DECLARATION",
+          "kind": "MODULE_XML_NAMESPACE_DECLARATION",
           "children": [
             {
               "kind": "XMLNS_KEYWORD"

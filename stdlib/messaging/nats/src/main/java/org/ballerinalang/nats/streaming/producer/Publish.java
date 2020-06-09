@@ -18,8 +18,10 @@
 package org.ballerinalang.nats.streaming.producer;
 
 import io.nats.streaming.StreamingConnection;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
@@ -37,25 +39,26 @@ import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
  */
 public class Publish {
 
-    public static Object externStreamingPublish(ObjectValue publisher, String subject, Object data,
+    public static Object externStreamingPublish(ObjectValue publisher, BString subject, Object data,
                                                 ObjectValue connectionObject) {
         StreamingConnection streamingConnection = (StreamingConnection) publisher
                 .getNativeData(Constants.NATS_STREAMING_CONNECTION);
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
         NatsTracingUtil.traceResourceInvocation(Scheduler.getStrand(),
-                                                streamingConnection.getNatsConnection().getConnectedUrl(), subject);
+                                                streamingConnection.getNatsConnection().getConnectedUrl(),
+                                                subject.getValue());
         byte[] byteData = convertDataIntoByteArray(data);
         try {
             NonBlockingCallback nonBlockingCallback = new NonBlockingCallback(Scheduler.getStrand());
-            AckListener ackListener = new AckListener(nonBlockingCallback, subject, natsMetricsReporter);
-            natsMetricsReporter.reportPublish(subject, byteData.length);
-            return streamingConnection.publish(subject, byteData, ackListener);
+            AckListener ackListener = new AckListener(nonBlockingCallback, subject.getValue(), natsMetricsReporter);
+            natsMetricsReporter.reportPublish(subject.getValue(), byteData.length);
+            return StringUtils.fromString(streamingConnection.publish(subject.getValue(), byteData, ackListener));
         } catch (InterruptedException e) {
-            natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
+            natsMetricsReporter.reportProducerError(subject.getValue(), NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
             return Utils.createNatsError("Failed to publish due to an internal error");
         } catch (IOException | TimeoutException e) {
-            natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
+            natsMetricsReporter.reportProducerError(subject.getValue(), NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
             return Utils.createNatsError(e.getMessage());
         }
     }

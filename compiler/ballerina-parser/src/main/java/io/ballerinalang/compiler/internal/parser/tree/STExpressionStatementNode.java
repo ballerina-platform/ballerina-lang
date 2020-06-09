@@ -67,7 +67,34 @@ public class STExpressionStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STExpressionStatementNode modify(
+            SyntaxKind kind,
+            STNode expression,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                expression,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STExpressionStatementNode(
+                kind,
+                expression,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ExpressionStatementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

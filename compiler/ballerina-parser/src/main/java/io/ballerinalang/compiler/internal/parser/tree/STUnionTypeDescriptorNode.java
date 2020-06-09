@@ -70,7 +70,35 @@ public class STUnionTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STUnionTypeDescriptorNode modify(
+            STNode leftTypeDesc,
+            STNode pipeToken,
+            STNode rightTypeDesc) {
+        if (checkForReferenceEquality(
+                leftTypeDesc,
+                pipeToken,
+                rightTypeDesc)) {
+            return this;
+        }
+
+        return new STUnionTypeDescriptorNode(
+                leftTypeDesc,
+                pipeToken,
+                rightTypeDesc,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new UnionTypeDescriptorNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }
