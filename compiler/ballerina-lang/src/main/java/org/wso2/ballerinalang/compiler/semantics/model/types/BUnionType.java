@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.UnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -27,7 +26,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -44,7 +42,7 @@ import java.util.stream.Stream;
  */
 public class BUnionType extends BType implements UnionType {
 
-    public BType immutableType;
+    public BIntersectionType immutableType;
 
     private boolean nullable;
 
@@ -85,13 +83,30 @@ public class BUnionType extends BType implements UnionType {
 
     @Override
     public String toString() {
+
         StringJoiner joiner = new StringJoiner(getKind().typeName());
-        this.memberTypes.stream()
-                .filter(memberType -> memberType.tag != TypeTags.NIL)
-                .forEach(memberType -> joiner.add(memberType.toString()));
-        String typeStr = this.memberTypes.stream().filter(memberType -> memberType.tag != TypeTags.NIL).count() > 1
-                ? "(" + joiner.toString() + ")" : joiner.toString();
-        boolean hasNilType = this.memberTypes.stream().anyMatch(type -> type.tag == TypeTags.NIL);
+
+        for (BType bType : this.memberTypes) {
+            if (bType.tag != TypeTags.NIL) {
+                joiner.add(bType.toString());
+            }
+        }
+
+        long count = 0L;
+        for (BType memberType : this.memberTypes) {
+            if (memberType.tag != TypeTags.NIL) {
+                count++;
+            }
+        }
+
+        String typeStr = count > 1 ? "(" + joiner.toString() + ")" : joiner.toString();
+        boolean hasNilType = false;
+        for (BType type : this.memberTypes) {
+            if (type.tag == TypeTags.NIL) {
+                hasNilType = true;
+                break;
+            }
+        }
         return (nullable && hasNilType) ? (typeStr + Names.QUESTION_MARK.value) : typeStr;
     }
 
@@ -108,13 +123,38 @@ public class BUnionType extends BType implements UnionType {
      * @return The created union type.
      */
     public static BUnionType create(BTypeSymbol tsymbol, LinkedHashSet<BType> types) {
-        LinkedHashSet<BType> memberTypes = toFlatTypeSet(types);
-        boolean hasNilableType = memberTypes.stream().anyMatch(t -> t.isNullable() && t.tag != TypeTags.NIL);
-        if (hasNilableType) {
-            memberTypes = memberTypes.stream().filter(t -> t.tag != TypeTags.NIL)
-                    .collect(Collectors.toCollection(LinkedHashSet::new));
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+        for (BType memBType : toFlatTypeSet(types)) {
+            if (memBType.tag != TypeTags.NEVER) {
+                memberTypes.add(memBType);
+            }
         }
-        return new BUnionType(tsymbol, memberTypes, memberTypes.stream().anyMatch(BType::isNullable));
+
+        boolean hasNilableType = false;
+        for (BType memberType : memberTypes) {
+            if (memberType.isNullable() && memberType.tag != TypeTags.NIL) {
+                hasNilableType = true;
+                break;
+            }
+        }
+
+        if (hasNilableType) {
+            LinkedHashSet<BType> bTypes = new LinkedHashSet<>();
+            for (BType t : memberTypes) {
+                if (t.tag != TypeTags.NIL) {
+                    bTypes.add(t);
+                }
+            }
+            memberTypes = bTypes;
+        }
+
+        for (BType memberType : memberTypes) {
+            if (memberType.isNullable()) {
+                return new BUnionType(tsymbol, memberTypes, true);
+            }
+        }
+
+        return new BUnionType(tsymbol, memberTypes, false);
     }
 
     /**
@@ -126,7 +166,10 @@ public class BUnionType extends BType implements UnionType {
      * @return The created union type.
      */
     public static BUnionType create(BTypeSymbol tsymbol, BType... types) {
-        LinkedHashSet<BType> memberTypes = Arrays.stream(types).collect(Collectors.toCollection(LinkedHashSet::new));
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+        for (BType type : types) {
+            memberTypes.add(type);
+        }
         return create(tsymbol, memberTypes);
     }
 
@@ -227,7 +270,7 @@ public class BUnionType extends BType implements UnionType {
     }
 
     @Override
-    public Type getImmutableType() {
+    public BIntersectionType getImmutableType() {
         return this.immutableType;
     }
 }

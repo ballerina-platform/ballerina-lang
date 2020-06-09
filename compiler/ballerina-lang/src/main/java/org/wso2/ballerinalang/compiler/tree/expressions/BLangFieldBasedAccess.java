@@ -37,6 +37,9 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
     public FieldKind fieldKind;
     public BVarSymbol varSymbol;
 
+    // Only used at Desugar and after.
+    public boolean isStoreOnCreation = false;
+
     @Override
     public BLangExpression getExpression() {
         return expr;

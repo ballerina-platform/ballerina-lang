@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -32,16 +33,20 @@ public class SpecificFieldNode extends MappingFieldNode {
         super(internalNode, position, parent);
     }
 
-    public Token fieldName() {
-        return childInBucket(0);
+    public Optional<Token> readonlyKeyword() {
+        return optionalChildInBucket(0);
     }
 
-    public Token colon() {
+    public Token fieldName() {
         return childInBucket(1);
     }
 
-    public ExpressionNode valueExpr() {
+    public Token colon() {
         return childInBucket(2);
+    }
+
+    public ExpressionNode valueExpr() {
+        return childInBucket(3);
     }
 
     @Override
@@ -57,16 +62,19 @@ public class SpecificFieldNode extends MappingFieldNode {
     @Override
     protected String[] childNames() {
         return new String[]{
+                "readonlyKeyword",
                 "fieldName",
                 "colon",
                 "valueExpr"};
     }
 
     public SpecificFieldNode modify(
+            Token readonlyKeyword,
             Token fieldName,
             Token colon,
             ExpressionNode valueExpr) {
         if (checkForReferenceEquality(
+                readonlyKeyword,
                 fieldName,
                 colon,
                 valueExpr)) {
@@ -74,6 +82,7 @@ public class SpecificFieldNode extends MappingFieldNode {
         }
 
         return NodeFactory.createSpecificFieldNode(
+                readonlyKeyword,
                 fieldName,
                 colon,
                 valueExpr);
@@ -90,15 +99,24 @@ public class SpecificFieldNode extends MappingFieldNode {
      */
     public static class SpecificFieldNodeModifier {
         private final SpecificFieldNode oldNode;
+        private Token readonlyKeyword;
         private Token fieldName;
         private Token colon;
         private ExpressionNode valueExpr;
 
         public SpecificFieldNodeModifier(SpecificFieldNode oldNode) {
             this.oldNode = oldNode;
+            this.readonlyKeyword = oldNode.readonlyKeyword().orElse(null);
             this.fieldName = oldNode.fieldName();
             this.colon = oldNode.colon();
             this.valueExpr = oldNode.valueExpr();
+        }
+
+        public SpecificFieldNodeModifier withReadonlyKeyword(
+                Token readonlyKeyword) {
+            Objects.requireNonNull(readonlyKeyword, "readonlyKeyword must not be null");
+            this.readonlyKeyword = readonlyKeyword;
+            return this;
         }
 
         public SpecificFieldNodeModifier withFieldName(
@@ -124,6 +142,7 @@ public class SpecificFieldNode extends MappingFieldNode {
 
         public SpecificFieldNode apply() {
             return oldNode.modify(
+                    readonlyKeyword,
                     fieldName,
                     colon,
                     valueExpr);
