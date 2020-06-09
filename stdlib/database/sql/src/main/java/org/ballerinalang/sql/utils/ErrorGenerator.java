@@ -84,7 +84,6 @@ public class ErrorGenerator {
         return BallerinaErrors.createError(Constants.BATCH_EXECUTE_ERROR_CODE, sqlClientErrorDetailRecord);
     }
 
-
     private static ErrorValue getSQLDatabaseError(String message, int vendorCode, String sqlState) {
         Map<String, Object> valueMap = new HashMap<>();
         valueMap.put(Constants.ErrorRecordFields.MESSAGE, message);

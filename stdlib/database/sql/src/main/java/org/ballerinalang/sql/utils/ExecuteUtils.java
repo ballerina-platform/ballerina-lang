@@ -95,25 +95,20 @@ public class ExecuteUtils {
 
     public static Object nativeBatchExecute(ObjectValue client, ArrayValue paramSQLStrings,
                                             boolean rollbackInFailure) {
-
         Object dbClient = client.getNativeData(Constants.DATABASE_CLIENT);
         if (dbClient != null) {
-
             SQLDatasource sqlDatasource = (SQLDatasource) dbClient;
             Connection connection = null;
             PreparedStatement statement = null;
             ResultSet resultSet = null;
-
             String sqlQuery = null;
             List<MapValue<BString, Object>> parameters = new ArrayList<>();
             List<MapValue<BString, Object>> executionResults = new ArrayList<>();
 
             try {
-
                 MapValue<BString, Object> parameterizedString = (MapValue<BString, Object>) paramSQLStrings.get(0);
                 sqlQuery = Utils.getSqlQuery(parameterizedString);
                 parameters.add(parameterizedString);
-
                 for (int i = 1; i < paramSQLStrings.size(); i++) {
                     parameterizedString = (MapValue<BString, Object>) paramSQLStrings.get(i);
                     String paramSQLQuery = Utils.getSqlQuery(parameterizedString);
@@ -125,10 +120,8 @@ public class ExecuteUtils {
                                 "commands. These has to be executed in different function calls");
                     }
                 }
-
                 connection = sqlDatasource.getSQLConnection();
                 connection.setAutoCommit(false);
-
                 statement = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
                 for (MapValue<BString, Object> param : parameters) {
                     Utils.setParams(connection, statement, param);
@@ -139,11 +132,9 @@ public class ExecuteUtils {
                 if (!isDdlStatement(sqlQuery)) {
                     resultSet = statement.getGeneratedKeys();
                 }
-
                 for (int count : counts) {
                     Map<String, Object> resultField = new HashMap<>();
                     resultField.put(Constants.AFFECTED_ROW_COUNT_FIELD, count);
-
                     Object lastInsertedId = null;
                     if (resultSet != null && resultSet.next()) {
                         lastInsertedId = getGeneratedKeys(resultSet);
@@ -164,7 +155,6 @@ public class ExecuteUtils {
                     executionResults.add(BallerinaValues.createRecordValue(Constants.SQL_PACKAGE_ID,
                             Constants.EXECUTION_RESULT_RECORD, resultField));
                 }
-
                 // Depending on the driver, at this point, driver may or may not have executed the remaining commands in
                 // the batch which come after the command that failed.
                 // We could have rolled back the connection to keep a consistent behavior in Ballerina regardless of
@@ -186,7 +176,6 @@ public class ExecuteUtils {
                         errorPostfix = " and failed to commit the intermediate changes";
                     }
                 }
-
                 return ErrorGenerator.getSQLBatchExecuteError(e, executionResults,
                         "Error while executing batch command starting with: '" + sqlQuery + "' " +
                                 errorPostfix);
