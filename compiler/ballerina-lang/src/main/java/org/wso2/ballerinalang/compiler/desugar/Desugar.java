@@ -259,6 +259,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.util.BLangCompilerConstants.RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC;
@@ -2408,7 +2409,8 @@ public class Desugar extends BLangNodeVisitor {
                 new BLangSimpleVarRef.BLangLocalVarRef(retryFunctionVariable.symbol);
         retryFunctionVariableRef.type = retryFunctionVariable.symbol.type;
 
-        BLangWhile whileNode = createRetryWhileLoop(pos, retryManagerVarDef, retryFunctionTrapExpression, retryFunctionVariableRef);
+        BLangWhile whileNode = createRetryWhileLoop(pos, retryManagerVarDef, retryFunctionTrapExpression,
+                retryFunctionVariableRef);
         retryBlockStmt.stmts.add(whileNode);
 
         if (retryNode.retryBodyReturns) {

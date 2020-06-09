@@ -167,7 +167,8 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 Lists.of(trxMainFuncParamPrevAttempt), transactionLambdaReturnType, trxMainBody);
 
         BLangInvocation startTransactionInvocation =
-                createStartTransactionInvocation(env, pos, transactionBlockIDLiteral, ASTBuilderUtil.createVariableRef(pos, trxMainFuncParamPrevAttempt.symbol));
+                createStartTransactionInvocation(env, pos, transactionBlockIDLiteral,
+                ASTBuilderUtil.createVariableRef(pos, trxMainFuncParamPrevAttempt.symbol));
         BLangAssignment startTrxAssignment =
                 ASTBuilderUtil.createAssignmentStmt(pos, ASTBuilderUtil.createVariableRef(pos, transactionIDVarSymbol),
                 startTransactionInvocation);
@@ -253,7 +254,8 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
     private BLangSimpleVariable createPrevAttemptVariable(SymbolEnv env, DiagnosticPos pos) {
         BSymbol infoRecordSymbol = symResolver.
-                lookupSymbolInMainSpace(symTable.pkgEnvMap.get(desugar.getTransactionSymbol(env)), TRANSACTION_INFO_RECORD);
+                lookupSymbolInMainSpace(symTable.pkgEnvMap.get(desugar.getTransactionSymbol(env)),
+                TRANSACTION_INFO_RECORD);
         BType infoRecordType = BUnionType.create(null, infoRecordSymbol.type, symTable.nilType);
         BVarSymbol prevAttemptVarSymbol = new BVarSymbol(0, new Name("prevAttempt"),
                 env.scope.owner.pkgID, infoRecordType, env.scope.owner);
