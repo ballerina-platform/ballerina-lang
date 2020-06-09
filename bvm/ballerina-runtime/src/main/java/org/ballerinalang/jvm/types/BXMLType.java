@@ -31,7 +31,7 @@ public class BXMLType extends BType {
     private final int tag;
     public BType constraint;
     private final boolean readonly;
-    private BXMLType immutableType;
+    private BIntersectionType immutableType;
 
     /**
      * Create a {@code BXMLType} which represents the boolean type.
@@ -46,19 +46,17 @@ public class BXMLType extends BType {
         this.readonly = false;
     }
 
-    public BXMLType(String typeName, BPackage pkg, int tag, boolean readonly, BXMLType immutableType) {
+    public BXMLType(String typeName, BPackage pkg, int tag, boolean readonly) {
         super(typeName, pkg, XMLValue.class);
         this.tag = tag;
         this.readonly = readonly;
-        this.immutableType = immutableType;
     }
 
-    public BXMLType(BType constraint, boolean readonly, BXMLType immutableType) {
+    public BXMLType(BType constraint, boolean readonly) {
         super(TypeConstants.XML_TNAME, null, XMLValue.class);
         this.tag = TypeTags.XML_TAG;
         this.constraint = constraint;
         this.readonly = readonly;
-        this.immutableType = immutableType;
     }
 
     @Override
@@ -114,7 +112,7 @@ public class BXMLType extends BType {
     }
 
     @Override
-    public void setImmutableType(BType immutableType) {
-        this.immutableType = (BXMLType) immutableType;
+    public void setImmutableType(BIntersectionType immutableType) {
+        this.immutableType = immutableType;
     }
 }

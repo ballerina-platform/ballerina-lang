@@ -724,6 +724,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         } else if (node.getKind() == NodeKind.IDENTIFIER) {
             BLangIdentifier identifier = (BLangIdentifier) node;
             result = identifier.value.hashCode();
+        } else if (node.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) node;
+            result = simpleVarRef.variableName.hashCode();
         } else {
             dlog.error(((BLangExpression) node).pos, DiagnosticCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
         }

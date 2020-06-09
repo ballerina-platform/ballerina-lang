@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.ConstrainedType;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
-import org.ballerinalang.model.types.Type;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -32,7 +31,7 @@ import org.wso2.ballerinalang.util.Flags;
 public class BMapType extends BBuiltInRefType implements ConstrainedType, SelectivelyImmutableReferenceType {
 
     public BType constraint;
-    public BMapType immutableType;
+    public BIntersectionType immutableType;
 
     public BMapType(int tag, BType constraint, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
@@ -77,7 +76,7 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
     }
 
     @Override
-    public Type getImmutableType() {
+    public BIntersectionType getImmutableType() {
         return this.immutableType;
     }
 }

@@ -316,6 +316,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(xMLNamespaceDeclarationNode);
     }
 
+    public T transform(ModuleXMLNamespaceDeclarationNode moduleXMLNamespaceDeclarationNode) {
+        return transformSyntaxNode(moduleXMLNamespaceDeclarationNode);
+    }
+
     public T transform(FunctionBodyBlockNode functionBodyBlockNode) {
         return transformSyntaxNode(functionBodyBlockNode);
     }
@@ -552,8 +556,8 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(singletonTypeDescriptorNode);
     }
 
-    public T transform(FunctionDeclarationNode functionDeclarationNode) {
-        return transformSyntaxNode(functionDeclarationNode);
+    public T transform(MethodDeclarationNode methodDeclarationNode) {
+        return transformSyntaxNode(methodDeclarationNode);
     }
 
     public T transform(TypedBindingPatternNode typedBindingPatternNode) {
@@ -698,6 +702,10 @@ public abstract class NodeTransformer<T> {
 
     public T transform(XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
         return transformSyntaxNode(xMLAtomicNamePatternNode);
+    }
+
+    public T transform(TypeReferenceTypeDescNode typeReferenceTypeDescNode) {
+        return transformSyntaxNode(typeReferenceTypeDescNode);
     }
 
     // Tokens

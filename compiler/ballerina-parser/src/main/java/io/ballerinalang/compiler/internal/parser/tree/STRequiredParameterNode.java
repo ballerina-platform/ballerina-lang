@@ -84,7 +84,41 @@ public class STRequiredParameterNode extends STParameterNode {
                 diagnostics);
     }
 
+    public STRequiredParameterNode modify(
+            STNode leadingComma,
+            STNode annotations,
+            STNode visibilityQualifier,
+            STNode typeName,
+            STNode paramName) {
+        if (checkForReferenceEquality(
+                leadingComma,
+                annotations,
+                visibilityQualifier,
+                typeName,
+                paramName)) {
+            return this;
+        }
+
+        return new STRequiredParameterNode(
+                leadingComma,
+                annotations,
+                visibilityQualifier,
+                typeName,
+                paramName,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RequiredParameterNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

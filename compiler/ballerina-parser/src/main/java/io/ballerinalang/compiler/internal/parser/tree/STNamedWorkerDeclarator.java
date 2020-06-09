@@ -63,7 +63,32 @@ public class STNamedWorkerDeclarator extends STNode {
                 diagnostics);
     }
 
+    public STNamedWorkerDeclarator modify(
+            STNode workerInitStatements,
+            STNode namedWorkerDeclarations) {
+        if (checkForReferenceEquality(
+                workerInitStatements,
+                namedWorkerDeclarations)) {
+            return this;
+        }
+
+        return new STNamedWorkerDeclarator(
+                workerInitStatements,
+                namedWorkerDeclarations,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new NamedWorkerDeclarator(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

@@ -90,14 +90,18 @@ public abstract class AbstractParserErrorHandler {
         Result bestMatch = seekMatch(currentCtx);
         if (bestMatch.matches > 0) {
             Solution sol = bestMatch.solution;
-            applyFix(currentCtx, sol, args);
-            return sol;
-        } else {
-            // Fail safe. This means we can't find a path to recover.
-            removeInvalidToken();
-            Solution sol = new Solution(Action.REMOVE, currentCtx, nextToken.kind, nextToken.toString());
-            return sol;
+            if (sol != null) {
+                applyFix(currentCtx, sol, args);
+                return sol;
+            }
+
+            // else fall through
         }
+
+        // Fail safe. This means we can't find a path to recover.
+        removeInvalidToken();
+        Solution sol = new Solution(Action.REMOVE, currentCtx, nextToken.kind, nextToken.toString());
+        return sol;
     }
 
     /**

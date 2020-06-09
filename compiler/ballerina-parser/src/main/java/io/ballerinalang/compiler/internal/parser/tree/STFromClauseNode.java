@@ -77,7 +77,38 @@ public class STFromClauseNode extends STClauseNode {
                 diagnostics);
     }
 
+    public STFromClauseNode modify(
+            STNode fromKeyword,
+            STNode typedBindingPattern,
+            STNode inKeyword,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                fromKeyword,
+                typedBindingPattern,
+                inKeyword,
+                expression)) {
+            return this;
+        }
+
+        return new STFromClauseNode(
+                fromKeyword,
+                typedBindingPattern,
+                inKeyword,
+                expression,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FromClauseNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

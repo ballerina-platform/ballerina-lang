@@ -70,7 +70,35 @@ public class STXMLComment extends STXMLItemNode {
                 diagnostics);
     }
 
+    public STXMLComment modify(
+            STNode commentStart,
+            STNode content,
+            STNode commentEnd) {
+        if (checkForReferenceEquality(
+                commentStart,
+                content,
+                commentEnd)) {
+            return this;
+        }
+
+        return new STXMLComment(
+                commentStart,
+                content,
+                commentEnd,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLComment(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

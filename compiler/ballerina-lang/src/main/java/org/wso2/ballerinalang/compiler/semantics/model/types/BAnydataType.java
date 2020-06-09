@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
-import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -33,7 +32,7 @@ import org.wso2.ballerinalang.util.Flags;
 public class BAnydataType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
 
     private boolean nullable = true;
-    public BAnydataType immutableType;
+    public BIntersectionType immutableType;
 
     public BAnydataType(int tag, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
@@ -80,7 +79,7 @@ public class BAnydataType extends BBuiltInRefType implements SelectivelyImmutabl
     }
 
     @Override
-    public Type getImmutableType() {
+    public BIntersectionType getImmutableType() {
         return this.immutableType;
     }
 }

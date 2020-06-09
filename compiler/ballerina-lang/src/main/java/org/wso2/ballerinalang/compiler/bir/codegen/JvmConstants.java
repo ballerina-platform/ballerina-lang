@@ -82,6 +82,7 @@ public class JvmConstants {
     public static final String STREAM_TYPE = "org/ballerinalang/jvm/types/BStreamType";
     public static final String TABLE_TYPE = "org/ballerinalang/jvm/types/BTableType";
     public static final String UNION_TYPE = "org/ballerinalang/jvm/types/BUnionType";
+    public static final String INTERSECTION_TYPE = "org/ballerinalang/jvm/types/BIntersectionType";
     public static final String RECORD_TYPE = "org/ballerinalang/jvm/types/BRecordType";
     public static final String OBJECT_TYPE = "org/ballerinalang/jvm/types/BObjectType";
     public static final String SERVICE_TYPE = "org/ballerinalang/jvm/types/BServiceType";

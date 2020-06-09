@@ -18,6 +18,8 @@
 
 package org.ballerinalang.net.uri.nativeimpl;
 
+import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.http.HttpUtil;
 
 import java.net.URI;
@@ -29,17 +31,17 @@ import java.net.URISyntaxException;
  * @since 0.975.0
  */
 public class Resolve {
-    public static Object resolve(String url, String path) {
+    public static Object resolve(BString url, BString path) {
         URI uri;
         try {
-            uri = new URI(path);
+            uri = new URI(path.getValue());
             if (!uri.isAbsolute()) {
                 // Url is not absolute, we need to resolve it.
-                URI baseUri = new URI(url);
+                URI baseUri = new URI(url.getValue());
                 uri = baseUri.resolve(uri.normalize());
 
             }
-            return uri.toString();
+            return StringUtils.fromString(uri.toString());
         } catch (URISyntaxException e) {
             return HttpUtil.createHttpError("error occurred while resolving URI. " + e.getMessage());
         }

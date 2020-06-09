@@ -77,7 +77,38 @@ public class STMappingBindingPatternNode extends STBindingPatternNode {
                 diagnostics);
     }
 
+    public STMappingBindingPatternNode modify(
+            STNode openBrace,
+            STNode fieldBindingPatterns,
+            STNode restBindingPattern,
+            STNode closeBrace) {
+        if (checkForReferenceEquality(
+                openBrace,
+                fieldBindingPatterns,
+                restBindingPattern,
+                closeBrace)) {
+            return this;
+        }
+
+        return new STMappingBindingPatternNode(
+                openBrace,
+                fieldBindingPatterns,
+                restBindingPattern,
+                closeBrace,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MappingBindingPatternNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }
