@@ -77,7 +77,38 @@ public class STIfElseStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STIfElseStatementNode modify(
+            STNode ifKeyword,
+            STNode condition,
+            STNode ifBody,
+            STNode elseBody) {
+        if (checkForReferenceEquality(
+                ifKeyword,
+                condition,
+                ifBody,
+                elseBody)) {
+            return this;
+        }
+
+        return new STIfElseStatementNode(
+                ifKeyword,
+                condition,
+                ifBody,
+                elseBody,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new IfElseStatementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

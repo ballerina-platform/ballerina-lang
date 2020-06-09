@@ -91,7 +91,44 @@ public class STMethodDeclarationNode extends STNode {
                 diagnostics);
     }
 
+    public STMethodDeclarationNode modify(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode functionKeyword,
+            STNode methodName,
+            STNode methodSignature,
+            STNode semicolon) {
+        if (checkForReferenceEquality(
+                metadata,
+                visibilityQualifier,
+                functionKeyword,
+                methodName,
+                methodSignature,
+                semicolon)) {
+            return this;
+        }
+
+        return new STMethodDeclarationNode(
+                metadata,
+                visibilityQualifier,
+                functionKeyword,
+                methodName,
+                methodSignature,
+                semicolon,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MethodDeclarationNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

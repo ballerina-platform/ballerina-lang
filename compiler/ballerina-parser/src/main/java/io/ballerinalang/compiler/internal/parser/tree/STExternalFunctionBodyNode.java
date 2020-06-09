@@ -77,7 +77,38 @@ public class STExternalFunctionBodyNode extends STFunctionBodyNode {
                 diagnostics);
     }
 
+    public STExternalFunctionBodyNode modify(
+            STNode equalsToken,
+            STNode annotations,
+            STNode externalKeyword,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                equalsToken,
+                annotations,
+                externalKeyword,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STExternalFunctionBodyNode(
+                equalsToken,
+                annotations,
+                externalKeyword,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ExternalFunctionBodyNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

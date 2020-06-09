@@ -47,8 +47,17 @@ public class STLiteralValueToken extends STToken {
         return text;
     }
 
-    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STLiteralValueToken(kind, text, leadingMinutiae, trailingMinutiae, diagnostics);
+    public STToken modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STLiteralValueToken(this.kind, this.text, this.leadingMinutiae, this.trailingMinutiae, diagnostics);
+    }
+
+    public STToken modifyWith(STNode leadingMinutiae, STNode trailingMinutiae) {
+        return new STLiteralValueToken(this.kind, this.text, leadingMinutiae, trailingMinutiae, this.diagnostics);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 
     @Override

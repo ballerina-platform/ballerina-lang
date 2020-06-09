@@ -784,8 +784,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ImportVersionNode importVersionNode) {
         Token versionKeyword =
                 modifyToken(importVersionNode.versionKeyword());
-        Node versionNumber =
-                modifyNode(importVersionNode.versionNumber());
+        NodeList<Node> versionNumber =
+                modifyNodeList(importVersionNode.versionNumber());
         return importVersionNode.modify(
                 versionKeyword,
                 versionNumber);
@@ -2695,6 +2695,57 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(typeReferenceTypeDescNode.typeRef());
         return typeReferenceTypeDescNode.modify(
                 typeRef);
+    }
+
+    @Override
+    public MatchStatementNode transform(
+            MatchStatementNode matchStatementNode) {
+        Token matchKeyword =
+                modifyToken(matchStatementNode.matchKeyword());
+        ExpressionNode condition =
+                modifyNode(matchStatementNode.condition());
+        Token openBrace =
+                modifyToken(matchStatementNode.openBrace());
+        SeparatedNodeList<MatchClauseNode> matchClauses =
+                modifySeparatedNodeList(matchStatementNode.matchClauses());
+        Token closeBrace =
+                modifyToken(matchStatementNode.closeBrace());
+        return matchStatementNode.modify(
+                matchKeyword,
+                condition,
+                openBrace,
+                matchClauses,
+                closeBrace);
+    }
+
+    @Override
+    public MatchClauseNode transform(
+            MatchClauseNode matchClauseNode) {
+        SeparatedNodeList<Node> matchPatterns =
+                modifySeparatedNodeList(matchClauseNode.matchPatterns());
+        MatchGuardNode matchGuard =
+                modifyNode(matchClauseNode.matchGuard().orElse(null));
+        Token rightDoubleArrow =
+                modifyToken(matchClauseNode.rightDoubleArrow());
+        BlockStatementNode blockStatement =
+                modifyNode(matchClauseNode.blockStatement());
+        return matchClauseNode.modify(
+                matchPatterns,
+                matchGuard,
+                rightDoubleArrow,
+                blockStatement);
+    }
+
+    @Override
+    public MatchGuardNode transform(
+            MatchGuardNode matchGuardNode) {
+        Token ifKeyword =
+                modifyToken(matchGuardNode.ifKeyword());
+        ExpressionNode expression =
+                modifyNode(matchGuardNode.expression());
+        return matchGuardNode.modify(
+                ifKeyword,
+                expression);
     }
 
     // Tokens

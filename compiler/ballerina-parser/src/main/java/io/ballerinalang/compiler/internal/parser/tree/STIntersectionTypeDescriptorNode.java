@@ -70,7 +70,35 @@ public class STIntersectionTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STIntersectionTypeDescriptorNode modify(
+            STNode leftTypeDesc,
+            STNode bitwiseAndToken,
+            STNode rightTypeDesc) {
+        if (checkForReferenceEquality(
+                leftTypeDesc,
+                bitwiseAndToken,
+                rightTypeDesc)) {
+            return this;
+        }
+
+        return new STIntersectionTypeDescriptorNode(
+                leftTypeDesc,
+                bitwiseAndToken,
+                rightTypeDesc,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new IntersectionTypeDescriptorNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }
