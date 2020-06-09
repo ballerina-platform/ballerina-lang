@@ -122,6 +122,8 @@ import io.ballerinalang.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerinalang.compiler.syntax.tree.SpreadFieldNode;
 import io.ballerinalang.compiler.syntax.tree.StartActionNode;
 import io.ballerinalang.compiler.syntax.tree.StatementNode;
+import io.ballerinalang.compiler.syntax.tree.StreamTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.StreamTypeParamsNode;
 import io.ballerinalang.compiler.syntax.tree.SyncSendActionNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TableConstructorExpressionNode;
@@ -281,6 +283,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -2290,6 +2293,36 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
+    public BLangNode transform(StreamTypeDescriptorNode streamTypeDescriptorNode) {
+        BLangType constraint, error = null;
+        DiagnosticPos pos = getPosition(streamTypeDescriptorNode);
+        Optional<Node> paramsNode = streamTypeDescriptorNode.streamTypeParamsNode();
+
+        boolean hasConstraint = paramsNode.isPresent();
+        if (!hasConstraint) {
+            constraint = addValueType(pos, TypeKind.ANY);
+        } else {
+            StreamTypeParamsNode params = (StreamTypeParamsNode) paramsNode.get();
+            if (params.rightTypeDescNode().isPresent()) {
+                error = (BLangType) params.rightTypeDescNode().get().apply(this);
+            }
+            constraint = (BLangType) params.leftTypeDescNode().apply(this);
+        }
+
+        BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
+        refType.typeKind = TypeKind.STREAM;
+        refType.pos = pos;
+
+        BLangStreamType streamType = (BLangStreamType) TreeBuilder.createStreamTypeNode();
+        streamType.type = refType;
+        streamType.constraint = constraint;
+        streamType.error = error;
+        streamType.pos = pos;
+
+        return streamType;
+    }
+
+    @Override
     public BLangNode transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
         int dimensions = 1;
         List<Integer> sizes = new ArrayList<>();
@@ -2422,6 +2455,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     // ------------------------------------------private methods--------------------------------------------------------
+    BLangValueType addValueType(DiagnosticPos pos, TypeKind typeKind) {
+        BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+        typeNode.pos = pos;
+        typeNode.typeKind = typeKind;
+        return typeNode;
+    }
+
     private List<BLangStatement> generateBLangStatements(NodeList<StatementNode> statementNodes) {
         List<BLangStatement> statements = new ArrayList<>();
         for (StatementNode statement : statementNodes) {
