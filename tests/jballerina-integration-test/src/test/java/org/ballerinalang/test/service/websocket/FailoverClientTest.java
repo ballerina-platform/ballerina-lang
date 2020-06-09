@@ -19,6 +19,7 @@
 package org.ballerinalang.test.service.websocket;
 
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import org.awaitility.Awaitility;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServer;
@@ -40,6 +41,9 @@ public class FailoverClientTest extends WebSocketTestCommons {
     private static final int FIRST_SERVER_PORT = 15300;
     private static final int SECOND_SERVER_PORT = 15200;
     private static final int THIRD_SERVER_PORT = 15400;
+    private static final int TIME = 8;
+    private static final int INTERVAL = 5;
+    private static final int WAITING_TIME = 4;
     private static final String MESSAGE = "hi all";
     private WebSocketRemoteServer firstRemoteServer;
     private WebSocketRemoteServer secondRemoteServer;
@@ -50,6 +54,8 @@ public class FailoverClientTest extends WebSocketTestCommons {
             BallerinaTestException {
         secondRemoteServer = initiateServer(SECOND_SERVER_PORT);
         WebSocketTestClient client = initiateClient(URL);
+        CountDownLatch latch = new CountDownLatch(1);
+        latch.await(TIME, TimeUnit.SECONDS);
         sendTextDataAndAssert(client);
         closeConnection(client, secondRemoteServer);
     }
@@ -59,6 +65,8 @@ public class FailoverClientTest extends WebSocketTestCommons {
             BallerinaTestException {
         firstRemoteServer = initiateServer(FIRST_SERVER_PORT);
         WebSocketTestClient client = initiateClient(URL);
+        CountDownLatch latch = new CountDownLatch(1);
+        latch.await(WAITING_TIME, TimeUnit.SECONDS);
         sendBinaryDataAndAssert(client);
         closeConnection(client, firstRemoteServer);
     }
@@ -68,6 +76,8 @@ public class FailoverClientTest extends WebSocketTestCommons {
             BallerinaTestException {
         thirdRemoteServer = initiateServer(THIRD_SERVER_PORT);
         WebSocketTestClient client = initiateClient(URL);
+        CountDownLatch latch = new CountDownLatch(1);
+        latch.await(TIME, TimeUnit.SECONDS);
         sendBinaryDataAndAssert(client);
         closeConnection(client, thirdRemoteServer);
     }
@@ -75,7 +85,7 @@ public class FailoverClientTest extends WebSocketTestCommons {
     @Test(description = "Tests the failover webSocket client by not starting any of the servers in the targets URLs")
     public void testFailingFailover() throws URISyntaxException, InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        WebSocketTestClient client = initiateClient(URL);
+        WebSocketTestClient client = initiateClient("ws://localhost:21035");
         client.setCountDownLatch(countDownLatch);
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         CloseWebSocketFrame closeWebSocketFrame = client.getReceivedCloseFrame();
@@ -87,10 +97,10 @@ public class FailoverClientTest extends WebSocketTestCommons {
 
     @Test(description = "Tests the failover client when getting a handshake timeout")
     public void testHandshakeTimeout() throws URISyntaxException, InterruptedException, BallerinaTestException {
-        firstRemoteServer = initiateServer(FIRST_SERVER_PORT);
         WebSocketTestClient client = initiateClient("ws://localhost:21034");
+        firstRemoteServer = initiateServer(FIRST_SERVER_PORT);
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        countDownLatch.await(30, TimeUnit.SECONDS);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         sendTextDataAndAssert(client);
         closeConnection(client, firstRemoteServer);
     }
@@ -101,8 +111,12 @@ public class FailoverClientTest extends WebSocketTestCommons {
         secondRemoteServer = initiateServer(SECOND_SERVER_PORT);
         firstRemoteServer = initiateServer(FIRST_SERVER_PORT);
         WebSocketTestClient client = initiateClient(URL);
+        CountDownLatch latch = new CountDownLatch(1);
+        latch.await(WAITING_TIME, TimeUnit.SECONDS);
         sendTextDataAndAssert(client);
         firstRemoteServer.stop();
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        countDownLatch.await(INTERVAL, TimeUnit.SECONDS);
         sendTextDataAndAssert(client);
         sendBinaryDataAndAssert(client);
         closeConnection(client, secondRemoteServer);
@@ -113,9 +127,13 @@ public class FailoverClientTest extends WebSocketTestCommons {
             BallerinaTestException {
         secondRemoteServer = initiateServer(SECOND_SERVER_PORT);
         WebSocketTestClient client = initiateClient(URL);
+        CountDownLatch latch = new CountDownLatch(1);
+        latch.await(INTERVAL, TimeUnit.SECONDS);
         sendTextDataAndAssert(client);
         firstRemoteServer = initiateServer(FIRST_SERVER_PORT);
         secondRemoteServer.stop();
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        countDownLatch.await(TIME, TimeUnit.SECONDS);
         sendTextDataAndAssert(client);
         closeConnection(client, firstRemoteServer);
     }
@@ -124,15 +142,23 @@ public class FailoverClientTest extends WebSocketTestCommons {
     public void testComplexFailover() throws URISyntaxException, InterruptedException, BallerinaTestException {
         secondRemoteServer = initiateServer(SECOND_SERVER_PORT);
         WebSocketTestClient client = initiateClient(URL);
+        CountDownLatch latch = new CountDownLatch(1);
+        latch.await(INTERVAL, TimeUnit.SECONDS);
         sendTextDataAndAssert(client);
         firstRemoteServer = initiateServer(FIRST_SERVER_PORT);
         secondRemoteServer.stop();
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        countDownLatch.await(TIME, TimeUnit.SECONDS);
         sendBinaryDataAndAssert(client);
         thirdRemoteServer = initiateServer(THIRD_SERVER_PORT);
         firstRemoteServer.stop();
+        CountDownLatch thirdAttemptsLatch = new CountDownLatch(1);
+        thirdAttemptsLatch.await(TIME, TimeUnit.SECONDS);
         sendTextDataAndAssert(client);
         secondRemoteServer = initiateServer(SECOND_SERVER_PORT);
         thirdRemoteServer.stop();
+        CountDownLatch foruthAttemptsLatch = new CountDownLatch(1);
+        foruthAttemptsLatch.await(TIME, TimeUnit.SECONDS);
         sendBinaryDataAndAssert(client);
         closeConnection(client, secondRemoteServer);
     }
@@ -140,14 +166,15 @@ public class FailoverClientTest extends WebSocketTestCommons {
     private WebSocketRemoteServer initiateServer(int port) throws InterruptedException, BallerinaTestException {
         WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(port);
         remoteServer.run();
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        CountDownLatch latch = new CountDownLatch(1);
+        latch.await(2, TimeUnit.SECONDS);
         return remoteServer;
     }
 
     private WebSocketTestClient initiateClient(String url) throws InterruptedException, URISyntaxException {
         WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
+        Awaitility.await().atMost(TIMEOUT_IN_SECS, TimeUnit.SECONDS).until(() -> client.isOpen());
         return client;
     }
 
@@ -158,6 +185,8 @@ public class FailoverClientTest extends WebSocketTestCommons {
     }
 
     private void sendTextDataAndAssert(WebSocketTestClient client) throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+        latch.await(1, TimeUnit.SECONDS);
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
         client.sendText(MESSAGE);
@@ -166,6 +195,8 @@ public class FailoverClientTest extends WebSocketTestCommons {
     }
 
     private void sendBinaryDataAndAssert(WebSocketTestClient client) throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+        latch.await(1, TimeUnit.SECONDS);
         ByteBuffer data = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 6});
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);

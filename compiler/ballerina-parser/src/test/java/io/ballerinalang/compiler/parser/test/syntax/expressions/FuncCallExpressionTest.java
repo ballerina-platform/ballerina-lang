@@ -55,6 +55,11 @@ public class FuncCallExpressionTest extends AbstractExpressionsTest {
                 "func-call/func_call_assert_10.json");
     }
 
+    @Test
+    public void testBracedExprAsArgs() {
+        testFile("func-call/func_call_source_12.bal", "func-call/func_call_assert_12.json");
+    }
+
     // Recovery tests
 
     @Test

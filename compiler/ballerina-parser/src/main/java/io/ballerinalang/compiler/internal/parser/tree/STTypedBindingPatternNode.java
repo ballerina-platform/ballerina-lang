@@ -63,7 +63,32 @@ public class STTypedBindingPatternNode extends STNode {
                 diagnostics);
     }
 
+    public STTypedBindingPatternNode modify(
+            STNode typeDescriptor,
+            STNode bindingPattern) {
+        if (checkForReferenceEquality(
+                typeDescriptor,
+                bindingPattern)) {
+            return this;
+        }
+
+        return new STTypedBindingPatternNode(
+                typeDescriptor,
+                bindingPattern,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypedBindingPatternNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

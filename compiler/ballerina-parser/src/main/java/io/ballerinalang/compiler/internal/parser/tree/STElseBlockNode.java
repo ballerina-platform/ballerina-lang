@@ -63,7 +63,32 @@ public class STElseBlockNode extends STNode {
                 diagnostics);
     }
 
+    public STElseBlockNode modify(
+            STNode elseKeyword,
+            STNode elseBody) {
+        if (checkForReferenceEquality(
+                elseKeyword,
+                elseBody)) {
+            return this;
+        }
+
+        return new STElseBlockNode(
+                elseKeyword,
+                elseBody,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ElseBlockNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

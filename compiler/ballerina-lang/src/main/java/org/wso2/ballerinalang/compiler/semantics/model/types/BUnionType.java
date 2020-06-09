@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.UnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -43,7 +42,7 @@ import java.util.stream.Stream;
  */
 public class BUnionType extends BType implements UnionType {
 
-    public BType immutableType;
+    public BIntersectionType immutableType;
 
     private boolean nullable;
 
@@ -271,7 +270,7 @@ public class BUnionType extends BType implements UnionType {
     }
 
     @Override
-    public Type getImmutableType() {
+    public BIntersectionType getImmutableType() {
         return this.immutableType;
     }
 }

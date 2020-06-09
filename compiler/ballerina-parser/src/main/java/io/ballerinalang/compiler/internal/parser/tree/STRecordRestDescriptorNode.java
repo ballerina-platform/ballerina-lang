@@ -70,7 +70,35 @@ public class STRecordRestDescriptorNode extends STNode {
                 diagnostics);
     }
 
+    public STRecordRestDescriptorNode modify(
+            STNode typeName,
+            STNode ellipsisToken,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                typeName,
+                ellipsisToken,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STRecordRestDescriptorNode(
+                typeName,
+                ellipsisToken,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RecordRestDescriptorNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

@@ -455,6 +455,7 @@ public class JvmInstructionGen {
                 bType.tag == TypeTags.NIL ||
                 bType.tag == TypeTags.NEVER ||
                 bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.INTERSECTION ||
                 bType.tag == TypeTags.TUPLE ||
                 bType.tag == TypeTags.RECORD ||
                 bType.tag == TypeTags.ERROR ||
@@ -515,6 +516,7 @@ public class JvmInstructionGen {
                 bType.tag == TypeTags.NIL ||
                 bType.tag == TypeTags.NEVER ||
                 bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.INTERSECTION ||
                 bType.tag == TypeTags.TUPLE ||
                 bType.tag == TypeTags.DECIMAL ||
                 bType.tag == TypeTags.RECORD ||
@@ -1255,6 +1257,10 @@ public class JvmInstructionGen {
         if (varRefType.tag == TypeTags.JSON) {
             this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "setElement",
                                         String.format("(L%s;L%s;L%s;)V", OBJECT, JvmConstants.B_STRING_VALUE), false);
+        } else if (mapStoreIns.onInitialization) {
+            // We only reach here for stores in a record init function.
+            this.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "populateInitialValue",
+                                    String.format("(L%s;L%s;)V", OBJECT, OBJECT), true);
         } else {
             String signature = String.format("(L%s;L%s;L%s;)V",
                     MAP_VALUE, JvmConstants.B_STRING_VALUE, OBJECT);
@@ -1329,6 +1335,15 @@ public class JvmInstructionGen {
         addBoxInsn(this.mv, valueType);
 
         // invoke set() method
+        if (objectStoreIns.onInitialization) {
+            BObjectType objectType = (BObjectType) objectStoreIns.lhsOp.variableDcl.type;
+            this.mv.visitMethodInsn(INVOKESPECIAL,
+                                    getTypeValueClassName(objectType.tsymbol.pkgID, toNameString(objectType)),
+                                    "setOnInitialization",
+                                    String.format("(L%s;L%s;)V", JvmConstants.B_STRING_VALUE, OBJECT), true);
+            return;
+        }
+
         this.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "set",
                                     String.format("(L%s;L%s;)V", JvmConstants.B_STRING_VALUE, OBJECT), true);
     }
