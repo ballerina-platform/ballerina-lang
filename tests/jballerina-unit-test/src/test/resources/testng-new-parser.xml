@@ -139,7 +139,6 @@
             <class name="org.ballerinalang.test.expressions.invocations.StringFunctionInvocationExprTest"></class>
             <class name="org.ballerinalang.test.expressions.invocations.PackageInitInvocationTest"></class>
             <class name="org.ballerinalang.test.expressions.unaryoperations.UnaryExprTest"></class>
-            <class name="org.ballerinalang.test.imports.ImportsTest"></class>
             <class name="org.ballerinalang.test.javainterop.arrays.JavaArrayBasicTest"></class>
             <class name="org.ballerinalang.test.statements.ifelse.IfElseStmtTest"></class>
             <class name="org.ballerinalang.test.worker.StackOverflowTest"></class>
