@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
+import org.ballerinalang.jvm.values.api.BFuture;
+import org.ballerinalang.jvm.values.api.BTypedesc;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -121,36 +123,32 @@ public class NegativeValidationTest {
     @Test
     public void testMethodNotFound6() {
 
-        String path = "test-src/javainterop/negative/method_not_found6.bal";
+        String testFileName = "method_not_found6.bal";
+        String path = "test-src/javainterop/negative/" + testFileName;
 
         CompileResult compileResult = BCompileUtil.compileInProc(path);
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 4);
-        BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/java}METHOD_NOT_FOUND 'No such public method 'getFuture' that matches with parameter " +
-                        "types '(org.ballerinalang.jvm.values.api.BTypedesc)' found in class " +
-                        "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
-                "method_not_found6.bal", 3, 1);
 
-        BAssertUtil.validateError(compileResult, 1,
-                "{ballerina/java}METHOD_NOT_FOUND 'No such public method 'getTypeDesc' that matches with parameter " +
-                        "types '(org.ballerinalang.jvm.values.api.BFuture)' found in class " +
-                        "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
-                "method_not_found6.bal", 9, 1);
+        String message = "{ballerina/java}METHOD_NOT_FOUND 'No such public method '%s' that matches with " +
+                "parameter types '(%s)' found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''";
+
+        String bTypeDescClassName = BTypedesc.class.getName();
+        String bFutureClassName = BFuture.class.getName();
+
+        BAssertUtil.validateError(compileResult, 0, String.format(message, "getFuture", bTypeDescClassName),
+                testFileName, 3, 1);
+
+        BAssertUtil.validateError(compileResult, 1, String.format(message, "getTypeDesc", bFutureClassName),
+                testFileName, 9, 1);
 
         BAssertUtil.validateError(compileResult, 2,
-                "{ballerina/java}METHOD_NOT_FOUND 'No such public method 'getFutureOnly' that " +
-                        "matches with parameter types " +
-                        "'(org.ballerinalang.jvm.values.api.BFuture,org.ballerinalang.jvm.values.api.BTypedesc)' " +
-                        "found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
-                "method_not_found6.bal", 15, 1);
+                String.format(message, "getFutureOnly", bFutureClassName + "," + bTypeDescClassName),
+                testFileName, 15, 1);
 
         BAssertUtil.validateError(compileResult, 3,
-                "{ballerina/java}METHOD_NOT_FOUND 'No such public method 'getTypeDescOnly' that " +
-                        "matches with parameter types " +
-                        "'(org.ballerinalang.jvm.values.api.BTypedesc,org.ballerinalang.jvm.values.api.BFuture)' " +
-                        "found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
-                "method_not_found6.bal", 21, 1);
+                String.format(message, "getTypeDescOnly", bTypeDescClassName + "," + bFutureClassName),
+                testFileName, 21, 1);
     }
 
     @Test
