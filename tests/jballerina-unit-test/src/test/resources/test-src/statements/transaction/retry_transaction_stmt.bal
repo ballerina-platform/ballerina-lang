@@ -1,23 +1,7 @@
-import ballerina/io;
-
-function testRollback() {
-    string|error x =  trap actualCode(0, false);
-    if(x is string) {
-        assertEquality("start fc-0 inTrx Commit endTrx end", x);
-    }
-}
-
-function testCommit() {
-    string|error x =  trap actualCode(0, false);
-    if(x is string) {
-        assertEquality("start fc-0 inTrx Commit endTrx end", x);
-    }
-}
-
 function testPanic() {
-    string|error x =  trap actualCode(1, false);
+    string|error x =  trap actualCode(2, false);
     if(x is string) {
-        assertEquality("start fc-1 inTrx blowUp", x);
+        assertEquality("start fc-2 inTrx blowUp inTrx blowUp inTrx Commit endTrx end", x);
     }
 }
 
@@ -27,28 +11,23 @@ function actualCode(int failureCutOff, boolean requestRollback) returns (string)
     a = a + " fc-" + failureCutOff.toString();
     int count = 0;
 
-    transaction {
+    retry transaction {
         a = a + " inTrx";
         count = count + 1;
-        if transactional {
-            io:println("Transactional mode");
-        }
         if (count <= failureCutOff) {
             a = a + " blowUp"; // transaction block panic scenario, Set failure cutoff to 0, for not blowing up.
             int bV = blowUp();
         }
         if (requestRollback) { // Set requestRollback to true if you want to try rollback scenario, otherwise commit
-            a = a + " Rollback";
             rollback;
+            a = a + " Rollback";
         } else {
-            a = a + " Commit";
             var i = commit;
+            a = a + " Commit";
         }
         a = a + " endTrx";
         a = (a + " end");
     }
-
-    io:println("## Transaction execution completed ##");
     return a;
 }
 

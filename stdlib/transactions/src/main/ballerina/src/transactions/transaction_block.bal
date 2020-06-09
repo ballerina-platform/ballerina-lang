@@ -30,18 +30,19 @@ public type Info record {|
    Info? prevAttempt;
 |};
 
-public type CommitHandler function(Info? info);
-public type RollbackHandler function(Info? info, error? cause, boolean willRetry);
+public type CommitHandler function(Info info);
+public type RollbackHandler function(Info info, error? cause, boolean willRetry);
 
 
-public function startTransaction(string transactionBlockId) returns string {
+public function startTransaction(string transactionBlockId, Info? prevAttempt = ()) returns string {
     string transactionId = "";
     TransactionContext|error txnContext =  beginTransaction((), transactionBlockId, "", TWO_PHASE_COMMIT);
     if (txnContext is error) {
         panic txnContext;
     } else {
+
         transactionId = txnContext.transactionId;
-        setTransactionContext(txnContext);
+        setTransactionContext(txnContext, prevAttempt);
     }
 
     log:printInfo("It is done");
@@ -412,7 +413,8 @@ function isNestedTransaction() returns boolean = @java:Method {
 # Set the transactionContext.
 #
 # + transactionContext - Transaction context.
-public function setTransactionContext(TransactionContext transactionContext) = @java:Method {
+# + prevAttempt - Information related to previous attempt.
+public function setTransactionContext(TransactionContext transactionContext, Info? prevAttempt = ()) = @java:Method {
     class: "io.ballerina.transactions.Utils",
     name: "setTransactionContext"
 } external;
@@ -478,11 +480,12 @@ function externNotifyResourceManagerOnAbort(handle transactionBlockId) = @java:M
 # Rollback the transaction.
 #
 # + transactionBlockId - ID of the transaction block.
-public function rollbackTransaction(string transactionBlockId) {
-    externRollbackTransaction(java:fromString(transactionBlockId));
+# + err - The cause of the rollback.
+public function rollbackTransaction(string transactionBlockId, error? err = ()) {
+    externRollbackTransaction(java:fromString(transactionBlockId), err);
 }
 
-function externRollbackTransaction(handle transactionBlockId) = @java:Method {
+function externRollbackTransaction(handle transactionBlockId, error? err) = @java:Method {
     class: "io.ballerina.transactions.Utils",
     name: "rollbackTransaction"
 } external;
@@ -520,4 +523,9 @@ public function onRollback(RollbackHandler handler) = @java:Method {
 public function isTransactional() returns boolean = @java:Method {
 class: "io.ballerina.transactions.Utils",
 name: "isTransactional"
+} external;
+
+public function info() returns Info = @java:Method {
+class: "io.ballerina.transactions.Utils",
+name: "info"
 } external;
