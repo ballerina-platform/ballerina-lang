@@ -3222,7 +3222,7 @@
                 },
                 {
                     "name": "annotTagReference",
-                    "type": "Node"
+                    "type": "NameReferenceNode"
                 }
             ]
         },

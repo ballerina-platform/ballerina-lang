@@ -2416,7 +2416,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(annotAccessExpressionNode.expression());
         Token annotChainingToken =
                 modifyToken(annotAccessExpressionNode.annotChainingToken());
-        Node annotTagReference =
+        NameReferenceNode annotTagReference =
                 modifyNode(annotAccessExpressionNode.annotTagReference());
         return annotAccessExpressionNode.modify(
                 expression,
