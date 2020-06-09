@@ -148,6 +148,7 @@ import io.ballerinalang.compiler.syntax.tree.XMLAttributeNode;
 import io.ballerinalang.compiler.syntax.tree.XMLAttributeValue;
 import io.ballerinalang.compiler.syntax.tree.XMLComment;
 import io.ballerinalang.compiler.syntax.tree.XMLElementNode;
+import io.ballerinalang.compiler.syntax.tree.XMLEmptyElementNode;
 import io.ballerinalang.compiler.syntax.tree.XMLEndTagNode;
 import io.ballerinalang.compiler.syntax.tree.XMLNamespaceDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.XMLProcessingInstruction;
@@ -2235,6 +2236,18 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         xmlName.localname = createIdentifier(xmlSimpleNameNode.name());
         xmlName.prefix = createIdentifier(null, "");
         return xmlName;
+    }
+
+    @Override
+    public BLangNode transform(XMLEmptyElementNode xMLEmptyElementNode) {
+        BLangXMLElementLiteral xmlEmptyElement = (BLangXMLElementLiteral) TreeBuilder.createXMLElementLiteralNode();
+        xmlEmptyElement.startTagName = createExpression(xMLEmptyElementNode.name());
+
+        for (XMLAttributeNode attribute : xMLEmptyElementNode.attributes()) {
+            xmlEmptyElement.attributes.add((BLangXMLAttribute) attribute.apply(this));
+        }
+        xmlEmptyElement.pos = getPosition(xMLEmptyElementNode);
+        return xmlEmptyElement;
     }
 
     @Override
