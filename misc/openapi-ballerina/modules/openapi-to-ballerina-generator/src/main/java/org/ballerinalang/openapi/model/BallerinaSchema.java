@@ -155,11 +155,13 @@ public class BallerinaSchema implements BallerinaOpenApiObject<BallerinaSchema, 
                 if (prop instanceof ArraySchema) {
                     ref = ((ArraySchema) prop).getItems().get$ref();
                 }
+
                 if (ref == null) {
                     type = getPropertyType(((ArraySchema) prop).getItems());
                 } else {
                     type = escapeIdentifier(getReferenceType(ref));
                 }
+
                 // define type with ballerina array syntax
                 type += "[]";
                 break;
