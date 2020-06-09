@@ -21,9 +21,6 @@ import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * <p>
@@ -1137,6 +1134,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TERMINAL_EXPRESSION:
             case VAR_DECL_STMT_RHS:
             case EXPRESSION_RHS:
+            case VARIABLE_REF_RHS:
             case STATEMENT:
             case STATEMENT_WITHOUT_ANNOTS:
             case PARAM_LIST:
@@ -1323,7 +1321,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 alternativeRules = VAR_DECL_RHS;
                 break;
             case EXPRESSION_RHS:
-                return seekMatchInExpressionRhs(lookahead, currentDepth, matchingRulesCount, isEntryPoint);
+                return seekMatchInExpressionRhs(lookahead, currentDepth, matchingRulesCount, isEntryPoint, false);
+            case VARIABLE_REF_RHS:
+                return seekMatchInExpressionRhs(lookahead, currentDepth, matchingRulesCount, isEntryPoint, true);
             case STATEMENT:
             case STATEMENT_WITHOUT_ANNOTS:
                 return seekInStatements(currentCtx, lookahead, currentDepth, matchingRulesCount, isEntryPoint);
@@ -1769,18 +1769,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
      * @param currentDepth Amount of distance traveled so far
      * @param currentMatches Matching tokens found so far
      * @param isEntryPoint
+     * @param allowFuncCall Whether function call is allowed or not
      * @return Recovery result
      */
-    private Result seekMatchInExpressionRhs(int lookahead, int currentDepth, int currentMatches, boolean isEntryPoint) {
-        ParserRuleContext parentCtx = getParentContext();
-        if (parentCtx == ParserRuleContext.FUNCTION_CALL_START) {
-            endContext();
-            return seekMatchInExpressionRhs(lookahead, currentDepth, currentMatches, isEntryPoint, true);
-        } else {
-            return seekMatchInExpressionRhs(lookahead, currentDepth, currentMatches, isEntryPoint, false);
-        }
-    }
-
     private Result seekMatchInExpressionRhs(int lookahead, int currentDepth, int currentMatches, boolean isEntryPoint,
                                             boolean allowFuncCall) {
         ParserRuleContext parentCtx = getParentContext();
@@ -1791,8 +1782,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                         ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPTIONAL_CHAINING_TOKEN,
                         ParserRuleContext.CONDITIONAL_EXPRESSION, ParserRuleContext.XML_NAVIGATE_EXPR,
                         ParserRuleContext.MEMBER_ACCESS_KEY_EXPR, ParserRuleContext.COMMA,
-                        ParserRuleContext.ARG_LIST_START, ParserRuleContext.ARG_LIST_END };
-                return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, alternatives, isEntryPoint);
+                        ParserRuleContext.ARG_LIST_END };
+                break;
             case MAPPING_CONSTRUCTOR:
             case MULTI_WAIT_FIELDS:
                 alternatives = new ParserRuleContext[] { ParserRuleContext.CLOSE_BRACE,
@@ -1859,7 +1850,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
         if (alternatives != null) {
             if (allowFuncCall) {
-                alternatives = addNewAlternative(alternatives, ParserRuleContext.ARG_LIST_START);
+                alternatives = modifyAlternativesWithArgListStart(alternatives);
             }
             return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, alternatives, isEntryPoint);
         }
@@ -1900,15 +1891,16 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 ParserRuleContext.RIGHT_ARROW, ParserRuleContext.SYNC_SEND_TOKEN, nextContext };
 
         if (allowFuncCall) {
-            alternatives = addNewAlternative(alternatives, ParserRuleContext.ARG_LIST_START);
+            alternatives = modifyAlternativesWithArgListStart(alternatives);
         }
         return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, alternatives, isEntryPoint);
     }
 
-    private ParserRuleContext[] addNewAlternative(ParserRuleContext[] alternatives, ParserRuleContext newAlternative) {
-        List<ParserRuleContext> alternativesList = new ArrayList<>(Arrays.asList(alternatives));
-        alternativesList.add(newAlternative);
-        return alternativesList.toArray(alternatives);
+    private ParserRuleContext[] modifyAlternativesWithArgListStart(ParserRuleContext[] alternatives) {
+        ParserRuleContext[] newAlternatives = new ParserRuleContext[alternatives.length + 1];
+        System.arraycopy(alternatives, 0, newAlternatives, 0, alternatives.length);
+        newAlternatives[alternatives.length] = ParserRuleContext.ARG_LIST_START;
+        return newAlternatives;
     }
 
     /**
@@ -2236,7 +2228,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 switch (parentCtx) {
                     case VARIABLE_REF:
                         endContext();
-                        return getNextRuleForExprStartsWithIdentifier();
+                        return getNextRuleForExprStartsWithVarRef();
                     case TYPE_REFERENCE:
                         endContext();
                         if (isInTypeDescContext()) {
@@ -2250,7 +2242,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                         return ParserRuleContext.ANNOT_OPTIONAL_ATTACH_POINTS;
                     case FIELD_ACCESS_IDENTIFIER:
                         endContext();
-                        return getNextRuleForExprWithFuncCallEnabled();
+                        return ParserRuleContext.VARIABLE_REF_RHS;
                     case XML_ATOMIC_NAME_PATTERN:
                         endContext();
                         return ParserRuleContext.XML_NAME_PATTERN_RHS;
@@ -3548,20 +3540,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         return ParserRuleContext.EXPRESSION_RHS;
     }
 
-    private ParserRuleContext getNextRuleForExprStartsWithIdentifier() {
+    private ParserRuleContext getNextRuleForExprStartsWithVarRef() {
         ParserRuleContext parentCtx;
         parentCtx = getParentContext();
         if (parentCtx == ParserRuleContext.CONSTANT_EXPRESSION) {
             endContext();
             return getNextRuleForConstExpr();
         }
-        return getNextRuleForExprWithFuncCallEnabled();
-    }
-
-    private ParserRuleContext getNextRuleForExprWithFuncCallEnabled() {
-        // Here we start a new context so that expr-rhs will allow function calls
-        startContext(ParserRuleContext.FUNCTION_CALL_START);
-        return ParserRuleContext.EXPRESSION_RHS;
+        return ParserRuleContext.VARIABLE_REF_RHS;
     }
 
     private ParserRuleContext getNextRuleForConstExpr() {

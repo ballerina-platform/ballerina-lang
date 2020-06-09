@@ -4149,7 +4149,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseExpressionRhs(SyntaxKind tokenKind, OperatorPrecedence currentPrecedenceLevel, STNode lhsExpr,
                                       boolean isRhsExpr, boolean allowActions) {
-        if (isEndOfExpression(tokenKind, isRhsExpr)) {
+        if (isEndOfExpression(tokenKind, isRhsExpr, lhsExpr.kind)) {
             return lhsExpr;
         }
 
@@ -4160,7 +4160,7 @@ public class BallerinaParser extends AbstractParser {
             return lhsExpr;
         }
 
-        if (!isValidExprRhsStart(tokenKind) || isInvalidFunctionCallStart(tokenKind, lhsExpr)) {
+        if (!isValidExprRhsStart(tokenKind, lhsExpr.kind)) {
             STToken token = peek();
             Solution solution = recover(token, ParserRuleContext.EXPRESSION_RHS, currentPrecedenceLevel, lhsExpr,
                     isRhsExpr, allowActions);
@@ -4276,9 +4276,12 @@ public class BallerinaParser extends AbstractParser {
         return parseExpressionRhs(currentPrecedenceLevel, newLhsExpr, isRhsExpr, allowActions);
     }
 
-    private boolean isValidExprRhsStart(SyntaxKind tokenKind) {
+    private boolean isValidExprRhsStart(SyntaxKind tokenKind, SyntaxKind precedingNodeKind) {
         switch (tokenKind) {
             case OPEN_PAREN_TOKEN:
+                // Only an identifier or a qualified identifier is followed by a function call.
+                return precedingNodeKind == SyntaxKind.QUALIFIED_NAME_REFERENCE ||
+                        precedingNodeKind == SyntaxKind.SIMPLE_NAME_REFERENCE;
             case DOT_TOKEN:
             case OPEN_BRACKET_TOKEN:
             case IS_KEYWORD:
@@ -4297,15 +4300,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 return isBinaryOperator(tokenKind);
         }
-    }
-
-    private boolean isInvalidFunctionCallStart(SyntaxKind tokenKind, STNode lhsExpr) {
-        if (tokenKind == SyntaxKind.OPEN_PAREN_TOKEN) {
-            // Only an identifier or a qualified identifier is followed by a function call.
-            return lhsExpr.kind != SyntaxKind.QUALIFIED_NAME_REFERENCE &&
-                    lhsExpr.kind != SyntaxKind.SIMPLE_NAME_REFERENCE;
-        }
-        return false;
     }
 
     /**
@@ -4564,12 +4558,12 @@ public class BallerinaParser extends AbstractParser {
      * @param isRhsExpr Flag indicating whether this is on a rhsExpr of a statement
      * @return <code>true</code> if the token represents an end of a block. <code>false</code> otherwise
      */
-    private boolean isEndOfExpression(SyntaxKind tokenKind, boolean isRhsExpr) {
+    private boolean isEndOfExpression(SyntaxKind tokenKind, boolean isRhsExpr, SyntaxKind precedingNodeKind) {
         if (!isRhsExpr) {
             if (isCompoundBinaryOperator(tokenKind)) {
                 return true;
             }
-            return !isValidExprRhsStart(tokenKind);
+            return !isValidExprRhsStart(tokenKind, precedingNodeKind);
         }
 
         switch (tokenKind) {
@@ -9627,9 +9621,9 @@ public class BallerinaParser extends AbstractParser {
         STNode fromClause = parseFromClause(isRhsExpr);
 
         List<STNode> clauses = new ArrayList<>();
-        STNode intermediateClause;
+        STNode intermediateClause = null;
         STNode selectClause = null;
-        while (!isEndOfIntermediateClause(peek().kind)) {
+        while (!isEndOfIntermediateClause(peek().kind, SyntaxKind.NONE)) {
             intermediateClause = parseIntermediateClause(isRhsExpr);
             if (intermediateClause == null) {
                 break;
@@ -9717,7 +9711,7 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private boolean isEndOfIntermediateClause(SyntaxKind tokenKind) {
+    private boolean isEndOfIntermediateClause(SyntaxKind tokenKind, SyntaxKind precedingNodeKind) {
         switch (tokenKind) {
             case CLOSE_BRACE_TOKEN:
             case CLOSE_PAREN_TOKEN:
@@ -9739,7 +9733,7 @@ public class BallerinaParser extends AbstractParser {
             case DO_KEYWORD:
                 return true;
             default:
-                return isValidExprRhsStart(tokenKind);
+                return isValidExprRhsStart(tokenKind, precedingNodeKind);
         }
     }
 
@@ -10066,7 +10060,7 @@ public class BallerinaParser extends AbstractParser {
             case DECIMAL_FLOATING_POINT_LITERAL:
             case HEX_FLOATING_POINT_LITERAL:
             case IDENTIFIER_TOKEN:
-                return isValidExprRhsStart(peek(nextTokenIndex + 1).kind);
+                return isValidExprRhsStart(peek(nextTokenIndex + 1).kind, SyntaxKind.SIMPLE_NAME_REFERENCE);
             case OPEN_PAREN_TOKEN:
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
@@ -11687,7 +11681,7 @@ public class BallerinaParser extends AbstractParser {
 
                 // If the next token is part of a valid expression, then still parse it
                 // as a statement that starts with an expression.
-                if (isValidExprRhsStart(nextTokenKind)) {
+                if (isValidExprRhsStart(nextTokenKind, typeOrExpr.kind)) {
                     return typeOrExpr;
                 }
 
@@ -11934,7 +11928,7 @@ public class BallerinaParser extends AbstractParser {
 
                 // If the next token is part of a valid expression, then still parse it
                 // as a statement that starts with an expression.
-                if (isValidExprRhsStart(nextTokenKind)) {
+                if (isValidExprRhsStart(nextTokenKind, typeOrExpr.kind)) {
                     return parseExpressionRhs(nextTokenKind, DEFAULT_OP_PRECEDENCE, typeOrExpr, false, false);
                 }
 
@@ -12743,7 +12737,7 @@ public class BallerinaParser extends AbstractParser {
                 }
                 // fall through
             default:
-                if (isValidExprRhsStart(nextTokenKind)) {
+                if (isValidExprRhsStart(nextTokenKind, closeBracket.kind)) {
                     // We come here if T[a] is in some expression context.
                     keyExpr = STNodeFactory.createNodeList(member);
                     typeDescOrExpr = getExpression(typeDescOrExpr);
@@ -13973,7 +13967,7 @@ public class BallerinaParser extends AbstractParser {
                 }
                 // fall through
             default:
-                if (isValidExprRhsStart(peek().kind)) {
+                if (isValidExprRhsStart(peek().kind, closeBracket.kind)) {
                     members = getExpressionList(members);
                     STNode memberExpressions = STNodeFactory.createNodeList(members);
                     lbpOrListCons = STNodeFactory.createListConstructorExpressionNode(openBracket, memberExpressions,
