@@ -380,11 +380,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         // Generate other module-level declarations
         for (ModuleMemberDeclarationNode member : modulePart.members()) {
-            if (member.kind() == SyntaxKind.ENUM_DECLARATION) {
-                addEnumDeclarationNode(
-                        (EnumDeclarationNode) member,compilationUnit);
-                continue;
-            }
             compilationUnit.addTopLevelNode((TopLevelNode) member.apply(this));
         }
 
@@ -571,7 +566,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         if (!finiteTypeElements.isEmpty()) {
-            unionTypeNode.memberTypeNodes.add(deSugarTypeAsUserDefType(bLangFiniteTypeNode));
+            BLangTypeDefinition bLTypeDef = deSugarTypeAsUserDefType(bLangFiniteTypeNode);
+            addToTop(bLTypeDef);
+
+            BLangUserDefinedType bLangUserDefinedType =
+                    createUserDefinedType(bLangFiniteTypeNode.pos,
+                            (BLangIdentifier) TreeBuilder.createIdentifierNode(), bLTypeDef.name);
+            unionTypeNode.memberTypeNodes.add(bLangUserDefinedType);
         }
         return unionTypeNode;
     }
@@ -593,7 +594,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
     }
 
-    private BLangUserDefinedType deSugarTypeAsUserDefType(BLangType toIndirect) {
+    private BLangTypeDefinition deSugarTypeAsUserDefType(BLangType toIndirect) {
         DiagnosticPos pos = toIndirect.pos;
         BLangTypeDefinition bLTypeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
 
@@ -606,9 +607,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         bLTypeDef.typeNode = toIndirect;
         bLTypeDef.pos = pos;
-        addToTop(bLTypeDef);
-
-        return createUserDefinedType(pos, (BLangIdentifier) TreeBuilder.createIdentifierNode(), bLTypeDef.name);
+        return bLTypeDef;
     }
 
     @Override
@@ -704,7 +703,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             return objectTypeNode;
         }
 
-        return deSugarTypeAsUserDefType(objectTypeNode);
+        BLangTypeDefinition bLTypeDef = deSugarTypeAsUserDefType(objectTypeNode);
+        addToTop(bLTypeDef);
+
+        return createUserDefinedType(objectTypeNode.pos,
+                (BLangIdentifier) TreeBuilder.createIdentifierNode(), bLTypeDef.name);
     }
 
     @Override
@@ -2304,9 +2307,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return arrayTypeNode;
     }
 
-    public void addEnumDeclarationNode(
-            EnumDeclarationNode enumDeclarationNode,
-            BLangCompilationUnit compInit) {
+    public BLangNode transform(EnumDeclarationNode enumDeclarationNode) {
 
         Boolean publicQualifier = false;
         if (enumDeclarationNode.qualifier() != null &&
@@ -2315,7 +2316,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             publicQualifier = true;
         }
         for (Node member : enumDeclarationNode.enumMemberList()) {
-            compInit.addTopLevelNode(transformEnumMember(
+            addToTop(transformEnumMember(
                     (EnumMemberNode) member,
                     publicQualifier));
         }
@@ -2338,7 +2339,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
         Collections.reverse(bLangUnionTypeNode.memberTypeNodes);
         bLangTypeDefinition.setTypeNode(bLangUnionTypeNode);
-        compInit.addTopLevelNode(bLangTypeDefinition);
+        return bLangTypeDefinition;
     }
 
     public BLangConstant transformEnumMember(EnumMemberNode member,
@@ -2351,12 +2352,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (publicQualifier) {
             bLangConstant.flagSet.add(Flag.PUBLIC);
         }
-        BLangTypeDefinition assosiatedTypeDef =
-                (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
-        assosiatedTypeDef.flagSet.add(Flag.ANONYMOUS);
-        assosiatedTypeDef.flagSet.add(Flag.PUBLIC);
-        assosiatedTypeDef.setName(createIdentifier(null,"$anonType$n"));
-        bLangConstant.associatedTypeDefinition = assosiatedTypeDef;
 
         bLangConstant.setName((BLangIdentifier) transform(member.identifier()));
 
@@ -2389,11 +2384,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
             deepLiteral.originalValue = null;
             typeNodeAssosiated.addValue(deepLiteral);
-            bLangConstant.getAssociatedTypeDefinition()
-                    .setTypeNode(typeNodeAssosiated);
-        } else {
-            bLangConstant.associatedTypeDefinition = null;
+            bLangConstant.associatedTypeDefinition =
+                    deSugarTypeAsUserDefType(typeNodeAssosiated);
         }
+
         return bLangConstant;
     }
 
