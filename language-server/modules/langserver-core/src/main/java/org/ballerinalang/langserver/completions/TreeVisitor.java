@@ -253,10 +253,12 @@ public class TreeVisitor extends LSNodeVisitor {
                 functionPos.sLine = lastItem.pos.eLine + precedingNewLines;
                 functionPos.sCol = firstWSItem[firstWSItem.length - 1].length() + 1;
             }
-        } else if (funcNode.flagSet.contains(Flag.WORKER) && CompletionVisitorUtil
-                .isWithinWorkerReturnContext(this.symbolEnv, this.lsContext, this, funcNode)) {
-            return;
         }
+        // TODO: Find a better approach along with the new parser implementation
+//        else if (funcNode.flagSet.contains(Flag.WORKER) && CompletionVisitorUtil
+//                .isWithinWorkerReturnContext(this.symbolEnv, this.lsContext, this, funcNode)) {
+//            return;
+//        }
         
         if (terminateVisitor || cpr.isCursorBeforeNode(functionPos, this, this.lsContext, funcNode, funcNode.symbol)) {
             return;

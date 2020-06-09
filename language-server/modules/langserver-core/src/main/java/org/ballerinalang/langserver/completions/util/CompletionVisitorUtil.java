@@ -37,14 +37,13 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
 
 
 /**
@@ -92,9 +91,9 @@ public class CompletionVisitorUtil {
     /**
      * Check whether the cursor is within the service expression list.
      *
-     * @param node BLangService node to evaluate
-     * @param symbolEnv Current symbol environment
-     * @param lsContext Language server completion context
+     * @param node        BLangService node to evaluate
+     * @param symbolEnv   Current symbol environment
+     * @param lsContext   Language server completion context
      * @param treeVisitor Tree Visitor
      * @return {@link Boolean} whether the cursor is within the service expression list
      */
@@ -128,17 +127,17 @@ public class CompletionVisitorUtil {
             treeVisitor.forceTerminateVisitor();
             return true;
         }
-        
+
         return false;
     }
 
     /**
      * Check whether the cursor is within the worker return context.
      *
-     * @param env Symbol Environment
-     * @param lsContext Language server completion Context
+     * @param env         Symbol Environment
+     * @param lsContext   Language server completion Context
      * @param treeVisitor Tree Visitor
-     * @param funcNode BLangFunction node
+     * @param funcNode    BLangFunction node
      * @return {@link Boolean} whether the cursor is located within the worker return context
      */
     public static boolean isWithinWorkerReturnContext(SymbolEnv env, LSContext lsContext, TreeVisitor treeVisitor,
@@ -180,11 +179,11 @@ public class CompletionVisitorUtil {
     /**
      * Check whether the cursor is located within the condition context.
      * Eg: if (_cursor_)
-     *     while (_cursor_)
+     * while (_cursor_)
      *
-     * @param env Symbol Environment
-     * @param lsContext Language server completion Context
-     * @param treeVisitor Tree Visitor
+     * @param env           Symbol Environment
+     * @param lsContext     Language server completion Context
+     * @param treeVisitor   Tree Visitor
      * @param conditionNode Conditional node - if or while node
      * @return {@link Boolean} whether the cursor is located within the condition context
      */
@@ -197,19 +196,19 @@ public class CompletionVisitorUtil {
         } else if (conditionNode instanceof BLangWhile) {
             expressionNode = ((BLangWhile) conditionNode).expr;
         }
-        
+
         if (expressionNode == null) {
             return false;
         }
         DiagnosticPos exprPosition = CommonUtil.toZeroBasedPosition(expressionNode.pos);
-        
+
         int cursorLine = cursorPosition.getLine();
         int cursorCol = cursorPosition.getCharacter();
         int sLine = exprPosition.sLine;
         int eLine = exprPosition.eLine;
         int sCol = exprPosition.sCol;
         int eCol = exprPosition.eCol;
-        
+
         if ((cursorLine > sLine && cursorLine < eLine)
                 || ((cursorLine == sLine || cursorLine == eLine) && cursorCol >= sCol && cursorCol <= eCol)) {
             lsContext.put(CompletionKeys.IN_CONDITION_CONTEXT_KEY, true);
@@ -217,7 +216,7 @@ public class CompletionVisitorUtil {
             treeVisitor.forceTerminateVisitor();
             return true;
         }
-        
+
         return false;
     }
 
@@ -271,7 +270,7 @@ public class CompletionVisitorUtil {
     /**
      * Check whether the cursor is within the invocation arguments.
      *
-     * @param node BLang node to evaluate
+     * @param node      BLang node to evaluate
      * @param lsContext Language server operation context
      * @return {@link Boolean} within the argument
      */
@@ -301,15 +300,15 @@ public class CompletionVisitorUtil {
             lsContext.put(CompletionKeys.IN_INVOCATION_PARAM_CONTEXT_KEY, true);
             return true;
         }
-        
+
         return false;
     }
 
     /**
      * Check whether the cursor is before the invocation node.
      * Here we consider the completion for complete source as well
-     * 
-     * @param node BLangNode to process
+     *
+     * @param node    BLangNode to process
      * @param context Language server Context
      * @return {@link Boolean} whether the cursor before node
      */
@@ -320,7 +319,7 @@ public class CompletionVisitorUtil {
         DiagnosticPos nodePos = CommonUtil.toZeroBasedPosition(node.getPosition());
         int endLine = nodePos.eLine;
         int endCol = nodePos.eCol;
-        
+
         return cursorLine < endLine || (cursorLine == endLine && cursorCol < endCol);
     }
 }
