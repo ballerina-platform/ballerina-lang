@@ -22,7 +22,7 @@ grpc:RetryConfiguration retryConfig = {
     intervalInMillis: 2000,
     maxIntervalInMillis: 10000,
     backoffFactor: 2,
-    errorTypes: [grpc:UNAVAILABLE_ERROR, grpc:INTERNAL_ERROR]
+    errorTypes: [grpc:UnavailableError, grpc:InternalError]
 };
 grpc:ClientConfiguration clientConfig = {
     timeoutInMillis: 1000,
@@ -34,7 +34,7 @@ grpc:RetryConfiguration failingRetryConfig = {
     intervalInMillis: 2000,
     maxIntervalInMillis: 10000,
     backoffFactor: 2,
-    errorTypes: [grpc:UNAVAILABLE_ERROR, grpc:INTERNAL_ERROR]
+    errorTypes: [grpc:UnavailableError, grpc:InternalError]
 };
 grpc:ClientConfiguration failingClientConfig = {
     timeoutInMillis: 1000,
