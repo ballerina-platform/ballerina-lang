@@ -65,8 +65,8 @@ function testInvalidObjectSimpleReadonlyFieldUpdate() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.reason());
-    assertEquality("cannot update 'readonly' field 'name' in object of type 'Student'", err.detail()?.message);
+    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.message());
+    assertEquality("cannot update 'readonly' field 'name' in object of type 'Student'", err.detail()["message"]);
 }
 
 type ReadonlyNamedPerson object {
@@ -128,9 +128,9 @@ function testInvalidUpdateOfPossiblyReadonlyFieldInUnion() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.reason());
+    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.message());
     assertEquality("cannot update 'readonly' field 'name' in object of type 'ReadonlyNamedPerson'",
-                   err.detail()?.message);
+                   err.detail()["message"]);
 }
 
 type Employee object {
@@ -177,8 +177,8 @@ function testObjectWithStructuredReadonlyFields() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.reason());
-    assertEquality("cannot update 'readonly' field 'details' in object of type 'Employee'", err.detail()?.message);
+    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.message());
+    assertEquality("cannot update 'readonly' field 'details' in object of type 'Employee'", err.detail()["message"]);
 }
 
 type Identifier object {
@@ -214,8 +214,8 @@ function testReadOnlyFieldWithDefaultValue() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.reason());
-    assertEquality("cannot update 'readonly' field 'id' in object of type 'Identifier'", err.detail()?.message);
+    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.message());
+    assertEquality("cannot update 'readonly' field 'id' in object of type 'Identifier'", err.detail()["message"]);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

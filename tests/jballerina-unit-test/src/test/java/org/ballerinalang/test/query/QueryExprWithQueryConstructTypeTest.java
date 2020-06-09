@@ -100,7 +100,7 @@ public class QueryExprWithQueryConstructTypeTest {
 
         BError expectedError = (BError) returnValues[0];
         Assert.assertEquals(expectedError.stringValue(), "{ballerina/lang.table}KeyConstraintViolation " +
-                "{message:\"A value found for key '1 Melina'\"}");
+                "{\"message\":\"A value found for key '1 Melina'\"}");
     }
 
     @Test(description = "Test query expr with table having no duplicates and on conflict clause")
@@ -120,7 +120,7 @@ public class QueryExprWithQueryConstructTypeTest {
         Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
 
         BError expectedError = (BError) returnValues[0];
-        Assert.assertEquals(expectedError.stringValue(), "Key Conflict {message:\"cannot insert.\"}");
+        Assert.assertEquals(expectedError.stringValue(), "Key Conflict {\"message\":\"cannot insert.\"}");
     }
 
     @Test(description = "Test query expr with table having duplicate keys")
@@ -131,7 +131,7 @@ public class QueryExprWithQueryConstructTypeTest {
         Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
 
         BError expectedError = (BError) returnValues[0];
-        Assert.assertEquals(expectedError.stringValue(), "Key Conflict {message:\"cannot insert.\"}");
+        Assert.assertEquals(expectedError.stringValue(), "Key Conflict {\"message\":\"cannot insert.\"}");
     }
 
     @Test(description = "Test query expr with table having duplicate keys")
@@ -142,7 +142,7 @@ public class QueryExprWithQueryConstructTypeTest {
         Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
 
         BError expectedError = (BError) returnValues[0];
-        Assert.assertEquals(expectedError.stringValue(), "Key Conflict {message:\"cannot insert.\"}");
+        Assert.assertEquals(expectedError.stringValue(), "Key Conflict {\"message\":\"cannot insert.\"}");
     }
 
     @Test(description = "Test query expr with table having no duplicates and on conflict clause")
