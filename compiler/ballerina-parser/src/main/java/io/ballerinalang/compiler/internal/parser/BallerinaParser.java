@@ -727,17 +727,13 @@ public class BallerinaParser extends AbstractParser {
         // Assumes that we reach here after a peek()
         STToken nextToken = peek(lookahead + 1);
         switch (nextToken.kind) {
-            case EQUAL_TOKEN:
-                // Scenario: foo =
-                // Even though this is not valid, consider this as a var-decl and continue;
-            case OPEN_BRACKET_TOKEN:
-                // Scenario foo[] (Array type descriptor with custom type)
-            case QUESTION_MARK_TOKEN:
-                // Scenario foo? (Optional type descriptor with custom type)
-            case PIPE_TOKEN:
-                // Scenario foo | (Union type descriptor with custom type)
-            case BITWISE_AND_TOKEN:
-                // Scenario foo & (Intersection type descriptor with custom type)
+            case EQUAL_TOKEN: // Scenario: foo = . Even though this is not valid, consider this as a var-decl and
+                              // continue;
+            case OPEN_BRACKET_TOKEN: // Scenario foo[] (Array type descriptor with custom type)
+            case QUESTION_MARK_TOKEN: // Scenario foo? (Optional type descriptor with custom type)
+            case PIPE_TOKEN: // Scenario foo | (Union type descriptor with custom type)
+            case BITWISE_AND_TOKEN: // Scenario foo & (Intersection type descriptor with custom type)
+            case OPEN_BRACE_TOKEN: // Scenario foo[] (Array type descriptor with custom type)
                 return true;
             case IDENTIFIER_TOKEN:
                 switch (peek(lookahead + 2).kind) {
@@ -11859,6 +11855,16 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    /**
+     * Parse the component after the ambiguous starting node. Ambiguous node could be either an expr
+     * or a type-desc. The component followed by this ambiguous node could be the binding-pattern or
+     * the expression-rhs.
+     * 
+     * @param typeOrExpr Type desc or the expression
+     * @param allowAssignment Flag indicating whether to allow assignment. i.e.: whether this is a
+     *            valid lvalue expression
+     * @return Typed-binding-pattern node or an expression node
+     */
     private STNode parseTypedBindingPatternOrExprRhs(STNode typeOrExpr, boolean allowAssignment) {
         STToken nextToken = peek();
         return parseTypedBindingPatternOrExprRhs(nextToken.kind, typeOrExpr, allowAssignment);
@@ -11918,6 +11924,10 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
                 return parseTypedBindingPatternOrMemberAccess(typeOrExpr, false, allowAssignment,
                         ParserRuleContext.AMBIGUOUS_STMT);
+            case OPEN_BRACE_TOKEN:
+                // mapping binding pattern
+                STNode typeDesc = getTypeDescFromExpr(typeOrExpr);
+                return parseTypeBindingPatternStartsWithAmbiguousNode(typeDesc);
             default:
                 // If its a binary operator then this can be a compound assignment statement
                 if (isCompoundBinaryOperator(nextTokenKind)) {
