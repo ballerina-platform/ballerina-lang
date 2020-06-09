@@ -277,8 +277,10 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangExpressionStmt cleanupTrxStmt = ASTBuilderUtil.createExpressionStmt(pos, elseStmt);
         cleanupTrxStmt.expr = createCleanupTrxStmt(pos, env);
         checkResult.elseStmt = elseStmt;
-        rollbackBlockStmt.stmts.add(checkResult);
-        return ASTBuilderUtil.createStatementExpression(rollbackBlockStmt, outputVarRef);
+        BLangStatementExpression rollbackStmtExpr =
+                ASTBuilderUtil.createStatementExpression(rollbackBlockStmt, outputVarRef);
+        rollbackStmtExpr.type = symTable.errorOrNilType;
+        return rollbackStmtExpr;
     }
 
     BLangStatementExpression desugar(BLangCommitExpr commitExpr, SymbolEnv env) {
