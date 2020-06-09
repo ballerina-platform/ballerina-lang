@@ -181,6 +181,7 @@ import java.util.Map;
 public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_CREATE_PIPELINE_FUNCTION = new Name("createPipeline");
     private static final Name QUERY_CREATE_INPUT_FUNCTION = new Name("createInputFunction");
+    private static final Name QUERY_CREATE_NESTED_FROM_FUNCTION = new Name("createNestedFromFunction");
     private static final Name QUERY_CREATE_LET_FUNCTION = new Name("createLetFunction");
     private static final Name QUERY_CREATE_JOIN_FUNCTION = new Name("createJoinFunction");
     private static final Name QUERY_CREATE_FILTER_FUNCTION = new Name("createFilterFunction");
@@ -225,6 +226,13 @@ public class QueryDesugar extends BLangNodeVisitor {
         return desugar;
     }
 
+    /**
+     * Desugar query expression.
+     *
+     * @param queryExpr query expression to be desugared.
+     * @param env       symbol env.
+     * @return desugared query expression.
+     */
     BLangStatementExpression desugar(BLangQueryExpr queryExpr, SymbolEnv env) {
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         DiagnosticPos pos = clauses.get(0).pos;
@@ -259,6 +267,13 @@ public class QueryDesugar extends BLangNodeVisitor {
         return streamStmtExpr;
     }
 
+    /**
+     * Desugar query action.
+     *
+     * @param queryAction query action to be desugared.
+     * @param env         symbol env.
+     * @return desugared query action.
+     */
     BLangStatementExpression desugar(BLangQueryAction queryAction, SymbolEnv env) {
         List<BLangNode> clauses = queryAction.getQueryClauses();
         DiagnosticPos pos = clauses.get(0).pos;
@@ -274,11 +289,11 @@ public class QueryDesugar extends BLangNodeVisitor {
     /**
      * Write the pipeline to the given `block` and return the reference to the resulting stream.
      *
-     * @param clauses
-     * @param resultType
-     * @param env
-     * @param block
-     * @return
+     * @param clauses list of query clauses.
+     * @param resultType result type of the query output.
+     * @param env symbol env.
+     * @param block parent block to write to.
+     * @return variableReference to created _StreamPipeline.
      */
     BLangVariableReference buildStream(List<BLangNode> clauses, BType resultType, SymbolEnv env, BLangBlockStmt block) {
         this.env = env;
@@ -291,12 +306,10 @@ public class QueryDesugar extends BLangNodeVisitor {
             switch (clause.getKind()) {
                 case FROM:
                     BLangFromClause fromClause = (BLangFromClause) clause;
-                    BLangVariableReference nestedPipeline = addPipeline(block, fromClause.pos,
-                            fromClause.collection, resultType);
-                    BLangVariableReference fromInputFunc = addInputFunction(block, fromClause);
-                    addStreamFunction(block, nestedPipeline, fromInputFunc);
-                    BLangVariableReference nestedFromFunc = addJoinFunction(block, nestedPipeline);
+                    BLangVariableReference nestedFromFunc = addNestedFromFunction(block, fromClause);
                     addStreamFunction(block, initPipeline, nestedFromFunc);
+                    BLangVariableReference fromInputFunc = addInputFunction(block, fromClause);
+                    addStreamFunction(block, initPipeline, fromInputFunc);
                     break;
                 case JOIN:
                     BLangJoinClause joinClause = (BLangJoinClause) clause;
@@ -417,6 +430,34 @@ public class QueryDesugar extends BLangNodeVisitor {
         // }
         lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_INPUT_FUNCTION, Lists.of(lambda), pos);
+    }
+
+    /**
+     * Desugar fromClause to below and return a reference to created from _StreamFunction.
+     * _StreamFunction xnFrom = createNestedFromFunction(function(_Frame frame) returns any|error? {
+     * any collection = frame["collection"]
+     * return collection;
+     * });
+     *
+     * @param blockStmt  parent block to write to.
+     * @param fromClause to be desugared.
+     * @return variableReference to created from _StreamFunction.
+     */
+    BLangVariableReference addNestedFromFunction(BLangBlockStmt blockStmt, BLangFromClause fromClause) {
+        DiagnosticPos pos = fromClause.pos;
+        // function(_Frame frame) returns any|error? { return collection; }
+        BLangUnionTypeNode returnType = getAnyErrorNilTypeNode();
+        BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
+        returnNode.expr = fromClause.collection;
+        returnNode.pos = pos;
+        BLangLambdaFunction lambda = createLambdaFunction(pos, returnType, returnNode, false);
+        lambda.accept(this);
+        // at this point;
+        // function(_Frame frame) returns any|error? {
+        //      any collection = frame["collection"]
+        //      return collection;
+        // }
+        return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_NESTED_FROM_FUNCTION, Lists.of(lambda), pos);
     }
 
     /**
@@ -599,8 +640,6 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     BLangVariableReference addGetStreamFromPipeline(BLangBlockStmt blockStmt, BLangVariableReference pipelineRef) {
         DiagnosticPos pos = pipelineRef.pos;
-        // TODO: instead of null, send the expected type;??
-        // TODO: for now type will be stream<any|error, error?> ; we can pass the expected type and add a cast
         BLangVariableReference streamVarRef = getStreamFunctionVariableRef(blockStmt,
                 QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION, null, Lists.of(pipelineRef), pos);
         return streamVarRef;
@@ -654,7 +693,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     private BLangLambdaFunction createPassthroughLambda(DiagnosticPos pos) {
         // returns (_Frame|error)?
-        BLangUnionTypeNode returnType = getUnionTypeNode();
+        BLangUnionTypeNode returnType = getFrameErrorNilTypeNode();
         // return frame;
         BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
         returnNode.pos = pos;
@@ -948,15 +987,31 @@ public class QueryDesugar extends BLangNodeVisitor {
      *
      * @return a union type node.
      */
-    private BLangUnionTypeNode getUnionTypeNode() {
+    private BLangUnionTypeNode getFrameErrorNilTypeNode() {
         BType frameType = getFrameTypeSymbol().type;
         BUnionType unionType = BUnionType.create(null, frameType, symTable.errorType, symTable.nilType);
         BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
         unionTypeNode.type = unionType;
-        unionTypeNode.desugared = true;
         unionTypeNode.memberTypeNodes.add(getFrameTypeNode());
         unionTypeNode.memberTypeNodes.add(getErrorTypeNode());
         unionTypeNode.memberTypeNodes.add(getNilTypeNode());
+        unionTypeNode.desugared = true;
+        return unionTypeNode;
+    }
+
+    /**
+     * Return union type node consists of any, error & ().
+     *
+     * @return a any, error & nil type node.
+     */
+    private BLangUnionTypeNode getAnyErrorNilTypeNode() {
+        BUnionType unionType = BUnionType.create(null, symTable.anyType, symTable.errorType, symTable.nilType);
+        BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
+        unionTypeNode.memberTypeNodes.add(getAnyTypeNode());
+        unionTypeNode.memberTypeNodes.add(getErrorTypeNode());
+        unionTypeNode.memberTypeNodes.add(getNilTypeNode());
+        unionTypeNode.type = unionType;
+        unionTypeNode.desugared = true;
         return unionTypeNode;
     }
 
@@ -1046,7 +1101,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         fieldAccessExpr.expr.accept(this);
         if (fieldAccessExpr.impConversionExpr != null) {
-            fieldAccessExpr.impConversionExpr.expr.accept(this);
+            fieldAccessExpr.impConversionExpr.accept(this);
         }
     }
 
@@ -1493,14 +1548,19 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLElementFilter xmlElementFilter) {
+        if (xmlElementFilter.impConversionExpr != null) {
+            xmlElementFilter.impConversionExpr.expr.accept(this);
+        }
     }
 
     @Override
     public void visit(BLangXMLElementAccess xmlElementAccess) {
+        xmlElementAccess.expr.accept(this);
     }
 
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
+        xmlNavigation.expr.accept(this);
         if (xmlNavigation.childIndex != null) {
             xmlNavigation.childIndex.accept(this);
         }
