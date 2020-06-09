@@ -132,6 +132,14 @@ public class BindgenUtils {
         fileTemplateLoader.setSuffix(MUSTACHE_FILE_EXTENSION);
         Handlebars handlebars = new Handlebars().with(cpTemplateLoader, fileTemplateLoader);
 
+        // Helper to to carry out a string replace.
+        handlebars.registerHelper("replace", (object, options) -> {
+            if (object instanceof String) {
+                return ((String) object).replace(options.param(0), options.param(1));
+            }
+            return "";
+        });
+
         // Helper to obtain a single quote escape character in front of Ballerina reserved words.
         handlebars.registerHelper("controlChars", (object, options) -> {
             if (object instanceof String) {
@@ -252,7 +260,7 @@ public class BindgenUtils {
     private static String getParamsHelper(JParameter param) {
         StringBuilder returnString = new StringBuilder();
         if (param.getIsObjArray()) {
-            returnString.append("check getHandleFromObjectArray(").append(param.getFieldName())
+            returnString.append("check getHandleFromArray(").append(param.getFieldName())
                     .append(", \"").append(param.getComponentType()).append("\")");
         } else if (param.getIsPrimitiveArray()) {
             returnString.append("check getHandleFromArray(").append(param.getFieldName())
@@ -283,11 +291,17 @@ public class BindgenUtils {
                 returnString.append("?");
             }
             if (jMethod.getHasException()) {
-                returnString.append("|error");
+                if (jMethod.isHandleException()) {
+                    returnString.append("|").append(jMethod.getExceptionName());
+                    if (jMethod.isReturnError()) {
+                        returnString.append("|error");
+                    }
+                } else {
+                    returnString.append("|error");
+                }
             }
-            returnString.append(" ");
         } else if (jMethod.getHasException() || jMethod.getHasPrimitiveParam()) {
-            returnString.append("returns error? ");
+            returnString.append("returns error?");
         }
         return returnString.toString();
     }

@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -84,6 +85,9 @@ public class Generator {
                 createTypeDefModels(typeDefinition, module);
             }
         }
+        // Sort records in case new records were added that are not in type definitions (i.e anonymous records defined
+        // in function returns)
+        module.records.sort(Comparator.comparing(a -> a.name));
 
         // Check for functions in the package
         for (BLangFunction function : balPackage.getFunctions()) {
@@ -231,6 +235,26 @@ public class Generator {
             String dataType = getTypeName(returnType);
             if (!dataType.equals("null")) {
                 String desc = returnParamAnnotation(functionNode);
+                if (returnType instanceof BLangUnionTypeNode) {
+                    // Adds anonymous records defined in function return types to module.records
+                    for (BLangType memberTypeNode: ((BLangUnionTypeNode) returnType).getMemberTypeNodes()) {
+                        if (memberTypeNode.getKind() == NodeKind.RECORD_TYPE) {
+                            BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) memberTypeNode;
+                            if (recordTypeNode.isAnonymous) {
+                                String recordName = "T" + recordTypeNode.symbol.name.toString()
+                                        .substring(recordTypeNode.symbol.name.toString().lastIndexOf('$') + 1);
+                                BLangMarkdownDocumentation documentationNode = functionNode.
+                                        getMarkdownDocumentationAttachment();
+                                List<DefaultableVariable> fields = getFields(recordTypeNode, recordTypeNode.fields,
+                                        documentationNode, module);
+
+                                module.records.add(new Record(recordName, desc,
+                                        isDeprecated(functionNode.getAnnotationAttachments()),
+                                        recordTypeNode.isAnonymous, fields));
+                            }
+                        }
+                    }
+                }
                 Variable variable = new Variable(EMPTY_STRING, desc, false, Type.fromTypeNode(returnType, module.id));
                 returnParams.add(variable);
             }
@@ -337,7 +361,7 @@ public class Generator {
         String name = parent.getName().getValue();
         // handle anonymous names
         if (name != null && name.contains("$anonType$")) {
-            name = "T" + name.substring(name.lastIndexOf('$') + 1);;
+            name = "T" + name.substring(name.lastIndexOf('$') + 1);
         }
         
         String description = description(parent);
@@ -453,11 +477,13 @@ public class Generator {
      */
     private static String description(BLangNode node) {
         if (isDocumentAttached(node)) {
-            BLangMarkdownDocumentation documentationAttachment =
-                    ((DocumentableNode) node).getMarkdownDocumentationAttachment();
-            return BallerinaDocUtils.mdToHtml(documentationAttachment.getDocumentation())
-                    .replace("<p>", "")
-                    .replace("</p>", "");
+            BLangMarkdownDocumentation documentationAttachment = ((DocumentableNode) node)
+                    .getMarkdownDocumentationAttachment();
+            if (((DocumentableNode) node).getMarkdownDocumentationAttachment().deprecationDocumentation != null) {
+                return replaceParagraphTag(BallerinaDocUtils.mdToHtml(documentationAttachment.getDocumentation()));
+            } else {
+                return BallerinaDocUtils.mdToHtml(documentationAttachment.getDocumentation());
+            }
         }
         return EMPTY_STRING;
     }
@@ -500,5 +526,15 @@ public class Generator {
             }
         }
         return false;
+    }
+
+    /**
+     * Replace paragraph tag for documentation with deprecated tag.
+     *
+     * @param documentation documentation
+     * @return documentation after replacing paragraph tag
+     */
+    private static String replaceParagraphTag(String documentation) {
+        return documentation.replaceFirst("<p>", "").replaceFirst("</p>", "");
     }
 }

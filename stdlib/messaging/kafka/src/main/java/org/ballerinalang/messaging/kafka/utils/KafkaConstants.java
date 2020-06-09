@@ -84,7 +84,7 @@ public class KafkaConstants {
 
     public static final String KAFKA_RESOURCE_ON_MESSAGE = "onMessage";
 
-    public static final String PROPERTIES_ARRAY = "properties";
+    public static final String ADDITIONAL_PROPERTIES_MAP_FIELD = "properties";
 
     public static final String ALIAS_CONCURRENT_CONSUMERS = "concurrentConsumers";
     public static final String ALIAS_TOPICS = "topics";
@@ -192,6 +192,15 @@ public class KafkaConstants {
     public static final String SSL_CIPHER_SUITES_CONFIG = "sslCipherSuites";
     public static final String SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG = "sslEndpointIdentificationAlgorithm";
     public static final String SSL_SECURE_RANDOM_IMPLEMENTATION_CONFIG = "sslSecureRandomImplementation";
+
+    // SASL Configuration parameters
+    public static final String AUTHENTICATION_CONFIGURATION = "authenticationConfiguration";
+    public static final String AUTHENTICATION_MECHANISM = "mechanism";
+    public static final String USERNAME = "username";
+    public static final String PASSWORD = "password";
+
+    // Authentication Mechanisms
+    public static final String SASL_PLAIN = "PLAIN";
 
     // Serializer - Deserializer names
     // Ballerina String Names

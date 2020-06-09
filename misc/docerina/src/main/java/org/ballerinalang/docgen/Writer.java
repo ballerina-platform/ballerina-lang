@@ -91,7 +91,7 @@ public class Writer {
                 Context context = options.context;
                 String root = getRootPath(context);
                 String link = root + type.moduleName + "/" + type.category + "/" + name + ".html";
-                if (type.category.equals("objects")) {
+                if (type.category.equals("objects") && !name.equals("()")) {
                     defaultValue = "<span class=\"default\">(default</span> <span class=\"type\">" +
                             "<a href=\"" + link + "\">" + name + "</a>" + "</span><span class=\"default\">)</span>";
                 } else {
@@ -106,6 +106,16 @@ public class Writer {
                 // select only the first sentence
                 newDescription = newDescription.replaceAll("\\.(.|\\n)*", ".");
                 return newDescription;
+            });
+
+            handlebars.registerHelper("removePTags", (Helper<String>) (string, options) -> {
+                //remove paragraph tags
+                if (string != null) {
+                    String newString = string.replaceAll("<\\/?p>", "");
+                    return newString;
+                } else {
+                    return "";
+                }
             });
 
             handlebars.registerHelper("equals", (arg1, options) -> {
@@ -167,7 +177,7 @@ public class Writer {
             label = "<span class=\"array-type\">" + getTypeLabel(type.elementType, context) + getSuffixes(type)
                     + "</span>";
         } else if ("builtin".equals(type.category) || "lang.annotations".equals(type.moduleName)
-                || !type.generateUserDefinedTypeLink) {
+                || !type.generateUserDefinedTypeLink || "UNKNOWN".equals(type.category)) {
             label = "<span class=\"builtin-type\">" + type.name + getSuffixes(type) + "</span>";
         } else {
             label = getHtmlLink(type, root);

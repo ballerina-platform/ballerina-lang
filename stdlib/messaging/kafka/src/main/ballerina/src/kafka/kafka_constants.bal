@@ -24,8 +24,9 @@ const BYTE_ARRAY = "byte[]";
 const AVRO_RECORD = "kafka:AvroRecord";
 const ANY = "anydata";
 
-// Consumer-related constants.
-
+// ********************************************
+//         Consumer-Related constants         *
+// ********************************************
 // Deserializer types.
 # In-built Kafka byte array deserializer.
 public const DES_BYTE_ARRAY = "BYTE_ARRAY";
@@ -49,10 +50,12 @@ public const DES_AVRO = "AVRO";
 # Configures the consumer to read the committed messages only in the transactional mode when poll() is called.
 public const ISOLATION_COMMITTED = "read_committed";
 
-# Configures the consumer to read all the messages even the aborted ones.
+# Configures the consumer to read all the messages including the aborted ones.
 public const ISOLATION_UNCOMMITTED = "read_uncommitted";
 
-// Producer-related constants.
+// ********************************************
+//         Producer-Related constants         *
+// ********************************************
 // Produce Ack types.
 # Producer acknowledgement type is 'all'. This will guarantee that the record will not be lost as long as at least one
 # in-sync replica is alive.
@@ -100,3 +103,15 @@ public const COMPRESSION_LZ4 = "lz4";
 
 # Kafka ZSTD compression type.
 public const COMPRESSION_ZSTD = "zstd";
+
+// ********************************************
+//              Common constants              *
+// ********************************************
+// SASL Authentication mechanisms
+# Kafka SASL_PLAIN authentication mechanism
+public const AUTH_SASL_PLAIN = "PLAIN";
+
+
+// Security Protocols
+public const PROTOCOL_SASL_PLAINTEXT = "SASL_PLAINTEXT";
+public const PROTOCOL_SASL_SSL = "SASL_SSL";

@@ -126,4 +126,3 @@ public const annotation FieldData FieldSet on source external;
 # }
 # ```
 public const annotation ObjectData Binding on object type;
-

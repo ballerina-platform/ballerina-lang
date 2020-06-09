@@ -59,8 +59,10 @@ function send(SmtpClient clientEndpoint, Email email) returns Error? = @java:Met
 #
 # + port - Port number of the SMTP server
 # + enableSsl - If set to true, use SSL to connect and use the SSL port by default.
-#               The default value is true for the "smtps" protocol and false for the "smtp" protocol.
+#               The default value is true for the "smtps" protocol and false for the "smtp" protocol
+# + properties - SMTP properties to override the existing configuration
 public type SmtpConfig record {|
     int port = 465;
     boolean enableSsl = true;
+    map<string>? properties = ();
 |};
