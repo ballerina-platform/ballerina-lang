@@ -208,6 +208,7 @@ public class TransactionResourceManager {
      * @param strand the strand
      * @param transactionId      the global transaction id
      * @param transactionBlockId the block id of the transaction
+     * @param error the cause of abortion
      * @return the status of the abort operation
      */
     public boolean notifyAbort(Strand strand, String transactionId, String transactionBlockId, Object error) {
