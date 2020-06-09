@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STInterpolationNode extends STXMLItemNode {
             STNode interpolationStartToken,
             STNode expression,
             STNode interpolationEndToken) {
-        super(SyntaxKind.INTERPOLATION);
+        this(
+                interpolationStartToken,
+                expression,
+                interpolationEndToken,
+                Collections.emptyList());
+    }
+
+    STInterpolationNode(
+            STNode interpolationStartToken,
+            STNode expression,
+            STNode interpolationEndToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.INTERPOLATION, diagnostics);
         this.interpolationStartToken = interpolationStartToken;
         this.expression = expression;
         this.interpolationEndToken = interpolationEndToken;
@@ -47,7 +62,43 @@ public class STInterpolationNode extends STXMLItemNode {
                 interpolationEndToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STInterpolationNode(
+                this.interpolationStartToken,
+                this.expression,
+                this.interpolationEndToken,
+                diagnostics);
+    }
+
+    public STInterpolationNode modify(
+            STNode interpolationStartToken,
+            STNode expression,
+            STNode interpolationEndToken) {
+        if (checkForReferenceEquality(
+                interpolationStartToken,
+                expression,
+                interpolationEndToken)) {
+            return this;
+        }
+
+        return new STInterpolationNode(
+                interpolationStartToken,
+                expression,
+                interpolationEndToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new InterpolationNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

@@ -41,6 +41,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.ITERATOR_MUTABILITY_ERROR;
+import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 
 /**
  * Native implementation of lang.table.TableIterator:next().
@@ -48,7 +49,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.ITERAT
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", functionName = "next",
+        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION, functionName = "next",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "TableIterator",
                 structPackage = "ballerina/lang.table"),
         returnType = {@ReturnType(type = TypeKind.RECORD)},

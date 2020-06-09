@@ -23,6 +23,7 @@ import io.nats.client.Dispatcher;
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -53,7 +54,7 @@ public class Register {
         List<ObjectValue> serviceList =
                 (List<ObjectValue>) ((ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ))
                         .getNativeData(Constants.SERVICE_LIST);
-        MapValue<String, Object> subscriptionConfig =
+        MapValue<BString, Object> subscriptionConfig =
                 Utils.getSubscriptionConfig(service.getType().getAnnotation(Constants.NATS_PACKAGE,
                                                                             Constants.SUBSCRIPTION_CONFIG));
         if (subscriptionConfig == null) {

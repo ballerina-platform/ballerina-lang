@@ -41,7 +41,7 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
-import org.ballerinalang.langlib.typedesc.ConstructFrom;
+import org.ballerinalang.langlib.value.CloneWithType;
 import org.ballerinalang.net.http.BallerinaHTTPConnectorListener;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
@@ -63,6 +63,7 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANNOTATED_TOPIC;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.BALLERINA;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENTITY_ACCESSED_REQUEST;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.GENERATED_PACKAGE_VERSION;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.PARAM_HUB_CHALLENGE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.PARAM_HUB_LEASE_SECONDS;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.PARAM_HUB_MODE;
@@ -225,8 +226,9 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
         Object returnValue;
         try {
             Object[] args = {request, httpResource.getParentService().getBalService()};
-            returnValue = Executor.executeFunction(scheduler, this.getClass().getClassLoader(), BALLERINA, WEBSUB,
-                                                   "commons", "processWebSubNotification", args);
+            returnValue = Executor.executeFunction(scheduler, this.getClass().getClassLoader(), BALLERINA,
+                                                   WEBSUB, GENERATED_PACKAGE_VERSION, "commons",
+                                                   "processWebSubNotification", args);
         } catch (BallerinaException ex) {
             log.debug("Signature Validation failed: " + ex.getMessage());
             httpCarbonMessage.setHttpStatusCode(404);
@@ -285,7 +287,7 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
         BRecordType recordType = webSubServicesRegistry.getResourceDetails().get(resource.getName());
         MapValue<BString, ?> jsonBody = getJsonBody(httpRequest);
         inboundRequest.setProperty(ENTITY_ACCESSED_REQUEST, httpRequest);
-        return ConstructFrom.convert(recordType, jsonBody);
+        return CloneWithType.convert(recordType, jsonBody);
     }
 
     /**

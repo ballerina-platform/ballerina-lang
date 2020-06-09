@@ -97,7 +97,7 @@ public type Request object {
     # + path - Path to the location of matrix parameters
     # + return - A map of matrix parameters which can be found for the given path
     public function getMatrixParams(string path) returns map<any> {
-        return externGetMatrixParams(self, java:fromString(path));
+        return externGetMatrixParams(self, path);
     }
 
     # Gets the `Entity` associated with the request.
@@ -586,7 +586,7 @@ function externGetQueryParams(Request request) returns map<string[]> =
     name: "getQueryParams"
 } external;
 
-function externGetMatrixParams(Request request, handle path) returns map<any> =
+function externGetMatrixParams(Request request, string path) returns map<any> =
 @java:Method {
     class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "getMatrixParams"

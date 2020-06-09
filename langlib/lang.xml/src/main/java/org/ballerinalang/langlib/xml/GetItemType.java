@@ -25,6 +25,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+
 /**
  * Get the type of a XML as a string. If the xml is singleton, type can be one of 
  * 'element', 'text', 'comment' or 'pi'. Returns an empty string if the xml is not a singleton.
@@ -32,7 +34,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.88
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
         functionName = "getItemType",
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true

@@ -40,6 +40,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.entity.TesterinaFunction;
@@ -239,6 +240,7 @@ public class BTestRunner {
         // Load module init class
         String initClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(),
                                                                     suite.getPackageID(),
+                                                                    suite.getVersion(),
                                                                     MODULE_INIT_CLASS_NAME);
         Class<?> initClazz;
         try {
@@ -254,7 +256,7 @@ public class BTestRunner {
         if (hasTestablePackage) {
             // Load test init class
             String testClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(), suite.getPackageID(),
-                    suite.getPackageID().replace(".", FILE_NAME_PERIOD_SEPARATOR));
+                    suite.getVersion(), suite.getPackageID().replace(".", FILE_NAME_PERIOD_SEPARATOR));
             try {
                 testInitClazz = classLoader.loadClass(testClassName);
             } catch (Throwable e) {
@@ -600,7 +602,7 @@ public class BTestRunner {
         Class<?> type;
         // Refer jvm_method_gen.bal getArgTypeSignature for proper type matching
         if (elementType instanceof BStringType) {
-            type = String.class;
+            type = BString.class;
         } else if (elementType instanceof BIntegerType) {
             type = Long.TYPE;
         } else if (elementType instanceof BBooleanType) {

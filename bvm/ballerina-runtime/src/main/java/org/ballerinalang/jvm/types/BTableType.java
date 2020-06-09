@@ -31,22 +31,28 @@ public class BTableType extends BType {
     private BType keyType;
     private String[] fieldNames;
 
-    public BTableType(BType constraint, String[] fieldNames) {
+    private final boolean readonly;
+    private BIntersectionType immutableType;
+
+    public BTableType(BType constraint, String[] fieldNames, boolean readonly) {
         super(TypeConstants.TABLE_TNAME, null, TableValue.class);
         this.constraint = constraint;
         this.fieldNames = fieldNames;
         this.keyType = null;
+        this.readonly = readonly;
     }
 
-    public BTableType(BType constraint, BType keyType) {
+    public BTableType(BType constraint, BType keyType, boolean readonly) {
         super(TypeConstants.TABLE_TNAME, null, TableValue.class);
         this.constraint = constraint;
         this.keyType = keyType;
+        this.readonly = readonly;
     }
 
-    public BTableType(BType constraint) {
+    public BTableType(BType constraint, boolean readonly) {
         super(TypeConstants.TABLE_TNAME, null, TableValue.class);
         this.constraint = constraint;
+        this.readonly = readonly;
     }
 
     public BType getConstrainedType() {
@@ -63,7 +69,7 @@ public class BTableType extends BType {
 
     @Override
     public <V> V getZeroValue() {
-        return (V) new TableValueImpl<BAnydataType, V>(new BTableType(constraint));
+        return (V) new TableValueImpl<BAnydataType, V>(new BTableType(constraint, readonly));
     }
 
     @Override
@@ -79,10 +85,11 @@ public class BTableType extends BType {
     @Override
     public String toString() {
         if (constraint == null) {
-            return super.toString();
+            return readonly ? super.toString().concat(" & readonly") : super.toString();
         }
 
         StringBuilder keyStringBuilder = new StringBuilder();
+        String stringRep;
         if (fieldNames != null) {
             for (String fieldName : fieldNames) {
                 if (!keyStringBuilder.toString().equals("")) {
@@ -90,11 +97,13 @@ public class BTableType extends BType {
                 }
                 keyStringBuilder.append(fieldName);
             }
-            return super.toString() + "<" + constraint.getName() + "> key(" + keyStringBuilder.toString() + ")";
+            stringRep = super.toString() + "<" + constraint.getName() + "> key(" + keyStringBuilder.toString() + ")";
+        } else {
+            stringRep = super.toString() + "<" + constraint.getName() + ">" +
+                    ((keyType != null) ? (" key<" + keyType + ">") : "");
         }
 
-        return super.toString() + "<" + constraint.getName() + ">" +
-                ((keyType != null) ? (" key<" + keyType + ">") : "");
+        return readonly ? stringRep.concat(" & readonly") : stringRep;
     }
 
     @Override
@@ -117,5 +126,20 @@ public class BTableType extends BType {
         }
 
         return constraint.equals(other.constraint) && keyType.equals(other.keyType);
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return this.readonly;
+    }
+
+    @Override
+    public BType getImmutableType() {
+        return this.immutableType;
+    }
+
+    @Override
+    public void setImmutableType(BIntersectionType immutableType) {
+        this.immutableType = immutableType;
     }
 }

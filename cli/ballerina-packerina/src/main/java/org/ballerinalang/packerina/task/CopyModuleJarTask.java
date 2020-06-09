@@ -124,8 +124,8 @@ public class CopyModuleJarTask implements Task {
 
             // todo following is a temporarty fix the proper fix is to version jars inside distribution.
             if (Files.notExists(importJar)) {
-                importJar = Paths.get(balHomePath, "bre", "lib", id.orgName.value + "." + id.name.value +
-                                                                 BLANG_COMPILED_JAR_EXT);
+                importJar = Paths.get(balHomePath, "bre", "lib", id.orgName.value + "-" +
+                        id.name.value + "-" + id.version.value + BLANG_COMPILED_JAR_EXT);
             }
         }
         moduleDependencyList.add(importJar);

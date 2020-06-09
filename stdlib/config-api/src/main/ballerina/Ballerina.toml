@@ -6,8 +6,8 @@ version = "1.0.0"
 target = "java8"
 
     [[platform.libraries]]
-    artifactId = "config-api"
-    version = "@project.version@"
-    path = "./lib/ballerina-config-api-@project.version@.jar"
+    artifactId = "config"
+    version = "1.0.0"
+    path = "./lib/ballerina-config-1.0.0-java.jar"
     groupId = "ballerina"
     modules = ["config-api"]

@@ -85,8 +85,8 @@ type Student record {
 
 function testTypedescFunctions() {
     Student p = { name : "Michel"};
-    Person|error q = Person.constructFrom(p); // No error;
-    string r = Person.constructFrom(p); // Error
+    Person|error q = p.cloneWithType(Person); // No error
+    string r = p.cloneWithType(Person); // Error
 }
 
 function testInvalidArgForBoundRestParam() {

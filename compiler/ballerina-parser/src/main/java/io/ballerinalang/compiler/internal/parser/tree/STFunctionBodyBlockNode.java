@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STFunctionBodyBlockNode extends STFunctionBodyNode {
             STNode namedWorkerDeclarator,
             STNode statements,
             STNode closeBraceToken) {
-        super(SyntaxKind.FUNCTION_BODY_BLOCK);
+        this(
+                openBraceToken,
+                namedWorkerDeclarator,
+                statements,
+                closeBraceToken,
+                Collections.emptyList());
+    }
+
+    STFunctionBodyBlockNode(
+            STNode openBraceToken,
+            STNode namedWorkerDeclarator,
+            STNode statements,
+            STNode closeBraceToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.FUNCTION_BODY_BLOCK, diagnostics);
         this.openBraceToken = openBraceToken;
         this.namedWorkerDeclarator = namedWorkerDeclarator;
         this.statements = statements;
@@ -51,7 +68,47 @@ public class STFunctionBodyBlockNode extends STFunctionBodyNode {
                 closeBraceToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STFunctionBodyBlockNode(
+                this.openBraceToken,
+                this.namedWorkerDeclarator,
+                this.statements,
+                this.closeBraceToken,
+                diagnostics);
+    }
+
+    public STFunctionBodyBlockNode modify(
+            STNode openBraceToken,
+            STNode namedWorkerDeclarator,
+            STNode statements,
+            STNode closeBraceToken) {
+        if (checkForReferenceEquality(
+                openBraceToken,
+                namedWorkerDeclarator,
+                statements,
+                closeBraceToken)) {
+            return this;
+        }
+
+        return new STFunctionBodyBlockNode(
+                openBraceToken,
+                namedWorkerDeclarator,
+                statements,
+                closeBraceToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FunctionBodyBlockNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

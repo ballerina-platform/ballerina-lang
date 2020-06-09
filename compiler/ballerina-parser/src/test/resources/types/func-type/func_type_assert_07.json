@@ -119,11 +119,21 @@
                           "children": []
                         },
                         {
-                          "kind": "BOOLEAN_KEYWORD"
-                        },
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "b"
+                          "kind": "TYPED_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "BOOLEAN_KEYWORD"
+                            },
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "b"
+                                }
+                              ]
+                            }
+                          ]
                         },
                         {
                           "kind": "EQUAL_TOKEN"
@@ -188,6 +198,10 @@
                               "kind": "TYPE_CAST_PARAM",
                               "children": [
                                 {
+                                    "kind": "LIST",
+                                    "children": []
+                                },
+                                  {
                                   "kind": "FUNCTION_TYPE_DESC",
                                   "children": [
                                     {
@@ -423,7 +437,7 @@
                   "kind": "LIST",
                   "children": [
                     {
-                      "kind": "MODULE_VAR_DECL",
+                      "kind": "OBJECT_FIELD",
                       "children": [
                         {
                           "kind": "METADATA",

@@ -59,11 +59,21 @@
                           "children": []
                         },
                         {
-                          "kind": "SERVICE_KEYWORD"
-                        },
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "s"
+                          "kind": "TYPED_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "SERVICE_KEYWORD"
+                            },
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "s"
+                                }
+                              ]
+                            }
+                          ]
                         },
                         {
                           "kind": "SEMICOLON_TOKEN"

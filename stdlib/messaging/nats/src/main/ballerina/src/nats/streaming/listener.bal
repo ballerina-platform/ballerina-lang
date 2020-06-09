@@ -65,7 +65,7 @@ public type StreamingListener object {
     #
     # + return - `()` or else a `nats:Error` upon failure to start the listener
     public function __start() returns error? {
-         streamingSubscribe(self, self.connection, java:fromString(self.clusterId), self.clientId, self.streamingConfig);
+         streamingSubscribe(self, self.connection, self.clusterId, self.clientId, self.streamingConfig);
     }
 
     # Stops the `nats:StreamingListener` gracefully.
@@ -93,7 +93,7 @@ function streamingListenerInit(StreamingListener lis) =
 } external;
 
 function streamingSubscribe(StreamingListener streamingClient, Connection conn,
-                            handle clusterId, string? clientId, StreamingConfig? streamingConfig) =
+                            string clusterId, string? clientId, StreamingConfig? streamingConfig) =
 @java:Method {
     class: "org.ballerinalang.nats.streaming.consumer.Subscribe"
 } external;

@@ -189,8 +189,8 @@ public class TypeParamAnalyzer {
                 return containsTypeParam(((BStreamType) type).constraint, resolvedTypes);
             case TypeTags.TABLE:
                 return (containsTypeParam(((BTableType) type).constraint, resolvedTypes) ||
-                        ((BTableType) type).keyTypeConstraint != null) &&
-                        containsTypeParam(((BTableType) type).keyTypeConstraint, resolvedTypes);
+                        ((BTableType) type).keyTypeConstraint != null
+                                && containsTypeParam(((BTableType) type).keyTypeConstraint, resolvedTypes));
             case TypeTags.RECORD:
                 BRecordType recordType = (BRecordType) type;
                 for (BField field : recordType.fields.values()) {

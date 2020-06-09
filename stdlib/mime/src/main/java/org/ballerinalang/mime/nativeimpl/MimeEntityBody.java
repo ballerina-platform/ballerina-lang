@@ -171,24 +171,23 @@ public class MimeEntityBody {
         }
     }
 
-    public static Object getMediaType(String contentType) {
+    public static Object getMediaType(BString contentType) {
         try {
             ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
-            mediaType = MimeUtil.parseMediaType(mediaType, contentType);
-            return mediaType;
+            return MimeUtil.parseMediaType(mediaType, contentType.getValue());
         } catch (Throwable err) {
             return MimeUtil.createError(INVALID_CONTENT_TYPE_ERROR, getErrorMsg(err));
         }
     }
 
-    public static void setBodyParts(ObjectValue entityObj, ArrayValue bodyParts, String contentType) {
+    public static void setBodyParts(ObjectValue entityObj, ArrayValue bodyParts, BString contentType) {
         entityObj.addNativeData(BODY_PARTS, bodyParts);
-        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType : MULTIPART_FORM_DATA);
+        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType.getValue() : MULTIPART_FORM_DATA);
     }
 
-    public static void setByteArray(ObjectValue entityObj, ArrayValue payload, String contentType) {
+    public static void setByteArray(ObjectValue entityObj, ArrayValue payload, BString contentType) {
         EntityBodyHandler.addMessageDataSource(entityObj, payload);
-        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType : OCTET_STREAM);
+        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType.getValue() : OCTET_STREAM);
     }
 
     public static void setByteChannel(ObjectValue entityObj, ObjectValue byteChannel,
@@ -201,18 +200,18 @@ public class MimeEntityBody {
         MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType.getValue() : OCTET_STREAM);
     }
 
-    public static void setJson(ObjectValue entityObj, Object jsonContent, String contentType) {
+    public static void setJson(ObjectValue entityObj, Object jsonContent, BString contentType) {
         EntityBodyHandler.addJsonMessageDataSource(entityObj, jsonContent);
-        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType : APPLICATION_JSON);
+        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType.getValue() : APPLICATION_JSON);
     }
 
-    public static void setText(ObjectValue entityObj, String textContent, String contentType) {
-        EntityBodyHandler.addMessageDataSource(entityObj, textContent);
-        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType : TEXT_PLAIN);
+    public static void setText(ObjectValue entityObj, BString textContent, BString contentType) {
+        EntityBodyHandler.addMessageDataSource(entityObj, textContent.getValue());
+        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType.getValue() : TEXT_PLAIN);
     }
 
-    public static void setXml(ObjectValue entityObj, XMLValue xmlContent, String contentType) {
+    public static void setXml(ObjectValue entityObj, XMLValue xmlContent, BString contentType) {
         EntityBodyHandler.addMessageDataSource(entityObj, xmlContent);
-        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType : APPLICATION_XML);
+        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType.getValue() : APPLICATION_XML);
     }
 }

@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.XMLNamespaceDeclarationNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -40,7 +43,23 @@ public class STXMLNamespaceDeclarationNode extends STStatementNode {
             STNode asKeyword,
             STNode namespacePrefix,
             STNode semicolonToken) {
-        super(SyntaxKind.XML_NAMESPACE_DECLARATION);
+        this(
+                xmlnsKeyword,
+                namespaceuri,
+                asKeyword,
+                namespacePrefix,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STXMLNamespaceDeclarationNode(
+            STNode xmlnsKeyword,
+            STNode namespaceuri,
+            STNode asKeyword,
+            STNode namespacePrefix,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.XML_NAMESPACE_DECLARATION, diagnostics);
         this.xmlnsKeyword = xmlnsKeyword;
         this.namespaceuri = namespaceuri;
         this.asKeyword = asKeyword;
@@ -55,7 +74,51 @@ public class STXMLNamespaceDeclarationNode extends STStatementNode {
                 semicolonToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STXMLNamespaceDeclarationNode(
+                this.xmlnsKeyword,
+                this.namespaceuri,
+                this.asKeyword,
+                this.namespacePrefix,
+                this.semicolonToken,
+                diagnostics);
+    }
+
+    public STXMLNamespaceDeclarationNode modify(
+            STNode xmlnsKeyword,
+            STNode namespaceuri,
+            STNode asKeyword,
+            STNode namespacePrefix,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                xmlnsKeyword,
+                namespaceuri,
+                asKeyword,
+                namespacePrefix,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STXMLNamespaceDeclarationNode(
+                xmlnsKeyword,
+                namespaceuri,
+                asKeyword,
+                namespacePrefix,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLNamespaceDeclarationNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

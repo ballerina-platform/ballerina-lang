@@ -1,0 +1,5 @@
+[project]
+org-name= "bcintegrationtest"
+version= "2.0.0"
+
+[dependencies]

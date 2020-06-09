@@ -306,7 +306,7 @@ function testAnyStructToJson() returns json {
 function testAnyNullToJson() returns json|error {
     anydata a = ();
     json value;
-    value = check typedesc<json>.constructFrom(a);
+    value = check a.cloneWithType(typedesc<json>);
     return value;
 }
 
@@ -356,7 +356,7 @@ function testCompatibleStructForceCasting() returns A|error {
 
 function testInCompatibleStructForceCasting() returns A|error {
     B b = {x: "x-valueof-b"};
-    A a = check typedesc<A>.constructFrom(b);
+    A a = check b.cloneWithType(typedesc<A>);
 
     //TODO Handle error
 

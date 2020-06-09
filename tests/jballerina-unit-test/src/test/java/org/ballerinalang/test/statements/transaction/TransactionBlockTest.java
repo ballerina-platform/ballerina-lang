@@ -224,7 +224,7 @@ public class TransactionBlockTest {
         BAssertUtil.validateError(negativeProgramFile, i++,
                 "transaction statement cannot be nested within another transaction block", 17, 9);
         BAssertUtil.validateError(negativeProgramFile, i++,
-                "'check' expression cannot be used within transaction block", 30, 17);
+                "'check' expression cannot be used within transaction block", 31, 17);
 
         Assert.assertEquals(negativeProgramFile.getErrorCount(), i);
     }

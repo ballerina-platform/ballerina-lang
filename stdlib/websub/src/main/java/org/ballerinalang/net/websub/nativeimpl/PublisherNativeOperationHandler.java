@@ -48,12 +48,12 @@ public class PublisherNativeOperationHandler {
      * @param content the content to send to subscribers, with the payload and content-type specified
      * @return `error` if an error occurred during publishing
      */
-    public static Object validateAndPublishToInternalHub(String hubUrl, String topic,
+    public static Object validateAndPublishToInternalHub(BString hubUrl, BString topic,
                                                          MapValue<BString, Object> content) {
         Hub hubInstance = Hub.getInstance();
-        if (hubInstance.isStarted() && hubInstance.getPublishUrl().equals(hubUrl)) {
+        if (hubInstance.isStarted() && hubInstance.getPublishUrl().equals(hubUrl.getValue())) {
             try {
-                Hub.getInstance().publish(topic, content);
+                Hub.getInstance().publish(topic.getValue(), content);
             } catch (BallerinaWebSubException e) {
                 return WebSubUtils.createError(e.getMessage());
             }

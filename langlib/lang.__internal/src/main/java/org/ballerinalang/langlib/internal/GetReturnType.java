@@ -34,7 +34,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", functionName = "getReturnType",
+        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0", functionName = "getReturnType",
         args = {@Argument(name = "func", type = TypeKind.ANY)},
         returnType = {@ReturnType(type = TypeKind.TYPEDESC)}
 )

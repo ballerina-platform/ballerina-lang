@@ -42,7 +42,7 @@ class WebSocketClientResourceValidator extends WebSocketResourceValidator {
                 paramDetails.get(0).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
                     + resource.getName().getValue() + RESOURCE_IN_SERVICE +
-                    ": The first parameter should be a " + WebSocketConstants.WEBSOCKET_CLIENT_NAME);
+                    ": The first parameter should be a " + WebSocketConstants.FULL_WEBSOCKET_CLIENT_NAME);
         }
     }
 }

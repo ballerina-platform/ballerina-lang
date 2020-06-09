@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -32,8 +33,8 @@ public class NamedArgumentNode extends FunctionArgumentNode {
         super(internalNode, position, parent);
     }
 
-    public Token leadingComma() {
-        return childInBucket(0);
+    public Optional<Token> leadingComma() {
+        return optionalChildInBucket(0);
     }
 
     public SimpleNameReferenceNode argumentName() {
@@ -105,7 +106,7 @@ public class NamedArgumentNode extends FunctionArgumentNode {
 
         public NamedArgumentNodeModifier(NamedArgumentNode oldNode) {
             this.oldNode = oldNode;
-            this.leadingComma = oldNode.leadingComma();
+            this.leadingComma = oldNode.leadingComma().orElse(null);
             this.argumentName = oldNode.argumentName();
             this.equalsToken = oldNode.equalsToken();
             this.expression = oldNode.expression();

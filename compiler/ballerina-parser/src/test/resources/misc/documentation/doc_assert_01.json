@@ -1,94 +1,94 @@
 {
-    "kind": "MODULE_PART",
-    "children": [
+  "kind": "MODULE_PART",
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "LIST",
-            "children": []
-        },
-        {
-            "kind": "LIST",
-            "children": [
+          "kind": "FUNCTION_DEFINITION",
+          "children": [
+            {
+              "kind": "METADATA",
+              "children": [
                 {
-                    "kind": "FUNCTION_DEFINITION",
-                    "children": [
+                  "kind": "DOCUMENTATION_STRING",
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": [
                         {
-                            "kind": "METADATA",
-                            "children": [
-                                {
-                                    "kind": "DOCUMENTATION_STRING",
-                                    "children": [
-                                        {
-                                            "kind": "LIST",
-                                            "children": [
-                                                {
-                                                    "kind": "DOCUMENTATION_LINE",
-                                                    "value": "# Adds parameter `x` and parameter `y`"
-                                                },
-                                                {
-                                                    "kind": "DOCUMENTATION_LINE",
-                                                    "value": "# + x - one thing to be added"
-                                                },
-                                                {
-                                                    "kind": "DOCUMENTATION_LINE",
-                                                    "value": "# + y - another thing to be added"
-                                                },
-                                                {
-                                                    "kind": "DOCUMENTATION_LINE",
-                                                    "value": "# + return - the sum of them"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "LIST",
-                                    "children": []
-                                }
-                            ]
+                          "kind": "DOCUMENTATION_LINE",
+                          "value": "# Adds parameter `x` and parameter `y`"
                         },
                         {
-                            "kind": "FUNCTION_KEYWORD"
+                          "kind": "DOCUMENTATION_LINE",
+                          "value": "# + x - one thing to be added"
                         },
                         {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "foo"
+                          "kind": "DOCUMENTATION_LINE",
+                          "value": "# + y - another thing to be added"
                         },
                         {
-                            "kind": "FUNCTION_SIGNATURE",
-                            "children": [
-                                {
-                                    "kind": "OPEN_PAREN_TOKEN"
-                                },
-                                {
-                                    "kind": "LIST",
-                                    "children": []
-                                },
-                                {
-                                    "kind": "CLOSE_PAREN_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "FUNCTION_BODY_BLOCK",
-                            "children": [
-                                {
-                                    "kind": "OPEN_BRACE_TOKEN"
-                                },
-                                {
-                                    "kind": "LIST",
-                                    "children": []
-                                },
-                                {
-                                    "kind": "CLOSE_BRACE_TOKEN"
-                                }
-                            ]
+                          "kind": "DOCUMENTATION_LINE",
+                          "value": "# + return - the sum of them"
                         }
-                    ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
                 }
-            ]
-        },
-        {
-            "kind": "EOF_TOKEN"
+              ]
+            },
+            {
+              "kind": "FUNCTION_KEYWORD"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "foo"
+            },
+            {
+              "kind": "FUNCTION_SIGNATURE",
+              "children": [
+                {
+                  "kind": "OPEN_PAREN_TOKEN"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "CLOSE_PAREN_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "FUNCTION_BODY_BLOCK",
+              "children": [
+                {
+                  "kind": "OPEN_BRACE_TOKEN"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "CLOSE_BRACE_TOKEN"
+                }
+              ]
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "EOF_TOKEN"
+    }
+  ]
 }

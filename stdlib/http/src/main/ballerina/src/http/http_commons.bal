@@ -226,12 +226,7 @@ public type CommonClientConfiguration record {|
 # + headerValue - The header value
 # + return - A tuple containing the value and its parameter map or else an `http:ClientError` if the header parsing fails
 //TODO: Make the error nillable
-public function parseHeader(string headerValue) returns [string, map<any>]|ClientError {
-    return externParseHeader(java:fromString(headerValue));
-}
-
-function externParseHeader(handle headerValue) returns [string, map<any>]|ClientError =
-@java:Method {
+public function parseHeader(string headerValue) returns [string, map<any>]|ClientError = @java:Method {
     class: "org.ballerinalang.net.http.nativeimpl.ParseHeader",
     name: "parseHeader"
 } external;
@@ -432,17 +427,7 @@ function createErrorForNoPayload(mime:Error err) returns GenericClientError {
 }
 
 //Resolve a given path against a given URI.
-function resolve(string baseUrl, string path) returns string|ClientError {
-    var result = externResolve(java:fromString(baseUrl), java:fromString(path));
-    if (result is handle) {
-        return <string>java:toString(result);
-    } else {
-        return result;
-    }
-}
-
-function externResolve(handle baseUrl, handle path) returns handle|ClientError =
-@java:Method {
+function resolve(string baseUrl, string path) returns string|ClientError = @java:Method {
     class: "org.ballerinalang.net.uri.nativeimpl.Resolve",
     name: "resolve"
 } external;

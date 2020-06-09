@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.UnaryExpressionNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,7 +37,17 @@ public class STUnaryExpressionNode extends STExpressionNode {
     STUnaryExpressionNode(
             STNode unaryOperator,
             STNode expression) {
-        super(SyntaxKind.UNARY_EXPRESSION);
+        this(
+                unaryOperator,
+                expression,
+                Collections.emptyList());
+    }
+
+    STUnaryExpressionNode(
+            STNode unaryOperator,
+            STNode expression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.UNARY_EXPRESSION, diagnostics);
         this.unaryOperator = unaryOperator;
         this.expression = expression;
 
@@ -43,7 +56,39 @@ public class STUnaryExpressionNode extends STExpressionNode {
                 expression);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STUnaryExpressionNode(
+                this.unaryOperator,
+                this.expression,
+                diagnostics);
+    }
+
+    public STUnaryExpressionNode modify(
+            STNode unaryOperator,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                unaryOperator,
+                expression)) {
+            return this;
+        }
+
+        return new STUnaryExpressionNode(
+                unaryOperator,
+                expression,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new UnaryExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

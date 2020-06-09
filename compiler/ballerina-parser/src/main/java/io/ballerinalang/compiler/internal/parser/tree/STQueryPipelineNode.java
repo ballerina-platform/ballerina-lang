@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QueryPipelineNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,7 +37,17 @@ public class STQueryPipelineNode extends STNode {
     STQueryPipelineNode(
             STNode fromClause,
             STNode intermediateClauses) {
-        super(SyntaxKind.QUERY_PIPELINE);
+        this(
+                fromClause,
+                intermediateClauses,
+                Collections.emptyList());
+    }
+
+    STQueryPipelineNode(
+            STNode fromClause,
+            STNode intermediateClauses,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.QUERY_PIPELINE, diagnostics);
         this.fromClause = fromClause;
         this.intermediateClauses = intermediateClauses;
 
@@ -43,7 +56,39 @@ public class STQueryPipelineNode extends STNode {
                 intermediateClauses);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STQueryPipelineNode(
+                this.fromClause,
+                this.intermediateClauses,
+                diagnostics);
+    }
+
+    public STQueryPipelineNode modify(
+            STNode fromClause,
+            STNode intermediateClauses) {
+        if (checkForReferenceEquality(
+                fromClause,
+                intermediateClauses)) {
+            return this;
+        }
+
+        return new STQueryPipelineNode(
+                fromClause,
+                intermediateClauses,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new QueryPipelineNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }
