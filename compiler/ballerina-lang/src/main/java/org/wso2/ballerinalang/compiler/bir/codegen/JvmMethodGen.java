@@ -1462,8 +1462,6 @@ public class JvmMethodGen {
 
         String currentPackageName = getPackageName(module.org.value, module.name.value, module.version.value);
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
-        String initClass = getModuleLevelClassName(module.org.value, module.name.value, module.version.value,
-                MODULE_INIT_CLASS_NAME);
         String funcName = cleanupFunctionName(func.name.value);
         int returnVarRefIndex = -1;
 
@@ -1496,7 +1494,8 @@ public class JvmMethodGen {
         mv.visitCode();
         if (isModuleStartFunction(module, funcName)) {
             mv.visitInsn(ICONST_1);
-            mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_START_ATTEMPTED, "Z");
+            mv.visitFieldInsn(PUTSTATIC, getModuleLevelClassName(module.org.value, module.name.value,
+                    module.version.value, MODULE_INIT_CLASS_NAME), MODULE_START_ATTEMPTED, "Z");
         }
 
         Label tryStart = null;
