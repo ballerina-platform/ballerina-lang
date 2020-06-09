@@ -403,7 +403,6 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateTargetDirTask()) // create target directory
                 .addTask(new ResolveMavenDependenciesTask())
                 .addTask(new CompileTask(skipCopyLibsFromDist)) // compile the modules
-                .addTask(new CompileTask()) // compile the modules
                 .addTask(new CreateLockFileTask(), this.skipLock || isSingleFileBuild)  // create a lock file if
                                                             // the given skipLock flag does not exist(projects only)
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the BALOs for modules (projects only)
