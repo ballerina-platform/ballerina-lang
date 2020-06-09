@@ -2328,7 +2328,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         bLangTypeDefinition.setName(
-                (BLangIdentifier)transform(enumDeclarationNode.identifier()));
+                (BLangIdentifier) transform(enumDeclarationNode.identifier()));
 
         BLangUnionTypeNode bLangUnionTypeNode =
                 (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
@@ -2379,7 +2379,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         typeNode.typeKind = TypeKind.STRING;
         bLangConstant.setTypeNode(typeNode);
 
-        if (deepLiteral.originalValue != "" ) {
+        if (deepLiteral.originalValue != "") {
             BLangFiniteTypeNode typeNodeAssosiated =
                     (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
             deepLiteral.originalValue = null;
