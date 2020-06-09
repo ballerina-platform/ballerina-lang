@@ -57,9 +57,9 @@ public class JavaCastTest {
     public void testJavaCastForInvalidTypedesc3() {
         BValue[] returns = BRunUtil.invoke(result, "testJavaCastForInvalidTypedesc3");
         Assert.assertEquals(returns.length, 1);
-       Assert.assertTrue(returns[0].stringValue().contains("{ballerina/java} Error while initializing the new " +
+        Assert.assertTrue(returns[0].stringValue().contains("{ballerina/java} Error while initializing the new " +
                "object from `String4` type: java.lang.ClassCastException: org.ballerinalang.jvm.values.HandleValue " +
-               "cannot be cast to java.lang.String"));
+               "cannot be cast to org.ballerinalang.jvm.values.api.BString"));
     }
 
     @Test(description = "Test java:cast function in ballerina/java for incorrect class in typedesc object annotation")

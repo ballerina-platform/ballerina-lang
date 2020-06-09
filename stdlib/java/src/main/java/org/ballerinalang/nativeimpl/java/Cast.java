@@ -25,15 +25,15 @@ import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.values.HandleValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.api.BObject;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-
-import java.util.Map;
 
 import static org.ballerinalang.jvm.BallerinaErrors.createError;
 import static org.ballerinalang.jvm.values.api.BValueCreator.createObjectValue;
@@ -59,7 +59,7 @@ public class Cast {
 
     private static final String moduleName = "{ballerina/java}";
     private static final String annotationName = "@java:Binding";
-    private static final String annotationType = "ballerina/java:Binding";
+    private static final String annotationType = "ballerina/java:0.9.0:Binding";
     private static final String classAttribute = "class";
     private static final String jObjField = "jObj";
 
@@ -74,17 +74,17 @@ public class Cast {
                     + jObjField + "` field in `" + valueObjName + "`"));
         }
         try {
-            Map objAnnotation;
-            String objClass;
+            MapValue objAnnotation;
+            BString objClass;
             try {
-                objAnnotation = (Map) objType.getAnnotation(StringUtils.fromString(annotationType));
-                objClass = (String) objAnnotation.get(classAttribute);
+                objAnnotation = (MapValue) objType.getAnnotation(StringUtils.fromString(annotationType));
+                objClass = objAnnotation.getStringValue(StringUtils.fromString(classAttribute));
             } catch (Exception e) {
                 return createError(StringUtils.fromString(moduleName + " Error while retrieving details of the `" +
                         annotationName + "` annotation from `" + valueObjName + "` object: " + e));
             }
             BType describingBType = castType.getDescribingType();
-            String castObjClass;
+            BString castObjClass;
             BObjectType castObjType;
             String castObjTypeName;
             try {
@@ -101,14 +101,15 @@ public class Cast {
                         "parameter: " + e));
             }
             try {
-                Map castObjAnnotation = (Map) castObjType.getAnnotation(StringUtils.fromString(annotationType));
-                castObjClass = (String) castObjAnnotation.get(classAttribute);
+                MapValue castObjAnnotation = (MapValue) castObjType.getAnnotation(
+                        StringUtils.fromString(annotationType));
+                castObjClass = (BString) castObjAnnotation.getStringValue(StringUtils.fromString(classAttribute));
             } catch (Exception e) {
                 return createError(StringUtils.fromString(moduleName + " Error while retrieving details of the `" +
                         annotationName + "` annotation from `" + castObjTypeName + "` typedesc: " + e));
             }
-            Class<?> objClassType = Class.forName(objClass);
-            Class<?> castObjClassType = Class.forName(castObjClass);
+            Class<?> objClassType = Class.forName(objClass.getValue());
+            Class<?> castObjClassType = Class.forName(castObjClass.getValue());
             boolean isList = objClassType.isAssignableFrom(castObjClassType);
             if (isList) {
                 BObject bObject;
