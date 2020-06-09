@@ -207,7 +207,7 @@ type Student record {
 // `sql:TypedValue`s as well.
 int id = 10;
 int age = 12;
-stream<Student, sql:Error> resultStream = dbClient->query(`SELECT * FROM student 
+stream<Student, sql:Error> resultStream = dbClient->query(`SELECT * FROM students 
                                                           WHERE id < ${id} AND 
                                                           age > ${age}`, Student);
 
@@ -232,7 +232,7 @@ type will be same as how the column is defined in the database.
 // `sql:TypedValue`s as well.
 int id = 10;
 int age = 12;
-stream<record{}, sql:Error> resultStream = dbClient->query(`SELECT * FROM student 
+stream<record{}, sql:Error> resultStream = dbClient->query(`SELECT * FROM students 
                                                             WHERE id < ${id} AND 
                                                             age > ${age}`, Student);
 
@@ -279,12 +279,29 @@ the client.
 
 ```ballerina
 int age = 23;
-var ret = dbClient->execute(`UPDATE student SET name = 'John' WHERE age = ${age}`);
+var ret = dbClient->execute(`UPDATE students SET name = 'John' WHERE age = ${age}`);
 if (ret is sql:ExecutionResult) {
     io:println("Updated row count in Students table: ", ret.affectedRowCount);
 } else {
     error err = ret;
-    io:println("Insert to Students table failed: ",
+    io:println("Update to students table failed: ",
+                <string>err.detail()["message"]);
+}
+```
+
+#### Deleting data
+
+This example demonstrates deleting data by executing an DELETE statement via the `execute` remote function of 
+the client.
+
+```ballerina
+string name = "John";
+var ret = dbClient->execute(`DELETE from students WHERE name = ${name}`);
+if (ret is sql:ExecutionResult) {
+    io:println("Deleted student count: ", ret.affectedRowCount);
+} else {
+    error err = ret;
+    io:println("Delete from students table failed: ",
                 <string>err.detail()["message"]);
 }
 ```
@@ -305,7 +322,7 @@ var data = [
 
 // Do the batch update by passing the batches.
 var ret = dbClient->batchExecute(from {name, age} in data 
-                                 select `INSERT INTO student 
+                                 select `INSERT INTO students 
                                  ('name', 'age') 
                                  VALUES (${name}, ${age})`);
 
