@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases for ballerina/java functions related to Java casting.
  *
- * @since 1.2.4
+ * @since 1.2.5
  */
 public class JavaCastTest {
 

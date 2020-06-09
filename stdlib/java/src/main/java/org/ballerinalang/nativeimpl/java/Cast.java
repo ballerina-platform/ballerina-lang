@@ -41,7 +41,7 @@ import static org.ballerinalang.jvm.values.api.BValueCreator.createObjectValue;
 /**
  * This class contains the implementation of the "cast" Ballerina function in ballerina/java module.
  *
- * @since 1.2.4
+ * @since 1.2.5
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "java", functionName = "cast",
