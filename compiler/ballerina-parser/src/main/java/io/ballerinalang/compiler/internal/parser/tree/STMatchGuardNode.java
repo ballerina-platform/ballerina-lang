@@ -63,7 +63,32 @@ public class STMatchGuardNode extends STNode {
                 diagnostics);
     }
 
+    public STMatchGuardNode modify(
+            STNode ifKeyword,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                ifKeyword,
+                expression)) {
+            return this;
+        }
+
+        return new STMatchGuardNode(
+                ifKeyword,
+                expression,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MatchGuardNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

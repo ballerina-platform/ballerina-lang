@@ -77,7 +77,38 @@ public class STMatchClauseNode extends STNode {
                 diagnostics);
     }
 
+    public STMatchClauseNode modify(
+            STNode matchPatterns,
+            STNode matchGuard,
+            STNode rightDoubleArrow,
+            STNode blockStatement) {
+        if (checkForReferenceEquality(
+                matchPatterns,
+                matchGuard,
+                rightDoubleArrow,
+                blockStatement)) {
+            return this;
+        }
+
+        return new STMatchClauseNode(
+                matchPatterns,
+                matchGuard,
+                rightDoubleArrow,
+                blockStatement,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MatchClauseNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

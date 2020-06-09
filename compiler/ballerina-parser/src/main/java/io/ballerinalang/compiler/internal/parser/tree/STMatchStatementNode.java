@@ -84,7 +84,41 @@ public class STMatchStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STMatchStatementNode modify(
+            STNode matchKeyword,
+            STNode condition,
+            STNode openBrace,
+            STNode matchClauses,
+            STNode closeBrace) {
+        if (checkForReferenceEquality(
+                matchKeyword,
+                condition,
+                openBrace,
+                matchClauses,
+                closeBrace)) {
+            return this;
+        }
+
+        return new STMatchStatementNode(
+                matchKeyword,
+                condition,
+                openBrace,
+                matchClauses,
+                closeBrace,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MatchStatementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }
