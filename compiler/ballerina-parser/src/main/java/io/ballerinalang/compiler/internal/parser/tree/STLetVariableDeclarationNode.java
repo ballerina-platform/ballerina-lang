@@ -77,7 +77,38 @@ public class STLetVariableDeclarationNode extends STNode {
                 diagnostics);
     }
 
+    public STLetVariableDeclarationNode modify(
+            STNode annotations,
+            STNode typedBindingPattern,
+            STNode equalsToken,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                annotations,
+                typedBindingPattern,
+                equalsToken,
+                expression)) {
+            return this;
+        }
+
+        return new STLetVariableDeclarationNode(
+                annotations,
+                typedBindingPattern,
+                equalsToken,
+                expression,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new LetVariableDeclarationNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

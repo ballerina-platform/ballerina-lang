@@ -186,11 +186,12 @@ public enum SyntaxKind {
     XML_TEXT_CONTENT(1006),
     TEMPLATE_STRING(1007),
 
-    // Trivia
+    // Minutiae kinds
     WHITESPACE_MINUTIAE(1500),
     END_OF_LINE_MINUTIAE(1501),
     COMMENT_MINUTIAE(1502),
     DOCUMENTATION_LINE(1503),
+    INVALID_NODE_MINUTIAE(1504),
 
     // module-level declarations
     IMPORT_DECLARATION(2000),

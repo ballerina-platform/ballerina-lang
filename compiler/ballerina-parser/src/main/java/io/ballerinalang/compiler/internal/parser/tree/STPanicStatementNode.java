@@ -70,7 +70,35 @@ public class STPanicStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STPanicStatementNode modify(
+            STNode panicKeyword,
+            STNode expression,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                panicKeyword,
+                expression,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STPanicStatementNode(
+                panicKeyword,
+                expression,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new PanicStatementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

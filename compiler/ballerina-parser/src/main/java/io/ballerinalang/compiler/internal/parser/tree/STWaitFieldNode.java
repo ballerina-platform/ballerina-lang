@@ -70,7 +70,35 @@ public class STWaitFieldNode extends STNode {
                 diagnostics);
     }
 
+    public STWaitFieldNode modify(
+            STNode fieldName,
+            STNode colon,
+            STNode waitFutureExpr) {
+        if (checkForReferenceEquality(
+                fieldName,
+                colon,
+                waitFutureExpr)) {
+            return this;
+        }
+
+        return new STWaitFieldNode(
+                fieldName,
+                colon,
+                waitFutureExpr,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new WaitFieldNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

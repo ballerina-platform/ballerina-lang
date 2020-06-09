@@ -84,7 +84,41 @@ public class STConditionalExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STConditionalExpressionNode modify(
+            STNode lhsExpression,
+            STNode questionMarkToken,
+            STNode middleExpression,
+            STNode colonToken,
+            STNode endExpression) {
+        if (checkForReferenceEquality(
+                lhsExpression,
+                questionMarkToken,
+                middleExpression,
+                colonToken,
+                endExpression)) {
+            return this;
+        }
+
+        return new STConditionalExpressionNode(
+                lhsExpression,
+                questionMarkToken,
+                middleExpression,
+                colonToken,
+                endExpression,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ConditionalExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }
