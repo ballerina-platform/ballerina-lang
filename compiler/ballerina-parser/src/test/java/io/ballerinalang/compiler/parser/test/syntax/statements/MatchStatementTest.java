@@ -41,7 +41,12 @@ public class MatchStatementTest extends AbstractStatementTest {
     // Recovery tests
 
     @Test
-    public void testSimpleMatchStmtRecovery() {
+    public void testMatchStmtBodyRecovery() {
         testFile("match-stmt/match_stmt_source_03.bal", "match-stmt/match_stmt_assert_03.json");
+    }
+
+    @Test
+    public void testMatchStmtRecovery() {
+        testFile("match-stmt/match_stmt_source_04.bal", "match-stmt/match_stmt_assert_04.json");
     }
 }

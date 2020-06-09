@@ -106,7 +106,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.EXPRESSION_STATEMENT, ParserRuleContext.LOCK_STMT, ParserRuleContext.BLOCK_STMT,
             ParserRuleContext.NAMED_WORKER_DECL, ParserRuleContext.FORK_STMT, ParserRuleContext.FOREACH_STMT,
             ParserRuleContext.XML_NAMESPACE_DECLARATION, ParserRuleContext.TRANSACTION_STMT,
-            ParserRuleContext.RETRY_STMT, ParserRuleContext.ROLLBACK_STMT };
+            ParserRuleContext.RETRY_STMT, ParserRuleContext.ROLLBACK_STMT, ParserRuleContext.MATCH_STMT };
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.ASSIGN_OP, ParserRuleContext.SEMICOLON };
@@ -2642,6 +2642,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.BINDING_PATTERN;
             case UNION_OR_INTERSECTION_TOKEN:
                 return ParserRuleContext.TYPE_DESCRIPTOR;
+            case MATCH_STMT:
+                return ParserRuleContext.MATCH_KEYWORD;
             case MATCH_KEYWORD:
                 return ParserRuleContext.EXPRESSION;
             case MATCH_BODY:
@@ -2753,6 +2755,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case SERVICE_CONSTRUCTOR_EXPRESSION:
             case XML_NAME_PATTERN:
             case XML_ATOMIC_NAME_PATTERN:
+            case MATCH_STMT:
             case MATCH_BODY:
             case MATCH_PATTERN:
 
@@ -3706,6 +3709,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RETRY_STMT:
             case ROLLBACK_STMT:
             case AMBIGUOUS_STMT:
+            case MATCH_STMT:
                 return true;
             default:
                 return false;

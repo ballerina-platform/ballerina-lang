@@ -11576,7 +11576,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Match statement
      */
     private STNode parseMatchStatement() {
-        startContext(ParserRuleContext.MATCH_KEYWORD);
+        startContext(ParserRuleContext.MATCH_STMT);
         STNode matchKeyword = parseMatchKeyword();
         STNode actionOrExpr = parseActionOrExpression();
         startContext(ParserRuleContext.MATCH_BODY);
@@ -13693,7 +13693,8 @@ public class BallerinaParser extends AbstractParser {
                     STNode valueExpr = parseExpression();
                     return STNodeFactory.createSpecificFieldNode(readonlyKeyword, key, colon, valueExpr);
                 }
-
+                switchContext(ParserRuleContext.BLOCK_STMT);
+                startContext(ParserRuleContext.AMBIGUOUS_STMT);
                 STNode expr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, key, false, true);
                 return parseStatementStartWithExprRhs(expr);
             case OPEN_BRACKET_TOKEN:
