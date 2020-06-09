@@ -135,7 +135,7 @@ public class ObserveUtils {
         ObserverContext observerContext = strand.observerContext;
 
         Integer statusCode = (Integer) observerContext.getProperty(PROPERTY_KEY_HTTP_STATUS_CODE);
-        if (statusCode != null) {
+        if (statusCode != null && statusCode >= 100) {
             observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE_GROUP, (statusCode / 100) + STATUS_CODE_GROUP_SUFFIX);
         }
 
