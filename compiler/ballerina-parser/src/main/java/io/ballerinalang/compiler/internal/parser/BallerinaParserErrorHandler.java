@@ -3203,49 +3203,50 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
      */
     private ParserRuleContext getNextRuleForVarName() {
         ParserRuleContext parentCtx = getParentContext();
-        if (parentCtx == ParserRuleContext.REQUIRED_PARAM || parentCtx == ParserRuleContext.PARAM_LIST) {
-            return ParserRuleContext.REQUIRED_PARAM_NAME_RHS;
-        } else if (parentCtx == ParserRuleContext.DEFAULTABLE_PARAM) {
-            return ParserRuleContext.ASSIGN_OP;
-        } else if (parentCtx == ParserRuleContext.REST_PARAM) {
-            return ParserRuleContext.PARAM_END;
-        } else if (parentCtx == ParserRuleContext.FOREACH_STMT) {
-            return ParserRuleContext.IN_KEYWORD;
-        } else if (parentCtx == ParserRuleContext.TYPED_BINDING_PATTERN) {
-            return getNextRuleForBindingPattern();
-        } else if (parentCtx == ParserRuleContext.CAPTURE_BINDING_PATTERN) {
-            return getNextRuleForBindingPattern();
-        } else if (parentCtx == ParserRuleContext.LIST_BINDING_PATTERN ||
-                parentCtx == ParserRuleContext.STMT_START_BRACKETED_LIST_MEMBER) {
-            return getNextRuleForBindingPattern();
-        } else if (parentCtx == ParserRuleContext.REST_BINDING_PATTERN) {
-            return getNextRuleForBindingPattern();
-        } else if (parentCtx == ParserRuleContext.FIELD_BINDING_PATTERN) {
-            return getNextRuleForBindingPattern();
-        } else if (parentCtx == ParserRuleContext.MAPPING_BINDING_PATTERN) {
-            return getNextRuleForBindingPattern();
-        } else if (isStatement(parentCtx) || parentCtx == ParserRuleContext.LISTENER_DECL ||
-                parentCtx == ParserRuleContext.CONSTANT_DECL) {
+        if (isStatement(parentCtx)) {
             return ParserRuleContext.VAR_DECL_STMT_RHS;
-        } else if (parentCtx == ParserRuleContext.RECORD_FIELD) {
-            return ParserRuleContext.FIELD_DESCRIPTOR_RHS;
-        } else if (parentCtx == ParserRuleContext.ARG_LIST) {
-            return ParserRuleContext.NAMED_OR_POSITIONAL_ARG_RHS;
-        } else if (parentCtx == ParserRuleContext.OBJECT_MEMBER) {
-            return ParserRuleContext.OBJECT_FIELD_RHS;
-        } else if (parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR) {
-            return ParserRuleContext.CLOSE_BRACKET;
-        } else if (parentCtx == ParserRuleContext.KEY_SPECIFIER) {
-            return ParserRuleContext.TABLE_KEY_RHS;
-        } else if (parentCtx == ParserRuleContext.LET_EXPR_LET_VAR_DECL ||
-                parentCtx == ParserRuleContext.LET_CLAUSE_LET_VAR_DECL) {
-            return ParserRuleContext.ASSIGN_OP;
-        } else if (parentCtx == ParserRuleContext.ANNOTATION_DECL) {
-            return ParserRuleContext.ANNOT_OPTIONAL_ATTACH_POINTS;
-        } else if (parentCtx == ParserRuleContext.QUERY_EXPRESSION) {
-            return ParserRuleContext.IN_KEYWORD;
-        } else {
-            throw new IllegalStateException(parentCtx.toString());
+        }
+
+        switch (parentCtx) {
+            case REQUIRED_PARAM:
+            case PARAM_LIST:
+                return ParserRuleContext.REQUIRED_PARAM_NAME_RHS;
+            case DEFAULTABLE_PARAM:
+                return ParserRuleContext.ASSIGN_OP;
+            case REST_PARAM:
+                return ParserRuleContext.PARAM_END;
+            case FOREACH_STMT:
+                return ParserRuleContext.IN_KEYWORD;
+            case TYPED_BINDING_PATTERN:
+            case CAPTURE_BINDING_PATTERN:
+            case LIST_BINDING_PATTERN:
+            case STMT_START_BRACKETED_LIST_MEMBER:
+            case REST_BINDING_PATTERN:
+            case FIELD_BINDING_PATTERN:
+            case MAPPING_BINDING_PATTERN:
+                return getNextRuleForBindingPattern();
+            case LISTENER_DECL:
+            case CONSTANT_DECL:
+                return ParserRuleContext.VAR_DECL_STMT_RHS;
+            case RECORD_FIELD:
+                return ParserRuleContext.FIELD_DESCRIPTOR_RHS;
+            case ARG_LIST:
+                return ParserRuleContext.NAMED_OR_POSITIONAL_ARG_RHS;
+            case OBJECT_MEMBER:
+                return ParserRuleContext.OBJECT_FIELD_RHS;
+            case ARRAY_TYPE_DESCRIPTOR:
+                return ParserRuleContext.CLOSE_BRACKET;
+            case KEY_SPECIFIER:
+                return ParserRuleContext.TABLE_KEY_RHS;
+            case LET_EXPR_LET_VAR_DECL:
+            case LET_CLAUSE_LET_VAR_DECL:
+                return ParserRuleContext.ASSIGN_OP;
+            case ANNOTATION_DECL:
+                return ParserRuleContext.ANNOT_OPTIONAL_ATTACH_POINTS;
+            case QUERY_EXPRESSION:
+                return ParserRuleContext.IN_KEYWORD;
+            default:
+                throw new IllegalStateException(parentCtx.toString());
         }
     }
 
@@ -3815,7 +3816,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case EXPR_FUNC_BODY_START:
             case RIGHT_DOUBLE_ARROW:
                 return SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN;
-
             case EXTERNAL_FUNC_BODY:
                 return SyntaxKind.EQUAL_TOKEN;
             case FUNC_BODY_OR_TYPE_DESC_RHS:
