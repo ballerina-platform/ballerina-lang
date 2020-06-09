@@ -2256,25 +2256,23 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(StreamTypeDescriptorNode streamTypeDescriptorNode) {
-        String streamTypeName = "stream";
-        String anyTypeName = "any";
         BLangType constraint, error = null;
-        Optional<Node> paramsNode = streamTypeDescriptorNode.streamTypeParamsNode();
-        boolean hasConstraint = paramsNode.isPresent();
-        boolean hasError = hasConstraint && ((StreamTypeParamsNode) paramsNode.get()).rightTypeDescNode().isPresent();
         DiagnosticPos pos = getPosition(streamTypeDescriptorNode);
+        Optional<Node> paramsNode = streamTypeDescriptorNode.streamTypeParamsNode();
 
-        if (hasError) {
-            error = (BLangType) ((StreamTypeParamsNode) paramsNode.get()).rightTypeDescNode().get().apply(this);
-        }
+        boolean hasConstraint = paramsNode.isPresent();
         if (!hasConstraint) {
-            constraint = addValueType(pos, anyTypeName);
+            constraint = addValueType(pos, TypeKind.ANY);
         } else {
-            constraint = (BLangType) ((StreamTypeParamsNode) paramsNode.get()).leftTypeDescNode().apply(this);
+            StreamTypeParamsNode params = (StreamTypeParamsNode) paramsNode.get();
+            if (params.rightTypeDescNode().isPresent()) {
+                error = (BLangType) params.rightTypeDescNode().get().apply(this);
+            }
+            constraint = (BLangType) params.leftTypeDescNode().apply(this);
         }
 
         BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
-        refType.typeKind = TreeUtils.stringToTypeKind(streamTypeName);
+        refType.typeKind = TypeKind.STREAM;
         refType.pos = pos;
 
         BLangStreamType streamType = (BLangStreamType) TreeBuilder.createStreamTypeNode();
@@ -2327,11 +2325,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     // ------------------------------------------private methods--------------------------------------------------------
-    BLangValueType addValueType(DiagnosticPos pos, String typeName) {
+    BLangValueType addValueType(DiagnosticPos pos, TypeKind typeKind) {
         BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
         typeNode.pos = pos;
-        typeNode.typeKind = (TreeUtils.stringToTypeKind(typeName.replaceAll("\\s+", "")));
-
+        typeNode.typeKind = typeKind;
         return typeNode;
     }
 
