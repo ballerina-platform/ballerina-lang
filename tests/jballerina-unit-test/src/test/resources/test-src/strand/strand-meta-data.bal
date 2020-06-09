@@ -18,40 +18,62 @@ import ballerina/java;
 import ballerina/io;
 import ballerina/runtime;
 
-int totalNoOfStrandsForTest = 11;
+int totalNoOfStrandsForTest = 14;
 int errorCount = 0;
 int successCount = 0;
 string[] errorMessages = [];
 
 type Person object {
     public string name;
-    function __init(string name) returns error? {
+    function __init(string name) {
+        // async calls inside object
         _ = start assertStrandMetaDataResult("$anon/.:0.0.0.Person.__init");
         worker w2 {
             assertStrandMetaDataResult("$anon/.:0.0.0.Person.__init.w2");
         }
-         _ =  @strand{name:"**my starnd inside worker**"}
-                        start assertStrandMetaDataResult("$anon/.:0.0.0.Person.__init.**my starnd inside worker**");
+         _ =  @strand{name:"**my strand inside object**"}
+                        start assertStrandMetaDataResult("$anon/.:0.0.0.Person.__init.**my strand inside object**");
+        foo();
         self.name = name;
+        // object function
+        self.bar();
+    }
+
+    function bar() {
+         assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.test");
+         // async call inside object function
+          _ =  @strand{name:"**my strand inside object bar**"}
+                start assertStrandMetaDataResult("$anon/.:0.0.0.Person.bar.**my strand inside object bar**");
     }
 };
 
 
 function testStrandMetaDataAsyncCalls() {
-    Person|error p1 = new("Waruna");
-    foo();
+    Person p1 = new("Waruna");
+    // inside same function
     assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.test");
+    // inside function call
+    foo();
+    // worker
     worker w1 {
         assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.w1");
     }
+    // async function call
     future<()> f1 = start assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.f1");
-    _ = start assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls");
-    _ = start assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls");
-    _ = @strand{name:"**my starnd**"}
-            start assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.**my starnd**");
 
+    // anonymous async call
+    _ = start assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls");
+    _ = start assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls");
+
+    // async call with strand name
+    _ = @strand{name:"**my strand**"}
+            start assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.**my strand**");
+
+    // async function pointer
     function(string s) func = assertStrandMetaDataResult;
     future<()> x = start func("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.x");
+
+    // Wait until all the async calls are done
     while (successCount < (totalNoOfStrandsForTest*2) && errorCount == 0) {
         runtime:sleep(1);
     }
@@ -65,6 +87,9 @@ function testStrandMetaDataAsyncCalls() {
 
 function foo() {
     assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.test");
+    worker w1 {
+        assertStrandMetaDataResult("$anon/.:0.0.0.foo.w1");
+    }
 }
 
 function assertStrandMetaDataResult(string assertString) {
@@ -96,7 +121,7 @@ function assertStrandMetaDataResult(string assertString) {
     }
 }
 
-function getName(handle starnd) returns handle = @java:Method {
+function getName(handle strand) returns handle = @java:Method {
     class: "org.ballerinalang.jvm.scheduling.Strand"
 } external;
 
@@ -112,7 +137,7 @@ function isPresent(handle optional) returns boolean = @java:Method {
     class: "java.util.Optional"
 } external;
 
-function getId(handle starnd) returns int = @java:Method {
+function getId(handle strand) returns int = @java:Method {
     class: "org.ballerinalang.jvm.scheduling.Strand"
 } external;
 
@@ -120,31 +145,31 @@ function getStrand() returns handle = @java:Method {
     class: "org.ballerinalang.jvm.scheduling.Scheduler"
 } external;
 
-function getMetaData(handle starnd) returns handle = @java:Method {
+function getMetaData(handle strand) returns handle = @java:Method {
     class: "org.ballerinalang.jvm.scheduling.Strand"
 } external;
 
-function getModuleOrg(handle starnd) returns handle = @java:FieldGet {
+function getModuleOrg(handle strandMetaData) returns handle = @java:FieldGet {
     class: "org.ballerinalang.jvm.scheduling.StrandMetaData",
     name : "moduleOrg"
 } external;
 
-function getModuleName(handle starnd) returns handle = @java:FieldGet {
+function getModuleName(handle strandMetaData) returns handle = @java:FieldGet {
     class: "org.ballerinalang.jvm.scheduling.StrandMetaData",
      name : "moduleName"
 } external;
 
-function getModuleVersion(handle starnd) returns handle = @java:FieldGet {
+function getModuleVersion(handle strandMetaData) returns handle = @java:FieldGet {
     class: "org.ballerinalang.jvm.scheduling.StrandMetaData",
     name : "moduleVersion"
 } external;
 
-function getParentFunctionName(handle starnd) returns handle = @java:FieldGet {
+function getParentFunctionName(handle strandMetaData) returns handle = @java:FieldGet {
     class: "org.ballerinalang.jvm.scheduling.StrandMetaData",
     name : "parentFunctionName"
 } external;
 
-function getTypeName(handle starnd) returns handle = @java:FieldGet {
+function getTypeName(handle strandMetaData) returns handle = @java:FieldGet {
     class: "org.ballerinalang.jvm.scheduling.StrandMetaData",
     name : "typeName"
 
