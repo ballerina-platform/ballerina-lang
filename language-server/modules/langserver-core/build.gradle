@@ -36,6 +36,7 @@ configurations {
 
 dependencies {
     implementation project(':ballerina-lang')
+    implementation project(':ballerina-parser')
     implementation project(':ballerina-runtime')
     implementation project(':language-server:language-server-commons')
     implementation project(':language-server:language-server-compiler')

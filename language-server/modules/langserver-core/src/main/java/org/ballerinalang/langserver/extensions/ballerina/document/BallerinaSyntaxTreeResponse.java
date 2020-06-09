@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,30 +18,22 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 import com.google.gson.JsonElement;
 
 /**
- * Represents a Ballerina AST response.
+ * Represents a Ballerina Syntax Tree response.
  *
- * @since 0.981.2
+ * @since 1.3.0
  */
-public class BallerinaASTResponse {
-    private JsonElement ast;
-    private String source;
+public class BallerinaSyntaxTreeResponse {
+
+    private JsonElement syntaxTree;
 
     private boolean parseSuccess;
 
-    public JsonElement getAst() {
-        return ast;
+    public JsonElement getSyntaxTree() {
+        return syntaxTree;
     }
 
-    public void setAst(JsonElement ast) {
-        this.ast = ast;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
+    public void setSyntaxTree(JsonElement syntaxTree) {
+        this.syntaxTree = syntaxTree;
     }
 
     public boolean isParseSuccess() {
