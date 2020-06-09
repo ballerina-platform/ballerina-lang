@@ -76,7 +76,7 @@ public final class XMLItem extends XMLValue {
         for (BXML child : children.children) {
             addParent(child, this);
         }
-        attributes = new AttributeMapValueImpl();
+        attributes = new AttributeMapValueImpl(false);
         addDefaultNamespaceAttribute(name, attributes);
         probableParents = new ArrayList<>();
         this.type = BTypes.typeElement;
@@ -93,11 +93,20 @@ public final class XMLItem extends XMLValue {
     }
 
     public XMLItem(QName name, boolean readonly) {
-        this(name, new XMLSequence(new ArrayList<>()));
+        XMLSequence children = new XMLSequence(new ArrayList<>());
+        this.name = name;
+        this.children = children;
+        for (BXML child : children.children) {
+            addParent(child, this);
+        }
+        attributes = new AttributeMapValueImpl(readonly);
+        addDefaultNamespaceAttribute(name, attributes);
+        probableParents = new ArrayList<>();
+
         this.type = readonly ? BTypes.typeReadonlyElement : BTypes.typeElement;
     }
 
-    private void addDefaultNamespaceAttribute(QName name, MapValue<BString, BString> attributes) {
+    private void addDefaultNamespaceAttribute(QName name, AttributeMapValueImpl attributes) {
         String namespace = name.getNamespaceURI();
         if (namespace == null || namespace.isEmpty()) {
             return;
@@ -108,7 +117,8 @@ public final class XMLItem extends XMLValue {
             prefix = XMLNS;
         }
 
-        attributes.put(StringUtils.fromString(XMLNS_URL_PREFIX + prefix), StringUtils.fromString(namespace));
+        attributes.populateInitialValue(StringUtils.fromString(XMLNS_URL_PREFIX + prefix),
+                                        StringUtils.fromString(namespace));
     }
 
     /**
@@ -198,13 +208,11 @@ public final class XMLItem extends XMLValue {
      */
     @Override
     public void setAttribute(String localName, String namespaceUri, String prefix, String value) {
-        synchronized (this) {
-            if (this.type.isReadOnly()) {
-                ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
-            }
+        if (this.type.isReadOnly()) {
+            ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
         }
 
-        attributes.setAttribute(localName, namespaceUri, prefix, value);
+        attributes.setAttribute(localName, namespaceUri, prefix, value, false);
     }
 
     /**
@@ -221,27 +229,11 @@ public final class XMLItem extends XMLValue {
     @Override
     @Deprecated
     public void setAttributes(BMap<BString, ?> attributes) {
-        synchronized (this) {
-            if (this.type.isReadOnly()) {
-                ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
-            }
+        if (this.type.isReadOnly()) {
+            ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
         }
 
-        String localName, uri;
-        for (BString qname : attributes.getKeys()) {
-            if (qname.getValue().startsWith("{") && qname.getValue().indexOf('}') > 0) {
-                localName = qname.getValue().substring(qname.getValue().indexOf('}') + 1);
-                uri = qname.getValue().substring(1, qname.getValue().indexOf('}'));
-            } else {
-                localName = qname.getValue();
-                uri = STRING_NULL_VALUE;
-            }
-
-            // Validate whether the attribute name is an XML supported qualified name,
-            // according to the XML recommendation.
-            XMLValidator.validateXMLName(localName);
-            setAttribute(localName, uri, STRING_NULL_VALUE, attributes.get(qname).toString());
-        }
+        setAttributes(attributes, this::setAttribute);
     }
 
     /**
@@ -287,10 +279,8 @@ public final class XMLItem extends XMLValue {
      */
     @Override
     public void setChildren(BXML seq) {
-        synchronized (this) {
-            if (this.type.isReadOnly()) {
-                ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
-            }
+        if (this.type.isReadOnly()) {
+            ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
         }
 
         if (seq == null) {
@@ -526,15 +516,23 @@ public final class XMLItem extends XMLValue {
     public void build() {
     }
 
+    @Override
+    protected void setAttributesOnInitialization(BMap<BString, ?> attributes) {
+        setAttributes(attributes, this::setAttributeOnInitialization);
+    }
+
+    @Override
+    protected void setAttributeOnInitialization(String localName, String namespace, String prefix, String value) {
+        attributes.setAttribute(localName, namespace, prefix, value, true);
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void removeAttribute(String qname) {
-        synchronized (this) {
-            if (this.type.isReadOnly()) {
-                ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
-            }
+        if (this.type.isReadOnly()) {
+            ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
         }
 
         attributes.remove(qname);
@@ -545,10 +543,8 @@ public final class XMLItem extends XMLValue {
      */
     @Override
     public void removeChildren(String qname) {
-        synchronized (this) {
-            if (this.type.isReadOnly()) {
-                ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
-            }
+        if (this.type.isReadOnly()) {
+            ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
         }
 
         List<BXML> children = this.children.children;
@@ -564,6 +560,24 @@ public final class XMLItem extends XMLValue {
         for (Integer index : toRemove) {
             BXML removed = children.remove(index.intValue());
             removeParentReference(removed);
+        }
+    }
+
+    private void setAttributes(BMap<BString, ?> attributes, SetAttributeFunction func) {
+        String localName, uri;
+        for (BString qname : attributes.getKeys()) {
+            if (qname.getValue().startsWith("{") && qname.getValue().indexOf('}') > 0) {
+                localName = qname.getValue().substring(qname.getValue().indexOf('}') + 1);
+                uri = qname.getValue().substring(1, qname.getValue().indexOf('}'));
+            } else {
+                localName = qname.getValue();
+                uri = STRING_NULL_VALUE;
+            }
+
+            // Validate whether the attribute name is an XML supported qualified name,
+            // according to the XML recommendation.
+            XMLValidator.validateXMLName(localName);
+            func.set(localName, uri, STRING_NULL_VALUE, attributes.get(qname).toString());
         }
     }
 
@@ -588,7 +602,7 @@ public final class XMLItem extends XMLValue {
      */
     @Override
     public void freezeDirect() {
-        this.type = ReadOnlyUtils.setImmutableType(this.type);
+        this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
         this.children.freezeDirect();
         this.attributes.freezeDirect();
     }
@@ -659,5 +673,18 @@ public final class XMLItem extends XMLValue {
     @Override
     public int hashCode() {
         return Objects.hash(name, children, attributes, probableParents);
+    }
+
+    private interface SetAttributeFunction {
+        void set(String localName, String namespace, String prefix, String value);
+    }
+
+    public static XMLItem createXMLItemWithDefaultNSAttribute(QName name, boolean readonly, String defaultNsUri) {
+        XMLItem item = new XMLItem(name, readonly);
+
+        if (!defaultNsUri.isEmpty()) {
+            item.setAttributeOnInitialization(XMLConstants.XMLNS_ATTRIBUTE, null, null, defaultNsUri);
+        }
+        return item;
     }
 }

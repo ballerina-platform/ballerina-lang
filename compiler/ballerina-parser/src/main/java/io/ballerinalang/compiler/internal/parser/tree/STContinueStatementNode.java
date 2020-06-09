@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,7 +37,17 @@ public class STContinueStatementNode extends STStatementNode {
     STContinueStatementNode(
             STNode continueToken,
             STNode semicolonToken) {
-        super(SyntaxKind.CONTINUE_STATEMENT);
+        this(
+                continueToken,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STContinueStatementNode(
+            STNode continueToken,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.CONTINUE_STATEMENT, diagnostics);
         this.continueToken = continueToken;
         this.semicolonToken = semicolonToken;
 
@@ -43,7 +56,39 @@ public class STContinueStatementNode extends STStatementNode {
                 semicolonToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STContinueStatementNode(
+                this.continueToken,
+                this.semicolonToken,
+                diagnostics);
+    }
+
+    public STContinueStatementNode modify(
+            STNode continueToken,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                continueToken,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STContinueStatementNode(
+                continueToken,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ContinueStatementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

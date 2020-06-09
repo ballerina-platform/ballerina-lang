@@ -47,7 +47,7 @@ type InitiatorClientEP client object {
             transactionId:transactionId, participantId:participantId, participantProtocols:participantProtocols
         };
 
-        json reqPayload = check typedesc<json>.constructFrom(regReq);
+        json reqPayload = check regReq.cloneWithType(typedesc<json>);
         http:Request req = new;
         req.setJsonPayload(reqPayload);
         var result = httpClient->post("", req);
@@ -58,6 +58,6 @@ type InitiatorClientEP client object {
                 + statusCode.toString());
         }
         json resPayload = check res.getJsonPayload();
-        return <@untainted> typedesc<RegistrationResponse>.constructFrom(resPayload);
+        return <@untainted> resPayload.cloneWithType(typedesc<RegistrationResponse>);
     }
 };

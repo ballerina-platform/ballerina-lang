@@ -493,6 +493,9 @@ public class MimeUtil {
         org.ballerinalang.jvm.types.BType type = TypeChecker.getType(dataSource);
 //        if (TypeChecker.checkIsType(dataSource, BTypes.typeString)) {
         if (type.getTag() == TypeTags.STRING_TAG) {
+            if (dataSource instanceof BString) {
+                return ((BString) dataSource).getValue();
+            }
             return (String) dataSource;
         } else if (type.getTag() == TypeTags.ARRAY_TAG &&
                 ((org.ballerinalang.jvm.types.BArrayType) type).getElementType().getTag() == TypeTags.BYTE_TAG) {

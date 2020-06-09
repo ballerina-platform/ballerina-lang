@@ -223,14 +223,14 @@ public class ClosedRecordTest {
                                           "'abstract', 'client', 'distinct', 'int', 'byte', 'float', 'decimal', 'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
                                           "'typedesc', 'future', 'anydata', " +
-                                          "'handle', 'readonly', '(', '[', '|}', '*', '@', Identifier, " +
+                                          "'handle', 'readonly', 'never', '(', '[', '|}', '*', '@', Identifier, " +
                                           "DocumentationLineStart}", 19, 25);
         BAssertUtil.validateError(result, 5,
                                   "mismatched input '}'. expecting {'service', 'function', 'object', 'record', " +
                                           "'abstract', 'client', 'distinct', 'int', 'byte', 'float', 'decimal', 'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
                                           "'typedesc', 'future', 'anydata', " +
-                                          "'handle', 'readonly', '(', '[', '+', '-', DecimalIntegerLiteral, " +
+                                          "'handle', 'readonly', 'never', '(', '[', '+', '-', DecimalIntegerLiteral, " +
                                           "HexIntegerLiteral, HexadecimalFloatingPointLiteral, " +
                                           "DecimalFloatingPointNumber, BooleanLiteral, QuotedStringLiteral, " +
                                           "Base16BlobLiteral, Base64BlobLiteral, 'null', Identifier}",
@@ -242,14 +242,14 @@ public class ClosedRecordTest {
                                           "'abstract', 'client', 'distinct', 'int', 'byte', 'float', 'decimal', 'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
                                           "'typedesc', 'future', 'anydata', " +
-                                          "'handle', 'readonly', '}', '(', '[', '*', '@', Identifier, " +
+                                          "'handle', 'readonly', 'never', '}', '(', '[', '*', '@', Identifier, " +
                                           "DocumentationLineStart}", 25, 25);
         BAssertUtil.validateError(result, 9,
                                   "mismatched input '|'. expecting {'service', 'function', 'object', 'record', " +
                                           "'abstract', 'client', 'distinct', 'int', 'byte', 'float', 'decimal', 'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
                                           "'typedesc', 'future', 'anydata', " +
-                                          "'handle', 'readonly', '(', '[', '+', '-', DecimalIntegerLiteral, " +
+                                          "'handle', 'readonly', 'never', '(', '[', '+', '-', DecimalIntegerLiteral, " +
                                           "HexIntegerLiteral, HexadecimalFloatingPointLiteral, " +
                                           "DecimalFloatingPointNumber, BooleanLiteral, QuotedStringLiteral, " +
                                           "Base16BlobLiteral, Base64BlobLiteral, 'null', Identifier}",
@@ -259,7 +259,7 @@ public class ClosedRecordTest {
                                           "'abstract', 'client', 'distinct', 'int', 'byte', 'float', 'decimal', 'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
                                           "'typedesc', 'future', 'anydata', " +
-                                          "'handle', 'readonly', '(', '[', '+', '-', DecimalIntegerLiteral, " +
+                                          "'handle', 'readonly', 'never', '(', '[', '+', '-', DecimalIntegerLiteral, " +
                                           "HexIntegerLiteral, HexadecimalFloatingPointLiteral, " +
                                           "DecimalFloatingPointNumber, BooleanLiteral, QuotedStringLiteral, " +
                                           "Base16BlobLiteral, Base64BlobLiteral, 'null', Identifier}",

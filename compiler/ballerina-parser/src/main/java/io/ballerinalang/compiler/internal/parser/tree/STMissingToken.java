@@ -17,9 +17,14 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
+import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.Token;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * This is a generated internal syntax tree node.
@@ -28,11 +33,42 @@ import java.util.ArrayList;
  */
 public class STMissingToken extends STToken {
 
-    // TODO consider using a flags here. Node flags
-    public static final boolean IS_MISSING = true;
-
     STMissingToken(SyntaxKind kind) {
         super(kind, 0, new STNodeList(new ArrayList<>(0)), new STNodeList(new ArrayList<>(0)));
+    }
+
+    STMissingToken(SyntaxKind kind, Collection<STNodeDiagnostic> diagnostics) {
+        super(kind, 0, new STNodeList(new ArrayList<>(0)), new STNodeList(new ArrayList<>(0)), diagnostics);
+    }
+
+    STMissingToken(SyntaxKind kind,
+                   STNode leadingMinutiae,
+                   STNode trailingMinutiae,
+                   Collection<STNodeDiagnostic> diagnostics) {
+        super(kind, 0,  leadingMinutiae, trailingMinutiae, diagnostics);
+    }
+
+    public STToken modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STMissingToken(this.kind, diagnostics);
+    }
+
+    public STToken modifyWith(STNode leadingMinutiae, STNode trailingMinutiae) {
+        return new STMissingToken(this.kind, leadingMinutiae, trailingMinutiae, this.diagnostics);
+    }
+
+    @Override
+    public Node createFacade(int position, NonTerminalNode parent) {
+        switch (kind) {
+            case IDENTIFIER_TOKEN:
+                return new IdentifierToken(this, position, parent);
+            default:
+                return new Token(this, position, parent);
+        }
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 
     @Override

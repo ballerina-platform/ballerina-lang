@@ -49,11 +49,21 @@
                   "children": []
                 },
                 {
-                  "kind": "XML_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "x0"
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "XML_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "x0"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "EQUAL_TOKEN"
@@ -112,11 +122,21 @@
                   "children": []
                 },
                 {
-                  "kind": "XML_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "x1"
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "XML_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "x1"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "EQUAL_TOKEN"
@@ -202,11 +222,21 @@
                   "children": []
                 },
                 {
-                  "kind": "XML_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "x2"
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "XML_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "x2"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "EQUAL_TOKEN"
@@ -306,8 +336,21 @@
                                                       "isMissing": true
                                                     },
                                                     {
-                                                      "kind": "STRING_LITERAL",
-                                                      "value": "b${v2}c\\}cc{d{}e}{f{\u0027 bar2\u003d\u0027aaa{${v1}}b\\${b"
+                                                      "kind": "BINARY_EXPRESSION",
+                                                      "children": [
+                                                        {
+                                                          "kind": "STRING_LITERAL",
+                                                          "value": "b${v2}c\\}cc{d{}e}{f{\u0027 bar2\u003d\u0027aaa{${v1}}b\\${b"
+                                                        },
+                                                        {
+                                                          "kind": "PLUS_TOKEN",
+                                                          "isMissing": true
+                                                        },
+                                                        {
+                                                          "kind": "IDENTIFIER_TOKEN",
+                                                          "value": "b"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 },

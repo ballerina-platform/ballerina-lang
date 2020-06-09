@@ -24,13 +24,15 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.ERROR_VERSION;
+
 /**
  * Get error cause.
  *
  * @since 2.0.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.error",
+        orgName = "ballerina", packageName = "lang.error", version = ERROR_VERSION,
         functionName = "cause",
         args = {@Argument(name = "value", type = TypeKind.ERROR)},
         returnType = {@ReturnType(type = TypeKind.UNION)})

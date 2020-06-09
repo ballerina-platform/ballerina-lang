@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,7 +37,17 @@ public class STImportSubVersionNode extends STNode {
     STImportSubVersionNode(
             STNode leadingDot,
             STNode versionNumber) {
-        super(SyntaxKind.IMPORT_SUB_VERSION);
+        this(
+                leadingDot,
+                versionNumber,
+                Collections.emptyList());
+    }
+
+    STImportSubVersionNode(
+            STNode leadingDot,
+            STNode versionNumber,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.IMPORT_SUB_VERSION, diagnostics);
         this.leadingDot = leadingDot;
         this.versionNumber = versionNumber;
 
@@ -43,7 +56,39 @@ public class STImportSubVersionNode extends STNode {
                 versionNumber);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STImportSubVersionNode(
+                this.leadingDot,
+                this.versionNumber,
+                diagnostics);
+    }
+
+    public STImportSubVersionNode modify(
+            STNode leadingDot,
+            STNode versionNumber) {
+        if (checkForReferenceEquality(
+                leadingDot,
+                versionNumber)) {
+            return this;
+        }
+
+        return new STImportSubVersionNode(
+                leadingDot,
+                versionNumber,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ImportSubVersionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

@@ -42,7 +42,7 @@ type WebSocketConnector object {
         } else {
             text = data.toString();
         }
-        return externPushText(self, java:fromString(text), finalFrame);
+        return externPushText(self, text, finalFrame);
     }
 
     # Pushes binary data to the connection. If an error occurs while sending the binary message to the connection,
@@ -90,22 +90,21 @@ type WebSocketConnector object {
     #                   until a close frame is received. If WebSocket frame is received from the remote endpoint
     #                   within the waiting period, the connection is terminated immediately.
     # + return - An `error` if an error occurs when sending
-    public function close(int? statusCode = 1000, string? reason = (), int timeoutInSecs = 60)
-    returns WebSocketError? {
+    public function close(int? statusCode = 1000, string? reason = (), int timeoutInSecs = 60) returns WebSocketError? {
         if (statusCode is int) {
             if (statusCode <= 999 || statusCode >= 1004 && statusCode <= 1006 || statusCode >= 1012 &&
                 statusCode <= 2999 || statusCode > 4999) {
                 string errorMessage = "Failed to execute close. Invalid status code: " + statusCode.toString();
                 return WsConnectionClosureError(errorMessage);
             }
-            return externClose(self, statusCode, reason is () ? java:fromString("") : java:fromString(reason) , timeoutInSecs);
+            return externClose(self, statusCode, reason is () ? "" : reason, timeoutInSecs);
         } else {
-            return externClose(self, -1, java:fromString(""), timeoutInSecs);
+            return externClose(self, -1, "", timeoutInSecs);
         }
     }
 };
 
-function externPushText(WebSocketConnector wsConnector, handle text, boolean finalFrame) returns WebSocketError? =
+function externPushText(WebSocketConnector wsConnector, string text, boolean finalFrame) returns WebSocketError? =
 @java:Method {
     class: "org.ballerinalang.net.http.actions.websocketconnector.WebSocketConnector"
 } external;
@@ -128,7 +127,8 @@ function externPong(WebSocketConnector wsConnector, byte[] data) returns WebSock
     name: "pong"
 } external;
 
-function externClose(WebSocketConnector wsConnector, int statusCode, handle reason, int timeoutInSecs) returns WebSocketError? =
+function externClose(WebSocketConnector wsConnector, int statusCode, string reason, int timeoutInSecs)
+                     returns WebSocketError? =
 @java:Method {
     class: "org.ballerinalang.net.http.actions.websocketconnector.Close"
 } external;

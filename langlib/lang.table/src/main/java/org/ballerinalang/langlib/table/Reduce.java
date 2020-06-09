@@ -30,13 +30,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
+
 /**
  * Native implementation of lang.table:reduce(table&lt;Type&gt;, function).
  *
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", functionName = "reduce",
+        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION, functionName = "reduce",
         args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "func", type = TypeKind.FUNCTION),
                 @Argument(name = "initial", type = TypeKind.ANY)},
         returnType = {@ReturnType(type = TypeKind.ANY)},

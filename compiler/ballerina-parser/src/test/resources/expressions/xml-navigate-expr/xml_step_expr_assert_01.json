@@ -1,0 +1,12 @@
+{
+    "kind": "XML_STEP_EXPRESSION",
+    "children": [
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "a"
+        },
+        {
+            "kind": "SLASH_ASTERISK_TOKEN"
+        }
+    ]
+}

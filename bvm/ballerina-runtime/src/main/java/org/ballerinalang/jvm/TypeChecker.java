@@ -27,6 +27,7 @@ import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BFiniteType;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BFutureType;
+import org.ballerinalang.jvm.types.BIntersectionType;
 import org.ballerinalang.jvm.types.BJSONType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BObjectType;
@@ -51,6 +52,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamValue;
+import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.TypedescValueImpl;
 import org.ballerinalang.jvm.values.XMLSequence;
@@ -581,7 +583,19 @@ public class TypeChecker {
             return false;
         }
 
+        int sourceTypeTag = sourceType.getTag();
         int targetTypeTag = targetType.getTag();
+
+        if (sourceTypeTag == TypeTags.INTERSECTION_TAG) {
+            return checkIsType(((BIntersectionType) sourceType).getEffectiveType(),
+                               targetTypeTag != TypeTags.INTERSECTION_TAG ? targetType :
+                                       ((BIntersectionType) targetType).getEffectiveType(), unresolvedTypes);
+        }
+
+        if (targetTypeTag == TypeTags.INTERSECTION_TAG) {
+            return checkIsType(sourceType, ((BIntersectionType) targetType).getEffectiveType(), unresolvedTypes);
+        }
+
         switch (targetTypeTag) {
             case TypeTags.BYTE_TAG:
             case TypeTags.SIGNED32_INT_TAG:
@@ -597,15 +611,15 @@ public class TypeChecker {
             case TypeTags.CHAR_STRING_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.NULL_TAG:
-                if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+                if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG) {
                     return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
                 }
-                return sourceType.getTag() == targetTypeTag;
+                return sourceTypeTag == targetTypeTag;
             case TypeTags.INT_TAG:
-                if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+                if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG) {
                     return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
                 }
-                return sourceType.getTag() == TypeTags.BYTE_TAG || sourceType.getTag() == TypeTags.INT_TAG;
+                return sourceTypeTag == TypeTags.BYTE_TAG || sourceTypeTag == TypeTags.INT_TAG;
             case TypeTags.ANY_TAG:
                 return checkIsAnyType(sourceType);
             case TypeTags.ANYDATA_TAG:
@@ -613,13 +627,13 @@ public class TypeChecker {
             case TypeTags.SERVICE_TAG:
                 return checkIsServiceType(sourceType);
             case TypeTags.HANDLE_TAG:
-                return sourceType.getTag() == TypeTags.HANDLE_TAG;
+                return sourceTypeTag == TypeTags.HANDLE_TAG;
             case TypeTags.READONLY_TAG:
                 return isInherentlyImmutableType(sourceType) || sourceType.isReadOnly();
             case TypeTags.XML_ELEMENT_TAG:
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_PI_TAG:
-                return targetTypeTag == sourceType.getTag();
+                return targetTypeTag == sourceTypeTag;
             default:
                 return checkIsRecursiveType(sourceType, targetType,
                         unresolvedTypes == null ? new ArrayList<>() : unresolvedTypes);
@@ -979,6 +993,9 @@ public class TypeChecker {
             if (sourceTupleType.getRestType() != null) {
                 tupleTypes.add(sourceTupleType.getRestType());
             }
+            if (tupleTypes.isEmpty()) {
+                return targetType.getState() == ArrayState.UNSEALED || targetType.getSize() == 0;
+            }
             sourceArrayType =
                     new BArrayType(new BUnionType(new ArrayList<>(tupleTypes), sourceTupleType.getTypeFlags()));
         }
@@ -1284,8 +1301,9 @@ public class TypeChecker {
                 return isInherentlyImmutableType(constraintType) ||
                         isSelectivelyImmutableType(constraintType, unresolvedTypes);
             case TypeTags.TABLE_TAG:
-                // TODO: see https://github.com/ballerina-platform/ballerina-lang/issues/23006
-                return true;
+                BType tableConstraintType = ((BTableType) type).getConstrainedType();
+                return isInherentlyImmutableType(tableConstraintType) ||
+                        isSelectivelyImmutableType(tableConstraintType, unresolvedTypes);
             case TypeTags.UNION_TAG:
                 boolean readonlyIntersectionExists = false;
                 for (BType memberType : ((BUnionType) type).getMemberTypes()) {
@@ -1367,11 +1385,26 @@ public class TypeChecker {
      */
     private static boolean checkIsLikeOnValue(Object sourceValue, BType sourceType, BType targetType,
                                               List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
-        switch (targetType.getTag()) {
+        int sourceTypeTag = sourceType.getTag();
+        int targetTypeTag = targetType.getTag();
+
+        if (sourceTypeTag == TypeTags.INTERSECTION_TAG) {
+            return checkIsLikeOnValue(sourceValue, ((BIntersectionType) sourceType).getEffectiveType(),
+                                      targetTypeTag != TypeTags.INTERSECTION_TAG ? targetType :
+                                              ((BIntersectionType) targetType).getEffectiveType(),
+                                      unresolvedValues, allowNumericConversion);
+        }
+
+        if (targetTypeTag == TypeTags.INTERSECTION_TAG) {
+            return checkIsLikeOnValue(sourceValue, sourceType, ((BIntersectionType) targetType).getEffectiveType(),
+                                      unresolvedValues, allowNumericConversion);
+        }
+
+        switch (targetTypeTag) {
             case TypeTags.READONLY_TAG:
                 return true;
             case TypeTags.BYTE_TAG:
-                if (TypeTags.isIntegerTypeTag(sourceType.getTag())) {
+                if (TypeTags.isIntegerTypeTag(sourceTypeTag)) {
                     return isByteLiteral((Long) sourceValue);
                 }
                 return allowNumericConversion && TypeConverter.isConvertibleToByte(sourceValue);
@@ -1383,7 +1416,7 @@ public class TypeChecker {
             case TypeTags.UNSIGNED32_INT_TAG:
             case TypeTags.UNSIGNED16_INT_TAG:
             case TypeTags.UNSIGNED8_INT_TAG:
-                if (TypeTags.isIntegerTypeTag(sourceType.getTag()) || targetType.getTag() == TypeTags.BYTE_TAG) {
+                if (TypeTags.isIntegerTypeTag(sourceTypeTag) || targetTypeTag == TypeTags.BYTE_TAG) {
                     return TypeConverter.isConvertibleToIntSubType(sourceValue, targetType);
                 }
                 return allowNumericConversion && TypeConverter.isConvertibleToIntSubType(sourceValue, targetType);
@@ -1416,7 +1449,7 @@ public class TypeChecker {
             case TypeTags.FINITE_TYPE_TAG:
                 return checkFiniteTypeAssignable(sourceValue, sourceType, (BFiniteType) targetType);
             case TypeTags.XML_ELEMENT_TAG:
-                if (sourceType.getTag() == TypeTags.XML_TAG) {
+                if (sourceTypeTag == TypeTags.XML_TAG) {
                     XMLValue xmlSource = (XMLValue) sourceValue;
                     return xmlSource.isSingleton();
                 }
@@ -1424,12 +1457,12 @@ public class TypeChecker {
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_PI_TAG:
             case TypeTags.XML_TEXT_TAG:
-                if (sourceType.getTag() == TypeTags.XML_TAG) {
+                if (sourceTypeTag == TypeTags.XML_TAG) {
                     return checkIsLikeNonElementSingleton((XMLValue) sourceValue, targetType);
                 }
                 return false;
             case TypeTags.XML_TAG:
-                if (sourceType.getTag() == TypeTags.XML_TAG) {
+                if (sourceTypeTag == TypeTags.XML_TAG) {
                     return checkIsLikeXMLSequenceType((XMLValue) sourceValue, targetType);
                 }
                 return false;
@@ -2000,6 +2033,9 @@ public class TypeChecker {
                         isEqual((ErrorValue) lhsValue, (ErrorValue) rhsValue, checkedValues);
             case TypeTags.SERVICE_TAG:
                 break;
+            case TypeTags.TABLE_TAG:
+                return rhsValTypeTag == TypeTags.TABLE_TAG &&
+                        isEqual((TableValueImpl) lhsValue, (TableValueImpl) rhsValue, checkedValues);
         }
         return false;
     }
@@ -2071,6 +2107,29 @@ public class TypeChecker {
         }
         return true;
     }
+
+    /**
+     * Deep equality check for a table.
+     *
+     * @param lhsTable      Table on the left hand side
+     * @param rhsTable      Table on the right hand side
+     * @param checkedValues Structured value pairs already compared or being compared
+     * @return True if the table values are equal, else false.
+     */
+    private static boolean isEqual(TableValueImpl lhsTable, TableValueImpl rhsTable, List<ValuePair> checkedValues) {
+        ValuePair compValuePair = new ValuePair(lhsTable, rhsTable);
+        if (checkedValues.contains(compValuePair)) {
+            return true;
+        }
+        checkedValues.add(compValuePair);
+
+        if (lhsTable.size() != rhsTable.size()) {
+            return false;
+        }
+
+        return lhsTable.entrySet().equals(rhsTable.entrySet());
+    }
+
 
     /**
      * Deep equality check for error.

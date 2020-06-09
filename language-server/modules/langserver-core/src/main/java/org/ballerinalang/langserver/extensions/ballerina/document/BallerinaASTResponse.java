@@ -24,6 +24,7 @@ import com.google.gson.JsonElement;
  */
 public class BallerinaASTResponse {
     private JsonElement ast;
+    private String source;
 
     private boolean parseSuccess;
 
@@ -33,6 +34,14 @@ public class BallerinaASTResponse {
 
     public void setAst(JsonElement ast) {
         this.ast = ast;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 
     public boolean isParseSuccess() {

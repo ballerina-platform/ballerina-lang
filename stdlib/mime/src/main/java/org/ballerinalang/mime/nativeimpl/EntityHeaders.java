@@ -25,8 +25,9 @@ import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.HandleValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.mime.util.MimeUtil;
 
@@ -49,24 +50,24 @@ public class EntityHeaders {
 
     private static final BArrayType bArrayType = new BArrayType(BTypes.typeHandle);
 
-    public static void addHeader(ObjectValue entityObj, String headerName, String headerValue, Object position) {
+    public static void addHeader(ObjectValue entityObj, BString headerName, BString headerValue, Object position) {
         if (headerName == null || headerValue == null) {
             return;
         }
         try {
-            getOrCreateHeadersBasedOnPosition(entityObj, position).add(headerName, headerValue);
+            getOrCreateHeadersBasedOnPosition(entityObj, position).add(headerName.getValue(), headerValue.getValue());
         } catch (IllegalArgumentException ex) {
             throw MimeUtil.createError(INVALID_HEADER_OPERATION_ERROR, ex.getMessage());
         }
     }
 
-    public static String getHeader(ObjectValue entityObj, String headerName, Object position) {
+    public static BString getHeader(ObjectValue entityObj, BString headerName, Object position) {
         HttpHeaders httpHeaders = getHeadersBasedOnPosition(entityObj, position);
         if (httpHeaders == null) {
             throw MimeUtil.createError(HEADER_NOT_FOUND_ERROR, "Http header does not exist");
         }
-        if (httpHeaders.get(headerName) != null) {
-            return httpHeaders.get(headerName);
+        if (httpHeaders.get(headerName.getValue()) != null) {
+            return StringUtils.fromString(httpHeaders.get(headerName.getValue()));
         } else {
             throw MimeUtil.createError(HEADER_NOT_FOUND_ERROR, "Http header does not exist");
         }
@@ -74,44 +75,32 @@ public class EntityHeaders {
 
     public static ArrayValue getHeaderNames(ObjectValue entityObj, Object position) {
         HttpHeaders httpHeaders = getHeadersBasedOnPosition(entityObj, position);
-        HandleValue[] handleValues = new HandleValue[0];
         if (httpHeaders == null || httpHeaders.isEmpty()) {
-            return (ArrayValue) BValueCreator.createArrayValue(handleValues, bArrayType);
+            return new ArrayValueImpl(new BString[0]);
         }
-        int i = 0;
         Set<String> distinctNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         distinctNames.addAll(httpHeaders.names());
-        handleValues = new HandleValue[distinctNames.size()];
-        for (String headerName : distinctNames) {
-            handleValues[i++] = new HandleValue(headerName);
-        }
-        return (ArrayValue) BValueCreator.createArrayValue(handleValues, bArrayType);
+        return new ArrayValueImpl(StringUtils.fromStringArray(distinctNames.toArray(new String[0])));
     }
 
-    public static ArrayValue getHeaders(ObjectValue entityObj, String headerName, Object position) {
+    public static ArrayValue getHeaders(ObjectValue entityObj, BString headerName, Object position) {
         HttpHeaders httpHeaders = getHeadersBasedOnPosition(entityObj, position);
         if (httpHeaders == null) {
             throw MimeUtil.createError(HEADER_NOT_FOUND_ERROR, "Http header does not exist");
         }
-        List<String> headerValueList = httpHeaders.getAll(headerName);
+        List<String> headerValueList = httpHeaders.getAll(headerName.getValue());
         if (headerValueList == null) {
             throw MimeUtil.createError(HEADER_NOT_FOUND_ERROR, "Http header does not exist");
         }
-        int i = 0;
-        HandleValue[] handleValues = new HandleValue[headerValueList.size()];
-        for (String headerValue : headerValueList) {
-            handleValues[i] = new HandleValue(headerValue);
-            i++;
-        }
-        return (ArrayValue) BValueCreator.createArrayValue(handleValues, bArrayType);
+        return new ArrayValueImpl(StringUtils.fromStringArray(headerValueList.toArray(new String[0])));
     }
 
-    public static boolean hasHeader(ObjectValue entityObj, String headerName, Object position) {
+    public static boolean hasHeader(ObjectValue entityObj, BString headerName, Object position) {
         HttpHeaders httpHeaders = getHeadersBasedOnPosition(entityObj, position);
         if (httpHeaders == null) {
             return false;
         }
-        List<String> headerValueList = httpHeaders.getAll(headerName);
+        List<String> headerValueList = httpHeaders.getAll(headerName.getValue());
         return headerValueList != null && !headerValueList.isEmpty();
     }
 
@@ -122,19 +111,19 @@ public class EntityHeaders {
         }
     }
 
-    public static void removeHeader(ObjectValue entityObj, String headerName, Object position) {
+    public static void removeHeader(ObjectValue entityObj, BString headerName, Object position) {
         HttpHeaders httpHeaders = getHeadersBasedOnPosition(entityObj, position);
         if (httpHeaders != null) {
-            httpHeaders.remove(headerName);
+            httpHeaders.remove(headerName.getValue());
         }
     }
 
-    public static void setHeader(ObjectValue entityObj, String headerName, String headerValue, Object position) {
+    public static void setHeader(ObjectValue entityObj, BString headerName, BString headerValue, Object position) {
         if (headerName == null || headerValue == null) {
             return;
         }
         try {
-            getOrCreateHeadersBasedOnPosition(entityObj, position).set(headerName, headerValue);
+            getOrCreateHeadersBasedOnPosition(entityObj, position).set(headerName.getValue(), headerValue.getValue());
         } catch (IllegalArgumentException ex) {
             throw MimeUtil.createError(INVALID_HEADER_OPERATION_ERROR, ex.getMessage());
         }

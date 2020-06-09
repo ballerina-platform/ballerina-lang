@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,7 +37,17 @@ public class STFlushActionNode extends STExpressionNode {
     STFlushActionNode(
             STNode flushKeyword,
             STNode peerWorker) {
-        super(SyntaxKind.FLUSH_ACTION);
+        this(
+                flushKeyword,
+                peerWorker,
+                Collections.emptyList());
+    }
+
+    STFlushActionNode(
+            STNode flushKeyword,
+            STNode peerWorker,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.FLUSH_ACTION, diagnostics);
         this.flushKeyword = flushKeyword;
         this.peerWorker = peerWorker;
 
@@ -43,7 +56,39 @@ public class STFlushActionNode extends STExpressionNode {
                 peerWorker);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STFlushActionNode(
+                this.flushKeyword,
+                this.peerWorker,
+                diagnostics);
+    }
+
+    public STFlushActionNode modify(
+            STNode flushKeyword,
+            STNode peerWorker) {
+        if (checkForReferenceEquality(
+                flushKeyword,
+                peerWorker)) {
+            return this;
+        }
+
+        return new STFlushActionNode(
+                flushKeyword,
+                peerWorker,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FlushActionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

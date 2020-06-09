@@ -40,7 +40,8 @@ public function absolute(@untainted string path) returns string|Error {
         if (stringResult is string) {
             return stringResult;
         } else {
-            return GenericError("Error occurred while retrieving the absolute path.");
+            Error e = prepareError(GENERIC_ERROR, "Error occurred while retrieving the absolute path.");
+            return e;
         }
     }
 }
@@ -412,23 +413,7 @@ public function relative(string base, string target) returns string|Error {
 #
 # + path - Security-validated string value of the file path
 # + return - Resolved file path or else a `filepath:Error` if the path is invalid
-public function resolve(@untainted string path) returns string|Error {
-    var result = externResolve(java:fromString(path));
-    if (result is Error) {
-        return result;
-    } else {
-        var stringResult = java:toString(result);
-        if (stringResult is string) {
-            return stringResult;
-        } else {
-            Error e = GenericError("Error occurred while resolving the path.");
-            return e;
-        }
-    }
-}
-
-function externResolve(handle path) returns handle|Error =
-@java:Method {
+public function resolve(@untainted string path) returns string|Error = @java:Method {
     name: "resolve",
     class: "org.ballerinalang.stdlib.filepath.nativeimpl.FilePathUtils"
 } external;
@@ -443,12 +428,7 @@ function externResolve(handle path) returns handle|Error =
 # + pattern - String value of the target file path
 # + return - `true` if the filename of the path matches with the pattern, `false` otherwise,
 #            or else an `filepath:Error` if the path or pattern is invalid
-public function matches(string path, string pattern) returns boolean|Error {
-    return externMatches(java:fromString(path), java:fromString(pattern));
-}
-
-function externMatches(handle path, handle pattern) returns boolean|Error =
-@java:Method {
+public function matches(string path, string pattern) returns boolean|Error = @java:Method {
     name: "matches",
     class: "org.ballerinalang.stdlib.filepath.nativeimpl.FilePathUtils"
 } external;

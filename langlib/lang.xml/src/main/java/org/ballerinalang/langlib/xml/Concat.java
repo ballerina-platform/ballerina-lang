@@ -33,13 +33,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+
 /**
  * Concatenate xml items into a new sequence. Empty xml sequence if empty.
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
         functionName = "concat",
         args = {@Argument(name = "arrayValue", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.XML)},

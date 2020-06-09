@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/documentation",
-  "version": "2.0.0-Preview1-M1",
+  "version": "2.0.0-Preview1-M3",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -10,7 +10,7 @@
   "author": "ballerina.io",
   "license": "Apache-2.0",
   "dependencies": {
-    "@ballerina/ast-model": "^2.0.0-Preview1-M1",
+    "@ballerina/ast-model": "^2.0.0-Preview1-M3",
     "diff": "^3.5.0",
     "escape-html": "^1.0.3",
     "react-markdown": "^4.0.0"

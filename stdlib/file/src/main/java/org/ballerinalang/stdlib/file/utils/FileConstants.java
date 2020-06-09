@@ -39,10 +39,15 @@ public class FileConstants {
     public static final String PACKAGE_NAME = "file";
 
     /**
+     * Package version.
+     */
+    public static final String PACKAGE_VERSION = "0.5.0";
+
+    /**
      * Package path.
      */
-    public static final BPackage FILE_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "file");
-
+    public static final BPackage FILE_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME,
+                                                                PACKAGE_VERSION);
     static final String FILE_INFO_TYPE = "FileInfo";
 
     // File error type IDs

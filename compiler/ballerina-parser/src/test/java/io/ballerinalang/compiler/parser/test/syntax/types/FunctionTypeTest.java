@@ -59,7 +59,7 @@ public class FunctionTypeTest extends AbstractTypesTest {
     }
 
     @Test
-    public void testRecveryInFuncTypeUsagesInTypeDescContexts() {
+    public void testRecoveryInFuncTypeUsagesInTypeDescContexts() {
         testFile("func-type/func_type_source_07.bal", "func-type/func_type_assert_07.json");
     }
 }

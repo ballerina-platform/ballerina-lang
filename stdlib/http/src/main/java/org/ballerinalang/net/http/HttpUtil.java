@@ -1414,6 +1414,8 @@ public class HttpUtil {
         } else if (value instanceof Long || value instanceof String ||
                 value instanceof Double || value instanceof Integer || value instanceof Boolean) {
             outputStream.write(value.toString().getBytes(Charset.defaultCharset()));
+        } else if (value instanceof BString) {
+            outputStream.write(((BString) value).getValue().getBytes(Charset.defaultCharset()));
         } else {
             ((RefValue) value).serialize(outputStream);
         }

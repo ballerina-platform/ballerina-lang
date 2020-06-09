@@ -22,13 +22,15 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
  * @since 2.0.0
  */
-public class STComputedNameFieldNode extends STNode {
-    public final STNode leadingComma;
+public class STComputedNameFieldNode extends STMappingFieldNode {
     public final STNode openBracket;
     public final STNode fieldNameExpr;
     public final STNode closeBracket;
@@ -36,14 +38,28 @@ public class STComputedNameFieldNode extends STNode {
     public final STNode valueExpr;
 
     STComputedNameFieldNode(
-            STNode leadingComma,
             STNode openBracket,
             STNode fieldNameExpr,
             STNode closeBracket,
             STNode colonToken,
             STNode valueExpr) {
-        super(SyntaxKind.COMPUTED_NAME_FIELD);
-        this.leadingComma = leadingComma;
+        this(
+                openBracket,
+                fieldNameExpr,
+                closeBracket,
+                colonToken,
+                valueExpr,
+                Collections.emptyList());
+    }
+
+    STComputedNameFieldNode(
+            STNode openBracket,
+            STNode fieldNameExpr,
+            STNode closeBracket,
+            STNode colonToken,
+            STNode valueExpr,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.COMPUTED_NAME_FIELD, diagnostics);
         this.openBracket = openBracket;
         this.fieldNameExpr = fieldNameExpr;
         this.closeBracket = closeBracket;
@@ -51,7 +67,6 @@ public class STComputedNameFieldNode extends STNode {
         this.valueExpr = valueExpr;
 
         addChildren(
-                leadingComma,
                 openBracket,
                 fieldNameExpr,
                 closeBracket,
@@ -59,7 +74,51 @@ public class STComputedNameFieldNode extends STNode {
                 valueExpr);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STComputedNameFieldNode(
+                this.openBracket,
+                this.fieldNameExpr,
+                this.closeBracket,
+                this.colonToken,
+                this.valueExpr,
+                diagnostics);
+    }
+
+    public STComputedNameFieldNode modify(
+            STNode openBracket,
+            STNode fieldNameExpr,
+            STNode closeBracket,
+            STNode colonToken,
+            STNode valueExpr) {
+        if (checkForReferenceEquality(
+                openBracket,
+                fieldNameExpr,
+                closeBracket,
+                colonToken,
+                valueExpr)) {
+            return this;
+        }
+
+        return new STComputedNameFieldNode(
+                openBracket,
+                fieldNameExpr,
+                closeBracket,
+                colonToken,
+                valueExpr,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ComputedNameFieldNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

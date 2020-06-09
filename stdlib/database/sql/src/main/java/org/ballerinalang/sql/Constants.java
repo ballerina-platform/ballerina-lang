@@ -32,7 +32,7 @@ import java.util.UUID;
 public final class Constants {
 
     public static final String CONNECTOR_NAME = "ClientConnector";
-    public static final BPackage SQL_PACKAGE_ID = new BPackage("ballerina", "sql");
+    public static final BPackage SQL_PACKAGE_ID = new BPackage("ballerina", "sql", "0.5.0");
     public static final String DATABASE_CLIENT = "Client";
     public static final String CONNECTOR_ID_KEY = UUID.randomUUID().toString();
 

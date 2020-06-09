@@ -1,55 +1,55 @@
 {
-    "kind": "BRACED_EXPRESSION",
-    "children": [
+  "kind": "BRACED_EXPRESSION",
+  "children": [
+    {
+      "kind": "OPEN_PAREN_TOKEN"
+    },
+    {
+      "kind": "BINARY_EXPRESSION",
+      "children": [
         {
-            "kind": "OPEN_PAREN_TOKEN"
+          "kind": "BRACED_EXPRESSION",
+          "children": [
+            {
+              "kind": "OPEN_PAREN_TOKEN"
+            },
+            {
+              "kind": "NULL_KEYWORD"
+            },
+            {
+              "kind": "CLOSE_PAREN_TOKEN"
+            }
+          ]
         },
         {
-            "kind": "BINARY_EXPRESSION",
-            "children": [
+          "kind": "PLUS_TOKEN"
+        },
+        {
+          "kind": "BRACED_EXPRESSION",
+          "children": [
+            {
+              "kind": "OPEN_PAREN_TOKEN"
+            },
+            {
+              "kind": "NIL_LITERAL",
+              "children": [
                 {
-                    "kind": "BRACED_EXPRESSION",
-                    "children": [
-                        {
-                            "kind": "OPEN_PAREN_TOKEN"
-                        },
-                        {
-                            "kind": "NULL_KEYWORD"
-                        },
-                        {
-                            "kind": "CLOSE_PAREN_TOKEN"
-                        }
-                    ]
+                  "kind": "OPEN_PAREN_TOKEN"
                 },
                 {
-                    "kind": "PLUS_TOKEN"
-                },
-                {
-                    "kind": "BRACED_EXPRESSION",
-                    "children": [
-                        {
-                            "kind": "OPEN_PAREN_TOKEN"
-                        },
-                        {
-                            "kind": "NIL_LITERAL",
-                            "children": [
-                                {
-                                    "kind": "OPEN_PAREN_TOKEN"
-                                },
-                                {
-                                    "kind": "CLOSE_PAREN_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "CLOSE_PAREN_TOKEN"
-                        }
-                    ]
+                  "kind": "CLOSE_PAREN_TOKEN"
                 }
-            ]
-        },
-        {
-            "kind": "CLOSE_PAREN_TOKEN"
+              ]
+            },
+            {
+              "kind": "CLOSE_PAREN_TOKEN"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "CLOSE_PAREN_TOKEN"
+    }
+  ]
 }

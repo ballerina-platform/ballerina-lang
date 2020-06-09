@@ -1,48 +1,48 @@
 {
-    "kind": "FUNCTION_CALL",
-    "children": [
+  "kind": "FUNCTION_CALL",
+  "children": [
+    {
+      "kind": "ERROR_KEYWORD"
+    },
+    {
+      "kind": "OPEN_PAREN_TOKEN",
+      "isMissing": true
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "ERROR_KEYWORD"
+          "kind": "POSITIONAL_ARG",
+          "children": [
+            {
+              "kind": "STRING_LITERAL",
+              "value": "ERROR_REASON"
+            }
+          ]
         },
         {
-            "kind": "OPEN_PAREN_TOKEN",
-            "isMissing": true
-        },
-        {
-            "kind": "LIST",
-            "children": [
-                {
-                    "kind": "POSITIONAL_ARG",
-                    "children": [
-                        {
-                            "kind": "STRING_LITERAL",
-                            "value": "ERROR_REASON"
-                        }
-                    ]
-                },
-                {
-                    "kind": "NAMED_ARG",
-                    "children": [
-                        {
-                            "kind": "COMMA_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "message"
-                        },
-                        {
-                            "kind": "EQUAL_TOKEN"
-                        },
-                        {
-                            "kind": "STRING_LITERAL",
-                            "value": "error message"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "CLOSE_PAREN_TOKEN"
+          "kind": "NAMED_ARG",
+          "children": [
+            {
+              "kind": "COMMA_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "message"
+            },
+            {
+              "kind": "EQUAL_TOKEN"
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "value": "error message"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "CLOSE_PAREN_TOKEN"
+    }
+  ]
 }

@@ -32,6 +32,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NA
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_INTENT_VERIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_NOTIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE_FULL_QUALIFIED_NAME;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_CALLER;
 
 /**
@@ -61,9 +62,9 @@ public class WebSubSubscriberServiceValidator {
     private static void validateOnIntentVerificationResource(BLangFunction resource, DiagnosticLog dlog) {
         List<BLangSimpleVariable> paramDetails = resource.getParameters();
         if (isValidParamNumber(resource, paramDetails, 2, resource.getName().getValue(), dlog)) {
-            validateStructType(resource.getName().getValue(), paramDetails.get(0), WEBSUB_PACKAGE,
+            validateStructType(resource.getName().getValue(), paramDetails.get(0), WEBSUB_PACKAGE_FULL_QUALIFIED_NAME,
                                WEBSUB_SERVICE_CALLER, "first", dlog);
-            validateStructType(resource.getName().getValue(), paramDetails.get(1), WEBSUB_PACKAGE,
+            validateStructType(resource.getName().getValue(), paramDetails.get(1), WEBSUB_PACKAGE_FULL_QUALIFIED_NAME,
                                WEBSUB_INTENT_VERIFICATION_REQUEST, "second", dlog);
         }
     }
@@ -71,7 +72,7 @@ public class WebSubSubscriberServiceValidator {
     private static void validateOnNotificationResource(BLangFunction resource, DiagnosticLog dlog) {
         List<BLangSimpleVariable> paramDetails = resource.getParameters();
         if (isValidParamNumber(resource, paramDetails, 1, resource.getName().getValue(), dlog)) {
-            validateStructType(resource.getName().getValue(), paramDetails.get(0), WEBSUB_PACKAGE,
+            validateStructType(resource.getName().getValue(), paramDetails.get(0), WEBSUB_PACKAGE_FULL_QUALIFIED_NAME,
                                WEBSUB_NOTIFICATION_REQUEST, "first", dlog);
         }
     }

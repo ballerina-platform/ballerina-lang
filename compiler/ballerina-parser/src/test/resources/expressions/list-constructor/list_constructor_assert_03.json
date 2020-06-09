@@ -1,182 +1,182 @@
 {
-    "kind": "LIST_CONSTRUCTOR",
-    "children": [
+  "kind": "LIST_CONSTRUCTOR",
+  "children": [
+    {
+      "kind": "OPEN_BRACKET_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "OPEN_BRACKET_TOKEN"
-        },
-        {
-            "kind": "LIST",
-            "children": [
+          "kind": "LIST_CONSTRUCTOR",
+          "children": [
+            {
+              "kind": "OPEN_BRACKET_TOKEN"
+            },
+            {
+              "kind": "LIST",
+              "children": [
                 {
-                    "kind": "LIST_CONSTRUCTOR",
-                    "children": [
-                        {
-                            "kind": "OPEN_BRACKET_TOKEN"
-                        },
-                        {
-                            "kind": "LIST",
-                            "children": [
-                                {
-                                    "kind": "LIST_CONSTRUCTOR",
-                                    "children": [
-                                        {
-                                            "kind": "OPEN_BRACKET_TOKEN"
-                                        },
-                                        {
-                                            "kind": "LIST",
-                                            "children": []
-                                        },
-                                        {
-                                            "kind": "CLOSE_BRACKET_TOKEN"
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "CLOSE_BRACKET_TOKEN"
-                        }
-                    ]
-                },
-                {
-                    "kind": "COMMA_TOKEN"
-                },
-                {
-                    "kind": "LIST_CONSTRUCTOR",
-                    "children": [
-                        {
-                            "kind": "OPEN_BRACKET_TOKEN"
-                        },
-                        {
-                            "kind": "LIST",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "COMMA_TOKEN"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "b"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "CLOSE_BRACKET_TOKEN"
-                        }
-                    ]
-                },
-                {
-                    "kind": "COMMA_TOKEN"
-                },
-                {
-                    "kind": "MAPPING_CONSTRUCTOR",
-                    "children": [
-                        {
-                            "kind": "OPEN_BRACE_TOKEN"
-                        },
-                        {
-                            "kind": "LIST",
-                            "children": [
-                                {
-                                    "kind": "SPECIFIC_FIELD",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "a"
-                                        },
-                                        {
-                                            "kind": "COLON_TOKEN"
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "b"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SPECIFIC_FIELD",
-                                    "children": [
-                                        {
-                                            "kind": "COMMA_TOKEN"
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "c"
-                                        },
-                                        {
-                                            "kind": "COLON_TOKEN"
-                                        },
-                                        {
-                                            "kind": "LIST_CONSTRUCTOR",
-                                            "children": [
-                                                {
-                                                    "kind": "OPEN_BRACKET_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "d"
-                                                        },
-                                                        {
-                                                            "kind": "COMMA_TOKEN"
-                                                        },
-                                                        {
-                                                            "kind": "MAPPING_CONSTRUCTOR",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "OPEN_BRACE_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "LIST",
-                                                                    "children": [
-                                                                        {
-                                                                            "kind": "SPECIFIC_FIELD",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "e"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "COLON_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "f"
-                                                                                }
-                                                                            ]
-                                                                        }
-                                                                    ]
-                                                                },
-                                                                {
-                                                                    "kind": "CLOSE_BRACE_TOKEN"
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "CLOSE_BRACKET_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "CLOSE_BRACE_TOKEN"
-                        }
-                    ]
+                  "kind": "LIST_CONSTRUCTOR",
+                  "children": [
+                    {
+                      "kind": "OPEN_BRACKET_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "CLOSE_BRACKET_TOKEN"
+                    }
+                  ]
                 }
-            ]
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN"
+            }
+          ]
         },
         {
-            "kind": "CLOSE_BRACKET_TOKEN"
+          "kind": "COMMA_TOKEN"
+        },
+        {
+          "kind": "LIST_CONSTRUCTOR",
+          "children": [
+            {
+              "kind": "OPEN_BRACKET_TOKEN"
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "COMMA_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b"
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN"
+            }
+          ]
+        },
+        {
+          "kind": "COMMA_TOKEN"
+        },
+        {
+          "kind": "MAPPING_CONSTRUCTOR",
+          "children": [
+            {
+              "kind": "OPEN_BRACE_TOKEN"
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "SPECIFIC_FIELD",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    },
+                    {
+                      "kind": "COLON_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "b"
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN"
+                },
+                {
+                  "kind": "SPECIFIC_FIELD",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "c"
+                    },
+                    {
+                      "kind": "COLON_TOKEN"
+                    },
+                    {
+                      "kind": "LIST_CONSTRUCTOR",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACKET_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "d"
+                            },
+                            {
+                              "kind": "COMMA_TOKEN"
+                            },
+                            {
+                              "kind": "MAPPING_CONSTRUCTOR",
+                              "children": [
+                                {
+                                  "kind": "OPEN_BRACE_TOKEN"
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": [
+                                    {
+                                      "kind": "SPECIFIC_FIELD",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "e"
+                                        },
+                                        {
+                                          "kind": "COLON_TOKEN"
+                                        },
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "f"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "CLOSE_BRACE_TOKEN"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACKET_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACE_TOKEN"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACKET_TOKEN"
+    }
+  ]
 }

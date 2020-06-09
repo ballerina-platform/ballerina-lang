@@ -31,13 +31,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import javax.xml.namespace.QName;
 
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+
 /**
  * Change the name of element `xmlVal` to `newName`.
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
         functionName = "setName",
         args = {@Argument(name = "xmlValue", type = TypeKind.XML),
                 @Argument(name = "newName", type = TypeKind.STRING)},

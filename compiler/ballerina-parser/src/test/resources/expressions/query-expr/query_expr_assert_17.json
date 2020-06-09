@@ -1,113 +1,143 @@
 {
-    "kind": "QUERY_EXPRESSION",
-    "children": [
+  "kind": "QUERY_EXPRESSION",
+  "children": [
+    {
+      "kind": "QUERY_PIPELINE",
+      "children": [
         {
-            "kind": "QUERY_PIPELINE",
-            "children": [
+          "kind": "FROM_CLAUSE",
+          "children": [
+            {
+              "kind": "FROM_KEYWORD"
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
                 {
-                    "kind": "FROM_CLAUSE",
-                    "children": [
-                        {
-                            "kind": "FROM_KEYWORD"
-                        },
-                        {
-                            "kind": "INT_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "a"
-                        },
-                        {
-                            "kind": "IN_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "b"
-                        }
-                    ]
+                  "kind": "INT_KEYWORD"
                 },
                 {
-                    "kind": "LIST",
-                    "children": [
-                        {
-                            "kind": "LET_CLAUSE",
-                            "children": [
-                                {
-                                    "kind": "LET_KEYWORD"
-                                },
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                        {
-                                            "kind": "LET_VAR_DECL",
-                                            "children": [
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": []
-                                                },
-                                                {
-                                                    "kind": "INT_KEYWORD"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "c"
-                                                },
-                                                {
-                                                    "kind": "EQUAL_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "d"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "COMMA_TOKEN",
-                                            "isMissing": true
-                                        },
-                                        {
-                                            "kind": "LET_VAR_DECL",
-                                            "children": [
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": []
-                                                },
-                                                {
-                                                    "kind": "INT_KEYWORD"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "d"
-                                                },
-                                                {
-                                                    "kind": "EQUAL_TOKEN",
-                                                    "isMissing": true
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "e"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    }
+                  ]
                 }
-            ]
+              ]
+            },
+            {
+              "kind": "IN_KEYWORD"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "b"
+            }
+          ]
         },
         {
-            "kind": "SELECT_CLAUSE",
-            "children": [
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "LET_CLAUSE",
+              "children": [
                 {
-                    "kind": "SELECT_KEYWORD"
+                  "kind": "LET_KEYWORD"
                 },
                 {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "f"
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "LET_VAR_DECL",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "TYPED_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "INT_KEYWORD"
+                            },
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "c"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "EQUAL_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "d"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "COMMA_TOKEN",
+                      "isMissing": true
+                    },
+                    {
+                      "kind": "LET_VAR_DECL",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "TYPED_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "INT_KEYWORD"
+                            },
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "d"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "EQUAL_TOKEN",
+                          "isMissing": true
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "e"
+                        }
+                      ]
+                    }
+                  ]
                 }
-            ]
+              ]
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "SELECT_CLAUSE",
+      "children": [
+        {
+          "kind": "SELECT_KEYWORD"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "f"
+        }
+      ]
+    }
+  ]
 }

@@ -7,15 +7,15 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "grpc"
-    version = "@project.version@"
-    path = "./lib/ballerina-grpc-@project.version@.jar"
+    version = "0.7.0"
+    path = "./lib/ballerina-grpc-0.7.0-java.jar"
     groupId = "ballerina"
     modules = ["grpc"]
 
     [[platform.libraries]]
     artifactId = "http"
-    version = "@project.version@"
-    path = "./lib/ballerina-http-@project.version@.jar"
+    version = "1.0.0"
+    path = "./lib/ballerina-http-1.0.0-java.jar"
     groupId = "ballerina"
     modules = ["grpc"]
 

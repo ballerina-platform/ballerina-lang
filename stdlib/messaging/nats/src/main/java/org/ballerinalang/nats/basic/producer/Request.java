@@ -27,6 +27,7 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -48,8 +49,8 @@ import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
 public class Request {
 
     @SuppressWarnings("unused")
-    public static Object externRequest(ObjectValue producerObject, String subject, Object data, Object duration) {
-        NatsTracingUtil.traceResourceInvocation(Scheduler.getStrand(), producerObject, subject);
+    public static Object externRequest(ObjectValue producerObject, BString subject, Object data, Object duration) {
+        NatsTracingUtil.traceResourceInvocation(Scheduler.getStrand(), producerObject, subject.getValue());
         Object connection = producerObject.get(Constants.CONNECTION_OBJ);
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
             ObjectValue connectionObject = (ObjectValue) connection;
@@ -57,44 +58,48 @@ public class Request {
 
             if (natsConnection == null) {
                 NatsMetricsReporter.reportProducerError(NatsObservabilityConstants.ERROR_TYPE_REQUEST);
-                return Utils.createNatsError(Constants.PRODUCER_ERROR + subject +
-                        ". NATS connection doesn't exist.");
+                return Utils.createNatsError(Constants.PRODUCER_ERROR +
+                        subject.getValue() + ". NATS connection doesn't exist.");
             }
             NatsMetricsReporter natsMetricsReporter =
                     (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
             byte[] byteContent = convertDataIntoByteArray(data);
             try {
                 Message reply;
-                Future<Message> incoming = natsConnection.request(subject, byteContent);
-                natsMetricsReporter.reportRequest(subject, byteContent.length);
+                Future<Message> incoming = natsConnection.request(subject.getValue(), byteContent);
+                natsMetricsReporter.reportRequest(subject.getValue(), byteContent.length);
                 if (TypeChecker.getType(duration).getTag() == TypeTags.INT_TAG) {
                     reply = incoming.get((Long) duration, TimeUnit.MILLISECONDS);
                 } else {
                     reply = incoming.get();
                 }
                 ArrayValue msgData = new ArrayValueImpl(reply.getData());
-                natsMetricsReporter.reportResponse(subject);
+                natsMetricsReporter.reportResponse(subject.getValue());
                 ObjectValue msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,
                         Constants.NATS_MESSAGE_OBJ_NAME, reply.getSubject(), msgData, reply.getReplyTo());
                 msgObj.addNativeData(Constants.NATS_MSG, reply);
                 return msgObj;
             } catch (TimeoutException ex) {
-                natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
-                return Utils.createNatsError("Request to subject " + subject + " timed out while waiting for a reply");
+                natsMetricsReporter.reportProducerError(subject.getValue(),
+                                                        NatsObservabilityConstants.ERROR_TYPE_REQUEST);
+                return Utils.createNatsError("Request to subject " + subject.getValue() +
+                                                     " timed out while waiting for a reply");
             } catch (IllegalArgumentException | IllegalStateException | ExecutionException ex) {
-                natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
+                natsMetricsReporter.reportProducerError(subject.getValue(),
+                                                        NatsObservabilityConstants.ERROR_TYPE_REQUEST);
                 return Utils.createNatsError("Error while requesting message to " +
-                        "subject " + subject + ". " + ex.getMessage());
+                        "subject " + subject.getValue() + ". " + ex.getMessage());
             } catch (InterruptedException ex) {
-                natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
+                natsMetricsReporter.reportProducerError(subject.getValue(),
+                                                        NatsObservabilityConstants.ERROR_TYPE_REQUEST);
                 Thread.currentThread().interrupt();
                 return Utils.createNatsError("Error while requesting message to " +
-                        "subject " + subject + ". " + ex.getMessage());
+                        "subject " + subject.getValue() + ". " + ex.getMessage());
             }
         } else {
             NatsMetricsReporter.reportProducerError(NatsObservabilityConstants.ERROR_TYPE_REQUEST);
-            return Utils.createNatsError(Constants.PRODUCER_ERROR + subject +
-                    ". Producer is logically disconnected.");
+            return Utils.createNatsError(Constants.PRODUCER_ERROR +
+                    subject.getValue() + ". Producer is logically disconnected.");
         }
     }
 }

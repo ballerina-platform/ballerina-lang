@@ -1,93 +1,91 @@
 {
-    "kind": "BINARY_EXPRESSION",
-    "children": [
+  "kind": "BINARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "x"
+    },
+    {
+      "kind": "PLUS_TOKEN"
+    },
+    {
+      "kind": "BINARY_EXPRESSION",
+      "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "x"
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a"
         },
         {
-            "kind": "PLUS_TOKEN"
+          "kind": "PLUS_TOKEN",
+          "isMissing": true
         },
         {
-            "kind": "BINARY_EXPRESSION",
-            "children": [
+          "kind": "BINARY_EXPRESSION",
+          "children": [
+            {
+              "kind": "FUNCTION_CALL",
+              "children": [
                 {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "a"
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b"
                 },
                 {
-                    "kind": "PLUS_TOKEN",
-                    "isMissing": true
+                  "kind": "OPEN_PAREN_TOKEN"
                 },
                 {
-                    "kind": "BINARY_EXPRESSION",
-                    "children": [
-                        {
-                            "kind": "FUNCTION_CALL",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "b"
-                                },
-                                {
-                                    "kind": "OPEN_PAREN_TOKEN"
-                                },
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "CLOSE_PAREN_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "PLUS_TOKEN",
-                            "isMissing": true
-                        },
-                        {
-                            "kind": "BINARY_EXPRESSION",
-                            "children": [
-                                {
-                                    "kind": "METHOD_CALL",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "c"
-                                        },
-                                        {
-                                            "kind": "DOT_TOKEN"
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "d"
-                                        },
-                                        {
-                                            "kind": "OPEN_PAREN_TOKEN"
-                                        },
-                                        {
-                                            "kind": "LIST",
-                                            "children": [
-                                            ]
-                                        },
-                                        {
-                                            "kind": "CLOSE_PAREN_TOKEN"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "PLUS_TOKEN"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "y"
-                                }
-                            ]
-                        }
-                    ]
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "CLOSE_PAREN_TOKEN"
                 }
-            ]
+              ]
+            },
+            {
+              "kind": "PLUS_TOKEN",
+              "isMissing": true
+            },
+            {
+              "kind": "BINARY_EXPRESSION",
+              "children": [
+                {
+                  "kind": "METHOD_CALL",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "c"
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "d"
+                    },
+                    {
+                      "kind": "OPEN_PAREN_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "CLOSE_PAREN_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "PLUS_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "y"
+                }
+              ]
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

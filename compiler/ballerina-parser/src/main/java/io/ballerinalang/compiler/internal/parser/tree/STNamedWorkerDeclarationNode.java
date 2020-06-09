@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -40,7 +43,23 @@ public class STNamedWorkerDeclarationNode extends STNode {
             STNode workerName,
             STNode returnTypeDesc,
             STNode workerBody) {
-        super(SyntaxKind.NAMED_WORKER_DECLARATION);
+        this(
+                annotations,
+                workerKeyword,
+                workerName,
+                returnTypeDesc,
+                workerBody,
+                Collections.emptyList());
+    }
+
+    STNamedWorkerDeclarationNode(
+            STNode annotations,
+            STNode workerKeyword,
+            STNode workerName,
+            STNode returnTypeDesc,
+            STNode workerBody,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.NAMED_WORKER_DECLARATION, diagnostics);
         this.annotations = annotations;
         this.workerKeyword = workerKeyword;
         this.workerName = workerName;
@@ -55,7 +74,51 @@ public class STNamedWorkerDeclarationNode extends STNode {
                 workerBody);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STNamedWorkerDeclarationNode(
+                this.annotations,
+                this.workerKeyword,
+                this.workerName,
+                this.returnTypeDesc,
+                this.workerBody,
+                diagnostics);
+    }
+
+    public STNamedWorkerDeclarationNode modify(
+            STNode annotations,
+            STNode workerKeyword,
+            STNode workerName,
+            STNode returnTypeDesc,
+            STNode workerBody) {
+        if (checkForReferenceEquality(
+                annotations,
+                workerKeyword,
+                workerName,
+                returnTypeDesc,
+                workerBody)) {
+            return this;
+        }
+
+        return new STNamedWorkerDeclarationNode(
+                annotations,
+                workerKeyword,
+                workerName,
+                returnTypeDesc,
+                workerBody,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new NamedWorkerDeclarationNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

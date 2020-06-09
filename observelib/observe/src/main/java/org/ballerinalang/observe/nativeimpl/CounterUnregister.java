@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 
 @BallerinaFunction(
         orgName = "ballerina",
-        packageName = "observe",
+        packageName = "observe", version = "0.8.0",
         functionName = "unregister",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = ObserveNativeImplConstants.COUNTER,
                 structPackage = ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH),

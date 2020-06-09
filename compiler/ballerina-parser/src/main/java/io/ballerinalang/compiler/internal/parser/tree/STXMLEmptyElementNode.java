@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.XMLEmptyElementNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -40,7 +43,23 @@ public class STXMLEmptyElementNode extends STXMLItemNode {
             STNode attributes,
             STNode slashToken,
             STNode getToken) {
-        super(SyntaxKind.XML_EMPTY_ELEMENT);
+        this(
+                ltToken,
+                name,
+                attributes,
+                slashToken,
+                getToken,
+                Collections.emptyList());
+    }
+
+    STXMLEmptyElementNode(
+            STNode ltToken,
+            STNode name,
+            STNode attributes,
+            STNode slashToken,
+            STNode getToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.XML_EMPTY_ELEMENT, diagnostics);
         this.ltToken = ltToken;
         this.name = name;
         this.attributes = attributes;
@@ -55,7 +74,51 @@ public class STXMLEmptyElementNode extends STXMLItemNode {
                 getToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STXMLEmptyElementNode(
+                this.ltToken,
+                this.name,
+                this.attributes,
+                this.slashToken,
+                this.getToken,
+                diagnostics);
+    }
+
+    public STXMLEmptyElementNode modify(
+            STNode ltToken,
+            STNode name,
+            STNode attributes,
+            STNode slashToken,
+            STNode getToken) {
+        if (checkForReferenceEquality(
+                ltToken,
+                name,
+                attributes,
+                slashToken,
+                getToken)) {
+            return this;
+        }
+
+        return new STXMLEmptyElementNode(
+                ltToken,
+                name,
+                attributes,
+                slashToken,
+                getToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLEmptyElementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

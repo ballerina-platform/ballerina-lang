@@ -27,7 +27,7 @@ import org.ballerinalang.jvm.values.RefValue;
 public class BAnyType extends BType {
 
     private final boolean readonly;
-    private BAnyType immutableType;
+    private BIntersectionType immutableType;
 
     /**
      * Create a {@code BAnyType} which represents the any type.
@@ -39,7 +39,9 @@ public class BAnyType extends BType {
         this.readonly = readonly;
 
         if (!readonly) {
-            this.immutableType = new BAnyType(TypeConstants.READONLY_ANY_TNAME, pkg, true);
+            BAnyType immutableAnyType = new BAnyType(TypeConstants.READONLY_ANY_TNAME, pkg, true);
+            this.immutableType = new BIntersectionType(new BType[]{ this, BTypes.typeReadonly }, immutableAnyType,
+                                                       TypeFlags.asMask(TypeFlags.NILABLE), true);
         }
     }
 
@@ -73,7 +75,7 @@ public class BAnyType extends BType {
     }
 
     @Override
-    public void setImmutableType(BType immutableType) {
-        this.immutableType = (BAnyType) immutableType;
+    public void setImmutableType(BIntersectionType immutableType) {
+        this.immutableType = immutableType;
     }
 }

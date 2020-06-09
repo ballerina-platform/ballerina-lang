@@ -42,19 +42,23 @@ import ballerina/lang.'xml;
 // - table
 
 function testReadonlyType() {
-    testSimpleAssignmentForSelectivelyImmutableTypes();
+    testSimpleInitializationForSelectivelyImmutableTypes();
     testRuntimeIsTypeForSelectivelyImmutableBasicTypes();
     testRuntimeIsTypeNegativeForSelectivelyImmutableTypes();
+    testImmutabilityOfNestedXmlWithAttributes();
     testImmutableTypedRecordFields();
+    testImmutabilityForSelfReferencingType();
+    testImmutableRecordWithDefaultValues();
 }
 
-function testSimpleAssignmentForSelectivelyImmutableTypes() {
-    testSimpleAssignmentForSelectivelyImmutableXmlTypes();
-    testSimpleAssignmentForSelectivelyImmutableListTypes();
-    testSimpleAssignmentForSelectivelyImmutableMappingTypes();
+function testSimpleInitializationForSelectivelyImmutableTypes() {
+    testSimpleInitializationForSelectivelyImmutableXmlTypes();
+    testSimpleInitializationForSelectivelyImmutableListTypes();
+    testSimpleInitializationForSelectivelyImmutableMappingTypes();
+    testSimpleInitializationForSelectivelyImmutableTableTypes();
 }
 
-function testSimpleAssignmentForSelectivelyImmutableXmlTypes() {
+function testSimpleInitializationForSelectivelyImmutableXmlTypes() {
     'xml:Comment & readonly a = xml `<!--I'm a comment-->`;
     readonly r1 = a;
     assertTrue(r1 is 'xml:Comment & readonly);
@@ -87,7 +91,7 @@ type Details record {|
     int id;
 |};
 
-function testSimpleAssignmentForSelectivelyImmutableListTypes() {
+function testSimpleInitializationForSelectivelyImmutableListTypes() {
     int[] & readonly a = [1, 2];
     readonly r1 = a;
     assertTrue(r1 is int[] & readonly);
@@ -147,9 +151,20 @@ function testSimpleAssignmentForSelectivelyImmutableListTypes() {
     assertEquality(<Employee> {details, department: "finance"}, e);
     assertTrue(e.isReadOnly());
     assertTrue(e.details.isReadOnly());
+
+    (int[] & readonly)|string[] arr = [1, 2];
+    assertEquality(<int[]> [1, 2], arr);
+    assertTrue(arr is int[] & readonly);
+    assertTrue(arr.isReadOnly());
+
+    arr = ["hello"];
+    assertEquality(<string[]> ["hello"], arr);
+    assertTrue(arr is string[]);
+    assertFalse(arr is string[] & readonly);
+    assertFalse(arr.isReadOnly());
 }
 
-function testSimpleAssignmentForSelectivelyImmutableMappingTypes() {
+function testSimpleInitializationForSelectivelyImmutableMappingTypes() {
     boolean bool = false;
 
     map<boolean> & readonly a = {
@@ -208,6 +223,50 @@ function testSimpleAssignmentForSelectivelyImmutableMappingTypes() {
     assertEquality(<[RESULT, int]> ["P", 65], stVal["science"]);
 }
 
+type Identifier record {|
+    readonly string name;
+    int id;
+|};
+
+function testSimpleInitializationForSelectivelyImmutableTableTypes() {
+    table<map<string>> & readonly a = table [
+        {x: "x", y: "y"},
+        {z: "z"}
+    ];
+
+    readonly r1 = a;
+    assertTrue(r1 is table<map<string>> & readonly);
+
+    table<map<string>> tbString = <table<map<string>>> <any> r1;
+    assertEquality(2, tbString.length());
+
+    map<string>[] mapArr = tbString.toArray();
+    assertTrue( mapArr[0] is map<string> & readonly);
+    assertEquality(<map<string>> {x: "x", y: "y"}, mapArr[0]);
+    assertTrue( mapArr[1] is map<string> & readonly);
+    assertEquality(<map<string>> {z: "z"}, mapArr[1]);
+
+    table<Identifier> key(name) & readonly b = table [
+        {name: "Jo", id: 4567},
+        {name: "Emma", id: 1234},
+        {name: "Amy", id: 678}
+    ];
+    readonly r2 = b;
+    assertTrue(r2 is table<Identifier> key(name) & readonly);
+    assertTrue(r2 is table<Identifier> & readonly);
+
+    table<Identifier> tbDetails = <table<Identifier>> <any> r2;
+    assertEquality(3, tbDetails.length());
+
+    Identifier[] detailsArr = tbDetails.toArray();
+    assertTrue(detailsArr[0] is Identifier & readonly);
+    assertEquality(<Identifier> {name: "Jo", id: 4567}, detailsArr[0]);
+    assertTrue(detailsArr[1] is Identifier & readonly);
+    assertEquality(<Identifier> {name: "Emma", id: 1234}, detailsArr[1]);
+    assertTrue(detailsArr[2] is Identifier & readonly);
+    assertEquality(<Identifier> {name: "Amy", id: 678}, detailsArr[2]);
+}
+
 type RESULT "P"|"F";
 
 type Student record {|
@@ -251,8 +310,6 @@ function testRuntimeIsTypeForSelectivelyImmutableBasicTypes() {
     any o = m.cloneReadOnly();
     assertFalse(n is readonly);
     assertTrue(o is readonly);
-
-    // TODO: table.
 }
 
 function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
@@ -366,6 +423,116 @@ function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
     assertFalse(an7 is 'xml:Element & readonly);
     assertFalse(an7 is readonly);
     assertFalse(a7.isReadOnly());
+
+    table<Identifier> key(name) j = table [
+        {name: "Jo", id: 4567},
+        {name: "Emma", id: 1234},
+        {name: "Amy", id: 678}
+    ];
+    anydata a9 = j;
+    any an9 = j;
+    assertTrue(an9 is table<Identifier>);
+    assertFalse(an9 is table<Identifier> & readonly);
+    assertFalse(an9 is readonly);
+    assertFalse(a9.isReadOnly());
+}
+
+function testImmutabilityOfNestedXmlWithAttributes() {
+    xml x1 = xml `<book status="available" count="5">Book One<name lang="english">Great Expectations</name><!-- This is a classic--><author gender="male"><?action concat?><firstName index="C">Charles</firstName><lastName>Dickens</lastName></author></book>`;
+    checkXmlValueAndMutability(<'xml:Element> x1, false);
+
+    xml & readonly x2 = xml `<book status="available" count="5">Book One<name lang="english">Great Expectations</name><!-- This is a classic--><author gender="male"><?action concat?><firstName index="C">Charles</firstName><lastName>Dickens</lastName></author></book>`;
+    checkXmlValueAndMutability(<'xml:Element & readonly> x2, true);
+
+    'xml:Element x3 = xml `<book status="available" count="5">Book One<name lang="english">Great Expectations</name><!-- This is a classic--><author gender="male"><?action concat?><firstName index="C">Charles</firstName><lastName>Dickens</lastName></author></book>`;
+    checkXmlValueAndMutability(x3, false);
+
+    'xml:Element & readonly x4 = xml `<book status="available" count="5">Book One<name lang="english">Great Expectations</name><!-- This is a classic--><author gender="male"><?action concat?><firstName index="C">Charles</firstName><lastName>Dickens</lastName></author></book>`;
+    checkXmlValueAndMutability(x4, true);
+}
+
+function checkXmlValueAndMutability('xml:Element value, boolean isReaodnly) {
+    function (any|error) func = isReaodnly ? assertTrue : assertFalse;
+
+    any anyVal = value;
+    anydata anydataVal = value;
+    func(anyVal is readonly);
+    func(anydataVal.isReadOnly());
+    func(value.isReadOnly());
+    func(value is 'xml:Element & readonly);
+
+    map<string> attribs = value.getAttributes();
+    assertEquality(2, attribs.length());
+    assertEquality(attribs["status"], "available");
+    assertEquality(attribs["count"], "5");
+    func(attribs is map<string> & readonly);
+
+    if isReaodnly {
+        map<string> & readonly readonlyAttribs = <map<string> & readonly> attribs;
+        assertEquality(2, readonlyAttribs.length());
+    }
+
+    xml children = value/*;
+    assertEquality(4, children.length());
+
+    xml c1 = children.get(0);
+    assertEquality(xml `Book One`, c1);
+    assertTrue(c1 is 'xml:Text);
+    assertTrue(c1.isReadOnly());
+
+    'xml:Element c2 = <'xml:Element> children.get(1);
+    assertEquality(xml `<name lang="english">Great Expectations</name>`, c2);
+    func(c2.isReadOnly());
+    func(c2 is 'xml:Element & readonly);
+
+    attribs = c2.getAttributes();
+    assertEquality(1, attribs.length());
+    assertEquality(attribs["lang"], "english");
+    func(attribs is map<string> & readonly);
+
+    xml c3 = children.get(2);
+    assertEquality(xml `<!-- This is a classic-->`, c3);
+    assertTrue(c3 is 'xml:Comment);
+    func(c3.isReadOnly());
+    func(c3 is 'xml:Comment & readonly);
+
+    'xml:Element c4 = <'xml:Element> children.get(3);
+    assertEquality(xml `<author gender="male"><?action concat?><firstName index="C">Charles</firstName><lastName>Dickens</lastName></author>`, c4);
+    func(c4.isReadOnly());
+    func(c4 is 'xml:Element & readonly);
+
+    attribs = c4.getAttributes();
+    assertEquality(1, attribs.length());
+    assertEquality(attribs["gender"], "male");
+    func(attribs is map<string> & readonly);
+
+    xml nestedChildren = c4/*;
+    assertEquality(3, nestedChildren.length());
+
+    xml nc1 = nestedChildren.get(0);
+    assertEquality(xml `<?action concat?>`, nc1);
+    assertTrue(nc1 is 'xml:ProcessingInstruction);
+    func(nc1.isReadOnly());
+    func(nc1 is 'xml:ProcessingInstruction & readonly);
+
+    'xml:Element nc2 = <'xml:Element> nestedChildren.get(1);
+    assertEquality(xml `<firstName index="C">Charles</firstName>`, nc2);
+    func(nc2.isReadOnly());
+    func(nc2 is 'xml:Element & readonly);
+
+    attribs = nc2.getAttributes();
+    assertEquality(1, attribs.length());
+    assertEquality(attribs["index"], "C");
+    func(attribs is map<string> & readonly);
+
+    'xml:Element nc3 = <'xml:Element> nestedChildren.get(2);
+    assertEquality(xml `<lastName>Dickens</lastName>`, nc3);
+    func(nc3.isReadOnly());
+    func(nc3 is 'xml:Element & readonly);
+
+    attribs = nc3.getAttributes();
+    assertEquality(0, attribs.length());
+    func(attribs is map<string> & readonly);
 }
 
 type Foo record {|
@@ -412,6 +579,75 @@ function testImmutableTypedRecordFields() {
     assertTrue(val is Baz & readonly);
     assertTrue(val.isReadOnly());
     assertEquality(immBaz, val);
+}
+
+type Qux record {|
+    Qux a?;
+    Qux? b;
+    int c;
+    Qux|boolean...;
+|};
+
+function testImmutabilityForSelfReferencingType() {
+    Qux & readonly q1 = {b: {c: 2, "f": true, b: ()}, c: 1, "d": true, "e": {c: 3, b: ()}};
+    any a1 = q1;
+    anydata ad1 = q1;
+
+    assertTrue(a1 is Qux & readonly);
+    assertTrue(ad1.isReadOnly());
+    Qux qVal = <Qux & readonly> a1;
+    assertEquality(<Qux> {b: {c: 2, "f": true, b: ()}, c: 1, "d": true, "e": {c: 3, b: ()}}, qVal);
+    assertTrue(qVal?.a is ());
+    assertTrue(qVal.b is Qux & readonly);
+    assertTrue(qVal["d"] is boolean & readonly);
+    assertTrue(qVal["e"] is Qux & readonly);
+
+    Qux q2 = {a: q1, b: (), c: 23, "d": true, "e": {c: 4, b: ()}};
+    any a2 = q2;
+    anydata ad2 = q2;
+
+    assertTrue(a2 is Qux);
+    assertFalse(a2 is Qux & readonly);
+    assertFalse(ad2.isReadOnly());
+    qVal = <Qux> a2;
+    assertEquality(<Qux> {a: q1, b: (), c: 23, "d": true, "e": {c: 4, b: ()}}, qVal);
+    assertTrue(qVal?.a is Qux & readonly);
+
+    Qux aQux =  <Qux> qVal?.a;
+    assertTrue(aQux.isReadOnly());
+
+    assertTrue(qVal.b is ());
+    assertTrue(qVal["e"] is Qux);
+    assertFalse(qVal["e"] is Qux & readonly);
+    Qux eQux =  <Qux> qVal["e"];
+    assertFalse(eQux.isReadOnly());
+}
+
+type Quux record {|
+    string name = "xyz";
+    int id;
+|};
+
+function testImmutableRecordWithDefaultValues() {
+    Quux & readonly q1 = {id: 1};
+    any a1 = q1;
+    anydata ad1 = q1;
+
+    assertTrue(a1 is Quux);
+    assertTrue(a1 is Quux & readonly);
+    assertTrue(ad1.isReadOnly());
+    assertEquality(q1.name, "xyz");
+    assertEquality(q1.id, 1);
+
+    Quux & readonly q2 = {id: 2, name: "abc"};
+    any a2 = q2;
+    anydata ad2 = q2;
+
+    assertTrue(a2 is Quux);
+    assertTrue(a2 is Quux & readonly);
+    assertTrue(ad2.isReadOnly());
+    assertEquality(q2.name, "abc");
+    assertEquality(q2.id, 2);
 }
 
 type AssertionError error;
