@@ -51,16 +51,6 @@ type Foo3 record {|
     *xml;
 |};
 
-type Person1 record {
-    string name;
-    int age;
-};
-
-type Student1 record {|
-    *Person1;
-    string name;
-|};
-
 type Gender "male"|"female";
 
 type Person2 record {

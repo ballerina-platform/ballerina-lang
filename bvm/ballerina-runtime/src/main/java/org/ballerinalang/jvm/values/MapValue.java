@@ -58,4 +58,6 @@ public interface MapValue<K, V> extends RefValue, CollectionValue, BMap<K, V> {
     Object getNativeData(String key);
 
     TypedescValue getTypedesc();
+
+    void populateInitialValue(K key, V value);
 }

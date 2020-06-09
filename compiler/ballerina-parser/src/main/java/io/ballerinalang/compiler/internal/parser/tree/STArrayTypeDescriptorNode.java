@@ -77,7 +77,38 @@ public class STArrayTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STArrayTypeDescriptorNode modify(
+            STNode memberTypeDesc,
+            STNode openBracket,
+            STNode arrayLength,
+            STNode closeBracket) {
+        if (checkForReferenceEquality(
+                memberTypeDesc,
+                openBracket,
+                arrayLength,
+                closeBracket)) {
+            return this;
+        }
+
+        return new STArrayTypeDescriptorNode(
+                memberTypeDesc,
+                openBracket,
+                arrayLength,
+                closeBracket,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ArrayTypeDescriptorNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

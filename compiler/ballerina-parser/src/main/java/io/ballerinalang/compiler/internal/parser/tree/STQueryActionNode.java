@@ -70,7 +70,35 @@ public class STQueryActionNode extends STActionNode {
                 diagnostics);
     }
 
+    public STQueryActionNode modify(
+            STNode queryPipeline,
+            STNode doKeyword,
+            STNode blockStatement) {
+        if (checkForReferenceEquality(
+                queryPipeline,
+                doKeyword,
+                blockStatement)) {
+            return this;
+        }
+
+        return new STQueryActionNode(
+                queryPipeline,
+                doKeyword,
+                blockStatement,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new QueryActionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }
