@@ -67,7 +67,7 @@ public class Cast {
         HandleValue handleObj;
         BObjectType objType = value.getType();
         String valueObjName = objType.getName();
-        handleObj = (HandleValue) value.get(jObjField);
+        handleObj = (HandleValue) value.get(StringUtils.fromString(jObjField));
         Object jObj = handleObj.getValue();
         if (jObj == null) {
             return createError(StringUtils.fromString(moduleName + " Empty handle reference found for `"
@@ -77,7 +77,7 @@ public class Cast {
             Map objAnnotation;
             String objClass;
             try {
-                objAnnotation = (Map) objType.getAnnotation(annotationType);
+                objAnnotation = (Map) objType.getAnnotation(StringUtils.fromString(annotationType));
                 objClass = (String) objAnnotation.get(classAttribute);
             } catch (Exception e) {
                 return createError(StringUtils.fromString(moduleName + " Error while retrieving details of the `" +
@@ -101,7 +101,7 @@ public class Cast {
                         "parameter: " + e));
             }
             try {
-                Map castObjAnnotation = (Map) castObjType.getAnnotation(annotationType);
+                Map castObjAnnotation = (Map) castObjType.getAnnotation(StringUtils.fromString(annotationType));
                 castObjClass = (String) castObjAnnotation.get(classAttribute);
             } catch (Exception e) {
                 return createError(StringUtils.fromString(moduleName + " Error while retrieving details of the `" +
