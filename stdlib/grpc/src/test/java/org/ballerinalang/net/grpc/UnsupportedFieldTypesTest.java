@@ -39,7 +39,7 @@ public class UnsupportedFieldTypesTest {
         CompileResult result = BCompileUtil.compileOffline(serviceBalPath.toAbsolutePath().toString());
         Assert.assertEquals(1, result.getErrorCount());
         Assert.assertEquals(1, result.getDiagnostics().length);
-        Assert.assertEquals("Unsupported field type, field type json currently not supported.", result
+        Assert.assertEquals("Root descriptor and/or the descriptor map function is missing", result
                 .getDiagnostics()[0].getMessage());
     }
 
@@ -51,7 +51,7 @@ public class UnsupportedFieldTypesTest {
         CompileResult result = BCompileUtil.compileOffline(serviceBalPath.toAbsolutePath().toString());
         Assert.assertEquals(1, result.getErrorCount());
         Assert.assertEquals(1, result.getDiagnostics().length);
-        Assert.assertEquals("Unsupported field type, field type map currently not supported.", result.getDiagnostics
+        Assert.assertEquals("Root descriptor and/or the descriptor map function is missing", result.getDiagnostics
                 ()[0].getMessage());
     }
 }
