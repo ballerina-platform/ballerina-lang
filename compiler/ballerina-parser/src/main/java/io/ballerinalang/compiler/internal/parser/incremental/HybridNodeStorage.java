@@ -80,6 +80,9 @@ public class HybridNodeStorage {
     }
 
     HybridNode consumeToken() {
+        if (currentToken == null) {
+            currentToken = peekToken();
+        }
         HybridNode hybridNode = currentToken;
         currentToken = null;
         consumedNodeIndex++;

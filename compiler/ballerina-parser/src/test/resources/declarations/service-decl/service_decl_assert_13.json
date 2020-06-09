@@ -31,8 +31,8 @@
               "kind": "ON_KEYWORD"
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "isMissing": true
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "SERVICE_BODY",
@@ -74,8 +74,8 @@
               "kind": "ON_KEYWORD"
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "isMissing": true
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "SERVICE_BODY",
@@ -109,20 +109,76 @@
               ]
             },
             {
-              "kind": "INT_KEYWORD"
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "ppp"
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "INT_KEYWORD"
+                },
+                {
+                  "kind": "LIST_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "OPEN_BRACKET_TOKEN",
+                      "isMissing": true
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "CAPTURE_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "isMissing": true
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "COMMA_TOKEN"
+                        },
+                        {
+                          "kind": "CAPTURE_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "ppp"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "COMMA_TOKEN",
+                          "isMissing": true
+                        },
+                        {
+                          "kind": "MAPPING_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "OPEN_BRACE_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
+                              "kind": "CLOSE_BRACE_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CLOSE_BRACKET_TOKEN",
+                      "isMissing": true
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN",
               "isMissing": true
             }
           ]
-        },
-        {
-          "kind": "EOF_TOKEN"
         }
       ]
     },

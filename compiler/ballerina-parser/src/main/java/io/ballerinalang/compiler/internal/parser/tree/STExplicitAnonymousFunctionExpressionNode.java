@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STExplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
             STNode functionKeyword,
             STNode functionSignature,
             STNode functionBody) {
-        super(SyntaxKind.EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION);
+        this(
+                annotations,
+                functionKeyword,
+                functionSignature,
+                functionBody,
+                Collections.emptyList());
+    }
+
+    STExplicitAnonymousFunctionExpressionNode(
+            STNode annotations,
+            STNode functionKeyword,
+            STNode functionSignature,
+            STNode functionBody,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION, diagnostics);
         this.annotations = annotations;
         this.functionKeyword = functionKeyword;
         this.functionSignature = functionSignature;
@@ -51,7 +68,47 @@ public class STExplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
                 functionBody);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STExplicitAnonymousFunctionExpressionNode(
+                this.annotations,
+                this.functionKeyword,
+                this.functionSignature,
+                this.functionBody,
+                diagnostics);
+    }
+
+    public STExplicitAnonymousFunctionExpressionNode modify(
+            STNode annotations,
+            STNode functionKeyword,
+            STNode functionSignature,
+            STNode functionBody) {
+        if (checkForReferenceEquality(
+                annotations,
+                functionKeyword,
+                functionSignature,
+                functionBody)) {
+            return this;
+        }
+
+        return new STExplicitAnonymousFunctionExpressionNode(
+                annotations,
+                functionKeyword,
+                functionSignature,
+                functionBody,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ExplicitAnonymousFunctionExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

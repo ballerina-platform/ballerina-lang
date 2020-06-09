@@ -794,7 +794,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             return;
         }
 
-        this.arrayType = (BArrayType) ReadOnlyUtils.setImmutableType(this.arrayType);
+        this.arrayType = (BArrayType) ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.arrayType);
         if (this.elementType == null || this.elementType.getTag() > TypeTags.BOOLEAN_TAG) {
             for (int i = 0; i < this.size; i++) {
                 Object value = this.getRefValue(i);

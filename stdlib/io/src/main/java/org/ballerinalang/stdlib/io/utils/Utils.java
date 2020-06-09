@@ -48,7 +48,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PR
 public class Utils {
 
     private static final int READABLE_BUFFER_SIZE = 8192; //8KB
-    private static final BPackage PACKAGE_ID_MIME = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "mime");
+    private static final BPackage PACKAGE_ID_MIME = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "mime", "1.0.0");
     private static final String MIME_ERROR_MESSAGE = "message";
     private static final String ERROR_RECORD_TYPE = "Detail";
     private static final String STRUCT_TYPE = "ReadableByteChannel";

@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,7 +37,17 @@ public class STLetClauseNode extends STClauseNode {
     STLetClauseNode(
             STNode letKeyword,
             STNode letVarDeclarations) {
-        super(SyntaxKind.LET_CLAUSE);
+        this(
+                letKeyword,
+                letVarDeclarations,
+                Collections.emptyList());
+    }
+
+    STLetClauseNode(
+            STNode letKeyword,
+            STNode letVarDeclarations,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.LET_CLAUSE, diagnostics);
         this.letKeyword = letKeyword;
         this.letVarDeclarations = letVarDeclarations;
 
@@ -43,7 +56,39 @@ public class STLetClauseNode extends STClauseNode {
                 letVarDeclarations);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STLetClauseNode(
+                this.letKeyword,
+                this.letVarDeclarations,
+                diagnostics);
+    }
+
+    public STLetClauseNode modify(
+            STNode letKeyword,
+            STNode letVarDeclarations) {
+        if (checkForReferenceEquality(
+                letKeyword,
+                letVarDeclarations)) {
+            return this;
+        }
+
+        return new STLetClauseNode(
+                letKeyword,
+                letVarDeclarations,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new LetClauseNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

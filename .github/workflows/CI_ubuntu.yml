@@ -1,0 +1,207 @@
+name: CI Ubuntu
+
+on:
+  push:
+    branches:
+      - master
+      - next-release
+      - release-stage
+      - stage
+      - ballerina-[0-9]+.[0-9]+.[0-9]+
+  pull_request:
+    branches:
+      - master
+      - next-release
+      - release-stage
+      - stage
+      - ballerina-[0-9]+.[0-9]+.[0-9]+
+
+jobs:
+  ubuntu_build:
+    name: Build without tests on Ubuntu
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '8.x'
+
+      - name: Initialize sub-modules
+        run: git submodule update --init
+
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
+
+      - name: Build with Gradle
+        run: |
+          export DISPLAY=':99.0'
+          /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          ./gradlew build -x createJavadoc -x test --max-workers=2 --scan
+          find ~/.gradle/caches/ -name "*.lock" -type f -delete 
+
+      - name: Get jballerina-tools file location
+        id: getdist
+        run: echo "::set-output name=file::$(ls distribution/zip/jballerina-tools/build/distributions/jballerina-tools-*.zip)"
+
+      - name: Upload jballerina-tools.zip
+        uses: actions/upload-artifact@v2
+        with:
+          name: jballerina-tools
+          path: ${{ steps.getdist.outputs.file }}
+
+  run_integration_test:
+    name: Run integration tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    needs: ubuntu_build
+
+    steps:
+      - uses: actions/checkout@v2
+        
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '8.x'
+
+      - name: Initialize sub-modules
+        run: git submodule update --init
+
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
+
+      - name: Run integration test
+        run: |
+          export DISPLAY=':99.0'
+          /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          ./gradlew :jballerina-integration-test:test --fail-fast -x createJavadoc --max-workers=1 --scan
+          find ~/.gradle/caches/ -name "*.lock" -type f -delete
+
+  run_jballerina_unit_test:
+    name: Run jballerina unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    needs: ubuntu_build
+
+    steps:
+      - uses: actions/checkout@v2
+        
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '8.x'
+
+      - name: Initialize sub-modules
+        run: git submodule update --init
+
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
+
+      - name: Run jballerina unit test
+        run: |
+          export DISPLAY=':99.0'
+          /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          ./gradlew :jballerina-unit-test:test --fail-fast -x createJavadoc --max-workers=1 --scan
+          find ~/.gradle/caches/ -name "*.lock" -type f -delete
+
+  run_testerina_test:
+    name: Run testerina tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    needs: ubuntu_build
+
+    steps:
+      - uses: actions/checkout@v2
+        
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '8.x'
+
+      - name: Initialize sub-modules
+        run: git submodule update --init
+
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
+
+      - name: Run testerina test
+        run: |
+          export DISPLAY=':99.0'
+          /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          ./gradlew :testerina-integration-test:test --fail-fast -x createJavadoc --max-workers=1 --scan
+          find ~/.gradle/caches/ -name "*.lock" -type f -delete
+
+  run_unit_test:
+    name: Run all other unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    needs: ubuntu_build
+
+    steps:
+      - uses: actions/checkout@v2
+        
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '8.x'
+
+      - name: Initialize sub-modules
+        run: git submodule update --init
+
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
+
+      - name: Run all the other unit test
+        run: |
+          export DISPLAY=':99.0'
+          /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          ./gradlew build -x createJavadoc -x :jballerina-unit-test:test -x :jballerina-integration-test:test -x :testerina-integration-test:test --max-workers=1 --scan
+          find ~/.gradle/caches/ -name "*.lock" -type f -delete

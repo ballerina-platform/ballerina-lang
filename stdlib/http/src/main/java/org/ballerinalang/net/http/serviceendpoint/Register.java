@@ -53,7 +53,7 @@ public class Register extends AbstractHttpNativeFunction {
                 if (HttpConstants.HTTP_CALLER_NAME.equals(
                         callerType)) { // TODO fix should work with equals - rajith
                     httpServicesRegistry.registerService(service);
-                } else if (WebSocketConstants.FULL_WEBSOCKET_CALLER_NAME.equals(callerType)) {
+                } else if (WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(callerType)) {
                     webSocketServicesRegistry.registerService(new WebSocketServerService(service, strand.scheduler));
                 } else if (WebSocketConstants.FULL_WEBSOCKET_CLIENT_NAME.equals(callerType)) {
                     return new WebSocketException("Client service cannot be attached to the Listener");

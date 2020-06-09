@@ -37,3 +37,7 @@ type Manager2 object {
 
     *foo:Manager1;  // Referring a non-abstract object in a BALO
 };
+
+type NamedPerson object {
+    *foo:NormalPerson;
+};

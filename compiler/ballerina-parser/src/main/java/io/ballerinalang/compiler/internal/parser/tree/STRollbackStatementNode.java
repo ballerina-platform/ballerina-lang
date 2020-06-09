@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.RollbackStatementNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STRollbackStatementNode extends STStatementNode {
             STNode rollbackKeyword,
             STNode expression,
             STNode semicolon) {
-        super(SyntaxKind.ROLLBACK_STATEMENT);
+        this(
+                rollbackKeyword,
+                expression,
+                semicolon,
+                Collections.emptyList());
+    }
+
+    STRollbackStatementNode(
+            STNode rollbackKeyword,
+            STNode expression,
+            STNode semicolon,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.ROLLBACK_STATEMENT, diagnostics);
         this.rollbackKeyword = rollbackKeyword;
         this.expression = expression;
         this.semicolon = semicolon;
@@ -47,7 +62,43 @@ public class STRollbackStatementNode extends STStatementNode {
                 semicolon);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STRollbackStatementNode(
+                this.rollbackKeyword,
+                this.expression,
+                this.semicolon,
+                diagnostics);
+    }
+
+    public STRollbackStatementNode modify(
+            STNode rollbackKeyword,
+            STNode expression,
+            STNode semicolon) {
+        if (checkForReferenceEquality(
+                rollbackKeyword,
+                expression,
+                semicolon)) {
+            return this;
+        }
+
+        return new STRollbackStatementNode(
+                rollbackKeyword,
+                expression,
+                semicolon,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RollbackStatementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

@@ -265,10 +265,10 @@ class JvmValueGen {
         String packageName;
         if (module instanceof BIRNode.BIRPackage) {
             BIRNode.BIRPackage birPackage = (BIRNode.BIRPackage) module;
-            packageName = getPackageName(birPackage.org.value, birPackage.name.value);
+            packageName = getPackageName(birPackage.org.value, birPackage.name.value, birPackage.version.value);
         } else if (module instanceof PackageID) {
             PackageID packageID = (PackageID) module;
-            packageName = getPackageName(packageID.orgName, packageID.name);
+            packageName = getPackageName(packageID.orgName, packageID.name, packageID.version);
         } else {
             throw new ClassCastException("module should be PackageID or BIRPackage but is : "
                     + (module == null ? "null" : module.getClass()));
@@ -344,7 +344,7 @@ class JvmValueGen {
         }
     }
 
-private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String className) {
+    private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String className) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", String.format("(L%s;)V", OBJECT_TYPE), null, null);
         mv.visitCode();
@@ -357,18 +357,18 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
         mv.visitMethodInsn(INVOKESPECIAL, ABSTRACT_OBJECT_VALUE, "<init>", String.format("(L%s;)V", OBJECT_TYPE),
                 false);
 
-            String lockClass = "L" + LOCK_VALUE + ";";
-            for (BField field : fields.values()) {
-                if (field != null) {
-                    Label fLabel = new Label();
-                    mv.visitLabel(fLabel);
-                    mv.visitVarInsn(ALOAD, 0);
-                    mv.visitTypeInsn(NEW, LOCK_VALUE);
-                    mv.visitInsn(DUP);
-                    mv.visitMethodInsn(INVOKESPECIAL, LOCK_VALUE, "<init>", "()V", false);
-                    mv.visitFieldInsn(PUTFIELD, className, computeLockNameFromString(field.name.value), lockClass);
-                }
+        String lockClass = "L" + LOCK_VALUE + ";";
+        for (BField field : fields.values()) {
+            if (field != null) {
+                Label fLabel = new Label();
+                mv.visitLabel(fLabel);
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitTypeInsn(NEW, LOCK_VALUE);
+                mv.visitInsn(DUP);
+                mv.visitMethodInsn(INVOKESPECIAL, LOCK_VALUE, "<init>", "()V", false);
+                mv.visitFieldInsn(PUTFIELD, className, computeLockNameFromString(field.name.value), lockClass);
             }
+        }
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(5, 5);
@@ -430,7 +430,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
             }
 
             mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, func.name.value, methodSig, false);
-            if (retType == null || retType.tag == TypeTags.NIL) {
+            if (retType == null || retType.tag == TypeTags.NIL || retType.tag == TypeTags.NEVER) {
                 mv.visitInsn(ACONST_NULL);
             } else {
                 addBoxInsn(mv, retType);
@@ -489,8 +489,19 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
 
     private void createObjectSetMethod(ClassWriter cw, Map<String, BField> fields, String className) {
 
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set",
-                                              String.format("(L%s;L%s;)V", B_STRING_VALUE, OBJECT), null, null);
+        createObjectSetMethod(cw, fields, className, "set", "checkFieldUpdate");
+    }
+
+    private void createObjectSetOnInitializationMethod(ClassWriter cw, Map<String, BField> fields, String className) {
+
+        createObjectSetMethod(cw, fields, className, "setOnInitialization", "checkFieldUpdateOnInitialization");
+    }
+
+    private void createObjectSetMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                                       String setFuncName, String checkFieldUpdateFuncName) {
+
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, setFuncName,
+                                          String.format("(L%s;L%s;)V", B_STRING_VALUE, OBJECT), null, null);
         mv.visitCode();
         int fieldNameRegIndex = 1;
         int valueRegIndex = 2;
@@ -505,7 +516,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
         fieldNameRegIndex = 3;
         mv.visitVarInsn(ASTORE, fieldNameRegIndex);
         mv.visitVarInsn(ALOAD, valueRegIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate",
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, checkFieldUpdateFuncName,
                            String.format("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
 
         // sort the fields before generating switch case
@@ -514,7 +525,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
 
         List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
         List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
-                defaultCaseLabel);
+                                                             defaultCaseLabel);
 
         // case body
         int i = 0;
@@ -1369,6 +1380,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
         this.createCallMethod(cw, attachedFuncs, className, toNameString(objectType), isService);
         this.createObjectGetMethod(cw, fields, className);
         this.createObjectSetMethod(cw, fields, className);
+        this.createObjectSetOnInitializationMethod(cw, fields, className);
         this.createLambdas(cw, lambdaGenMetadata);
 
         cw.visitEnd();

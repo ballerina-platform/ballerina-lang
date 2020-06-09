@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -32,14 +35,50 @@ public class STCaptureBindingPatternNode extends STBindingPatternNode {
 
     STCaptureBindingPatternNode(
             STNode variableName) {
-        super(SyntaxKind.CAPTURE_BINDING_PATTERN);
+        this(
+                variableName,
+                Collections.emptyList());
+    }
+
+    STCaptureBindingPatternNode(
+            STNode variableName,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.CAPTURE_BINDING_PATTERN, diagnostics);
         this.variableName = variableName;
 
         addChildren(
                 variableName);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STCaptureBindingPatternNode(
+                this.variableName,
+                diagnostics);
+    }
+
+    public STCaptureBindingPatternNode modify(
+            STNode variableName) {
+        if (checkForReferenceEquality(
+                variableName)) {
+            return this;
+        }
+
+        return new STCaptureBindingPatternNode(
+                variableName,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new CaptureBindingPatternNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

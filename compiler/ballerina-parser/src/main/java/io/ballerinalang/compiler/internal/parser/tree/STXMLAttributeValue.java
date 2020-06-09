@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.XMLAttributeValue;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STXMLAttributeValue extends STNode {
             STNode startQuote,
             STNode value,
             STNode endQuote) {
-        super(SyntaxKind.XML_ATTRIBUTE_VALUE);
+        this(
+                startQuote,
+                value,
+                endQuote,
+                Collections.emptyList());
+    }
+
+    STXMLAttributeValue(
+            STNode startQuote,
+            STNode value,
+            STNode endQuote,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.XML_ATTRIBUTE_VALUE, diagnostics);
         this.startQuote = startQuote;
         this.value = value;
         this.endQuote = endQuote;
@@ -47,7 +62,43 @@ public class STXMLAttributeValue extends STNode {
                 endQuote);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STXMLAttributeValue(
+                this.startQuote,
+                this.value,
+                this.endQuote,
+                diagnostics);
+    }
+
+    public STXMLAttributeValue modify(
+            STNode startQuote,
+            STNode value,
+            STNode endQuote) {
+        if (checkForReferenceEquality(
+                startQuote,
+                value,
+                endQuote)) {
+            return this;
+        }
+
+        return new STXMLAttributeValue(
+                startQuote,
+                value,
+                endQuote,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLAttributeValue(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

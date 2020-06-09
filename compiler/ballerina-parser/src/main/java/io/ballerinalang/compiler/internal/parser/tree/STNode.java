@@ -17,9 +17,15 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.internal.syntax.NodeListUtils;
+import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
 
 /**
  * {@code STNode} is the base class for all tree nodes in the internal syntax tree.
@@ -28,10 +34,13 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  */
 public abstract class STNode {
     public final SyntaxKind kind;
+    protected final Collection<STNodeDiagnostic> diagnostics;
     protected int width;
     protected int widthWithLeadingMinutiae;
     protected int widthWithTrailingMinutiae;
     protected int widthWithMinutiae;
+
+    protected EnumSet<STNodeFlags> flags = EnumSet.noneOf(STNodeFlags.class);
 
     protected static final STNode[] EMPTY_BUCKET = new STNode[0];
     // The following fields allow us to navigate the tree without the knowledge of the particular tree nodes
@@ -40,6 +49,15 @@ public abstract class STNode {
 
     STNode(SyntaxKind kind) {
         this.kind = kind;
+        this.diagnostics = Collections.emptyList();
+    }
+
+    STNode(SyntaxKind kind, Collection<STNodeDiagnostic> diagnostics) {
+        this.kind = kind;
+        this.diagnostics = diagnostics;
+        if (diagnostics.size() > 0) {
+            flags.add(STNodeFlags.HAS_DIAGNOSTICS);
+        }
     }
 
     public STNode childInBucket(int bucket) {
@@ -72,15 +90,101 @@ public abstract class STNode {
                 "The trailingMinutiae() method is only supported for STToken instances");
     }
 
+    public boolean hasDiagnostics() {
+        return flags.contains(STNodeFlags.HAS_DIAGNOSTICS);
+    }
+
+    public Collection<STNodeDiagnostic> diagnostics() {
+        return Collections.unmodifiableCollection(this.diagnostics);
+    }
+
     public int bucketCount() {
         return bucketCount;
     }
 
+    public boolean isMissing() {
+        return this instanceof STMissingToken;
+    }
+
+    public STToken firstToken() {
+        return (STToken) firstTokenInternal();
+    }
+
+    protected STNode firstTokenInternal() {
+        for (STNode child : childBuckets) {
+            if (SyntaxUtils.isToken(child)) {
+                return child;
+            }
+
+            if (!SyntaxUtils.isSTNodePresent(child) ||
+                    NodeListUtils.isSTNodeList(child) && child.bucketCount == 0) {
+                continue;
+            }
+
+            // Some nodes have non-empty child nodes that contain empty STNodeList child. e.g. STMetadata
+            STNode firstToken = child.firstTokenInternal();
+            if (SyntaxUtils.isSTNodePresent(firstToken)) {
+                return firstToken;
+            }
+        }
+        return null;
+    }
+
+    public STToken lastToken() {
+        return (STToken) lastTokenInternal();
+    }
+
+    protected STNode lastTokenInternal() {
+        for (int bucket = childBuckets.length - 1; bucket >= 0; bucket--) {
+            STNode child = childInBucket(bucket);
+            if (SyntaxUtils.isToken(child)) {
+                return child;
+            }
+
+            if (!SyntaxUtils.isSTNodePresent(child) ||
+                    NodeListUtils.isSTNodeList(child) && child.bucketCount == 0) {
+                continue;
+            }
+
+            // Some nodes have non-empty child nodes that contain empty STNodeList child. e.g. STMetadata
+            STNode lastToken = child.lastTokenInternal();
+            if (SyntaxUtils.isSTNodePresent(lastToken)) {
+                return lastToken;
+            }
+        }
+        return null;
+    }
+
+    // Modification methods
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
     public <T extends Node> T createUnlinkedFacade() {
         return (T) createFacade(0, null);
     }
 
     public abstract Node createFacade(int position, NonTerminalNode parent);
+
+    /**
+     * Accepts an instance of the {@code STNodeVisitor}, which can be used to
+     * traverse the syntax tree.
+     *
+     * @param visitor an instance of the {@code STNodeVisitor}
+     */
+    public abstract void accept(STNodeVisitor visitor);
+
+    /**
+     * Applies the given {@code STNodeTransformer} to this node and returns
+     * the transformed object.
+     *
+     * @param transformer an instance of the {@code STNodeTransformer}
+     * @param <T>         the type of transformed object
+     * @return the transformed object
+     */
+    public abstract <T> T apply(STNodeTransformer<T> transformer);
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -96,7 +200,17 @@ public abstract class STNode {
         if (bucketCount == 0) {
             return;
         }
+        updateDiagnostics(children);
         updateWidth(children);
+    }
+
+    protected boolean checkForReferenceEquality(STNode... children) {
+        for (int index = 0; index < children.length; index++) {
+            if (childBuckets[index] != children[index]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -170,5 +284,18 @@ public abstract class STNode {
             }
         }
         return -1;
+    }
+
+    private void updateDiagnostics(STNode[] children) {
+        // Return from the function if at lest one child has diagnostics.
+        for (STNode child : children) {
+            if (!SyntaxUtils.isSTNodePresent(child)) {
+                continue;
+            }
+            if (child.flags.contains(STNodeFlags.HAS_DIAGNOSTICS)) {
+                this.flags.add(STNodeFlags.HAS_DIAGNOSTICS);
+                return;
+            }
+        }
     }
 }

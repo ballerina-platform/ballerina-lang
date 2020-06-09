@@ -91,6 +91,9 @@ public class LexerTerminals {
     public static final String RETRY = "retry";
     public static final String ROLLBACK = "rollback";
     public static final String ENUM = "enum";
+    public static final String BASE16 = "base16";
+    public static final String BASE64 = "base64";
+    public static final String MATCH = "match";
 
     // Types
     public static final String INT = "int";

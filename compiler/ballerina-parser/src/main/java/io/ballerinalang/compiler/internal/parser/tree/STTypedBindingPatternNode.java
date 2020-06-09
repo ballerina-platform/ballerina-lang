@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,7 +37,17 @@ public class STTypedBindingPatternNode extends STNode {
     STTypedBindingPatternNode(
             STNode typeDescriptor,
             STNode bindingPattern) {
-        super(SyntaxKind.TYPED_BINDING_PATTERN);
+        this(
+                typeDescriptor,
+                bindingPattern,
+                Collections.emptyList());
+    }
+
+    STTypedBindingPatternNode(
+            STNode typeDescriptor,
+            STNode bindingPattern,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.TYPED_BINDING_PATTERN, diagnostics);
         this.typeDescriptor = typeDescriptor;
         this.bindingPattern = bindingPattern;
 
@@ -43,7 +56,39 @@ public class STTypedBindingPatternNode extends STNode {
                 bindingPattern);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STTypedBindingPatternNode(
+                this.typeDescriptor,
+                this.bindingPattern,
+                diagnostics);
+    }
+
+    public STTypedBindingPatternNode modify(
+            STNode typeDescriptor,
+            STNode bindingPattern) {
+        if (checkForReferenceEquality(
+                typeDescriptor,
+                bindingPattern)) {
+            return this;
+        }
+
+        return new STTypedBindingPatternNode(
+                typeDescriptor,
+                bindingPattern,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypedBindingPatternNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

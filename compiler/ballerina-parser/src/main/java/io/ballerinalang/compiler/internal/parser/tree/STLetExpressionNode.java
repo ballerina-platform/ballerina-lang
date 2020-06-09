@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STLetExpressionNode extends STExpressionNode {
             STNode letVarDeclarations,
             STNode inKeyword,
             STNode expression) {
-        super(SyntaxKind.LET_EXPRESSION);
+        this(
+                letKeyword,
+                letVarDeclarations,
+                inKeyword,
+                expression,
+                Collections.emptyList());
+    }
+
+    STLetExpressionNode(
+            STNode letKeyword,
+            STNode letVarDeclarations,
+            STNode inKeyword,
+            STNode expression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.LET_EXPRESSION, diagnostics);
         this.letKeyword = letKeyword;
         this.letVarDeclarations = letVarDeclarations;
         this.inKeyword = inKeyword;
@@ -51,7 +68,47 @@ public class STLetExpressionNode extends STExpressionNode {
                 expression);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STLetExpressionNode(
+                this.letKeyword,
+                this.letVarDeclarations,
+                this.inKeyword,
+                this.expression,
+                diagnostics);
+    }
+
+    public STLetExpressionNode modify(
+            STNode letKeyword,
+            STNode letVarDeclarations,
+            STNode inKeyword,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                letKeyword,
+                letVarDeclarations,
+                inKeyword,
+                expression)) {
+            return this;
+        }
+
+        return new STLetExpressionNode(
+                letKeyword,
+                letVarDeclarations,
+                inKeyword,
+                expression,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new LetExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

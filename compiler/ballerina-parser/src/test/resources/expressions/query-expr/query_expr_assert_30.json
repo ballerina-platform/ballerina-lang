@@ -1,74 +1,84 @@
 {
-    "kind": "QUERY_EXPRESSION",
-    "children": [
+  "kind": "QUERY_EXPRESSION",
+  "children": [
+    {
+      "kind": "QUERY_CONSTRUCT_TYPE",
+      "children": [
         {
-            "kind": "QUERY_CONSTRUCT_TYPE",
-            "children": [
-                {
-                    "kind": "TABLE_KEYWORD"
-                },
-                {
-                    "kind": "KEY_SPECIFIER",
-                    "children": [
-                        {
-                            "kind": "KEY_KEYWORD"
-                        },
-                        {
-                            "kind": "OPEN_PAREN_TOKEN"
-                        },
-                        {
-                            "kind": "LIST",
-                            "children": []
-                        },
-                        {
-                            "kind": "CLOSE_PAREN_TOKEN"
-                        }
-                    ]
-                }
-            ]
+          "kind": "TABLE_KEYWORD"
         },
         {
-            "kind": "QUERY_PIPELINE",
-            "children": [
-                {
-                    "kind": "FROM_CLAUSE",
-                    "children": [
-                        {
-                            "kind": "FROM_KEYWORD"
-                        },
-                        {
-                            "kind": "INT_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "a"
-                        },
-                        {
-                            "kind": "IN_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "b"
-                        }
-                    ]
-                },
-                {
-                    "kind": "LIST",
-                    "children": []
-                }
-            ]
-        },
-        {
-            "kind": "SELECT_CLAUSE",
-            "children": [
-                {
-                    "kind": "SELECT_KEYWORD"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "g"
-                }
-            ]
+          "kind": "KEY_SPECIFIER",
+          "children": [
+            {
+              "kind": "KEY_KEYWORD"
+            },
+            {
+              "kind": "OPEN_PAREN_TOKEN"
+            },
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "CLOSE_PAREN_TOKEN"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "QUERY_PIPELINE",
+      "children": [
+        {
+          "kind": "FROM_CLAUSE",
+          "children": [
+            {
+              "kind": "FROM_KEYWORD"
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "INT_KEYWORD"
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "IN_KEYWORD"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "b"
+            }
+          ]
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "SELECT_CLAUSE",
+      "children": [
+        {
+          "kind": "SELECT_KEYWORD"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "g"
+        }
+      ]
+    }
+  ]
 }

@@ -1,55 +1,55 @@
 {
-    "kind": "MAPPING_CONSTRUCTOR",
-    "children": [
+  "kind": "MAPPING_CONSTRUCTOR",
+  "children": [
+    {
+      "kind": "OPEN_BRACE_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "OPEN_BRACE_TOKEN"
+          "kind": "SPREAD_FIELD",
+          "children": [
+            {
+              "kind": "ELLIPSIS_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "expr1"
+            }
+          ]
         },
         {
-            "kind": "LIST",
-            "children": [
+          "kind": "COMMA_TOKEN"
+        },
+        {
+          "kind": "SPREAD_FIELD",
+          "children": [
+            {
+              "kind": "ELLIPSIS_TOKEN"
+            },
+            {
+              "kind": "BINARY_EXPRESSION",
+              "children": [
                 {
-                    "kind": "SPREAD_FIELD",
-                    "children": [
-                        {
-                            "kind": "ELLIPSIS_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "expr1"
-                        }
-                    ]
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
                 },
                 {
-                    "kind": "SPREAD_FIELD",
-                    "children": [
-                        {
-                            "kind": "COMMA_TOKEN"
-                        },
-                        {
-                            "kind": "ELLIPSIS_TOKEN"
-                        },
-                        {
-                            "kind": "BINARY_EXPRESSION",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "PLUS_TOKEN"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "b"
-                                }
-                            ]
-                        }
-                    ]
+                  "kind": "PLUS_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b"
                 }
-            ]
-        },
-        {
-            "kind": "CLOSE_BRACE_TOKEN"
+              ]
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACE_TOKEN"
+    }
+  ]
 }

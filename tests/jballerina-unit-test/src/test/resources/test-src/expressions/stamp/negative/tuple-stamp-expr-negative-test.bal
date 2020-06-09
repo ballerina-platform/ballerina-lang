@@ -32,27 +32,27 @@ type Person record {|
 function stampTupleToRecord() returns Employee|error {
     [string, string, string] tupleValue = ["Mohan", "single", "LK2014"];
 
-    Employee|error returnValue = Employee.constructFrom(tupleValue);
+    Employee|error returnValue = tupleValue.cloneWithType(Employee);
     return returnValue;
 }
 
 function stampTupleToJSON() returns json|error {
     [string, string, string] tupleValue = ["Mohan", "single", "LK2014"];
 
-    json|error jsonValue = json.constructFrom(tupleValue);
+    json|error jsonValue = tupleValue.cloneWithType(json);
     return jsonValue;
 }
 
 function stampTupleToXML() returns xml|error {
     [string, string, string] tupleValue = ["Mohan", "single", "LK2014"];
 
-    xml|error xmlValue = xml.constructFrom(tupleValue);
+    xml|error xmlValue = tupleValue.cloneWithType(xml);
     return xmlValue;
 }
 
 function stampTupleToMap() returns map<anydata>|error {
     [string, string, string] tupleValue = ["Mohan", "single", "LK2014"];
 
-    map<anydata>|error mapValue = map<anydata>.constructFrom(tupleValue);
+    map<anydata>|error mapValue = tupleValue.cloneWithType(map<anydata>);
     return mapValue;
 }

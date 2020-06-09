@@ -1,69 +1,89 @@
 {
-    "kind": "LET_EXPRESSION",
-    "children": [
+  "kind": "LET_EXPRESSION",
+  "children": [
+    {
+      "kind": "LET_KEYWORD"
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "LET_KEYWORD"
-        },
-        {
-            "kind": "LIST",
-            "children": [
+          "kind": "LET_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
                 {
-                    "kind": "LET_VAR_DECL",
-                    "children": [
-                        {
-                            "kind": "LIST",
-                            "children": []
-                        },
-                        {
-                            "kind": "INT_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "B"
-                        },
-                        {
-                            "kind": "EQUAL_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "E1"
-                        }
-                    ]
+                  "kind": "INT_KEYWORD"
                 },
                 {
-                    "kind": "COMMA_TOKEN"
-                },
-                {
-                    "kind": "LET_VAR_DECL",
-                    "children": [
-                        {
-                            "kind": "LIST",
-                            "children": []
-                        },
-                        {
-                            "kind": "INT_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "C"
-                        },
-                        {
-                            "kind": "EQUAL_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "E2"
-                        }
-                    ]
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "B"
+                    }
+                  ]
                 }
-            ]
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "E1"
+            }
+          ]
         },
         {
-            "kind": "IN_KEYWORD"
+          "kind": "COMMA_TOKEN"
         },
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "E3"
+          "kind": "LET_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "INT_KEYWORD"
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "C"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "E2"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "IN_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "E3"
+    }
+  ]
 }

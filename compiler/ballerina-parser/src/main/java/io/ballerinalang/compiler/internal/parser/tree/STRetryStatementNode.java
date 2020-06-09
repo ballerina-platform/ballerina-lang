@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.RetryStatementNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STRetryStatementNode extends STStatementNode {
             STNode typeParameter,
             STNode arguments,
             STNode retryBody) {
-        super(SyntaxKind.ROLLBACK_STATEMENT);
+        this(
+                retryKeyword,
+                typeParameter,
+                arguments,
+                retryBody,
+                Collections.emptyList());
+    }
+
+    STRetryStatementNode(
+            STNode retryKeyword,
+            STNode typeParameter,
+            STNode arguments,
+            STNode retryBody,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.ROLLBACK_STATEMENT, diagnostics);
         this.retryKeyword = retryKeyword;
         this.typeParameter = typeParameter;
         this.arguments = arguments;
@@ -51,7 +68,47 @@ public class STRetryStatementNode extends STStatementNode {
                 retryBody);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STRetryStatementNode(
+                this.retryKeyword,
+                this.typeParameter,
+                this.arguments,
+                this.retryBody,
+                diagnostics);
+    }
+
+    public STRetryStatementNode modify(
+            STNode retryKeyword,
+            STNode typeParameter,
+            STNode arguments,
+            STNode retryBody) {
+        if (checkForReferenceEquality(
+                retryKeyword,
+                typeParameter,
+                arguments,
+                retryBody)) {
+            return this;
+        }
+
+        return new STRetryStatementNode(
+                retryKeyword,
+                typeParameter,
+                arguments,
+                retryBody,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RetryStatementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

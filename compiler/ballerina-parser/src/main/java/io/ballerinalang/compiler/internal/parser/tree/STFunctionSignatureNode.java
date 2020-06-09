@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STFunctionSignatureNode extends STNode {
             STNode parameters,
             STNode closeParenToken,
             STNode returnTypeDesc) {
-        super(SyntaxKind.FUNCTION_SIGNATURE);
+        this(
+                openParenToken,
+                parameters,
+                closeParenToken,
+                returnTypeDesc,
+                Collections.emptyList());
+    }
+
+    STFunctionSignatureNode(
+            STNode openParenToken,
+            STNode parameters,
+            STNode closeParenToken,
+            STNode returnTypeDesc,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.FUNCTION_SIGNATURE, diagnostics);
         this.openParenToken = openParenToken;
         this.parameters = parameters;
         this.closeParenToken = closeParenToken;
@@ -51,7 +68,47 @@ public class STFunctionSignatureNode extends STNode {
                 returnTypeDesc);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STFunctionSignatureNode(
+                this.openParenToken,
+                this.parameters,
+                this.closeParenToken,
+                this.returnTypeDesc,
+                diagnostics);
+    }
+
+    public STFunctionSignatureNode modify(
+            STNode openParenToken,
+            STNode parameters,
+            STNode closeParenToken,
+            STNode returnTypeDesc) {
+        if (checkForReferenceEquality(
+                openParenToken,
+                parameters,
+                closeParenToken,
+                returnTypeDesc)) {
+            return this;
+        }
+
+        return new STFunctionSignatureNode(
+                openParenToken,
+                parameters,
+                closeParenToken,
+                returnTypeDesc,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FunctionSignatureNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

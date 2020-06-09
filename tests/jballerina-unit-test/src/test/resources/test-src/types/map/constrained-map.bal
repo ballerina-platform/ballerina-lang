@@ -352,7 +352,7 @@ function testMapToStructConversion () returns ([int, int]|error) {
     map<int> testMap = {};
     testMap["index"] = 100;
     testMap["age"] = 63;
-    Student k = check Student.constructFrom(testMap);
+    Student k = check testMap.cloneWithType(Student);
     return [k.index, k.age];
 }
 
@@ -431,7 +431,7 @@ function testJsonToStructConversionStructWithConstrainedMap () returns [string, 
                  alive:true
              };
 
-    var result = PersonComplex.constructFrom(j);
+    var result = j.cloneWithType(PersonComplex);
     if (result is PersonComplex) {
         map<string> ms = result.address;
         return [<string> ms["city"], <string> ms["country"]];
@@ -473,7 +473,7 @@ function testJsonToStructConversionStructWithConstrainedMapNegative () returns (
                  score:5.67,
                  alive:true
              };
-    return check PersonComplexTwo.constructFrom(j);
+    return check j.cloneWithType(PersonComplexTwo);
 }
 
 function testConstrainedUnionRetrieveString () returns (string) {

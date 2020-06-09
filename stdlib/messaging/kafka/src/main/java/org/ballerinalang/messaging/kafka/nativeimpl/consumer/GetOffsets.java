@@ -180,7 +180,7 @@ public class GetOffsets {
      * @param duration       Duration in milliseconds to try the operation.
      * @return ballerina {@code PartitionOffset} value or @{ErrorValue} if an error occurred.
      */
-    public static Object getPositionOffset(ObjectValue consumerObject, MapValue<String, Object> topicPartition,
+    public static Object getPositionOffset(ObjectValue consumerObject, MapValue<BString, Object> topicPartition,
                                            long duration) {
         KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);

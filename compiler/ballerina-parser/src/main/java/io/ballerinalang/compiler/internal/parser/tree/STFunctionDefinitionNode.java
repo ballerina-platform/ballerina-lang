@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -42,7 +45,25 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
             STNode functionName,
             STNode functionSignature,
             STNode functionBody) {
-        super(SyntaxKind.FUNCTION_DEFINITION);
+        this(
+                metadata,
+                visibilityQualifier,
+                functionKeyword,
+                functionName,
+                functionSignature,
+                functionBody,
+                Collections.emptyList());
+    }
+
+    STFunctionDefinitionNode(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode functionKeyword,
+            STNode functionName,
+            STNode functionSignature,
+            STNode functionBody,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.FUNCTION_DEFINITION, diagnostics);
         this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
         this.functionKeyword = functionKeyword;
@@ -59,7 +80,55 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
                 functionBody);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STFunctionDefinitionNode(
+                this.metadata,
+                this.visibilityQualifier,
+                this.functionKeyword,
+                this.functionName,
+                this.functionSignature,
+                this.functionBody,
+                diagnostics);
+    }
+
+    public STFunctionDefinitionNode modify(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode functionKeyword,
+            STNode functionName,
+            STNode functionSignature,
+            STNode functionBody) {
+        if (checkForReferenceEquality(
+                metadata,
+                visibilityQualifier,
+                functionKeyword,
+                functionName,
+                functionSignature,
+                functionBody)) {
+            return this;
+        }
+
+        return new STFunctionDefinitionNode(
+                metadata,
+                visibilityQualifier,
+                functionKeyword,
+                functionName,
+                functionSignature,
+                functionBody,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FunctionDefinitionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

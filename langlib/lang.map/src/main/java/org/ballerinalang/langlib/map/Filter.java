@@ -36,6 +36,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
+import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 
 /**
  * Native implementation of lang.map:filter(map&lt;Type&gt;, function).
@@ -43,7 +44,7 @@ import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "filter",
+        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION, functionName = "filter",
         args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "func", type = TypeKind.FUNCTION)},
         returnType = {@ReturnType(type = TypeKind.MAP)},
         isPublic = true

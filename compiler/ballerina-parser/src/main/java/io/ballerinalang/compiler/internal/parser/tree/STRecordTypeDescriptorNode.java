@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STRecordTypeDescriptorNode extends STTypeDescriptorNode {
             STNode bodyStartDelimiter,
             STNode fields,
             STNode bodyEndDelimiter) {
-        super(SyntaxKind.RECORD_TYPE_DESC);
+        this(
+                objectKeyword,
+                bodyStartDelimiter,
+                fields,
+                bodyEndDelimiter,
+                Collections.emptyList());
+    }
+
+    STRecordTypeDescriptorNode(
+            STNode objectKeyword,
+            STNode bodyStartDelimiter,
+            STNode fields,
+            STNode bodyEndDelimiter,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.RECORD_TYPE_DESC, diagnostics);
         this.objectKeyword = objectKeyword;
         this.bodyStartDelimiter = bodyStartDelimiter;
         this.fields = fields;
@@ -51,7 +68,47 @@ public class STRecordTypeDescriptorNode extends STTypeDescriptorNode {
                 bodyEndDelimiter);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STRecordTypeDescriptorNode(
+                this.objectKeyword,
+                this.bodyStartDelimiter,
+                this.fields,
+                this.bodyEndDelimiter,
+                diagnostics);
+    }
+
+    public STRecordTypeDescriptorNode modify(
+            STNode objectKeyword,
+            STNode bodyStartDelimiter,
+            STNode fields,
+            STNode bodyEndDelimiter) {
+        if (checkForReferenceEquality(
+                objectKeyword,
+                bodyStartDelimiter,
+                fields,
+                bodyEndDelimiter)) {
+            return this;
+        }
+
+        return new STRecordTypeDescriptorNode(
+                objectKeyword,
+                bodyStartDelimiter,
+                fields,
+                bodyEndDelimiter,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RecordTypeDescriptorNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

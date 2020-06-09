@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TypeCastParamNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,7 +37,17 @@ public class STTypeCastParamNode extends STNode {
     STTypeCastParamNode(
             STNode annotations,
             STNode type) {
-        super(SyntaxKind.TYPE_CAST_PARAM);
+        this(
+                annotations,
+                type,
+                Collections.emptyList());
+    }
+
+    STTypeCastParamNode(
+            STNode annotations,
+            STNode type,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.TYPE_CAST_PARAM, diagnostics);
         this.annotations = annotations;
         this.type = type;
 
@@ -43,7 +56,39 @@ public class STTypeCastParamNode extends STNode {
                 type);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STTypeCastParamNode(
+                this.annotations,
+                this.type,
+                diagnostics);
+    }
+
+    public STTypeCastParamNode modify(
+            STNode annotations,
+            STNode type) {
+        if (checkForReferenceEquality(
+                annotations,
+                type)) {
+            return this;
+        }
+
+        return new STTypeCastParamNode(
+                annotations,
+                type,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypeCastParamNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }
