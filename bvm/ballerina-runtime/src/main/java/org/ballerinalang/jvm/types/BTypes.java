@@ -105,7 +105,6 @@ public class BTypes {
     // public static BType typeChannel = new BChannelType(TypeConstants.CHANNEL, null);
     public static BType typeAnyService = new BServiceType(TypeConstants.SERVICE, new BPackage(null, null, null), 0);
     public static BType typeHandle = new BHandleType(TypeConstants.HANDLE_TNAME, new BPackage(null, null, null));
-    public static BType typeReadonly = new BReadonlyType(TypeConstants.READONLY_TNAME, new BPackage(null, null, null));
     public static BType anydataOrReadonly = new BUnionType(Arrays.asList(typeAnydata, typeReadonly));
     public static BMapType typeErrorDetail = new BMapType(TypeConstants.MAP_TNAME, anydataOrReadonly,
             new BPackage(null, null, null));
