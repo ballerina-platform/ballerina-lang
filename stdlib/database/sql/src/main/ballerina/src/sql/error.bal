@@ -61,6 +61,7 @@ public type ApplicationErrorData record {|
 # database resource clean-up, and other similar scenarios.
 public type DatabaseError error<DATABASE_ERROR_REASON, DatabaseErrorData>;
 
+# Represents an error occured when a batch execution is running.
 public type BatchExecuteError error<BATCH_EXECUTE_ERROR_REASON, BatchExecuteErrorData>;
 
 # Represents an error originating from application-level causes.

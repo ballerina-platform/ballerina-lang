@@ -30,7 +30,7 @@ public type Client abstract client object {
     public remote function query(@untainted string|ParameterizedString sqlQuery, typedesc<record {}>? rowType = ())
     returns @tainted stream<record{}, Error>;
 
-    # Executes the DDL or DML sql queries provided by the user, and returns summary of the execution.
+    # Executes the DDL or DML sql query provided by the user, and returns summary of the execution.
     #
     # + sqlQuery - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `string` or `ParameterizedString`
     #              when the query has params to be passed in
@@ -38,6 +38,15 @@ public type Client abstract client object {
     #           if any error occured when executing the query
     public remote function execute(@untainted string|ParameterizedString sqlQuery) returns ExecutionResult|Error?;
 
+    # Executes a batch of parameterised DDL or DML sql query provided by the user,
+    # and returns the summary of the execution.
+    #
+    # + sqlQueries - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `ParameterizedString` with an array
+    #                of values passed in.
+    # + rollbackInFailure - Whether to rollback the statments executed in case one of the statements in the batch fails
+    # + return - Summary of the sql update query as `ExecutionResult[]` or returns `BatchUpdateError`.
+    #            if any error occured when executing the query. `BatchUpdateError` will include summary of the
+    #            sql update query as `ExecutionResult[]` for commands executed successfully.
     public remote function batchExecute(ParameterizedString[] sqlQueries, boolean rollbackInFailure = false)
                                                                        returns ExecutionResult[]|Error?;
 

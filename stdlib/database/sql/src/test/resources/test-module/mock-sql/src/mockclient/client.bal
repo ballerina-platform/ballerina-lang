@@ -74,7 +74,7 @@ public type Client client object {
     public remote function batchExecute(sql:ParameterizedString[] sqlQueries, boolean rollbackInFailure = false)
                                                                                 returns sql:ExecutionResult[]|sql:Error? {
         if (sqlQueries.length() == 0) {
-            return sql:ApplicationError( message = " Paramter 'sqlQueries' cannot be empty array");
+            return sql:ApplicationError( message = " Parameter 'sqlQueries' cannot be empty array");
         }
         if (self.clientActive) {
             return nativeBatchExecute(self, sqlQueries, rollbackInFailure);
