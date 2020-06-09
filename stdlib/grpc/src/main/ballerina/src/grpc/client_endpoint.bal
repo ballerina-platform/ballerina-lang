@@ -172,13 +172,13 @@ public type AbstractClientEndpoint abstract object {};
 # + intervalInMillis - Initial interval between retry attempts
 # + maxIntervalInMillis - Maximum interval between two retry attempts
 # + backoffFactor - Retry interval will be multiplied by this factor, in between retry attempts
-# + errorTypes - Error reasons which should be considered as failure scenarios to retry
+# + errorTypes - Error types which should be considered as failure scenarios to retry
 public type RetryConfiguration record {|
    int retryCount;
    int intervalInMillis;
    int maxIntervalInMillis;
    int backoffFactor;
-   ErrorType[] errorTypes = [INTERNAL_ERROR];
+   ErrorType[] errorTypes = [InternalError];
 |};
 
 # Represents client endpoint configuration.
