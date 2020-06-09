@@ -76,7 +76,7 @@ public type Client client object {
     #              when the query has params to be passed in
     # + return - Summary of the sql update query as `ExecutionResult` or returns `Error`
     #           if any error occured when executing the query
-    public remote function execute(@untainted string|sql:ParameterizedString sqlQuery) returns sql:ExecutionResult|sql:Error? {
+    public remote function execute(@untainted string|sql:ParameterizedString sqlQuery) returns sql:ExecutionResult|sql:Error {
         if (self.clientActive) {
             sql:ParameterizedString sqlParamString;
             if (sqlQuery is string) {
@@ -95,7 +95,7 @@ public type Client client object {
     }
 
     public remote function batchExecute(sql:ParameterizedString[] sqlQueries, boolean rollbackInFailure = false)
-                                                                                returns sql:ExecutionResult[]|sql:Error? {
+                                                                                returns sql:ExecutionResult[]|sql:Error {
         if (sqlQueries.length() == 0) {
             return sql:ApplicationError( message = " Paramter 'sqlQueries' cannot be empty array");
         }
@@ -150,12 +150,12 @@ returns stream<record{}, sql:Error> = @java:Method {
 } external;
 
 function nativeExecute(Client sqlClient, sql:ParameterizedString sqlQuery)
-returns sql:ExecutionResult|sql:Error? = @java:Method {
+returns sql:ExecutionResult|sql:Error = @java:Method {
     class: "org.ballerinalang.sql.utils.ExecuteUtils"
 } external;
 
 function nativeBatchExecute(Client sqlClient, sql:ParameterizedString[] sqlQueries, boolean rollbackInFailure)
-returns sql:ExecutionResult[]|sql:Error? = @java:Method {
+returns sql:ExecutionResult[]|sql:Error = @java:Method {
     class: "org.ballerinalang.sql.utils.ExecuteUtils"
 } external;
 

@@ -5,12 +5,15 @@ clients can be created by using specific database modules such as `MySQL` or usi
 module `JDBC`. The available database modules are listed below.
 
 ### List of Database Modules
-1. JDBC (Java Database Connectivity) Module
+1. [JDBC (Java Database Connectivity) Module](https://ballerina.io/learn/api-docs/ballerina/java.jdbc/index.html)  
 This module can be used to connect with any database by simply providing the JDBC URL, and other related properties. 
-Please refer the JDBC module API docs for more details.
-2. MySQL Module
+Please refer the JDBC module [API docs](https://ballerina.io/learn/api-docs/ballerina/java.jdbc/index.html) for 
+more details.
+
+2. [MySQL Module](https://ballerina.io/learn/api-docs/ballerina/mysql/index.html)   
 This module is specially designed to work with MySQL database, and allows to access the functionality 
-provided by MySQL 8.0.x onwards. Please refer the MySQL module API docs for more details.
+provided by MySQL 8.0.x onwards. Please refer the MySQL module [API docs](https://ballerina.io/learn/api-docs/ballerina/mysql/index.html) 
+for more details.
 
 
 ### Client
@@ -18,7 +21,7 @@ provided by MySQL 8.0.x onwards. Please refer the MySQL module API docs for more
 The database client should be created by any of the above listed database modules, and once it is created the 
 below explained operations and functionality can be used. 
 
-### Connection pool handling
+#### Connection pool handling
 
 All database modules share the same connection pooling concept, and there are 3 possible scenarios for 
 connection pool handling. Please refer `sql:ConnectionPool` for its properties, and possible values. 
@@ -30,7 +33,8 @@ connection pool handling. Please refer `sql:ConnectionPool` for its properties, 
     Below shown is the example from JDBC module to use the global connection pool. 
 
     ```ballerina
-    jdbc:Client dbClient = new ("jdbc:mysql://localhost:3306/testdb", "root", "root");
+    jdbc:Client dbClient = new ("jdbc:mysql://localhost:3306/testdb", 
+                                "root", "root");
     ```
 
 2. Client owned, unsharable connection pool
@@ -40,22 +44,39 @@ connection pool handling. Please refer `sql:ConnectionPool` for its properties, 
     connection pool.
 
     ```ballerina
-    jdbc:Client dbClient = new (url = "jdbc:mysql://localhost:3306/testdb", connectionPool = { maxOpenConnections: 5 });
+    jdbc:Client dbClient = new (url = "jdbc:mysql://localhost:3306/testdb", 
+                                connectionPool = { maxOpenConnections: 5 });
     ```
 
 3. Local shareable connection pool
 
-    If you create a record of type `sql:ConnectionPool` and reuse that in the configuration of multiple clients, for each
-    set of clients that connects to the same database instance with the same set of properties, a shared connection pool
-    will be created. Below shown is the example from JDBC module to use the global connection pool.
+    If you create a record of type `sql:ConnectionPool` and reuse that in the configuration of multiple clients, 
+    for each  set of clients that connects to the same database instance with the same set of properties, a shared 
+    connection pool will be created. Below shown is the example from JDBC module to use the global connection pool.
 
     ```ballerina
     sql:ConnectionPool connPool = {maximumPoolSize: 5};
     
-    jdbc:Client dbClient1 = new (url = "jdbc:mysql://localhost:3306/testdb", connectionPool = connPool);
-    jdbc:Client dbClient2 = new (url = "jdbc:mysql://localhost:3306/testdb", connectionPool = connPool);
-    jdbc:Client dbClient3 = new (url = "jdbc:mysql://localhost:3306/testdb", connectionPool = connPool);
+    jdbc:Client dbClient1 = new (url = "jdbc:mysql://localhost:3306/testdb",    
+                                 connectionPool = connPool);
+    jdbc:Client dbClient2 = new (url = "jdbc:mysql://localhost:3306/testdb",       
+                                 connectionPool = connPool);
+    jdbc:Client dbClient3 = new (url = "jdbc:mysql://localhost:3306/testdb",    
+                                 connectionPool = connPool);
     ```
+    
+#### Closing the client
+
+Once all database operations are performed you can close the database client you have created by invoking `close()`
+operation. This will close the corresponding connection pool if it is not shared by any other database clients. 
+
+```ballerina
+error? e = dbClient.close();
+if (e is error){
+    io:println("Error occured:", e);
+}
+
+```    
 ### Database operations
 
 Once the client is created, database operations can be executed through that client. This module defines the interface 
@@ -86,7 +107,7 @@ This sample shows three examples of data insertion by executing an INSERT statem
 of the client.
 
 In the first example, query parameter values are passed directly into the query statement of the `execute` 
-remote function:
+remote function.
 
 ```ballerina
 var ret = dbClient->execute("INSERT INTO student(age, name) " +
@@ -109,7 +130,8 @@ from the type of the Ballerina variable that is passed in.
 string name = "Anne";
 int age = 8;
 
-var ret = dbClient->execute(`INSERT INTO student(age, name) values (${age}, ${name})`);
+var ret = dbClient->execute(`INSERT INTO student(age, name) 
+                             values (${age}, ${name})`);
 if (ret is sql:ExecutionResult) {
     io:println("Inserted row count to Students table: ", ret.affectedRowCount);
 } else {
@@ -127,7 +149,8 @@ provide more details such as the exact SQL type of the parameter.
 sql:Varchar name = new ("James");
 sql:Integer age = new (10);
 
-var ret = dbClient->execute(`INSERT INTO student(age, name) values (${age}, ${name})`);
+var ret = dbClient->execute(`INSERT INTO student(age, name) 
+                             values (${age}, ${name})`);
 if (ret is sql:ExecutionResult) {
     io:println("Inserted row count to Students table: ", ret.affectedRowCount);
 } else {
@@ -145,7 +168,8 @@ This example demonstrates inserting data while returning the auto-generated keys
 ```ballerina
 int age = 31;
 string name = "Kate";
-var ret = dbClient->execute(`INSERT INTO student(age, name) values (${age}, ${name})`);
+var ret = dbClient->execute(`INSERT INTO student(age, name) 
+                             values (${age}, ${name})`);
 if (ret is sql:ExecutionResult) {
     int? count = ret.affectedRowCount;
     string|int? generatedKey = ret.lastInsertId;
@@ -158,6 +182,9 @@ if (ret is sql:ExecutionResult) {
 ```
 
 #### Querying data
+
+This sample shows three examples to demonstrate the different usages of the `query` operation and query the
+database table and obtain the results. 
 
 This example demonstrates querying data from a table in a database. 
 First, a type is created to represent the returned result set. Please note the mapping of the database column 
@@ -175,11 +202,14 @@ type Student record {
     string name;
 };
 
-// Select the data from the database table. Query Parameters are passed directly. Similar to `execute` examples,
-// parameters can be passed as sub types of `sql:TypedValue`s as well.
+// Select the data from the database table. Query Parameters are passed directly. 
+// Similar to `execute` examples, parameters can be passed as sub types of 
+// `sql:TypedValue`s as well.
 int id = 10;
 int age = 12;
-stream<Student, sql:Error> resultStream = dbClient->query(`SELECT * FROM student WHERE id < ${id} AND age > ${age}`, Student);
+stream<Student, sql:Error> resultStream = dbClient->query(`SELECT * FROM student 
+                                                          WHERE id < ${id} AND 
+                                                          age > ${age}`, Student);
 
 // Iterating returned table.
 error? e = resultStream.forEach(function(Student student) {
@@ -197,11 +227,14 @@ the above example can be modified as below with open record type as return type.
 type will be same as how the column is defined in the database. 
 
 ```ballerina
-// Select the data from the database table. Query Parameters are passed directly. Similar to `execute` examples,
-// parameters can be passed as sub types of `sql:TypedValue`s as well.
+// Select the data from the database table. Query Parameters are passed directly. 
+// Similar to `execute` examples, parameters can be passed as sub types of 
+// `sql:TypedValue`s as well.
 int id = 10;
 int age = 12;
-stream<record{}, sql:Error> resultStream = dbClient->query(`SELECT * FROM student WHERE id < ${id} AND age > ${age}`, Student);
+stream<record{}, sql:Error> resultStream = dbClient->query(`SELECT * FROM student 
+                                                            WHERE id < ${id} AND 
+                                                            age > ${age}`, Student);
 
 // Iterating returned table.
 error? e = resultStream.forEach(function(record{} student) {
@@ -211,6 +244,31 @@ error? e = resultStream.forEach(function(record{} student) {
 });
 if (e is error) {
    io:println("Query execution failed.", e);
+}
+```
+
+There are situations where you may do not want to iterate through the database, and in that case you may decide
+to only use the `next()` operation in the result `stream` and retrieve the first record. In such cases, the returned
+result stream will not be closed, and you have to explicitly invoke `close` operation on the 
+`sql:Client` to release the connection resources and avoid connection leak as shown below.
+
+```ballerina
+stream<record{}, sql:Error> resultStream = dbClient->query("SELECT count(*) as " + 
+                                                           "total FROM students");
+
+record {|record {} value;|}|error? result = resultStream.next();
+
+if (result is record {|record {} value;|}) {
+    io:println("Total students : ", result.value["total"]);
+} else if (result is error) {
+    io:println("Error encoutered when executing query. ", result);
+} else {
+    io:println("Student table is empty");
+}
+
+error? e = resultStream.close();
+if(e is error){
+    io:println("Error when closing the stream", e);
 }
 ```
 
@@ -247,7 +305,9 @@ var data = [
 
 // Do the batch update by passing the batches.
 var ret = dbClient->batchExecute(from {name, age} in data 
-                                 select `INSERT INTO student ('name', 'age') VALUES (${name}, ${age})`);
+                                 select `INSERT INTO student 
+                                 ('name', 'age') 
+                                 VALUES (${name}, ${age})`);
 
 if (ret is error) {
     io:println("Error occurred:", <string>e.detail()["message"]);
