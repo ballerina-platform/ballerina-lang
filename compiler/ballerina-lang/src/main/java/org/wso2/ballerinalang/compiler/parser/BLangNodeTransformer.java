@@ -39,6 +39,8 @@ import io.ballerinalang.compiler.syntax.tree.ContinueStatementNode;
 import io.ballerinalang.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerinalang.compiler.syntax.tree.DocumentationStringNode;
 import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
+import io.ballerinalang.compiler.syntax.tree.EnumDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.EnumMemberNode;
 import io.ballerinalang.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ErrorTypeParamsNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
@@ -378,6 +380,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         // Generate other module-level declarations
         for (ModuleMemberDeclarationNode member : modulePart.members()) {
+            if (member.kind() == SyntaxKind.ENUM_DECLARATION) {
+                addEnumDeclarationNode(
+                        (EnumDeclarationNode) member,compilationUnit);
+                continue;
+            }
             compilationUnit.addTopLevelNode((TopLevelNode) member.apply(this));
         }
 
@@ -2297,6 +2304,99 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return arrayTypeNode;
     }
 
+    public void addEnumDeclarationNode(
+            EnumDeclarationNode enumDeclarationNode,
+            BLangCompilationUnit compInit) {
+
+        Boolean publicQualifier = false;
+        if (enumDeclarationNode.qualifier() != null &&
+                enumDeclarationNode.qualifier().kind()
+                        == SyntaxKind.PUBLIC_KEYWORD) {
+            publicQualifier = true;
+        }
+        for (Node member : enumDeclarationNode.enumMemberList()) {
+            compInit.addTopLevelNode(transformEnumMember(
+                    (EnumMemberNode) member,
+                    publicQualifier));
+        }
+
+        BLangTypeDefinition bLangTypeDefinition =
+                (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+        if (publicQualifier) {
+            bLangTypeDefinition.flagSet.add(Flag.PUBLIC);
+        }
+
+        bLangTypeDefinition.setName(
+                (BLangIdentifier)transform(enumDeclarationNode.identifier()));
+
+        BLangUnionTypeNode bLangUnionTypeNode =
+                (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
+        for (Node member : enumDeclarationNode.enumMemberList()) {
+            bLangUnionTypeNode.memberTypeNodes.
+                    add(createTypeNode(
+                            ((EnumMemberNode) member).identifier()));
+        }
+        Collections.reverse(bLangUnionTypeNode.memberTypeNodes);
+        bLangTypeDefinition.setTypeNode(bLangUnionTypeNode);
+        compInit.addTopLevelNode(bLangTypeDefinition);
+    }
+
+    public BLangConstant transformEnumMember(EnumMemberNode member,
+                                             Boolean publicQualifier) {
+        BLangConstant bLangConstant =
+                (BLangConstant) TreeBuilder.createConstantNode();
+
+        bLangConstant.flagSet.add(Flag.CONSTANT);
+
+        if (publicQualifier) {
+            bLangConstant.flagSet.add(Flag.PUBLIC);
+        }
+        BLangTypeDefinition assosiatedTypeDef =
+                (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+        assosiatedTypeDef.flagSet.add(Flag.ANONYMOUS);
+        assosiatedTypeDef.flagSet.add(Flag.PUBLIC);
+        assosiatedTypeDef.setName(createIdentifier(null,"$anonType$n"));
+        bLangConstant.associatedTypeDefinition = assosiatedTypeDef;
+
+        bLangConstant.setName((BLangIdentifier) transform(member.identifier()));
+
+        BLangLiteral literal;
+        BLangLiteral deepLiteral;
+        if (member.constExprNode() != null) {
+            literal =
+                    createSimpleLiteral(member.constExprNode());
+            deepLiteral =
+                    createSimpleLiteral(member.constExprNode());
+        } else {
+            literal =
+                    createSimpleLiteral(member.identifier());
+            deepLiteral =
+                    createSimpleLiteral(member.identifier());
+        }
+        if (literal.originalValue != "") {
+            bLangConstant.setInitialExpression(literal);
+        } else {
+            bLangConstant.setInitialExpression(
+                    createExpression(member.constExprNode()));
+        }
+
+        BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+        typeNode.typeKind = TypeKind.STRING;
+        bLangConstant.setTypeNode(typeNode);
+
+        if (deepLiteral.originalValue != "" ) {
+            BLangFiniteTypeNode typeNodeAssosiated =
+                    (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
+            deepLiteral.originalValue = null;
+            typeNodeAssosiated.addValue(deepLiteral);
+            bLangConstant.getAssociatedTypeDefinition()
+                    .setTypeNode(typeNodeAssosiated);
+        } else {
+            bLangConstant.associatedTypeDefinition = null;
+        }
+        return bLangConstant;
+    }
+
     @Override
     protected BLangNode transformSyntaxNode(Node node) {
         // TODO: Remove this RuntimeException once all nodes covered
@@ -2637,7 +2737,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             originalValue = textValue;
             bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         } else if (type == SyntaxKind.STRING_LITERAL || type == SyntaxKind.XML_TEXT_CONTENT ||
-                type == SyntaxKind.TEMPLATE_STRING) {
+                type == SyntaxKind.TEMPLATE_STRING || type == SyntaxKind.IDENTIFIER_TOKEN) {
             String text = textValue;
             if (type == SyntaxKind.STRING_LITERAL) {
                 text = text.substring(1, text.length() - 1);
