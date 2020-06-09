@@ -63,7 +63,7 @@ public function testRetryFailingClient() returns string {
     var result = failingRetryClient->getResult("FailingRetryClient");
     if (result is grpc:Error) {
         io:println(result);
-        return result.reason();
+        return result.message();
     } else {
         var [message, headers] = result;
         return message;

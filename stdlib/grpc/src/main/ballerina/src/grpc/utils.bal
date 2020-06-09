@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function checkErrorForRetry(Error e, ErrorType[] errors) returns boolean {
-    string reason = e.reason();
-    foreach var errorType in errors {
-        if (errorType == reason) {
+function checkErrorForRetry(Error receivedError, ErrorType[] errorTypes) returns boolean {
+    ErrorType receivedErrorType = typeof receivedError;
+    foreach var errorType in errorTypes {
+        if (errorType === receivedErrorType) {
             return true;
         }
     }

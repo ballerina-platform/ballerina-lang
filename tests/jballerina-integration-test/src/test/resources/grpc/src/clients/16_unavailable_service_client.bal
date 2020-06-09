@@ -28,7 +28,7 @@ HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9106");
 function testUnaryBlockingClient(string name) returns (string) {
     [string, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->hello(name);
     if (unionResp is grpc:Error) {
-        return io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string> unionResp.detail()["message"]);
+        return io:sprintf("Error from Connector: %s", unionResp.message());
     } else {
         io:println("Client Got Response : ");
         string result;
