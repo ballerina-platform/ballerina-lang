@@ -15,6 +15,9 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.langserver.common.CommonKeys;
@@ -49,6 +52,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
 import java.io.File;
@@ -140,7 +144,8 @@ public class IncompatibleTypesCodeAction extends AbstractCodeActionProvider {
                         Position end;
                         if (func.returnTypeNode instanceof BLangValueType
                                 && TypeKind.NIL.equals(((BLangValueType) func.returnTypeNode).getTypeKind())
-                                && func.returnTypeNode.getWS() == null) {
+                                && !hasReturnKeyword(func.returnTypeNode,
+                                                     documentManager.getTree(document.getPath()))) {
                             // eg. function test() {...}
                             start = new Position(func.returnTypeNode.pos.sLine - 1,
                                                  func.returnTypeNode.pos.eCol - 1);
@@ -159,11 +164,16 @@ public class IncompatibleTypesCodeAction extends AbstractCodeActionProvider {
                         return createQuickFixCodeAction(commandTitle, edits, uri);
                     }
                 }
-            } catch (CompilationFailedException e) {
+            } catch (WorkspaceDocumentException | CompilationFailedException e) {
                 // ignore
             }
         }
         return null;
+    }
+
+    private static boolean hasReturnKeyword(BLangType returnTypeNode, SyntaxTree tree) {
+        Token token = tree.modulePart().findToken(returnTypeNode.pos.sCol);
+        return token.kind() == SyntaxKind.RETURN_KEYWORD;
     }
 
     private static BLangFunction getFunctionNode(int line, int column, LSDocumentIdentifier document,
