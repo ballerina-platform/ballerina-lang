@@ -62,7 +62,7 @@ public function sendResponse (http:Caller caller, any | error responseData) {
                 res.setJsonPayload(responseJson);
                 var sent = caller->respond(res);
                 if sent is error {
-                    log:printInfo("Error when responding : " + sent.reason());
+                    log:printInfo("Error when responding : " + sent.message());
                 }
             }
         }
@@ -71,10 +71,10 @@ public function sendResponse (http:Caller caller, any | error responseData) {
             if noPayload is error {
                 http:Response res = new;
                 res.statusCode = 500;
-                res.setPayload(noPayload.reason());
+                res.setPayload(noPayload.message());
                 var sent = caller->respond(res);
                 if sent is error {
-                    log:printInfo("Error when responding : " + sent.reason());
+                    log:printInfo("Error when responding : " + sent.message());
                 }
             }
         }
