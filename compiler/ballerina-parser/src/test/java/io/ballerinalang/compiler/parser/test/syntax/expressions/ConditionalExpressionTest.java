@@ -33,7 +33,7 @@ public class ConditionalExpressionTest extends AbstractExpressionsTest {
 
     @Test
     public void testSimpleConditionalExpr() {
-        test("a ? (b) : c", "conditional-expr/conditional_expr_assert_02.json");
+        test("a?b:c", "conditional-expr/conditional_expr_assert_02.json");
     }
 
     @Test

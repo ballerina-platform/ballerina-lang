@@ -1990,5 +1990,42 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STTypeReferenceTypeDescNode(
                 typeRef);
     }
+
+    public static STNode createMatchStatementNode(
+            STNode matchKeyword,
+            STNode condition,
+            STNode openBrace,
+            STNode matchClauses,
+            STNode closeBrace) {
+
+        return new STMatchStatementNode(
+                matchKeyword,
+                condition,
+                openBrace,
+                matchClauses,
+                closeBrace);
+    }
+
+    public static STNode createMatchClauseNode(
+            STNode matchPatterns,
+            STNode matchGuard,
+            STNode rightDoubleArrow,
+            STNode blockStatement) {
+
+        return new STMatchClauseNode(
+                matchPatterns,
+                matchGuard,
+                rightDoubleArrow,
+                blockStatement);
+    }
+
+    public static STNode createMatchGuardNode(
+            STNode ifKeyword,
+            STNode expression) {
+
+        return new STMatchGuardNode(
+                ifKeyword,
+                expression);
+    }
 }
 

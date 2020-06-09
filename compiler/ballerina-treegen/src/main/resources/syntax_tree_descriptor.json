@@ -3583,6 +3583,74 @@
                     "type": "NameReferenceNode"
                 }
             ]
+        },
+        {
+            "name": "MatchStatementNode",
+            "base": "StatementNode",
+            "kind": "MATCH_STATEMENT",
+            "attributes": [
+                {
+                    "name": "matchKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "condition",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "openBrace",
+                    "type": "Token"
+                },
+                {
+                    "name": "matchClauses",
+                    "type": "MatchClauseNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeBrace",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "MatchClauseNode",
+            "base": "Node",
+            "kind": "MATCH_CLAUSE",
+            "attributes": [
+                {
+                    "name": "matchPatterns",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "matchGuard",
+                    "type": "MatchGuardNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "rightDoubleArrow",
+                    "type": "Token"
+                },
+                {
+                    "name": "blockStatement",
+                    "type": "BlockStatementNode"
+                }
+            ]
+        },
+        {
+            "name": "MatchGuardNode",
+            "base": "Node",
+            "kind": "MATCH_GUARD",
+            "attributes": [
+                {
+                    "name": "ifKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
         }
     ]
 }

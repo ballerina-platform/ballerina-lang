@@ -2661,5 +2661,55 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 typeRef.internalNode());
         return stTypeReferenceTypeDescNode.createUnlinkedFacade();
     }
+
+    public static MatchStatementNode createMatchStatementNode(
+            Token matchKeyword,
+            ExpressionNode condition,
+            Token openBrace,
+            SeparatedNodeList<MatchClauseNode> matchClauses,
+            Token closeBrace) {
+        Objects.requireNonNull(matchKeyword, "matchKeyword must not be null");
+        Objects.requireNonNull(condition, "condition must not be null");
+        Objects.requireNonNull(openBrace, "openBrace must not be null");
+        Objects.requireNonNull(matchClauses, "matchClauses must not be null");
+        Objects.requireNonNull(closeBrace, "closeBrace must not be null");
+
+        STNode stMatchStatementNode = STNodeFactory.createMatchStatementNode(
+                matchKeyword.internalNode(),
+                condition.internalNode(),
+                openBrace.internalNode(),
+                matchClauses.underlyingListNode().internalNode(),
+                closeBrace.internalNode());
+        return stMatchStatementNode.createUnlinkedFacade();
+    }
+
+    public static MatchClauseNode createMatchClauseNode(
+            SeparatedNodeList<Node> matchPatterns,
+            MatchGuardNode matchGuard,
+            Token rightDoubleArrow,
+            BlockStatementNode blockStatement) {
+        Objects.requireNonNull(matchPatterns, "matchPatterns must not be null");
+        Objects.requireNonNull(rightDoubleArrow, "rightDoubleArrow must not be null");
+        Objects.requireNonNull(blockStatement, "blockStatement must not be null");
+
+        STNode stMatchClauseNode = STNodeFactory.createMatchClauseNode(
+                matchPatterns.underlyingListNode().internalNode(),
+                getOptionalSTNode(matchGuard),
+                rightDoubleArrow.internalNode(),
+                blockStatement.internalNode());
+        return stMatchClauseNode.createUnlinkedFacade();
+    }
+
+    public static MatchGuardNode createMatchGuardNode(
+            Token ifKeyword,
+            ExpressionNode expression) {
+        Objects.requireNonNull(ifKeyword, "ifKeyword must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stMatchGuardNode = STNodeFactory.createMatchGuardNode(
+                ifKeyword.internalNode(),
+                expression.internalNode());
+        return stMatchGuardNode.createUnlinkedFacade();
+    }
 }
 
