@@ -20,8 +20,6 @@ plugins {
 
 apply from: "$rootDir/gradle/javaProject.gradle"
 
-//apply from: "$rootDir/gradle/javaProject.gradle"
-
 archivesBaseName = 'ballerina-choreo-tracing-extension'
 
 dependencies {
