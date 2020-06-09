@@ -196,6 +196,88 @@ public type _InputFunction object {
     }
 };
 
+type _NestedFromFunction object {
+    *_StreamFunction;
+    _Iterator? itr;
+
+    public function(_Frame frame) returns any|error? collectionFunc;
+    _Frame|error? currentFrame;
+
+    public function __init(function(_Frame frame) returns any|error? collectionFunc) {
+        self.itr = ();
+        self.prevFunc = ();
+        self.currentFrame = ();
+        self.collectionFunc = collectionFunc;
+    }
+
+    # Desugared function to do;
+    # from var ... in listA from from var ... in listB
+    # from var ... in streamA join var ... in streamB
+    # + return - merged two frames { ...frameA, ...frameB }
+    public function process() returns _Frame|error? {
+        _StreamFunction pf = <_StreamFunction> self.prevFunc;
+        function(_Frame frame) returns any|error? collectionFunc = self.collectionFunc;
+        _Frame|error? cf = self.currentFrame;
+        _Iterator? itr = self.itr;
+        if (cf is ()) {
+            cf = pf.process();
+            self.currentFrame = cf;
+            if  (cf is _Frame) {
+                any|error? collection = collectionFunc(cf);
+                if (collection is any) {
+                    itr = self._getIterator(collection);
+                    self.itr = itr;
+                }
+            }
+        }
+        if (cf is _Frame && itr is _Iterator) {
+            record{|(any|error) value;|}|error? v = itr.next();
+            if (v is record{|(any|error) value;|}) {
+                _Frame _frame = {...cf, ...v};
+                return _frame;
+            } else if (v is error) {
+                return v;
+            } else {
+                // Move to next frame
+                self.currentFrame = ();
+                return self.process();
+            }
+        }
+        return cf;
+    }
+
+    public function reset() {
+        // Reset the state of currentFrame
+        self.itr = ();
+        self.currentFrame = ();
+        _StreamFunction? pf = self.prevFunc;
+        if (pf is _StreamFunction) {
+            pf.reset();
+        }
+    }
+
+    function _getIterator(any collection) returns _Iterator {
+        if (collection is (any|error)[]) {
+            return lang_array:iterator(collection);
+        } else if (collection is record{}) {
+            return lang_map:iterator(collection);
+        } else if (collection is map<any|error>) {
+            return lang_map:iterator(collection);
+        } else if (collection is string) {
+            return lang_string:iterator(collection);
+        } else if (collection is xml) {
+            return lang_xml:iterator(collection);
+        }  else if (collection is table<map<any|error>>) {
+            return lang_table:iterator(collection);
+        } else if (collection is _Iterable) {
+            return collection.__iterator();
+        } else if (collection is stream<any|error, error?>) {
+            return lang_stream:iterator(collection);
+        }
+        panic error("Unsuppored collection", message = "unsuppored collection type.");
+    }
+};
+
 public type _LetFunction object {
     *_StreamFunction;
 

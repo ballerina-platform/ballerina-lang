@@ -77,7 +77,38 @@ public class STFunctionBodyBlockNode extends STFunctionBodyNode {
                 diagnostics);
     }
 
+    public STFunctionBodyBlockNode modify(
+            STNode openBraceToken,
+            STNode namedWorkerDeclarator,
+            STNode statements,
+            STNode closeBraceToken) {
+        if (checkForReferenceEquality(
+                openBraceToken,
+                namedWorkerDeclarator,
+                statements,
+                closeBraceToken)) {
+            return this;
+        }
+
+        return new STFunctionBodyBlockNode(
+                openBraceToken,
+                namedWorkerDeclarator,
+                statements,
+                closeBraceToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FunctionBodyBlockNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

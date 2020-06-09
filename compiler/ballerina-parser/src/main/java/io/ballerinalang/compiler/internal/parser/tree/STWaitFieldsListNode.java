@@ -70,7 +70,35 @@ public class STWaitFieldsListNode extends STNode {
                 diagnostics);
     }
 
+    public STWaitFieldsListNode modify(
+            STNode openBrace,
+            STNode waitFields,
+            STNode closeBrace) {
+        if (checkForReferenceEquality(
+                openBrace,
+                waitFields,
+                closeBrace)) {
+            return this;
+        }
+
+        return new STWaitFieldsListNode(
+                openBrace,
+                waitFields,
+                closeBrace,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new WaitFieldsListNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

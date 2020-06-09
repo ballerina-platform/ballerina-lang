@@ -708,6 +708,18 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(typeReferenceTypeDescNode);
     }
 
+    public T transform(MatchStatementNode matchStatementNode) {
+        return transformSyntaxNode(matchStatementNode);
+    }
+
+    public T transform(MatchClauseNode matchClauseNode) {
+        return transformSyntaxNode(matchClauseNode);
+    }
+
+    public T transform(MatchGuardNode matchGuardNode) {
+        return transformSyntaxNode(matchGuardNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

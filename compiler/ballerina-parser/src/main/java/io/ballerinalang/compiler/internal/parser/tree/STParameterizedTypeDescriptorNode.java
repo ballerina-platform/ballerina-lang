@@ -77,7 +77,38 @@ public class STParameterizedTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STParameterizedTypeDescriptorNode modify(
+            STNode parameterizedType,
+            STNode ltToken,
+            STNode typeNode,
+            STNode gtToken) {
+        if (checkForReferenceEquality(
+                parameterizedType,
+                ltToken,
+                typeNode,
+                gtToken)) {
+            return this;
+        }
+
+        return new STParameterizedTypeDescriptorNode(
+                parameterizedType,
+                ltToken,
+                typeNode,
+                gtToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ParameterizedTypeDescriptorNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

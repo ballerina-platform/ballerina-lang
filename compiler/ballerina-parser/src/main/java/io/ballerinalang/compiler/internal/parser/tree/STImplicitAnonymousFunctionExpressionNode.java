@@ -70,7 +70,35 @@ public class STImplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
                 diagnostics);
     }
 
+    public STImplicitAnonymousFunctionExpressionNode modify(
+            STNode params,
+            STNode rightDoubleArrow,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                params,
+                rightDoubleArrow,
+                expression)) {
+            return this;
+        }
+
+        return new STImplicitAnonymousFunctionExpressionNode(
+                params,
+                rightDoubleArrow,
+                expression,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ImplicitAnonymousFunctionExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

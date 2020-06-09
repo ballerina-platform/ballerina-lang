@@ -70,7 +70,35 @@ public class STReceiveFieldsNode extends STNode {
                 diagnostics);
     }
 
+    public STReceiveFieldsNode modify(
+            STNode openBrace,
+            STNode receiveFields,
+            STNode closeBrace) {
+        if (checkForReferenceEquality(
+                openBrace,
+                receiveFields,
+                closeBrace)) {
+            return this;
+        }
+
+        return new STReceiveFieldsNode(
+                openBrace,
+                receiveFields,
+                closeBrace,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReceiveFieldsNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

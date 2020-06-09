@@ -77,7 +77,38 @@ public class STLetExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STLetExpressionNode modify(
+            STNode letKeyword,
+            STNode letVarDeclarations,
+            STNode inKeyword,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                letKeyword,
+                letVarDeclarations,
+                inKeyword,
+                expression)) {
+            return this;
+        }
+
+        return new STLetExpressionNode(
+                letKeyword,
+                letVarDeclarations,
+                inKeyword,
+                expression,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new LetExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }
