@@ -234,15 +234,15 @@ public class JvmPackageGen {
             return;
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
-
-        String lockStoreClass = "L" + LOCK_STORE + ";";
-        mv.visitTypeInsn(NEW, LOCK_STORE);
-        mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, LOCK_STORE, "<init>", "()V", false);
-        mv.visitFieldInsn(PUTSTATIC, className, "LOCK_STORE", lockStoreClass);
-
-        setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
-        setModuleStatusField(cw, mv, className);
+        if (isInitClass) {
+            String lockStoreClass = "L" + LOCK_STORE + ";";
+            mv.visitTypeInsn(NEW, LOCK_STORE);
+            mv.visitInsn(DUP);
+            mv.visitMethodInsn(INVOKESPECIAL, LOCK_STORE, "<init>", "()V", false);
+            mv.visitFieldInsn(PUTSTATIC, className, "LOCK_STORE", lockStoreClass);
+            setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
+            setModuleStatusField(cw, mv, className);
+        }
         generateStrandMetadata(mv, className, module, lambdaMetadata);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
