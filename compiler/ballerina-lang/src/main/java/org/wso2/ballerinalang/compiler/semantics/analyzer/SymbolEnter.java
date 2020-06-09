@@ -759,7 +759,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (isDeprecated(typeDefinition.annAttachments)) {
             typeDefSymbol.flags |= Flags.DEPRECATED;
         }
-        definedType.flags = typeDefSymbol.flags;
+        definedType.flags |= typeDefSymbol.flags;
 
         if (typeDefinition.annAttachments.stream()
                 .anyMatch(attachment -> attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value))) {

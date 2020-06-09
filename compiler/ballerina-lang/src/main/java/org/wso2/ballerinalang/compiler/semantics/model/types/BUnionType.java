@@ -141,8 +141,7 @@ public class BUnionType extends BType implements UnionType {
                 memberTypes.add(memBType);
             }
 
-            if (isImmutable && !isInherentlyImmutableType(memBType) &&
-                    !Symbols.isFlagOn(memBType.flags, Flags.READONLY)) {
+            if (isImmutable && !Symbols.isFlagOn(memBType.flags, Flags.READONLY)) {
                 isImmutable = false;
             }
         }
@@ -205,8 +204,7 @@ public class BUnionType extends BType implements UnionType {
             this.memberTypes.add(type);
         }
 
-        if (Symbols.isFlagOn(this.flags, Flags.READONLY) && !isInherentlyImmutableType(type) &&
-                !Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+        if (Symbols.isFlagOn(this.flags, Flags.READONLY) && !Symbols.isFlagOn(type.flags, Flags.READONLY)) {
             this.flags ^= Flags.READONLY;
         }
 
@@ -240,7 +238,7 @@ public class BUnionType extends BType implements UnionType {
 
         boolean isImmutable = true;
         for (BType memBType : this.memberTypes) {
-            if (!isInherentlyImmutableType(memBType) && !Symbols.isFlagOn(memBType.flags, Flags.READONLY)) {
+            if (!Symbols.isFlagOn(memBType.flags, Flags.READONLY)) {
                 isImmutable = false;
                 break;
             }
@@ -311,35 +309,5 @@ public class BUnionType extends BType implements UnionType {
     @Override
     public BIntersectionType getImmutableType() {
         return this.immutableType;
-    }
-
-    private static boolean isInherentlyImmutableType(BType type) {
-        switch (type.tag) {
-            case TypeTags.BOOLEAN:
-            case TypeTags.BYTE:
-            case TypeTags.DECIMAL:
-            case TypeTags.FLOAT:
-            case TypeTags.INT:
-            case TypeTags.STRING:
-            case TypeTags.SIGNED32_INT:
-            case TypeTags.SIGNED16_INT:
-            case TypeTags.SIGNED8_INT:
-            case TypeTags.UNSIGNED32_INT:
-            case TypeTags.UNSIGNED16_INT:
-            case TypeTags.UNSIGNED8_INT:
-            case TypeTags.CHAR_STRING:
-            case TypeTags.XML_TEXT:
-            case TypeTags.FINITE: // Assuming a finite type will only have members from simple basic types.
-            case TypeTags.READONLY:
-            case TypeTags.NIL:
-            case TypeTags.ERROR:
-            case TypeTags.INVOKABLE:
-            case TypeTags.TYPEDESC:
-            case TypeTags.HANDLE:
-                return true;
-            case TypeTags.SERVICE:
-                return type instanceof BServiceType; // Since the tag for both service and object are the same.
-        }
-        return false;
     }
 }
