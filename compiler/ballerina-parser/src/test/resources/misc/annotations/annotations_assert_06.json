@@ -9,7 +9,7 @@
       "kind": "LIST",
       "children": [
         {
-          "kind": "TYPE_DEFINITION",
+          "kind": "MODULE_VAR_DECL",
           "children": [
             {
               "kind": "METADATA",
@@ -46,33 +46,26 @@
               ]
             },
             {
-              "kind": "TYPE_KEYWORD",
-              "isMissing": true
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "bar"
-            },
-            {
-              "kind": "OBJECT_TYPE_DESC",
+              "kind": "TYPED_BINDING_PATTERN",
               "children": [
                 {
-                  "kind": "LIST",
-                  "children": []
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "bar"
                 },
                 {
-                  "kind": "OBJECT_KEYWORD",
-                  "isMissing": true
-                },
-                {
-                  "kind": "OPEN_BRACE_TOKEN"
-                },
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "CLOSE_BRACE_TOKEN"
+                  "kind": "MAPPING_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "OPEN_BRACE_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "CLOSE_BRACE_TOKEN"
+                    }
+                  ]
                 }
               ]
             },

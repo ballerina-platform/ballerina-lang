@@ -70,7 +70,35 @@ public class STAsyncSendActionNode extends STActionNode {
                 diagnostics);
     }
 
+    public STAsyncSendActionNode modify(
+            STNode expression,
+            STNode rightArrowToken,
+            STNode peerWorker) {
+        if (checkForReferenceEquality(
+                expression,
+                rightArrowToken,
+                peerWorker)) {
+            return this;
+        }
+
+        return new STAsyncSendActionNode(
+                expression,
+                rightArrowToken,
+                peerWorker,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new AsyncSendActionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

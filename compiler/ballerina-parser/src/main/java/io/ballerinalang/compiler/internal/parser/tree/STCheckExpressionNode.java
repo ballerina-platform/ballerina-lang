@@ -67,7 +67,34 @@ public class STCheckExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STCheckExpressionNode modify(
+            SyntaxKind kind,
+            STNode checkKeyword,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                checkKeyword,
+                expression)) {
+            return this;
+        }
+
+        return new STCheckExpressionNode(
+                kind,
+                checkKeyword,
+                expression,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new CheckExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

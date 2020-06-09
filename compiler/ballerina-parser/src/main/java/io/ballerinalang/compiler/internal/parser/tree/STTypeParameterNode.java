@@ -70,7 +70,35 @@ public class STTypeParameterNode extends STNode {
                 diagnostics);
     }
 
+    public STTypeParameterNode modify(
+            STNode ltToken,
+            STNode typeNode,
+            STNode gtToken) {
+        if (checkForReferenceEquality(
+                ltToken,
+                typeNode,
+                gtToken)) {
+            return this;
+        }
+
+        return new STTypeParameterNode(
+                ltToken,
+                typeNode,
+                gtToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypeParameterNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

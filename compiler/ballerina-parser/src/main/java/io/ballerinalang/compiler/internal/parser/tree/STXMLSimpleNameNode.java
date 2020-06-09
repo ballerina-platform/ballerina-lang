@@ -56,7 +56,29 @@ public class STXMLSimpleNameNode extends STXMLNameNode {
                 diagnostics);
     }
 
+    public STXMLSimpleNameNode modify(
+            STNode name) {
+        if (checkForReferenceEquality(
+                name)) {
+            return this;
+        }
+
+        return new STXMLSimpleNameNode(
+                name,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLSimpleNameNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

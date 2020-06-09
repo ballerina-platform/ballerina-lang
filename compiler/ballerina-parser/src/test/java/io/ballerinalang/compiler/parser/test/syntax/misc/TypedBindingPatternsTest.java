@@ -98,6 +98,12 @@ public class TypedBindingPatternsTest extends AbstractMiscTest {
                 "typed-binding-patterns/typed_binding_patterns_assert_17.json");
     }
 
+    @Test
+    public void testMappingBindingPatternWithUserdefinedType() {
+        testFile("typed-binding-patterns/typed_binding_patterns_source_19.bal",
+                "typed-binding-patterns/typed_binding_patterns_assert_19.json");
+    }
+    
     // Recovery tests
 
     @Test
