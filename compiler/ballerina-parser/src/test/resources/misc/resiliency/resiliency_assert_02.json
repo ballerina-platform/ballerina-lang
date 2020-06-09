@@ -9,273 +9,149 @@
       "kind": "LIST",
       "children": [
         {
-          "kind": "TYPE_DEFINITION",
+          "kind": "SERVICE_DECLARATION",
           "children": [
             {
               "kind": "METADATA",
               "children": [
                 {
                   "kind": "LIST",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "SERVICE_KEYWORD",
+              "isMissing": true
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "class"
+            },
+            {
+              "kind": "ON_KEYWORD",
+              "isMissing": true
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "EXPRESSION_LIST_ITEM",
                   "children": [
                     {
-                      "kind": "ANNOTATION",
-                      "children": [
-                        {
-                          "kind": "AT_TOKEN",
-                          "isMissing": true
-                        },
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "class"
-                        }
-                      ]
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "Hello"
                     }
                   ]
                 }
               ]
             },
             {
-              "kind": "TYPE_KEYWORD",
-              "isMissing": true
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "Hello"
-            },
-            {
-              "kind": "OBJECT_TYPE_DESC",
+              "kind": "SERVICE_BODY",
               "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "OBJECT_KEYWORD",
-                  "isMissing": true
-                },
                 {
                   "kind": "OPEN_BRACE_TOKEN"
                 },
                 {
                   "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "CLOSE_BRACE_TOKEN",
+                  "isMissing": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "METADATA",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "static"
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "OBJECT_FIELD",
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "void"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "isMissing": true
+            },
+            {
+              "kind": "FUNCTION_CALL",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "main"
+                },
+                {
+                  "kind": "OPEN_PAREN_TOKEN"
+                },
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "POSITIONAL_ARG",
                       "children": [
                         {
-                          "kind": "METADATA",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "PUBLIC_KEYWORD"
-                        },
-                        {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "static"
-                        },
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "void"
-                        },
-                        {
-                          "kind": "EQUAL_TOKEN",
-                          "isMissing": true
-                        },
-                        {
-                          "kind": "FUNCTION_CALL",
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "main"
-                            },
-                            {
-                              "kind": "OPEN_PAREN_TOKEN"
-                            },
-                            {
-                              "kind": "LIST",
-                              "children": [
-                                {
-                                  "kind": "POSITIONAL_ARG",
-                                  "children": [
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "String"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "POSITIONAL_ARG",
-                                  "children": [
-                                    {
-                                      "kind": "COMMA_TOKEN",
-                                      "isMissing": true
-                                    },
-                                    {
-                                      "kind": "INDEXED_EXPRESSION",
-                                      "children": [
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "args"
-                                        },
-                                        {
-                                          "kind": "OPEN_BRACKET_TOKEN"
-                                        },
-                                        {
-                                          "kind": "LIST",
-                                          "children": []
-                                        },
-                                        {
-                                          "kind": "CLOSE_BRACKET_TOKEN"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "CLOSE_PAREN_TOKEN"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "SEMICOLON_TOKEN",
-                          "isMissing": true
+                          "value": "String"
                         }
                       ]
                     },
                     {
-                      "kind": "OBJECT_FIELD",
+                      "kind": "POSITIONAL_ARG",
                       "children": [
                         {
-                          "kind": "METADATA",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "OBJECT_TYPE_DESC",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            },
-                            {
-                              "kind": "OBJECT_KEYWORD",
-                              "isMissing": true
-                            },
-                            {
-                              "kind": "OPEN_BRACE_TOKEN"
-                            },
-                            {
-                              "kind": "LIST",
-                              "children": [
-                                {
-                                  "kind": "OBJECT_FIELD",
-                                  "children": [
-                                    {
-                                      "kind": "METADATA",
-                                      "children": [
-                                        {
-                                          "kind": "LIST",
-                                          "children": []
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "System"
-                                    },
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "isMissing": true
-                                    },
-                                    {
-                                      "kind": "EQUAL_TOKEN",
-                                      "isMissing": true
-                                    },
-                                    {
-                                      "kind": "METHOD_CALL",
-                                      "children": [
-                                        {
-                                          "kind": "FIELD_ACCESS",
-                                          "children": [
-                                            {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "isMissing": true
-                                            },
-                                            {
-                                              "kind": "DOT_TOKEN"
-                                            },
-                                            {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "out"
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "DOT_TOKEN"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "println"
-                                        },
-                                        {
-                                          "kind": "OPEN_PAREN_TOKEN"
-                                        },
-                                        {
-                                          "kind": "LIST",
-                                          "children": [
-                                            {
-                                              "kind": "POSITIONAL_ARG",
-                                              "children": [
-                                                {
-                                                  "kind": "STRING_LITERAL",
-                                                  "value": "Java Hello World"
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "CLOSE_PAREN_TOKEN"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "SEMICOLON_TOKEN"
-                                    }
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "CLOSE_BRACE_TOKEN"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
+                          "kind": "COMMA_TOKEN",
                           "isMissing": true
                         },
                         {
-                          "kind": "SEMICOLON_TOKEN",
-                          "isMissing": true
+                          "kind": "INDEXED_EXPRESSION",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "args"
+                            },
+                            {
+                              "kind": "OPEN_BRACKET_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
+                              "kind": "CLOSE_BRACKET_TOKEN"
+                            }
+                          ]
                         }
                       ]
                     }
                   ]
                 },
                 {
-                  "kind": "CLOSE_BRACE_TOKEN"
+                  "kind": "CLOSE_PAREN_TOKEN"
                 }
               ]
             },
@@ -284,6 +160,96 @@
               "isMissing": true
             }
           ]
+        },
+        {
+          "kind": "IMPORT_DECLARATION",
+          "children": [
+            {
+              "kind": "IMPORT_KEYWORD",
+              "isMissing": true
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "System"
+                },
+                {
+                  "kind": "DOT_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "out"
+                },
+                {
+                  "kind": "DOT_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "println"
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "isMissing": true
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "METADATA",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "PARENTHESISED_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "OPEN_PAREN_TOKEN"
+                    },
+                    {
+                      "kind": "SINGLETON_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "STRING_LITERAL",
+                          "value": "Java Hello World"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CLOSE_PAREN_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN"
+            }
+          ]
+        },
+        {
+          "kind": "EOF_TOKEN"
         }
       ]
     },

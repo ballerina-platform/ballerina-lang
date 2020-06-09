@@ -91,6 +91,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACK
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_THREAD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
@@ -224,7 +226,7 @@ public class JvmPackageGen {
         fv.visitEnd();
     }
 
-    private static void generateStaticInitializer(ClassWriter cw, String moduleClass,
+    private static void generateStaticInitializer(ClassWriter cw, String className,
                                                   BIRPackage module, boolean isInitClass,
                                                   boolean serviceEPAvailable, LambdaMetadata lambdaMetadata) {
 
@@ -232,18 +234,34 @@ public class JvmPackageGen {
             return;
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
-        if (isInitClass) {
-            String lockStoreClass = "L" + LOCK_STORE + ";";
-            mv.visitTypeInsn(NEW, LOCK_STORE);
-            mv.visitInsn(DUP);
-            mv.visitMethodInsn(INVOKESPECIAL, LOCK_STORE, "<init>", "()V", false);
-            mv.visitFieldInsn(PUTSTATIC, moduleClass, "LOCK_STORE", lockStoreClass);
-            setServiceEPAvailableField(cw, mv, serviceEPAvailable, moduleClass);
-        }
-        generateStrandMetadata(mv, moduleClass, module, lambdaMetadata);
+
+        String lockStoreClass = "L" + LOCK_STORE + ";";
+        mv.visitTypeInsn(NEW, LOCK_STORE);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, LOCK_STORE, "<init>", "()V", false);
+        mv.visitFieldInsn(PUTSTATIC, className, "LOCK_STORE", lockStoreClass);
+
+        setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
+        setModuleStatusField(cw, mv, className);
+        generateStrandMetadata(mv, className, module, lambdaMetadata);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    private static void setModuleStatusField(ClassWriter cw, MethodVisitor mv, String initClass) {
+
+        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, MODULE_START_ATTEMPTED, "Z", null, null);
+        fv.visitEnd();
+
+        mv.visitInsn(ICONST_0);
+        mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_START_ATTEMPTED, "Z");
+
+        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, MODULE_STARTED, "Z", null, null);
+        fv.visitEnd();
+
+        mv.visitInsn(ICONST_0);
+        mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_STARTED, "Z");
     }
 
     private static void setServiceEPAvailableField(ClassWriter cw, MethodVisitor mv, boolean serviceEPAvailable,
@@ -366,9 +384,7 @@ public class JvmPackageGen {
         // implement run() method
         mv = cw.visitMethod(ACC_PUBLIC, "run", "()V", null, null);
         mv.visitCode();
-
         mv.visitMethodInsn(INVOKESTATIC, initClass, MODULE_STOP, "()V", false);
-
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
