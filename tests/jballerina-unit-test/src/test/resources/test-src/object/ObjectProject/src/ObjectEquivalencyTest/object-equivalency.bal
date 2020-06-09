@@ -653,7 +653,7 @@ type ClientObjectWithoutRemoteMethod client object {
     }
 };
 
-function testObjectEqualityBetweenNonClientAndClientObject() {
+function testObjectAssignabilityBetweenNonClientAndClientObject() {
     NonClientObject obj1 = new("NonClientObject");
     ClientObjectWithoutRemoteMethod obj2 = new("ClientObjectWithoutRemoteMethod");
 
@@ -678,6 +678,10 @@ type Message record {|
     Email f;
 |};
 
+type Text record {|
+    FakeEmail f;
+|};
+
 function subtypingBetweenNonClientAndClientObject1() returns Email {
     FakeEmail p = new();
     any e = p;
@@ -695,16 +699,42 @@ function subtypingBetweenNonClientAndClientObject2() returns any {
     return r["f"];
 }
 
+function subtypingBetweenNonClientAndClientObject3() returns FakeEmail {
+    Email p = new();
+    any e = p;
+    FakeEmail email = <FakeEmail> e;
+    return email;
+}
+
+function subtypingBetweenNonClientAndClientObject4() returns any {
+    Text b = {f: new};
+    record {|
+        object {}...;
+    |} r = b;
+
+    r["f"] = new Email();
+    return r["f"];
+}
+
 function testSubtypingBetweenNonClientAndClientObject() {
     Email|error err1 = trap subtypingBetweenNonClientAndClientObject1();
     any|error err2 = trap subtypingBetweenNonClientAndClientObject2();
+    FakeEmail|error err3 = trap subtypingBetweenNonClientAndClientObject3();
+    any|error err4 = trap subtypingBetweenNonClientAndClientObject4();
+
     error e1 = <error> err1;
     error e2 = <error> err2;
+    error e3 = <error> err3;
+    error e4 = <error> err4;
 
     assertEquality("incompatible types: 'ObjectEquivalencyTest:FakeEmail' cannot be cast to " +
     "'ObjectEquivalencyTest:Email'", e1.detail()?.message);
     assertEquality("invalid value for record field 'f': expected value of type 'ObjectEquivalencyTest:Email', " +
     "found 'ObjectEquivalencyTest:FakeEmail'", e2.detail()?.message);
+    assertEquality("incompatible types: 'ObjectEquivalencyTest:Email' cannot be cast to " +
+    "'ObjectEquivalencyTest:FakeEmail'", e3.detail()?.message);
+    assertEquality("invalid value for record field 'f': expected value of type 'ObjectEquivalencyTest:FakeEmail', " +
+    "found 'ObjectEquivalencyTest:Email'", e4.detail()?.message);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

@@ -455,22 +455,27 @@ type ClientObjWithoutRemoteMethod client object {
     }
 };
 
-function testEqOfObjectsWithAndWithoutRemoteMethods1() {
+function testAssignabilityOfObjectsWithAndWithoutRemoteMethods1() {
     NonClientObj e = new ("email-1");
     ObjWithRemoteMethod p = e;
 }
 
-function testEqOfObjectsWithAndWithoutRemoteMethods2() {
+function testAssignabilityOfObjectsWithAndWithoutRemoteMethods2() {
     ClientObjWithoutRemoteMethod e = new ("email-2");
     ObjWithRemoteMethod p = e;
 }
 
-function testEqOfObjectsWithAndWithoutRemoteMethods3() {
+function testAssignabilityOfObjectsWithAndWithoutRemoteMethods3() {
     ClientObjWithoutRemoteMethod e = new ("email-3");
-    ObjWithOnlyRemoteMethod = e;
+    ObjWithOnlyRemoteMethod p = e;
 }
 
-function testEqOfObjectsWithAndWithoutRemoteMethods4() {
+function testAssignabilityOfObjectsWithAndWithoutRemoteMethods4() {
     NonClientObj e = new ("email-4");
-    ObjWithOnlyRemoteMethod = e;
+    ObjWithOnlyRemoteMethod p = e;
+}
+
+function testAssignabilityOfObjectsWithAndWithoutRemoteMethods5() {
+    ObjWithRemoteMethod e = new ("email-4");
+    NonClientObj p = e;
 }

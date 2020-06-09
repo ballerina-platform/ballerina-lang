@@ -156,7 +156,7 @@ function testSubtypingAnAbsObjectInSameModule() returns string {
 //    return dbClient;
 //}
 
-public function testObjectEqualityBetweenNonClientAndClientObject() {
+public function testObjectAssignabilityBetweenNonClientAndClientObject() {
     subtyping:NonClientObject obj1 = new subtyping:NonClientObject("NonClientObject");
     subtyping:ClientObjectWithoutRemoteMethod o2 = new subtyping:ClientObjectWithoutRemoteMethod("ClientObjectWithoutRemoteMethod");
 
