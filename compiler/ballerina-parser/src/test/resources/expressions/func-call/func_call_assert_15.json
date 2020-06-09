@@ -1,0 +1,53 @@
+{
+    "kind": "BINARY_EXPRESSION",
+    "children": [
+        {
+            "kind": "FUNCTION_CALL",
+            "children": [
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "foo"
+                },
+                {
+                    "kind": "OPEN_PAREN_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                        {
+                            "kind": "POSITIONAL_ARG",
+                            "children": [
+                                {
+                                    "kind": "DECIMAL_INTEGER_LITERAL",
+                                    "value": "1"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "kind": "CLOSE_PAREN_TOKEN"
+                }
+            ]
+        },
+        {
+            "kind": "PLUS_TOKEN",
+            "isMissing": true
+        },
+        {
+            "kind": "BRACED_EXPRESSION",
+            "children": [
+                {
+                    "kind": "OPEN_PAREN_TOKEN"
+                },
+                {
+                    "kind": "DECIMAL_INTEGER_LITERAL",
+                    "value": "2"
+                },
+                {
+                    "kind": "CLOSE_PAREN_TOKEN"
+                }
+            ]
+        }
+    ]
+}
