@@ -37,7 +37,7 @@ public class BRecordType extends BStructureType {
     public BType restFieldType;
     public int typeFlags;
     private final boolean readonly;
-    private BRecordType immutableType;
+    private BIntersectionType immutableType;
 
     /**
      * Create a {@code BRecordType} which represents the user defined record type.
@@ -53,6 +53,12 @@ public class BRecordType extends BStructureType {
         this.sealed = sealed;
         this.typeFlags = typeFlags;
         this.readonly = Flags.isFlagOn(flags, Flags.READONLY);
+    }
+
+    public BRecordType(String typeName, BPackage pkg, int flags, boolean sealed, int typeFlags,
+                       BIntersectionType immutableType) {
+        this(typeName, pkg, flags, sealed, typeFlags);
+        this.immutableType = immutableType;
     }
 
     /**
@@ -124,7 +130,7 @@ public class BRecordType extends BStructureType {
     }
 
     @Override
-    public void setImmutableType(BType immutableType) {
-        this.immutableType = (BRecordType) immutableType;
+    public void setImmutableType(BIntersectionType immutableType) {
+        this.immutableType = immutableType;
     }
 }

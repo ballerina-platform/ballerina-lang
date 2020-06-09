@@ -118,4 +118,9 @@ public class RecordConstraintTableTest {
     public void testTableAsRecordField() {
         BRunUtil.invoke(result, "testTableAsRecordField", new BValue[]{});
     }
+
+    @Test(description = "Test table equality")
+    public void testTableEquality() {
+        BRunUtil.invoke(result, "testTableEquality", new BValue[]{});
+    }
 }
