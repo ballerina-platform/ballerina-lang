@@ -784,8 +784,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ImportVersionNode importVersionNode) {
         Token versionKeyword =
                 modifyToken(importVersionNode.versionKeyword());
-        Node versionNumber =
-                modifyNode(importVersionNode.versionNumber());
+        NodeList<Node> versionNumber =
+                modifyNodeList(importVersionNode.versionNumber());
         return importVersionNode.modify(
                 versionKeyword,
                 versionNumber);

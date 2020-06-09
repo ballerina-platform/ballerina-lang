@@ -16,12 +16,11 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.command.executors.ImportModuleExecutor;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
@@ -30,18 +29,27 @@ import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
-import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextDocumentEdit;
+import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
+import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * Code Action provider for importing a package.
@@ -81,7 +89,7 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
         }
         for (Diagnostic diagnostic : missingImports.values()) {
             if (diagnostic.getMessage().startsWith(UNDEFINED_MODULE)) {
-                List<CodeAction> codeActions = getModuleImportCommand(diagnostic, lsContext);
+                List<CodeAction> codeActions = getModuleImportCommand(diagnostic.getMessage(), lsContext);
                 actions.addAll(codeActions);
             }
         }
@@ -97,11 +105,9 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
         throw new UnsupportedOperationException("Not supported");
     }
 
-    private static List<CodeAction> getModuleImportCommand(Diagnostic diagnostic, LSContext context) {
-        String diagnosticMessage = diagnostic.getMessage();
+    private static List<CodeAction> getModuleImportCommand(String diagnosticMessage, LSContext context) {
         List<CodeAction> actions = new ArrayList<>();
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-        CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
         List<Diagnostic> diagnostics = new ArrayList<>();
 
         String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
@@ -110,25 +116,59 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
         String sourceRoot = LSCompilerUtil.getProjectRoot(sourceDocument.getPath());
         sourceDocument.setProjectRootRoot(sourceRoot);
         List<BallerinaPackage> packagesList = new ArrayList<>();
-        Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())
-                .forEach(packagesList::addAll);
+        packagesList.addAll(LSPackageLoader.getSdkPackages());
+        packagesList.addAll(LSPackageLoader.getHomeRepoPackages());
+
+        BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        packagesList.addAll(LSPackageLoader.getCurrentProjectModules(bLangPackage, context));
+
         packagesList.stream()
                 .filter(pkgEntry -> {
                     String fullPkgName = pkgEntry.getFullPackageNameAlias();
                     return fullPkgName.endsWith("." + packageAlias) || fullPkgName.endsWith("/" + packageAlias);
                 })
                 .forEach(pkgEntry -> {
-                    String commandTitle = CommandConstants.IMPORT_MODULE_TITLE + " "
-                            + pkgEntry.getFullPackageNameAlias();
-                    String importText = CommonUtil.escapeModuleName(context, pkgEntry.getFullPackageNameAlias());
-                    CommandArgument pkgArgument = new CommandArgument(CommandConstants.ARG_KEY_MODULE_NAME, importText);
+                    String commandTitle = String.format(CommandConstants.IMPORT_MODULE_TITLE,
+                                                        pkgEntry.getFullPackageNameAlias());
+                    String moduleName = CommonUtil.escapeModuleName(context, pkgEntry.getFullPackageNameAlias());
                     CodeAction action = new CodeAction(commandTitle);
+                    Position insertPos = getImportPosition(bLangPackage, context);
+                    String importText = ItemResolverConstants.IMPORT + " " + moduleName
+                            + CommonKeys.SEMI_COLON_SYMBOL_KEY + CommonUtil.LINE_SEPARATOR;
+                    List<TextEdit> edits = Collections.singletonList(
+                            new TextEdit(new Range(insertPos, insertPos), importText));
                     action.setKind(CodeActionKind.QuickFix);
-                    action.setCommand(new Command(commandTitle, ImportModuleExecutor.COMMAND,
-                                                  new ArrayList<>(Arrays.asList(pkgArgument, uriArg))));
+                    action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
+                            new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
                     action.setDiagnostics(diagnostics);
                     actions.add(action);
                 });
         return actions;
+    }
+
+    private static Position getImportPosition(BLangPackage bLangPackage, LSContext context) {
+        // Calculate initial import insertion line
+        List<TopLevelNode> nodes = CommonUtil.getCurrentFileTopLevelNodes(bLangPackage, context);
+        int lowestLine = 1;
+        if (!nodes.isEmpty()) {
+            lowestLine = nodes.get(0).getPosition().getStartLine();
+            for (TopLevelNode node : nodes) {
+                org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition position = node.getPosition();
+                if (lowestLine > position.getStartLine()) {
+                    lowestLine = position.getStartLine();
+                }
+            }
+        }
+
+        // Filter the imports except the runtime import
+        context.put(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY, CommonUtil.getCurrentFileImports(context));
+        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(context);
+
+        Position insertPos = new Position(lowestLine - 1, 0);
+        if (!imports.isEmpty()) {
+            BLangImportPackage last = CommonUtil.getLastItem(imports);
+            insertPos = new Position(last.getPosition().getEndLine(), 0);
+        }
+        return insertPos;
     }
 }
