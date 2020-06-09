@@ -98,7 +98,47 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
                 diagnostics);
     }
 
+    public STEnumDeclarationNode modify(
+            STNode metadata,
+            STNode qualifier,
+            STNode enumKeywordToken,
+            STNode identifier,
+            STNode openBraceToken,
+            STNode enumMemberList,
+            STNode closeBraceToken) {
+        if (checkForReferenceEquality(
+                metadata,
+                qualifier,
+                enumKeywordToken,
+                identifier,
+                openBraceToken,
+                enumMemberList,
+                closeBraceToken)) {
+            return this;
+        }
+
+        return new STEnumDeclarationNode(
+                metadata,
+                qualifier,
+                enumKeywordToken,
+                identifier,
+                openBraceToken,
+                enumMemberList,
+                closeBraceToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new EnumDeclarationNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

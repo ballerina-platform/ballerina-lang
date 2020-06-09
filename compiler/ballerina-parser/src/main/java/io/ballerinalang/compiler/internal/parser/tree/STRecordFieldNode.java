@@ -91,7 +91,44 @@ public class STRecordFieldNode extends STNode {
                 diagnostics);
     }
 
+    public STRecordFieldNode modify(
+            STNode metadata,
+            STNode readonlyKeyword,
+            STNode typeName,
+            STNode fieldName,
+            STNode questionMarkToken,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                metadata,
+                readonlyKeyword,
+                typeName,
+                fieldName,
+                questionMarkToken,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STRecordFieldNode(
+                metadata,
+                readonlyKeyword,
+                typeName,
+                fieldName,
+                questionMarkToken,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RecordFieldNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

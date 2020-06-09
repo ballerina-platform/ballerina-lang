@@ -84,7 +84,41 @@ public class STObjectTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STObjectTypeDescriptorNode modify(
+            STNode objectTypeQualifiers,
+            STNode objectKeyword,
+            STNode openBrace,
+            STNode members,
+            STNode closeBrace) {
+        if (checkForReferenceEquality(
+                objectTypeQualifiers,
+                objectKeyword,
+                openBrace,
+                members,
+                closeBrace)) {
+            return this;
+        }
+
+        return new STObjectTypeDescriptorNode(
+                objectTypeQualifiers,
+                objectKeyword,
+                openBrace,
+                members,
+                closeBrace,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ObjectTypeDescriptorNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

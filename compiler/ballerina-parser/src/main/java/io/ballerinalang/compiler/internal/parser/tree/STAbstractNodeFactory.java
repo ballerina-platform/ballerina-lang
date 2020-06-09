@@ -46,10 +46,16 @@ public abstract class STAbstractNodeFactory {
     }
 
     public static STNode createNodeList(Collection<STNode> children) {
+        if (children.isEmpty()) {
+            return EMPTY_LIST;
+        }
         return new STNodeList(children);
     }
 
     public static STNode createNodeList(STNode... children) {
+        if (children.length == 0) {
+            return EMPTY_LIST;
+        }
         return new STNodeList(children);
     }
 
@@ -106,6 +112,10 @@ public abstract class STAbstractNodeFactory {
      */
     public static STNode createMinutiae(SyntaxKind kind, String text, int width) {
         return new STMinutiae(kind, text, width);
+    }
+
+    public static STNode createInvalidNodeMinutiae(STNode invalidNode) {
+        return new STInvalidNodeMinutiae(invalidNode);
     }
 
     public static STToken createDocumentationLineToken(String text, STNode leadingTrivia, STNode trailingTrivia) {
