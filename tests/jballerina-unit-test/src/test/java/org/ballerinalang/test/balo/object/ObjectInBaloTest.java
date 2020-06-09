@@ -578,7 +578,7 @@ public class ObjectInBaloTest {
     public void testObjectReferingTypeFromBaloNegative() {
         CompileResult result =
                 BCompileUtil.compile("test-src/balo/test_balo/object/test_objects_type_reference_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 6);
+        Assert.assertEquals(result.getErrorCount(), 5);
         int i = 0;
         BAssertUtil.validateError(result, i++, "undefined field 'name' in object 'Manager1'", 25, 13);
         BAssertUtil.validateError(result, i++, "undefined field 'age' in object 'Manager1'", 26, 13);
@@ -590,7 +590,6 @@ public class ObjectInBaloTest {
                                   "no implementation found for the function 'getName' of non-abstract object " +
                                           "'Manager2'",
                                   36, 5);
-        BAssertUtil.validateError(result, i++, "redeclared symbol 'dpt'", 38, 6);
         BAssertUtil.validateError(result, i,
                                   "incompatible type reference 'foo:NormalPerson': a referenced object cannot have " +
                                           "non-public fields or methods",
