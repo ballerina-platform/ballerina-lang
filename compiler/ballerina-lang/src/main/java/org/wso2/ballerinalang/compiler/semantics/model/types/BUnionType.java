@@ -50,8 +50,17 @@ public class BUnionType extends BType implements UnionType {
     private Optional<Boolean> isAnyData = Optional.empty();
     private Optional<Boolean> isPureType = Optional.empty();
 
-    protected BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable) {
+    protected BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly) {
         super(TypeTags.UNION, tsymbol);
+
+        if (readonly) {
+            this.flags |= Flags.READONLY;
+
+            if (tsymbol != null) {
+                this.tsymbol.flags |= Flags.READONLY;
+            }
+        }
+
         this.memberTypes = memberTypes;
         this.nullable = nullable;
     }
@@ -124,9 +133,17 @@ public class BUnionType extends BType implements UnionType {
      */
     public static BUnionType create(BTypeSymbol tsymbol, LinkedHashSet<BType> types) {
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+
+        boolean isImmutable = true;
+
         for (BType memBType : toFlatTypeSet(types)) {
             if (memBType.tag != TypeTags.NEVER) {
                 memberTypes.add(memBType);
+            }
+
+            if (isImmutable && !isInherentlyImmutableType(memBType) &&
+                    !Symbols.isFlagOn(memBType.flags, Flags.READONLY)) {
+                isImmutable = false;
             }
         }
 
@@ -150,11 +167,11 @@ public class BUnionType extends BType implements UnionType {
 
         for (BType memberType : memberTypes) {
             if (memberType.isNullable()) {
-                return new BUnionType(tsymbol, memberTypes, true);
+                return new BUnionType(tsymbol, memberTypes, true, isImmutable);
             }
         }
 
-        return new BUnionType(tsymbol, memberTypes, false);
+        return new BUnionType(tsymbol, memberTypes, false, isImmutable);
     }
 
     /**
@@ -187,6 +204,12 @@ public class BUnionType extends BType implements UnionType {
         } else {
             this.memberTypes.add(type);
         }
+
+        if (Symbols.isFlagOn(this.flags, Flags.READONLY) && !isInherentlyImmutableType(type) &&
+                !Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+            this.flags ^= Flags.READONLY;
+        }
+
         this.nullable = this.nullable || type.isNullable();
     }
 
@@ -209,6 +232,22 @@ public class BUnionType extends BType implements UnionType {
 
         if (type.isNullable()) {
             this.nullable = false;
+        }
+
+        if (Symbols.isFlagOn(this.flags, Flags.READONLY)) {
+            return;
+        }
+
+        boolean isImmutable = true;
+        for (BType memBType : this.memberTypes) {
+            if (!isInherentlyImmutableType(memBType) && !Symbols.isFlagOn(memBType.flags, Flags.READONLY)) {
+                isImmutable = false;
+                break;
+            }
+        }
+
+        if (isImmutable) {
+            this.flags |= Flags.READONLY;
         }
     }
 
@@ -272,5 +311,35 @@ public class BUnionType extends BType implements UnionType {
     @Override
     public BIntersectionType getImmutableType() {
         return this.immutableType;
+    }
+
+    private static boolean isInherentlyImmutableType(BType type) {
+        switch (type.tag) {
+            case TypeTags.BOOLEAN:
+            case TypeTags.BYTE:
+            case TypeTags.DECIMAL:
+            case TypeTags.FLOAT:
+            case TypeTags.INT:
+            case TypeTags.STRING:
+            case TypeTags.SIGNED32_INT:
+            case TypeTags.SIGNED16_INT:
+            case TypeTags.SIGNED8_INT:
+            case TypeTags.UNSIGNED32_INT:
+            case TypeTags.UNSIGNED16_INT:
+            case TypeTags.UNSIGNED8_INT:
+            case TypeTags.CHAR_STRING:
+            case TypeTags.XML_TEXT:
+            case TypeTags.FINITE: // Assuming a finite type will only have members from simple basic types.
+            case TypeTags.READONLY:
+            case TypeTags.NIL:
+            case TypeTags.ERROR:
+            case TypeTags.INVOKABLE:
+            case TypeTags.TYPEDESC:
+            case TypeTags.HANDLE:
+                return true;
+            case TypeTags.SERVICE:
+                return type instanceof BServiceType; // Since the tag for both service and object are the same.
+        }
+        return false;
     }
 }

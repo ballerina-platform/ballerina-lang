@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -1414,13 +1415,14 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Any newly added typedefs are due to `T & readonly` typed fields. Once the fields are set for all
         // type-definitions we can revisit the newly added type-definitions and define the fields for them.
-        populateImmutableTypeFields(typeDefNodes, pkgEnv, typeDefNodes.size());
+        populateImmutableTypeFields(typeDefNodes, pkgEnv);
 
         // If all the fields of a structure are readonly, mark the structure type itself as readonly.
         setReadOnlyForAllReadOnlyFieldStructure(typeDefNodes);
     }
 
-    private void populateImmutableTypeFields(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv, int size) {
+    private void populateImmutableTypeFields(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
+        int size = typeDefNodes.size();
         for (int i = 0; i < size; i++) {
             BLangTypeDefinition typeDef = typeDefNodes.get(i);
             NodeKind nodeKind = typeDef.typeNode.getKind();
@@ -1519,18 +1521,28 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
-        int newSize = typeDefNodes.size();
-        for (int i = originalSize; i < newSize; i++) {
-            BLangTypeDefinition immutableTypeDefinition = typeDefNodes.get(i);
+        populateImmutableTypeMembers(typeDefNodes);
+    }
 
-            if (immutableTypeDefinition.typeNode.getKind() != NodeKind.OBJECT_TYPE) {
+    private void populateImmutableTypeMembers(List<BLangTypeDefinition> typeDefNodes) {
+        int newSize = typeDefNodes.size();
+        for (int i = 0; i < newSize; i++) {
+            BLangTypeDefinition typeDefinition = typeDefNodes.get(i);
+
+            if (typeDefinition.typeNode.getKind() != NodeKind.OBJECT_TYPE) {
                 continue;
             }
 
-            BObjectType immutableObjectType = (BObjectType) immutableTypeDefinition.type;
+            BObjectType objectType = (BObjectType) typeDefinition.symbol.type;
+            BIntersectionType immutableType = objectType.immutableType;
+            if (immutableType == null) {
+                continue;
+            }
+
+            BObjectType immutableObjectType = (BObjectType) immutableType.effectiveType;
+
             ImmutableTypeCloner.defineObjectFunctions((BObjectTypeSymbol) immutableObjectType.tsymbol,
-                                                      (BObjectTypeSymbol) immutableObjectType.mutableType.tsymbol,
-                                                      names);
+                                                      (BObjectTypeSymbol) objectType.tsymbol, names);
         }
     }
 

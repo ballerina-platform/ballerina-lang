@@ -476,8 +476,8 @@ public class Types {
         int sourceTag = source.tag;
         int targetTag = target.tag;
 
-        if (!isInherentlyImmutableType(target) &&
-                Symbols.isFlagOn(target.flags, Flags.READONLY) && !Symbols.isFlagOn(source.flags, Flags.READONLY)) {
+        if (!isInherentlyImmutableType(target) && Symbols.isFlagOn(target.flags, Flags.READONLY) &&
+                !isInherentlyImmutableType(source) && !Symbols.isFlagOn(source.flags, Flags.READONLY)) {
             return false;
         }
 
@@ -2229,15 +2229,13 @@ public class Types {
         Set<BType> targetTypes = new LinkedHashSet<>();
 
         if (source.tag == TypeTags.UNION) {
-            BUnionType sourceUnionType = (BUnionType) source;
-            sourceTypes.addAll(sourceUnionType.getMemberTypes());
+            sourceTypes.addAll(getEffectiveMemberTypes((BUnionType) source));
         } else {
             sourceTypes.add(source);
         }
 
         if (target.tag == TypeTags.UNION) {
-            BUnionType targetUnionType = (BUnionType) target;
-            targetTypes.addAll(targetUnionType.getMemberTypes());
+            targetTypes.addAll(getEffectiveMemberTypes((BUnionType) target));
         } else {
             targetTypes.add(target);
         }
@@ -2263,6 +2261,25 @@ public class Types {
             }
         }
         return true;
+    }
+
+    private Set<BType> getEffectiveMemberTypes(BUnionType unionType) {
+        Set<BType> memTypes = new LinkedHashSet<>();
+
+        for (BType memberType : unionType.getMemberTypes()) {
+            if (memberType.tag == TypeTags.INTERSECTION) {
+                BType effectiveType = ((BIntersectionType) memberType).effectiveType;
+                if (effectiveType.tag == TypeTags.UNION) {
+                    memTypes.addAll(getEffectiveMemberTypes((BUnionType) effectiveType));
+                    continue;
+                }
+                memTypes.add(effectiveType);
+                continue;
+            }
+
+            memTypes.add(memberType);
+        }
+        return memTypes;
     }
 
     private boolean isFiniteTypeAssignable(BFiniteType finiteType, BType targetType, Set<TypePair> unresolvedTypes) {
