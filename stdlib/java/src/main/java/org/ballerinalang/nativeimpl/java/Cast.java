@@ -44,7 +44,7 @@ import static org.ballerinalang.jvm.values.api.BValueCreator.createObjectValue;
  * @since 1.2.5
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "java", functionName = "cast",
+        orgName = "ballerina", packageName = "java", version = "0.9.0", functionName = "cast",
         args = {
                 @Argument(name = "value", type = TypeKind.ANY),
                 @Argument(name = "castType", type = TypeKind.TYPEDESC)
