@@ -1246,13 +1246,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(AnnotAccessExpressionNode annotAccessExpressionNode) {
         BLangAnnotAccessExpr annotAccessExpr = (BLangAnnotAccessExpr) TreeBuilder.createAnnotAccessExpressionNode();
 
-        try {
-            SimpleNameReferenceNode annotName = (SimpleNameReferenceNode) annotAccessExpressionNode.annotTagReference();
+        Node annotTagReference = annotAccessExpressionNode.annotTagReference();
+        if (annotAccessExpressionNode.annotTagReference().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            SimpleNameReferenceNode annotName = (SimpleNameReferenceNode) annotTagReference;
             annotAccessExpr.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
             annotAccessExpr.annotationName = createIdentifier(annotName.name());
-        } catch (Exception e) {
+        } else {
             QualifiedNameReferenceNode qulifiedName =
-                    (QualifiedNameReferenceNode) annotAccessExpressionNode.annotTagReference();
+                    (QualifiedNameReferenceNode) annotTagReference;
             annotAccessExpr.pkgAlias = createIdentifier(qulifiedName.modulePrefix());
             annotAccessExpr.annotationName = createIdentifier(qulifiedName.identifier());
         }
