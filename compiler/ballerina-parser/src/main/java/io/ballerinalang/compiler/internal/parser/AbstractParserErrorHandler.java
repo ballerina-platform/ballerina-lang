@@ -357,6 +357,8 @@ public abstract class AbstractParserErrorHandler {
                 return DiagnosticErrorCode.ERROR_MISSING_DECIMAL_INTEGER_LITERAL;
             case TYPE_DESC:
                 return DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC;
+            case EXTERNAL_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_EXTERNAL_KEYWORD;
             default:
                 throw new UnsupportedOperationException("Unsupported SyntaxKind: " + expectedKind);
         }
