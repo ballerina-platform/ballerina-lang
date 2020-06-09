@@ -70,7 +70,35 @@ public class STTypeTestExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STTypeTestExpressionNode modify(
+            STNode expression,
+            STNode isKeyword,
+            STNode typeDescriptor) {
+        if (checkForReferenceEquality(
+                expression,
+                isKeyword,
+                typeDescriptor)) {
+            return this;
+        }
+
+        return new STTypeTestExpressionNode(
+                expression,
+                isKeyword,
+                typeDescriptor,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypeTestExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

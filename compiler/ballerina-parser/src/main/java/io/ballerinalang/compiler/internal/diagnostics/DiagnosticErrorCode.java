@@ -89,6 +89,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     ERROR_MISSING_ANNOTATION_ATTACH_POINT("BCE200"),
     ERROR_MISSING_LET_VARIABLE_DECLARATION("BCE201"),
+    ERROR_MISSING_NAMED_WORKER_DECLARATION("BCE202"),
     ;
 
     String diagnosticId;

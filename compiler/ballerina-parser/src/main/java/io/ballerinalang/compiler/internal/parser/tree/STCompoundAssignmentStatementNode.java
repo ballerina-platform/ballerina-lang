@@ -84,7 +84,41 @@ public class STCompoundAssignmentStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STCompoundAssignmentStatementNode modify(
+            STNode lhsExpression,
+            STNode binaryOperator,
+            STNode equalsToken,
+            STNode rhsExpression,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                lhsExpression,
+                binaryOperator,
+                equalsToken,
+                rhsExpression,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STCompoundAssignmentStatementNode(
+                lhsExpression,
+                binaryOperator,
+                equalsToken,
+                rhsExpression,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new CompoundAssignmentStatementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }
