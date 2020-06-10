@@ -6485,19 +6485,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    public void checkAnnot(BLangAnnotationAttachment annAttachmentNode, SymbolEnv env) {
-        SymbolEnv prevEnv = this.env;
-        BType preExpType = this.expType;
-        DiagnosticCode preDiagCode = this.diagCode;
-        this.env = env;
-
-        visit(annAttachmentNode);
-
-        this.env = prevEnv;
-        this.expType = preExpType;
-        this.diagCode = preDiagCode;
-    }
-
     private static class FieldInfo {
         List<BType> types;
         boolean required;
