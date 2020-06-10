@@ -1529,7 +1529,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token streamKeywordToken =
                 modifyToken(streamTypeDescriptorNode.streamKeywordToken());
         Node streamTypeParamsNode =
-                modifyNode(streamTypeDescriptorNode.streamTypeParamsNode());
+                modifyNode(streamTypeDescriptorNode.streamTypeParamsNode().orElse(null));
         return streamTypeDescriptorNode.modify(
                 streamKeywordToken,
                 streamTypeParamsNode);
@@ -1543,9 +1543,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Node leftTypeDescNode =
                 modifyNode(streamTypeParamsNode.leftTypeDescNode());
         Token commaToken =
-                modifyToken(streamTypeParamsNode.commaToken());
+                modifyToken(streamTypeParamsNode.commaToken().orElse(null));
         Node rightTypeDescNode =
-                modifyNode(streamTypeParamsNode.rightTypeDescNode());
+                modifyNode(streamTypeParamsNode.rightTypeDescNode().orElse(null));
         Token gtToken =
                 modifyToken(streamTypeParamsNode.gtToken());
         return streamTypeParamsNode.modify(
@@ -2416,7 +2416,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(annotAccessExpressionNode.expression());
         Token annotChainingToken =
                 modifyToken(annotAccessExpressionNode.annotChainingToken());
-        Node annotTagReference =
+        NameReferenceNode annotTagReference =
                 modifyNode(annotAccessExpressionNode.annotTagReference());
         return annotAccessExpressionNode.modify(
                 expression,

@@ -1501,11 +1501,10 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token streamKeywordToken,
             Node streamTypeParamsNode) {
         Objects.requireNonNull(streamKeywordToken, "streamKeywordToken must not be null");
-        Objects.requireNonNull(streamTypeParamsNode, "streamTypeParamsNode must not be null");
 
         STNode stStreamTypeDescriptorNode = STNodeFactory.createStreamTypeDescriptorNode(
                 streamKeywordToken.internalNode(),
-                streamTypeParamsNode.internalNode());
+                getOptionalSTNode(streamTypeParamsNode));
         return stStreamTypeDescriptorNode.createUnlinkedFacade();
     }
 
@@ -1517,15 +1516,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token gtToken) {
         Objects.requireNonNull(ltToken, "ltToken must not be null");
         Objects.requireNonNull(leftTypeDescNode, "leftTypeDescNode must not be null");
-        Objects.requireNonNull(commaToken, "commaToken must not be null");
-        Objects.requireNonNull(rightTypeDescNode, "rightTypeDescNode must not be null");
         Objects.requireNonNull(gtToken, "gtToken must not be null");
 
         STNode stStreamTypeParamsNode = STNodeFactory.createStreamTypeParamsNode(
                 ltToken.internalNode(),
                 leftTypeDescNode.internalNode(),
-                commaToken.internalNode(),
-                rightTypeDescNode.internalNode(),
+                getOptionalSTNode(commaToken),
+                getOptionalSTNode(rightTypeDescNode),
                 gtToken.internalNode());
         return stStreamTypeParamsNode.createUnlinkedFacade();
     }
@@ -2381,7 +2378,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static AnnotAccessExpressionNode createAnnotAccessExpressionNode(
             ExpressionNode expression,
             Token annotChainingToken,
-            Node annotTagReference) {
+            NameReferenceNode annotTagReference) {
         Objects.requireNonNull(expression, "expression must not be null");
         Objects.requireNonNull(annotChainingToken, "annotChainingToken must not be null");
         Objects.requireNonNull(annotTagReference, "annotTagReference must not be null");

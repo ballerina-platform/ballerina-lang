@@ -190,7 +190,7 @@
             <class name="org.ballerinalang.test.types.var.VarIgnoreTest"></class>
             <class name="org.ballerinalang.test.documentation.MultilineDocsTest"></class>
             <class name="org.ballerinalang.test.documentation.ObjectFieldDefaultValueTest"></class>
-
+            <class name="org.ballerinalang.test.types.string.BStringAnnotationTest"></class>
             <!--<class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />-->
             <!--<class name="org.ballerinalang.test.lock.LocksInMainTest">-->
             <!--<methods>-->
