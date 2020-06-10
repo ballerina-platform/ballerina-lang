@@ -161,6 +161,18 @@ public abstract class STNode {
         return null;
     }
 
+    /**
+     * Replaces the given target node with the replacement.
+     *
+     * @param target      the node to be replaced
+     * @param replacement the replacement node
+     * @param <T>         the type of the root node
+     * @return return the new root node after replacing the target with the replacement
+     */
+    public <T extends STNode> T replace(STNode target, STNode replacement) {
+        return STTreeModifiers.replace((T) this, target, replacement);
+    }
+
     @SuppressWarnings("unchecked")
     public <T extends Node> T createUnlinkedFacade() {
         return (T) createFacade(0, null);
