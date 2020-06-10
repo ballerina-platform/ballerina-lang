@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.parser;
 
+import io.ballerinalang.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.AnnotationAttachPointNode;
 import io.ballerinalang.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
@@ -209,6 +210,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
@@ -1257,6 +1259,26 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         return annotationDecl;
+    }
+
+    @Override
+    public BLangNode transform(AnnotAccessExpressionNode annotAccessExpressionNode) {
+        BLangAnnotAccessExpr annotAccessExpr = (BLangAnnotAccessExpr) TreeBuilder.createAnnotAccessExpressionNode();
+
+        Node annotTagReference = annotAccessExpressionNode.annotTagReference();
+        if (annotAccessExpressionNode.annotTagReference().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            SimpleNameReferenceNode annotName = (SimpleNameReferenceNode) annotTagReference;
+            annotAccessExpr.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+            annotAccessExpr.annotationName = createIdentifier(annotName.name());
+        } else {
+            QualifiedNameReferenceNode qulifiedName =
+                    (QualifiedNameReferenceNode) annotTagReference;
+            annotAccessExpr.pkgAlias = createIdentifier(qulifiedName.modulePrefix());
+            annotAccessExpr.annotationName = createIdentifier(qulifiedName.identifier());
+        }
+
+        annotAccessExpr.expr = createExpression(annotAccessExpressionNode.expression());
+        return annotAccessExpr;
     }
 
     // -----------------------------------------------Expressions-------------------------------------------------------

@@ -2378,7 +2378,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static AnnotAccessExpressionNode createAnnotAccessExpressionNode(
             ExpressionNode expression,
             Token annotChainingToken,
-            Node annotTagReference) {
+            NameReferenceNode annotTagReference) {
         Objects.requireNonNull(expression, "expression must not be null");
         Objects.requireNonNull(annotChainingToken, "annotChainingToken must not be null");
         Objects.requireNonNull(annotTagReference, "annotTagReference must not be null");
