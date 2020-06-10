@@ -237,8 +237,17 @@ public class QueryDesugar extends BLangNodeVisitor {
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         DiagnosticPos pos = clauses.get(0).pos;
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
-        BLangVariableReference streamRef = buildStream(clauses, queryExpr.type, env, queryBlock);
+        final BType type = queryExpr.type;
+        BType expectedType = type;
+        if (type.tag == TypeTags.UNION) {
+            expectedType = ((BUnionType) type).getMemberTypes()
+                    .stream().filter(m -> m.tag == TypeTags.STRING || m.tag == TypeTags.XML)
+                    .findFirst().get();
+        }
+        BLangVariableReference streamRef = buildStream(clauses, expectedType, env, queryBlock);
         BLangStatementExpression streamStmtExpr;
+//        boolean hasString = false;
+//        boolean hasXml = false;
         if (queryExpr.isStream) {
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, streamRef);
             streamStmtExpr.type = streamRef.type;
@@ -253,10 +262,17 @@ public class QueryDesugar extends BLangNodeVisitor {
             streamStmtExpr.type = tableRef.type;
             onConflictExpr = null;
         } else {
+//            if (queryExpr.type.tag == TypeTags.UNION) {
+//                if (((BUnionType) queryExpr.type).getMemberTypes().contains(symTable.stringType)) {
+//                    hasString = true;
+//                } else if (((BUnionType) queryExpr.type).getMemberTypes().contains(symTable.xmlType)) {
+//                    hasXml = true;
+//                }
+//            }
             BLangVariableReference result;
-            if (queryExpr.type.tag == TypeTags.XML) {
+            if (expectedType.tag == TypeTags.XML) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION, Lists.of(streamRef), pos);
-            } else if (queryExpr.type.tag == TypeTags.STRING) {
+            } else if (expectedType.tag == TypeTags.STRING) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STRING_FUNCTION, Lists.of(streamRef), pos);
             } else {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_ARRAY_FUNCTION, Lists.of(streamRef), pos);
