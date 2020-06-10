@@ -15,7 +15,8 @@
 // under the License.
 // This is server implementation for client streaming scenario
 import ballerina/grpc;
-import ballerina/io;
+import ballerina/log;
+
 
 // Server endpoint configuration
 listener grpc:Listener ep4 = new (9094);
@@ -28,20 +29,22 @@ listener grpc:Listener ep4 = new (9094);
 service HelloWorld7 on ep4 {
 
     resource function lotsOfGreetings(grpc:Caller caller, stream<string, error>clientStream) {
-        io:println("connected sucessfully.");
+        log:printInfo("connected sucessfully.");
         error? e = clientStream.forEach(function(string name) {
-            io:println("greet received: " + name);
+            log:printInfo("greet received: " + name);
         });
         if (e is grpc:EOS) {
-            io:println("Server Response");
+            log:printInfo("Server Response");
             grpc:Error? err = caller->send("Ack");
             if (err is grpc:Error) {
-                io:println("Error from Connector: " + err.reason());
+                log:printError("Error from Connector: " + err.reason() + " - "
+                                                           + <string>err.detail()["message"]);
             } else {
-                io:println("Server send response : Ack");
+                log:printInfo("Server send response : Ack");
             }
         } else if (e is error) {
-            io:println("Something unexpected happens at server : " + e.reason());
+            log:printError("Something unexpected happens at server :: " + e.reason() + " - "
+                                                       + <string>e.detail()["message"]);
         }
     }
 }

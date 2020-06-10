@@ -27,24 +27,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 public class ServiceConfiguration {
 
     private String rpcEndpoint;
-    private BType requestType;
-    private BType responseType;
 
     public ServiceConfiguration(String rpcEndpoint, BType requestType, BType responseType) {
         this.rpcEndpoint = rpcEndpoint;
-        this.requestType = requestType;
-        this.responseType = responseType;
     }
 
     public String getRpcEndpoint() {
         return rpcEndpoint;
-    }
-
-    public BType getRequestType() {
-        return requestType;
-    }
-
-    public BType getResponseType() {
-        return responseType;
     }
 }

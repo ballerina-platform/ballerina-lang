@@ -121,12 +121,7 @@ type StreamIterator object {
     public function close() returns error? {
         if (!self.isClosed) {
             self.isClosed = true;
-            error? result = closeStream(self);
-            if (result is error) {
-                return result;
-            } else {
-                return prepareError (EOS_REASON, "Stream closed from server side", result);
-            }
+            return closeStream(self);
         } else {
             return StreamEndError (message = "Stream is closed. Therefore, "
                                        + "no operations are allowed further on the stream.");
