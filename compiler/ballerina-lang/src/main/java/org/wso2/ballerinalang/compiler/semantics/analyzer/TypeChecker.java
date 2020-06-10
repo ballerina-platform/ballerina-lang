@@ -4025,7 +4025,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangNode node = env.node;
         SymbolEnv cEnv = env;
         while (node != null && node.getKind() != NodeKind.FUNCTION) {
-            if (node.getKind() == NodeKind.TRANSACTION) {
+            if (node.getKind() == NodeKind.TRANSACTION || node.getKind() == NodeKind.RETRY) {
                 SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
                 BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
                         SymTag.VARIABLE);
