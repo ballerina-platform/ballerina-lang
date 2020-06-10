@@ -197,14 +197,6 @@
                             {
                               "kind": "IDENTIFIER_TOKEN",
                               "value": "d"
-                            },
-                            {
-                              "kind": "COMMA_TOKEN",
-                              "isMissing": true
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "e"
                             }
                           ]
                         },

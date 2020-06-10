@@ -23,7 +23,7 @@ public type Scheduler object {
     #
     # + configuration - The `task:TimerConfiguration` or `task:AppointmentConfiguration` record to define the
     #                   `task:Sceduler` behavior
-    public function __init(TimerConfiguration|AppointmentConfiguration configuration) {
+    public function init(TimerConfiguration|AppointmentConfiguration configuration) {
         self.taskListener = new(configuration);
     }
 

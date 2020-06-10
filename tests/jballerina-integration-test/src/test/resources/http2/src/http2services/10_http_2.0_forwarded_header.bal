@@ -37,6 +37,6 @@ service forwardedBackend on new http:Listener(9106, {httpVersion: "2.0"}) {
         http:Response response = new();
         response.setHeader("forwarded", header);
         response.setPayload("forward is working");
-        var resultSentToInitClient = caller->respond(<@untianted> response);
+        var resultSentToInitClient = caller->respond(<@untainted> response);
     }
 }

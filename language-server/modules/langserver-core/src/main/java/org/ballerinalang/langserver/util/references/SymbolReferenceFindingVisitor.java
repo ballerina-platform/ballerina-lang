@@ -249,7 +249,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangFunction funcNode) {
         boolean isWorker = funcNode.flagSet.contains(Flag.WORKER);
         String funcName = isWorker ? funcNode.defaultWorkerName.value : funcNode.name.value;
-        if (funcName.equals(this.tokenName) || ("__init".equals(funcName) && "new".equals(this.tokenName))) {
+        if (funcName.equals(this.tokenName) || ("init".equals(funcName) && "new".equals(this.tokenName))) {
             /*
             If the go-to definition is triggered for the new keyword and there is an init function defined,
             then jump to the init function

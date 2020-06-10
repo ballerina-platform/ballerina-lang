@@ -18,22 +18,6 @@
           "children": [
             {
               "kind": "ERROR_KEYWORD"
-            },
-            {
-              "kind": "ERROR_TYPE_PARAMS",
-              "children": [
-                {
-                  "kind": "LT_TOKEN",
-                  "isMissing": true
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "NO_MATCHING_OBJECT"
-                },
-                {
-                  "kind": "GT_TOKEN"
-                }
-              ]
             }
           ]
         },
@@ -42,9 +26,29 @@
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "a"
+              "value": "NO_MATCHING_OBJECT"
             }
           ]
+        }
+      ]
+    },
+    {
+      "kind": "EQUAL_TOKEN",
+      "isMissing": true
+    },
+    {
+      "kind": "BINARY_EXPRESSION",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true
+        },
+        {
+          "kind": "GT_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a"
         }
       ]
     },

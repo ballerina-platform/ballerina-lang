@@ -15,11 +15,15 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import com.google.gson.annotations.Expose;
+
 /**
  * Represent documentation for an Annotation.
  */
 public class Annotation extends Construct {
+    @Expose
     public Type type;
+    @Expose
     public String attachmentPoints;
 
     public Annotation(String name, String description, boolean isDeprecated, Type type, String attachmentPoints) {

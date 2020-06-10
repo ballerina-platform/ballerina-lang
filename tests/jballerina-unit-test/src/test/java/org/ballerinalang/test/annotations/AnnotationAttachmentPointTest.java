@@ -36,7 +36,7 @@ public class AnnotationAttachmentPointTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/annotations/annot_attachments_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 243);
+        Assert.assertEquals(compileResult.getErrorCount(), 244);
     }
 
     @Test
@@ -417,5 +417,11 @@ public class AnnotationAttachmentPointTest {
         validateError(compileResult, index++, "annotation 'v17' is not allowed on object, type", 836, 1);
         validateError(compileResult, index++, "annotation 'v18' is not allowed on object, type", 837, 1);
         validateError(compileResult, index, "annotation 'v18' is not allowed on object_field, field", 839, 5);
+    }
+
+    @Test
+    public void testInvalidAttachmentForTypeConversionExpr() {
+        int index = 243;
+        validateError(compileResult, index++, "annotation 'v16' is not allowed on type", 847, 17);
     }
 }

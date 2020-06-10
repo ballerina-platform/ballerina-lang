@@ -146,7 +146,7 @@
                               ]
                             },
                             {
-                              "kind": "FUNCTION_DEFINITION",
+                              "kind": "OBJECT_METHOD_DEFINITION",
                               "children": [
                                 {
                                   "kind": "METADATA",
@@ -162,7 +162,7 @@
                                 },
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
-                                  "value": "__init"
+                                  "value": "init"
                                 },
                                 {
                                   "kind": "FUNCTION_SIGNATURE",

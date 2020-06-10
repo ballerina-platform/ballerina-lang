@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 /**
  * Test class for String Template Literal negative tests.
  */
+@Test(groups = { "brokenOnNewParser" })
 public class StringTemplateLiteralNegativeTest {
 
     private CompileResult resultNegative;

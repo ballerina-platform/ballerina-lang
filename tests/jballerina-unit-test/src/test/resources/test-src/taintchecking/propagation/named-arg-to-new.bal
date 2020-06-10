@@ -2,7 +2,7 @@ import ballerina/io;
 
 public type Client object {
 
-    public function __init(
+    public function init(
             public string host="localhost",
             public string? user = (),
             public string? password= (),

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -73,6 +74,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -3308,6 +3310,11 @@ public class TypeChecker extends BLangNodeVisitor {
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
 
+        for (BLangAnnotationAttachment annAttachment : conversionExpr.annAttachments) {
+            annAttachment.attachPoints.add(AttachPoint.Point.TYPE);
+            semanticAnalyzer.analyzeNode(annAttachment, this.env);
+        }
+
         // Annotation such as <@untainted [T]>, where T is not provided,
         // it's merely a annotation on contextually expected type.
         BLangExpression expr = conversionExpr.expr;
@@ -4449,7 +4456,7 @@ public class TypeChecker extends BLangNodeVisitor {
             iExpr.symbol = funcSymbol;
         }
 
-        // __init method can be called in a method-call-expr only when the expression
+        // init method can be called in a method-call-expr only when the expression
         // preceding the . is self
         if (iExpr.name.value.equals(Names.USER_DEFINED_INIT_SUFFIX.value) &&
                 !(iExpr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&

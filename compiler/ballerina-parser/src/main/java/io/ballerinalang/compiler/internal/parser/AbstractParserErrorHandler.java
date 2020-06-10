@@ -45,7 +45,7 @@ public abstract class AbstractParserErrorHandler {
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
      */
-    protected int lookaheadLimit = 5;
+    protected static final int LOOKAHEAD_LIMIT = 5;
 
     public AbstractParserErrorHandler(AbstractTokenReader tokenReader) {
         this.tokenReader = tokenReader;
@@ -489,7 +489,7 @@ public abstract class AbstractParserErrorHandler {
     protected Result seekInAlternativesPaths(int lookahead, int currentDepth, int currentMatches,
                                              ParserRuleContext[] alternativeRules, boolean isEntryPoint) {
         @SuppressWarnings("unchecked")
-        List<Result>[] results = new List[lookaheadLimit];
+        List<Result>[] results = new List[LOOKAHEAD_LIMIT];
         int bestMatchIndex = 0;
 
         // Visit all the alternative rules and get their results. Arrange them in way
@@ -497,9 +497,13 @@ public abstract class AbstractParserErrorHandler {
         // done so that we can easily pick the best, without iterating through them.
         for (ParserRuleContext rule : alternativeRules) {
             Result result = seekMatchInSubTree(rule, lookahead, currentDepth, isEntryPoint);
+            if (result.matches >= LOOKAHEAD_LIMIT - 1) {
+                return getFinalResult(currentMatches, result);
+            }
+
             List<Result> similarResutls = results[result.matches];
             if (similarResutls == null) {
-                similarResutls = new ArrayList<>(lookaheadLimit);
+                similarResutls = new ArrayList<>(LOOKAHEAD_LIMIT);
                 results[result.matches] = similarResutls;
                 if (bestMatchIndex < result.matches) {
                     bestMatchIndex = result.matches;
