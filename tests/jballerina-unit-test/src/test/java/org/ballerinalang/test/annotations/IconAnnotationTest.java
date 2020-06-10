@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 
 import java.util.List;
 
@@ -59,6 +60,11 @@ public class IconAnnotationTest {
         List<? extends AnnotationAttachmentNode> objAnnot = objType.getAnnotationAttachments();
         Assert.assertEquals(objAnnot.size(), 1);
         Assert.assertEquals(objAnnot.get(0).getExpression().toString(), " {path: /barIconPath.icon}");
+
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) objType.getTypeNode();
+        List<BLangAnnotationAttachment> attachedFuncAttachments = objectTypeNode.functions.get(0).annAttachments;
+        String annotAsString = attachedFuncAttachments.get(0).getExpression().toString();
+        Assert.assertEquals(annotAsString, " {path: /kMemberFuncIconPath.icon}");
     }
 
     @Test void testIconAnnotationNegative() {
