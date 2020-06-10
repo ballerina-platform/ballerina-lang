@@ -370,10 +370,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private class ValueHolder {
 
         public void addData(V data) {
-            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(data, data);
-            UUID uuid = UUID.randomUUID();
-            entries.put((long) uuid.hashCode(), entry);
-            values.put((long) uuid.hashCode(), data);
+            put(data);
         }
 
         public V getData(K key) {
@@ -388,6 +385,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(data, data);
             UUID uuid = UUID.randomUUID();
             entries.put((long) uuid.hashCode(), entry);
+            updateIndexKeyMappings((long) uuid.hashCode());
             return values.put((long) uuid.hashCode(), data);
         }
 
