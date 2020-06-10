@@ -2395,7 +2395,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BVarSymbol retryFunctionVarSymbol = new BVarSymbol(0, new Name("$result$"),
                 env.scope.owner.pkgID, retryReturnType, env.scope.owner);
-        BLangSimpleVariable retryFunctionVariable = ASTBuilderUtil.createVariable(retryBlockPos, "$result$",
+        BLangSimpleVariable retryFunctionVariable = ASTBuilderUtil.createVariable(pos, "$result$",
                 retryReturnType, retryFunctionTrapExpression, retryFunctionVarSymbol);
         BLangSimpleVariableDef retryFunctionVariableDef = ASTBuilderUtil.createVariableDef(pos,
                 retryFunctionVariable);
@@ -2413,7 +2413,7 @@ public class Desugar extends BLangNodeVisitor {
         if (retryNode.retryBodyReturns) {
             //  returns <TypeCast>$result$;
             BLangInvokableNode encInvokable = env.enclInvokable;
-            BLangReturn returnNode = ASTBuilderUtil.createReturnStmt(retryBlockPos,
+            BLangReturn returnNode = ASTBuilderUtil.createReturnStmt(pos,
                     addConversionExprIfRequired(retryFunctionVariableRef, encInvokable.returnTypeNode.type));
             retryBlockStmt.stmts.add(returnNode);
         }
