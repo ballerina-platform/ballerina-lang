@@ -710,6 +710,14 @@ public class TypeChecker {
     }
 
     private static boolean checkIsUnionType(BType sourceType, BUnionType targetType, List<TypePair> unresolvedTypes) {
+        // If we encounter two types that we are still resolving, then skip it.
+        // This is done to avoid recursive checking of the same type.
+        TypePair pair = new TypePair(sourceType, targetType);
+        if (unresolvedTypes.contains(pair)) {
+            return true;
+        }
+        unresolvedTypes.add(pair);
+
         switch (sourceType.getTag()) {
             case TypeTags.UNION_TAG:
                 return isUnionTypeMatch((BUnionType) sourceType, targetType, unresolvedTypes);
@@ -2296,42 +2304,46 @@ public class TypeChecker {
                 BTupleType tupleType = (BTupleType) type;
                 return tupleType.getTupleTypes().stream().allMatch(TypeChecker::hasFillerValue);
             case TypeTags.UNION_TAG:
-                return checkFillerValue((BUnionType) type);
+                return checkFillerValue((BUnionType) type, unanalyzedTypes);
             default:
                 return false;
         }
     }
 
-    private static boolean checkFillerValue(BUnionType type) {
-        // NIL is a member.
-        if (type.isNullable()) {
-            return true;
-        }
-        // All members are of same type.
-        Iterator<BType> iterator = type.getMemberTypes().iterator();
-        BType firstMember;
-        for (firstMember = iterator.next(); iterator.hasNext(); ) {
-            if (!isSameType(firstMember, iterator.next())) {
-                return false;
-            }
-        }
-        // Control reaching this point means there is only one type in the union.
-        return BTypes.isValueType(firstMember) && hasFillerValue(firstMember);
-    }
-
-    private static boolean checkFillerValue(BRecordType type, List<BType> unAnalyzedTypes) {
+    private static boolean checkFillerValue(BType type, List<BType> unAnalyzedTypes) {
         if (unAnalyzedTypes.contains(type)) {
             return true;
         }
         unAnalyzedTypes.add(type);
-        for (BField field : type.getFields().values()) {
-            if (Flags.isFlagOn(field.flags, Flags.OPTIONAL)) {
-                continue;
-            }
-            if (!Flags.isFlagOn(field.flags, Flags.REQUIRED)) {
-                continue;
-            }
-            return false;
+        switch (type.getTag()) {
+            case TypeTags.RECORD_TYPE_TAG:
+                BRecordType recordType = (BRecordType) type;
+                for (BField field : recordType.getFields().values()) {
+                    if (Flags.isFlagOn(field.flags, Flags.OPTIONAL)) {
+                        continue;
+                    }
+                    if (!Flags.isFlagOn(field.flags, Flags.REQUIRED)) {
+                        continue;
+                    }
+                    return false;
+                }
+                break;
+            case TypeTags.UNION_TAG:
+                BUnionType unionType = (BUnionType) type;
+                // NIL is a member.
+                if (unionType.isNullable()) {
+                    return true;
+                }
+                // All members are of same type.
+                Iterator<BType> iterator = unionType.getMemberTypes().iterator();
+                BType firstMember;
+                for (firstMember = iterator.next(); iterator.hasNext(); ) {
+                    if (!isSameType(firstMember, iterator.next())) {
+                        return false;
+                    }
+                }
+                // Control reaching this point means there is only one type in the union.
+                return BTypes.isValueType(firstMember) && hasFillerValue(firstMember);
         }
         return true;
     }

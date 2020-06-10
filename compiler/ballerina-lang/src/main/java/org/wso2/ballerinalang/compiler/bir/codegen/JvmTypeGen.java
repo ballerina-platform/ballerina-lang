@@ -49,7 +49,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -166,6 +165,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getRecord
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getStrandMetadataVarName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDef;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.NAME_HASH_COMPARATOR;
@@ -195,7 +195,8 @@ class JvmTypeGen {
             BIRTypeDefinition typeDef = getTypeDef(optionalTypeDef);
             fieldName = getTypeFieldName(typeDef.name.value);
             BType bType = typeDef.type;
-            if (bType.tag == TypeTags.RECORD || bType.tag == TypeTags.ERROR || bType.tag == TypeTags.OBJECT) {
+            if (bType.tag == TypeTags.RECORD || bType.tag == TypeTags.ERROR || bType.tag == TypeTags.OBJECT ||
+                    bType.tag == TypeTags.UNION) {
                 FieldVisitor fv = cw.visitField(ACC_STATIC + ACC_PUBLIC, fieldName, String.format("L%s;", BTYPE), null,
                         null);
                 fv.visitEnd();
@@ -247,6 +248,8 @@ class JvmTypeGen {
                 }
             } else if (bType.tag == TypeTags.ERROR) {
                 createErrorType(mv, (BErrorType) bType, bType.tsymbol.name.value);
+            } else if (bType.tag == TypeTags.UNION) {
+                createUnionType(mv, (BUnionType) bType);
             } else {
                 // do not generate anything for other types (e.g.: finite type, unions, etc.)
                 continue;
@@ -268,7 +271,8 @@ class JvmTypeGen {
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             BIRTypeDefinition typeDef = getTypeDef(optionalTypeDef);
             BType bType = typeDef.type;
-            if (!(bType.tag == TypeTags.RECORD || bType.tag == TypeTags.OBJECT || bType.tag == TypeTags.ERROR)) {
+            if (!(bType.tag == TypeTags.RECORD || bType.tag == TypeTags.OBJECT || bType.tag == TypeTags.ERROR ||
+                    bType.tag == TypeTags.UNION)) {
                 continue;
             }
 
@@ -331,6 +335,14 @@ class JvmTypeGen {
                                 String.format("(L%s;)V", TYPE_ID_SET), false);
                     }
                     break;
+                case TypeTags.UNION:
+                    // populate member fields
+                    BUnionType unionType = (BUnionType) bType;
+                    mv.visitTypeInsn(CHECKCAST, UNION_TYPE);
+                    mv.visitInsn(DUP);
+                    addUnionMembers(mv, unionType.getMemberTypes());
+                    addImmutableType(mv, unionType);
+                    break;
             }
 
             mv.visitInsn(RETURN);
@@ -341,8 +353,8 @@ class JvmTypeGen {
         return funcNames;
     }
 
-    private static void addImmutableType(MethodVisitor mv, BStructureType structureType) {
-        BIntersectionType immutableType = ((SelectivelyImmutableReferenceType) structureType).getImmutableType();
+    private static void addImmutableType(MethodVisitor mv, BType type) {
+        BIntersectionType immutableType = ((SelectivelyImmutableReferenceType) type).getImmutableType();
         if (immutableType == null) {
             return;
         }
@@ -812,6 +824,54 @@ class JvmTypeGen {
                 String.format("(L%s;L%s;I)V", STRING_VALUE, PACKAGE_TYPE), false);
     }
 
+    /**
+     * Create a runtime type instance for union used in type definitions.
+     *
+     * @param mv        method visitor
+     * @param unionType union type
+     */
+    private static void createUnionType(MethodVisitor mv, BUnionType unionType) {
+        mv.visitTypeInsn(NEW, UNION_TYPE);
+        mv.visitInsn(DUP);
+
+        // Load type flags
+        mv.visitLdcInsn(typeFlag(unionType));
+
+        loadReadonlyFlag(mv, unionType);
+
+        // initialize the union type using the members array
+        mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE, "<init>", "(IZ)V", false);
+    }
+
+    /**
+     * Add member type to unions in a type definition.
+     *
+     * @param mv        method visitor
+     * @param members   members
+     */
+    private static void addUnionMembers(MethodVisitor mv, Set<BType> members) {
+        // Create the members array
+        mv.visitLdcInsn((long) members.size());
+        mv.visitInsn(L2I);
+        mv.visitTypeInsn(ANEWARRAY, BTYPE);
+        int i = 0;
+        for (BType memberType : members) {
+            BType mType = getType(memberType);
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn((long) i);
+            mv.visitInsn(L2I);
+
+            // Load the member type
+            loadType(mv, mType);
+
+            // Add the member to the array
+            mv.visitInsn(AASTORE);
+            i += 1;
+        }
+
+        mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE, "setMemberTypes", String.format("([L%s;)V", BTYPE), false);
+    }
+
     static void duplicateServiceTypeWithAnnots(MethodVisitor mv, BObjectType objectType, String pkgClassName,
                                                int strandIndex) {
 
@@ -1166,7 +1226,12 @@ class JvmTypeGen {
                     loadErrorType(mv, (BErrorType) bType);
                     return;
                 case TypeTags.UNION:
-                    loadUnionType(mv, (BUnionType) bType);
+                    BUnionType unionType = (BUnionType) bType;
+                    if (Symbols.isFlagOn(unionType.flags, Flags.ANONYMOUS)) {
+                        loadUserDefinedType(mv, bType);
+                    } else {
+                        loadUnionType(mv, (BUnionType) bType);
+                    }
                     return;
                 case TypeTags.INTERSECTION:
                     loadIntersectionType(mv, (BIntersectionType) bType);
