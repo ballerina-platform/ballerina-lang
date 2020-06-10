@@ -101,7 +101,7 @@ type StreamIterator object {
 
     public function next() returns record {|anydata value;|}|error? {
         if (self.isClosed) {
-            return StreamEndError (message = "Stream is closed. Therefore, "
+            return StreamEndError(message = "Stream is closed. Therefore, "
                            + "no operations are allowed further on the stream.");
         }
         anydata|handle |error? result = nextResult(self);
