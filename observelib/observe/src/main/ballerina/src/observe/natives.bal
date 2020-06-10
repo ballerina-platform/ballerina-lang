@@ -79,7 +79,7 @@ public type Counter object {
     # + desc - Description of the Counter instance. If no description is provided, the the default empty string
     #          will be used.
     # + tags - The key/value pair of Tags. If no tags are provided, the default nil value will be used.
-    public function __init(string name, public string? desc = "", public map<string>? tags = ()) {
+    public function init(string name, public string? desc = "", public map<string>? tags = ()) {
         self.name = name;
         if (desc is string) {
             self.description = desc;
@@ -148,7 +148,7 @@ public type Gauge object {
     #                     statistics configurations array is passed, then statistics calculation will be disabled.
     #                     If nil () is passed, then default statistics configs will be used for the statitics
     #                     calculation.
-    public function __init(string name, string? desc = "", map<string>? tags = (),
+    public function init(string name, string? desc = "", map<string>? tags = (),
                StatisticConfig[]? statisticConfig = ()) {
         self.name = name;
         self.description = desc ?: "";

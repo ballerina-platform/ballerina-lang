@@ -8,7 +8,7 @@ type BbBodyGenrator object {
     FuncGenrator parent;
     bir:BasicBlock bb;
 
-    function __init(llvm:LLVMBuilderRef builder, FuncGenrator parent, bir:BasicBlock bb) {
+    function init(llvm:LLVMBuilderRef builder, FuncGenrator parent, bir:BasicBlock bb) {
         self.builder = builder;
         self.parent = parent;
         self.bb = bb;

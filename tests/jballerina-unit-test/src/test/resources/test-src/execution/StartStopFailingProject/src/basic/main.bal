@@ -17,7 +17,7 @@
 import ballerina/io;
 import ballerina/lang.'object;
 
-function __init() {
+function init() {
 	io:println("Initializing module 'basic'");
 }
 
@@ -29,7 +29,7 @@ public type TestListener object {
     *'object:Listener;
     private string name = "";
 
-    public function __init(string name){
+    public function init(string name){
         self.name = name;
     }
 

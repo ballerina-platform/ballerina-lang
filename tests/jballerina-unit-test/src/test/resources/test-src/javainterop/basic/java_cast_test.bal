@@ -86,7 +86,7 @@ public type String1 object {
 
     *java:JObject;
 
-    public function __init(handle obj) {
+    public function init(handle obj) {
         self.jObj = obj;
     }
 
@@ -103,7 +103,7 @@ public type Object1 object {
 
     *java:JObject;
 
-    public function __init(handle obj) {
+    public function init(handle obj) {
         self.jObj = obj;
     }
 };
@@ -116,7 +116,7 @@ public type ArrayList1 object {
 
     *java:JObject;
 
-    public function __init(handle obj) {
+    public function init(handle obj) {
         self.jObj = obj;
     }
 
@@ -135,7 +135,7 @@ public type String2 object {
 
     *java:JObject;
 
-    public function __init(handle obj) {
+    public function init(handle obj) {
         self.jObj = obj;
     }
 
@@ -149,7 +149,7 @@ public type Object2 object {
 
     *java:JObject;
 
-    public function __init(handle obj) {
+    public function init(handle obj) {
         self.jObj = obj;
     }
 };
@@ -162,7 +162,7 @@ public type ArrayList2 object {
 
     *java:JObject;
 
-    public function __init(handle obj) {
+    public function init(handle obj) {
         self.jObj = obj;
     }
 
@@ -184,7 +184,7 @@ public type String3 object {
 
     *java:JObject;
 
-    public function __init(handle obj) {
+    public function init(handle obj) {
         self.jObj = obj;
     }
 
@@ -201,7 +201,7 @@ public type Object3 object {
 
     *java:JObject;
 
-    public function __init(handle obj) {
+    public function init(handle obj) {
         self.jObj = obj;
     }
 };
@@ -214,7 +214,7 @@ public type ArrayList3 object {
 
     *java:JObject;
 
-    public function __init(handle obj) {
+    public function init(handle obj) {
         self.jObj = obj;
     }
 
@@ -236,7 +236,7 @@ public type String4 object {
 
     *java:JObject;
 
-    public function __init(string obj) {
+    public function init(string obj) {
         self.jObj = java:fromString(obj);
     }
 

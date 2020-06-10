@@ -52,8 +52,6 @@ public class BObjectValue extends BCompoundVariable {
                 }
             }
             return "unknown";
-        } catch (RuntimeException e) {
-            throw e;
         } catch (Exception ignored) {
             return "unknown";
         }
@@ -72,8 +70,6 @@ public class BObjectValue extends BCompoundVariable {
                 }
             });
             this.setChildVariables(values);
-        } catch (RuntimeException e) {
-            throw e;
         } catch (Exception ignored) {
             this.setChildVariables(new HashMap<>());
         }

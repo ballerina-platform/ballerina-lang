@@ -33,13 +33,13 @@ public type EmbeddedModeConfig record {|
 |};
 
 function testAmbiguityResolution() returns [string, string, string] {
-    string s1 = init({});
-    string s2 = init({host:"localhost", port:9090});
-    string s3 = init({path:"localhost:9090"});
+    string s1 = _init_({});
+    string s2 = _init_({host:"localhost", port:9090});
+    string s3 = _init_({path:"localhost:9090"});
     return [s1, s2, s3];
 }
 
-function init(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig rec) returns string {
+function _init_(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig rec) returns string {
     if (rec is ServerModeConfig) {
         return "Server mode configuration";
     } else if (rec is EmbeddedModeConfig) {

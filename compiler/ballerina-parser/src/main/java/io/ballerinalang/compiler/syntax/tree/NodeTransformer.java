@@ -720,6 +720,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(matchGuardNode);
     }
 
+    public T transform(ObjectMethodDefinitionNode objectMethodDefinitionNode) {
+        return transformSyntaxNode(objectMethodDefinitionNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

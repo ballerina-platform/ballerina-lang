@@ -102,21 +102,8 @@
                   "kind": "EQUAL_TOKEN"
                 },
                 {
-                  "kind": "BINARY_EXPRESSION",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a"
-                    },
-                    {
-                      "kind": "PLUS_TOKEN",
-                      "isMissing": true
-                    },
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "b"
-                    }
-                  ]
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
                 }
               ]
             }

@@ -24,7 +24,7 @@ type IntRange object {
     private int iEnd;
     private int iCurrent;
 
-    public function __init(int s, int e) {
+    public function init(int s, int e) {
         self.iStart = s;
         self.iEnd = e;
         self.iCurrent = s;

@@ -11,11 +11,11 @@
       "range": {
         "start": {
           "line": 7,
-          "character": 31
+          "character": 29
         },
         "end": {
           "line": 7,
-          "character": 34
+          "character": 32
         }
       },
       "uri": "defFl40.bal"

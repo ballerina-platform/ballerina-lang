@@ -981,7 +981,7 @@ public class ParserTestUtils {
                 return SyntaxKind.EXPRESSION_FUNCTION_BODY;
             case "INFER_PARAM_LIST":
                 return SyntaxKind.INFER_PARAM_LIST;
-            case "FUNCTION_DECLARATION":
+            case "METHOD_DECLARATION":
                 return SyntaxKind.METHOD_DECLARATION;
             case "TYPED_BINDING_PATTERN":
                 return SyntaxKind.TYPED_BINDING_PATTERN;
@@ -1017,6 +1017,8 @@ public class ParserTestUtils {
                 return SyntaxKind.MATCH_CLAUSE;
             case "MATCH_GUARD":
                 return SyntaxKind.MATCH_GUARD;
+            case "OBJECT_METHOD_DEFINITION":
+                return SyntaxKind.OBJECT_METHOD_DEFINITION;
 
             // XML template
             case "XML_ELEMENT":
