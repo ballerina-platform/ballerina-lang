@@ -52,7 +52,7 @@ public type ClientObjectWithoutRemoteMethod client object {
     public string name;
     public string id = "";
 
-    public function __init(string name) {
+    public function init(string name) {
         self.name = name;
     }
     public function send(string message) returns error? {
@@ -65,7 +65,7 @@ public type NonClientObject object {
     public string name;
     public string id = "";
 
-    public function __init(string name) {
+    public function init(string name) {
         self.name = name;
     }
     public function send(string message) returns error? {

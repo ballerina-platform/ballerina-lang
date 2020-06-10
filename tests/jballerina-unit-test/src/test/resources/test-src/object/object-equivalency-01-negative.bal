@@ -407,7 +407,7 @@ type ObjWithOnlyRemoteMethod client object {
     public string name;
     public string id = "";
 
-    function __init(string name) {
+    function init(string name) {
         self.name = name;
     }
     public remote function send(string message) returns error? {
@@ -420,7 +420,7 @@ type ObjWithRemoteMethod client object {
     public string name;
     public string id = "";
 
-    function __init(string name) {
+    function init(string name) {
         self.name = name;
     }
     public remote function send(string message) returns error? {
@@ -433,7 +433,7 @@ type NonClientObj object {
     public string name;
     public string id = "";
 
-    function __init(string name) {
+    function init(string name) {
         self.name = name;
     }
     public function send(string message) returns error? {
@@ -446,7 +446,7 @@ type ClientObjWithoutRemoteMethod client object {
     public string name;
     public string id = "";
 
-    function __init(string name) {
+    function init(string name) {
         self.name = name;
     }
     public function send(string message) returns error? {
