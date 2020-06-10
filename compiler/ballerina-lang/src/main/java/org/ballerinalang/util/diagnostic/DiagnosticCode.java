@@ -537,7 +537,11 @@ public enum DiagnosticCode {
     INVALID_WAIT_ACTIONS("invalid.wait.future.expr.actions"),
     INVALID_SEND_EXPR("invalid.send.expr"),
 
-    INVALID_RAW_TEMPLATE_LITERAL("invalid.raw.template.literal")
+    INVALID_RAW_TEMPLATE_LITERAL("invalid.raw.template.literal"),
+    INVALID_RAW_TEMPLATE_ASSIGNMENT("invalid.raw.template.assignment"),
+    MISSING_STRINGS_FIELD("missing.strings.field"),
+    MISSING_INSERTIONS_FIELD("missing.insertions.field"),
+    INVALID_NUM_FIELDS("invalid.number.of.fields"),
     ;
     private String value;
 
