@@ -44,44 +44,6 @@
                   "value": "a"
                 }
               ]
-            },
-            {
-              "kind": "REQUIRED_PARAM",
-              "children": [
-                {
-                  "kind": "COMMA_TOKEN"
-                },
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "INT_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "b"
-                }
-              ]
-            },
-            {
-              "kind": "REQUIRED_PARAM",
-              "children": [
-                {
-                  "kind": "COMMA_TOKEN"
-                },
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "INT_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "c"
-                }
-              ]
             }
           ]
         },
