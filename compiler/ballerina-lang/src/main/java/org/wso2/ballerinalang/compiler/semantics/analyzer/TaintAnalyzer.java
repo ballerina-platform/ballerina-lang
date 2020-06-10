@@ -1262,7 +1262,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
         // If @untainted annotation is attached, we consider resulting value after conversion is untainted
         if (!conversionExpr.annAttachments.isEmpty()) {
-            getCurrentAnalysisState().taintedStatus = getTaintedStatusBasedOnAnnotations(conversionExpr.annAttachments);
+            TaintedStatus annotStatus = getTaintedStatusBasedOnAnnotations(conversionExpr.annAttachments);
+            if (annotStatus != TaintedStatus.IGNORED) {
+                getCurrentAnalysisState().taintedStatus = annotStatus;
+            }
         }
     }
 

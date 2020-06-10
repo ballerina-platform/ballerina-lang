@@ -22,7 +22,6 @@ import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
-import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.Library;
 import org.ballerinalang.toml.model.Manifest;
@@ -98,15 +97,11 @@ public class JarResolverImpl implements JarResolver {
 
     @Override
     public Path moduleJar(PackageID packageID) {
-        if (buildContext.getSourceType().equals(SourceType.SINGLE_BAL_FILE)) {
-            return buildContext.getJarPathFromTargetCache(packageID);
-        } else if (isProjectModule(packageID)) {
+        if (packageID.toString().equals(".") || isProjectModule(packageID) || isPathDependency(packageID)) {
             // If so fetch from project balo cache
-            return buildContext.getBaloFromTarget(packageID);
-        } else if (isPathDependency(packageID)) {
-            // If so fetch from project jar cache
             return buildContext.getJarPathFromTargetCache(packageID);
         } else if (isModuleInDistribution(packageID)) {
+            // If so fetch from distribution
             return getJarFromDistribution(packageID);
         } else {
             // If not fetch from home balo cache.
@@ -174,10 +169,7 @@ public class JarResolverImpl implements JarResolver {
 
     private void copyImportedLibs(PackageID packageID, List<BPackageSymbol> imports, List<Path> moduleDependencySet,
                                   HashSet<PackageID> alreadyImportedSet) {
-        if (!moduleDependencySet.contains(moduleJar(packageID))) {
-            moduleDependencySet.add(moduleJar(packageID));
-        }
-
+        moduleDependencySet.add(moduleJar(packageID));
         for (BPackageSymbol importSymbol : imports) {
             PackageID pkgId = importSymbol.pkgID;
             if (!alreadyImportedSet.contains(pkgId)) {
@@ -361,20 +353,11 @@ public class JarResolverImpl implements JarResolver {
     }
 
     private Path getJarFromDistribution(PackageID packageID) {
-        List<Path> dependencies = getDependenciesFromDist(packageID);
-        Path jarPath = null;
-        if (dependencies == null) {
+        String moduleJarName = packageID.orgName.value + "-" + packageID.name.value + "-" + packageID.version.value +
+                BLANG_COMPILED_JAR_EXT;
+        if (skipCopyLibsFromDist) {
             return null;
         }
-
-        for (Path dependency: dependencies) {
-            String version = packageID.version.value.equals("") ? BLANG_PKG_DEFAULT_VERSION : packageID.version.value;
-            if (dependency.getFileName().toString().equals(String.join("-", packageID.orgName.value,
-                    packageID.name.value, version, "java").concat(".jar"))) {
-                jarPath = dependency;
-                break;
-            }
-        }
-        return jarPath;
+        return Paths.get(balHomePath, "bre", "lib", moduleJarName);
     }
 }
