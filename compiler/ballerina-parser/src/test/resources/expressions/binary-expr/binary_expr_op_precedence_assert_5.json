@@ -5,31 +5,36 @@
       "kind": "BINARY_EXPRESSION",
       "children": [
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "a"
+          "kind": "BINARY_EXPRESSION",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
+            },
+            {
+              "kind": "MINUS_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "b"
+            }
+          ]
         },
         {
-          "kind": "MINUS_TOKEN"
+          "kind": "NOT_EQUAL_TOKEN"
         },
         {
           "kind": "IDENTIFIER_TOKEN",
-          "value": "b"
+          "value": "c"
         }
       ]
     },
     {
-      "kind": "NOT_EQUAL_TOKEN"
+      "kind": "TRIPPLE_EQUAL_TOKEN"
     },
     {
       "kind": "BINARY_EXPRESSION",
       "children": [
-        {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "c"
-        },
-        {
-          "kind": "TRIPPLE_EQUAL_TOKEN"
-        },
         {
           "kind": "BINARY_EXPRESSION",
           "children": [
@@ -44,43 +49,38 @@
               "kind": "BINARY_EXPRESSION",
               "children": [
                 {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "e"
+                },
+                {
+                  "kind": "PLUS_TOKEN"
+                },
+                {
                   "kind": "BINARY_EXPRESSION",
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
-                      "value": "e"
+                      "value": "f"
                     },
                     {
-                      "kind": "PLUS_TOKEN"
+                      "kind": "ASTERISK_TOKEN"
                     },
                     {
-                      "kind": "BINARY_EXPRESSION",
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "f"
-                        },
-                        {
-                          "kind": "ASTERISK_TOKEN"
-                        },
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "g"
-                        }
-                      ]
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "g"
                     }
                   ]
-                },
-                {
-                  "kind": "LT_TOKEN"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "h"
                 }
               ]
             }
           ]
+        },
+        {
+          "kind": "LT_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "h"
         }
       ]
     }

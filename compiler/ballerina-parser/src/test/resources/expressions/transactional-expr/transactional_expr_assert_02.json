@@ -114,26 +114,8 @@
                   "kind": "BINARY_EXPRESSION",
                   "children": [
                     {
-                      "kind": "TRANSACTIONAL_EXPRESSION",
-                      "children": [
-                        {
-                          "kind": "TRANSACTIONAL_KEYWORD"
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "PIPE_TOKEN"
-                    },
-                    {
                       "kind": "BINARY_EXPRESSION",
                       "children": [
-                        {
-                          "kind": "TRUE_KEYWORD"
-                        },
-                        {
-                          "kind": "PLUS_TOKEN",
-                          "isMissing": true
-                        },
                         {
                           "kind": "TRANSACTIONAL_EXPRESSION",
                           "children": [
@@ -141,6 +123,24 @@
                               "kind": "TRANSACTIONAL_KEYWORD"
                             }
                           ]
+                        },
+                        {
+                          "kind": "PIPE_TOKEN"
+                        },
+                        {
+                          "kind": "TRUE_KEYWORD"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "PLUS_TOKEN",
+                      "isMissing": true
+                    },
+                    {
+                      "kind": "TRANSACTIONAL_EXPRESSION",
+                      "children": [
+                        {
+                          "kind": "TRANSACTIONAL_KEYWORD"
                         }
                       ]
                     }

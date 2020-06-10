@@ -92,7 +92,7 @@
 <!--            <package name="org.ballerinalang.test.expressions.conversion.*"/>-->
             <package name="org.ballerinalang.test.expressions.unaryoperations.*"/>
 <!--            <package name="org.ballerinalang.test.expressions.access.*"/>-->
-<!--            <package name="org.ballerinalang.test.expressions.binaryoperations.*"/>-->
+           <package name="org.ballerinalang.test.expressions.binaryoperations.*"/>
            <package name="org.ballerinalang.test.expressions.checkedexpr.*"/>
 <!--            <package name="org.ballerinalang.test.expressions.checkpanicexpr.*"/>-->
            <package name="org.ballerinalang.test.expressions.elvis.*"/>
@@ -131,11 +131,6 @@
 
         <classes>
             <class name="org.ballerinalang.test.balo.constant.SimpleConstantBaloNegativeTests"></class>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.DivisionOperationTest"></class>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.GreaterLessThanOperationTest"></class>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.ModOperationTest"></class>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.MultiplyOperationTest"></class>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.SubtractOperationTest"></class>
             <class name="org.ballerinalang.test.expressions.builtinoperations.BuiltinOperationsTest"></class>
             <class name="org.ballerinalang.test.expressions.invocations.StringFunctionInvocationExprTest"></class>
             <class name="org.ballerinalang.test.expressions.invocations.PackageInitInvocationTest"></class>

@@ -252,6 +252,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
@@ -2875,6 +2876,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             return group;
         } else if (expression.kind() == SyntaxKind.EXPRESSION_LIST_ITEM) {
             return createExpression(((ExpressionListItemNode) expression).expression());
+        } else if (isSimpleType(expression.kind())) {
+            BLangTypedescExpr typeAccessExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
+            typeAccessExpr.pos = getPosition(expression);
+            typeAccessExpr.typeNode = createTypeNode(expression);
+            return typeAccessExpr;
         } else {
             return (BLangExpression) expression.apply(this);
         }
@@ -3484,6 +3490,32 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             case FALSE_KEYWORD:
             case NIL_LITERAL:
             case NULL_KEYWORD:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    static boolean isSimpleType(SyntaxKind nodeKind) {
+        switch (nodeKind) {
+            case INT_TYPE_DESC:
+            case FLOAT_TYPE_DESC:
+            case DECIMAL_TYPE_DESC:
+            case BOOLEAN_TYPE_DESC:
+            case STRING_TYPE_DESC:
+            case BYTE_TYPE_DESC:
+            case XML_TYPE_DESC:
+            case JSON_TYPE_DESC:
+            case HANDLE_TYPE_DESC:
+            case ANY_TYPE_DESC:
+            case ANYDATA_TYPE_DESC:
+            case NEVER_TYPE_DESC:
+            case SERVICE_TYPE_DESC:
+            case VAR_TYPE_DESC:
+            case ERROR_TYPE_DESC: // This is for the recovery. <code>error a;</code> scenario recovered here.
+            case STREAM_TYPE_DESC: // This is for recovery logic. <code>stream a;</code> scenario recovered here.
+            case READONLY_TYPE_DESC:
+            case DISTINCT_TYPE_DESC:
                 return true;
             default:
                 return false;

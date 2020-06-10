@@ -68,7 +68,7 @@ import java.util.List;
  */
 public class BallerinaParser extends AbstractParser {
 
-    private static final OperatorPrecedence DEFAULT_OP_PRECEDENCE = OperatorPrecedence.ACTION;
+    private static final OperatorPrecedence DEFAULT_OP_PRECEDENCE = OperatorPrecedence.DEFAULT;
 
     protected BallerinaParser(AbstractTokenReader tokenReader) {
         super(tokenReader, new BallerinaParserErrorHandler(tokenReader));
@@ -2794,6 +2794,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private SyntaxKind getBinaryOperatorKindToInsert(OperatorPrecedence opPrecedenceLevel) {
         switch (opPrecedenceLevel) {
+            case DEFAULT:
             case UNARY:
             case ACTION:
             case EXPRESSION_ACTION:
@@ -3973,6 +3974,10 @@ public class BallerinaParser extends AbstractParser {
             case BASE64_KEYWORD:
                 return parseByteArrayLiteral(kind);
             default:
+                if (isSimpleType(kind)) {
+                    return parseSimpleTypeDescriptor();
+                }
+
                 break;
         }
 
@@ -4257,7 +4262,7 @@ public class BallerinaParser extends AbstractParser {
         // the newly found (next) operator, then return and finish the previous expr,
         // because it has a higher precedence.
         OperatorPrecedence nextOperatorPrecedence = getOpPrecedence(tokenKind);
-        if (currentPrecedenceLevel.isHigherThan(nextOperatorPrecedence, allowActions)) {
+        if (currentPrecedenceLevel.isHigherOrEqualThan(nextOperatorPrecedence, allowActions)) {
             return lhsExpr;
         }
 
@@ -10809,7 +10814,9 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseConditionalExpression(STNode lhsExpr) {
         startContext(ParserRuleContext.CONDITIONAL_EXPRESSION);
         STNode questionMark = parseQuestionMark();
-        STNode middleExpr = parseExpression(OperatorPrecedence.CONDITIONAL, true, false, true);
+        // start parsing middle-expr, by giving higher-precedence to the middle-expr, over currently
+        // parsing conditional expr. That is done by lowering the current precedence.
+        STNode middleExpr = parseExpression(OperatorPrecedence.ANON_FUNC_OR_LET, true, false, true);
 
         // Special case "a ? b : c", since "b:c" matches to var-ref due to expr-precedence.
         STNode nextToken = peek();
@@ -10823,7 +10830,9 @@ public class BallerinaParser extends AbstractParser {
         } else {
             colon = parseColon();
             endContext();
-            endExpr = parseExpression(OperatorPrecedence.CONDITIONAL, true, false);
+            // start parsing end-expr, by giving higher-precedence to the end-expr, over currently
+            // parsing conditional expr. That is done by lowering the current precedence.
+            endExpr = parseExpression(OperatorPrecedence.ANON_FUNC_OR_LET, true, false);
         }
 
         return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, colon, endExpr);
@@ -11859,8 +11868,10 @@ public class BallerinaParser extends AbstractParser {
                 typeOrExpr = parseQualifiedIdentifier(ParserRuleContext.TYPE_NAME_OR_VAR_NAME);
                 return parseTypedBindingPatternOrExprRhs(typeOrExpr, allowAssignment);
             case OPEN_BRACKET_TOKEN:
+                typeOrExpr = parseTypedDescOrExprStartsWithOpenBracket();
+                return parseTypedBindingPatternOrExprRhs(typeOrExpr, allowAssignment);
 
-                // Can be a singleton type or expression.
+            // Can be a singleton type or expression.
             case NIL_LITERAL:
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
@@ -11938,7 +11949,7 @@ public class BallerinaParser extends AbstractParser {
             case SEMICOLON_TOKEN:
             case IDENTIFIER_TOKEN:
             case QUESTION_MARK_TOKEN:
-                if (isAmbiguous(typeOrExpr)) {
+                if (isAmbiguous(typeOrExpr) || isDefiniteTypeDesc(typeOrExpr.kind)) {
                     // treat as type
                     STNode typeDesc = getTypeDescFromExpr(typeOrExpr);
                     return parseTypeBindingPatternStartsWithAmbiguousNode(typeDesc);
