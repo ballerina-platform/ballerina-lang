@@ -2027,5 +2027,24 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 ifKeyword,
                 expression);
     }
+
+    public static STNode createObjectMethodDefinitionNode(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode remoteKeyword,
+            STNode functionKeyword,
+            STNode functionName,
+            STNode functionSignature,
+            STNode functionBody) {
+
+        return new STObjectMethodDefinitionNode(
+                metadata,
+                visibilityQualifier,
+                remoteKeyword,
+                functionKeyword,
+                functionName,
+                functionSignature,
+                functionBody);
+    }
 }
 

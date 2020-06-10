@@ -625,8 +625,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         }
     }
 
-    int a = 0;
-
     /**
      * Search for a solution.
      * Terminals are directly matched and Non-terminals which have alternative productions are seekInAlternativesPaths()

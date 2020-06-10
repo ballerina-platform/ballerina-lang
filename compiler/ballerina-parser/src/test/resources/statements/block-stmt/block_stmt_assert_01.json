@@ -369,7 +369,7 @@
                                   ]
                                 },
                                 {
-                                  "kind": "FUNCTION_DEFINITION",
+                                  "kind": "OBJECT_METHOD_DEFINITION",
                                   "children": [
                                     {
                                       "kind": "METADATA",
@@ -438,7 +438,7 @@
                                   ]
                                 },
                                 {
-                                  "kind": "FUNCTION_DEFINITION",
+                                  "kind": "OBJECT_METHOD_DEFINITION",
                                   "children": [
                                     {
                                       "kind": "METADATA",

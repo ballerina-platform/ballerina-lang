@@ -2181,6 +2181,26 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 expression);
     }
 
+    @Override
+    public STObjectMethodDefinitionNode transform(
+            STObjectMethodDefinitionNode objectMethodDefinitionNode) {
+        STNode metadata = modifyNode(objectMethodDefinitionNode.metadata);
+        STNode visibilityQualifier = modifyNode(objectMethodDefinitionNode.visibilityQualifier);
+        STNode remoteKeyword = modifyNode(objectMethodDefinitionNode.remoteKeyword);
+        STNode functionKeyword = modifyNode(objectMethodDefinitionNode.functionKeyword);
+        STNode functionName = modifyNode(objectMethodDefinitionNode.functionName);
+        STNode functionSignature = modifyNode(objectMethodDefinitionNode.functionSignature);
+        STNode functionBody = modifyNode(objectMethodDefinitionNode.functionBody);
+        return objectMethodDefinitionNode.modify(
+                metadata,
+                visibilityQualifier,
+                remoteKeyword,
+                functionKeyword,
+                functionName,
+                functionSignature,
+                functionBody);
+    }
+
     // Tokens
 
     public STToken transform(STToken token) {
