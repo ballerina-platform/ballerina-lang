@@ -370,7 +370,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private class ValueHolder {
 
         public void addData(V data) {
-            put(data);
+            putData(data);
         }
 
         public V getData(K key) {
