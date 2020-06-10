@@ -216,7 +216,7 @@ function testTupleUnionExpectedType() {
 type NoFillerObject object {
     int a;
 
-    function __init(int arg) {
+    function init(int arg) {
         self.a = arg;
     }
 };

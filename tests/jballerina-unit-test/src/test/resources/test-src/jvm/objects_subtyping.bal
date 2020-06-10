@@ -23,7 +23,7 @@ type Person1 object {
     int year = 50;
     string month = "february";
 
-    function __init(string name, int age) {
+    function init(string name, int age) {
         self.age = age;
         self.name = name;
     }
@@ -36,7 +36,7 @@ type Employee1 object {
     int year = 2;
     string month = "idk";
     
-    function __init(string name, int age) {
+    function init(string name, int age) {
         self.age = age;
         self.name = name;
         self.year = 50;
@@ -76,7 +76,7 @@ type Student1 object {
     public int age = 0;
     public string school = "";
 
-    public function __init(string name, int age, string school) {
+    public function init(string name, int age, string school) {
         self.name = name;
         self.age = age;
         self.school = school;
@@ -103,7 +103,7 @@ public type UniStudent1 object {
     public int age = 0;
     public string major;
 
-    public function __init(string name, string school, int age, string major) {
+    public function init(string name, string school, int age, string major) {
         self.name = name;
         self.age = age;
         self.school = school;
@@ -134,7 +134,7 @@ type Dog object {
     string name;
     float weight;
 
-    function __init(string name, float weight) {
+    function init(string name, float weight) {
         self.name = name;
         self.weight = weight;
     }

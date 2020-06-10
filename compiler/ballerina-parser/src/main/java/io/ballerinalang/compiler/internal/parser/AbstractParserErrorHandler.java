@@ -350,6 +350,8 @@ public abstract class AbstractParserErrorHandler {
                 return DiagnosticErrorCode.ERROR_MISSING_IF_KEYWORD;
             case IMPORT_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_IMPORT_KEYWORD;
+            case CONST_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_CONST_KEYWORD;
 
             case IDENTIFIER_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
@@ -357,6 +359,8 @@ public abstract class AbstractParserErrorHandler {
                 return DiagnosticErrorCode.ERROR_MISSING_DECIMAL_INTEGER_LITERAL;
             case TYPE_DESC:
                 return DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC;
+            case EXTERNAL_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_EXTERNAL_KEYWORD;
             default:
                 throw new UnsupportedOperationException("Unsupported SyntaxKind: " + expectedKind);
         }

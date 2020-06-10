@@ -24,7 +24,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 /**
  * Implementation of {@link BLangCommitExpr}.
  *
- * @since 0.985.0
+ * @since 2.0.0
  */
 public class BLangCommitExpr extends BLangExpression implements CommitExpressionNode {
 

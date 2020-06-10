@@ -114,7 +114,7 @@
                                 },
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
-                                  "value": "__init"
+                                  "value": "init"
                                 },
                                 {
                                   "kind": "FUNCTION_SIGNATURE",

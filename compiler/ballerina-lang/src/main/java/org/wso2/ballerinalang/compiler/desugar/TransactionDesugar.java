@@ -84,7 +84,6 @@ public class TransactionDesugar extends BLangNodeVisitor {
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private final Names names;
-    private CompilerContext context;
 
     private Stack<BSymbol> transactionErrorStack;
     private Stack<BLangExpression> retryStmtStack;
@@ -99,7 +98,6 @@ public class TransactionDesugar extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
         this.desugar = Desugar.getInstance(context);
-        this.context = context;
         this.transactionErrorStack = new Stack<>();
         this.retryStmtStack = new Stack<>();
     }
@@ -214,10 +212,6 @@ public class TransactionDesugar extends BLangNodeVisitor {
         transactionBlockStmt.stmts.add(trxFuncVarDef);
 
         createRollbackIfFailed(transactionNode.pos, transactionBlockStmt, resultSymbol);
-
-        ClosureExpressionVisitor closureExpressionVisitor = new ClosureExpressionVisitor(context, env, true);
-        trxMainFunc.accept(closureExpressionVisitor);
-
         return transactionBlockStmt;
     }
 

@@ -26,7 +26,7 @@ public type person1 object {
     string ssn = "";
     int id = 0;
 
-    public function __init () {}
+    public function init () {}
 
     public function getName () returns string {
         return self.name;
@@ -54,7 +54,7 @@ public type employee1 object {
     string ssn = "";
     int id = 0;
 
-    public function __init (int age, string name) {
+    public function init (int age, string name) {
         self.age = age;
         self.name = name;
     }
@@ -417,7 +417,7 @@ type Foo "a" | "b" | "c";
 type Person object {
     string name = "";
 
-    function __init (string name) {
+    function init (string name) {
         self.name = name;
     }
 
@@ -431,7 +431,7 @@ type Employee object {
     string name = "";
     private string id = "";
 
-    function __init (string name, string id) {
+    function init (string name, string id) {
         self.id = id;
         self.name = name;
     }
@@ -476,7 +476,7 @@ public type ObjectWithNew object {
     public string name = "";
     public string id = "";
 
-    public function __init () {
+    public function init () {
     }
 
     public function getPerson() returns ObjectWithNew {
@@ -498,7 +498,7 @@ type A object {
 
     public string 'field = "";
     
-    function __init () {
+    function init () {
         self.'field = "value A";
     }
 
@@ -511,7 +511,7 @@ type B object {
 
     public string 'field = "";
     
-    function __init () {
+    function init () {
         self.'field = "value B";
     }
 
@@ -547,7 +547,7 @@ public type PersonInOrder object {
     public string name = "";
     public string address = "";
 
-    public function __init (string name, int age) {
+    public function init (string name, int age) {
         self.age = age;
         self.name = name;
     }
@@ -577,7 +577,7 @@ public type PersonNotInOrder object {
         return self.age;
     }
 
-    public function __init (string name, int age) {
+    public function init (string name, int age) {
         self.age = age;
         self.name = name;
     }
@@ -605,7 +605,7 @@ type ObjectWithAnyTypeVariables object {
     public any x;
     public any y;
 
-    function __init() {
+    function init() {
         self.x = "B";
         self.y = 100;
     }
@@ -615,7 +615,7 @@ type ObjectWithoutAnyTypeVariables object {
     public string x;
     public int y;
 
-    function __init() {
+    function init() {
         self.x = "A";
         self.y = 12;
     }

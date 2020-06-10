@@ -127,7 +127,7 @@ function add_panic(int i, int j) returns int {
 
 type Student object {
     public string name;
-    public function __init() {
+    public function init() {
         future<int> accumulator = start add(2, 4);
         self.name = "ABC";
     }

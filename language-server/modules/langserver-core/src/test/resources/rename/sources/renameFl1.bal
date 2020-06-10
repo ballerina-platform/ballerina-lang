@@ -36,7 +36,7 @@ type RecData1 record {
 type Client client  object {
     Client? secondaryStore;
 
-    public function __init(Client? failoverStore) {
+    public function init(Client? failoverStore) {
         self.secondaryStore = failoverStore;
     }
 };

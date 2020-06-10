@@ -794,7 +794,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetryTransaction retryTransaction) {
-        //TODO Transaction
         result = retryTransaction;
     }
 

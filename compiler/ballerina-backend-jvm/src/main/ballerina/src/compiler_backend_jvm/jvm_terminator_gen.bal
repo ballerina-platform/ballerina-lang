@@ -27,7 +27,7 @@ type TerminatorGenerator object {
     bir:Package module;
     string currentPackageName;
 
-    function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, LabelGenerator labelGen,
+    function init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, LabelGenerator labelGen,
                             ErrorHandlerGenerator errorGen, bir:Package module) {
         self.mv = mv;
         self.indexMap = indexMap;
