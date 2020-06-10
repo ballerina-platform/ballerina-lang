@@ -74,6 +74,6 @@ public class ForeachTableTypedBindingPatternsTests {
     @Test
     public void testIterationOverKeylessTable() {
         BValue[] returns = BRunUtil.invoke(program, "testIterationOverKeylessTable");
-        Assert.assertTrue(((BBoolean)returns[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 }
