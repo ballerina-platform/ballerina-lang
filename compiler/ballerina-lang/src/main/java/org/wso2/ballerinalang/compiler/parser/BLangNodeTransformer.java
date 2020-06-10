@@ -1139,6 +1139,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangBlockStmt blockStmt = (BLangBlockStmt) namedWorkerDeclNode.workerBody().apply(this);
         BLangBlockFunctionBody bodyNode = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
         bodyNode.stmts = blockStmt.stmts;
+        bodyNode.pos = pos;
         bLFunction.body = bodyNode;
 
 //        attachAnnotations(function, annCount, false);
@@ -1176,6 +1177,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         String workerLambdaName = WORKER_LAMBDA_VAR_PREFIX + workerName;
 
+        DiagnosticPos workerNamePos = getPosition(namedWorkerDeclNode.workerName());
         // Check if the worker is in a fork. If so add the lambda function to the worker list in fork, else ignore.
         BLangSimpleVariable var = new SimpleVarBuilder()
                 .with(workerLambdaName)
@@ -1185,9 +1187,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 .build();
 
         BLangSimpleVariableDef lamdaWrkr = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
-        DiagnosticPos workerNamePos = getPosition(namedWorkerDeclNode.workerName());
-        lamdaWrkr.pos = workerNamePos;
-        var.pos = workerNamePos;
+        lamdaWrkr.pos = pos;
+        var.pos = pos;
         lamdaWrkr.setVariable(var);
         lamdaWrkr.isWorker = true;
 //        if (!this.forkJoinNodesStack.empty()) {
@@ -1198,7 +1199,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 //        }
 
         BLangInvocation bLInvocation = (BLangInvocation) TreeBuilder.createActionInvocation();
-        BLangIdentifier nameInd = this.createIdentifier(pos, workerLambdaName);
+        BLangIdentifier nameInd = this.createIdentifier(workerNamePos, workerLambdaName);
         BLangNameReference reference = new BLangNameReference(workerNamePos, null, TreeBuilder.createIdentifierNode(),
                                                               nameInd);
         bLInvocation.pkgAlias = (BLangIdentifier) reference.pkgAlias;
@@ -1215,11 +1216,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         BLangSimpleVariable invoc = new SimpleVarBuilder()
-                .with(workerName, getPosition(namedWorkerDeclNode.workerName()))
+                .with(workerName)
                 .isDeclaredWithVar()
                 .isWorkerVar()
                 .setExpression(bLInvocation)
                 .isFinal()
+                .setPos(workerNamePos)
                 .build();
 
         BLangSimpleVariableDef workerInvoc = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
@@ -1489,6 +1491,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
         bLFieldBasedAccess.pos = getPosition(fieldAccessExprNode);
         bLFieldBasedAccess.field.pos = getPosition(fieldAccessExprNode);
+        trimLeft(bLFieldBasedAccess.field.pos, getPosition(fieldAccessExprNode.dotToken()));
         bLFieldBasedAccess.expr = createExpression(fieldAccessExprNode.expression());
         bLFieldBasedAccess.fieldKind = FieldKind.SINGLE;
         bLFieldBasedAccess.optionalFieldAccess = false;
