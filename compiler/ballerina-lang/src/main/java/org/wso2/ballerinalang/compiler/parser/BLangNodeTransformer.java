@@ -566,13 +566,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         if (!finiteTypeElements.isEmpty()) {
-            BLangTypeDefinition bLTypeDef = deSugarTypeAsUserDefType(bLangFiniteTypeNode);
-            addToTop(bLTypeDef);
-
-            BLangUserDefinedType bLangUserDefinedType =
-                    createUserDefinedType(bLangFiniteTypeNode.pos,
-                            (BLangIdentifier) TreeBuilder.createIdentifierNode(), bLTypeDef.name);
-            unionTypeNode.memberTypeNodes.add(bLangUserDefinedType);
+            unionTypeNode.memberTypeNodes.add(deSugarTypeAsUserDefType(bLangFiniteTypeNode));
         }
         return unionTypeNode;
     }
@@ -594,7 +588,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
     }
 
-    private BLangTypeDefinition deSugarTypeAsUserDefType(BLangType toIndirect) {
+    private BLangUserDefinedType deSugarTypeAsUserDefType(BLangType toIndirect) {
+        BLangTypeDefinition bLTypeDef = createTypeDefinitionWithTypeNode(toIndirect);
+        DiagnosticPos pos = toIndirect.pos;
+        addToTop(bLTypeDef);
+
+        return createUserDefinedType(pos, (BLangIdentifier) TreeBuilder.createIdentifierNode(), bLTypeDef.name);
+    }
+
+    private BLangTypeDefinition createTypeDefinitionWithTypeNode(BLangType toIndirect) {
         DiagnosticPos pos = toIndirect.pos;
         BLangTypeDefinition bLTypeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
 
@@ -703,11 +705,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             return objectTypeNode;
         }
 
-        BLangTypeDefinition bLTypeDef = deSugarTypeAsUserDefType(objectTypeNode);
-        addToTop(bLTypeDef);
-
-        return createUserDefinedType(objectTypeNode.pos,
-                (BLangIdentifier) TreeBuilder.createIdentifierNode(), bLTypeDef.name);
+        return deSugarTypeAsUserDefType(objectTypeNode);
     }
 
     @Override
@@ -2310,42 +2308,32 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(EnumDeclarationNode enumDeclarationNode) {
 
         Boolean publicQualifier = false;
-        if (enumDeclarationNode.qualifier() != null &&
-                enumDeclarationNode.qualifier().kind()
-                        == SyntaxKind.PUBLIC_KEYWORD) {
+        if (enumDeclarationNode.qualifier() != null && enumDeclarationNode.qualifier().kind()
+                == SyntaxKind.PUBLIC_KEYWORD) {
             publicQualifier = true;
         }
         for (Node member : enumDeclarationNode.enumMemberList()) {
-            addToTop(transformEnumMember(
-                    (EnumMemberNode) member,
-                    publicQualifier));
+            addToTop(transformEnumMember((EnumMemberNode) member, publicQualifier));
         }
 
-        BLangTypeDefinition bLangTypeDefinition =
-                (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+        BLangTypeDefinition bLangTypeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
         if (publicQualifier) {
             bLangTypeDefinition.flagSet.add(Flag.PUBLIC);
         }
 
-        bLangTypeDefinition.setName(
-                (BLangIdentifier) transform(enumDeclarationNode.identifier()));
+        bLangTypeDefinition.setName((BLangIdentifier) transform(enumDeclarationNode.identifier()));
 
-        BLangUnionTypeNode bLangUnionTypeNode =
-                (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
+        BLangUnionTypeNode bLangUnionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
         for (Node member : enumDeclarationNode.enumMemberList()) {
-            bLangUnionTypeNode.memberTypeNodes.
-                    add(createTypeNode(
-                            ((EnumMemberNode) member).identifier()));
+            bLangUnionTypeNode.memberTypeNodes.add(createTypeNode(((EnumMemberNode) member).identifier()));
         }
         Collections.reverse(bLangUnionTypeNode.memberTypeNodes);
         bLangTypeDefinition.setTypeNode(bLangUnionTypeNode);
         return bLangTypeDefinition;
     }
 
-    public BLangConstant transformEnumMember(EnumMemberNode member,
-                                             Boolean publicQualifier) {
-        BLangConstant bLangConstant =
-                (BLangConstant) TreeBuilder.createConstantNode();
+    public BLangConstant transformEnumMember(EnumMemberNode member, Boolean publicQualifier) {
+        BLangConstant bLangConstant = (BLangConstant) TreeBuilder.createConstantNode();
 
         bLangConstant.flagSet.add(Flag.CONSTANT);
 
@@ -2358,21 +2346,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangLiteral literal;
         BLangLiteral deepLiteral;
         if (member.constExprNode() != null) {
-            literal =
-                    createSimpleLiteral(member.constExprNode());
-            deepLiteral =
-                    createSimpleLiteral(member.constExprNode());
+            literal = createSimpleLiteral(member.constExprNode());
+            deepLiteral = createSimpleLiteral(member.constExprNode());
         } else {
-            literal =
-                    createSimpleLiteral(member.identifier());
-            deepLiteral =
-                    createSimpleLiteral(member.identifier());
+            literal = createSimpleLiteral(member.identifier());
+            deepLiteral = createSimpleLiteral(member.identifier());
         }
         if (literal.originalValue != "") {
             bLangConstant.setInitialExpression(literal);
         } else {
-            bLangConstant.setInitialExpression(
-                    createExpression(member.constExprNode()));
+            bLangConstant.setInitialExpression(createExpression(member.constExprNode()));
         }
 
         BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
@@ -2380,14 +2363,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLangConstant.setTypeNode(typeNode);
 
         if (deepLiteral.originalValue != "") {
-            BLangFiniteTypeNode typeNodeAssosiated =
-                    (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
+            BLangFiniteTypeNode typeNodeAssosiated = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
             deepLiteral.originalValue = null;
             typeNodeAssosiated.addValue(deepLiteral);
-            bLangConstant.associatedTypeDefinition =
-                    deSugarTypeAsUserDefType(typeNodeAssosiated);
+            bLangConstant.associatedTypeDefinition = createTypeDefinitionWithTypeNode(typeNodeAssosiated);
+        } else {
+            bLangConstant.associatedTypeDefinition = null;
         }
-
         return bLangConstant;
     }
 
