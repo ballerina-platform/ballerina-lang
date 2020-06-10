@@ -15,7 +15,7 @@
 // under the License.
 
 // TODO: Add docs
-public type RawTemplate object {
-   public string[] strings = [];
-   public (any|error)[] insertions = [];
+public type RawTemplate abstract object {
+   public string[] strings;
+   public (any|error)[] insertions;
 };
