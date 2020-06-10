@@ -8655,8 +8655,7 @@ public class BallerinaParser extends AbstractParser {
         STNode errorKeywordToken = parseErrorKeyWord();
         STNode errorTypeParamsNode;
         STToken nextToken = peek();
-        STToken nextNextToken = peek(2);
-        if (nextToken.kind == SyntaxKind.LT_TOKEN || nextNextToken.kind == SyntaxKind.GT_TOKEN) {
+        if (nextToken.kind == SyntaxKind.LT_TOKEN) {
             errorTypeParamsNode = parseErrorTypeParamsNode();
         } else {
             errorTypeParamsNode = STNodeFactory.createEmptyNode();

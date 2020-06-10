@@ -73,6 +73,8 @@ import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.InterpolationNode;
 import io.ballerinalang.compiler.syntax.tree.KeySpecifierNode;
 import io.ballerinalang.compiler.syntax.tree.KeyTypeConstraintNode;
+import io.ballerinalang.compiler.syntax.tree.LetExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ListBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ListenerDeclarationNode;
@@ -226,6 +228,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
@@ -288,6 +291,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
@@ -1705,6 +1709,26 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return arrowFunction;
     }
 
+    @Override
+    public BLangNode transform(LetExpressionNode letExpressionNode) {
+        BLangLetExpression letExpr = (BLangLetExpression) TreeBuilder.createLetExpressionNode();
+        letExpr.pos = getPosition(letExpressionNode);
+        letExpr.expr = createExpression(letExpressionNode.expression());
+        List<BLangLetVariable> letVars = new ArrayList<>();
+        for (LetVariableDeclarationNode letVarDecl : letExpressionNode.letVarDeclarations()) {
+            letVars.add(createLetVariable(letVarDecl));
+        }
+
+        return letExpr;
+    }
+
+    public BLangLetVariable createLetVariable(LetVariableDeclarationNode letVarDecl) {
+        BLangLetVariable letVar = (BLangLetVariable) TreeBuilder.createLetVariableNode();
+        letVar.definitionNode = createSimpleVarDef(getPosition(letVarDecl), letVarDecl.typedBindingPattern(),
+                Optional.of(letVarDecl.expression()), Optional.empty());
+        return letVar;
+    }
+
     // -----------------------------------------------Statements--------------------------------------------------------
     @Override
     public BLangNode transform(ReturnStatementNode returnStmtNode) {
@@ -1913,13 +1937,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(VariableDeclarationNode varDeclaration) {
+        return createSimpleVarDef(getPosition(varDeclaration), varDeclaration.typedBindingPattern(),
+                varDeclaration.initializer(), varDeclaration.finalKeyword());
+    }
+
+    private BLangSimpleVariableDef createSimpleVarDef(DiagnosticPos pos, TypedBindingPatternNode typedBindingPattern,
+                                         Optional<io.ballerinalang.compiler.syntax.tree.ExpressionNode> initializer,
+                                         Optional<Token> finalKeyword) {
         BLangSimpleVariableDef bLVarDef = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
-        bLVarDef.pos = getPosition(varDeclaration);
+        bLVarDef.pos = pos;
 
-        TypedBindingPatternNode typedBindingPattern = varDeclaration.typedBindingPattern();
-        DiagnosticPos pos = null;
         String text = null;
-
         switch (typedBindingPattern.bindingPattern().kind()) {
             case CAPTURE_BINDING_PATTERN:
                 CaptureBindingPatternNode captureBindingPattern =
@@ -1942,8 +1970,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 .with(text, pos)
                 .setPos(bLVarDef.pos)
                 .setTypeByNode(typedBindingPattern.typeDescriptor())
-                .setExpressionByNode(varDeclaration.initializer().orElse(null))
-                .setFinal(varDeclaration.finalKeyword().isPresent())
+                .setExpressionByNode(initializer.orElse(null))
+                .setFinal(finalKeyword.isPresent())
                 .build();
 
         bLVarDef.setVariable(simpleVar);

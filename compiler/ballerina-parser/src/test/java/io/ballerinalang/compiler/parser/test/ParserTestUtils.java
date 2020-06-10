@@ -82,7 +82,7 @@ public class ParserTestUtils {
      * @param assertFilePath File to assert the resulting tree after parsing
      */
     public static void test(Path sourceFilePath, ParserRuleContext context, Path assertFilePath) {
-        // updateAssertFiles(sourceFilePath, assertFilePath, context);
+        updateAssertFiles(sourceFilePath, assertFilePath, context);
 
         String content = getSourceText(sourceFilePath);
         test(content, context, assertFilePath);
@@ -96,7 +96,7 @@ public class ParserTestUtils {
      * @param assertFilePath File to assert the resulting tree after parsing
      */
     public static void test(String source, ParserRuleContext context, Path assertFilePath) {
-        // updateAssertFiles(source, assertFilePath, context);
+        updateAssertFiles(source, assertFilePath, context);
 
         // Parse the source
         BallerinaParser parser = ParserFactory.getParser(source);
@@ -316,7 +316,6 @@ public class ParserTestUtils {
         return text.replace(System.lineSeparator(), "\n");
     }
 
-    @SuppressWarnings("unused")
     private static void updateAssertFiles(Path sourceFilePath, Path assertFilePath, ParserRuleContext context) {
         if (UPDATE_ASSERTS) {
             try {
@@ -331,7 +330,6 @@ public class ParserTestUtils {
         }
     }
 
-    @SuppressWarnings("unused")
     private static void updateAssertFiles(String source, Path assertFilePath, ParserRuleContext context) {
         if (UPDATE_ASSERTS) {
             try {
