@@ -57,7 +57,7 @@ service passthrough on listener06_1 {
             checkpanic caller->respond(response);
         } else {
             http:Response resp = new;
-            json errMsg = { "error": "error occurred while invoking the service: " + <string>response.detail()?.message };
+            json errMsg = { "error": "error occurred while invoking the service: " + response.message() };
             resp.statusCode = 500;
             resp.setPayload(errMsg);
             checkpanic caller->respond(resp);
@@ -134,7 +134,7 @@ public type InboundCustomAuthHandler object {
             return authenticationResult;
         } else {
             string message = "Failed to authenticate with custom auth hanndler.";
-            http:AuthenticationError authError = error(http:AUTHN_FAILED, message = message, cause = authenticationResult);
+            http:AuthenticationError authError = http:AuthenticationError(message, authenticationResult);
             return authError;
         }
     }
@@ -179,7 +179,7 @@ public type OutboundCustomAuthHandler object {
             req.setHeader(http:AUTH_HEADER, "Custom " + token);
             return req;
         } else {
-            return http:AuthenticationError(message = token.reason(), cause = token);
+            return http:AuthenticationError(token.message(), token);
         }
     }
 
@@ -195,7 +195,7 @@ public type OutboundCustomAuthHandler object {
             req.setHeader(http:AUTH_HEADER, "Custom " + token);
             return req;
         } else if (token is auth:Error) {
-            return http:AuthenticationError(message = token.reason(), cause = token);
+            return http:AuthenticationError(token.message(), token);
         }
     }
 };
