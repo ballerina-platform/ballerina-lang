@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -24,9 +26,13 @@ import java.util.stream.Collectors;
  */
 public class Object extends Construct {
 
+    @Expose
     public List<DefaultableVariable> fields;
+    @Expose
     public List<Function> methods;
+    @Expose
     public Function initMethod;
+    @Expose
     public List<Function> otherMethods;
 
     public Object(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
