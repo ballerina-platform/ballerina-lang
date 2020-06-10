@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.RestArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STRestArgumentNode extends STFunctionArgumentNode {
             STNode leadingComma,
             STNode ellipsis,
             STNode expression) {
-        super(SyntaxKind.REST_ARG);
+        this(
+                leadingComma,
+                ellipsis,
+                expression,
+                Collections.emptyList());
+    }
+
+    STRestArgumentNode(
+            STNode leadingComma,
+            STNode ellipsis,
+            STNode expression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.REST_ARG, diagnostics);
         this.leadingComma = leadingComma;
         this.ellipsis = ellipsis;
         this.expression = expression;
@@ -47,7 +62,43 @@ public class STRestArgumentNode extends STFunctionArgumentNode {
                 expression);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STRestArgumentNode(
+                this.leadingComma,
+                this.ellipsis,
+                this.expression,
+                diagnostics);
+    }
+
+    public STRestArgumentNode modify(
+            STNode leadingComma,
+            STNode ellipsis,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                leadingComma,
+                ellipsis,
+                expression)) {
+            return this;
+        }
+
+        return new STRestArgumentNode(
+                leadingComma,
+                ellipsis,
+                expression,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RestArgumentNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

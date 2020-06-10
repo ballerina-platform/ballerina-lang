@@ -1,28 +1,28 @@
 {
-    "kind": "BINARY_EXPRESSION",
-    "children": [
+  "kind": "BINARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "BINARY_EXPRESSION",
+      "children": [
         {
-            "kind": "BINARY_EXPRESSION",
-            "children": [
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "a"
-                },
-                {
-                    "kind": "ASTERISK_TOKEN"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "b"
-                }
-            ]
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a"
         },
         {
-            "kind": "MINUS_TOKEN"
+          "kind": "ASTERISK_TOKEN"
         },
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "c"
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "b"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "MINUS_TOKEN"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "c"
+    }
+  ]
 }

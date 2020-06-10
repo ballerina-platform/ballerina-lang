@@ -196,6 +196,88 @@ public type _InputFunction object {
     }
 };
 
+type _NestedFromFunction object {
+    *_StreamFunction;
+    _Iterator? itr;
+
+    public function(_Frame frame) returns any|error? collectionFunc;
+    _Frame|error? currentFrame;
+
+    public function init(function(_Frame frame) returns any|error? collectionFunc) {
+        self.itr = ();
+        self.prevFunc = ();
+        self.currentFrame = ();
+        self.collectionFunc = collectionFunc;
+    }
+
+    # Desugared function to do;
+    # from var ... in listA from from var ... in listB
+    # from var ... in streamA join var ... in streamB
+    # + return - merged two frames { ...frameA, ...frameB }
+    public function process() returns _Frame|error? {
+        _StreamFunction pf = <_StreamFunction> self.prevFunc;
+        function(_Frame frame) returns any|error? collectionFunc = self.collectionFunc;
+        _Frame|error? cf = self.currentFrame;
+        _Iterator? itr = self.itr;
+        if (cf is ()) {
+            cf = pf.process();
+            self.currentFrame = cf;
+            if  (cf is _Frame) {
+                any|error? collection = collectionFunc(cf);
+                if (collection is any) {
+                    itr = self._getIterator(collection);
+                    self.itr = itr;
+                }
+            }
+        }
+        if (cf is _Frame && itr is _Iterator) {
+            record{|(any|error) value;|}|error? v = itr.next();
+            if (v is record{|(any|error) value;|}) {
+                _Frame _frame = {...cf, ...v};
+                return _frame;
+            } else if (v is error) {
+                return v;
+            } else {
+                // Move to next frame
+                self.currentFrame = ();
+                return self.process();
+            }
+        }
+        return cf;
+    }
+
+    public function reset() {
+        // Reset the state of currentFrame
+        self.itr = ();
+        self.currentFrame = ();
+        _StreamFunction? pf = self.prevFunc;
+        if (pf is _StreamFunction) {
+            pf.reset();
+        }
+    }
+
+    function _getIterator(any collection) returns _Iterator {
+        if (collection is (any|error)[]) {
+            return lang_array:iterator(collection);
+        } else if (collection is record{}) {
+            return lang_map:iterator(collection);
+        } else if (collection is map<any|error>) {
+            return lang_map:iterator(collection);
+        } else if (collection is string) {
+            return lang_string:iterator(collection);
+        } else if (collection is xml) {
+            return lang_xml:iterator(collection);
+        }  else if (collection is table<map<any|error>>) {
+            return lang_table:iterator(collection);
+        } else if (collection is _Iterable) {
+            return collection.__iterator();
+        } else if (collection is stream<any|error, error?>) {
+            return lang_stream:iterator(collection);
+        }
+        panic error("Unsuppored collection", message = "unsuppored collection type.");
+    }
+};
+
 public type _LetFunction object {
     *_StreamFunction;
 
@@ -365,9 +447,9 @@ public type _DoFunction object {
         _StreamFunction pf = <_StreamFunction> self.prevFunc;
         function(_Frame _frame) f = self.doFunc;
         _Frame|error? pFrame = pf.process();
-        while (pFrame is _Frame) {
+        if (pFrame is _Frame) {
             f(pFrame);
-            pFrame = pf.process();
+            return pFrame;
         }
         if (pFrame is error) {
             return pFrame;
@@ -382,3 +464,36 @@ public type _DoFunction object {
     }
 };
 
+public type _LimitFunction object {
+    *_StreamFunction;
+
+    # Desugared function to limit the number of results
+
+    public int lmt;
+    public int count = 0;
+
+    public function init(int lmt) {
+        self.lmt = lmt;
+        self.prevFunc = ();
+        if (lmt < 0) {
+            panic error("Unable to assign limit", message = "limit cannot be < 0.");
+        }
+    }
+
+    public function process() returns _Frame|error? {
+        _StreamFunction pf = <_StreamFunction> self.prevFunc;
+        if (self.count < self.lmt) {
+            _Frame|error? pFrame = pf.process();
+            self.count += 1;
+            return pFrame;
+        }
+        return ();
+    }
+
+    public function reset() {
+        _StreamFunction? pf = self.prevFunc;
+        if (pf is _StreamFunction) {
+            pf.reset();
+        }
+    }
+};

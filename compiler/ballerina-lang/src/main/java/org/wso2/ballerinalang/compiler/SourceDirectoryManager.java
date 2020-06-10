@@ -100,7 +100,7 @@ public class SourceDirectoryManager {
 
         //Check for built-in packages
         if (orgName.equals(Names.BUILTIN_ORG)) {
-            return new PackageID(orgName, names.fromString(sourcePackage), Names.EMPTY);
+            return new PackageID(orgName, names.fromString(sourcePackage), version);
         }
 
         //Check for source files

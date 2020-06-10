@@ -83,7 +83,7 @@ public type byteServiceBlockingClient client object {
         grpc:Headers resHeaders = new;
         anydata result = ();
         [result, resHeaders] = unionResp;
-        var value = typedesc<byte[]>.constructFrom(result);
+        var value = result.cloneWithType(typedesc<byte[]>);
         if (value is byte[]) {
             return [value, resHeaders];
         } else {

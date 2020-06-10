@@ -187,4 +187,28 @@ public class LangLibValueTest {
             { "testMergeJsonFailureForValuesWithIntersectingCyclicRefererences" }
         };
     }
+
+    @Test(dataProvider = "cloneWithTypeFunctions")
+    public void testCloneWithType(String function) {
+        BValue[] returns = BRunUtil.invoke(compileResult, function);
+    }
+
+    @DataProvider(name = "cloneWithTypeFunctions")
+    public Object[][] cloneWithTypeFunctions() {
+        return new Object[][] {
+                { "testCloneWithTypeJsonRec1" },
+                { "testCloneWithTypeJsonRec2" },
+                { "testCloneWithTypeOptionalFieldToMandotoryField" },
+                { "testCloneWithTypeAmbiguousTargetType" },
+                { "testCloneWithTypeForNilPositive" },
+                { "testCloneWithTypeForNilNegative" },
+                { "testCloneWithTypeNumeric1" },
+                { "testCloneWithTypeNumeric2" },
+                { "testCloneWithTypeNumeric3" },
+                { "testCloneWithTypeNumeric4" },
+                { "testCloneWithTypeNumeric5" },
+                { "testCloneWithTypeNumeric6" },
+                { "testCloneWithTypeNumeric7" }
+        };
+    }
 }

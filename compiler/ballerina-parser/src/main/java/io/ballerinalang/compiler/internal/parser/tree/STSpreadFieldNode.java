@@ -22,32 +22,73 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SpreadFieldNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
  * @since 2.0.0
  */
 public class STSpreadFieldNode extends STMappingFieldNode {
-    public final STNode leadingComma;
     public final STNode ellipsis;
     public final STNode valueExpr;
 
     STSpreadFieldNode(
-            STNode leadingComma,
             STNode ellipsis,
             STNode valueExpr) {
-        super(SyntaxKind.SPREAD_FIELD);
-        this.leadingComma = leadingComma;
+        this(
+                ellipsis,
+                valueExpr,
+                Collections.emptyList());
+    }
+
+    STSpreadFieldNode(
+            STNode ellipsis,
+            STNode valueExpr,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.SPREAD_FIELD, diagnostics);
         this.ellipsis = ellipsis;
         this.valueExpr = valueExpr;
 
         addChildren(
-                leadingComma,
                 ellipsis,
                 valueExpr);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STSpreadFieldNode(
+                this.ellipsis,
+                this.valueExpr,
+                diagnostics);
+    }
+
+    public STSpreadFieldNode modify(
+            STNode ellipsis,
+            STNode valueExpr) {
+        if (checkForReferenceEquality(
+                ellipsis,
+                valueExpr)) {
+            return this;
+        }
+
+        return new STSpreadFieldNode(
+                ellipsis,
+                valueExpr,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new SpreadFieldNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

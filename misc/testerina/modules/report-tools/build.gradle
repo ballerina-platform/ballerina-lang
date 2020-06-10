@@ -25,6 +25,8 @@ configurations {
 
 npmBuild {
     dependsOn 'updateVersion'
+    outputs.dir("build")
+    outputs.cacheIf {true}
     doFirst {
         exec {
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {

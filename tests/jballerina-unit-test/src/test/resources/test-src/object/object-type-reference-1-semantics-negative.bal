@@ -19,8 +19,8 @@ type Person1 abstract object {
     public string name;
 };
 
-type Employee1 object {
-    public float salary = 0.0;
+type Employee1 record {
+    float salary = 0.0;
 };
 
 type Manager1 object {
@@ -28,7 +28,7 @@ type Manager1 object {
 
     string dpt = "HR";
 
-    // refering a non-abstarct object
+    // refering a non-object
     *Employee1;
 };
 
@@ -123,19 +123,6 @@ type ObjectWithRedeclaredFunction_1 abstract object {
 type ObjectWithRedeclaredFunction_2 abstract object {
     *ObjectWithFunction;
     *ObjectWithRedeclaredFunction_1;
-};
-
-type RedecalredFieldObject_1 abstract object {
-    int x;
-};
-
-type RedecalredFieldObject_2 abstract object {
-    int x;
-    *RedecalredFieldObject_1;
-};
-
-type RedecalredFieldObject_3 abstract object {
-    *RedecalredFieldObject_2;
 };
 
 type Bar object {

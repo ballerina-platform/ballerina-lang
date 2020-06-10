@@ -25,11 +25,13 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.INT_VERSION;
+
 /**
  * Native implementation of lang.int:sum(int...).
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.int", functionName = "sum",
+        orgName = "ballerina", packageName = "lang.int", version = INT_VERSION, functionName = "sum",
         args = {@Argument(name = "ns", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true

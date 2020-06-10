@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TemplateExpressionNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -39,7 +42,23 @@ public class STTemplateExpressionNode extends STExpressionNode {
             STNode startBacktick,
             STNode content,
             STNode endBacktick) {
-        super(kind);
+        this(
+                kind,
+                type,
+                startBacktick,
+                content,
+                endBacktick,
+                Collections.emptyList());
+    }
+
+    STTemplateExpressionNode(
+            SyntaxKind kind,
+            STNode type,
+            STNode startBacktick,
+            STNode content,
+            STNode endBacktick,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(kind, diagnostics);
         this.type = type;
         this.startBacktick = startBacktick;
         this.content = content;
@@ -52,7 +71,50 @@ public class STTemplateExpressionNode extends STExpressionNode {
                 endBacktick);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STTemplateExpressionNode(
+                this.kind,
+                this.type,
+                this.startBacktick,
+                this.content,
+                this.endBacktick,
+                diagnostics);
+    }
+
+    public STTemplateExpressionNode modify(
+            SyntaxKind kind,
+            STNode type,
+            STNode startBacktick,
+            STNode content,
+            STNode endBacktick) {
+        if (checkForReferenceEquality(
+                type,
+                startBacktick,
+                content,
+                endBacktick)) {
+            return this;
+        }
+
+        return new STTemplateExpressionNode(
+                kind,
+                type,
+                startBacktick,
+                content,
+                endBacktick,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TemplateExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.XMLSimpleNameNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -32,14 +35,50 @@ public class STXMLSimpleNameNode extends STXMLNameNode {
 
     STXMLSimpleNameNode(
             STNode name) {
-        super(SyntaxKind.XML_SIMPLE_NAME);
+        this(
+                name,
+                Collections.emptyList());
+    }
+
+    STXMLSimpleNameNode(
+            STNode name,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.XML_SIMPLE_NAME, diagnostics);
         this.name = name;
 
         addChildren(
                 name);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STXMLSimpleNameNode(
+                this.name,
+                diagnostics);
+    }
+
+    public STXMLSimpleNameNode modify(
+            STNode name) {
+        if (checkForReferenceEquality(
+                name)) {
+            return this;
+        }
+
+        return new STXMLSimpleNameNode(
+                name,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLSimpleNameNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

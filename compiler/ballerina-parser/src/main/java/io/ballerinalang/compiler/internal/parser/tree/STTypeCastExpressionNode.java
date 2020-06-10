@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TypeCastExpressionNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STTypeCastExpressionNode extends STExpressionNode {
             STNode typeCastParam,
             STNode gtToken,
             STNode expression) {
-        super(SyntaxKind.TYPE_CAST_EXPRESSION);
+        this(
+                ltToken,
+                typeCastParam,
+                gtToken,
+                expression,
+                Collections.emptyList());
+    }
+
+    STTypeCastExpressionNode(
+            STNode ltToken,
+            STNode typeCastParam,
+            STNode gtToken,
+            STNode expression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.TYPE_CAST_EXPRESSION, diagnostics);
         this.ltToken = ltToken;
         this.typeCastParam = typeCastParam;
         this.gtToken = gtToken;
@@ -51,7 +68,47 @@ public class STTypeCastExpressionNode extends STExpressionNode {
                 expression);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STTypeCastExpressionNode(
+                this.ltToken,
+                this.typeCastParam,
+                this.gtToken,
+                this.expression,
+                diagnostics);
+    }
+
+    public STTypeCastExpressionNode modify(
+            STNode ltToken,
+            STNode typeCastParam,
+            STNode gtToken,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                ltToken,
+                typeCastParam,
+                gtToken,
+                expression)) {
+            return this;
+        }
+
+        return new STTypeCastExpressionNode(
+                ltToken,
+                typeCastParam,
+                gtToken,
+                expression,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypeCastExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

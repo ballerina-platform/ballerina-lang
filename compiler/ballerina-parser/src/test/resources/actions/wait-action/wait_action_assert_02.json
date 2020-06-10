@@ -1,377 +1,375 @@
 {
-    "kind": "FUNCTION_DEFINITION",
-    "children": [
+  "kind": "FUNCTION_DEFINITION",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
         {
-            "kind": "METADATA",
-            "children": [
-                {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "FUNCTION_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "foo"
-        },
-        {
-            "kind": "FUNCTION_SIGNATURE",
-            "children": [
-                {
-                    "kind": "OPEN_PAREN_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                },
-                {
-                    "kind": "CLOSE_PAREN_TOKEN"
-                }
-            ]
-        },
-        {
-            "kind": "FUNCTION_BODY_BLOCK",
-            "children": [
-                {
-                    "kind": "OPEN_BRACE_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                        {
-                            "kind": "ACTION_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "WAIT_ACTION",
-                                    "children": [
-                                        {
-                                            "kind": "WAIT_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "WAIT_FIELDS_LIST",
-                                            "children": [
-                                                {
-                                                    "kind": "OPEN_BRACE_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "a"
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "CLOSE_BRACE_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ACTION_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "WAIT_ACTION",
-                                    "children": [
-                                        {
-                                            "kind": "WAIT_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "WAIT_FIELDS_LIST",
-                                            "children": [
-                                                {
-                                                    "kind": "OPEN_BRACE_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                        {
-                                                            "kind": "WAIT_FIELD",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "a"
-                                                                },
-                                                                {
-                                                                    "kind": "COLON_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "b"
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "CLOSE_BRACE_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ACTION_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "WAIT_ACTION",
-                                    "children": [
-                                        {
-                                            "kind": "WAIT_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "WAIT_FIELDS_LIST",
-                                            "children": [
-                                                {
-                                                    "kind": "OPEN_BRACE_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "a"
-                                                        },
-                                                        {
-                                                            "kind": "COMMA_TOKEN"
-                                                        },
-                                                        {
-                                                            "kind": "WAIT_FIELD",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "c"
-                                                                },
-                                                                {
-                                                                    "kind": "COLON_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "QUALIFIED_NAME_REFERENCE",
-                                                                    "children": [
-                                                                        {
-                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                            "value": "d"
-                                                                        },
-                                                                        {
-                                                                            "kind": "COLON_TOKEN"
-                                                                        },
-                                                                        {
-                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                            "value": "e"
-                                                                        }
-                                                                    ]
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "CLOSE_BRACE_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "x"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "WAIT_ACTION",
-                                    "children": [
-                                        {
-                                            "kind": "WAIT_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "WAIT_FIELDS_LIST",
-                                            "children": [
-                                                {
-                                                    "kind": "OPEN_BRACE_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "a"
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "CLOSE_BRACE_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "x"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "WAIT_ACTION",
-                                    "children": [
-                                        {
-                                            "kind": "WAIT_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "WAIT_FIELDS_LIST",
-                                            "children": [
-                                                {
-                                                    "kind": "OPEN_BRACE_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                        {
-                                                            "kind": "WAIT_FIELD",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "a"
-                                                                },
-                                                                {
-                                                                    "kind": "COLON_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "b"
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "CLOSE_BRACE_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "x"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "WAIT_ACTION",
-                                    "children": [
-                                        {
-                                            "kind": "WAIT_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "WAIT_FIELDS_LIST",
-                                            "children": [
-                                                {
-                                                    "kind": "OPEN_BRACE_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "a"
-                                                        },
-                                                        {
-                                                            "kind": "COMMA_TOKEN"
-                                                        },
-                                                        {
-                                                            "kind": "WAIT_FIELD",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "c"
-                                                                },
-                                                                {
-                                                                    "kind": "COLON_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "QUALIFIED_NAME_REFERENCE",
-                                                                    "children": [
-                                                                        {
-                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                            "value": "d"
-                                                                        },
-                                                                        {
-                                                                            "kind": "COLON_TOKEN"
-                                                                        },
-                                                                        {
-                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                            "value": "e"
-                                                                        }
-                                                                    ]
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "CLOSE_BRACE_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "kind": "CLOSE_BRACE_TOKEN"
-                }
-            ]
+          "kind": "LIST",
+          "children": []
         }
-    ]
+      ]
+    },
+    {
+      "kind": "FUNCTION_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "foo"
+    },
+    {
+      "kind": "FUNCTION_SIGNATURE",
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN"
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_BODY_BLOCK",
+      "children": [
+        {
+          "kind": "OPEN_BRACE_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "ACTION_STATEMENT",
+              "children": [
+                {
+                  "kind": "WAIT_ACTION",
+                  "children": [
+                    {
+                      "kind": "WAIT_KEYWORD"
+                    },
+                    {
+                      "kind": "WAIT_FIELDS_LIST",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACE_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "a"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACE_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ACTION_STATEMENT",
+              "children": [
+                {
+                  "kind": "WAIT_ACTION",
+                  "children": [
+                    {
+                      "kind": "WAIT_KEYWORD"
+                    },
+                    {
+                      "kind": "WAIT_FIELDS_LIST",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACE_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "WAIT_FIELD",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "a"
+                                },
+                                {
+                                  "kind": "COLON_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "b"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACE_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ACTION_STATEMENT",
+              "children": [
+                {
+                  "kind": "WAIT_ACTION",
+                  "children": [
+                    {
+                      "kind": "WAIT_KEYWORD"
+                    },
+                    {
+                      "kind": "WAIT_FIELDS_LIST",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACE_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "a"
+                            },
+                            {
+                              "kind": "COMMA_TOKEN"
+                            },
+                            {
+                              "kind": "WAIT_FIELD",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "c"
+                                },
+                                {
+                                  "kind": "COLON_TOKEN"
+                                },
+                                {
+                                  "kind": "QUALIFIED_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "d"
+                                    },
+                                    {
+                                      "kind": "COLON_TOKEN"
+                                    },
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "e"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACE_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "WAIT_ACTION",
+                  "children": [
+                    {
+                      "kind": "WAIT_KEYWORD"
+                    },
+                    {
+                      "kind": "WAIT_FIELDS_LIST",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACE_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "a"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACE_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "WAIT_ACTION",
+                  "children": [
+                    {
+                      "kind": "WAIT_KEYWORD"
+                    },
+                    {
+                      "kind": "WAIT_FIELDS_LIST",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACE_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "WAIT_FIELD",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "a"
+                                },
+                                {
+                                  "kind": "COLON_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "b"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACE_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "WAIT_ACTION",
+                  "children": [
+                    {
+                      "kind": "WAIT_KEYWORD"
+                    },
+                    {
+                      "kind": "WAIT_FIELDS_LIST",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACE_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "a"
+                            },
+                            {
+                              "kind": "COMMA_TOKEN"
+                            },
+                            {
+                              "kind": "WAIT_FIELD",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "c"
+                                },
+                                {
+                                  "kind": "COLON_TOKEN"
+                                },
+                                {
+                                  "kind": "QUALIFIED_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "d"
+                                    },
+                                    {
+                                      "kind": "COLON_TOKEN"
+                                    },
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "e"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACE_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_BRACE_TOKEN"
+        }
+      ]
+    }
+  ]
 }

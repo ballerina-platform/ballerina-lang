@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.util;
 
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.util.BLangCompilerConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 
 /**
@@ -69,7 +70,6 @@ public class Names {
     public static final Name IGNORE = new Name("_");
     public static final Name INVALID = new Name("><");
     public static final Name GEN_VAR_PREFIX = new Name("_$$_");
-    public static final Name DEFAULT_VERSION = new Name("0.0.0");
     public static final Name SERVICE = new Name("service");
     public static final Name LISTENER = new Name("Listener");
     public static final Name INIT_FUNCTION_SUFFIX = new Name(".<init>");
@@ -95,6 +95,8 @@ public class Names {
     public static final Name DETAIL_MESSAGE = new Name("message");
     public static final Name DETAIL_CAUSE = new Name("cause");
 
+    public static final Name NEVER = new Name("never");
+
     // Subtypes
     public static final Name SIGNED32 = new Name(STRING_SIGNED32);
     public static final Name SIGNED16 = new Name(STRING_SIGNED16);
@@ -111,11 +113,34 @@ public class Names {
     // Names related to transactions.
     public static final Name TRANSACTION_PACKAGE = new Name("transactions");
     public static final Name TRANSACTION_ORG = new Name("ballerina");
+    public static final Name TRANSACTION_PACKAGE_VERSION = new Name("0.5.0");
+
     public static final Name TRX_INITIATOR_BEGIN_FUNCTION = new Name("beginTransactionInitiator");
     public static final Name TRX_LOCAL_PARTICIPANT_BEGIN_FUNCTION = new Name("beginLocalParticipant");
     public static final Name TRX_REMOTE_PARTICIPANT_BEGIN_FUNCTION = new Name("beginRemoteParticipant");
     public static final Name CREATE_INT_RANGE = new Name("createIntRange");
     public static final Name CONSTRUCT_STREAM = new Name("construct");
+
+    // Module Versions
+    public static final Name DEFAULT_VERSION = new Name("0.0.0");
+    public static final Name INTERNAL_VERSION = new Name(BLangCompilerConstants.INTERNAL_VERSION);
+    public static final Name ANNOTATIONS_VERSION = new Name(BLangCompilerConstants.ANNOTATIONS_VERSION);
+    public static final Name ARRAY_VERSION = new Name(BLangCompilerConstants.ARRAY_VERSION);
+    public static final Name DECIMAL_VERSION = new Name(BLangCompilerConstants.DECIMAL_VERSION);
+    public static final Name ERROR_VERSION = new Name(BLangCompilerConstants.ERROR_VERSION);
+    public static final Name FLOAT_VERSION = new Name(BLangCompilerConstants.FLOAT_VERSION);
+    public static final Name FUTURE_VERSION = new Name(BLangCompilerConstants.FUTURE_VERSION);
+    public static final Name INT_VERSION = new Name(BLangCompilerConstants.INT_VERSION);
+    public static final Name MAP_VERSION = new Name(BLangCompilerConstants.MAP_VERSION);
+    public static final Name OBJECT_VERSION = new Name(BLangCompilerConstants.OBJECT_VERSION);
+    public static final Name STREAM_VERSION = new Name(BLangCompilerConstants.STREAM_VERSION);
+    public static final Name STRING_VERSION = new Name(BLangCompilerConstants.STRING_VERSION);
+    public static final Name TABLE_VERSION = new Name(BLangCompilerConstants.TABLE_VERSION);
+    public static final Name TYPEDESC_VERSION = new Name(BLangCompilerConstants.TYPEDESC_VERSION);
+    public static final Name VALUE_VERSION = new Name(BLangCompilerConstants.VALUE_VERSION);
+    public static final Name XML_VERSION = new Name(BLangCompilerConstants.XML_VERSION);
+    public static final Name BOOLEAN_VERSION = new Name(BLangCompilerConstants.BOOLEAN_VERSION);
+    public static final Name QUERY_VERSION = new Name(BLangCompilerConstants.QUERY_VERSION);
 
     public CompilerContext context;
 

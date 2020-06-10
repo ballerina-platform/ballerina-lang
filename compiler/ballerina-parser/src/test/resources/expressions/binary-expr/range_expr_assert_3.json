@@ -18,6 +18,10 @@
                     "kind": "TYPE_CAST_PARAM",
                     "children": [
                         {
+                            "kind": "LIST",
+                            "children": []
+                        },
+                        {
                             "kind": "INT_KEYWORD"
                         }
                     ]

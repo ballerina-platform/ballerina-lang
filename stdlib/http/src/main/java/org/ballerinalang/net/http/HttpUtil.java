@@ -1452,6 +1452,8 @@ public class HttpUtil {
         } else if (value instanceof Long || value instanceof String ||
                 value instanceof Double || value instanceof Integer || value instanceof Boolean) {
             outputStream.write(value.toString().getBytes(Charset.defaultCharset()));
+        } else if (value instanceof BString) {
+            outputStream.write(((BString) value).getValue().getBytes(Charset.defaultCharset()));
         } else {
             ((RefValue) value).serialize(outputStream);
         }
@@ -1718,7 +1720,6 @@ public class HttpUtil {
 
     public static ErrorValue createHttpError(String reason, String errorName, String reasonType, String errorMsg) {
         Object detail = createHttpErrorDetailRecord(errorMsg, BallerinaErrors.createError(reasonType, errorMsg));
-
         return new ErrorValue(
                 new BErrorType(errorName, new BPackage(PACKAGE, MODULE, HTTP_MODULE_VERSION), BTypes.typeString,
                                TypeChecker.getType(detail)), org.ballerinalang.jvm.StringUtils.fromString(reason),

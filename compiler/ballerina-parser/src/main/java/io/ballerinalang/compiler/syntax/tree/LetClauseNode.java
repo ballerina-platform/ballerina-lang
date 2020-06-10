@@ -36,7 +36,7 @@ public class LetClauseNode extends ClauseNode {
         return childInBucket(0);
     }
 
-    public SeparatedNodeList<Node> letVarDeclarations() {
+    public SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations() {
         return new SeparatedNodeList<>(childInBucket(1));
     }
 
@@ -59,7 +59,7 @@ public class LetClauseNode extends ClauseNode {
 
     public LetClauseNode modify(
             Token letKeyword,
-            SeparatedNodeList<Node> letVarDeclarations) {
+            SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations) {
         if (checkForReferenceEquality(
                 letKeyword,
                 letVarDeclarations.underlyingListNode())) {
@@ -83,7 +83,7 @@ public class LetClauseNode extends ClauseNode {
     public static class LetClauseNodeModifier {
         private final LetClauseNode oldNode;
         private Token letKeyword;
-        private SeparatedNodeList<Node> letVarDeclarations;
+        private SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations;
 
         public LetClauseNodeModifier(LetClauseNode oldNode) {
             this.oldNode = oldNode;
@@ -99,7 +99,7 @@ public class LetClauseNode extends ClauseNode {
         }
 
         public LetClauseNodeModifier withLetVarDeclarations(
-                SeparatedNodeList<Node> letVarDeclarations) {
+                SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations) {
             Objects.requireNonNull(letVarDeclarations, "letVarDeclarations must not be null");
             this.letVarDeclarations = letVarDeclarations;
             return this;

@@ -138,3 +138,18 @@ function testInvalidReaoOnlyRecordFieldUpdates() {
     e.dept = dept2;
     e["dept"] = dept2;
 }
+
+type Foo object {
+
+};
+
+type Bar record {|
+    readonly string name;
+    Foo id;
+|};
+
+function testInvalidNeverReadOnlyConstraint() {
+    table<Bar> key(name) & readonly tb = table [
+        {name: "Jo", id: new}
+    ];
+}

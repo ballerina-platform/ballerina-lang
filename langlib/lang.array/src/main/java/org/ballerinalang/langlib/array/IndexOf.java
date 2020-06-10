@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.getElementAccessFunction;
+import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 
 /**
  * Native implementation of lang.array:indexOf((anydata|error)[], anydata|error, int).
@@ -36,7 +37,7 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.getElementAccessFunc
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "indexOf",
+        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "indexOf",
         args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "val", type = TypeKind.UNION),
                 @Argument(name = "startIndex", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.UNION)},

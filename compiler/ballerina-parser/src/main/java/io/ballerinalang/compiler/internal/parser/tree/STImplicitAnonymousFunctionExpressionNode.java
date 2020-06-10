@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STImplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
             STNode params,
             STNode rightDoubleArrow,
             STNode expression) {
-        super(SyntaxKind.IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION);
+        this(
+                params,
+                rightDoubleArrow,
+                expression,
+                Collections.emptyList());
+    }
+
+    STImplicitAnonymousFunctionExpressionNode(
+            STNode params,
+            STNode rightDoubleArrow,
+            STNode expression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION, diagnostics);
         this.params = params;
         this.rightDoubleArrow = rightDoubleArrow;
         this.expression = expression;
@@ -47,7 +62,43 @@ public class STImplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
                 expression);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STImplicitAnonymousFunctionExpressionNode(
+                this.params,
+                this.rightDoubleArrow,
+                this.expression,
+                diagnostics);
+    }
+
+    public STImplicitAnonymousFunctionExpressionNode modify(
+            STNode params,
+            STNode rightDoubleArrow,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                params,
+                rightDoubleArrow,
+                expression)) {
+            return this;
+        }
+
+        return new STImplicitAnonymousFunctionExpressionNode(
+                params,
+                rightDoubleArrow,
+                expression,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ImplicitAnonymousFunctionExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

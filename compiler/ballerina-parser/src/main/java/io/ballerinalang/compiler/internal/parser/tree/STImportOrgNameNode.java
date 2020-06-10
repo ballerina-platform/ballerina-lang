@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,7 +37,17 @@ public class STImportOrgNameNode extends STNode {
     STImportOrgNameNode(
             STNode orgName,
             STNode slashToken) {
-        super(SyntaxKind.IMPORT_ORG_NAME);
+        this(
+                orgName,
+                slashToken,
+                Collections.emptyList());
+    }
+
+    STImportOrgNameNode(
+            STNode orgName,
+            STNode slashToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.IMPORT_ORG_NAME, diagnostics);
         this.orgName = orgName;
         this.slashToken = slashToken;
 
@@ -43,7 +56,39 @@ public class STImportOrgNameNode extends STNode {
                 slashToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STImportOrgNameNode(
+                this.orgName,
+                this.slashToken,
+                diagnostics);
+    }
+
+    public STImportOrgNameNode modify(
+            STNode orgName,
+            STNode slashToken) {
+        if (checkForReferenceEquality(
+                orgName,
+                slashToken)) {
+            return this;
+        }
+
+        return new STImportOrgNameNode(
+                orgName,
+                slashToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ImportOrgNameNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,7 +37,17 @@ public class STDoubleGTTokenNode extends STNode {
     STDoubleGTTokenNode(
             STNode openGTToken,
             STNode endGTToken) {
-        super(SyntaxKind.DOUBLE_GT_TOKEN);
+        this(
+                openGTToken,
+                endGTToken,
+                Collections.emptyList());
+    }
+
+    STDoubleGTTokenNode(
+            STNode openGTToken,
+            STNode endGTToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.DOUBLE_GT_TOKEN, diagnostics);
         this.openGTToken = openGTToken;
         this.endGTToken = endGTToken;
 
@@ -43,7 +56,39 @@ public class STDoubleGTTokenNode extends STNode {
                 endGTToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STDoubleGTTokenNode(
+                this.openGTToken,
+                this.endGTToken,
+                diagnostics);
+    }
+
+    public STDoubleGTTokenNode modify(
+            STNode openGTToken,
+            STNode endGTToken) {
+        if (checkForReferenceEquality(
+                openGTToken,
+                endGTToken)) {
+            return this;
+        }
+
+        return new STDoubleGTTokenNode(
+                openGTToken,
+                endGTToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new DoubleGTTokenNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

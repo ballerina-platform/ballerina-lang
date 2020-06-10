@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * Represents a terminal node in the internal syntax tree.
  * <p>
@@ -43,7 +46,15 @@ public class STToken extends STNode {
     }
 
     STToken(SyntaxKind kind, int width, STNode leadingMinutiae, STNode trailingMinutiae) {
-        super(kind);
+        this(kind, width, leadingMinutiae, trailingMinutiae, Collections.emptyList());
+    }
+
+    STToken(SyntaxKind kind,
+            int width,
+            STNode leadingMinutiae,
+            STNode trailingMinutiae,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(kind, diagnostics);
         this.leadingMinutiae = leadingMinutiae;
         this.trailingMinutiae = trailingMinutiae;
 
@@ -51,7 +62,6 @@ public class STToken extends STNode {
         this.widthWithLeadingMinutiae = this.width + leadingMinutiae.width;
         this.widthWithTrailingMinutiae = this.width + trailingMinutiae.width;
         this.widthWithMinutiae = this.width + leadingMinutiae.width + trailingMinutiae.width;
-
     }
 
     public String text() {
@@ -70,9 +80,27 @@ public class STToken extends STNode {
         return lookback;
     }
 
+    public STToken modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STToken(this.kind, this.width, this.leadingMinutiae, this.trailingMinutiae, diagnostics);
+    }
+
+    public STToken modifyWith(STNode leadingMinutiae, STNode trailingMinutiae) {
+        return new STToken(this.kind, this.width, leadingMinutiae, trailingMinutiae, this.diagnostics);
+    }
+
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new Token(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 
     @Override

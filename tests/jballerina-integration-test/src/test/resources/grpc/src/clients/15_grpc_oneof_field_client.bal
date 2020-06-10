@@ -215,7 +215,7 @@ public type OneofFieldServiceBlockingClient client object {
         grpc:Headers resHeaders = new;
         anydata result = ();
         [result, resHeaders] = payload;
-        var value = typedesc<Response1>.constructFrom(result);
+        var value = result.cloneWithType(typedesc<Response1>);
         if (value is Response1) {
             return [value, resHeaders];
         } else {
@@ -229,7 +229,7 @@ public type OneofFieldServiceBlockingClient client object {
         grpc:Headers resHeaders = new;
         anydata result = ();
         [result, resHeaders] = payload;
-        var value = typedesc<ZZZ>.constructFrom(result);
+        var value = result.cloneWithType(typedesc<ZZZ>);
         if (value is ZZZ) {
             return [value, resHeaders];
         } else {

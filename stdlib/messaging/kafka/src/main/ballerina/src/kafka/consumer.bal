@@ -393,7 +393,7 @@ public type Consumer client object {
     # + return - Array of partitions for the given topic if executes successfully or else a `kafka:ConsumerError`
     public remote function getTopicPartitions(string topic, public int duration = -1)
     returns TopicPartition[]|ConsumerError {
-        return consumerGetTopicPartitions(self, java:fromString(topic), duration);
+        return consumerGetTopicPartitions(self, topic, duration);
     }
 
     # Pauses retrieving messages from a set of partitions.
@@ -470,7 +470,7 @@ public type Consumer client object {
     # + regex - Pattern, which should be matched with the topics to be subscribed to
     # + return - A `kafka:ConsumerError` if an error is encountered or else '()'
     public remote function subscribeToPattern(string regex) returns ConsumerError? {
-        return consumerSubscribeToPattern(self, java:fromString(regex));
+        return consumerSubscribeToPattern(self, regex);
     }
 
     # Subscribes to the provided set of topics with rebalance listening enabled.
@@ -560,7 +560,7 @@ function consumerGetPausedPartitions(Consumer consumer) returns TopicPartition[]
     class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.ConsumerInformationHandler"
 } external;
 
-function consumerGetTopicPartitions(Consumer consumer, handle topic, public int duration = -1)
+function consumerGetTopicPartitions(Consumer consumer, string topic, public int duration = -1)
 returns TopicPartition[]|ConsumerError =
 @java:Method {
     name: "getTopicPartitions",
@@ -631,7 +631,7 @@ function consumerSubscribe(Consumer consumer, string[] topics) returns ConsumerE
     class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.SubscriptionHandler"
 } external;
 
-function consumerSubscribeToPattern(Consumer consumer, handle regex) returns ConsumerError? =
+function consumerSubscribeToPattern(Consumer consumer, string regex) returns ConsumerError? =
 @java:Method {
     name: "subscribeToPattern",
     class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.SubscriptionHandler"

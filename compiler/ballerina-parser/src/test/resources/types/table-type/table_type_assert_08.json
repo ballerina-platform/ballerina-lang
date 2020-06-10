@@ -1,824 +1,940 @@
 {
-    "kind": "FUNCTION_DEFINITION",
-    "children": [
+  "kind": "FUNCTION_DEFINITION",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
         {
-            "kind": "METADATA",
-            "children": [
-                {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "PUBLIC_KEYWORD"
-        },
-        {
-            "kind": "FUNCTION_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "foo"
-        },
-        {
-            "kind": "FUNCTION_SIGNATURE",
-            "children": [
-                {
-                    "kind": "OPEN_PAREN_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                },
-                {
-                    "kind": "CLOSE_PAREN_TOKEN"
-                }
-            ]
-        },
-        {
-            "kind": "FUNCTION_BODY_BLOCK",
-            "children": [
-                {
-                    "kind": "OPEN_BRACE_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                        {
-                            "kind": "INVALID",
-                            "children": [
-                                {
-                                    "kind": "TYPE_CAST_EXPRESSION",
-                                    "children": [
-                                        {
-                                            "kind": "LT_TOKEN"
-                                        },
-                                        {
-                                            "kind": "TYPE_CAST_PARAM",
-                                            "children": [
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "MyRecord"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "GT_TOKEN"
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "a"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "TABLE_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "TABLE_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "TYPE_PARAMETER",
-                                            "children": [
-                                                {
-                                                    "kind": "LT_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "TYPE_DESC",
-                                                    "isMissing": true
-                                                },
-                                                {
-                                                    "kind": "GT_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "TABLE_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "TABLE_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "TYPE_PARAMETER",
-                                            "children": [
-                                                {
-                                                    "kind": "LT_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "INT_KEYWORD"
-                                                },
-                                                {
-                                                    "kind": "GT_TOKEN",
-                                                    "isMissing": true
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "TABLE_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "TABLE_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "TYPE_PARAMETER",
-                                            "children": [
-                                                {
-                                                    "kind": "LT_TOKEN",
-                                                    "isMissing": true
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "Myrecord"
-                                                },
-                                                {
-                                                    "kind": "GT_TOKEN"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "KEY_SPECIFIER",
-                                            "children": [
-                                                {
-                                                    "kind": "KEY_KEYWORD"
-                                                },
-                                                {
-                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "CLOSE_PAREN_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "TABLE_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "TABLE_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "TYPE_PARAMETER",
-                                            "children": [
-                                                {
-                                                    "kind": "LT_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "Myrecord"
-                                                },
-                                                {
-                                                    "kind": "GT_TOKEN"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "KEY_SPECIFIER",
-                                            "children": [
-                                                {
-                                                    "kind": "KEY_KEYWORD"
-                                                },
-                                                {
-                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "a"
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                    "isMissing": true
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "isMissing": true
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN",
-                                    "isMissing": true
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "TABLE_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "TABLE_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "TYPE_PARAMETER",
-                                            "children": [
-                                                {
-                                                    "kind": "LT_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "Myrecord"
-                                                },
-                                                {
-                                                    "kind": "GT_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "isMissing": true
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN",
-                                    "isMissing": true
-                                },
-                                {
-                                    "kind": "BINARY_EXPRESSION",
-                                    "children": [
-                                        {
-                                            "kind": "BRACED_EXPRESSION",
-                                            "children": [
-                                                {
-                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "id"
-                                                },
-                                                {
-                                                    "kind": "CLOSE_PAREN_TOKEN"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "PLUS_TOKEN",
-                                            "isMissing": true
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "a"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "TABLE_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "TABLE_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "TYPE_PARAMETER",
-                                            "children": [
-                                                {
-                                                    "kind": "LT_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "Myrecord"
-                                                },
-                                                {
-                                                    "kind": "GT_TOKEN"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "KEY_SPECIFIER",
-                                            "children": [
-                                                {
-                                                    "kind": "KEY_KEYWORD"
-                                                },
-                                                {
-                                                    "kind": "OPEN_PAREN_TOKEN",
-                                                    "isMissing": true
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "id"
-                                                        },
-                                                        {
-                                                            "kind": "COMMA_TOKEN"
-                                                        },
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "name"
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "CLOSE_PAREN_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "TABLE_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "TABLE_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "TYPE_PARAMETER",
-                                            "children": [
-                                                {
-                                                    "kind": "LT_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "Myrecord"
-                                                },
-                                                {
-                                                    "kind": "GT_TOKEN"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "KEY_TYPE_CONSTRAINT",
-                                            "children": [
-                                                {
-                                                    "kind": "KEY_KEYWORD"
-                                                },
-                                                {
-                                                    "kind": "TYPE_PARAMETER",
-                                                    "children": [
-                                                        {
-                                                            "kind": "LT_TOKEN",
-                                                            "isMissing": true
-                                                        },
-                                                        {
-                                                            "kind": "INT_KEYWORD"
-                                                        },
-                                                        {
-                                                            "kind": "GT_TOKEN"
-                                                        }
-                                                    ]
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "TABLE_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "TABLE_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "TYPE_PARAMETER",
-                                            "children": [
-                                                {
-                                                    "kind": "LT_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "Myrecord"
-                                                },
-                                                {
-                                                    "kind": "GT_TOKEN"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "KEY_TYPE_CONSTRAINT",
-                                            "children": [
-                                                {
-                                                    "kind": "KEY_KEYWORD"
-                                                },
-                                                {
-                                                    "kind": "TYPE_PARAMETER",
-                                                    "children": [
-                                                        {
-                                                            "kind": "LT_TOKEN"
-                                                        },
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "MyId"
-                                                        },
-                                                        {
-                                                            "kind": "GT_TOKEN",
-                                                            "isMissing": true
-                                                        }
-                                                    ]
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "TABLE_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "TABLE_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "TYPE_PARAMETER",
-                                            "children": [
-                                                {
-                                                    "kind": "LT_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "INT_KEYWORD"
-                                                },
-                                                {
-                                                    "kind": "GT_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "TABLE_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "TABLE_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "TYPE_PARAMETER",
-                                            "children": [
-                                                {
-                                                    "kind": "LT_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "INT_KEYWORD"
-                                                },
-                                                {
-                                                    "kind": "GT_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "TABLE_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "TABLE_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "TYPE_PARAMETER",
-                                            "children": [
-                                                {
-                                                    "kind": "LT_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "Myrecord"
-                                                },
-                                                {
-                                                    "kind": "GT_TOKEN"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "KEY_SPECIFIER",
-                                            "children": [
-                                                {
-                                                    "kind": "KEY_KEYWORD"
-                                                },
-                                                {
-                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "CLOSE_PAREN_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN",
-                                    "isMissing": true
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "TABLE_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "TABLE_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "TYPE_PARAMETER",
-                                            "children": [
-                                                {
-                                                    "kind": "LT_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "Myrecord"
-                                                },
-                                                {
-                                                    "kind": "GT_TOKEN"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "KEY_TYPE_CONSTRAINT",
-                                            "children": [
-                                                {
-                                                    "kind": "KEY_KEYWORD"
-                                                },
-                                                {
-                                                    "kind": "TYPE_PARAMETER",
-                                                    "children": [
-                                                        {
-                                                            "kind": "LT_TOKEN"
-                                                        },
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "id"
-                                                        },
-                                                        {
-                                                            "kind": "GT_TOKEN"
-                                                        }
-                                                    ]
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "TABLE_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "TABLE_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "TYPE_PARAMETER",
-                                            "children": [
-                                                {
-                                                    "kind": "LT_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "Myrecord"
-                                                },
-                                                {
-                                                    "kind": "GT_TOKEN"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "KEY_SPECIFIER",
-                                            "children": [
-                                                {
-                                                    "kind": "KEY_KEYWORD"
-                                                },
-                                                {
-                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "CLOSE_PAREN_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "kind": "CLOSE_BRACE_TOKEN"
-                }
-            ]
+          "kind": "LIST",
+          "children": []
         }
-    ]
+      ]
+    },
+    {
+      "kind": "PUBLIC_KEYWORD"
+    },
+    {
+      "kind": "FUNCTION_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "foo"
+    },
+    {
+      "kind": "FUNCTION_SIGNATURE",
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN"
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_BODY_BLOCK",
+      "children": [
+        {
+          "kind": "OPEN_BRACE_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "INVALID",
+              "children": [
+                {
+                  "kind": "TYPE_CAST_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "LT_TOKEN"
+                    },
+                    {
+                      "kind": "TYPE_CAST_PARAM",
+                      "children": [
+                        {
+                            "kind": "LIST",
+                            "children": []
+                        },
+                          {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "MyRecord"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "GT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "TABLE_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "TABLE_KEYWORD"
+                        },
+                        {
+                          "kind": "TYPE_PARAMETER",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "TYPE_DESC",
+                              "isMissing": true
+                            },
+                            {
+                              "kind": "GT_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "TABLE_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "TABLE_KEYWORD"
+                        },
+                        {
+                          "kind": "TYPE_PARAMETER",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "INT_KEYWORD"
+                            },
+                            {
+                              "kind": "GT_TOKEN",
+                              "isMissing": true
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "TABLE_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "TABLE_KEYWORD"
+                        },
+                        {
+                          "kind": "TYPE_PARAMETER",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN",
+                              "isMissing": true
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "Myrecord"
+                            },
+                            {
+                              "kind": "GT_TOKEN"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "KEY_SPECIFIER",
+                          "children": [
+                            {
+                              "kind": "KEY_KEYWORD"
+                            },
+                            {
+                              "kind": "OPEN_PAREN_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
+                              "kind": "CLOSE_PAREN_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "TABLE_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "TABLE_KEYWORD"
+                        },
+                        {
+                          "kind": "TYPE_PARAMETER",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "Myrecord"
+                            },
+                            {
+                              "kind": "GT_TOKEN"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "KEY_SPECIFIER",
+                          "children": [
+                            {
+                              "kind": "KEY_KEYWORD"
+                            },
+                            {
+                              "kind": "OPEN_PAREN_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "a"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CLOSE_PAREN_TOKEN",
+                              "isMissing": true
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "isMissing": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "isMissing": true
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "TABLE_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "TABLE_KEYWORD"
+                        },
+                        {
+                          "kind": "TYPE_PARAMETER",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "Myrecord"
+                            },
+                            {
+                              "kind": "GT_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "isMissing": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN",
+                  "isMissing": true
+                },
+                {
+                  "kind": "BINARY_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "BRACED_EXPRESSION",
+                      "children": [
+                        {
+                          "kind": "OPEN_PAREN_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "id"
+                        },
+                        {
+                          "kind": "CLOSE_PAREN_TOKEN"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "PLUS_TOKEN",
+                      "isMissing": true
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "TABLE_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "TABLE_KEYWORD"
+                        },
+                        {
+                          "kind": "TYPE_PARAMETER",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "Myrecord"
+                            },
+                            {
+                              "kind": "GT_TOKEN"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "KEY_SPECIFIER",
+                          "children": [
+                            {
+                              "kind": "KEY_KEYWORD"
+                            },
+                            {
+                              "kind": "OPEN_PAREN_TOKEN",
+                              "isMissing": true
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "id"
+                                },
+                                {
+                                  "kind": "COMMA_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "name"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CLOSE_PAREN_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "TABLE_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "TABLE_KEYWORD"
+                        },
+                        {
+                          "kind": "TYPE_PARAMETER",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "Myrecord"
+                            },
+                            {
+                              "kind": "GT_TOKEN"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "KEY_TYPE_CONSTRAINT",
+                          "children": [
+                            {
+                              "kind": "KEY_KEYWORD"
+                            },
+                            {
+                              "kind": "TYPE_PARAMETER",
+                              "children": [
+                                {
+                                  "kind": "LT_TOKEN",
+                                  "isMissing": true
+                                },
+                                {
+                                  "kind": "INT_KEYWORD"
+                                },
+                                {
+                                  "kind": "GT_TOKEN"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "TABLE_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "TABLE_KEYWORD"
+                        },
+                        {
+                          "kind": "TYPE_PARAMETER",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "Myrecord"
+                            },
+                            {
+                              "kind": "GT_TOKEN"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "KEY_TYPE_CONSTRAINT",
+                          "children": [
+                            {
+                              "kind": "KEY_KEYWORD"
+                            },
+                            {
+                              "kind": "TYPE_PARAMETER",
+                              "children": [
+                                {
+                                  "kind": "LT_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "MyId"
+                                },
+                                {
+                                  "kind": "GT_TOKEN",
+                                  "isMissing": true
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "TABLE_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "TABLE_KEYWORD"
+                        },
+                        {
+                          "kind": "TYPE_PARAMETER",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "INT_KEYWORD"
+                            },
+                            {
+                              "kind": "GT_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "TABLE_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "TABLE_KEYWORD"
+                        },
+                        {
+                          "kind": "TYPE_PARAMETER",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "INT_KEYWORD"
+                            },
+                            {
+                              "kind": "GT_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "TABLE_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "TABLE_KEYWORD"
+                        },
+                        {
+                          "kind": "TYPE_PARAMETER",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "Myrecord"
+                            },
+                            {
+                              "kind": "GT_TOKEN"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "KEY_SPECIFIER",
+                          "children": [
+                            {
+                              "kind": "KEY_KEYWORD"
+                            },
+                            {
+                              "kind": "OPEN_PAREN_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
+                              "kind": "CLOSE_PAREN_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "isMissing": true
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "TABLE_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "TABLE_KEYWORD"
+                        },
+                        {
+                          "kind": "TYPE_PARAMETER",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "Myrecord"
+                            },
+                            {
+                              "kind": "GT_TOKEN"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "KEY_TYPE_CONSTRAINT",
+                          "children": [
+                            {
+                              "kind": "KEY_KEYWORD"
+                            },
+                            {
+                              "kind": "TYPE_PARAMETER",
+                              "children": [
+                                {
+                                  "kind": "LT_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "id"
+                                },
+                                {
+                                  "kind": "GT_TOKEN"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "TABLE_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "TABLE_KEYWORD"
+                        },
+                        {
+                          "kind": "TYPE_PARAMETER",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "Myrecord"
+                            },
+                            {
+                              "kind": "GT_TOKEN"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "KEY_SPECIFIER",
+                          "children": [
+                            {
+                              "kind": "KEY_KEYWORD"
+                            },
+                            {
+                              "kind": "OPEN_PAREN_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
+                              "kind": "CLOSE_PAREN_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_BRACE_TOKEN"
+        }
+      ]
+    }
+  ]
 }

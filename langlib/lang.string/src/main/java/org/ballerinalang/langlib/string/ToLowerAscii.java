@@ -28,13 +28,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Locale;
 
+import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
+
 /**
  * Extern function ballerina.model.strings:toLower.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string",
+        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION,
         functionName = "toLowerAscii",
         args = {@Argument(name = "s", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},

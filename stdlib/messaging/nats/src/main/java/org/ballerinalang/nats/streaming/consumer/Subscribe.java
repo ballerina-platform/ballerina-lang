@@ -62,9 +62,9 @@ public class Subscribe {
     private static final BString START_POSITION_ANNOTATION_FIELD = StringUtils.fromString("startPosition");
 
     public static void streamingSubscribe(ObjectValue streamingListener, ObjectValue connectionObject,
-                                          String clusterId, Object clientIdNillable, Object streamingConfig) {
-        NatsStreamingConnection.createConnection(streamingListener, connectionObject, clusterId, clientIdNillable,
-                                                 streamingConfig);
+                                          BString clusterId, Object clientIdNillable, Object streamingConfig) {
+        NatsStreamingConnection.createConnection(streamingListener, connectionObject, clusterId.getValue(),
+                                                 clientIdNillable, streamingConfig);
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
         io.nats.streaming.StreamingConnection streamingConnection =

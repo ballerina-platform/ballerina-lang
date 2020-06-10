@@ -17,7 +17,10 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
+import io.ballerinalang.compiler.diagnostics.Diagnostic;
+import io.ballerinalang.compiler.internal.diagnostics.SyntaxDiagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerinalang.compiler.text.LineRange;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextRange;
@@ -82,6 +85,16 @@ public abstract class Node {
         return new NodeLocation(this);
     }
 
+    public abstract Iterable<Diagnostic> diagnostics();
+
+    public boolean hasDiagnostics() {
+        return internalNode.hasDiagnostics();
+    }
+
+    public boolean isMissing() {
+        return internalNode.isMissing();
+    }
+
     public SyntaxTree syntaxTree() {
         return populateSyntaxTree();
     }
@@ -144,5 +157,9 @@ public abstract class Node {
 
     void setSyntaxTree(SyntaxTree syntaxTree) {
         this.syntaxTree = syntaxTree;
+    }
+
+    protected Diagnostic createSyntaxDiagnostic(STNodeDiagnostic nodeDiagnostic) {
+        return SyntaxDiagnostic.from(nodeDiagnostic, this.location());
     }
 }

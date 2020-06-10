@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STQueryExpressionNode extends STExpressionNode {
             STNode queryConstructType,
             STNode queryPipeline,
             STNode selectClause) {
-        super(SyntaxKind.QUERY_EXPRESSION);
+        this(
+                queryConstructType,
+                queryPipeline,
+                selectClause,
+                Collections.emptyList());
+    }
+
+    STQueryExpressionNode(
+            STNode queryConstructType,
+            STNode queryPipeline,
+            STNode selectClause,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.QUERY_EXPRESSION, diagnostics);
         this.queryConstructType = queryConstructType;
         this.queryPipeline = queryPipeline;
         this.selectClause = selectClause;
@@ -47,7 +62,43 @@ public class STQueryExpressionNode extends STExpressionNode {
                 selectClause);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STQueryExpressionNode(
+                this.queryConstructType,
+                this.queryPipeline,
+                this.selectClause,
+                diagnostics);
+    }
+
+    public STQueryExpressionNode modify(
+            STNode queryConstructType,
+            STNode queryPipeline,
+            STNode selectClause) {
+        if (checkForReferenceEquality(
+                queryConstructType,
+                queryPipeline,
+                selectClause)) {
+            return this;
+        }
+
+        return new STQueryExpressionNode(
+                queryConstructType,
+                queryPipeline,
+                selectClause,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new QueryExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

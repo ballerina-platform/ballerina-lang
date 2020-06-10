@@ -94,10 +94,11 @@ public class BLangConstants {
     public static final String BALLERINA_LANG_ERROR_PKG = BALLERINA_PACKAGE_PREFIX + "lang_error";
     public static final String BALLERINA_MAX_POOL_SIZE_ENV_VAR = "BALLERINA_MAX_POOL_SIZE";
 
-
     public static final BPackage BALLERINA_BUILTIN_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "builtin");
-    public static final BPackage BALLERINA_RUNTIME_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "runtime");
-    public static final BPackage BALLERINA_LANG_ERROR_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "lang.error");
+    public static final BPackage BALLERINA_RUNTIME_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX,
+                                                                         "runtime", "0.5.0");
+    public static final BPackage BALLERINA_LANG_ERROR_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX,
+                                                                            "lang.error", "1.0.0");
 
     public static final String STRING_LANG_LIB = "lang.string";
     public static final String MAP_LANG_LIB = "lang.map";

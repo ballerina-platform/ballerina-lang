@@ -105,7 +105,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = unionResp;
-        var value = typedesc<int>.constructFrom(result);
+        var value = result.cloneWithType(typedesc<int>);
         if (value is int) {
             return [value, resHeaders];
         } else {
@@ -118,7 +118,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = unionResp;
-        var value = typedesc<float>.constructFrom(result);
+        var value = result.cloneWithType(typedesc<float>);
         if (value is float) {
             return [value, resHeaders];
         } else {
@@ -131,7 +131,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = unionResp;
-        var value = typedesc<boolean>.constructFrom(result);
+        var value = result.cloneWithType(typedesc<boolean>);
         if (value is boolean) {
             return [value, resHeaders];
         } else {
@@ -144,7 +144,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = unionResp;
-        var value = typedesc<Response>.constructFrom(result);
+        var value = result.cloneWithType(typedesc<Response>);
         if (value is Response) {
             return [value, resHeaders];
         } else {
