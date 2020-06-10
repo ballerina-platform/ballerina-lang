@@ -41,7 +41,7 @@ import java.util.UUID;
 import static org.ballerinalang.jvm.values.connector.Executor.executeFunction;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.BALLERINA;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.GENERATED_PACKAGE_VERSION;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.META_DATA_ON_START_UP_HUB;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.METADATA_ON_START_UP_HUB;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_BALLERINA_HUB;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE_ID;
@@ -223,7 +223,7 @@ public class Hub {
                 String subscribeUrl = populateSubscribeUrl(publicUrl, hubListener);
 
                 started = true;
-                Object setupResult = executeFunction(strand.scheduler, null, META_DATA_ON_START_UP_HUB, classLoader,
+                Object setupResult = executeFunction(strand.scheduler, null, METADATA_ON_START_UP_HUB, classLoader,
                                                      BALLERINA, WEBSUB, GENERATED_PACKAGE_VERSION, HUB_SERVICE,
                                                      "setupOnStartup");
                 if (TypeChecker.getType(setupResult).getTag() == TypeTags.ERROR) {

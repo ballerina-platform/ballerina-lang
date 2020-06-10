@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.FPValue;
@@ -52,8 +52,8 @@ import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 )
 public class Reduce {
 
-    private static StrandMetaData
-            metaData = new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB, ARRAY_VERSION, "filter");
+    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB,
+                                                                      ARRAY_VERSION, "filter");
 
     public static Object reduce(Strand strand, ArrayValue arr, FPValue<Object, Boolean> func, Object initial) {
         BType arrType = arr.getType();
@@ -62,7 +62,7 @@ public class Reduce {
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, null, metaData, size,
+                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                                                        () -> new Object[]{strand, accum.get(), true,
                                                                getFn.get(arr, index.incrementAndGet()), true},
                                                        accum::set, accum::get);

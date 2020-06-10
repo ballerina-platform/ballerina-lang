@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
@@ -49,8 +49,8 @@ import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 )
 public class Filter {
 
-    private static StrandMetaData
-            metaData = new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB, ARRAY_VERSION, "filter");
+    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB,
+                                                                      ARRAY_VERSION, "filter");
 
     public static ArrayValue filter(Strand strand, ArrayValue arr, FPValue<Object, Boolean> func) {
         ArrayValue newArr = new ArrayValueImpl((BArrayType) arr.getType());
@@ -58,7 +58,7 @@ public class Filter {
         AtomicInteger newArraySize = new AtomicInteger(-1);
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, null, metaData, size,
+                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                                                        () -> new Object[]{strand, arr.get(index.incrementAndGet()),
                                                                true},
                                                        result -> {

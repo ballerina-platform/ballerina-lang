@@ -21,7 +21,7 @@ package org.ballerinalang.cli.utils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.ArgumentParser;
@@ -50,7 +50,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
      */
     @Override
     public Optional<RuntimeException> executeMainFunction(String moduleName, String moduleVersion, String strandName,
-                                                          StrandMetaData metaData, String[] args) {
+                                                          StrandMetadata metaData, String[] args) {
         try {
             final Scheduler scheduler = new Scheduler(false);
             runInitOnSchedule(moduleName, moduleVersion, scheduler, strandName, metaData);
@@ -68,7 +68,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
      */
     @Override
     public Optional<RuntimeException> executeService(String moduleName, String moduleVersion, String strandName,
-                                                     StrandMetaData metaData) {
+                                                     StrandMetadata metaData) {
         try {
             final Scheduler scheduler = new Scheduler(false);
             runInitOnSchedule(moduleName, moduleVersion, scheduler, strandName, metaData);
@@ -92,7 +92,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
      * @throws RuntimeException When an error occurs invoking or within the function.
      */
     private void runStartOnSchedule(String moduleName, String moduleVersion, Scheduler scheduler, String strandName,
-                                    StrandMetaData metaData)
+                                    StrandMetadata metaData)
             throws RuntimeException {
         try {
             Class<?> initClazz = Class.forName("ballerina." + moduleName + "." +
@@ -143,7 +143,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
      * @throws RuntimeException When an error occurs invoking or within the function.
      */
     private static void runMainOnSchedule(String moduleName, String moduleVersion, Scheduler scheduler,
-                                          String strandName, StrandMetaData metaData, String[] stringArgs)
+                                          String strandName, StrandMetadata metaData, String[] stringArgs)
             throws RuntimeException {
         try {
             Class<?> mainClass = Class.forName("ballerina." + moduleName + "." +
@@ -201,7 +201,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
      * @throws RuntimeException When an error occurs invoking or within the function.
      */
     private static void runInitOnSchedule(String moduleName, String moduleVersion, Scheduler scheduler,
-                                          String strandName, StrandMetaData metaData)
+                                          String strandName, StrandMetadata metaData)
             throws RuntimeException {
         try {
             Class<?> initClazz = Class.forName("ballerina." + moduleName + "." +

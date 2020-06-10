@@ -35,7 +35,7 @@ import java.util.Properties;
 
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.BALLERINA;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.GENERATED_PACKAGE_VERSION;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.META_DATA_ON_SEND;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.METADATA_ON_SEND;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB;
 
 /**
@@ -68,7 +68,7 @@ public class HubSubscriber extends Consumer {
                         .unwrap()).getValue();
         Object[] args = {StringUtils.fromString(getCallback()), getSubscriptionDetails(), content};
         try {
-            Executor.executeFunction(scheduler, null, META_DATA_ON_SEND, this.getClass().getClassLoader(),
+            Executor.executeFunction(scheduler, null, METADATA_ON_SEND, this.getClass().getClassLoader(),
                                      BALLERINA, WEBSUB, GENERATED_PACKAGE_VERSION, "hub_service", "distributeContent"
                     , args);
         } catch (BallerinaException e) {

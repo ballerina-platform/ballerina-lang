@@ -18,12 +18,12 @@
 package org.ballerinalang.jvm.scheduling;
 
 /**
- * Holds meta data of the @{@link Strand}.
+ * Holds metadata of the @{@link Strand}.
  *
  * @since 2.0.0
  */
 
-public class StrandMetaData {
+public class StrandMetadata {
 
     public final String moduleOrg;
 
@@ -35,7 +35,7 @@ public class StrandMetaData {
 
     public final String parentFunctionName;
 
-    public StrandMetaData(String moduleOrg, String moduleName, String moduleVersion, String typeName,
+    public StrandMetadata(String moduleOrg, String moduleName, String moduleVersion, String typeName,
                           String parentFunctionName) {
         this.moduleOrg = moduleOrg;
         this.moduleName = moduleName;
@@ -44,7 +44,7 @@ public class StrandMetaData {
         this.parentFunctionName = parentFunctionName;
     }
 
-    public StrandMetaData(String moduleOrg, String moduleName, String moduleVersion, String parentFunctionName) {
+    public StrandMetadata(String moduleOrg, String moduleName, String moduleVersion, String parentFunctionName) {
         this(moduleOrg, moduleName, moduleVersion, null, parentFunctionName);
     }
 }

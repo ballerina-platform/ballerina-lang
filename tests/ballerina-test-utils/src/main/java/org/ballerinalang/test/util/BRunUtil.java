@@ -27,7 +27,7 @@ import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BIntersectionType;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTypedescType;
@@ -278,7 +278,7 @@ public class BRunUtil {
             Scheduler scheduler = new Scheduler(false);
             FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>(),
                                                          org.ballerinalang.jvm.types.BTypes.typeAny, "test",
-                                                         new StrandMetaData(ANON_ORG, DOT, DEFAULT_VERSION.value,
+                                                         new StrandMetadata(ANON_ORG, DOT, DEFAULT_VERSION.value,
                                                                             functionName));
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {
@@ -412,7 +412,7 @@ public class BRunUtil {
             Scheduler scheduler = new Scheduler(false);
             FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>(),
                                                          org.ballerinalang.jvm.types.BTypes.typeAny, "test",
-                                                         new StrandMetaData(ANON_ORG, DOT, DEFAULT_VERSION.value,
+                                                         new StrandMetadata(ANON_ORG, DOT, DEFAULT_VERSION.value,
                                                                             functionName));
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {

@@ -55,7 +55,7 @@ public class Strand {
 
     private int id;
     private String name;
-    private StrandMetaData metaData;
+    private StrandMetadata metadata;
 
     public Object[] frames;
     public int resumeIndex;
@@ -80,7 +80,7 @@ public class Strand {
     private State state;
     private final ReentrantLock strandLock;
 
-    public Strand(String name, StrandMetaData metaData, Scheduler scheduler, Strand parent,
+    public Strand(String name, StrandMetadata metadata, Scheduler scheduler, Strand parent,
                   Map<String, Object> properties) {
         this.id = nextStrandId.incrementAndGet();
         this.scheduler = scheduler;
@@ -92,7 +92,7 @@ public class Strand {
         this.strandLock = new ReentrantLock();
         this.waitingContexts = new ArrayList<>();
         this.name = name;
-        this.metaData = metaData;
+        this.metadata = metadata;
         this.parent = parent;
         this.globalProps = properties != null ? properties : new HashMap<>();
     }
@@ -320,8 +320,8 @@ public class Strand {
         return Optional.ofNullable(name);
     }
 
-    public StrandMetaData getMetaData() {
-        return metaData;
+    public StrandMetadata getMetadata() {
+        return metadata;
     }
 
     /**

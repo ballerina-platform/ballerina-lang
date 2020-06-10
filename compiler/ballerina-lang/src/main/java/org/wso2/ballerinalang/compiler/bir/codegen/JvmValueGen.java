@@ -128,7 +128,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getRecord
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDef;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.visitStrandMetaDataField;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.visitStrandMetadataField;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.computeLockNameFromString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNameString;
@@ -698,7 +698,7 @@ class JvmValueGen {
         this.createRecordConstructor(cw, BTYPE);
         this.createRecordInitWrapper(cw, className, typeDef);
         this.createLambdas(cw, lambdaGenMetadata);
-        visitStrandMetaDataField(cw, lambdaGenMetadata);
+        visitStrandMetadataField(cw, lambdaGenMetadata);
         this.generateStaticInitializer(cw, className, module, lambdaGenMetadata);
         cw.visitEnd();
 
@@ -755,7 +755,7 @@ class JvmValueGen {
     private void generateStaticInitializer(ClassWriter cw, String moduleClass, BIRNode.BIRPackage module,
                                                   LambdaMetadata lambdaMetadata) {
 
-        if (lambdaMetadata.getStrandMetaData().isEmpty()) {
+        if (lambdaMetadata.getStrandMetadata().isEmpty()) {
             return;
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
@@ -1401,7 +1401,7 @@ class JvmValueGen {
         this.createObjectSetMethod(cw, fields, className);
         this.createObjectSetOnInitializationMethod(cw, fields, className);
         this.createLambdas(cw, lambdaGenMetadata);
-        visitStrandMetaDataField(cw, lambdaGenMetadata);
+        visitStrandMetadataField(cw, lambdaGenMetadata);
         this.generateStaticInitializer(cw, className, module, lambdaGenMetadata);
 
         cw.visitEnd();

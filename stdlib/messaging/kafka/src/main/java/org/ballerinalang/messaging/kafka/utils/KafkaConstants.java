@@ -19,7 +19,7 @@
 package org.ballerinalang.messaging.kafka.utils;
 
 import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.api.BString;
 
@@ -275,19 +275,19 @@ public class KafkaConstants {
 
 
     // Strand meta data
-    public static final StrandMetaData META_DATA_ON_MESSAGE =
-            new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION, KAFKA_RESOURCE_ON_MESSAGE);
-    public static final StrandMetaData META_DATA_ON_SERIALIZE =
-            new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION, FUNCTION_SERIALIZE);
-    public static final StrandMetaData META_DATA_ON_DESERIALIZE =
-            new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION, FUNCTION_DESERIALIZE);
-    public static final StrandMetaData META_DATA_ON_CLOSE =
-            new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION, FUNCTION_CLOSE);
-    public static final StrandMetaData META_DATA_ON_PARTITION_REVOKED =
-            new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION,
+    public static final StrandMetadata METADATA_ON_MESSAGE =
+            new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION, KAFKA_RESOURCE_ON_MESSAGE);
+    public static final StrandMetadata METADATA_ON_SERIALIZE =
+            new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION, FUNCTION_SERIALIZE);
+    public static final StrandMetadata METADATA_ON_DESERIALIZE =
+            new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION, FUNCTION_DESERIALIZE);
+    public static final StrandMetadata METADATA_ON_CLOSE =
+            new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION, FUNCTION_CLOSE);
+    public static final StrandMetadata METADATA_ON_PARTITION_REVOKED =
+            new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION,
                                FUNCTION_ON_PARTITION_REVOKED);
-    public static final StrandMetaData META_DATA_ON_PARTITION_ASSIGNED =
-            new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION,
+    public static final StrandMetadata METADATA_ON_PARTITION_ASSIGNED =
+            new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION,
                                FUNCTION_ON_PARTITION_ASSIGNED);
 
 }

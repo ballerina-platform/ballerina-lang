@@ -19,7 +19,7 @@ package org.ballerinalang.jvm.transactions;
 
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -48,14 +48,14 @@ import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PR
  */
 public class TransactionUtils {
 
-    private static StrandMetaData trxMetaData = new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX,
-                                                                  TRANSACTION_PACKAGE_NAME,
-                                                                  TRANSACTION_PACKAGE_VERSION, "onAbort");
+    private static final StrandMetadata TRX_METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
+                                                                          TRANSACTION_PACKAGE_NAME,
+                                                                          TRANSACTION_PACKAGE_VERSION, "onAbort");
 
     public static void notifyTransactionAbort(Strand strand, String globalTransactionId, String transactionBlockId) {
         executeFunction(strand.scheduler, TransactionUtils.class.getClassLoader(), TRANSACTION_PACKAGE_FQN,
                         TRANSACTION_BLOCK_CLASS_NAME, COORDINATOR_ABORT_TRANSACTION, globalTransactionId,
-                        trxMetaData, globalTransactionId, transactionBlockId);
+                        TRX_METADATA, globalTransactionId, transactionBlockId);
     }
     
     /**
@@ -71,9 +71,9 @@ public class TransactionUtils {
      * @param paramValues to be passed to invokable unit
      * @return return values
      */
-    public static Object executeFunction(Scheduler scheduler, ClassLoader classLoader, String packageName, 
+    public static Object executeFunction(Scheduler scheduler, ClassLoader classLoader, String packageName,
                                          String className, String methodName, String strandName,
-                                         StrandMetaData metaData, Object... paramValues) {
+                                         StrandMetadata metaData, Object... paramValues) {
         try {
             Class<?> clazz = classLoader.loadClass(packageName + "." + className);
             int paramCount = paramValues.length * 2 + 1;

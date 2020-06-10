@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -45,14 +45,14 @@ import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 )
 public class ForEach {
 
-    private static StrandMetaData
-            metaData = new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB, MAP_VERSION, "forEach");
+    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
+                                                                      MAP_VERSION, "forEach");
 
     public static void forEach(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func) {
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, null, metaData, size,
+                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                                                        () -> new Object[]{strand,
                                                                m.get(m.getKeys()[index.incrementAndGet()]), true},
                                                        result -> {

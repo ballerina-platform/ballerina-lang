@@ -27,12 +27,12 @@ type Person object {
     public string name;
     function __init(string name) {
         // async calls inside object
-        _ = start assertStrandMetaDataResult("$anon/.:0.0.0.Person.__init");
+        _ = start assertStrandMetadataResult("$anon/.:0.0.0.Person.__init");
         worker w2 {
-            assertStrandMetaDataResult("$anon/.:0.0.0.Person.__init.w2");
+            assertStrandMetadataResult("$anon/.:0.0.0.Person.__init.w2");
         }
          _ =  @strand{name:"**my strand inside object**"}
-                        start assertStrandMetaDataResult("$anon/.:0.0.0.Person.__init.**my strand inside object**");
+                        start assertStrandMetadataResult("$anon/.:0.0.0.Person.__init.**my strand inside object**");
         foo();
         self.name = name;
         // object function
@@ -40,38 +40,38 @@ type Person object {
     }
 
     function bar() {
-         assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.test");
+         assertStrandMetadataResult("$anon/.:0.0.0.testStrandMetadataAsyncCalls.test");
          // async call inside object function
           _ =  @strand{name:"**my strand inside object bar**"}
-                start assertStrandMetaDataResult("$anon/.:0.0.0.Person.bar.**my strand inside object bar**");
+                start assertStrandMetadataResult("$anon/.:0.0.0.Person.bar.**my strand inside object bar**");
     }
 };
 
 
-function testStrandMetaDataAsyncCalls() {
+function testStrandMetadataAsyncCalls() {
     Person p1 = new("Waruna");
     // inside same function
-    assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.test");
+    assertStrandMetadataResult("$anon/.:0.0.0.testStrandMetadataAsyncCalls.test");
     // inside function call
     foo();
     // worker
     worker w1 {
-        assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.w1");
+        assertStrandMetadataResult("$anon/.:0.0.0.testStrandMetadataAsyncCalls.w1");
     }
     // async function call
-    future<()> f1 = start assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.f1");
+    future<()> f1 = start assertStrandMetadataResult("$anon/.:0.0.0.testStrandMetadataAsyncCalls.f1");
 
     // anonymous async call
-    _ = start assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls");
-    _ = start assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls");
+    _ = start assertStrandMetadataResult("$anon/.:0.0.0.testStrandMetadataAsyncCalls");
+    _ = start assertStrandMetadataResult("$anon/.:0.0.0.testStrandMetadataAsyncCalls");
 
     // async call with strand name
     _ = @strand{name:"**my strand**"}
-            start assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.**my strand**");
+            start assertStrandMetadataResult("$anon/.:0.0.0.testStrandMetadataAsyncCalls.**my strand**");
 
     // async function pointer
-    function(string s) func = assertStrandMetaDataResult;
-    future<()> x = start func("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.x");
+    function(string s) func = assertStrandMetadataResult;
+    future<()> x = start func("$anon/.:0.0.0.testStrandMetadataAsyncCalls.x");
 
     // Wait until all the async calls are done
     while (successCount < (totalNoOfStrandsForTest*2) && errorCount == 0) {
@@ -86,13 +86,13 @@ function testStrandMetaDataAsyncCalls() {
 }
 
 function foo() {
-    assertStrandMetaDataResult("$anon/.:0.0.0.testStrandMetaDataAsyncCalls.test");
+    assertStrandMetadataResult("$anon/.:0.0.0.testStrandMetadataAsyncCalls.test");
     worker w1 {
-        assertStrandMetaDataResult("$anon/.:0.0.0.foo.w1");
+        assertStrandMetadataResult("$anon/.:0.0.0.foo.w1");
     }
 }
 
-function assertStrandMetaDataResult(string assertString) {
+function assertStrandMetadataResult(string assertString) {
     string result = "";
     var strand = getStrand();
     var metadata = getMetaData(strand);
@@ -150,27 +150,27 @@ function getMetaData(handle strand) returns handle = @java:Method {
 } external;
 
 function getModuleOrg(handle strandMetaData) returns handle = @java:FieldGet {
-    class: "org.ballerinalang.jvm.scheduling.StrandMetaData",
+    class: "org.ballerinalang.jvm.scheduling.StrandMetadata",
     name : "moduleOrg"
 } external;
 
 function getModuleName(handle strandMetaData) returns handle = @java:FieldGet {
-    class: "org.ballerinalang.jvm.scheduling.StrandMetaData",
+    class: "org.ballerinalang.jvm.scheduling.StrandMetadata",
      name : "moduleName"
 } external;
 
 function getModuleVersion(handle strandMetaData) returns handle = @java:FieldGet {
-    class: "org.ballerinalang.jvm.scheduling.StrandMetaData",
+    class: "org.ballerinalang.jvm.scheduling.StrandMetadata",
     name : "moduleVersion"
 } external;
 
 function getParentFunctionName(handle strandMetaData) returns handle = @java:FieldGet {
-    class: "org.ballerinalang.jvm.scheduling.StrandMetaData",
+    class: "org.ballerinalang.jvm.scheduling.StrandMetadata",
     name : "parentFunctionName"
 } external;
 
 function getTypeName(handle strandMetaData) returns handle = @java:FieldGet {
-    class: "org.ballerinalang.jvm.scheduling.StrandMetaData",
+    class: "org.ballerinalang.jvm.scheduling.StrandMetadata",
     name : "typeName"
 
 } external;

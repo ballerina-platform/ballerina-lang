@@ -22,7 +22,7 @@ import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -67,7 +67,7 @@ public class Executor {
      * @param args         required for the resource.
      */
     public static void submit(Scheduler scheduler, ObjectValue service, String resourceName, String strandName,
-                              StrandMetaData metaData, CallableUnitCallback callback,
+                              StrandMetadata metaData, CallableUnitCallback callback,
                               Map<String, Object> properties, Object... args) {
 
         Function<Object[], Object> func = objects -> {
@@ -94,7 +94,7 @@ public class Executor {
      * @return results
      */
     public static Object executeFunction(Strand strand, ObjectValue service, AttachedFunction resource,
-                                         String strandName, StrandMetaData metaData, Object... args) {
+                                         String strandName, StrandMetadata metaData, Object... args) {
         int requiredArgNo = resource.type.paramTypes.length;
         int providedArgNo = (args.length / 2); // due to additional boolean args being added for each arg
         if (requiredArgNo != providedArgNo) {
@@ -120,7 +120,7 @@ public class Executor {
      * @param paramValues to be passed to invokable unit
      * @return return values
      */
-    public static Object executeFunction(Scheduler scheduler, String strandName, StrandMetaData metaData,
+    public static Object executeFunction(Scheduler scheduler, String strandName, StrandMetadata metaData,
                                          ClassLoader classLoader, final String orgName,
                                          String packageName, String version, String className, String methodName,
                                          Object... paramValues) {

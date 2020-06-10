@@ -19,7 +19,7 @@
 package org.ballerinalang.net.websub;
 
 import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.api.BString;
 
@@ -138,10 +138,10 @@ public class WebSubSubscriberConstants {
     public static final String WEBSUB_LISTENER_STARTUP_FAILURE = "{ballerina/websub}ListenerStartupError";
 
     // Strand meta data
-    public static final StrandMetaData META_DATA_ON_MESSAGE = new StrandMetaData(BALLERINA, WEBSUB, MODULE_VERSION,
-                                                                           RESOURCE_NAME_ON_MESSAGE);
-    public static final StrandMetaData META_DATA_ON_SEND = new StrandMetaData(BALLERINA, WEBSUB, MODULE_VERSION,
+    public static final StrandMetadata METADATA_ON_MESSAGE = new StrandMetadata(BALLERINA, WEBSUB, MODULE_VERSION,
+                                                                                RESOURCE_NAME_ON_MESSAGE);
+    public static final StrandMetadata METADATA_ON_SEND = new StrandMetadata(BALLERINA, WEBSUB, MODULE_VERSION,
                                                                              ON_SEND);
-    public static final StrandMetaData META_DATA_ON_START_UP_HUB = new StrandMetaData(BALLERINA, WEBSUB, MODULE_VERSION,
-                                                                                "startUpHubService");
+    public static final StrandMetadata METADATA_ON_START_UP_HUB = new StrandMetadata(BALLERINA, WEBSUB, MODULE_VERSION,
+                                                                                     "startUpHubService");
 }

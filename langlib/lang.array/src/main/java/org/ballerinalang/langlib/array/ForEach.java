@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.FPValue;
@@ -48,8 +48,8 @@ import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 )
 public class ForEach {
 
-    private static StrandMetaData
-            metaData = new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB, ARRAY_VERSION, "forEach");
+    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB,
+                                                                      ARRAY_VERSION, "forEach");
 
 
     public static void forEach(Strand strand, ArrayValue arr, FPValue<Object, Object> func) {
@@ -58,7 +58,7 @@ public class ForEach {
         GetFunction getFn = getElementAccessFunction(arrType, "forEach()");
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, null, metaData, size,
+                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                                                        () -> new Object[]{strand,
                                                                getFn.get(arr, index.incrementAndGet()), true},
                                                        result -> {

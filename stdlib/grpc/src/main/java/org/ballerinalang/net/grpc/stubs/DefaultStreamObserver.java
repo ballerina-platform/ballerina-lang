@@ -39,9 +39,9 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
-import static org.ballerinalang.net.grpc.GrpcConstants.META_DATA_ON_COMPLETE;
-import static org.ballerinalang.net.grpc.GrpcConstants.META_DATA_ON_ERROR;
-import static org.ballerinalang.net.grpc.GrpcConstants.META_DATA_ON_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.METADATA_ON_COMPLETE;
+import static org.ballerinalang.net.grpc.GrpcConstants.METADATA_ON_ERROR;
+import static org.ballerinalang.net.grpc.GrpcConstants.METADATA_ON_MESSAGE;
 import static org.ballerinalang.net.grpc.MessageUtils.getHeaderObject;
 
 /**
@@ -95,7 +95,7 @@ public class DefaultStreamObserver implements StreamObserver {
             semaphore.acquire();
             CallableUnitCallback callback = new ClientCallableUnitCallBack(semaphore);
             resource.getRuntime().invokeMethodAsync(resource.getService(), resource.getFunctionName(), null,
-                                                    META_DATA_ON_MESSAGE, callback,
+                                                    METADATA_ON_MESSAGE, callback,
                                                     null, paramValues);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -135,7 +135,7 @@ public class DefaultStreamObserver implements StreamObserver {
             semaphore.acquire();
             CallableUnitCallback callback = new ClientCallableUnitCallBack(semaphore);
             onError.getRuntime().invokeMethodAsync(onError.getService(), onError.getFunctionName(), null,
-                                                   META_DATA_ON_ERROR, callback, null,
+                                                   METADATA_ON_ERROR, callback, null,
                                                    paramValues);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -161,7 +161,7 @@ public class DefaultStreamObserver implements StreamObserver {
             semaphore.acquire();
             CallableUnitCallback callback = new ClientCallableUnitCallBack(semaphore);
             onCompleted.getRuntime().invokeMethodAsync(onCompleted.getService(), onCompleted.getFunctionName(),
-                                                       null, META_DATA_ON_COMPLETE, callback, null, paramValues);
+                                                       null, METADATA_ON_COMPLETE, callback, null, paramValues);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             String message = "Internal error occurred. The current thread got interrupted";

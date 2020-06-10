@@ -109,7 +109,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMainFu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMethodDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDef;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.visitStrandMetaDataField;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.visitStrandMetadataField;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateCreateTypesMethod;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateUserDefinedTypeFields;
@@ -230,7 +230,7 @@ public class JvmPackageGen {
                                                   BIRPackage module, boolean isInitClass,
                                                   boolean serviceEPAvailable, LambdaMetadata lambdaMetadata) {
 
-        if (!isInitClass && lambdaMetadata.getStrandMetaData().isEmpty()) {
+        if (!isInitClass && lambdaMetadata.getStrandMetadata().isEmpty()) {
             return;
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
@@ -540,7 +540,7 @@ public class JvmPackageGen {
                 BIRInstruction call = lambda.getValue();
                 jvmMethodGen.generateLambdaMethod(call, cw, name);
             }
-            visitStrandMetaDataField(cw, lambdaMetadata);
+            visitStrandMetadataField(cw, lambdaMetadata);
             generateStaticInitializer(cw, moduleClass, module, isInitClass, serviceEPAvailable, lambdaMetadata);
             cw.visitEnd();
 

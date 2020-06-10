@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.model.types.TypeKind;
@@ -45,14 +45,14 @@ import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 )
 public class Foreach {
 
-    private static StrandMetaData
-            metaData = new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB, TABLE_VERSION, "forEach");
+    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
+                                                                      TABLE_VERSION, "forEach");
 
     public static void forEach(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func) {
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, null, metaData, size,
+                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                         () -> new Object[]{strand,
                                 tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
                         result -> {

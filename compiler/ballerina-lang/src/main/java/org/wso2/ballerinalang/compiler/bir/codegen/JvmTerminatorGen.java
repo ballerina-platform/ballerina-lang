@@ -25,7 +25,7 @@ import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaMetadata;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.StrandMetaData;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.StrandMetadata;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIConstructorCall;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
@@ -130,7 +130,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupFu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupPathSeperators;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.createFunctionPointer;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMethodDesc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getStrandMetaDataVarName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getStrandMetadataVarName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariableDcl;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.loadDefaultValue;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.emitStopObservationInvocation;
@@ -1144,16 +1144,16 @@ public class JvmTerminatorGen {
                                    LambdaMetadata lambdaMetadata, boolean concurrent) {
 
         String metaDataVarName;
-        StrandMetaData strandMetaData;
+        StrandMetadata strandMetaData;
         if (attachedType != null) {
-            metaDataVarName = getStrandMetaDataVarName(attachedType.tsymbol.name.value, parentFunction);
-            strandMetaData = new StrandMetaData(attachedType.tsymbol.name.value, parentFunction);
+            metaDataVarName = getStrandMetadataVarName(attachedType.tsymbol.name.value, parentFunction);
+            strandMetaData = new StrandMetadata(attachedType.tsymbol.name.value, parentFunction);
         } else {
-            metaDataVarName = getStrandMetaDataVarName(parentFunction);
-            strandMetaData = new StrandMetaData(parentFunction);
+            metaDataVarName = getStrandMetadataVarName(parentFunction);
+            strandMetaData = new StrandMetadata(parentFunction);
 
         }
-        lambdaMetadata.getStrandMetaData().putIfAbsent(metaDataVarName, strandMetaData);
+        lambdaMetadata.getStrandMetadata().putIfAbsent(metaDataVarName, strandMetaData);
         this.mv.visitFieldInsn(GETSTATIC, moduleClassName, metaDataVarName, String.format("L%s;", STRAND_METADATA));
         if (concurrent) {
             mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,

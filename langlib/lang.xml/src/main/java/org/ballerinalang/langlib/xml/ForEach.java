@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -47,17 +47,17 @@ import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 )
 public class ForEach {
 
-    private static StrandMetaData
-            metaData = new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, XML_VERSION, "forEach");
+    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
+                                                                      XML_VERSION, "forEach");
 
     public static void forEach(Strand strand, XMLValue x, FPValue<Object, Object> func) {
         if (x.isSingleton()) {
-            func.asyncCall(new Object[]{strand, x, true}, metaData);
+            func.asyncCall(new Object[]{strand, x, true}, METADATA);
             return;
         }
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, null, metaData, x.size(),
+                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, x.size(),
                                                        () -> new Object[]{strand, x.getItem(index.incrementAndGet()),
                                                                true},
                                                        result -> {

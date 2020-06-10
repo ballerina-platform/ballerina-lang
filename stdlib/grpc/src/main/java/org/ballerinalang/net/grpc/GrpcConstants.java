@@ -17,7 +17,7 @@ package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.DescriptorProtos;
 import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.api.BString;
 
@@ -223,16 +223,16 @@ public class GrpcConstants {
     public static final String TAG_KEY_GRPC_ERROR_MESSAGE = "grpc.error_message";
 
     // Strand meta data
-    public static final StrandMetaData META_DATA_ON_OPEN =
-            new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, PROTOCOL_PACKAGE_GRPC, PROTOCOL_PACKAGE_VERSION_GRPC,
+    public static final StrandMetadata METADATA_ON_OPEN =
+            new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, PROTOCOL_PACKAGE_GRPC, PROTOCOL_PACKAGE_VERSION_GRPC,
                                ON_OPEN_RESOURCE);
-    public static final StrandMetaData META_DATA_ON_MESSAGE =
-            new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, PROTOCOL_PACKAGE_GRPC, PROTOCOL_PACKAGE_VERSION_GRPC,
+    public static final StrandMetadata METADATA_ON_MESSAGE =
+            new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, PROTOCOL_PACKAGE_GRPC, PROTOCOL_PACKAGE_VERSION_GRPC,
                                ON_MESSAGE_RESOURCE);
-    public static final StrandMetaData META_DATA_ON_ERROR =
-            new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, PROTOCOL_PACKAGE_GRPC, PROTOCOL_PACKAGE_VERSION_GRPC,
+    public static final StrandMetadata METADATA_ON_ERROR =
+            new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, PROTOCOL_PACKAGE_GRPC, PROTOCOL_PACKAGE_VERSION_GRPC,
                                ON_ERROR_RESOURCE);
-    public static final StrandMetaData META_DATA_ON_COMPLETE =
-            new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, PROTOCOL_PACKAGE_GRPC, PROTOCOL_PACKAGE_VERSION_GRPC,
+    public static final StrandMetadata METADATA_ON_COMPLETE =
+            new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, PROTOCOL_PACKAGE_GRPC, PROTOCOL_PACKAGE_VERSION_GRPC,
                                ON_COMPLETE_RESOURCE);
 }

@@ -22,7 +22,7 @@ import org.ballerinalang.jvm.annotation.JavaSPIService;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.metrics.spi.MetricReporter;
 import org.ballerinalang.jvm.observability.tracer.InvalidConfigurationException;
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.services.EmbeddedExecutorProvider;
 import org.ballerinalang.jvm.services.spi.EmbeddedExecutor;
 
@@ -48,7 +48,7 @@ public class PrometheusReporter implements MetricReporter {
             + PROMETHEUS_PACKAGE + ".port";
     private static final String DEFAULT_PROMETHEUS_HOST = "0.0.0.0";
     private static final String DEFAULT_PROMETHEUS_PORT = "9797";
-    private StrandMetaData metaData = new StrandMetaData(BALLERINA_BUILTIN_PKG, PROMETHEUS_PACKAGE,
+    private StrandMetadata metaData = new StrandMetadata(BALLERINA_BUILTIN_PKG, PROMETHEUS_PACKAGE,
                                                          PROMETHEUS_PACKAGE_VERSION,
                                                          "init");
 

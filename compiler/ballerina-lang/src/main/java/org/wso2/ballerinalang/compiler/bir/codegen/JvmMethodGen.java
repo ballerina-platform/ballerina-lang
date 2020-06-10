@@ -28,7 +28,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.FunctionParamCompara
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaMetadata;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.StrandMetaData;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.StrandMetadata;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
@@ -173,7 +173,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_FUN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_FUNCTION_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_META_DATA_VAR_PREFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
@@ -1311,14 +1311,14 @@ public class JvmMethodGen {
 
     static void generateStrandMetadata(MethodVisitor mv, String moduleClass,
                                        BIRPackage module, LambdaMetadata lambdaMetadata) {
-        lambdaMetadata.getStrandMetaData().forEach((varName, metaData) -> {
-            genStrandMetaDataField(mv, moduleClass, module, varName, metaData);
+        lambdaMetadata.getStrandMetadata().forEach((varName, metaData) -> {
+            genStrandMetadataField(mv, moduleClass, module, varName, metaData);
         });
     }
 
 
-    static void genStrandMetaDataField(MethodVisitor mv, String moduleClass, BIRPackage module,
-                                               String varName, StrandMetaData metaData) {
+    static void genStrandMetadataField(MethodVisitor mv, String moduleClass, BIRPackage module,
+                                               String varName, StrandMetadata metaData) {
         mv.visitTypeInsn(NEW, STRAND_METADATA);
         mv.visitInsn(DUP);
         mv.visitLdcInsn(module.org.value);
@@ -1336,24 +1336,24 @@ public class JvmMethodGen {
         mv.visitFieldInsn(PUTSTATIC, moduleClass, varName, String.format("L%s;", STRAND_METADATA));
     }
 
-    static void visitStrandMetaDataField(ClassWriter cw, LambdaMetadata lambdaMetadata) {
-        lambdaMetadata.getStrandMetaData().keySet().forEach(varName -> {
-            visitStrandMetaDataField(cw, varName);
+    static void visitStrandMetadataField(ClassWriter cw, LambdaMetadata lambdaMetadata) {
+        lambdaMetadata.getStrandMetadata().keySet().forEach(varName -> {
+            visitStrandMetadataField(cw, varName);
         });
 
     }
 
-    static void visitStrandMetaDataField(ClassWriter cw, String varName) {
+    static void visitStrandMetadataField(ClassWriter cw, String varName) {
         FieldVisitor fv = cw.visitField(ACC_STATIC, varName, String.format("L%s;", STRAND_METADATA), null, null);
         fv.visitEnd();
     }
 
-    static String getStrandMetaDataVarName(String parentFunction) {
-        return STRAND_META_DATA_VAR_PREFIX + parentFunction + "$";
+    static String getStrandMetadataVarName(String parentFunction) {
+        return STRAND_METADATA_VAR_PREFIX + parentFunction + "$";
     }
 
-    static String getStrandMetaDataVarName(String typeName, String parentFunction) {
-        return STRAND_META_DATA_VAR_PREFIX + typeName + "$" + parentFunction + "$";
+    static String getStrandMetadataVarName(String typeName, String parentFunction) {
+        return STRAND_METADATA_VAR_PREFIX + typeName + "$" + parentFunction + "$";
     }
 
     static String cleanupFunctionName(String functionName) {
@@ -2874,8 +2874,8 @@ public class JvmMethodGen {
 
     private static void submitToScheduler(MethodVisitor mv, String moduleClassName,
                                           String workerName, LambdaMetadata lambdaMetadata) {
-        String metaDataVarName = getStrandMetaDataVarName("main");
-        lambdaMetadata.getStrandMetaData().putIfAbsent(metaDataVarName, new StrandMetaData("main"));
+        String metaDataVarName = getStrandMetadataVarName("main");
+        lambdaMetadata.getStrandMetadata().putIfAbsent(metaDataVarName, new StrandMetadata("main"));
         mv.visitLdcInsn(workerName);
         mv.visitFieldInsn(GETSTATIC, moduleClassName, metaDataVarName, String.format("L%s;", STRAND_METADATA));
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,

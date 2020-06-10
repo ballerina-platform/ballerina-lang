@@ -109,13 +109,13 @@ public class Scheduler {
      * @param fp         function ponter to be executed.
      * @param parent     parent of the new Strand that get created here.
      * @param returnType return type of the function.
-     * @param strandName       name for new strand
-     * @param metaData   meta data of new strand
+     * @param strandName name for new strand
+     * @param metadata   meta data of new strand
      * @return {@link FutureValue} reference to the given function pointer invocation.
      */
     public FutureValue scheduleFunction(Object[] params, FPValue<?, ?> fp, Strand parent, BType returnType,
-                                        String strandName, StrandMetaData metaData) {
-        return schedule(params, fp.getFunction(), parent, null, null, returnType, strandName, metaData);
+                                        String strandName, StrandMetadata metadata) {
+        return schedule(params, fp.getFunction(), parent, null, null, returnType, strandName, metadata);
     }
 
     /**
@@ -125,13 +125,13 @@ public class Scheduler {
      * @param fp         function to be executed.
      * @param parent     parent of the new Strand that get created here.
      * @param returnType return type of the function.
-     * @param strandName       name for new strand
-     * @param metaData   meta data of new strand
+     * @param strandName name for new strand
+     * @param metadata   meta data of new strand
      * @return {@link FutureValue} reference to the given function invocation.
      */
     public FutureValue scheduleLocal(Object[] params, FPValue<?, ?> fp, Strand parent, BType returnType,
-                                     String strandName, StrandMetaData metaData) {
-        FutureValue future = createFuture(parent, null, null, returnType, strandName, metaData);
+                                     String strandName, StrandMetadata metadata) {
+        FutureValue future = createFuture(parent, null, null, returnType, strandName, metadata);
         return scheduleLocal(params, fp, parent, future);
     }
 
@@ -157,14 +157,14 @@ public class Scheduler {
      * @param callback   - to notify any listener when ever the execution of the given function is finished
      * @param properties - request properties which requires for co-relation
      * @param returnType - return type of the scheduled function
-     * @param strandName       name for new strand
-     * @param metaData   meta data of new strand
+     * @param strandName - name for new strand
+     * @param metadata   - meta data of new strand
      * @return - Reference to the scheduled task
      */
     public FutureValue schedule(Object[] params, Function function, Strand parent, CallableUnitCallback callback,
                                 Map<String, Object> properties, BType returnType, String strandName,
-                                StrandMetaData metaData) {
-        FutureValue future = createFuture(parent, callback, properties, returnType, strandName, metaData);
+                                StrandMetadata metadata) {
+        FutureValue future = createFuture(parent, callback, properties, returnType, strandName, metadata);
         return schedule(params, function, future);
     }
 
@@ -175,13 +175,13 @@ public class Scheduler {
      * @param function - function to be executed
      * @param parent   - parent strand that makes the request to schedule another
      * @param callback - to notify any listener when ever the execution of the given function is finished
-     * @param strandName       name for new strand
-     * @param metaData   meta data of new strand
+     * @param strandName - name for new strand
+     * @param metadata - meta data of new strand
      * @return - Reference to the scheduled task
      */
     public FutureValue schedule(Object[] params, Function function, Strand parent, CallableUnitCallback callback,
-                                String strandName, StrandMetaData metaData) {
-        FutureValue future = createFuture(parent, callback, null, BTypes.typeNull, strandName, metaData);
+                                String strandName, StrandMetadata metadata) {
+        FutureValue future = createFuture(parent, callback, null, BTypes.typeNull, strandName, metadata);
         return schedule(params, function, future);
     }
 
@@ -204,14 +204,14 @@ public class Scheduler {
      * @param consumer - consumer to be executed
      * @param parent   - parent strand that makes the request to schedule another
      * @param callback - to notify any listener when ever the execution of the given function is finished
-     * @param strandName       name for new strand
-     * @param metaData   meta data of new strand
+     * @param strandName - name for new strand
+     * @param metadata - meta data of new strand
      * @return - Reference to the scheduled task
      */
     @Deprecated
     public FutureValue schedule(Object[] params, Consumer consumer, Strand parent, CallableUnitCallback callback,
-                                String strandName, StrandMetaData metaData) {
-        FutureValue future = createFuture(parent, callback, null, BTypes.typeNull, strandName, metaData);
+                                String strandName, StrandMetadata metadata) {
+        FutureValue future = createFuture(parent, callback, null, BTypes.typeNull, strandName, metadata);
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(consumer, params, future);
         future.strand.schedulerItem = item;
@@ -447,8 +447,8 @@ public class Scheduler {
     }
 
     public FutureValue createFuture(Strand parent, CallableUnitCallback callback, Map<String, Object> properties,
-                                    BType constraint, String name, StrandMetaData metaData) {
-        Strand newStrand = new Strand(name, metaData, this, parent, properties);
+                                    BType constraint, String name, StrandMetadata metadata) {
+        Strand newStrand = new Strand(name, metadata, this, parent, properties);
         return createFuture(parent, callback, constraint, newStrand);
     }
 

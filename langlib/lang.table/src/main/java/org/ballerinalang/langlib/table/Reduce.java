@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.model.types.TypeKind;
@@ -49,15 +49,15 @@ import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 )
 public class Reduce {
 
-    private static StrandMetaData
-            metaData = new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB, TABLE_VERSION, "reduce");
+    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
+                                                                      TABLE_VERSION, "reduce");
 
     public static Object reduce(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func, Object initial) {
         int size = tbl.values().size();
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, null, metaData, size,
+                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                         () -> new Object[]{strand, accum.get(), true,
                                 tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
                         accum::set, accum::get);

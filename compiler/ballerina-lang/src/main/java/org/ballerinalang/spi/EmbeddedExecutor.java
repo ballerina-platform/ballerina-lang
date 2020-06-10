@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.spi;
 
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 
 import java.util.Optional;
 
@@ -39,7 +39,7 @@ public interface EmbeddedExecutor {
      * @return Program execution output.
      */
     Optional<RuntimeException> executeMainFunction(String moduleName, String moduleVersion, String strandName,
-                                                   StrandMetaData metaData, String... args);
+                                                   StrandMetadata metaData, String... args);
 
     /**
      * Executes a service of a module.
@@ -51,5 +51,5 @@ public interface EmbeddedExecutor {
      * @return Program execution output.
      */
     Optional<RuntimeException> executeService(String moduleName, String moduleVersion, String strandName,
-                                              StrandMetaData metaData);
+                                              StrandMetadata metaData);
 }

@@ -19,7 +19,7 @@
 package org.ballerinalang.nats;
 
 import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.api.BString;
 
@@ -129,10 +129,10 @@ public class Constants {
     public static final BString MAX_BYTES = StringUtils.fromString("maxBytes");
 
     // Strand meta data
-    public static final StrandMetaData META_DATA_ON_MESSAGE = new StrandMetaData(ORG_NAME, NATS, VERSION,
-                                                                                  ON_MESSAGE_RESOURCE);
-    public static final StrandMetaData META_DATA_ON_ERROR = new StrandMetaData(ORG_NAME, NATS, VERSION,
-                                                                                 ON_ERROR_RESOURCE);
+    public static final StrandMetadata METADATA_ON_MESSAGE = new StrandMetadata(ORG_NAME, NATS, VERSION,
+                                                                                ON_MESSAGE_RESOURCE);
+    public static final StrandMetadata METADATA_ON_ERROR = new StrandMetadata(ORG_NAME, NATS, VERSION,
+                                                                              ON_ERROR_RESOURCE);
 
     private Constants() {
     }

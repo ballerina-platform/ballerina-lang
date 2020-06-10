@@ -18,7 +18,7 @@
 package org.ballerinalang.stdlib.task.utils;
 
 import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.stdlib.task.objects.ServiceInformation;
 
@@ -33,15 +33,15 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIG
  */
 public class TaskExecutor {
 
-    private static StrandMetaData metaData =
-            new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME, PACKAGE_VERSION, RESOURCE_ON_TRIGGER);
+    private static final StrandMetadata TASK_METADATA =
+            new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME, PACKAGE_VERSION, RESOURCE_ON_TRIGGER);
 
     public static void executeFunction(ServiceInformation serviceInformation) {
         AttachedFunction onTriggerFunction = serviceInformation.getOnTriggerFunction();
         Object[] onTriggerFunctionArgs = getParameterList(onTriggerFunction, serviceInformation);
 
         BRuntime runtime = serviceInformation.getRuntime();
-        runtime.invokeMethodAsync(serviceInformation.getService(), RESOURCE_ON_TRIGGER, null, metaData, null,
+        runtime.invokeMethodAsync(serviceInformation.getService(), RESOURCE_ON_TRIGGER, null, TASK_METADATA, null,
                                   onTriggerFunctionArgs);
     }
 

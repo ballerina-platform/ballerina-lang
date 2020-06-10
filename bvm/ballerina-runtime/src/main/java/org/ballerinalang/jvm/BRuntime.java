@@ -22,7 +22,7 @@ import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.State;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -81,14 +81,14 @@ public class BRuntime {
      * Invoke Function Pointer asynchronously. This will schedule the function and block the strand.
      *
      * @param func                 Function Pointer to be invoked.
-     * @param strandName name for newly creating strand which is used to execute the function pointer. This is
+     * @param strandName Name for newly creating strand which is used to execute the function pointer. This is
      *                   optional and can be null.
-     * @param metaData   meta data of new strand.
-     * @param args                 Ballerina function arguments.
+     * @param metadata   Meta data of new strand.
+     * @param args  Ballerina function arguments.
      * @param resultHandleFunction Function used to process the result received after execution of function.
      * @return Future Value
      */
-    public FutureValue invokeFunctionPointerAsync(FPValue<?, ?> func, String strandName, StrandMetaData metaData,
+    public FutureValue invokeFunctionPointerAsync(FPValue<?, ?> func, String strandName, StrandMetadata metadata,
                                                   Object[] args, Function<Object, Object> resultHandleFunction) {
         AsyncFunctionCallback callback = new AsyncFunctionCallback() {
             @Override
@@ -101,25 +101,25 @@ public class BRuntime {
                 handleRuntimeErrors(error);
             }
         };
-        return invokeFunctionPointerAsync(func, strandName, metaData, args, callback);
+        return invokeFunctionPointerAsync(func, strandName, metadata, args, callback);
     }
 
     /**
      * Invoke Function Pointer asynchronously. This will schedule the function and block the strand.
      *
      * @param func     Function Pointer to be invoked.
-     * @param strandName name for newly creating strand which is used to execute the function pointer. This is
+     * @param strandName Name for newly creating strand which is used to execute the function pointer. This is
      *                   optional and can be null.
-     * @param metaData   meta data of new strand.
+     * @param metadata   Meta data of new strand.
      * @param args     Ballerina function arguments.
      * @param callback Asynchronous call back.
      * @return Future value
      */
-    public FutureValue invokeFunctionPointerAsync(FPValue<?, ?> func, String strandName, StrandMetaData metaData,
+    public FutureValue invokeFunctionPointerAsync(FPValue<?, ?> func, String strandName, StrandMetadata metadata,
                                                   Object[] args, AsyncFunctionCallback callback) {
 
         Strand strand = Scheduler.getStrand();
-        return invokeFunctionPointerAsync(func, strand, strandName, metaData, args, callback);
+        return invokeFunctionPointerAsync(func, strand, strandName, metadata, args, callback);
     }
 
     /**
@@ -128,9 +128,9 @@ public class BRuntime {
      * item of the collection.
      *
      * @param func                 Function Pointer to be invoked.
-     * @param strandName name for newly creating strand which is used to execute the function pointer. This is
+     * @param strandName Name for newly creating strand which is used to execute the function pointer. This is
      *                   optional and can be null.
-     * @param metaData   meta data of new strand.                       
+     * @param metadata   Meta data of new strand.
      * @param noOfIterations Number of iterations need to call the function pointer.
      * @param argsSupplier Supplier provides dynamic arguments to function pointer execution in each iteration.
      * @param futureResultConsumer Consumer used to process the future value received after execution of function.
@@ -138,7 +138,7 @@ public class BRuntime {
      * @param returnValueSupplier Suppiler used to set the final return value for the parent function invocation.
      */
     public void invokeFunctionPointerAsyncIteratively(FPValue<?, ?> func, String strandName,
-                                                      StrandMetaData metaData, int noOfIterations,
+                                                      StrandMetadata metadata, int noOfIterations,
                                                       Supplier<Object[]> argsSupplier,
                                                       Consumer<Object> futureResultConsumer,
                                                       Supplier<Object> returnValueSupplier) {
@@ -148,7 +148,7 @@ public class BRuntime {
         Strand strand = Scheduler.getStrand();
         blockStrand(strand);
         AtomicInteger callCount = new AtomicInteger(0);
-        scheduleNextFunction(func, strand, strandName, metaData, noOfIterations, callCount, argsSupplier,
+        scheduleNextFunction(func, strand, strandName, metadata, noOfIterations, callCount, argsSupplier,
                              futureResultConsumer, returnValueSupplier);
     }
 
@@ -156,30 +156,30 @@ public class BRuntime {
      * Invoke Object method asynchronously. This will schedule the function and block the strand.
      *  @param object     Object Value.
      * @param methodName Name of the method.
-     * @param strandName name for newly creating strand which is used to execute the function pointer. This is
- *                   optional and can be null.
-     * @param metaData   meta data of new strand.
+     * @param strandName Name for newly creating strand which is used to execute the function pointer. This is
+     *                   optional and can be null.
+     * @param metadata   Meta data of new strand.
      * @param callback   Callback which will get notify once method execution done.
      * @param args       Ballerina function arguments.
      */
-    public void invokeMethodAsync(ObjectValue object, String methodName, String strandName, StrandMetaData metaData,
+    public void invokeMethodAsync(ObjectValue object, String methodName, String strandName, StrandMetadata metadata,
                                   CallableUnitCallback callback, Object... args) {
         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
-        scheduler.schedule(new Object[1], func, null, callback, strandName, metaData);
+        scheduler.schedule(new Object[1], func, null, callback, strandName, metadata);
     }
 
     /**
      * Invoke Object method asynchronously. This will schedule the function and block the strand.
      *  @param object     Object Value.
      * @param methodName Name of the method.
-     * @param strandName name for newly creating strand which is used to execute the function pointer. This is
- *                   optional and can be null.
-     * @param metaData   meta data of new strand.
+     * @param strandName Name for newly creating strand which is used to execute the function pointer. This is
+     *                   optional and can be null.
+     * @param metadata   Meta data of new strand.
      * @param callback   Callback which will get notify once method execution done.
      * @param properties Set of properties for strand
      * @param args       Ballerina function arguments.
      */
-    public void invokeMethodAsync(ObjectValue object, String methodName, String strandName, StrandMetaData metaData,
+    public void invokeMethodAsync(ObjectValue object, String methodName, String strandName, StrandMetadata metadata,
                                   CallableUnitCallback callback, Map<String, Object> properties, Object... args) {
         Function<Object[], Object> func = objects -> {
             Strand strand = (Strand) objects[0];
@@ -190,7 +190,7 @@ public class BRuntime {
             }
             return object.call(strand, methodName, args);
         };
-        scheduler.schedule(new Object[1], func, null, callback, properties, BTypes.typeNull, strandName, metaData);
+        scheduler.schedule(new Object[1], func, null, callback, properties, BTypes.typeNull, strandName, metadata);
     }
 
     /**
@@ -198,13 +198,13 @@ public class BRuntime {
      *
      * @param object     Object Value.
      * @param methodName Name of the method.
-     * @param strandName name for newly creating strand which is used to execute the function pointer. This is 
+     * @param strandName Name for newly creating strand which is used to execute the function pointer. This is
      *                   optional and can be null.
-     * @param metaData   meta data of new strand.
+     * @param metadata   Meta data of new strand.
      * @param args       Ballerina function arguments.
      */
     public void invokeMethodSync(ObjectValue object, String methodName, String strandName,
-                                 StrandMetaData metaData, Object... args) {
+                                 StrandMetadata metadata, Object... args) {
         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
         Semaphore semaphore = new Semaphore(0);
         final ErrorValue[] errorValue = new ErrorValue[1];
@@ -219,7 +219,7 @@ public class BRuntime {
                 errorValue[0] = error;
                 semaphore.release();
             }
-        }, strandName, metaData);
+        }, strandName, metadata);
         try {
             semaphore.acquire();
         } catch (InterruptedException e) {
@@ -235,15 +235,15 @@ public class BRuntime {
      *
      * @param object     Ballerina object in which the function is defined.
      * @param methodName Ballerina function name, to invoke.
-     * @param strandName name for newly creating strand which is used to execute the function pointer. This is 
+     * @param strandName Name for newly creating strand which is used to execute the function pointer. This is
      *                   optional and can be null.
-     * @param metaData   meta data of new strand.
+     * @param metadata   Meta data of new strand.
      * @param timeout    Timeout in milliseconds to wait until acquiring the semaphore.
      * @param args       Ballerina function arguments.
      * @return Ballerina function invoke result.
      */
     public Object getSyncMethodInvokeResult(ObjectValue object, String methodName, String strandName,
-                                            StrandMetaData metaData, int timeout, Object... args) {
+                                            StrandMetadata metadata, int timeout, Object... args) {
         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
         Semaphore semaphore = new Semaphore(0);
         final ErrorValue[] errorValue = new ErrorValue[1];
@@ -260,7 +260,7 @@ public class BRuntime {
                 errorValue[0] = error;
                 semaphore.release();
             }
-        }, strandName, metaData);
+        }, strandName, metadata);
         try {
             semaphore.tryAcquire(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
@@ -274,7 +274,7 @@ public class BRuntime {
 
 
     private void scheduleNextFunction(FPValue<?, ?> func, Strand strand, String strandName,
-                                      StrandMetaData metaData, int noOfIterations,
+                                      StrandMetadata metadata, int noOfIterations,
                                       AtomicInteger callCount, Supplier<Object[]> argsSupplier,
                                       Consumer<Object> futureResultConsumer,
                                       Supplier<Object> returnValueSupplier) {
@@ -283,7 +283,7 @@ public class BRuntime {
             public void notifySuccess() {
                 futureResultConsumer.accept(getFutureResult());
                 if (callCount.incrementAndGet() != noOfIterations) {
-                    scheduleNextFunction(func, strand, strandName, metaData, noOfIterations, callCount, argsSupplier,
+                    scheduleNextFunction(func, strand, strandName, metadata, noOfIterations, callCount, argsSupplier,
                                          futureResultConsumer, returnValueSupplier);
                 } else {
                     setReturnValues(returnValueSupplier.get());
@@ -295,16 +295,16 @@ public class BRuntime {
                 handleRuntimeErrors(error);
             }
         };
-        invokeFunctionPointerAsync(func, strand, strandName, metaData, argsSupplier.get(), callback);
+        invokeFunctionPointerAsync(func, strand, strandName, metadata, argsSupplier.get(), callback);
     }
 
     private FutureValue invokeFunctionPointerAsync(FPValue<?, ?> func, Strand parent, String name,
-                                                   StrandMetaData metaData, Object[] args,
+                                                   StrandMetadata metadata, Object[] args,
                                                    AsyncFunctionCallback callback) {
 
         blockStrand(parent);
         final FutureValue future = scheduler.createFuture(parent, null, null,
-                                                          ((BFunctionType) func.getType()).retType, name, metaData);
+                                                          ((BFunctionType) func.getType()).retType, name, metadata);
         future.callback = callback;
         callback.setFuture(future);
         callback.setStrand(parent);
@@ -335,5 +335,4 @@ public class BRuntime {
             }
         }
     }
-
 }

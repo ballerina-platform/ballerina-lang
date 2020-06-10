@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.jvm.values.api;
 
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.values.FutureValue;
 
 import java.util.function.Function;
@@ -52,7 +52,7 @@ public interface BFunctionPointer<T, R> extends BRefValue {
      * @param metaData  meta data for newly creating strand which is used to execute the function pointer.
      * @return Future value received from invoking asynchronous function.
      */
-    FutureValue asyncCall(Object[] args, StrandMetaData metaData);
+    FutureValue asyncCall(Object[] args, StrandMetadata metaData);
 
     /**
      * Schedule and asynchronously execute the {@code Function} with given parameter array. Method can be used to
@@ -63,7 +63,7 @@ public interface BFunctionPointer<T, R> extends BRefValue {
      * @param metaData             meta data for newly creating strand which is used to execute the function pointer.
      * @return Future value received from invoking asynchronous function.
      */
-    FutureValue asyncCall(Object[] args, Function<Object, Object> resultHandleFunction, StrandMetaData metaData);
+    FutureValue asyncCall(Object[] args, Function<Object, Object> resultHandleFunction, StrandMetadata metaData);
 
     /**
      * Returns the {@code Function} the FP is pointed to.

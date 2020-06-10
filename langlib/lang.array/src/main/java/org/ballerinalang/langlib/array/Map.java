@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BType;
@@ -54,8 +54,8 @@ import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 )
 public class Map {
 
-    private static StrandMetaData
-            metaData = new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB, ARRAY_VERSION, "map");
+    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB,
+                                                                      ARRAY_VERSION, "map");
 
     public static ArrayValue map(Strand strand, ArrayValue arr, FPValue<Object, Object> func) {
         BType elemType = ((BFunctionType) func.getType()).retType;
@@ -77,7 +77,7 @@ public class Map {
         }
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, null, metaData, size,
+                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                                                        () -> new Object[]{strand,
                                                                getFn.get(arr, index.incrementAndGet()), true},
                                                        result -> retArr.add(index.get(), result),

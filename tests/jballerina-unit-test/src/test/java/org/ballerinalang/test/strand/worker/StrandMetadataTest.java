@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
  *
  * @since 2.0.0
  */
-public class StrandMetaDataTest {
+public class StrandMetadataTest {
 
     private CompileResult compileResult;
 
@@ -39,7 +39,7 @@ public class StrandMetaDataTest {
     }
 
     @Test
-    public void testStrandMetaDataAsyncCalls() {
-        BRunUtil.invoke(compileResult, "testStrandMetaDataAsyncCalls", new BValue[0]);
+    public void testStrandMetadataAsyncCalls() {
+        BRunUtil.invoke(compileResult, "testStrandMetadataAsyncCalls", new BValue[0]);
     }
 }

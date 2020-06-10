@@ -18,7 +18,7 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
@@ -59,12 +59,12 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
         return this.function.apply(t);
     }
 
-    public FutureValue asyncCall(Object[] args, StrandMetaData metaData) {
+    public FutureValue asyncCall(Object[] args, StrandMetadata metaData) {
         return this.asyncCall(args, o -> o, metaData);
     }
 
     public FutureValue asyncCall(Object[] args, Function<Object, Object> resultHandleFunction,
-                                 StrandMetaData metaData) {
+                                 StrandMetadata metaData) {
         return BRuntime.getCurrentRuntime().invokeFunctionPointerAsync(this, this.strandName, metaData,
                                                                        args, resultHandleFunction);
     }

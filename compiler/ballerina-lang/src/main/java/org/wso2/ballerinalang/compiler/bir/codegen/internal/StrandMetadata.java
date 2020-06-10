@@ -22,17 +22,17 @@ package org.wso2.ballerinalang.compiler.bir.codegen.internal;
  *
  * @since 2.0.0
  */
-public class StrandMetaData {
+public class StrandMetadata {
 
     public String parentFunctionName;
 
     public String typeName;
 
-    public StrandMetaData(String parentFunctionName) {
+    public StrandMetadata(String parentFunctionName) {
         this.parentFunctionName = parentFunctionName;
     }
 
-    public StrandMetaData(String typeName, String parentFunctionName) {
+    public StrandMetadata(String typeName, String parentFunctionName) {
         this.typeName = typeName;
         this.parentFunctionName = parentFunctionName;
     }

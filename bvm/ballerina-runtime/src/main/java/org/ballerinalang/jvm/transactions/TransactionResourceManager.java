@@ -19,7 +19,7 @@ package org.ballerinalang.jvm.transactions;
 
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.FPValue;
 import org.slf4j.Logger;
@@ -62,7 +62,7 @@ public class TransactionResourceManager {
     private ConcurrentSkipListSet<String> failedLocalParticipantSet = new ConcurrentSkipListSet<>();
     private ConcurrentHashMap<String, ConcurrentSkipListSet<String>> localParticipants = new ConcurrentHashMap<>();
 
-    public StrandMetaData trxMetaData = new StrandMetaData(BALLERINA_BUILTIN_PKG_PREFIX, TRANSACTION_PACKAGE_NAME,
+    public StrandMetadata trxMetaData = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TRANSACTION_PACKAGE_NAME,
                                                            TRANSACTION_PACKAGE_VERSION, "onCommit");
 
     private TransactionResourceManager() {

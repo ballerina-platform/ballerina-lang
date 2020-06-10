@@ -31,7 +31,7 @@ import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetaData;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BStructureType;
@@ -77,8 +77,10 @@ public class MessageDispatcher {
     private ObjectValue service;
     private String queueName;
     private BRuntime runtime;
-    private StrandMetaData onMsgMetaData = new StrandMetaData(ORG_NAME, RABBITMQ, RABBITMQ_VERSION, FUNC_ON_MESSAGE);
-    private StrandMetaData onErrorMetaData = new StrandMetaData(ORG_NAME, RABBITMQ, RABBITMQ_VERSION, FUNC_ON_ERROR);
+    private static final StrandMetadata METADATA_ON_MESSAGE = new StrandMetadata(ORG_NAME, RABBITMQ,
+                                                                                 RABBITMQ_VERSION, FUNC_ON_MESSAGE);
+    private static final StrandMetadata METADATA_ON_ERROR = new StrandMetadata(ORG_NAME, RABBITMQ, RABBITMQ_VERSION,
+                                                                               FUNC_ON_ERROR);
 
     public MessageDispatcher(ObjectValue service, Channel channel, boolean autoAck, BRuntime runtime) {
         this.channel = channel;
@@ -263,14 +265,14 @@ public class MessageDispatcher {
     }
 
     private void executeResourceOnMessage(CallableUnitCallback callback, Object... args) {
-        executeResource(RabbitMQConstants.FUNC_ON_MESSAGE, callback, onMsgMetaData, args);
+        executeResource(RabbitMQConstants.FUNC_ON_MESSAGE, callback, METADATA_ON_MESSAGE, args);
     }
 
     private void executeResourceOnError(CallableUnitCallback callback, Object... args) {
-       executeResource(RabbitMQConstants.FUNC_ON_ERROR, callback, onErrorMetaData, args);
+       executeResource(RabbitMQConstants.FUNC_ON_ERROR, callback, METADATA_ON_ERROR, args);
     }
 
-    private void executeResource(String function, CallableUnitCallback callback, StrandMetaData metaData,
+    private void executeResource(String function, CallableUnitCallback callback, StrandMetadata metaData,
                                  Object... args) {
         if (ObserveUtils.isTracingEnabled()) {
             runtime.invokeMethodAsync(service, function, null, metaData, callback, getNewObserverContextInProperties(),

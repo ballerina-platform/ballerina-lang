@@ -44,8 +44,8 @@ import java.util.Map;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CALLER_ID;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
-import static org.ballerinalang.net.grpc.GrpcConstants.META_DATA_ON_ERROR;
-import static org.ballerinalang.net.grpc.GrpcConstants.META_DATA_ON_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.METADATA_ON_ERROR;
+import static org.ballerinalang.net.grpc.GrpcConstants.METADATA_ON_MESSAGE;
 import static org.ballerinalang.net.grpc.MessageUtils.getHeaderObject;
 
 /**
@@ -191,7 +191,7 @@ public abstract class ServerCallHandler {
         }
         CallableUnitCallback callback = new StreamingCallableUnitCallBack(null, context);
         resource.getRuntime().invokeMethodAsync(resource.getService(), resource.getFunctionName(), null,
-                                                META_DATA_ON_ERROR, callback,
+                                                METADATA_ON_ERROR, callback,
                                                 properties, paramValues);
     }
 
@@ -204,7 +204,7 @@ public abstract class ServerCallHandler {
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, context);
         }
         resource.getRuntime().invokeMethodAsync(resource.getService(), resource.getFunctionName(), null,
-                                                META_DATA_ON_MESSAGE, callback,
+                                                METADATA_ON_MESSAGE, callback,
                                                 properties, requestParams);
     }
 

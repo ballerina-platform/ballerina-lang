@@ -19,6 +19,7 @@
 package org.ballerinalang.stdlib.email.util;
 
 import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.api.BString;
 
@@ -108,6 +109,14 @@ public class EmailConstants {
     public static final String EMAIL = "Email";
     public static final String ERROR = "Error";
     public static final String HEADER = "Header";
+
+    // Strand meta data
+    public static final StrandMetadata METADATA_ON_MESSAGE = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
+                                                                                MODULE_NAME, MODULE_VERSION,
+                                                                                ON_MESSAGE);
+
+    public static final StrandMetadata METADATA_ON_ERROR = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
+                                                                              MODULE_NAME, MODULE_VERSION, ON_ERROR);
 
     private EmailConstants() {
         // private constructor
