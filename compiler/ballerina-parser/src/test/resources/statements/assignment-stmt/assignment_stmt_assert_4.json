@@ -1,5 +1,6 @@
 {
   "kind": "ASSIGNMENT_STATEMENT",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "IDENTIFIER_TOKEN",
@@ -7,7 +8,11 @@
     },
     {
       "kind": "EQUAL_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_EQUAL_TOKEN"
+      ]
     },
     {
       "kind": "DECIMAL_INTEGER_LITERAL",

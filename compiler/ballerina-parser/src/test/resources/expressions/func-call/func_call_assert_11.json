@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_CALL",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "IDENTIFIER_TOKEN",
@@ -10,12 +11,15 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "POSITIONAL_ARG",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "FUNCTION_CALL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
@@ -26,6 +30,7 @@
                 },
                 {
                   "kind": "LIST",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "POSITIONAL_ARG",
@@ -62,10 +67,15 @@
                     },
                     {
                       "kind": "POSITIONAL_ARG",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "COMMA_TOKEN",
-                          "isMissing": true
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_COMMA_TOKEN"
+                          ]
                         },
                         {
                           "kind": "BINARY_EXPRESSION",

@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_PART",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -7,18 +8,23 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "FUNCTION_DEFINITION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "ANNOTATION",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "AT_TOKEN"
@@ -41,15 +47,18 @@
                         },
                         {
                           "kind": "MAPPING_CONSTRUCTOR",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "OPEN_BRACE_TOKEN"
                             },
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "SPECIFIC_FIELD",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "STRING_LITERAL",
@@ -60,6 +69,7 @@
                                     },
                                     {
                                       "kind": "CONDITIONAL_EXPRESSION",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "STRING_LITERAL",
@@ -67,7 +77,11 @@
                                         },
                                         {
                                           "kind": "QUESTION_MARK_TOKEN",
-                                          "isMissing": true
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_QUESTION_MARK_TOKEN"
+                                          ]
                                         },
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
@@ -89,6 +103,7 @@
                                 },
                                 {
                                   "kind": "SPECIFIC_FIELD",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "STRING_LITERAL",
@@ -99,15 +114,18 @@
                                     },
                                     {
                                       "kind": "MAPPING_CONSTRUCTOR",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "OPEN_BRACE_TOKEN"
                                         },
                                         {
                                           "kind": "LIST",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
                                               "kind": "SPECIFIC_FIELD",
+                                              "hasDiagnostics": true,
                                               "children": [
                                                 {
                                                   "kind": "STRING_LITERAL",
@@ -115,7 +133,11 @@
                                                 },
                                                 {
                                                   "kind": "COLON_TOKEN",
-                                                  "isMissing": true
+                                                  "isMissing": true,
+                                                  "hasDiagnostics": true,
+                                                  "diagnostics": [
+                                                    "ERROR_MISSING_COLON_TOKEN"
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "STRING_LITERAL",
@@ -155,7 +177,11 @@
                             },
                             {
                               "kind": "CLOSE_BRACE_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+                              ]
                             }
                           ]
                         }
