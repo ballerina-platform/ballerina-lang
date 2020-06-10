@@ -17,7 +17,7 @@ import ballerina/openapi;
         }
         resource function test2Params (http:Caller caller, http:Request req,  string param1,  string param3) returns error? {
         string msg = "Hello, " + param1 + " " + param3 ;
-        var result = caller->respond(<@untained> msg);
+        var result = caller->respond(<@untainted> msg);
         if (result is error) {
         log:printError("Error sending response", result);
         }

@@ -838,3 +838,11 @@ type Foo record {
 type Bar object {
     @v18 string s = "str";
 };
+
+public const annotation v19 on source type;
+
+function typeConversionExpressionUserFunc() {
+    string s = "hello";
+    string k = <@v19> s;
+    string j = <@v16> s;
+}
