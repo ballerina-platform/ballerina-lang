@@ -22,7 +22,7 @@ import org.ballerinalang.model.tree.ActionNode;
 /**
  * This represents the commit expression node.
  *
- * @since 0.985
+ * @since 2.0.0
  */
 public interface CommitExpressionNode extends ExpressionNode, ActionNode {
 

@@ -599,7 +599,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetryTransaction retryTransaction) {
-        //TODO Transactions
+        analyzeNode(retryTransaction.retrySpec, env);
+        analyzeNode(retryTransaction.transaction, env);
     }
 
     private void checkUnreachableCode(BLangStatement stmt) {
@@ -2613,12 +2614,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!types.isAssignable(getErrorTypes(checkedExpr.expr.type), exprType)) {
             dlog.error(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
-
-        //TODO Transaction - not required
-//        if (checkReturnValidityInTransaction()) {
-//            this.dlog.error(checkedExpr.pos, DiagnosticCode.CHECK_EXPRESSION_INVALID_USAGE_WITHIN_TRANSACTION_BLOCK);
-//            return;
-//        }
 
         returnTypes.peek().add(exprType);
     }
