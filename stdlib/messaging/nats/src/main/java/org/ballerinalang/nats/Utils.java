@@ -37,6 +37,7 @@ import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.nio.charset.StandardCharsets;
 
@@ -114,7 +115,7 @@ public class Utils {
         BType dataType = TypeChecker.getType(data);
         int typeTag = dataType.getTag();
         if (typeTag == org.wso2.ballerinalang.compiler.util.TypeTags.STRING) {
-            return ((String) data).getBytes(StandardCharsets.UTF_8);
+            return ((BString) data).getValue().getBytes(StandardCharsets.UTF_8);
         } else {
             return ((ArrayValue) data).getBytes();
         }
@@ -133,7 +134,7 @@ public class Utils {
     }
 
     @SuppressWarnings("unchecked")
-    public static MapValue<String, Object> getSubscriptionConfig(Object annotationData) {
+    public static MapValue<BString, Object> getSubscriptionConfig(Object annotationData) {
         MapValue annotationRecord = null;
         if (TypeChecker.getType(annotationData).getTag() == TypeTags.RECORD_TYPE_TAG) {
             annotationRecord = (MapValue) annotationData;

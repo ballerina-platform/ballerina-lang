@@ -18,7 +18,7 @@ import ballerina/io;
 
 // Client endpoint configuration
 HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9110");
-const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
+const string ERROR_MSG_FORMAT = "Error from Connector: %s";
 
 // Enable when you need to test locally.
 //public function main() {
@@ -34,7 +34,7 @@ function testUnaryBlockingClient(string name) returns (string) {
     // Executing unary blocking call
     [string, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->hello("WSO2");
     if (unionResp is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
     } else {
         string result = "";
         [result, _] = unionResp;

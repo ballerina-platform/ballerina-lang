@@ -34,7 +34,7 @@ import java.util.List;
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.PATH_FIELD;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE_FULL_QUALIFIED_NAME;
 
 /**
  * WebSub HTTP wrapper for the {@code Service} implementation.
@@ -51,7 +51,8 @@ public class WebSubHttpService extends HttpService {
     }
 
     private static MapValue getWebSubSubscriberServiceConfigAnnotation(ObjectValue service) {
-        return getServiceConfigAnnotation(service, WEBSUB_PACKAGE, ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG);
+        return getServiceConfigAnnotation(service, WEBSUB_PACKAGE_FULL_QUALIFIED_NAME,
+                                          ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG);
     }
 
     /**

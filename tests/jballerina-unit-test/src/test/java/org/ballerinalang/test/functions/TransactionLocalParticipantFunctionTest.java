@@ -58,7 +58,7 @@ public class TransactionLocalParticipantFunctionTest {
                 "commitFun committed-block after-trx");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testTransactionLocalParticipantFunctionInvocationErrorThenNoError() {
         BValue[] params = {new BBoolean(true), new BBoolean(false)};
         BValue[] ret = BRunUtil.invoke(result, "initiatorFunc", params);

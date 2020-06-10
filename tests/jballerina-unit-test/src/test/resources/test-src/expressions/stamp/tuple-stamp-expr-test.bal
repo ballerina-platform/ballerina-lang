@@ -55,7 +55,7 @@ function stampTupleValueV1() returns [string, Teacher]|error {
     [string, Teacher] tupleValue = ["Mohan", { name: "Raja", age: 25, status: "single", batch: "LK2014", school:
     "Hindu College" }];
 
-    [string, Teacher]|error returnValue = [string, Teacher].constructFrom(tupleValue);
+    [string, Teacher]|error returnValue = tupleValue.cloneWithType([string, Teacher]);
     return returnValue;
 }
 
@@ -63,7 +63,7 @@ function stampTupleValueV2() returns [string, Employee]|error {
     [string, Teacher] tupleValue = ["Mohan", { name: "Raja", age: 25, status: "single", batch: "LK2014", school:
     "Hindu College" }];
 
-    [string, Employee]|error returnValue = [string, Employee].constructFrom(tupleValue);
+    [string, Employee]|error returnValue = tupleValue.cloneWithType([string, Employee]);
     return returnValue;
 }
 
@@ -71,7 +71,7 @@ function stampTupleToAnydata() returns anydata|error {
     [string, Teacher] tupleValue = ["Mohan", { name: "Raja", age: 25, status: "single", batch: "LK2014", school:
     "Hindu College" }];
 
-    anydata|error anydataValue = anydata.constructFrom(tupleValue);
+    anydata|error anydataValue = tupleValue.cloneWithType(anydata);
     return anydataValue;
 }
 
@@ -79,27 +79,27 @@ function stampTupleValueToArray() returns Employee[]|error {
     [Employee, Person] tupleValue = [   { name: "Mohan", status: "single", batch: "LK2015", "school": "Royal College" },
                                         { name: "Raja", status: "single", batch: "LK2014", school: "Hindu College" }];
 
-    Employee[]|error returnValue = Employee[].constructFrom(tupleValue);
+    Employee[]|error returnValue = tupleValue.cloneWithType(Employee[]);
     return returnValue;
 }
 
 function stampTupleToBasicArray() returns int[]|error {
     [int,int] intArray = [1, 2];
-    int[]|error returnValue = int[].constructFrom(intArray);
+    int[]|error returnValue = intArray.cloneWithType(int[]);
 
     return returnValue;
 }
 
 function stampTupleToAnydataTuple() returns [anydata, anydata]|error {
     [int,int] intArray = [1, 2];
-    [anydata, anydata]|error returnValue = [anydata, anydata].constructFrom(intArray);
+    [anydata, anydata]|error returnValue = intArray.cloneWithType([anydata, anydata]);
 
     return returnValue;
 }
 
 function stampAnydataTupleToBasicTypeTuple() returns [int, int]|error {
     [anydata,anydata] intArray = [1, 2];
-    [int, int]|error returnValue = [int, int].constructFrom(intArray);
+    [int, int]|error returnValue = intArray.cloneWithType([int, int]);
 
     return returnValue;
 }

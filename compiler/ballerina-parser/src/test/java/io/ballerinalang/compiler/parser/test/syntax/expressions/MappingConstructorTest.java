@@ -76,6 +76,11 @@ public class MappingConstructorTest extends AbstractExpressionsTest {
                 "mapping-constructor/mapping_constructor_assert_15.json");
     }
 
+    @Test
+    public void testSpecificKeyWithReadOnly() {
+        test("{ readonly a:b};", "mapping-constructor/mapping_constructor_assert_18.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -127,5 +132,11 @@ public class MappingConstructorTest extends AbstractExpressionsTest {
     @Test
     public void testMissingFieldName() {
         test("{name:\"John\", :4}", "mapping-constructor/mapping_constructor_assert_17.json");
+    }
+    
+    @Test
+    public void testRecoveryInSpecificKeyWithReadOnly() {
+        testFile("mapping-constructor/mapping_constructor_source_19.bal",
+                "mapping-constructor/mapping_constructor_assert_19.json");
     }
 }

@@ -120,7 +120,8 @@ typeReference
     ;
 
 objectFieldDefinition
-    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? TYPE_READONLY? typeName Identifier
+            (ASSIGN expression)? SEMICOLON
     ;
 
 fieldDefinition
@@ -263,6 +264,7 @@ simpleTypeName
     :   TYPE_ANY
     |   TYPE_ANYDATA
     |   TYPE_HANDLE
+    |   TYPE_NEVER
     |   TYPE_READONLY
     |   valueTypeName
     |   referenceTypeName
@@ -908,8 +910,12 @@ shiftExpression
 
 shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
+limitClause
+    :   LIMIT expression
+    ;
+
 onConflictClause
-    :    ON CONFLICT expression
+    :   ON CONFLICT expression
     ;
 
 selectClause
@@ -949,11 +955,11 @@ queryConstructType
     ;
 
 queryExpr
-    :   queryConstructType? queryPipeline selectClause onConflictClause?
+    :   queryConstructType? queryPipeline selectClause onConflictClause? limitClause?
     ;
 
 queryAction
-    :   queryPipeline doClause
+    :   queryPipeline doClause limitClause?
     ;
 
 //reusable productions

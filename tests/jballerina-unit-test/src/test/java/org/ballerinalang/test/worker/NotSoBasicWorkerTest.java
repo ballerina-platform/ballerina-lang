@@ -126,7 +126,7 @@ public class NotSoBasicWorkerTest {
         Assert.assertEquals(ret.intValue(), 30);
     }
 
-    @Test(groups = "brokenOnErrorChange")
+    @Test(enabled = false)
     public void largeForkCreationTest() {
         BValue[] vals = BRunUtil.invoke(result, "largeForkCreationTest", new BValue[0]);
         Assert.assertEquals(vals.length, 1);

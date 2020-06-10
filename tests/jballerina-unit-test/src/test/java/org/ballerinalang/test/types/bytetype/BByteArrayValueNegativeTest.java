@@ -45,9 +45,9 @@ public class BByteArrayValueNegativeTest {
         BAssertUtil.validateError(result, index++, "mismatched input '`'. expecting {'service', " +
                 "'function', 'object', 'record', 'abstract', 'client', 'typeof', 'distinct', 'int', 'byte', 'float', " +
                 "'decimal', 'boolean', 'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
-                "'typedesc', 'future', 'anydata', 'handle', 'readonly', 'new', '__init', 'foreach', 'continue', " +
-                "'trap', 'start', 'check', 'checkpanic', 'flush', 'wait', 'from', 'let', '{', '(', '[', '+', '-', " +
-                "'!', '<', '~', '<-', '@', DecimalIntegerLiteral, HexIntegerLiteral, " +
+                "'typedesc', 'future', 'anydata', 'handle', 'readonly', 'never', 'new', '__init', 'foreach', " +
+                "'continue', 'trap', 'start', 'check', 'checkpanic', 'flush', 'wait', 'from', 'let', '{', '(', " +
+                "'[', '+', '-', '!', '<', '~', '<-', '@', DecimalIntegerLiteral, HexIntegerLiteral, " +
                 "HexadecimalFloatingPointLiteral, DecimalFloatingPointNumber, BooleanLiteral, QuotedStringLiteral, " +
                 "Base16BlobLiteral, Base64BlobLiteral, 'null', Identifier, XMLLiteralStart, " +
                 "StringTemplateLiteralStart}", 6, 59);

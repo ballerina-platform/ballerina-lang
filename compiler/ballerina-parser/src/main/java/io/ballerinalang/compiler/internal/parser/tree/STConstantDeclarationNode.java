@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -46,7 +49,29 @@ public class STConstantDeclarationNode extends STModuleMemberDeclarationNode {
             STNode equalsToken,
             STNode initializer,
             STNode semicolonToken) {
-        super(SyntaxKind.CONST_DECLARATION);
+        this(
+                metadata,
+                visibilityQualifier,
+                constKeyword,
+                typeDescriptor,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STConstantDeclarationNode(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode constKeyword,
+            STNode typeDescriptor,
+            STNode variableName,
+            STNode equalsToken,
+            STNode initializer,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.CONST_DECLARATION, diagnostics);
         this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
         this.constKeyword = constKeyword;
@@ -67,7 +92,63 @@ public class STConstantDeclarationNode extends STModuleMemberDeclarationNode {
                 semicolonToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STConstantDeclarationNode(
+                this.metadata,
+                this.visibilityQualifier,
+                this.constKeyword,
+                this.typeDescriptor,
+                this.variableName,
+                this.equalsToken,
+                this.initializer,
+                this.semicolonToken,
+                diagnostics);
+    }
+
+    public STConstantDeclarationNode modify(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode constKeyword,
+            STNode typeDescriptor,
+            STNode variableName,
+            STNode equalsToken,
+            STNode initializer,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                metadata,
+                visibilityQualifier,
+                constKeyword,
+                typeDescriptor,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STConstantDeclarationNode(
+                metadata,
+                visibilityQualifier,
+                constKeyword,
+                typeDescriptor,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ConstantDeclarationNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

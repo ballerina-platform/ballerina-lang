@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.XMLProcessingInstruction;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STXMLProcessingInstruction extends STXMLItemNode {
             STNode target,
             STNode data,
             STNode piEnd) {
-        super(SyntaxKind.XML_PI);
+        this(
+                piStart,
+                target,
+                data,
+                piEnd,
+                Collections.emptyList());
+    }
+
+    STXMLProcessingInstruction(
+            STNode piStart,
+            STNode target,
+            STNode data,
+            STNode piEnd,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.XML_PI, diagnostics);
         this.piStart = piStart;
         this.target = target;
         this.data = data;
@@ -51,7 +68,47 @@ public class STXMLProcessingInstruction extends STXMLItemNode {
                 piEnd);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STXMLProcessingInstruction(
+                this.piStart,
+                this.target,
+                this.data,
+                this.piEnd,
+                diagnostics);
+    }
+
+    public STXMLProcessingInstruction modify(
+            STNode piStart,
+            STNode target,
+            STNode data,
+            STNode piEnd) {
+        if (checkForReferenceEquality(
+                piStart,
+                target,
+                data,
+                piEnd)) {
+            return this;
+        }
+
+        return new STXMLProcessingInstruction(
+                piStart,
+                target,
+                data,
+                piEnd,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLProcessingInstruction(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

@@ -45,7 +45,7 @@ type Participant2pcClientEP client object {
         http:Client httpClient = self.httpClient;
         http:Request req = new;
         PrepareRequest prepareReq = {transactionId:transactionId};
-        json j = check typedesc<json>.constructFrom(prepareReq);
+        json j = check prepareReq.cloneWithType(typedesc<json>);
         req.setJsonPayload(j);
         var result = httpClient->post("/prepare", req);
         http:Response res = check result;
@@ -54,7 +54,7 @@ type Participant2pcClientEP client object {
             return TransactionError(TRANSACTION_UNKNOWN);
         } else if (statusCode == http:STATUS_OK) {
             json payload = check res.getJsonPayload();
-            PrepareResponse prepareRes = check typedesc<PrepareResponse>.constructFrom(payload);
+            PrepareResponse prepareRes = check payload.cloneWithType(typedesc<PrepareResponse>);
             return <@untainted> prepareRes.message;
         } else {
             return TransactionError("Prepare failed. Transaction: " + transactionId + ", Participant: " +
@@ -66,12 +66,12 @@ type Participant2pcClientEP client object {
         http:Client httpClient = self.httpClient;
         http:Request req = new;
         NotifyRequest notifyReq = {transactionId:transactionId, message:message};
-        json j = check typedesc<json>.constructFrom(notifyReq);
+        json j = check notifyReq.cloneWithType(typedesc<json>);
         req.setJsonPayload(j);
         var result = httpClient->post("/notify", req);
         http:Response res = check result;
         json payload = check res.getJsonPayload();
-        NotifyResponse notifyRes = check typedesc<NotifyResponse>.constructFrom(payload);
+        NotifyResponse notifyRes = check payload.cloneWithType(typedesc<NotifyResponse>);
         string msg = notifyRes.message;
         int statusCode = res.statusCode;
         if (statusCode == http:STATUS_OK) {

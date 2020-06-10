@@ -31,6 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
 
 /**
@@ -38,7 +39,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
  * ballerina.model.map:remove(string)
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "remove",
+        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION, functionName = "remove",
         args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "k", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.ANY)},
         isPublic = true

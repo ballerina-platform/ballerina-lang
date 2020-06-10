@@ -36,7 +36,7 @@ public class LetExpressionNode extends ExpressionNode {
         return childInBucket(0);
     }
 
-    public SeparatedNodeList<Node> letVarDeclarations() {
+    public SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations() {
         return new SeparatedNodeList<>(childInBucket(1));
     }
 
@@ -69,7 +69,7 @@ public class LetExpressionNode extends ExpressionNode {
 
     public LetExpressionNode modify(
             Token letKeyword,
-            SeparatedNodeList<Node> letVarDeclarations,
+            SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations,
             Token inKeyword,
             ExpressionNode expression) {
         if (checkForReferenceEquality(
@@ -99,7 +99,7 @@ public class LetExpressionNode extends ExpressionNode {
     public static class LetExpressionNodeModifier {
         private final LetExpressionNode oldNode;
         private Token letKeyword;
-        private SeparatedNodeList<Node> letVarDeclarations;
+        private SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations;
         private Token inKeyword;
         private ExpressionNode expression;
 
@@ -119,7 +119,7 @@ public class LetExpressionNode extends ExpressionNode {
         }
 
         public LetExpressionNodeModifier withLetVarDeclarations(
-                SeparatedNodeList<Node> letVarDeclarations) {
+                SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations) {
             Objects.requireNonNull(letVarDeclarations, "letVarDeclarations must not be null");
             this.letVarDeclarations = letVarDeclarations;
             return this;

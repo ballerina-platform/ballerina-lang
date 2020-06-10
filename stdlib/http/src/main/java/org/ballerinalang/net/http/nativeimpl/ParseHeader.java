@@ -17,10 +17,12 @@
  */
 package org.ballerinalang.net.http.nativeimpl;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.net.http.HttpUtil;
@@ -42,23 +44,23 @@ public class ParseHeader {
     private static final BTupleType parseHeaderTupleType = new BTupleType(
             Arrays.asList(BTypes.typeString, BTypes.typeMap));
 
-    public static Object parseHeader(String headerValue) {
+    public static Object parseHeader(BString headerValue) {
         if (headerValue == null) {
             return HttpUtil.createHttpError(FAILED_TO_PARSE + "header value cannot be null",
                                             GENERIC_CLIENT_ERROR);
         }
         try {
-            if (headerValue.contains(COMMA)) {
-                headerValue = headerValue.substring(0, headerValue.indexOf(COMMA));
+            if (headerValue.getValue().contains(COMMA)) {
+                headerValue = headerValue.substring(0, headerValue.getValue().indexOf(COMMA));
             }
             // Set value and param map
-            String value = headerValue.trim();
-            if (headerValue.contains(SEMICOLON)) {
+            String value = headerValue.getValue().trim();
+            if (headerValue.getValue().contains(SEMICOLON)) {
                 value = HeaderUtil.getHeaderValue(value);
             }
             BArray contentTuple = BValueCreator.createTupleValue(parseHeaderTupleType);
-            contentTuple.add(0, (Object) value);
-            contentTuple.add(1, HeaderUtil.getParamMap(headerValue));
+            contentTuple.add(0, StringUtils.fromString(value));
+            contentTuple.add(1, HeaderUtil.getParamMap(headerValue.getValue()));
             return contentTuple;
         } catch (Exception ex) {
             String errMsg = ex instanceof ErrorValue ? ex.toString() : ex.getMessage();

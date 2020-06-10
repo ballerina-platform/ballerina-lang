@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STReturnStatementNode extends STStatementNode {
             STNode returnKeyword,
             STNode expression,
             STNode semicolonToken) {
-        super(SyntaxKind.RETURN_STATEMENT);
+        this(
+                returnKeyword,
+                expression,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STReturnStatementNode(
+            STNode returnKeyword,
+            STNode expression,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.RETURN_STATEMENT, diagnostics);
         this.returnKeyword = returnKeyword;
         this.expression = expression;
         this.semicolonToken = semicolonToken;
@@ -47,7 +62,43 @@ public class STReturnStatementNode extends STStatementNode {
                 semicolonToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STReturnStatementNode(
+                this.returnKeyword,
+                this.expression,
+                this.semicolonToken,
+                diagnostics);
+    }
+
+    public STReturnStatementNode modify(
+            STNode returnKeyword,
+            STNode expression,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                returnKeyword,
+                expression,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STReturnStatementNode(
+                returnKeyword,
+                expression,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReturnStatementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

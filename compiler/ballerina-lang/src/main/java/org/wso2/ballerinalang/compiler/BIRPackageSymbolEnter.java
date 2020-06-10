@@ -60,6 +60,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -799,6 +800,8 @@ public class BIRPackageSymbolEnter {
                     return new BXMLType(constraintType, symTable.xmlType.tsymbol);
                 case TypeTags.NIL:
                     return symTable.nilType;
+                case TypeTags.NEVER:
+                    return symTable.neverType;
                 case TypeTags.ANYDATA:
                     return typeParamAnalyzer.getNominalType(symTable.anydataType, name, flags);
                 case TypeTags.RECORD:
@@ -928,6 +931,8 @@ public class BIRPackageSymbolEnter {
                     return typeParamAnalyzer.getNominalType(symTable.anyType, name, flags);
                 case TypeTags.HANDLE:
                     return symTable.handleType;
+                case TypeTags.READONLY:
+                    return symTable.readonlyType;
                 case TypeTags.ENDPOINT:
                     // TODO fix
                     break;
@@ -949,6 +954,19 @@ public class BIRPackageSymbolEnter {
                         unionType.add(readTypeFromCp());
                     }
                     return unionType;
+                case TypeTags.INTERSECTION:
+                    BTypeSymbol intersectionTypeSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE,
+                                                                                  Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                                                                                  Names.EMPTY, env.pkgSymbol.pkgID,
+                                                                                  null, env.pkgSymbol.owner);
+                    int intersectionMemberCount = inputStream.readInt();
+                    LinkedHashSet<BType> constituentTypes = new LinkedHashSet<>(intersectionMemberCount);
+                    for (int i = 0; i < intersectionMemberCount; i++) {
+                        constituentTypes.add(readTypeFromCp());
+                    }
+
+                    BType effectiveType = readTypeFromCp();
+                    return new BIntersectionType(intersectionTypeSymbol, constituentTypes, effectiveType);
                 case TypeTags.PACKAGE:
                     // TODO fix
                     break;
@@ -1112,8 +1130,6 @@ public class BIRPackageSymbolEnter {
                     return symTable.xmlCommentType;
                 case TypeTags.XML_TEXT:
                     return symTable.xmlTextType;
-                case TypeTags.READONLY:
-                    return symTable.readonlyType;
             }
             return null;
         }

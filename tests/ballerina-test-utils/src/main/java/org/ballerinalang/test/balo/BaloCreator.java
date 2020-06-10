@@ -90,10 +90,6 @@ public class BaloCreator {
 
         for (URL classPathEntry : compileResult.getClassLoader().getURLs()) {
 
-            if (classPathEntry.getPath().contains(JAR_CACHE_DIR_NAME)) {
-                continue;
-            }
-
             try {
                 Path sourcePath = Paths.get(classPathEntry.toURI());
                 Path targetPath = Paths.get(jarCachePath.toString(),

@@ -58,6 +58,7 @@ TYPE_FUTURE     : 'future' ;
 TYPE_ANYDATA    : 'anydata' ;
 TYPE_HANDLE     : 'handle' ;
 TYPE_READONLY   : 'readonly' ;
+TYPE_NEVER      : 'never' ;
 
 VAR         : 'var' ;
 NEW         : 'new' ;
@@ -108,6 +109,7 @@ WHERE       : {inQueryExpression}? 'where' ;
 LET         : 'let' ;
 CONFLICT    : 'conflict' ;
 JOIN_EQUALS : 'equals';
+LIMIT       : 'limit' ;
 DEPRECATED  : 'Deprecated';
 KEY         : {inTableType}? 'key' { inTableType = false; };
 DEPRECATED_PARAMETERS  : 'Deprecated parameters';

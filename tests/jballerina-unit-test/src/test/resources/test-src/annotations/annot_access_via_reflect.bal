@@ -71,7 +71,8 @@ function testResourceAnnotAccess() returns boolean {
     }
 
     http:HttpResourceConfig? resourceAnnot =
-            <http:HttpResourceConfig?> reflect:getResourceAnnotations(ser, "res", "ResourceConfig", "ballerina/http");
+            <http:HttpResourceConfig?> reflect:getResourceAnnotations(ser, "res", "ResourceConfig",
+                                                                      "ballerina/http:1.0.0");
     if (resourceAnnot is http:HttpResourceConfig) {
         if (resourceAnnot.path != "testPath") {
             return false;

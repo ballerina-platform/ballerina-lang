@@ -29,9 +29,9 @@ Cities cities = {
             }]
     };
 
-json | error  payload = json . constructFrom ( cities ) ;
+json | error  payload = cities . cloneWithType ( json );
     string  nameTest1  =  rec . name . indexOf ( "mar" ) ;
-      json   |   error      payload1 =  json . constructFrom  (  cities ) . toJsonString ( ) ;
+      json   |   error      payload1 =  cities . cloneWithType ( json ) . toJsonString ( ) ;
 
       string str = "";
        foreach int i in 0 ..< 5 {
@@ -39,6 +39,6 @@ json | error  payload = json . constructFrom ( cities ) ;
        }
 
        if(payload is json) {
-                map<anydata>|   error  sd =map < anydata >  . constructFrom ( payload ) ;
+                map<anydata>|   error  sd =payload . cloneWithType ( map < anydata > ) ;
            }
 }

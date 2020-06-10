@@ -1,46 +1,46 @@
 {
-    "kind": "TYPE_DEFINITION",
-    "children": [
+  "kind": "TYPE_DEFINITION",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
         {
-            "kind": "METADATA",
-            "children": [
-                {
-                    "kind": "LIST",
-                    "children": []
-                }
-            ]
-        },
-        {
-            "kind": "TYPE_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "myType"
-        },
-        {
-            "kind": "TABLE_TYPE_DESC",
-            "children": [
-                {
-                    "kind": "TABLE_KEYWORD"
-                },
-                {
-                    "kind": "TYPE_PARAMETER",
-                    "children": [
-                        {
-                            "kind": "LT_TOKEN"
-                        },
-                        {
-                            "kind": "INT_KEYWORD"
-                        },
-                        {
-                            "kind": "GT_TOKEN"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
+          "kind": "LIST",
+          "children": []
         }
-    ]
+      ]
+    },
+    {
+      "kind": "TYPE_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "myType"
+    },
+    {
+      "kind": "TABLE_TYPE_DESC",
+      "children": [
+        {
+          "kind": "TABLE_KEYWORD"
+        },
+        {
+          "kind": "TYPE_PARAMETER",
+          "children": [
+            {
+              "kind": "LT_TOKEN"
+            },
+            {
+              "kind": "INT_KEYWORD"
+            },
+            {
+              "kind": "GT_TOKEN"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

@@ -3,14 +3,13 @@ type Person record {
     int age;
 };
 
-//TODO: uncomment all when readonly is supported for complex records also
-//type Foo record {
-//    readonly map<string> m;
-//    int age;
-//};
+type Foo record {
+    readonly map<string> m;
+    int age;
+};
 
 type GlobalTable1 table<Person> key(name);
-//type GlobalTable2 table<Foo> key(m);
+type GlobalTable2 table<Foo> key(m);
 
 GlobalTable1 tab1 = table [
   { name: "AAA", age: 31 },
@@ -21,33 +20,24 @@ function testGlobalTableConstructExpr() returns boolean {
     return tab1.toString() == "name=AAA age=31\nname=BBB age=34";
 }
 
-//function testTableConstructExprWithDuplicateKeys() returns string {
-//    GlobalTable2 tab2 = table [
-//      { m: {"AAA":"DDDD"}, age: 31 },
-//      { m: {"AAA":"DDDD"}, age: 34 }
-//    ];
-//
-//    return tab2.toString();
-//}
+function testTableMemberAccessStore() returns boolean {
+    GlobalTable2 tab = table [
+      { m: {"AAA":"DDDD"}, age: 31 },
+      { m: {"BBB":"DDDD"}, age: 34 }
+    ];
 
-//function testTableMemberAccessStore() returns boolean {
-//    GlobalTable2 tab = table [
-//      { m: {"AAA":"DDDD"}, age: 31 },
-//      { m: {"BBB":"DDDD"}, age: 34 }
-//    ];
-//
-//    tab[{"CCC":"EEEE"}] = { m: {"CCC":"EEEE"}, age: 34 };
-//    return tab.toString() == "m=AAA=DDDD age=31\nm=BBB=DDDD age=34\nm=CCC=EEEE age=34";
-//}
+    tab[{"CCC":"EEEE"}] = { m: {"CCC":"EEEE"}, age: 34 };
+    return tab.toString() == "m=AAA=DDDD age=31\nm=BBB=DDDD age=34\nm=CCC=EEEE age=34";
+}
 
-//function testTableMemberAccessLoad() returns boolean {
-//    GlobalTable2 tab = table [
-//      { m: {"AAA":"DDDD"}, age: 31 },
-//      { m: {"BBB":"DDDD"}, age: 34 }
-//    ];
-//    Foo aaa = tab[{"AAA":"DDDD"}];
-//    return aaa.toString() == "m=AAA=DDDD age=31";
-//}
+function testTableMemberAccessLoad() returns boolean {
+    GlobalTable2 tab = table [
+      { m: {"AAA":"DDDD"}, age: 31 },
+      { m: {"BBB":"DDDD"}, age: 34 }
+    ];
+    Foo aaa = tab[{"AAA":"DDDD"}];
+    return aaa.toString() == "m=AAA=DDDD age=31";
+}
 
 type Customer record {
     readonly int id;
@@ -257,6 +247,111 @@ function testVarTypeTableInvalidMemberAccess() {
                                         { id: 23 , name: "James" , lname: "Clark" }];
 
     Customer customer = customerTable[18, "Mohan"];
+}
+
+type Details record {|
+    string name;
+    string id;
+|};
+
+type TableRec record {|
+    table<Details> detTable;
+|};
+
+function testTableAsRecordField()  {
+    TableRec tableRecord1 = {
+            detTable: table [
+                {name: "Jo", id: "azqw"},
+                {name: "Amy", id: "ldhe"}
+            ]
+    };
+
+    table<Details> tb = table [
+            {name: "Jo", id: "azqw"},
+            {name: "Amy", id: "ldhe"}
+        ];
+
+     TableRec tableRecord2 = {detTable: tb};
+
+    assertEquality("detTable=name=Jo id=azqw\nname=Amy id=ldhe", tableRecord1.toString());
+    assertEquality("detTable=name=Jo id=azqw\nname=Amy id=ldhe", tableRecord2.toString());
+}
+
+type Bar record {|
+    string x;
+    string y;
+|};
+
+function testTableEquality() {
+    testSameTable();
+    testIdenticalTable();
+    testUnidenticalTable();
+    testInEqualityTableV1();
+}
+
+function testSameTable() {
+    table<Bar> t1 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                        ];
+
+    assertEquality(true, t1 == t1);
+}
+
+function testIdenticalTable() {
+    table<Bar> t1 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                        ];
+
+    table<Bar> t2 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                            ];
+
+    assertEquality(true, t1 == t2);
+}
+
+function testUnidenticalTable() {
+    table<Bar> t1 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                        ];
+
+    table<Bar> t2 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x56", y: "y2"}
+                            ];
+
+    assertEquality(false, t1 == t2);
+}
+
+function testInEqualityTableV1() {
+    table<Bar> t1 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                        ];
+
+    table<Bar> t2 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x56", y: "y2"}
+                            ];
+
+    assertEquality(true, t1 != t2);
+}
+
+function testInEqualityTableV2() {
+    table<Bar> t1 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                        ];
+
+    table<Bar> t2 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x1", y: "y2"}
+                            ];
+
+    assertEquality(false, t1 != t2);
 }
 
 type AssertionError error;

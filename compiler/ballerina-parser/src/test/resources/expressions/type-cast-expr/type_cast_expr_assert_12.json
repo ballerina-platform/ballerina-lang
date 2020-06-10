@@ -1,24 +1,28 @@
 {
-    "kind": "TYPE_CAST_EXPRESSION",
-    "children": [
+  "kind": "TYPE_CAST_EXPRESSION",
+  "children": [
+    {
+      "kind": "LT_TOKEN"
+    },
+    {
+      "kind": "TYPE_CAST_PARAM",
+      "children": [
         {
-            "kind": "LT_TOKEN"
+            "kind": "LIST",
+            "children": []
         },
-        {
-            "kind": "TYPE_CAST_PARAM",
-            "children": [
-                {
-                    "kind": "TYPE_DESC",
-                    "isMissing": true
-                }
-            ]
-        },
-        {
-            "kind": "GT_TOKEN"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "isMissing": true
+          {
+          "kind": "TYPE_DESC",
+          "isMissing": true
         }
-    ]
+      ]
+    },
+    {
+      "kind": "GT_TOKEN"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "isMissing": true
+    }
+  ]
 }

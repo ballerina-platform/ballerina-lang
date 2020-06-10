@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.XMLEndTagNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STXMLEndTagNode extends STXMLElementTagNode {
             STNode slashToken,
             STNode name,
             STNode getToken) {
-        super(SyntaxKind.XML_ELEMENT_END_TAG);
+        this(
+                ltToken,
+                slashToken,
+                name,
+                getToken,
+                Collections.emptyList());
+    }
+
+    STXMLEndTagNode(
+            STNode ltToken,
+            STNode slashToken,
+            STNode name,
+            STNode getToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.XML_ELEMENT_END_TAG, diagnostics);
         this.ltToken = ltToken;
         this.slashToken = slashToken;
         this.name = name;
@@ -51,7 +68,47 @@ public class STXMLEndTagNode extends STXMLElementTagNode {
                 getToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STXMLEndTagNode(
+                this.ltToken,
+                this.slashToken,
+                this.name,
+                this.getToken,
+                diagnostics);
+    }
+
+    public STXMLEndTagNode modify(
+            STNode ltToken,
+            STNode slashToken,
+            STNode name,
+            STNode getToken) {
+        if (checkForReferenceEquality(
+                ltToken,
+                slashToken,
+                name,
+                getToken)) {
+            return this;
+        }
+
+        return new STXMLEndTagNode(
+                ltToken,
+                slashToken,
+                name,
+                getToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLEndTagNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

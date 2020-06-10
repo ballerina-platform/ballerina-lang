@@ -31,6 +31,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.stdlib.io.channels.TempFileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
@@ -273,7 +274,7 @@ public class EntityBodyHandler {
      * @param entityObj Represent an entity object
      * @return StringDataSource which represent the entity body which is kept in memory
      */
-    public static String constructStringDataSource(ObjectValue entityObj) {
+    public static BString constructStringDataSource(ObjectValue entityObj) {
         Channel byteChannel = getByteChannel(entityObj);
         if (byteChannel == null) {
             throw BallerinaErrors.createError("String payload is null");
@@ -294,8 +295,8 @@ public class EntityBodyHandler {
      * @param inputStream Represent the input stream
      * @return StringDataSource which represent the entity body which is kept in memory
      */
-    public static String constructStringDataSource(ObjectValue entity, InputStream inputStream) {
-        String textContent;
+    public static BString constructStringDataSource(ObjectValue entity, InputStream inputStream) {
+        BString textContent;
         String contentTypeValue = HeaderUtil.getHeaderValue(entity, HttpHeaderNames.CONTENT_TYPE.toString());
         if (isNotNullAndEmpty(contentTypeValue)) {
             String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);

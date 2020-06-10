@@ -38,13 +38,13 @@ import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_U
  */
 public class Execute extends AbstractHTTPAction {
     @SuppressWarnings("unchecked")
-    public static Object execute(ObjectValue httpClient, String verb, String path,
-                                       ObjectValue requestObj) {
+    public static Object execute(ObjectValue httpClient, BString verb, BString path, ObjectValue requestObj) {
         String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI).getValue();
         Strand strand = Scheduler.getStrand();
         MapValue<BString, Object> config = (MapValue<BString, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
         HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
-        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, config, url, verb, path, requestObj);
+        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, config, url, verb.getValue(),
+                                                                        path.getValue(), requestObj);
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
                                                   outboundRequestMsg);
         executeNonBlockingAction(dataContext, false);

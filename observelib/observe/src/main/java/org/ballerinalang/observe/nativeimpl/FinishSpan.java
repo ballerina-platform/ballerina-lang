@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina",
-        packageName = "observe",
+        packageName = "observe", version = "0.8.0",
         functionName = "finishSpan",
         args = {
                 @Argument(name = "spanId", type = TypeKind.INT),

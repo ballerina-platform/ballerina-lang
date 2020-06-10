@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -39,8 +40,8 @@ import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
  */
 public class Publish {
 
-    public static Object externPublish(ObjectValue producerObject, String subject, Object data, Object replyTo) {
-        NatsTracingUtil.traceResourceInvocation(Scheduler.getStrand(), producerObject, subject);
+    public static Object externPublish(ObjectValue producerObject, BString subject, Object data, Object replyTo) {
+        NatsTracingUtil.traceResourceInvocation(Scheduler.getStrand(), producerObject, subject.getValue());
         Object connection = producerObject.get(Constants.CONNECTION_OBJ);
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
             ObjectValue connectionObject = (ObjectValue) connection;
@@ -48,44 +49,46 @@ public class Publish {
             NatsMetricsReporter natsMetricsReporter =
                     (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
             if (natsConnection == null) {
-                natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
-                return Utils.createNatsError(Constants.PRODUCER_ERROR + subject +
-                        ". NATS connection doesn't exist.");
+                natsMetricsReporter.reportProducerError(subject.getValue(),
+                                                        NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
+                return Utils.createNatsError(Constants.PRODUCER_ERROR +
+                        subject.getValue() + ". NATS connection doesn't exist.");
             }
             byte[] byteContent = convertDataIntoByteArray(data);
             try {
                 if (TypeChecker.getType(replyTo).getTag() == TypeTags.STRING_TAG) {
-                    natsConnection.publish(subject, (String) replyTo, byteContent);
+                    natsConnection.publish(subject.getValue(), ((BString) replyTo).getValue(), byteContent);
                 } else if (TypeChecker.getType(replyTo).getTag() == TypeTags.SERVICE_TAG) {
-                    MapValue<String, Object> subscriptionConfig =
+                    MapValue<BString, Object> subscriptionConfig =
                             getSubscriptionConfig(((ObjectValue) replyTo).getType().getAnnotation(
                                     Constants.NATS_PACKAGE, Constants.SUBSCRIPTION_CONFIG));
                     if (subscriptionConfig == null) {
-                        natsMetricsReporter.reportProducerError(subject,
+                        natsMetricsReporter.reportProducerError(subject.getValue(),
                                                                 NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
                         return Utils.createNatsError("Cannot find subscription configuration");
                     }
                     String replyToSubject = subscriptionConfig.getStringValue(Constants.SUBJECT).getValue();
-                    natsConnection.publish(subject, replyToSubject, byteContent);
+                    natsConnection.publish(subject.getValue(), replyToSubject, byteContent);
                 } else {
-                    natsConnection.publish(subject, byteContent);
+                    natsConnection.publish(subject.getValue(), byteContent);
                 }
-                natsMetricsReporter.reportPublish(subject, byteContent.length);
+                natsMetricsReporter.reportPublish(subject.getValue(), byteContent.length);
             } catch (IllegalArgumentException | IllegalStateException ex) {
-                natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
-                return Utils.createNatsError(Constants.PRODUCER_ERROR + subject +
-                        ". " + ex.getMessage());
+                natsMetricsReporter.reportProducerError(subject.getValue(),
+                                                        NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
+                return Utils.createNatsError(Constants.PRODUCER_ERROR +
+                        subject.getValue() + ". " + ex.getMessage());
             }
         } else {
             NatsMetricsReporter.reportProducerError(NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
-            return Utils.createNatsError(Constants.PRODUCER_ERROR + subject +
-                    ". Producer is logically disconnected.");
+            return Utils.createNatsError(Constants.PRODUCER_ERROR +
+                    subject.getValue() + ". Producer is logically disconnected.");
         }
         return null;
     }
 
     @SuppressWarnings("unchecked")
-    private static MapValue<String, Object> getSubscriptionConfig(Object annotationData) {
+    private static MapValue<BString, Object> getSubscriptionConfig(Object annotationData) {
         MapValue annotationRecord = null;
         if (TypeChecker.getType(annotationData).getTag() == TypeTags.RECORD_TYPE_TAG) {
             annotationRecord = (MapValue) annotationData;

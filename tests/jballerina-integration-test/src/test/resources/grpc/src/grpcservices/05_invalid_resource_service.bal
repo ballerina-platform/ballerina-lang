@@ -32,7 +32,7 @@ service HelloWorld98 on ep5 {
             err = caller->send(message);
         }
         if (err is grpc:Error) {
-            log:printError(err.reason(), err);
+            log:printError(err.message(), err);
         }
         checkpanic caller->complete();
     }
@@ -47,7 +47,7 @@ service HelloWorld98 on ep5 {
         }
         grpc:Error? err = caller->send(displayAge);
         if (err is grpc:Error) {
-            log:printError(err.reason(), err);
+            log:printError(err.message(), err);
         } else {
             log:printInfo("display age : " + displayAge.toString());
         }
@@ -59,7 +59,7 @@ service HelloWorld98 on ep5 {
         string netSalary = "salary";
         grpc:Error? err = caller->send(netSalary);
         if (err is grpc:Error) {
-            log:printError(err.reason(), err);
+            log:printError(err.message(),err);
         } else {
             log:printInfo("net salary : " + netSalary);
         }

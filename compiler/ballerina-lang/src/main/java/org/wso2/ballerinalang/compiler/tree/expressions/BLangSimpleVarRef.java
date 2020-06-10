@@ -150,5 +150,10 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public String toString() {
+            return this.symbol.name.value;
+        }
     }
 }
