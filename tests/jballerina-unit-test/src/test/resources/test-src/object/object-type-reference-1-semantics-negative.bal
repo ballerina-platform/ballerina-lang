@@ -134,7 +134,7 @@ type Too object {
 
     string s; // with member
 
-    public function __init(string s) {
+    public function init(string s) {
         self.s = s;
     }
 };

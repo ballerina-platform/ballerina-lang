@@ -33,7 +33,7 @@ function createAbstractObjectMultidimentionalSealedArray() {
 
 type Age object {
     public int age;
-    public function __init(int age) {
+    public function init(int age) {
     	 self.age = age;
     }
 };
@@ -46,7 +46,7 @@ function createDirtyObjectMultidimentionalSealedArray() {
 
 type AgeDefaulted object {
     public int age;
-    public function __init(int age = 5) {
+    public function init(int age = 5) {
     	 self.age = age;
     }
 };
@@ -100,7 +100,7 @@ function createRecordTypeWithOptionalFieldsSealedArrayCreation() {
 type ObjError object {
     int i;
 
-    function __init() returns error? {
+    function init() returns error? {
         self.i = 1;
     }
 };
@@ -125,7 +125,7 @@ function testInvalidUnionExpectedType() {
 }
 
 type NoFillerObject object {
-    public function __init(any arg) {
+    public function init(any arg) {
 
     }
 };

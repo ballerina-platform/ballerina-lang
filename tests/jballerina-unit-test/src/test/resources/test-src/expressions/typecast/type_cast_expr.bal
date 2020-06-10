@@ -53,7 +53,7 @@ type EmployeeObject object {
     string name;
     int id = 10000;
 
-    function __init(string name) {
+    function init(string name) {
         self.name = name;
     }
 
@@ -67,7 +67,7 @@ type LeadObject object {
     int id = 10000;
     float rating = 100.0;
 
-    function __init(string name) {
+    function init(string name) {
         self.name = name;
     }
 
@@ -79,7 +79,7 @@ type LeadObject object {
 type PersonObject object {
     string name;
 
-    function __init(string name) {
+    function init(string name) {
         self.name = name;
     }
 
@@ -645,13 +645,13 @@ function testDirectlyUnmatchedUnionToUnionCastNegative_2() {
 }
 
 function testTypeCastOnRecordLiterals() returns [string, string, string] {
-    string s1 = init(<ServerModeConfig>{});
-    string s2 = init(<EmbeddedModeConfig>{});
-    string s3 = init(<InMemoryModeConfig>{});
+    string s1 = _init_(<ServerModeConfig>{});
+    string s2 = _init_(<EmbeddedModeConfig>{});
+    string s3 = _init_(<InMemoryModeConfig>{});
     return [s1, s2, s3];
 }
 
-function init(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig rec) returns string {
+function _init_(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig rec) returns string {
     if (rec is ServerModeConfig) {
         return "Server mode configuration";
     } else if (rec is EmbeddedModeConfig) {

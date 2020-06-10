@@ -221,7 +221,7 @@ function testMappingConstrExprWithNoACET2() {
 }
 
 type Bar object {
-    public function __init(any arg) {
+    public function init(any arg) {
 
     }
 };

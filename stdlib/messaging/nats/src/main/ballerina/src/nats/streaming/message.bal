@@ -21,7 +21,7 @@ public type StreamingMessage client object {
    private byte[] content;
    private string subject;
 
-   function __init(string subject, byte[] content) {
+   function init(string subject, byte[] content) {
        self.subject = subject;
        self.content = content;
    }

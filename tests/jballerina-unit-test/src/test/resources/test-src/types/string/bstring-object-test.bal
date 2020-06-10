@@ -30,7 +30,7 @@ type Criminal object {
     public string name1;
     public string name2;
 
-    function __init(string name1, string name2) {
+    function init(string name1, string name2) {
         self.name1 = name1;
         self.name2 = validate(name2);
     }

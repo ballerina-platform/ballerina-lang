@@ -19,7 +19,7 @@ public type Student object {
     public string school = "";
     public int age = 0;
 
-    public function __init(string name, string school, int age) {
+    public function init(string name, string school, int age) {
         self.name = name;
         self.age = age;
         self.school = school;

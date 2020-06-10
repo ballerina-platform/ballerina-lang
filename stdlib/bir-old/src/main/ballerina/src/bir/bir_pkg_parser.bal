@@ -20,7 +20,7 @@ public type PackageParser object {
     BirChannelReader reader;
     boolean symbolsOnly;
 
-    public function __init(BirChannelReader reader, boolean symbolsOnly) {
+    public function init(BirChannelReader reader, boolean symbolsOnly) {
         self.reader = reader;
         self.symbolsOnly = symbolsOnly;
     }

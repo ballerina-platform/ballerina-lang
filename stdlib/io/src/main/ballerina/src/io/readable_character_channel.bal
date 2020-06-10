@@ -26,7 +26,7 @@ public type ReadableCharacterChannel object {
     # 
     # + byteChannel - The `ReadableByteChannel`, which would be used to read the characters
     # + charset - The character set, which would be used to encode/decode the given bytes to characters
-    public function __init(ReadableByteChannel byteChannel, string charset) {
+    public function init(ReadableByteChannel byteChannel, string charset) {
         self.byteChannel = byteChannel;
         self.charset = charset;
         initReadableCharacterChannel(self, byteChannel, charset);

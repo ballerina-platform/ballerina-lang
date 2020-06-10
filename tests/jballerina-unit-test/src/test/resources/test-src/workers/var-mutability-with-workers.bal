@@ -167,7 +167,7 @@ public type Person object {
     public string name;
     public string fullName;
 
-    function __init(int age, string name, string fullName) {
+    function init(int age, string name, string fullName) {
         self.age = age;
         self.name = name;
         self.fullName = fullName;
