@@ -75,8 +75,7 @@ service Chat on ep3 {
             conn = connection;
             grpc:Error? err = conn->send(msg);
             if (err is grpc:Error) {
-                io:println("Error from Connector: " + err.reason() + " - "
-                        + <string> err.detail()["message"]);
+                io:println("Error from Connector: " + err.message());
             } else {
                 io:println("Server message to caller " + callerId + " sent successfully.");
             }
@@ -84,8 +83,7 @@ service Chat on ep3 {
     }
 
     resource function onError(grpc:Caller caller, error err) {
-        io:println("Error from Connector: " + err.reason() + " - "
-                + <string> err.detail()["message"]);
+        io:println("Error from Connector: " + err.message());
     }
 
     resource function onComplete(grpc:Caller caller) {
@@ -100,8 +98,7 @@ service Chat on ep3 {
             conn = connection;
             grpc:Error? err = conn->send(msg);
             if (err is grpc:Error) {
-                io:println("Error from Connector: " + err.reason() + " - "
-                        + <string> err.detail()["message"]);
+                io:println("Error from Connector: " + err.message());
             } else {
                 io:println("Server message to caller " + callerId + " sent successfully.");
             }

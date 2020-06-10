@@ -29,7 +29,7 @@ function testByteArray() returns (string) {
     byte[] bytes = statement.toBytes();
     var addResponse = blockingEp->checkBytes(bytes);
     if (addResponse is grpc:Error) {
-        return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string> addResponse.detail()["message"]);
+        return io:sprintf("Error from Connector: %s", addResponse.message());
     } else {
         byte[] result = [];
         grpc:Headers resHeaders = new;
@@ -48,7 +48,7 @@ function testLargeByteArray(string filePath) returns (string) {
         if (resultBytes is byte[]) {
             var addResponse = blockingEp->checkBytes(resultBytes);
             if (addResponse is grpc:Error) {
-                return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string> addResponse.detail()["message"]);
+                return io:sprintf("Error from Connector: %s", addResponse.message());
             } else {
                 byte[] result = [];
                 [result, _] = addResponse;
@@ -60,7 +60,7 @@ function testLargeByteArray(string filePath) returns (string) {
             }
         } else {
             error err = resultBytes;
-            return io:sprintf("File read error: %s - %s", err.reason(), <string> err.detail()["message"]);
+            return io:sprintf("File read error: %s", err.message());
         }
 
     }
@@ -87,7 +87,7 @@ public type byteServiceBlockingClient client object {
         if (value is byte[]) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 };
