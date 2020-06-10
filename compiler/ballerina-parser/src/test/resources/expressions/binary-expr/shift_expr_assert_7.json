@@ -1,74 +1,78 @@
 {
-    "kind": "BINARY_EXPRESSION",
-    "children": [
+  "kind": "BINARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "TYPE_CAST_EXPRESSION",
+      "children": [
         {
-            "kind": "TYPE_CAST_EXPRESSION",
-            "children": [
-                {
-                    "kind": "LT_TOKEN"
-                },
-                {
-                    "kind": "TYPE_CAST_PARAM",
-                    "children": [
-                        {
-                            "kind": "PARAMETERIZED_TYPE_DESC",
-                            "children": [
-                                {
-                                    "kind": "MAP_KEYWORD"
-                                },
-                                {
-                                    "kind": "LT_TOKEN"
-                                },
-                                {
-                                    "kind": "PARAMETERIZED_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "MAP_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "LT_TOKEN"
-                                        },
-                                        {
-                                            "kind": "INT_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "GT_TOKEN"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "GT_TOKEN"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "kind": "GT_TOKEN"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "b"
-                }
-            ]
+          "kind": "LT_TOKEN"
         },
         {
-            "kind": "TRIPPLE_GT_TOKEN",
-            "children": [
+          "kind": "TYPE_CAST_PARAM",
+          "children": [
+            {
+                "kind": "LIST",
+                "children": []
+            },
+              {
+              "kind": "PARAMETERIZED_TYPE_DESC",
+              "children": [
                 {
-                    "kind": "GT_TOKEN"
+                  "kind": "MAP_KEYWORD"
                 },
                 {
-                    "kind": "GT_TOKEN"
+                  "kind": "LT_TOKEN"
                 },
                 {
-                    "kind": "GT_TOKEN"
+                  "kind": "PARAMETERIZED_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "MAP_KEYWORD"
+                    },
+                    {
+                      "kind": "LT_TOKEN"
+                    },
+                    {
+                      "kind": "INT_KEYWORD"
+                    },
+                    {
+                      "kind": "GT_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "GT_TOKEN"
                 }
-            ]
+              ]
+            }
+          ]
         },
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "c"
+          "kind": "GT_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "b"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "TRIPPLE_GT_TOKEN",
+      "children": [
+        {
+          "kind": "GT_TOKEN"
+        },
+        {
+          "kind": "GT_TOKEN"
+        },
+        {
+          "kind": "GT_TOKEN"
+        }
+      ]
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "c"
+    }
+  ]
 }

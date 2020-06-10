@@ -17,10 +17,13 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
+import io.ballerinalang.compiler.internal.diagnostics.DiagnosticCode;
 import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Action;
 import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Solution;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
+import io.ballerinalang.compiler.internal.syntax.NodeListUtils;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -80,6 +83,40 @@ public abstract class AbstractParser {
     }
 
     protected STToken getNextNextToken(SyntaxKind tokenKind) {
-        return peek(1).kind == tokenKind ? peek(2) : peek(1);
+        STToken nextToken = peek(1);
+        return nextToken.kind == tokenKind ? peek(2) : nextToken;
+    }
+
+    /**
+     * Returns 'true' if the list is empty.
+     * <p>
+     * First check whether this node is an instance of STNodeList.
+     *
+     * @param node the nodelist instance
+     * @return returns 'true' if the list is empty
+     */
+    protected boolean isNodeListEmpty(STNode node) {
+        if (!NodeListUtils.isSTNodeList(node)) {
+            throw new IllegalArgumentException("The 'node' should be an instance of STNodeList");
+        }
+
+        STNodeList nodeList = (STNodeList) node;
+        return nodeList.isEmpty();
+    }
+
+    /**
+     * Returns a clone of the given STNode with the given diagnostic if the nodeList is empty,
+     * otherwise returns the original STNode.
+     *
+     * @param nodeList the node list instance
+     * @param target the STNode instance
+     * @param diagnosticCode the DiagnosticCode to be added to the node
+     * @return a clone of the given STNode
+     */
+    protected STNode cloneWithDiagnosticIfListEmpty(STNode nodeList, STNode target, DiagnosticCode diagnosticCode) {
+        if (isNodeListEmpty(nodeList)) {
+            return errorHandler.addDiagnostics(target, diagnosticCode);
+        }
+        return target;
     }
 }

@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.WhileStatementNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STWhileStatementNode extends STStatementNode {
             STNode whileKeyword,
             STNode condition,
             STNode whileBody) {
-        super(SyntaxKind.WHILE_STATEMENT);
+        this(
+                whileKeyword,
+                condition,
+                whileBody,
+                Collections.emptyList());
+    }
+
+    STWhileStatementNode(
+            STNode whileKeyword,
+            STNode condition,
+            STNode whileBody,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.WHILE_STATEMENT, diagnostics);
         this.whileKeyword = whileKeyword;
         this.condition = condition;
         this.whileBody = whileBody;
@@ -47,7 +62,43 @@ public class STWhileStatementNode extends STStatementNode {
                 whileBody);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STWhileStatementNode(
+                this.whileKeyword,
+                this.condition,
+                this.whileBody,
+                diagnostics);
+    }
+
+    public STWhileStatementNode modify(
+            STNode whileKeyword,
+            STNode condition,
+            STNode whileBody) {
+        if (checkForReferenceEquality(
+                whileKeyword,
+                condition,
+                whileBody)) {
+            return this;
+        }
+
+        return new STWhileStatementNode(
+                whileKeyword,
+                condition,
+                whileBody,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new WhileStatementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

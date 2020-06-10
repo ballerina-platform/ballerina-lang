@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -33,14 +36,55 @@ public class STBuiltinSimpleNameReferenceNode extends STNameReferenceNode {
     STBuiltinSimpleNameReferenceNode(
             SyntaxKind kind,
             STNode name) {
-        super(kind);
+        this(
+                kind,
+                name,
+                Collections.emptyList());
+    }
+
+    STBuiltinSimpleNameReferenceNode(
+            SyntaxKind kind,
+            STNode name,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(kind, diagnostics);
         this.name = name;
 
         addChildren(
                 name);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STBuiltinSimpleNameReferenceNode(
+                this.kind,
+                this.name,
+                diagnostics);
+    }
+
+    public STBuiltinSimpleNameReferenceNode modify(
+            SyntaxKind kind,
+            STNode name) {
+        if (checkForReferenceEquality(
+                name)) {
+            return this;
+        }
+
+        return new STBuiltinSimpleNameReferenceNode(
+                kind,
+                name,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BuiltinSimpleNameReferenceNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

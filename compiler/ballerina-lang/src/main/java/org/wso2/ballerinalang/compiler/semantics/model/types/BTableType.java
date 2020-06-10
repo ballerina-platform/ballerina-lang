@@ -22,7 +22,9 @@ import org.ballerinalang.model.types.TableType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
 
@@ -38,9 +40,15 @@ public class BTableType extends BType implements TableType {
     public List<String> fieldNameList;
     public DiagnosticPos keyPos;
     public DiagnosticPos constraintPos;
+    public BIntersectionType immutableType;
 
     public BTableType(int tag, BType constraint, BTypeSymbol tSymbol) {
         super(tag, tSymbol);
+        this.constraint = constraint;
+    }
+
+    public BTableType(int tag, BType constraint, BTypeSymbol tSymbol, int flags) {
+        super(tag, tSymbol, flags);
         this.constraint = constraint;
     }
 
@@ -55,11 +63,13 @@ public class BTableType extends BType implements TableType {
 
     @Override
     public String toString() {
+        boolean readonly = Symbols.isFlagOn(flags, Flags.READONLY);
         if (constraint == null) {
-            return super.toString();
+            return readonly ? super.toString().concat(" & readonly") : super.toString();
         }
 
         StringBuilder keyStringBuilder = new StringBuilder();
+        String stringRep;
         if (fieldNameList != null) {
             for (String fieldName : fieldNameList) {
                 if (!keyStringBuilder.toString().equals("")) {
@@ -67,11 +77,13 @@ public class BTableType extends BType implements TableType {
                 }
                 keyStringBuilder.append(fieldName);
             }
-            return super.toString() + "<" + constraint + "> key(" + keyStringBuilder.toString() + ")";
+            stringRep = super.toString() + "<" + constraint + "> key(" + keyStringBuilder.toString() + ")";
+        } else {
+            stringRep = (super.toString() + "<" + constraint + "> " +
+                                 ((keyTypeConstraint != null) ? ("key<" + keyTypeConstraint + ">") : "")).trim();
         }
 
-        return (super.toString() + "<" + constraint + "> " +
-                ((keyTypeConstraint != null) ? ("key<" + keyTypeConstraint + ">") : "")).trim();
+        return readonly ? stringRep.concat(" & readonly") : stringRep;
     }
 
     @Override
@@ -82,5 +94,10 @@ public class BTableType extends BType implements TableType {
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public BIntersectionType getImmutableType() {
+        return immutableType;
     }
 }

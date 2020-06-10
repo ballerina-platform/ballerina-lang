@@ -25,6 +25,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
+
 /**
  * Extern function to check existence of key.
  * ballerina.model.table:hasKey(KeyType)
@@ -32,7 +34,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", functionName = "hasKey",
+        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION, functionName = "hasKey",
         args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "key", type = TypeKind.ANYDATA)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true

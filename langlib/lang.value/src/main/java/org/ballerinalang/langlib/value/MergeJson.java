@@ -25,6 +25,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
+
 
 /**
  * Merge two JSON values.
@@ -32,7 +34,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.value",
+        orgName = "ballerina", packageName = "lang.value", version = VALUE_VERSION,
         functionName = "mergeJson",
         args = {@Argument(name = "j1", type = TypeKind.JSON), @Argument(name = "j2", type = TypeKind.JSON)},
         returnType = {@ReturnType(type = TypeKind.JSON), @ReturnType(type = TypeKind.ERROR)},

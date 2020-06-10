@@ -27,7 +27,7 @@ service UnsupportedJsonType on ep {
         string message = "Testing Json types";
         error? err = caller->send(message);
         if (err is error) {
-            io:println("Error from Connector: " + err.reason());
+            io:println("Error from Connector: " + err.message());
         } else {
             io:println("Server send response : " + message);
         }
@@ -39,7 +39,7 @@ service UnsupportedJsonType on ep {
         JsonMessage jsonMsg = {};
         error? err = caller->send(jsonMsg);
         if (err is error) {
-            io:println("Error from Connector: " + err.reason());
+            io:println("Error from Connector: " + err.message());
         } else {
             io:println("Server send response successfully");
         }

@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -42,7 +45,25 @@ public class STMethodCallExpressionNode extends STExpressionNode {
             STNode openParenToken,
             STNode arguments,
             STNode closeParenToken) {
-        super(SyntaxKind.METHOD_CALL);
+        this(
+                expression,
+                dotToken,
+                methodName,
+                openParenToken,
+                arguments,
+                closeParenToken,
+                Collections.emptyList());
+    }
+
+    STMethodCallExpressionNode(
+            STNode expression,
+            STNode dotToken,
+            STNode methodName,
+            STNode openParenToken,
+            STNode arguments,
+            STNode closeParenToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.METHOD_CALL, diagnostics);
         this.expression = expression;
         this.dotToken = dotToken;
         this.methodName = methodName;
@@ -59,7 +80,55 @@ public class STMethodCallExpressionNode extends STExpressionNode {
                 closeParenToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STMethodCallExpressionNode(
+                this.expression,
+                this.dotToken,
+                this.methodName,
+                this.openParenToken,
+                this.arguments,
+                this.closeParenToken,
+                diagnostics);
+    }
+
+    public STMethodCallExpressionNode modify(
+            STNode expression,
+            STNode dotToken,
+            STNode methodName,
+            STNode openParenToken,
+            STNode arguments,
+            STNode closeParenToken) {
+        if (checkForReferenceEquality(
+                expression,
+                dotToken,
+                methodName,
+                openParenToken,
+                arguments,
+                closeParenToken)) {
+            return this;
+        }
+
+        return new STMethodCallExpressionNode(
+                expression,
+                dotToken,
+                methodName,
+                openParenToken,
+                arguments,
+                closeParenToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MethodCallExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

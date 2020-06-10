@@ -25,13 +25,15 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.ERROR_VERSION;
+
 /**
  * Get the error message of an error value.
  *
  * @since 0.990.4
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.error",
+        orgName = "ballerina", packageName = "lang.error", version = ERROR_VERSION,
         functionName = "message",
         args = {@Argument(name = "value", type = TypeKind.ERROR)},
         returnType = {@ReturnType(type = TypeKind.STRING)})

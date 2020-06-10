@@ -316,6 +316,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(xMLNamespaceDeclarationNode);
     }
 
+    public T transform(ModuleXMLNamespaceDeclarationNode moduleXMLNamespaceDeclarationNode) {
+        return transformSyntaxNode(moduleXMLNamespaceDeclarationNode);
+    }
+
     public T transform(FunctionBodyBlockNode functionBodyBlockNode) {
         return transformSyntaxNode(functionBodyBlockNode);
     }
@@ -552,8 +556,8 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(singletonTypeDescriptorNode);
     }
 
-    public T transform(FunctionDeclarationNode functionDeclarationNode) {
-        return transformSyntaxNode(functionDeclarationNode);
+    public T transform(MethodDeclarationNode methodDeclarationNode) {
+        return transformSyntaxNode(methodDeclarationNode);
     }
 
     public T transform(TypedBindingPatternNode typedBindingPatternNode) {
@@ -564,8 +568,24 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(captureBindingPatternNode);
     }
 
+    public T transform(WildcardBindingPatternNode wildcardBindingPatternNode) {
+        return transformSyntaxNode(wildcardBindingPatternNode);
+    }
+
     public T transform(ListBindingPatternNode listBindingPatternNode) {
         return transformSyntaxNode(listBindingPatternNode);
+    }
+
+    public T transform(MappingBindingPatternNode mappingBindingPatternNode) {
+        return transformSyntaxNode(mappingBindingPatternNode);
+    }
+
+    public T transform(FieldBindingPatternFullNode fieldBindingPatternFullNode) {
+        return transformSyntaxNode(fieldBindingPatternFullNode);
+    }
+
+    public T transform(FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
+        return transformSyntaxNode(fieldBindingPatternVarnameNode);
     }
 
     public T transform(RestBindingPatternNode restBindingPatternNode) {
@@ -638,6 +658,54 @@ public abstract class NodeTransformer<T> {
 
     public T transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
         return transformSyntaxNode(arrayTypeDescriptorNode);
+    }
+
+    public T transform(TransactionStatementNode transactionStatementNode) {
+        return transformSyntaxNode(transactionStatementNode);
+    }
+
+    public T transform(RollbackStatementNode rollbackStatementNode) {
+        return transformSyntaxNode(rollbackStatementNode);
+    }
+
+    public T transform(RetryStatementNode retryStatementNode) {
+        return transformSyntaxNode(retryStatementNode);
+    }
+
+    public T transform(CommitActionNode commitActionNode) {
+        return transformSyntaxNode(commitActionNode);
+    }
+
+    public T transform(TransactionalExpressionNode transactionalExpressionNode) {
+        return transformSyntaxNode(transactionalExpressionNode);
+    }
+
+    public T transform(ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
+        return transformSyntaxNode(serviceConstructorExpressionNode);
+    }
+
+    public T transform(ByteArrayLiteralNode byteArrayLiteralNode) {
+        return transformSyntaxNode(byteArrayLiteralNode);
+    }
+
+    public T transform(XMLFilterExpressionNode xMLFilterExpressionNode) {
+        return transformSyntaxNode(xMLFilterExpressionNode);
+    }
+
+    public T transform(XMLStepExpressionNode xMLStepExpressionNode) {
+        return transformSyntaxNode(xMLStepExpressionNode);
+    }
+
+    public T transform(XMLNamePatternChainingNode xMLNamePatternChainingNode) {
+        return transformSyntaxNode(xMLNamePatternChainingNode);
+    }
+
+    public T transform(XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
+        return transformSyntaxNode(xMLAtomicNamePatternNode);
+    }
+
+    public T transform(TypeReferenceTypeDescNode typeReferenceTypeDescNode) {
+        return transformSyntaxNode(typeReferenceTypeDescNode);
     }
 
     // Tokens

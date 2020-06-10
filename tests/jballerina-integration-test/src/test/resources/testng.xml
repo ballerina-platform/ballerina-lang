@@ -119,21 +119,22 @@
         </groups>
         <classes>
             <class name="org.ballerinalang.test.auth.AuthBaseTest"/>
-            <class name="org.ballerinalang.test.auth.AuthnConfigInheritanceTest"/>
-            <class name="org.ballerinalang.test.auth.AuthnWithMultipleHandlersTest" />
-            <class name="org.ballerinalang.test.auth.AuthnWithoutHTTPAnnotationsTest" />
-            <class name="org.ballerinalang.test.auth.AuthzCacheTest" />
-            <class name="org.ballerinalang.test.auth.AuthzConfigInheritanceTest"/>
-            <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>
-            <class name="org.ballerinalang.test.auth.OAuth2ConfigTest"/>
-            <class name="org.ballerinalang.test.auth.ResourceLevelAuthTest"/>
-            <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/>
-            <class name="org.ballerinalang.test.auth.TokenPropagationTest"/>
-            <class name="org.ballerinalang.test.auth.AuthWithCustomProvidersHandlersTest"/>
-            <class name="org.ballerinalang.test.auth.AuthzConfigPatternTest"/>
-            <class name="org.ballerinalang.test.auth.AuthnConfigPatternTest"/>
-            <class name="org.ballerinalang.test.auth.AuthnWithOAuth2Test"/>
-            <class name="org.ballerinalang.test.auth.JwkSignatureValidationTest"/>
+            <class name="org.ballerinalang.test.auth.basic.AuthnConfigInheritanceTest"/>
+            <class name="org.ballerinalang.test.auth.basic.AuthzConfigInheritanceTest"/>
+            <class name="org.ballerinalang.test.auth.basic.ResourceLevelAuthTest"/>
+            <class name="org.ballerinalang.test.auth.basic.ServiceLevelAuthnTest"/>
+            <class name="org.ballerinalang.test.auth.basic.AuthnWithoutHttpAnnotationsTest"/>
+            <class name="org.ballerinalang.test.auth.basic.AuthnConfigPatternTest"/>
+            <class name="org.ballerinalang.test.auth.basic.AuthzConfigPatternTest"/>
+            <class name="org.ballerinalang.test.auth.basic.AuthWithCustomProvidersHandlersTest"/>
+            <class name="org.ballerinalang.test.auth.jwt.AuthnWithMultipleHandlersTest"/>
+            <class name="org.ballerinalang.test.auth.jwt.AuthzCacheTest"/>
+            <class name="org.ballerinalang.test.auth.jwt.AuthnWithExpiredCertificateTest"/>
+            <class name="org.ballerinalang.test.auth.jwt.TokenPropagationTest"/>
+            <class name="org.ballerinalang.test.auth.jwt.JwkSignatureValidationTest"/>
+            <class name="org.ballerinalang.test.auth.oauth2.OAuth2ServiceTest"/>
+            <class name="org.ballerinalang.test.auth.oauth2.OAuth2ClientTest"/>
+            <class name="org.ballerinalang.test.auth.ldap.LdapAuthStoreTest"/>
         </classes>
     </test>
 
@@ -322,6 +323,7 @@
 <!--            <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>-->
 <!--            <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>-->
 <!--            <class name="org.ballerinalang.test.packaging.SingleBalFileTestCase"/>-->
+            <class name="org.ballerinalang.test.packaging.MultipleVersionsModuleTestCase"/>
             <class name="org.ballerinalang.test.packaging.DependencyScopeTestCase"/>
         </classes>
     </test>

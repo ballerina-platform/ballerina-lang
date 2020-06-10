@@ -37,7 +37,7 @@ public class ImportDeclarationNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Optional<Node> orgName() {
+    public Optional<ImportOrgNameNode> orgName() {
         return optionalChildInBucket(1);
     }
 
@@ -45,11 +45,11 @@ public class ImportDeclarationNode extends NonTerminalNode {
         return new SeparatedNodeList<>(childInBucket(2));
     }
 
-    public Optional<Node> version() {
+    public Optional<ImportVersionNode> version() {
         return optionalChildInBucket(3);
     }
 
-    public Optional<Node> prefix() {
+    public Optional<ImportPrefixNode> prefix() {
         return optionalChildInBucket(4);
     }
 
@@ -80,10 +80,10 @@ public class ImportDeclarationNode extends NonTerminalNode {
 
     public ImportDeclarationNode modify(
             Token importKeyword,
-            Node orgName,
+            ImportOrgNameNode orgName,
             SeparatedNodeList<IdentifierToken> moduleName,
-            Node version,
-            Node prefix,
+            ImportVersionNode version,
+            ImportPrefixNode prefix,
             Token semicolon) {
         if (checkForReferenceEquality(
                 importKeyword,
@@ -116,10 +116,10 @@ public class ImportDeclarationNode extends NonTerminalNode {
     public static class ImportDeclarationNodeModifier {
         private final ImportDeclarationNode oldNode;
         private Token importKeyword;
-        private Node orgName;
+        private ImportOrgNameNode orgName;
         private SeparatedNodeList<IdentifierToken> moduleName;
-        private Node version;
-        private Node prefix;
+        private ImportVersionNode version;
+        private ImportPrefixNode prefix;
         private Token semicolon;
 
         public ImportDeclarationNodeModifier(ImportDeclarationNode oldNode) {
@@ -140,7 +140,7 @@ public class ImportDeclarationNode extends NonTerminalNode {
         }
 
         public ImportDeclarationNodeModifier withOrgName(
-                Node orgName) {
+                ImportOrgNameNode orgName) {
             Objects.requireNonNull(orgName, "orgName must not be null");
             this.orgName = orgName;
             return this;
@@ -154,14 +154,14 @@ public class ImportDeclarationNode extends NonTerminalNode {
         }
 
         public ImportDeclarationNodeModifier withVersion(
-                Node version) {
+                ImportVersionNode version) {
             Objects.requireNonNull(version, "version must not be null");
             this.version = version;
             return this;
         }
 
         public ImportDeclarationNodeModifier withPrefix(
-                Node prefix) {
+                ImportPrefixNode prefix) {
             Objects.requireNonNull(prefix, "prefix must not be null");
             this.prefix = prefix;
             return this;

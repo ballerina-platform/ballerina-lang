@@ -521,14 +521,14 @@ public class TaintedStatusPropagationTest {
         BAssertUtil.validateError(result, 4, "tainted value passed to untainted parameter 'secureIn'", 44, 20);
     }
 
-    @Test
+    @Test(groups = "brokenOnErrorChange")
     public void testParameterStatusWithNativeInvocations() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/" +
                 "param-status-with-native-invocations.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test
+    @Test(groups = "brokenOnErrorChange")
     public void testParameterStatusWithNativeInvocationsNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/" +
                 "param-status-with-native-invocations-negative.bal");

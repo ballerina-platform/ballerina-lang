@@ -1,449 +1,449 @@
 {
-    "kind": "MODULE_PART",
-    "children": [
+  "kind": "MODULE_PART",
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "LIST",
-            "children": []
-        },
-        {
-            "kind": "LIST",
-            "children": [
+          "kind": "ENUM_DECLARATION",
+          "children": [
+            {
+              "kind": "METADATA",
+              "children": [
                 {
-                    "kind": "ENUM_DECLARATION",
-                    "children": [
+                  "kind": "DOCUMENTATION_STRING",
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": [
                         {
-                            "kind": "METADATA",
-                            "children": [
-                                {
-                                    "kind": "DOCUMENTATION_STRING",
-                                    "children": [
-                                        {
-                                            "kind": "LIST",
-                                            "children": [
-                                                {
-                                                    "kind": "DOCUMENTATION_LINE",
-                                                    "value": "#this is doc comment"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "LIST",
-                                    "children": []
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ENUM_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "SyntaxKind"
-                        },
-                        {
-                            "kind": "OPEN_BRACE_TOKEN"
-                        },
-                        {
-                            "kind": "LIST",
-                            "children": [
-                                {
-                                    "kind": "ENUM_MEMBER",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "A"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "COMMA_TOKEN"
-                                },
-                                {
-                                    "kind": "ENUM_MEMBER",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "B"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "COMMA_TOKEN"
-                                },
-                                {
-                                    "kind": "ENUM_MEMBER",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "C"
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "CLOSE_BRACE_TOKEN"
+                          "kind": "DOCUMENTATION_LINE",
+                          "value": "#this is doc comment"
                         }
-                    ]
+                      ]
+                    }
+                  ]
                 },
                 {
-                    "kind": "ENUM_DECLARATION",
-                    "children": [
-                        {
-                            "kind": "METADATA",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": []
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "PUBLIC_KEYWORD"
-                        },
-                        {
-                            "kind": "ENUM_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "Color"
-                        },
-                        {
-                            "kind": "OPEN_BRACE_TOKEN"
-                        },
-                        {
-                            "kind": "LIST",
-                            "children": [
-                                {
-                                    "kind": "ENUM_MEMBER",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "RED"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "COMMA_TOKEN"
-                                },
-                                {
-                                    "kind": "ENUM_MEMBER",
-                                    "children": [
-                                        {
-                                            "kind": "METADATA",
-                                            "children": [
-                                                {
-                                                    "kind": "DOCUMENTATION_STRING",
-                                                    "children": [
-                                                        {
-                                                            "kind": "LIST",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "DOCUMENTATION_LINE",
-                                                                    "value": "#this is green"
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": []
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "GREEN"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "COMMA_TOKEN"
-                                },
-                                {
-                                    "kind": "ENUM_MEMBER",
-                                    "children": [
-                                        {
-                                            "kind": "METADATA",
-                                            "children": [
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                        {
-                                                            "kind": "ANNOTATION",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "AT_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "annotationsss"
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "BLUE"
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "CLOSE_BRACE_TOKEN"
-                        }
-                    ]
-                },
-                {
-                    "kind": "ENUM_DECLARATION",
-                    "children": [
-                        {
-                            "kind": "METADATA",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                        {
-                                            "kind": "ANNOTATION",
-                                            "children": [
-                                                {
-                                                    "kind": "AT_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "QUALIFIED_NAME_REFERENCE",
-                                                    "children": [
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "Override"
-                                                        },
-                                                        {
-                                                            "kind": "COLON_TOKEN"
-                                                        },
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "annotations"
-                                                        }
-                                                    ]
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "PUBLIC_KEYWORD"
-                        },
-                        {
-                            "kind": "ENUM_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "Color"
-                        },
-                        {
-                            "kind": "OPEN_BRACE_TOKEN"
-                        },
-                        {
-                            "kind": "LIST",
-                            "children": [
-                                {
-                                    "kind": "ENUM_MEMBER",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "RED"
-                                        },
-                                        {
-                                            "kind": "EQUAL_TOKEN"
-                                        },
-                                        {
-                                            "kind": "STRING_LITERAL",
-                                            "value": "read-color"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "COMMA_TOKEN"
-                                },
-                                {
-                                    "kind": "ENUM_MEMBER",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "GREEN"
-                                        },
-                                        {
-                                            "kind": "EQUAL_TOKEN"
-                                        },
-                                        {
-                                            "kind": "STRING_LITERAL",
-                                            "value": "green-color"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "COMMA_TOKEN"
-                                },
-                                {
-                                    "kind": "ENUM_MEMBER",
-                                    "children": [
-                                        {
-                                            "kind": "METADATA",
-                                            "children": [
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                        {
-                                                            "kind": "ANNOTATION",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "AT_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "checkmising"
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "isMissing"
-                                        },
-                                        {
-                                            "kind": "EQUAL_TOKEN"
-                                        },
-                                        {
-                                            "kind": "TRUE_KEYWORD"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "COMMA_TOKEN"
-                                },
-                                {
-                                    "kind": "ENUM_MEMBER",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "attributes"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "COMMA_TOKEN"
-                                },
-                                {
-                                    "kind": "ENUM_MEMBER",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "value"
-                                        },
-                                        {
-                                            "kind": "EQUAL_TOKEN"
-                                        },
-                                        {
-                                            "kind": "UNARY_EXPRESSION",
-                                            "children": [
-                                                {
-                                                    "kind": "PLUS_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "DECIMAL_INTEGER_LITERAL",
-                                                    "value": "5"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "COMMA_TOKEN"
-                                },
-                                {
-                                    "kind": "ENUM_MEMBER",
-                                    "children": [
-                                        {
-                                            "kind": "METADATA",
-                                            "children": [
-                                                {
-                                                    "kind": "DOCUMENTATION_STRING",
-                                                    "children": [
-                                                        {
-                                                            "kind": "LIST",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "DOCUMENTATION_LINE",
-                                                                    "value": "#parents can be null"
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                        {
-                                                            "kind": "ANNOTATION",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "AT_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "checknull"
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "parents"
-                                        },
-                                        {
-                                            "kind": "EQUAL_TOKEN"
-                                        },
-                                        {
-                                            "kind": "NULL_KEYWORD"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "COMMA_TOKEN"
-                                },
-                                {
-                                    "kind": "ENUM_MEMBER",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "other"
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "CLOSE_BRACE_TOKEN"
-                        }
-                    ]
+                  "kind": "LIST",
+                  "children": []
                 }
-            ]
+              ]
+            },
+            {
+              "kind": "ENUM_KEYWORD"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "SyntaxKind"
+            },
+            {
+              "kind": "OPEN_BRACE_TOKEN"
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "ENUM_MEMBER",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "A"
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN"
+                },
+                {
+                  "kind": "ENUM_MEMBER",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "B"
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN"
+                },
+                {
+                  "kind": "ENUM_MEMBER",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "C"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACE_TOKEN"
+            }
+          ]
         },
         {
-            "kind": "EOF_TOKEN"
+          "kind": "ENUM_DECLARATION",
+          "children": [
+            {
+              "kind": "METADATA",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "PUBLIC_KEYWORD"
+            },
+            {
+              "kind": "ENUM_KEYWORD"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "Color"
+            },
+            {
+              "kind": "OPEN_BRACE_TOKEN"
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "ENUM_MEMBER",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "RED"
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN"
+                },
+                {
+                  "kind": "ENUM_MEMBER",
+                  "children": [
+                    {
+                      "kind": "METADATA",
+                      "children": [
+                        {
+                          "kind": "DOCUMENTATION_STRING",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_LINE",
+                                  "value": "#this is green"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "GREEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN"
+                },
+                {
+                  "kind": "ENUM_MEMBER",
+                  "children": [
+                    {
+                      "kind": "METADATA",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "ANNOTATION",
+                              "children": [
+                                {
+                                  "kind": "AT_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "annotationsss"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "BLUE"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACE_TOKEN"
+            }
+          ]
+        },
+        {
+          "kind": "ENUM_DECLARATION",
+          "children": [
+            {
+              "kind": "METADATA",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "ANNOTATION",
+                      "children": [
+                        {
+                          "kind": "AT_TOKEN"
+                        },
+                        {
+                          "kind": "QUALIFIED_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "Override"
+                            },
+                            {
+                              "kind": "COLON_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "annotations"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "PUBLIC_KEYWORD"
+            },
+            {
+              "kind": "ENUM_KEYWORD"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "Color"
+            },
+            {
+              "kind": "OPEN_BRACE_TOKEN"
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "ENUM_MEMBER",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "RED"
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN"
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "value": "read-color"
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN"
+                },
+                {
+                  "kind": "ENUM_MEMBER",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "GREEN"
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN"
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "value": "green-color"
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN"
+                },
+                {
+                  "kind": "ENUM_MEMBER",
+                  "children": [
+                    {
+                      "kind": "METADATA",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "ANNOTATION",
+                              "children": [
+                                {
+                                  "kind": "AT_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "checkmising"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "isMissing"
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN"
+                    },
+                    {
+                      "kind": "TRUE_KEYWORD"
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN"
+                },
+                {
+                  "kind": "ENUM_MEMBER",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "attributes"
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN"
+                },
+                {
+                  "kind": "ENUM_MEMBER",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "value"
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN"
+                    },
+                    {
+                      "kind": "UNARY_EXPRESSION",
+                      "children": [
+                        {
+                          "kind": "PLUS_TOKEN"
+                        },
+                        {
+                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "value": "5"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN"
+                },
+                {
+                  "kind": "ENUM_MEMBER",
+                  "children": [
+                    {
+                      "kind": "METADATA",
+                      "children": [
+                        {
+                          "kind": "DOCUMENTATION_STRING",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_LINE",
+                                  "value": "#parents can be null"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "ANNOTATION",
+                              "children": [
+                                {
+                                  "kind": "AT_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "checknull"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "parents"
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN"
+                    },
+                    {
+                      "kind": "NULL_KEYWORD"
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN"
+                },
+                {
+                  "kind": "ENUM_MEMBER",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "other"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACE_TOKEN"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "EOF_TOKEN"
+    }
+  ]
 }

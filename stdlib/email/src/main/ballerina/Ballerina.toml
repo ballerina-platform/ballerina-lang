@@ -14,7 +14,7 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "email"
-    version = "@project.version@"
-    path = "./lib/ballerina-email-@project.version@.jar"
+    version = "0.6.0"
+    path = "./lib/ballerina-email-0.6.0-java.jar"
     groupId = "ballerina"
     modules = ["email"]

@@ -44,10 +44,12 @@ public class RecordConstraintTableTest {
 
     @Test
     public void testDuplicateKeysInTableConstructorExpr() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 2);
+        Assert.assertEquals(negativeResult.getErrorCount(), 3);
         BAssertUtil.validateError(negativeResult, 0, "duplicate key found in table row key('name') : 'AAA'", 18, 5);
         BAssertUtil.validateError(negativeResult, 1, "duplicate key found in table row key('id, name') : '13, Foo'",
                 23, 5);
+        BAssertUtil.validateError(negativeResult, 2, "duplicate key found in table row key('m') : ' {AAA: DDDD}'",
+                36, 7);
     }
 
     @Test(description = "Test global table constructor expr")
@@ -89,7 +91,7 @@ public class RecordConstraintTableTest {
 
     @Test(description = "Test Table with var type")
     public void testTableWithVarType() {
-        BRunUtil.invoke(result, "runMemberAccessTestCases");
+        BRunUtil.invoke(result, "runTableTestcasesWithVarType");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -100,21 +102,25 @@ public class RecordConstraintTableTest {
         Assert.fail();
     }
 
-    //TODO Readonly support is not available for field which is complex type (i.e, record)
-    @Test(expectedExceptions = {BLangRuntimeException.class}, enabled = false)
-    public void testGlobalTableConstructExpr2() {
-        BRunUtil.invoke(result, "testTableConstructExprWithDuplicateKeys", new BValue[]{});
-    }
-
-    @Test(description = "Test member access in table in store operation", enabled = false)
+    @Test(description = "Test member access in table in store operation")
     public void testTableMemberAccessStore() {
         BValue[] values = BRunUtil.invoke(result, "testTableMemberAccessStore", new BValue[]{});
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
-    @Test(description = "Test member access in table in load operation", enabled = false)
+    @Test(description = "Test member access in table in load operation")
     public void testTableMemberAccessLoad() {
         BValue[] values = BRunUtil.invoke(result, "testTableMemberAccessLoad", new BValue[]{});
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
+    @Test(description = "Test table as record field")
+    public void testTableAsRecordField() {
+        BRunUtil.invoke(result, "testTableAsRecordField", new BValue[]{});
+    }
+
+    @Test(description = "Test table equality")
+    public void testTableEquality() {
+        BRunUtil.invoke(result, "testTableEquality", new BValue[]{});
     }
 }

@@ -31,8 +31,7 @@ service HelloWorld14 on new grpc:Listener(9104) {
         // Sends response message with headers.
         grpc:Error? err = caller->send(message);
         if (err is grpc:Error) {
-            io:println("Error from Connector: " + err.reason() + " - "
-                    + <string> err.detail()["message"]);
+            io:println("Error from Connector: " + err.message());
         }
 
         // Sends `completed` notification to caller.

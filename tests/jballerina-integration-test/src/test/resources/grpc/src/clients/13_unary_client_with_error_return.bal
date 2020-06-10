@@ -28,8 +28,7 @@ public function testErrorResponse(string name) returns string {
     var unionResp = helloWorldBlockingEp->hello(name);
 
     if (unionResp is grpc:Error) {
-        string message = "Error from Connector: " + unionResp.reason() + " - "
-            + <string> unionResp.detail()["message"];
+        string message = "Error from Connector: " + unionResp.message();
         io:println(message);
         return message;
     } else {

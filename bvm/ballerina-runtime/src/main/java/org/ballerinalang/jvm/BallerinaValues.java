@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.State;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
@@ -80,17 +83,55 @@ public class BallerinaValues {
      * @param fieldValues values to be used for fields when creating the object value instance.
      * @return value of the object.
      */
+    @Deprecated
     public static ObjectValue createObjectValue(BPackage packageId, String objectTypeName, Object... fieldValues) {
+        return createObjectValue(packageId, objectTypeName, getStrand(), fieldValues);
+    }
+
+    private static ObjectValue createObjectValue(BPackage packageId, String objectTypeName, Strand currentStrand,
+                                                 Object... fieldValues) {
+        // This method duplicates the createObjectValue with referencing the issue in runtime API getting strand
         ValueCreator valueCreator = ValueCreator.getValueCreator(packageId.toString());
         Object[] fields = new Object[fieldValues.length * 2];
+
+        // Here the variables are initialized with default values
+        Scheduler scheduler = null;
+        State prevState = State.RUNNABLE;
+        boolean prevBlockedOnExtern = false;
+        ObjectValue objectValue;
 
         // Adding boolean values for each arg
         for (int i = 0, j = 0; i < fieldValues.length; i++) {
             fields[j++] = fieldValues[i];
             fields[j++] = true;
         }
-        //passing scheduler, strand and properties as null for the moment, but better to expose them via this method
-        return valueCreator.createObjectValue(objectTypeName, null, null, null, fields);
+        try {
+            // Check for non-blocking call
+            if (currentStrand != null) {
+                scheduler = currentStrand.scheduler;
+                prevBlockedOnExtern = currentStrand.blockedOnExtern;
+                prevState = currentStrand.getState();
+                currentStrand.blockedOnExtern = false;
+                currentStrand.setState(State.RUNNABLE);
+            }
+            objectValue = valueCreator.createObjectValue(objectTypeName, scheduler, currentStrand,
+                    null, fields);
+        } finally {
+            if (currentStrand != null) {
+                currentStrand.blockedOnExtern = prevBlockedOnExtern;
+                currentStrand.setState(prevState);
+            }
+        }
+        return objectValue;
+    }
+
+    private static Strand getStrand() {
+        try {
+            return Scheduler.getStrand();
+        } catch (Exception ex) {
+            // Ignore : issue #22871 is opened to fix this
+        }
+        return null;
     }
 
     /**

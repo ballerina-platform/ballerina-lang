@@ -90,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -516,28 +517,7 @@ public class BLangPackageBuilder {
         }
 
         if (isReadonly) {
-            BLangType typeNode = field.typeNode;
-            Set<Whitespace> typeNodeWS = typeNode.getWS();
-            DiagnosticPos typeNodePos = typeNode.getPosition();
-
-            BLangValueType readOnlyTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
-            readOnlyTypeNode.addWS(typeNodeWS);
-            readOnlyTypeNode.pos = typeNodePos;
-            readOnlyTypeNode.typeKind = (TreeUtils.stringToTypeKind("readonly"));
-
-            if (typeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE) {
-                ((BLangIntersectionTypeNode) typeNode).constituentTypeNodes.add(readOnlyTypeNode);
-            } else {
-                BLangIntersectionTypeNode intersectionTypeNode =
-                        (BLangIntersectionTypeNode) TreeBuilder.createIntersectionTypeNode();
-                intersectionTypeNode.constituentTypeNodes.add(typeNode);
-                intersectionTypeNode.constituentTypeNodes.add(readOnlyTypeNode);
-                intersectionTypeNode.addWS(typeNodeWS);
-                intersectionTypeNode.pos = typeNodePos;
-                field.typeNode = intersectionTypeNode;
-            }
-
-            field.flagSet.add(Flag.READONLY);
+            setReadOnlyIntersectionTypeNode(field);
         }
 
         if (markdownExists) {
@@ -547,13 +527,17 @@ public class BLangPackageBuilder {
 
     void addObjectFieldVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
                                 boolean exprAvailable, int annotCount, boolean isPrivate, boolean isPublic,
-                                boolean markdownExists) {
+                                boolean markdownExists, boolean readonly) {
         BLangSimpleVariable field = addSimpleVar(pos, ws, identifier, identifierPos, exprAvailable, annotCount);
 
         if (isPublic) {
             field.flagSet.add(Flag.PUBLIC);
         } else if (isPrivate) {
             field.flagSet.add(Flag.PRIVATE);
+        }
+
+        if (readonly) {
+            setReadOnlyIntersectionTypeNode(field);
         }
 
         if (markdownExists) {
@@ -2127,6 +2111,14 @@ public class BLangPackageBuilder {
         queryClauseStack.push(onConflictClause);
     }
 
+    void createLimitClause(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangLimitClause limitClause = (BLangLimitClause) TreeBuilder.createLimitClauseNode();
+        limitClause.addWS(ws);
+        limitClause.pos = pos;
+        limitClause.expression = (BLangExpression) this.exprNodeStack.pop();
+        queryClauseStack.push(limitClause);
+    }
+
     void createWhereClause(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangWhereClause whereClause = (BLangWhereClause) TreeBuilder.createWhereClauseNode();
         whereClause.addWS(ws);
@@ -2203,11 +2195,10 @@ public class BLangPackageBuilder {
             tableConstructorExpr.tableKeySpecifier = (BLangTableKeySpecifier) tableKeySpecifierNodeStack.pop();
         }
 
-        Collections.reverse(exprNodeStack);
-        while (exprNodeStack.size() > 0) {
-            ExpressionNode expression = exprNodeStack.pop();
-            BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
-            tableConstructorExpr.addRecordLiteral(recordLiteral);
+        if (exprNodeListStack.size() != 0) {
+            List<ExpressionNode> tableRecordLiteralList = exprNodeListStack.pop();
+            tableRecordLiteralList.forEach(recordLiteral -> tableConstructorExpr.
+                    addRecordLiteral((BLangRecordLiteral) recordLiteral));
         }
         addExpressionNode(tableConstructorExpr);
     }
@@ -3956,5 +3947,30 @@ public class BLangPackageBuilder {
         // Filters were collected from right to left, hence need to reverse the order.
         Collections.reverse(filters);
         return filters;
+    }
+
+    private void setReadOnlyIntersectionTypeNode(BLangSimpleVariable field) {
+        BLangType typeNode = field.typeNode;
+        Set<Whitespace> typeNodeWS = typeNode.getWS();
+        DiagnosticPos typeNodePos = typeNode.getPosition();
+
+        BLangValueType readOnlyTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+        readOnlyTypeNode.addWS(typeNodeWS);
+        readOnlyTypeNode.pos = typeNodePos;
+        readOnlyTypeNode.typeKind = (TreeUtils.stringToTypeKind("readonly"));
+
+        if (typeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE) {
+            ((BLangIntersectionTypeNode) typeNode).constituentTypeNodes.add(readOnlyTypeNode);
+        } else {
+            BLangIntersectionTypeNode intersectionTypeNode =
+                    (BLangIntersectionTypeNode) TreeBuilder.createIntersectionTypeNode();
+            intersectionTypeNode.constituentTypeNodes.add(typeNode);
+            intersectionTypeNode.constituentTypeNodes.add(readOnlyTypeNode);
+            intersectionTypeNode.addWS(typeNodeWS);
+            intersectionTypeNode.pos = typeNodePos;
+            field.typeNode = intersectionTypeNode;
+        }
+
+        field.flagSet.add(Flag.READONLY);
     }
 }

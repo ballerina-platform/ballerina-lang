@@ -53,19 +53,19 @@ public class SelectivelyImmutableTypeTest {
         int index = 0;
 
         // Assignment and initialization.
-        validateError(result, index++, "incompatible types: expected 'Student', found 'Person & readonly'", 41, 17);
-        validateError(result, index++, "incompatible types: expected '(int|string)', found 'PersonalDetails & " +
-                "readonly'", 42, 20);
-        validateError(result, index++, "incompatible types: expected 'Student', found 'Person & readonly?'", 43, 17);
+        validateError(result, index++, "incompatible types: expected 'Student', found '(Person & readonly)'", 41, 17);
+        validateError(result, index++, "incompatible types: expected '(int|string)', found '(PersonalDetails & " +
+                "readonly)'", 42, 20);
+        validateError(result, index++, "incompatible types: expected 'Student', found '(Person & readonly)?'", 43, 17);
         validateError(result, index++, "incompatible types: expected 'string', found 'int'", 44, 16);
-        validateError(result, index++, "incompatible types: expected 'Student & readonly', found 'Student'", 57, 30);
-        validateError(result, index++, "incompatible types: expected 'PersonalDetails & readonly', found " +
+        validateError(result, index++, "incompatible types: expected '(Student & readonly)', found 'Student'", 57, 30);
+        validateError(result, index++, "incompatible types: expected '(PersonalDetails & readonly)', found " +
                 "'PersonalDetails'", 60, 18);
-        validateError(result, index++, "incompatible types: expected '(A|B|any & readonly)', found 'Obj'", 78, 26);
-        validateError(result, index++, "incompatible types: expected 'PersonalDetails & readonly', found " +
+        validateError(result, index++, "incompatible types: expected '((A|B|any) & readonly)', found 'Obj'", 78, 26);
+        validateError(result, index++, "incompatible types: expected '(PersonalDetails & readonly)', found " +
                 "'PersonalDetails'", 105, 18);
-        validateError(result, index++, "incompatible types: expected 'Department & readonly' for field 'dept', found " +
-                "'Department'", 106, 12);
+        validateError(result, index++, "incompatible types: expected '(Department & readonly)' for field 'dept', " +
+                "found 'Department'", 106, 12);
 
         // Updates.
         validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 129, 5);
@@ -76,6 +76,8 @@ public class SelectivelyImmutableTypeTest {
                       14);
         validateError(result, index++, "incompatible types: expected 'Department & readonly', found 'Department'", 139,
                       17);
+        validateError(result, index++, "invalid intersection type with 'readonly', 'table<Bar> key(name)' can never " +
+                              "be 'readonly'", 152, 5);
 
         assertEquals(result.getErrorCount(), index);
     }

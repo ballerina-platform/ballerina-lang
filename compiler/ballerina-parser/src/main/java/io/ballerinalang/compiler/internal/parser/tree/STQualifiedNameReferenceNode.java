@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STQualifiedNameReferenceNode extends STNameReferenceNode {
             STNode modulePrefix,
             STNode colon,
             STNode identifier) {
-        super(SyntaxKind.QUALIFIED_NAME_REFERENCE);
+        this(
+                modulePrefix,
+                colon,
+                identifier,
+                Collections.emptyList());
+    }
+
+    STQualifiedNameReferenceNode(
+            STNode modulePrefix,
+            STNode colon,
+            STNode identifier,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.QUALIFIED_NAME_REFERENCE, diagnostics);
         this.modulePrefix = modulePrefix;
         this.colon = colon;
         this.identifier = identifier;
@@ -47,7 +62,43 @@ public class STQualifiedNameReferenceNode extends STNameReferenceNode {
                 identifier);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STQualifiedNameReferenceNode(
+                this.modulePrefix,
+                this.colon,
+                this.identifier,
+                diagnostics);
+    }
+
+    public STQualifiedNameReferenceNode modify(
+            STNode modulePrefix,
+            STNode colon,
+            STNode identifier) {
+        if (checkForReferenceEquality(
+                modulePrefix,
+                colon,
+                identifier)) {
+            return this;
+        }
+
+        return new STQualifiedNameReferenceNode(
+                modulePrefix,
+                colon,
+                identifier,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new QualifiedNameReferenceNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

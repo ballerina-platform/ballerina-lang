@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -40,7 +43,23 @@ public class STLocalTypeDefinitionStatementNode extends STStatementNode {
             STNode typeName,
             STNode typeDescriptor,
             STNode semicolonToken) {
-        super(SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT);
+        this(
+                annotations,
+                typeKeyword,
+                typeName,
+                typeDescriptor,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STLocalTypeDefinitionStatementNode(
+            STNode annotations,
+            STNode typeKeyword,
+            STNode typeName,
+            STNode typeDescriptor,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT, diagnostics);
         this.annotations = annotations;
         this.typeKeyword = typeKeyword;
         this.typeName = typeName;
@@ -55,7 +74,51 @@ public class STLocalTypeDefinitionStatementNode extends STStatementNode {
                 semicolonToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STLocalTypeDefinitionStatementNode(
+                this.annotations,
+                this.typeKeyword,
+                this.typeName,
+                this.typeDescriptor,
+                this.semicolonToken,
+                diagnostics);
+    }
+
+    public STLocalTypeDefinitionStatementNode modify(
+            STNode annotations,
+            STNode typeKeyword,
+            STNode typeName,
+            STNode typeDescriptor,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                annotations,
+                typeKeyword,
+                typeName,
+                typeDescriptor,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STLocalTypeDefinitionStatementNode(
+                annotations,
+                typeKeyword,
+                typeName,
+                typeDescriptor,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new LocalTypeDefinitionStatementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

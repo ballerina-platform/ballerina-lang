@@ -92,7 +92,7 @@ public class InvalidSyntaxParserTest {
         BAssertUtil.validateError(result, index++, "mismatched input '\"GET\"'. expecting {'service', 'function', " +
                 "'object', 'record', 'abstract', 'client', 'distinct', 'int', 'byte', 'float', 'decimal', 'boolean', 'string', " +
                 "'error', 'map', 'json', 'xml', 'table', 'stream', 'any', 'typedesc', 'future', 'anydata', 'handle', " +
-                "'readonly', '(', '[', Identifier}", 6, 18);
+                "'readonly', 'never', '(', '[', Identifier}", 6, 18);
         BAssertUtil.validateError(result, index++, "mismatched input ':'. expecting ';'", 7, 13);
         BAssertUtil.validateError(result, index++, "invalid token '{'", 9, 29);
         BAssertUtil.validateError(result, index++, "mismatched input '{'. expecting '('", 9, 29);
@@ -135,10 +135,10 @@ public class InvalidSyntaxParserTest {
     public void testListenerDeclarationWithDefinedDifferentType() {
         CompileResult result = BCompileUtil.compile("test-src/parser/listener_declaration_type_reuse_negative.bal");
         BAssertUtil.validateError(result, 0, "invalid assignment: 'listener' declaration is final", 22, 5);
-        BAssertUtil.validateError(result, 1, "incompatible types: expected 'ballerina/http:MockListener', found " +
-                "'int'", 22, 9);
+        BAssertUtil.validateError(result, 1, "incompatible types: expected 'ballerina/http:1.0.0:MockListener', found" +
+                " 'int'", 22, 9);
         BAssertUtil.validateError(result, 2, "incompatible types: expected 'int', found " +
-                "'ballerina/http:MockListener'", 23, 9);
+                "'ballerina/http:1.0.0:MockListener'", 23, 9);
         BAssertUtil.validateError(result, 3, "incompatible types: expected 'lang.object:Listener', found 'int'", 26,
                                   14);
         BAssertUtil.validateError(result, 4, "incompatible types: expected 'lang.object:Listener', found 'Person'",

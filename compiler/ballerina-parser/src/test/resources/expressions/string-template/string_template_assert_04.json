@@ -49,11 +49,21 @@
                   "children": []
                 },
                 {
-                  "kind": "STRING_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "s1"
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "STRING_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "s1"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "EQUAL_TOKEN"
@@ -119,12 +129,22 @@
                           "children": []
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "expr2"
-                        },
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "expr3"
+                          "kind": "TYPED_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "expr2"
+                            },
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "expr3"
+                                }
+                              ]
+                            }
+                          ]
                         },
                         {
                           "kind": "SEMICOLON_TOKEN",

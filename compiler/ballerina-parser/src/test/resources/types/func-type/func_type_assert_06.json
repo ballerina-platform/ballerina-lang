@@ -21,47 +21,57 @@
               ]
             },
             {
-              "kind": "FUNCTION_TYPE_DESC",
+              "kind": "TYPED_BINDING_PATTERN",
               "children": [
                 {
-                  "kind": "FUNCTION_KEYWORD"
-                },
-                {
-                  "kind": "FUNCTION_SIGNATURE",
+                  "kind": "FUNCTION_TYPE_DESC",
                   "children": [
                     {
-                      "kind": "OPEN_PAREN_TOKEN"
+                      "kind": "FUNCTION_KEYWORD"
                     },
                     {
-                      "kind": "LIST",
-                      "children": []
-                    },
-                    {
-                      "kind": "CLOSE_PAREN_TOKEN",
-                      "isMissing": true
-                    },
-                    {
-                      "kind": "RETURN_TYPE_DESCRIPTOR",
+                      "kind": "FUNCTION_SIGNATURE",
                       "children": [
                         {
-                          "kind": "RETURNS_KEYWORD"
+                          "kind": "OPEN_PAREN_TOKEN"
                         },
                         {
                           "kind": "LIST",
                           "children": []
                         },
                         {
-                          "kind": "INT_KEYWORD"
+                          "kind": "CLOSE_PAREN_TOKEN",
+                          "isMissing": true
+                        },
+                        {
+                          "kind": "RETURN_TYPE_DESCRIPTOR",
+                          "children": [
+                            {
+                              "kind": "RETURNS_KEYWORD"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
+                              "kind": "INT_KEYWORD"
+                            }
+                          ]
                         }
                       ]
                     }
                   ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "f1"
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "f1"
             },
             {
               "kind": "EQUAL_TOKEN"
@@ -126,47 +136,57 @@
                           "children": []
                         },
                         {
-                          "kind": "FUNCTION_TYPE_DESC",
+                          "kind": "TYPED_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "FUNCTION_KEYWORD"
-                            },
-                            {
-                              "kind": "FUNCTION_SIGNATURE",
+                              "kind": "FUNCTION_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "OPEN_PAREN_TOKEN"
+                                  "kind": "FUNCTION_KEYWORD"
                                 },
                                 {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "CLOSE_PAREN_TOKEN",
-                                  "isMissing": true
-                                },
-                                {
-                                  "kind": "RETURN_TYPE_DESCRIPTOR",
+                                  "kind": "FUNCTION_SIGNATURE",
                                   "children": [
                                     {
-                                      "kind": "RETURNS_KEYWORD"
+                                      "kind": "OPEN_PAREN_TOKEN"
                                     },
                                     {
                                       "kind": "LIST",
                                       "children": []
                                     },
                                     {
-                                      "kind": "INT_KEYWORD"
+                                      "kind": "CLOSE_PAREN_TOKEN",
+                                      "isMissing": true
+                                    },
+                                    {
+                                      "kind": "RETURN_TYPE_DESCRIPTOR",
+                                      "children": [
+                                        {
+                                          "kind": "RETURNS_KEYWORD"
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
+                                        {
+                                          "kind": "INT_KEYWORD"
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
                               ]
+                            },
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "f1"
+                                }
+                              ]
                             }
                           ]
-                        },
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "f1"
                         },
                         {
                           "kind": "EQUAL_TOKEN"

@@ -24,8 +24,6 @@ import ballerina/io;
 service OneofFieldService on new grpc:Listener(9105) {
 
     resource function hello(grpc:Caller caller, Request1 value) {
-        io:println("################################################################");
-        io:println(value);
         string? request = "";
         if (value?.first_name is string) {
             request = value?.first_name;

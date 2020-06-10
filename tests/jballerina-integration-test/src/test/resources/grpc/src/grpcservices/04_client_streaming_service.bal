@@ -36,14 +36,14 @@ service HelloWorld7 on ep4 {
     }
 
     resource function onError(grpc:Caller caller, error err) {
-        io:println("Something unexpected happens at server : " + err.reason());
+        io:println("Something unexpected happens at server : " + err.message());
     }
 
     resource function onComplete(grpc:Caller caller) {
         io:println("Server Response");
         grpc:Error? err = caller->send("Ack");
         if (err is grpc:Error) {
-            io:println("Error from Connector: " + err.reason());
+            io:println("Error from Connector: " + err.message());
         } else {
             io:println("Server send response : Ack");
         }

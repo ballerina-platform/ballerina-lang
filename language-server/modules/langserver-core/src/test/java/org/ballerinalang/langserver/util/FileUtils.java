@@ -37,6 +37,7 @@ public class FileUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
     
     public static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
+    public static final Path BUILD_DIR = Paths.get("build/").toAbsolutePath();
 
     /**
      * Get the file content.
