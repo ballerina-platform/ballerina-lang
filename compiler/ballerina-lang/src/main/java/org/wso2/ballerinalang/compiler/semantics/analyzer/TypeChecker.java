@@ -3622,20 +3622,17 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
-        BType type;
-
-        if (expType != symTable.noType) {
-            type = types.checkType(rawTemplateLiteral, expType, symTable.rawTemplateType);
-        } else {
-            // When `var` is used, consider the literal as of type RawTemplate
-            type = symTable.rawTemplateType;
-        }
+        // First, ensure that the contextually expected type is compatible with the RawTemplate type.
+        // The RawTemplate type should have just two fields: strings and insertions. There shouldn't be any methods.
+        BType type = determineRawTemplateLiteralType(rawTemplateLiteral, expType);
 
         if (type == symTable.semanticError) {
             resultType = type;
             return;
         }
 
+        // Once we ensure the types are compatible, need to ensure that the types of the strings and insertions are
+        // compatible with the types of the strings and insertions fields.
         BObjectType literalType = (BObjectType) type;
         BType stringsType = literalType.fields.get("strings").type;
 
@@ -3654,6 +3651,46 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = type;
+    }
+
+    private BType determineRawTemplateLiteralType(BLangRawTemplateLiteral rawTemplateLiteral, BType expType) {
+        // Contextually expected type is NoType when `var` is used.
+        // Therefore consider the literal as of type RawTemplate
+        if (expType == symTable.noType) {
+            return symTable.rawTemplateType;
+        }
+
+        BType type = types.checkType(rawTemplateLiteral, expType, symTable.rawTemplateType);
+
+        if (type == symTable.semanticError) {
+            return type;
+        }
+
+        // Raw template literals can be directly assigned only to abstract object types
+        if (!Symbols.isFlagOn(type.tsymbol.flags, Flags.ABSTRACT)) {
+            dlog.error(rawTemplateLiteral.pos, DiagnosticCode.INVALID_RAW_TEMPLATE_ASSIGNMENT, type);
+            return symTable.semanticError;
+        }
+
+        // Ensure that only the two fields, strings and insertions, are there
+        BObjectType litObjType = (BObjectType) type;
+
+        if (!litObjType.fields.containsKey("strings")) {
+            dlog.error(rawTemplateLiteral.pos, DiagnosticCode.MISSING_STRINGS_FIELD, litObjType);
+            type = symTable.semanticError;
+        }
+
+        if (!litObjType.fields.containsKey("insertions")) {
+            dlog.error(rawTemplateLiteral.pos, DiagnosticCode.MISSING_INSERTIONS_FIELD, litObjType);
+            type = symTable.semanticError;
+        }
+
+        if (type != symTable.semanticError && litObjType.fields.size() > 2) {
+            dlog.error(rawTemplateLiteral.pos, DiagnosticCode.INVALID_NUM_FIELDS, litObjType);
+            type = symTable.semanticError;
+        }
+
+        return type;
     }
 
     private BType validateRawTemplateExprs(List<? extends BLangExpression> exprs, BType listType, DiagnosticPos pos) {
