@@ -11858,8 +11858,9 @@ public class BallerinaParser extends AbstractParser {
             case IDENTIFIER_TOKEN:
                 typeOrExpr = parseQualifiedIdentifier(ParserRuleContext.TYPE_NAME_OR_VAR_NAME);
                 return parseTypedBindingPatternOrExprRhs(typeOrExpr, allowAssignment);
+            case OPEN_BRACKET_TOKEN:
 
-            // Can be a singleton type or expression.
+                // Can be a singleton type or expression.
             case NIL_LITERAL:
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
@@ -12036,7 +12037,6 @@ public class BallerinaParser extends AbstractParser {
 
         STNode closeParen = parseCloseParenthesis();
         return STNodeFactory.createParenthesisedTypeDescriptorNode(openParen, typeOrExpr, closeParen);
-
     }
 
     /**
@@ -12049,13 +12049,17 @@ public class BallerinaParser extends AbstractParser {
         STNode typeOrExpr;
         switch (nextToken.kind) {
             case OPEN_PAREN_TOKEN:
-                return parseTypedDescOrExprStartsWithOpenParenthesis();
+                typeOrExpr = parseTypedDescOrExprStartsWithOpenParenthesis();
+                break;
             case FUNCTION_KEYWORD:
-                return parseAnonFuncExprOrFuncTypeDesc();
+                typeOrExpr = parseAnonFuncExprOrFuncTypeDesc();
+                break;
             case IDENTIFIER_TOKEN:
                 typeOrExpr = parseQualifiedIdentifier(ParserRuleContext.TYPE_NAME_OR_VAR_NAME);
                 return parseTypeDescOrExprRhs(typeOrExpr);
-
+            case OPEN_BRACKET_TOKEN:
+                typeOrExpr = parseTypedDescOrExprStartsWithOpenBracket();
+                break;
             // Can be a singleton type or expression.
             case NIL_LITERAL:
             case DECIMAL_INTEGER_LITERAL:
@@ -12075,6 +12079,12 @@ public class BallerinaParser extends AbstractParser {
 
                 return parseTypeDescriptor(ParserRuleContext.VAR_DECL_STMT);
         }
+
+        if (isDefiniteTypeDesc(typeOrExpr.kind)) {
+            return parseComplexTypeDescriptor(typeOrExpr, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true);
+        }
+
+        return typeOrExpr;
     }
 
     private boolean isExpression(SyntaxKind kind) {
@@ -12260,6 +12270,28 @@ public class BallerinaParser extends AbstractParser {
             default:
                 return false;
         }
+    }
+
+    private STNode parseTypedDescOrExprStartsWithOpenBracket() {
+        startContext(ParserRuleContext.BRACKETED_LIST);
+        STNode openBracket = parseOpenBracket();
+        List<STNode> members = new ArrayList<>();
+        STNode memberEnd;
+        while (!isEndOfListConstructor(peek().kind)) {
+            STNode expr = parseTypeDescOrExpr();
+            members.add(expr);
+
+            memberEnd = parseBracketedListMemberEnd();
+            if (memberEnd == null) {
+                break;
+            }
+            members.add(memberEnd);
+        }
+
+        STNode memberNodes = STNodeFactory.createNodeList(members);
+        STNode closeBracket = parseCloseBracket();
+        endContext();
+        return STNodeFactory.createTupleTypeDescriptorNode(openBracket, memberNodes, closeBracket);
     }
 
     // ------------------------ Typed binding patterns ---------------------------

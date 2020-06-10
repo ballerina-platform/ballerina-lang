@@ -223,6 +223,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -1472,6 +1473,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(BinaryExpressionNode binaryExprNode) {
+        if (binaryExprNode.operator().kind() == SyntaxKind.ELVIS_TOKEN) {
+            BLangElvisExpr elvisExpr = (BLangElvisExpr) TreeBuilder.createElvisExpressionNode();
+            elvisExpr.pos = getPosition(binaryExprNode);
+            elvisExpr.lhsExpr = createExpression(binaryExprNode.lhsExpr());
+            elvisExpr.rhsExpr = createExpression(binaryExprNode.rhsExpr());
+            return elvisExpr;
+        }
+
         BLangBinaryExpr bLBinaryExpr = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
         bLBinaryExpr.pos = getPosition(binaryExprNode);
         bLBinaryExpr.lhsExpr = createExpression(binaryExprNode.lhsExpr());
@@ -3071,7 +3080,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             } else {
                 bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
             }
-        }
+        } else if (type == SyntaxKind.UNARY_EXPRESSION) {
+            typeTag = TypeTags.NIL;
+            value = null;
+            originalValue = "()";
+            bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        } 
 
         bLiteral.pos = getPosition(literal);
         bLiteral.type = symTable.getTypeFromTag(typeTag);
