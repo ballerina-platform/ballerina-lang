@@ -24,8 +24,6 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.PrintStream;
-
 /**
  * Test WebSocket Service Compilation.
  */
@@ -75,9 +73,6 @@ public class WebSocketCompilationTest {
         CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "fail_onText.bal");
 
         assertExpectedDiagnosticsLength(compileResult, 1);
-        PrintStream asd = System.out;
-        asd.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
-        asd.println(compileResult.toString());
         BAssertUtil.validateError(compileResult, 0,
                 "Invalid resource signature for onText resource in service : The second " +
                         "parameter should be a string, json, xml, byte[] or a record type", 21, 5);
@@ -88,9 +83,6 @@ public class WebSocketCompilationTest {
         CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "fail_onText_JSON.bal");
 
         assertExpectedDiagnosticsLength(compileResult, 1);
-        PrintStream asd = System.out;
-        asd.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
-        asd.println(compileResult.toString());
         BAssertUtil.validateError(compileResult, 0,
                 "Invalid resource signature for onText resource in service : Final " +
                         "fragment is not valid if the second parameter is not a string", 21, 5);

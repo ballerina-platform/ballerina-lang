@@ -257,7 +257,7 @@ public class WebSocketUtil {
                     IOConstants.IO_PACKAGE_ID);
             message = "IO Error";
         }
-        WebSocketException err = new WebSocketException(errorCode.substring(2) + ": " +message, cause);
+        WebSocketException err = new WebSocketException(errorCode.substring(2) + ": " + message, cause);
         BallerinaErrors.setTypeId(errorCode, WebSocketConstants.PROTOCOL_HTTP_PKG_ID, err);
         return err;
     }
@@ -582,7 +582,7 @@ public class WebSocketUtil {
         String message = errorCode.substring(2) + ": " + msg;
         if (!msg.isEmpty()) {
             exception = new WebSocketException(message);
-        } else if (error != null){
+        } else if (error != null) {
             exception = new WebSocketException(error);
         } else {
             exception = new WebSocketException(message, cause);

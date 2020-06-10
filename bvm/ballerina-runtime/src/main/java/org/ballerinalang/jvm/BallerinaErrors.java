@@ -121,7 +121,7 @@ public class BallerinaErrors {
         return error;
     }
 
-    private static void setTypeId(String typeIdName, BPackage typeIdPkg, ErrorValue error) {
+    public static void setTypeId(String typeIdName, BPackage typeIdPkg, ErrorValue error) {
         BErrorType type = (BErrorType) error.getType();
         BTypeIdSet typeIdSet = new BTypeIdSet();
         typeIdSet.add(typeIdPkg, typeIdName, true);
