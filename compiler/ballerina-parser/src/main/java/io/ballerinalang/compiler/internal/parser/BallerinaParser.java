@@ -11987,7 +11987,15 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseTypedBPOrExprStartsWithOpenParenthesis() {
         STNode exprOrTypeDesc = parseTypedDescOrExprStartsWithOpenParenthesis();
+        if (isDefiniteTypeDesc(exprOrTypeDesc.kind)) {
+            return parseTypeBindingPatternStartsWithAmbiguousNode(exprOrTypeDesc);
+        }
+
         return parseTypedBindingPatternOrExprRhs(exprOrTypeDesc, false);
+    }
+
+    private boolean isDefiniteTypeDesc(SyntaxKind kind) {
+        return kind.compareTo(SyntaxKind.TYPE_DESC) >= 0 && kind.compareTo(SyntaxKind.SINGLETON_TYPE_DESC) <= 0;
     }
 
     /**
@@ -13145,8 +13153,8 @@ public class BallerinaParser extends AbstractParser {
             // empty brackets. could be array-type or list-binding-pattern
             return SyntaxKind.NONE;
         }
-        if (memberNode.kind.compareTo(SyntaxKind.TYPE_DESC) >= 0 &&
-                memberNode.kind.compareTo(SyntaxKind.SINGLETON_TYPE_DESC) <= 0) {
+
+        if (isDefiniteTypeDesc(memberNode.kind)) {
             return SyntaxKind.TUPLE_TYPE_DESC;
         }
 
