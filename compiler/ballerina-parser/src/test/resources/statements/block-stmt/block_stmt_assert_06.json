@@ -134,7 +134,7 @@
                                       ]
                                     },
                                     {
-                                      "kind": "FUNCTION_DECLARATION",
+                                      "kind": "METHOD_DECLARATION",
                                       "children": [
                                         {
                                           "kind": "METADATA",

@@ -17,7 +17,7 @@
 public type Person object {
     private int salary;
 
-    public function __init(int salary) {
+    public function init(int salary) {
         self.salary = salary;
     }
 

@@ -16,35 +16,35 @@
 
 type Obj0 object {
     int val;
-    function __init(int i, int j = 0) {
+    function init(int i, int j = 0) {
         self.val = 0;
     }
 };
 
 type Obj2 object {
     int val;
-    function __init() {
+    function init() {
         self.val = 2;
     }
 };
 
 type Obj3 object {
     int val;
-    function __init(int j = 0) {
+    function init(int j = 0) {
         self.val = 3;
     }
 };
 
 type Obj4 object {
     int val;
-    function __init(int i, int... restP) {
+    function init(int i, int... restP) {
         self.val = 4;
     }
 };
 
 type Obj5 object {
     int val;
-    function __init(int i, string... restP) {
+    function init(int i, string... restP) {
         self.val = 5;
     }
 };
@@ -77,7 +77,7 @@ function getMixedUnionMembers() returns (Obj0|Obj2|Obj3|Obj4|int) {
 type Person object {
     public int age = 0;
 
-    function __init (int age) {
+    function init (int age) {
         self.age = age;
     }
 };
@@ -85,7 +85,7 @@ type Person object {
 type Employee object {
     public int age = 0;
 
-    function __init (int age, int addVal) {
+    function init (int age, int addVal) {
         self.age = age + addVal;
     }
 };
@@ -122,7 +122,7 @@ type Foo object {
 type Bar object {
     PersonRec|EmployeeRec p;
 
-    function __init(PersonRec|EmployeeRec p) {
+    function init(PersonRec|EmployeeRec p) {
         self.p = p;
     }
 };

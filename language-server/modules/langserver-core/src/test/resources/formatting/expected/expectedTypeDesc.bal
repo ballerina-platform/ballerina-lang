@@ -18,7 +18,7 @@ function testObjectTypes() returns [typedesc<Person>, typedesc<object {}>] {
 type Person object {
     public string name;
 
-    function __init(string name) {
+    function init(string name) {
         self.name = name;
     }
 

@@ -87,7 +87,7 @@ public type MockObj object {
     #
     # + prepareObj - object to register cases
     # + return - mock object
-    public function __init(object{} prepareObj) {
+    public function init(object{} prepareObj) {
         self.prepareObj = prepareObj;
     }
 
@@ -142,7 +142,7 @@ public  type Case object {
     #
     # + prepareObj - object to register cases
     # + return - mock object
-    public function __init(object{} prepareObj) {
+    public function init(object{} prepareObj) {
         self.prepareObj = prepareObj;
     }
 

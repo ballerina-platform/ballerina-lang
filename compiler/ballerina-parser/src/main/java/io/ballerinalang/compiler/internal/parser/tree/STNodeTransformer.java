@@ -709,6 +709,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(matchGuardNode);
     }
 
+    public T transform(STObjectMethodDefinitionNode objectMethodDefinitionNode) {
+        return transformSyntaxNode(objectMethodDefinitionNode);
+    }
+
     // Tokens
 
     public T transform(STToken token) {

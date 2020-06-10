@@ -292,7 +292,7 @@ function testUnshift() returns int[] {
 type Obj object {
     int i;
     int j;
-    function __init(int i, int j) {
+    function init(int i, int j) {
         self.i = i;
         self.j = j;
     }

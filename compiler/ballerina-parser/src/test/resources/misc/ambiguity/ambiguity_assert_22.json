@@ -39,21 +39,6 @@
                 },
                 {
                   "kind": "CLOSE_PAREN_TOKEN"
-                },
-                {
-                  "kind": "RETURN_TYPE_DESCRIPTOR",
-                  "children": [
-                    {
-                      "kind": "RETURNS_KEYWORD"
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    },
-                    {
-                      "kind": "INT_KEYWORD"
-                    }
-                  ]
                 }
               ]
             },
@@ -67,38 +52,125 @@
                   "kind": "LIST",
                   "children": [
                     {
-                      "kind": "ASSIGNMENT_STATEMENT",
+                      "kind": "ACTION_STATEMENT",
                       "children": [
                         {
-                          "kind": "INDEXED_EXPRESSION",
+                          "kind": "ASYNC_SEND_ACTION",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "john"
-                            },
-                            {
-                              "kind": "OPEN_BRACKET_TOKEN"
-                            },
-                            {
-                              "kind": "LIST",
+                              "kind": "XML_TEMPLATE_EXPRESSION",
                               "children": [
                                 {
-                                  "kind": "STRING_LITERAL",
-                                  "value": "smile👍"
+                                  "kind": "XML_KEYWORD"
+                                },
+                                {
+                                  "kind": "BACKTICK_TOKEN"
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": [
+                                    {
+                                      "kind": "XML_TEXT_CONTENT",
+                                      "value": "foo"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "BACKTICK_TOKEN"
                                 }
                               ]
                             },
                             {
-                              "kind": "CLOSE_BRACKET_TOKEN"
+                              "kind": "RIGHT_ARROW_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "w1"
                             }
                           ]
                         },
                         {
-                          "kind": "EQUAL_TOKEN"
+                          "kind": "SEMICOLON_TOKEN"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "ACTION_STATEMENT",
+                      "children": [
+                        {
+                          "kind": "ASYNC_SEND_ACTION",
+                          "children": [
+                            {
+                              "kind": "STRING_TEMPLATE_EXPRESSION",
+                              "children": [
+                                {
+                                  "kind": "STRING_KEYWORD"
+                                },
+                                {
+                                  "kind": "BACKTICK_TOKEN"
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": [
+                                    {
+                                      "kind": "TEMPLATE_STRING",
+                                      "value": "foo"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "BACKTICK_TOKEN"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "RIGHT_ARROW_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "w2"
+                            }
+                          ]
                         },
                         {
-                          "kind": "STRING_LITERAL",
-                          "value": "smile"
+                          "kind": "SEMICOLON_TOKEN"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "ACTION_STATEMENT",
+                      "children": [
+                        {
+                          "kind": "ASYNC_SEND_ACTION",
+                          "children": [
+                            {
+                              "kind": "RAW_TEMPLATE_EXPRESSION",
+                              "children": [
+                                {
+                                  "kind": "BACKTICK_TOKEN"
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": [
+                                    {
+                                      "kind": "TEMPLATE_STRING",
+                                      "value": "foo"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "BACKTICK_TOKEN"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "RIGHT_ARROW_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "w3"
+                            }
+                          ]
                         },
                         {
                           "kind": "SEMICOLON_TOKEN"
