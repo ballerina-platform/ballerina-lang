@@ -76,7 +76,7 @@ public type Student object {
     public int age;
     public string favSubject;
 
-    function __init(string n, int a, string favSub = "Maths") {
+    function init(string n, int a, string favSub = "Maths") {
         self.name = n;
         self.age = a;
         self.favSubject = favSub;

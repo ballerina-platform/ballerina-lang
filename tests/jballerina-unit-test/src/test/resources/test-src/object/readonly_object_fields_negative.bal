@@ -18,7 +18,7 @@ type Student object {
     readonly string name;
     readonly int id;
     
-    function __init(string n, int i) {
+    function init(string n, int i) {
         self.name = n;
         self.id = i;
     }
@@ -34,7 +34,7 @@ type Employee object {
     readonly Details details;
     string department;
 
-    function __init(Details & readonly details, string department) {
+    function init(Details & readonly details, string department) {
         self.details = details;
         self.department = department;
     }
@@ -61,7 +61,7 @@ type Customer object {
     readonly string name;
     int id;
 
-    function __init(string n, int i) {
+    function init(string n, int i) {
         self.name = n;
         self.id = i;
     }

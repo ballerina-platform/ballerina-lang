@@ -4,7 +4,7 @@ public type userPB object {
     public string name = "";
     public string address = "";
 
-    function __init () {}
+    function init () {}
 
     public function getName () returns (string) {
         return self.name;
