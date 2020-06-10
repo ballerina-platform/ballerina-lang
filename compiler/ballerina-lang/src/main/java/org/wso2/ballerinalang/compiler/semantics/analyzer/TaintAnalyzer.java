@@ -736,7 +736,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetryTransaction retryTransaction) {
-        //TODO Transactions
+        /* ignore */
     }
 
     @Override

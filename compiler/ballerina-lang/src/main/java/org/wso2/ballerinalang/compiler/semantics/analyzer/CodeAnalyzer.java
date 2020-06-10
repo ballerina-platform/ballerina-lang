@@ -533,7 +533,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransactionalExpr transactionalExpr) {
-        //TODO Transactions
+
     }
 
     @Override
