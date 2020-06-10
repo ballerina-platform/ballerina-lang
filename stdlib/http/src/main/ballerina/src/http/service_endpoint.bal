@@ -77,9 +77,6 @@ public type Listener object {
     # Gets invoked during module initialization to initialize the listener.
     #
     # + port - Listening port of the HTTP service listener
-    # + c - Configurations for HTTP service listener
-    # 
-    # Gets invoked during module initialization to initialize the endpoint.
     public function init(int port, public ListenerConfiguration? config = ()) {
         self.instanceId = system:uuid();
         self.config = config ?: {};

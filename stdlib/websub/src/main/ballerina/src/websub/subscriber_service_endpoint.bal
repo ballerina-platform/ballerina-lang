@@ -39,8 +39,6 @@ public type Listener object {
     #
     # + port - The port number of the remote service
     # + config - The configurations related to the `websub:Listener`
-    # 
-    # Gets called when the `websub:Listener` is being initialized during the module initialization.
     public function init(int port, SubscriberListenerConfiguration? config = ()) {
         self.config = config;
         http:ListenerConfiguration? serviceConfig = ();
