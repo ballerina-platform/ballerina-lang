@@ -440,7 +440,8 @@ public class ObjectTest {
     public void testSelfReferenceType() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_cyclic_self_reference.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "cyclic type reference in " + "'[Person, Employee, Foo, Bar]'", 32, 5);
+        BAssertUtil.validateError(result, 0, "invalid cyclic type reference in " + "'[Person, Employee, Foo, Bar]'",
+                32, 5);
     }
 
     @Test(description = "Negative test to test self reference types")

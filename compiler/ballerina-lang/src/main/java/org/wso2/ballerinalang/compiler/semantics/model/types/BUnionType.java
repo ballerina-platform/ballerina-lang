@@ -49,6 +49,9 @@ public class BUnionType extends BType implements UnionType {
     private LinkedHashSet<BType> memberTypes;
     private Optional<Boolean> isAnyData = Optional.empty();
     private Optional<Boolean> isPureType = Optional.empty();
+    public boolean resolvingToString = false;
+    public boolean resolvingPureData = false;
+    public boolean resolvingAnyData = false;
 
     protected BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly) {
         super(TypeTags.UNION, tsymbol);
@@ -92,30 +95,24 @@ public class BUnionType extends BType implements UnionType {
 
     @Override
     public String toString() {
-
+        if (this.resolvingToString) {
+            return this.tsymbol.name.value;
+        }
+        this.resolvingToString = true;
+        boolean hasNilType = false;
         StringJoiner joiner = new StringJoiner(getKind().typeName());
-
+        long count = 0L;
         for (BType bType : this.memberTypes) {
             if (bType.tag != TypeTags.NIL) {
                 joiner.add(bType.toString());
-            }
-        }
-
-        long count = 0L;
-        for (BType memberType : this.memberTypes) {
-            if (memberType.tag != TypeTags.NIL) {
                 count++;
-            }
-        }
-
-        String typeStr = count > 1 ? "(" + joiner.toString() + ")" : joiner.toString();
-        boolean hasNilType = false;
-        for (BType type : this.memberTypes) {
-            if (type.tag == TypeTags.NIL) {
+            } else if (!hasNilType) {
                 hasNilType = true;
-                break;
             }
         }
+        String typeStr = count > 1
+                ? "(" + joiner.toString() + ")" : joiner.toString();
+        this.resolvingToString = false;
         return (nullable && hasNilType) ? (typeStr + Names.QUESTION_MARK.value) : typeStr;
     }
 
@@ -263,14 +260,18 @@ public class BUnionType extends BType implements UnionType {
         if (this.isAnyData.isPresent()) {
             return this.isAnyData.get();
         }
-
+        if (this.resolvingAnyData) {
+            return true;
+        }
+        this.resolvingAnyData = true;
         for (BType memberType : this.memberTypes) {
             if (!memberType.isAnydata()) {
                 this.isAnyData = Optional.of(false);
+                this.resolvingAnyData = false;
                 return false;
             }
         }
-
+        this.resolvingAnyData = false;
         this.isAnyData = Optional.of(true);
         return true;
     }
@@ -281,13 +282,19 @@ public class BUnionType extends BType implements UnionType {
             return this.isPureType.get();
         }
 
+        if (this.resolvingPureData) {
+            return false;
+        }
+
+        this.resolvingPureData = true;
         for (BType memberType : this.memberTypes) {
             if (!memberType.isPureType()) {
                 this.isPureType = Optional.of(false);
+                this.resolvingPureData = false;
                 return false;
             }
         }
-
+        this.resolvingPureData = false;
         this.isPureType = Optional.of(true);
         return true;
     }
