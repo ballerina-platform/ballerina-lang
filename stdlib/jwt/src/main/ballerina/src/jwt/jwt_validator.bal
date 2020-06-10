@@ -398,7 +398,7 @@ function getJwk(string kid, JwksConfig jwksConfig) returns @tainted (json|Error)
             }
         }
     } else {
-        return prepareError(response.reason(), response);
+        return prepareError("JWK retrieval failed", response);
     }
 }
 
