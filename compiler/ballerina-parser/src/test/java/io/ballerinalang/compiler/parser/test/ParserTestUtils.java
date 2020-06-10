@@ -30,8 +30,8 @@ import io.ballerinalang.compiler.internal.parser.tree.STDocumentationLineToken;
 import io.ballerinalang.compiler.internal.parser.tree.STIdentifierToken;
 import io.ballerinalang.compiler.internal.parser.tree.STLiteralValueToken;
 import io.ballerinalang.compiler.internal.parser.tree.STMinutiae;
-import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STSimpleNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.STXMLTextNode;
@@ -50,9 +50,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 
 import static io.ballerinalang.compiler.internal.syntax.SyntaxUtils.isSTNodePresent;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.CHILDREN_FIELD;
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.DIAGNOSTICS_FIELD;
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.HAS_DIAGNOSTICS;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.IS_MISSING_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.KIND_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.LEADING_MINUTIAE;
@@ -169,16 +172,9 @@ public class ParserTestUtils {
             node = ((STXMLTextNode) node).content;
         }
 
-        aseertNodeKind(json, node);
-
-        if (isMissingToken(json)) {
-            Assert.assertTrue(node instanceof STMissingToken,
-                    "'" + node.toString().trim() + "' expected to be a STMissingToken, but found '" + node.kind + "'.");
-            return;
-        }
-
-        // If the expected token is not a missing node, then validate it's content
-        Assert.assertFalse(node instanceof STMissingToken, "Expected:" + json + ", but found: " + node);
+        assertNodeKind(json, node);
+        assertMissingToken(json, node);
+        assertDiagnostics(json, node);
         if (isTerminalNode(node.kind)) {
             assertTerminalNode(json, node);
         } else {
@@ -186,18 +182,63 @@ public class ParserTestUtils {
         }
     }
 
-    private static boolean isMissingToken(JsonObject json) {
-        JsonElement isMissing = json.get(IS_MISSING_FIELD);
-        return isMissing != null && isMissing.getAsBoolean();
+    private static void assertMissingToken(JsonObject json, STNode node) {
+        JsonElement isMissingField = json.get(IS_MISSING_FIELD);
+        boolean expectedMissing = isMissingField != null && isMissingField.getAsBoolean();
+        boolean actualMissing = node.isMissing();
+        if (expectedMissing) {
+            Assert.assertTrue(actualMissing, "'" + node.toString().trim() +
+                    "' expected to be a STMissingToken, but found '" +
+                    node.kind + "'.");
+        } else {
+            Assert.assertFalse(actualMissing, "Expected:" + json + ", but found " + node);
+        }
     }
 
-    private static void aseertNodeKind(JsonObject json, STNode node) {
+    private static void assertDiagnostics(JsonObject json, STNode node) {
+        JsonElement hasDiagnosticsField = json.get(HAS_DIAGNOSTICS);
+        boolean expectedHasDiagnostics = hasDiagnosticsField != null && hasDiagnosticsField.getAsBoolean();
+        boolean actualHasDiagnostics = node.hasDiagnostics();
+        if (expectedHasDiagnostics) {
+            Assert.assertTrue(actualHasDiagnostics, "expected to have diagnostics in node '" + node + "'");
+        } else {
+            Assert.assertFalse(actualHasDiagnostics, "unexpected diagnostics in node '" + node + "'");
+            // Return if there are no diagnostics in the node and no expected diagnostics
+            return;
+        }
+
+        Collection<STNodeDiagnostic> actualDiagnostics = node.diagnostics();
+        int actualSize = actualDiagnostics.size();
+        JsonArray diagnosticJsonArray = json.getAsJsonArray(DIAGNOSTICS_FIELD);
+        if (diagnosticJsonArray == null) {
+            Assert.assertEquals(actualSize, 0, "diagnostic count mismatch in '" + node + "'");
+            return;
+        }
+
+        int expectedSize = diagnosticJsonArray.size();
+        Assert.assertEquals(actualSize, expectedSize, "diagnostic count mismatch in '" + node + "'");
+
+        int index = 0;
+        for (STNodeDiagnostic actualDiagnostic : actualDiagnostics) {
+            String actualDiagnosticId = actualDiagnostic.diagnosticCode().toString();
+            String expectedDiagnosticId = diagnosticJsonArray.get(index++).getAsString();
+            Assert.assertEquals(actualDiagnosticId, expectedDiagnosticId,
+                    "mismatch in diagnostics in node '" + node + "'");
+        }
+    }
+
+    private static void assertNodeKind(JsonObject json, STNode node) {
         SyntaxKind expectedNodeKind = getNodeKind(json.get(KIND_FIELD).getAsString());
         SyntaxKind actualNodeKind = node.kind;
         Assert.assertEquals(actualNodeKind, expectedNodeKind, "error at node [" + node.toString() + "].");
     }
 
     private static void assertTerminalNode(JsonObject json, STNode node) {
+        // We've asserted the missing property earlier
+        if (node.isMissing()) {
+            return;
+        }
+
         // If this is a terminal node, it has to be a STToken (i.e: lexeme)
         if (isTrivia(node.kind)) {
             Assert.assertTrue(node instanceof STMinutiae);
@@ -229,6 +270,14 @@ public class ParserTestUtils {
     }
 
     private static void assertNonTerminalNode(JsonObject json, String keyInJson, STNode tree) {
+        // TODO This is an error in the syntax tree structure
+        // Here we get a MissingToken, but we should get a non-terminal node instead.
+        // This case is reported in this issue, https://github.com/ballerina-platform/ballerina-lang/issues/23902
+        // TODO Remove the following if condition once the above issue is fixed.
+        if (tree.isMissing()) {
+            return;
+        }
+
         JsonArray children = json.getAsJsonArray(keyInJson);
         int size = children.size();
         int j = 0;
