@@ -744,8 +744,8 @@ public class Desugar extends BLangNodeVisitor {
             // skip if the field is already have an value set by the constructor.
             if (!initFuncStmts.containsKey(field.symbol) && field.expr != null) {
                 initFuncStmts.put(field.symbol,
-                                  createStructFieldUpdateOnInit(objectTypeNode.generatedInitFunction, field,
-                                                                objectTypeNode.generatedInitFunction.receiver.symbol));
+                                  createStructFieldUpdate(objectTypeNode.generatedInitFunction, field,
+                                                          objectTypeNode.generatedInitFunction.receiver.symbol));
             }
         }
 
@@ -822,8 +822,8 @@ public class Desugar extends BLangNodeVisitor {
             if (!recordTypeNode.initFunction.initFunctionStmts.containsKey(field.symbol) &&
                     !Symbols.isOptional(field.symbol) && field.expr != null) {
                 recordTypeNode.initFunction.initFunctionStmts
-                        .put(field.symbol, createStructFieldUpdateOnInit(recordTypeNode.initFunction, field,
-                                                                         recordTypeNode.initFunction.receiver.symbol));
+                        .put(field.symbol, createStructFieldUpdate(recordTypeNode.initFunction, field,
+                                                                   recordTypeNode.initFunction.receiver.symbol));
             }
         }
 

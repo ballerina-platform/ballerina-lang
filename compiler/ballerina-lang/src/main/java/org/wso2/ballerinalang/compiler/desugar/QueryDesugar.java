@@ -1100,9 +1100,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         fieldAccessExpr.expr.accept(this);
-        if (fieldAccessExpr.impConversionExpr != null) {
-            fieldAccessExpr.impConversionExpr.accept(this);
-        }
     }
 
     @Override
