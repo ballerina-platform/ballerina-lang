@@ -215,6 +215,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         entries.clear();
         keys.clear();
         values.clear();
+        keyToIndexMap.clear();
+        indexToKeyMap.clear();
+        noOfAddedEntries = 0;
     }
 
     @Override
@@ -337,20 +340,25 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         @Override
         public Object next() {
             Long hash = indexToKeyMap.get(cursor);
-            Map.Entry<K, V> next = (Map.Entry<K, V>) entries.get(hash);
-            V value = next.getValue();
-            K key = next.getKey();
+            if (hash != null) {
+                Map.Entry<K, V> next = (Map.Entry<K, V>) entries.get(hash);
+                V value = next.getValue();
+                K key = next.getKey();
 
-            List<BType> types = new ArrayList<>();
-            types.add(TypeChecker.getType(key));
-            types.add(TypeChecker.getType(value));
-            BTupleType tupleType = new BTupleType(types);
+                List<BType> types = new ArrayList<>();
+                types.add(TypeChecker.getType(key));
+                types.add(TypeChecker.getType(value));
+                BTupleType tupleType = new BTupleType(types);
 
-            TupleValueImpl tuple = new TupleValueImpl(tupleType);
-            tuple.add(0, key);
-            tuple.add(1, value);
-            cursor++;
-            return tuple;
+                TupleValueImpl tuple = new TupleValueImpl(tupleType);
+                tuple.add(0, key);
+                tuple.add(1, value);
+                cursor++;
+                return tuple;
+            } else {
+                cursor++;
+                return next();
+            }
         }
 
         @Override
@@ -464,7 +472,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             Long hash = TableUtils.hash(key, null);
             entries.remove(hash);
             keys.remove(hash);
-            indexToKeyMap.remove(keyToIndexMap.remove(hash));
+            Long index = keyToIndexMap.remove(hash);
+            indexToKeyMap.remove(index);
+            if (index != null && index == noOfAddedEntries - 1) {
+                noOfAddedEntries--;
+            }
             return values.remove(hash);
         }
 
