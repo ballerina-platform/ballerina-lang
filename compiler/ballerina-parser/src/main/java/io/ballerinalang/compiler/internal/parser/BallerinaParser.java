@@ -727,7 +727,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek(lookahead + 1);
         switch (nextToken.kind) {
             case EQUAL_TOKEN: // Scenario: foo = . Even though this is not valid, consider this as a var-decl and
-                              // continue;
+                // continue;
             case OPEN_BRACKET_TOKEN: // Scenario foo[] (Array type descriptor with custom type)
             case QUESTION_MARK_TOKEN: // Scenario foo? (Optional type descriptor with custom type)
             case PIPE_TOKEN: // Scenario foo | (Union type descriptor with custom type)
@@ -11225,7 +11225,6 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseByteArrayLiteral(SyntaxKind kind) {
         STNode type;
-
         if (kind == SyntaxKind.BASE16_KEYWORD) {
             type = parseBase16Keyword();
         } else {
@@ -11234,8 +11233,55 @@ public class BallerinaParser extends AbstractParser {
 
         STNode startingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
         STNode content = parseByteArrayContent(kind);
+        return parseByteArrayLiteral(kind, type, startingBackTick, content);
+    }
+
+    /**
+     * Parse byte array literal.
+     *
+     * @param baseKind         indicates the SyntaxKind base16 or base64
+     * @param typeKeyword      keyword token, possible values are `base16` and `base64`
+     * @param startingBackTick starting backtick token
+     * @param byteArrayContent byte array literal content to be validated
+     * @return parsed byte array literal node
+     */
+    private STNode parseByteArrayLiteral(SyntaxKind baseKind,
+                                         STNode typeKeyword,
+                                         STNode startingBackTick,
+                                         STNode byteArrayContent) {
+        STNode content = STNodeFactory.createEmptyNode();
+        STNode newStartingBackTick = startingBackTick;
+
+        STNodeList items = (STNodeList) byteArrayContent;
+        if (items.size() == 1) {
+            content = items.get(0);
+            if (baseKind == SyntaxKind.BASE16_KEYWORD &&
+                    !BallerinaLexer.isValidBase16LiteralContent(content.toString())) {
+                newStartingBackTick = errorHandler.cloneWithTrailingInvalidNodeMinutiae(startingBackTick, content,
+                        DiagnosticErrorCode.ERROR_INVALID_BASE16_CONTENT_IN_BYTE_ARRAY_LITERAL);
+            } else if (baseKind == SyntaxKind.BASE64_KEYWORD &&
+                    !BallerinaLexer.isValidBase64LiteralContent(content.toString())) {
+                newStartingBackTick = errorHandler.cloneWithTrailingInvalidNodeMinutiae(startingBackTick, content,
+                        DiagnosticErrorCode.ERROR_INVALID_BASE64_CONTENT_IN_BYTE_ARRAY_LITERAL);
+            } else if (content.kind != SyntaxKind.TEMPLATE_STRING) {
+                newStartingBackTick = errorHandler.cloneWithTrailingInvalidNodeMinutiae(startingBackTick, content,
+                        DiagnosticErrorCode.ERROR_INVALID_CONTENT_IN_BYTE_ARRAY_LITERAL);
+            }
+        } else if (items.size() > 1) {
+            // In this iteration, I am marking all the items as invalid
+            STNode clonedStartingBackTick = startingBackTick;
+            for (int index = 0; index < items.size(); index++) {
+                STNode item = items.get(index);
+                clonedStartingBackTick = errorHandler.cloneWithTrailingInvalidNodeMinutiae(
+                        clonedStartingBackTick, item);
+            }
+            newStartingBackTick = errorHandler.addDiagnostics(clonedStartingBackTick,
+                    DiagnosticErrorCode.ERROR_INVALID_CONTENT_IN_BYTE_ARRAY_LITERAL);
+        }
+
         STNode endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_END);
-        return STNodeFactory.createByteArrayLiteralNode(type, startingBackTick, content, endingBackTick);
+        return STNodeFactory.createByteArrayLiteralNode(typeKeyword, newStartingBackTick,
+                content, endingBackTick);
     }
 
     /**
@@ -11276,30 +11322,16 @@ public class BallerinaParser extends AbstractParser {
      * @return parsed node
      */
     private STNode parseByteArrayContent(SyntaxKind kind) {
-        STNode content = STNodeFactory.createEmptyNode();
         STToken nextToken = peek();
 
         List<STNode> items = new ArrayList<>();
         while (!isEndOfBacktickContent(nextToken.kind)) {
-            content = parseTemplateItem();
+            STNode content = parseTemplateItem();
             items.add(content);
             nextToken = peek();
         }
 
-        if (items.size() > 1) {
-            this.errorHandler.reportInvalidNode(null, "invalid content within backticks");
-        } else if (items.size() == 1 && content.kind != SyntaxKind.TEMPLATE_STRING) {
-            this.errorHandler.reportInvalidNode(null, "invalid content within backticks");
-        } else if (items.size() == 1) {
-            if (kind == SyntaxKind.BASE16_KEYWORD && !BallerinaLexer.isValidBase16LiteralContent(content.toString())) {
-                this.errorHandler.reportInvalidNode(null, "invalid content within backticks");
-            } else if (kind == SyntaxKind.BASE64_KEYWORD &&
-                    !BallerinaLexer.isValidBase64LiteralContent(content.toString())) {
-                this.errorHandler.reportInvalidNode(null, "invalid content within backticks");
-            }
-        }
-
-        return content;
+        return STNodeFactory.createNodeList(items);
     }
 
     /**
@@ -11566,7 +11598,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse match statement.
      * <p>
      * <code>match-stmt := match action-or-expr { match-clause+ }</code>
-     * 
+     *
      * @return Match statement
      */
     private STNode parseMatchStatement() {
@@ -11599,7 +11631,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse match clauses list.
-     * 
+     *
      * @return Match clauses list
      */
     private STNode parseMatchClauses() {
@@ -11629,7 +11661,7 @@ public class BallerinaParser extends AbstractParser {
      * <br/>
      * match-guard := if expression
      * </code>
-     * 
+     *
      * @return A match clause
      */
     private STNode parseMatchClause() {
@@ -11644,7 +11676,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse match guard.
      * <p>
      * <code>match-guard := if expression</code>
-     * 
+     *
      * @return Match guard
      */
     private STNode parseMatchGuard() {
@@ -11678,7 +11710,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse match patterns list.
      * <p>
      * <code>match-pattern-list := match-pattern (| match-pattern)*</code>
-     * 
+     *
      * @return Match patterns list
      */
     private STNode parseMatchPatternList() {
@@ -11724,7 +11756,7 @@ public class BallerinaParser extends AbstractParser {
      *                  | mapping-match-pattern
      *                  | functional-match-pattern
      * </code>
-     * 
+     *
      * @return Match pattern
      */
     private STNode parseMatchPattern() {
@@ -11857,7 +11889,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse the component after the ambiguous starting node. Ambiguous node could be either an expr
      * or a type-desc. The component followed by this ambiguous node could be the binding-pattern or
      * the expression-rhs.
-     * 
+     *
      * @param typeOrExpr Type desc or the expression
      * @param allowAssignment Flag indicating whether to allow assignment. i.e.: whether this is a
      *            valid lvalue expression
@@ -11975,7 +12007,7 @@ public class BallerinaParser extends AbstractParser {
      * 2) (T) - Parenthesized type-desc
      * 3) (expr) - Parenthesized expression
      * 4) (param, param, ..) - Anon function params
-     * 
+     *
      * @return Type-desc or expression node
      */
     private STNode parseTypedDescOrExprStartsWithOpenParenthesis() {
@@ -12006,7 +12038,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse type-desc or expression. This method does not handle binding patterns.
-     * 
+     *
      * @return Type-desc node or expression node
      */
     private STNode parseTypeDescOrExpr() {
@@ -12052,7 +12084,7 @@ public class BallerinaParser extends AbstractParser {
      * 1) Nil literal
      * 2) Nil type-desc
      * 3) Anon-function params
-     * 
+     *
      * @param openParen Open parenthesis
      * @param closeParen Close parenthesis
      * @return Parsed node
@@ -12082,7 +12114,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse anon-func-expr or function-type-desc, by resolving the ambiguity.
-     * 
+     *
      * @return Anon-func-expr or function-type-desc
      */
     private STNode parseAnonFuncExprOrFuncTypeDesc() {
