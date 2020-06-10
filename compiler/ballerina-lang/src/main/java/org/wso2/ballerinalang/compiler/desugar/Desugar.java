@@ -333,7 +333,6 @@ public class Desugar extends BLangNodeVisitor {
     private BLangMatchTypedBindingPatternClause successPattern;
     private BLangAssignment safeNavigationAssignment;
     static boolean isJvmTarget = false;
-    static CompilerContext context;
 
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
@@ -347,23 +346,22 @@ public class Desugar extends BLangNodeVisitor {
     private Desugar(CompilerContext context) {
         // This is a temporary flag to differentiate desugaring to BVM vs BIR
         // TODO: remove this once bootstraping is added.
-        this.context = context;
         isJvmTarget = true;
 
-        this.context.put(DESUGAR_KEY, this);
-        this.symTable = SymbolTable.getInstance(this.context);
-        this.symResolver = SymbolResolver.getInstance(this.context);
-        this.symbolEnter = SymbolEnter.getInstance(this.context);
-        this.closureDesugar = ClosureDesugar.getInstance(this.context);
-        this.queryDesugar = QueryDesugar.getInstance(this.context);
-        this.transactionDesugar = TransactionDesugar.getInstance(this.context);
-        this.annotationDesugar = AnnotationDesugar.getInstance(this.context);
-        this.types = Types.getInstance(this.context);
-        this.names = Names.getInstance(this.context);
-        this.names = Names.getInstance(this.context);
-        this.serviceDesugar = ServiceDesugar.getInstance(this.context);
-        this.nodeCloner = NodeCloner.getInstance(this.context);
-        this.semanticAnalyzer = SemanticAnalyzer.getInstance(this.context);
+        context.put(DESUGAR_KEY, this);
+        this.symTable = SymbolTable.getInstance(context);
+        this.symResolver = SymbolResolver.getInstance(context);
+        this.symbolEnter = SymbolEnter.getInstance(context);
+        this.closureDesugar = ClosureDesugar.getInstance(context);
+        this.queryDesugar = QueryDesugar.getInstance(context);
+        this.transactionDesugar = TransactionDesugar.getInstance(context);
+        this.annotationDesugar = AnnotationDesugar.getInstance(context);
+        this.types = Types.getInstance(context);
+        this.names = Names.getInstance(context);
+        this.names = Names.getInstance(context);
+        this.serviceDesugar = ServiceDesugar.getInstance(context);
+        this.nodeCloner = NodeCloner.getInstance(context);
+        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
