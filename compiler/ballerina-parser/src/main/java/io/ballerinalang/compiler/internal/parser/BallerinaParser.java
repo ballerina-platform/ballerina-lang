@@ -129,10 +129,6 @@ public class BallerinaParser extends AbstractParser {
     @Override
     public STNode resumeParsing(ParserRuleContext context, Object... args) {
         switch (context) {
-            case COMP_UNIT:
-                return parseCompUnit();
-            case EXTERNAL_FUNC_BODY:
-                return parseExternalFunctionBody();
             case FUNC_BODY:
                 return parseFunctionBody((boolean) args[0]);
             case OPEN_BRACE:
@@ -183,11 +179,13 @@ public class BallerinaParser extends AbstractParser {
             case TOP_LEVEL_NODE_WITHOUT_MODIFIER:
                 return parseTopLevelNode((STNode) args[0], (STNode) args[1]);
             case TYPE_NAME_OR_VAR_NAME:
-                return parseStatementStartIdentifier();
+            case RECORD_FIELD_NAME_OR_TYPE_NAME:
+            case TYPE_REFERENCE:
+            case ANNOT_REFERENCE:
+            case FIELD_ACCESS_IDENTIFIER:
+                return parseQualifiedIdentifier(context);
             case VAR_DECL_STMT_RHS:
                 return parseVarDeclRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (boolean) args[3]);
-            case TYPE_REFERENCE:
-                return parseTypeReference();
             case FIELD_DESCRIPTOR_RHS:
                 return parseFieldDescriptorRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (STNode) args[2]);
             case RECORD_BODY_START:
@@ -219,8 +217,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseWhileKeyword();
             case PANIC_KEYWORD:
                 return parsePanicKeyword();
-            case MAJOR_VERSION:
-                return parseMajorVersion();
             case IMPORT_DECL_RHS:
                 return parseImportDecl((STNode) args[0], (STNode) args[1]);
             case IMPORT_PREFIX:
@@ -230,6 +226,10 @@ public class BallerinaParser extends AbstractParser {
             case VARIABLE_REF:
             case SERVICE_NAME:
             case IMPLICIT_ANON_FUNC_PARAM:
+            case MAPPING_FIELD_NAME:
+            case RECEIVE_FIELD_NAME:
+            case MODULE_ENUM_NAME:
+            case ENUM_MEMBER_NAME:
                 return parseIdentifier(context);
             case IMPORT_KEYWORD:
                 return parseImportKeyword();
@@ -244,6 +244,9 @@ public class BallerinaParser extends AbstractParser {
             case VERSION_NUMBER:
                 return parseVersionNumber();
             case DECIMAL_INTEGER_LITERAL:
+            case MAJOR_VERSION:
+            case MINOR_VERSION:
+            case PATCH_VERSION:
                 return parseDecimalIntLiteral(context);
             case IMPORT_SUB_VERSION:
                 return parseSubVersion(context);
@@ -280,20 +283,14 @@ public class BallerinaParser extends AbstractParser {
                 return parseResourceKeyword();
             case LISTENER_KEYWORD:
                 return parseListenerKeyword();
-            case NIL_TYPE_DESCRIPTOR:
+            case NIL_TYPE_DESCRIPTOR://TODO: following method is only referred in resume parsing
                 return parseNilTypeDescriptor();
-            case COMPOUND_ASSIGNMENT_STMT:
+            case COMPOUND_ASSIGNMENT_STMT://TODO: following method is only referred in resume parsing
                 return parseCompoundAssignmentStmt();
             case TYPEOF_KEYWORD:
                 return parseTypeofKeyword();
-            case ARRAY_TYPE_DESCRIPTOR:
-                return parseArrayTypeDescriptor((STNode) args[0]);
             case ARRAY_LENGTH:
                 return parseArrayLength();
-            case FUNC_DEF_OR_FUNC_TYPE:
-            case REQUIRED_PARAM:
-            case ANNOT_REFERENCE:
-                return parseIdentifier(context);
             case IS_KEYWORD:
                 return parseIsKeyword();
             case STMT_START_WITH_EXPR_RHS:
@@ -308,8 +305,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseLTToken();
             case GT:
                 return parseGTToken();
-            case NIL_LITERAL:
-                return parseNilLiteral();
             case RECORD_FIELD_OR_RECORD_END:
                 return parseFieldOrRestDescriptor((boolean) args[0]);
             case ANNOTATION_KEYWORD:
@@ -347,10 +342,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseWorkerName();
             case FORK_KEYWORD:
                 return parseForkKeyword();
-            case DECIMAL_FLOATING_POINT_LITERAL:
-                return parseDecimalFloatingPointLiteral();
-            case HEX_FLOATING_POINT_LITERAL:
-                return parseHexFloatingPointLiteral();
             case TRAP_KEYWORD:
                 return parseTrapKeyword();
             case IN_KEYWORD:
@@ -379,16 +370,10 @@ public class BallerinaParser extends AbstractParser {
             case FUNCTION_KEYWORD_RHS:
                 return parseFunctionKeywordRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (boolean) args[3],
                         (boolean) args[3]);
-            case FUNC_OPTIONAL_RETURNS:
-                return parseFuncReturnTypeDescriptor();
             case RETURNS_KEYWORD:
                 return parseReturnsKeyword();
-            case NEW_KEYWORD_RHS:
-                return parseNewKeywordRhs((STNode) args[0]);
             case NEW_KEYWORD:
                 return parseNewKeyword();
-            case IMPLICIT_NEW:
-                return parseImplicitNewRhs((STNode) args[0]);
             case FROM_KEYWORD:
                 return parseFromKeyword();
             case WHERE_KEYWORD:
@@ -422,7 +407,6 @@ public class BallerinaParser extends AbstractParser {
             case MAPPING_BINDING_PATTERN_END:
                 return parseMappingBindingpatternEnd();
             case FIELD_BINDING_PATTERN_NAME:
-            case FIELD_BINDING_PATTERN:
                 return parseFieldBindingPattern();
             case CONSTANT_EXPRESSION_START:
                 return parseSimpleConstExprInternal();
@@ -434,7 +418,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseImplicitAnonFuncParamEnd();
             case CAPTURE_BINDING_PATTERN:
                 return parseCaptureOrWildcardBindingPattern();
-            case LIST_BINDING_PATTERN:
+            case LIST_BINDING_PATTERN://should be removed check deep
                 return parseListBindingPattern();
             case BINDING_PATTERN:
                 return parseBindingPattern();
@@ -456,8 +440,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseWaitFieldEnd();
             case ANNOT_CHAINING_TOKEN:
                 return parseAnnotChainingToken();
-            case FIELD_ACCESS_IDENTIFIER:
-                return parseFieldAccessIdentifier();
             case DO_KEYWORD:
                 return parseDoKeyword();
             case MEMBER_ACCESS_KEY_EXPR_END:
@@ -480,8 +462,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseRetryBody();
             case ENUM_MEMBER_END:
                 return parseEnumMemberEnd();
-            case ENUM_MEMBER_NAME:
-                return parseEnumMember();
             case BRACKETED_LIST_MEMBER_END:
                 return parseBracketedListMemberEnd();
             case STMT_START_BRACKETED_LIST_MEMBER:
@@ -891,12 +871,8 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseDotToken() {
-        STToken nextToken = peek();
-        return parseDotToken(nextToken.kind);
-    }
-
-    private STNode parseDotToken(SyntaxKind tokenKind) {
-        if (tokenKind == SyntaxKind.DOT_TOKEN) {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.DOT_TOKEN) {
             return consume();
         } else {
             Solution sol = recover(peek(), ParserRuleContext.DOT);
@@ -6546,7 +6522,6 @@ public class BallerinaParser extends AbstractParser {
         STNode openParenthesisToken = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
         STNode closeParenthesisToken = parseCloseParenthesis();
         endContext();
-
         return STNodeFactory.createNilTypeDescriptorNode(openParenthesisToken, closeParenthesisToken);
     }
 
@@ -8190,36 +8165,6 @@ public class BallerinaParser extends AbstractParser {
         STNode closeBrace = parseCloseBrace();
         endContext();
         return STNodeFactory.createForkStatementNode(forkKeyword, openBrace, namedWorkerDeclarations, closeBrace);
-    }
-
-    /**
-     * Parse decimal floating point literal.
-     *
-     * @return Parsed node
-     */
-    private STNode parseDecimalFloatingPointLiteral() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL) {
-            return consume();
-        } else {
-            Solution sol = recover(token, ParserRuleContext.DECIMAL_FLOATING_POINT_LITERAL);
-            return sol.recoveredNode;
-        }
-    }
-
-    /**
-     * Parse hex floating point literal.
-     *
-     * @return Parsed node
-     */
-    private STNode parseHexFloatingPointLiteral() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.HEX_FLOATING_POINT_LITERAL) {
-            return consume();
-        } else {
-            Solution sol = recover(token, ParserRuleContext.HEX_FLOATING_POINT_LITERAL);
-            return sol.recoveredNode;
-        }
     }
 
     /**
