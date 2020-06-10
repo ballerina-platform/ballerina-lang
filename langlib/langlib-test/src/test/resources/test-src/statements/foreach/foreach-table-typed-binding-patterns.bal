@@ -71,3 +71,16 @@ function testEmptyTableIteration() returns string {
     }
     return output;
 }
+
+function testIterationOverKeylessTable() returns boolean {
+    table<Employee> data = table [
+            { id: 1, name: "Mary", salary: 300.5 },
+            { id: 2, name: "John", salary: 200.5 },
+            { id: 3, name: "Jim", salary: 330.5 }
+        ];
+    Employee[] ar = [];
+    foreach var v in data {
+        ar.push(v);
+    }
+   return ar.length() == 3 && ar[0].name == "Mary" && ar[1].name == "John" && ar[2].name == "Jim";
+}
