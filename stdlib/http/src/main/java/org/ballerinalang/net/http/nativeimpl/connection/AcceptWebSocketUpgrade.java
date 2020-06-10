@@ -17,6 +17,7 @@
 package org.ballerinalang.net.http.nativeimpl.connection;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -53,9 +54,8 @@ public class AcceptWebSocketUpgrade {
                     .getNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER);
 
             if (webSocketHandshaker == null || webSocketService == null || connectionManager == null) {
-                callback.notifyFailure(new WebSocketException(WebSocketConstants.ErrorCode.WsInvalidHandshakeError,
-                                                              "Not a WebSocket upgrade request. Cannot upgrade from " +
-                                                                      "HTTP to WS"));
+                WebSocketUtil.setNotifyFailure("Not a WebSocket upgrade request. Cannot cancel the request",
+                        callback);
                 return null;
             }
 
@@ -114,9 +114,7 @@ public class AcceptWebSocketUpgrade {
         public void onError(Throwable throwable) {
             String msg = "WebSocket handshake failed: ";
             log.error(msg, throwable);
-            callback.notifyFailure(
-                    new WebSocketException(WebSocketConstants.ErrorCode.WsInvalidHandshakeError,
-                                           msg + throwable.getMessage()));
+            WebSocketUtil.setNotifyFailure(throwable.getMessage(), callback);
         }
     }
 }

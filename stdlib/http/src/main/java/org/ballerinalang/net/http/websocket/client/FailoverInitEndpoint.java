@@ -105,7 +105,8 @@ public class FailoverInitEndpoint {
             }
         }
         if (newTargetUrls.isEmpty()) {
-            throw new WebSocketException("TargetUrls should have at least one valid URL.");
+            throw WebSocketUtil.getWebSocketException("TargetUrls should have at least one valid URL.",
+                    null, WebSocketConstants.ErrorCode.WsGenericError.errorCode(), null);
         }
         if (logger.isDebugEnabled()) {
             logger.debug("New targetUrls: {}", newTargetUrls);

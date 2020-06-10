@@ -27,6 +27,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -61,6 +62,9 @@ public class ClientInitializationFailureTest extends WebSocketTestCommons {
 
         Assert.assertNotNull(closeWebSocketFrame);
         Assert.assertEquals(closeWebSocketFrame.statusCode(), 1011);
+        PrintStream asd = System.out;
+        asd.println("######################");
+        asd.println(closeWebSocketFrame.reasonText());
         Assert.assertTrue(
                 closeWebSocketFrame.reasonText().contains("Invalid handshake response getStatus: 404 Not Found"));
 

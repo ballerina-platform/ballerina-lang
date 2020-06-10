@@ -17,6 +17,7 @@
 package org.ballerinalang.net.http.actions.websocketconnector;
 
 import io.netty.channel.ChannelFuture;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -86,8 +87,7 @@ public class Close {
         return closeFuture.addListener(future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
-                callback.setReturnValues(
-                        new WebSocketException(ErrorCode.WsConnectionClosureError, cause.getMessage()));
+                setReturnValues(cause.getMessage(), callback);
                 WebSocketObservabilityUtil.observeError(connectionInfo,
                                                         WebSocketObservabilityConstants.ERROR_TYPE_CLOSE,
                                                         cause.getMessage());
@@ -109,18 +109,25 @@ public class Close {
                     String errMsg = String.format(
                             "Could not receive a WebSocket close frame from remote endpoint within %d seconds",
                             timeoutInSecs);
-                    callback.setReturnValues(new WebSocketException(ErrorCode.WsConnectionClosureError, errMsg));
+                    setReturnValues(errMsg, callback);
                     WebSocketObservabilityUtil.observeError(connectionInfo,
                                                             WebSocketObservabilityConstants.ERROR_TYPE_CLOSE, errMsg);
                 }
             }
         } catch (InterruptedException err) {
             String errMsg = "Connection interrupted while closing the connection";
-            callback.setReturnValues(new WebSocketException(ErrorCode.WsConnectionClosureError, errMsg));
+            setReturnValues(errMsg, callback);
             WebSocketObservabilityUtil.observeError(connectionInfo,
                                                     WebSocketObservabilityConstants.ERROR_TYPE_CLOSE, errMsg);
             Thread.currentThread().interrupt();
         }
+    }
+
+    private static void setReturnValues(String errMsg, NonBlockingCallback callback) {
+        String errorCode = ErrorCode.WsConnectionClosureError.errorCode();
+        WebSocketException exception = new WebSocketException(errorCode.substring(2) + errMsg);
+        BallerinaErrors.setTypeId(errorCode, WebSocketConstants.PROTOCOL_HTTP_PKG_ID, exception);
+        callback.setReturnValues(exception);
     }
 
     private Close() {

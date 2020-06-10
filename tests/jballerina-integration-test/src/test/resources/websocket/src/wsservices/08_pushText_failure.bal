@@ -23,7 +23,7 @@ service pushTextFailure on new http:Listener(21008) {
         var err = caller->pushText("hey");
         if (err is http:WebSocketError) {
             error e = err;
-            io:println(e.detail()["message"]);
+            io:println(e.message());
         }
     }
 }
