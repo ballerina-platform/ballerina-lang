@@ -476,9 +476,6 @@
               "kind": "CLOSE_BRACE_TOKEN"
             }
           ]
-        },
-        {
-          "kind": "EOF_TOKEN"
         }
       ]
     },
