@@ -57,7 +57,7 @@ service continueBackend on new http:Listener(9241) {
             }
         } else {
             res.statusCode = 500;
-            res.setPayload(<@untainted> <string> payload.detail()?.message);
+            res.setPayload(<@untainted> payload.message());
             var result = caller->respond(res);
             if (result is error) {
                 log:printError("Error sending response", err = result);

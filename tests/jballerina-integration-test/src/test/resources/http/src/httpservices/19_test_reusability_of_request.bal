@@ -41,12 +41,10 @@ service testService_1 on testEP {
             if (result is string) {
                 firstVal = result;
             } else {
-                error err = result;
-                firstVal = err.reason();
+                firstVal = result.message();
             }
         } else  {
-            error err = firstResponse;
-            firstVal = err.reason();
+            firstVal = firstResponse.message();
         }
 
         var secondResponse = clientEP1 -> get("", clientReq);
@@ -55,12 +53,10 @@ service testService_1 on testEP {
             if (result is string) {
                 secondVal = result;
             } else {
-                error err = result;
-                secondVal = err.reason();
+                secondVal = result.message();
             }
         } else {
-            error err = secondResponse;
-            secondVal = err.reason();
+            secondVal = secondResponse.message();
         }
         http:Response testResponse = new;
         testResponse.setPayload(firstVal + secondVal);
@@ -85,12 +81,10 @@ service testService_1 on testEP {
             if (result is string) {
                 firstVal = result;
             } else {
-                error err = result;
-                firstVal = err.reason();
+                firstVal = result.message();
             }
         } else {
-            error err = firstResponse;
-            firstVal = err.reason();
+            firstVal = firstResponse.message();
         }
 
         var secondResponse = clientEP1 -> get("", clientReq);
@@ -99,12 +93,10 @@ service testService_1 on testEP {
             if (result is string) {
                 secondVal = result;
             } else {
-                error err = result;
-                secondVal = err.reason();
+                secondVal = result.message();
             }
         } else {
-            error err = secondResponse;
-            secondVal = err.reason();
+            secondVal = secondResponse.message();
         }
         http:Response testResponse = new;
         testResponse.setPayload(firstVal + secondVal);
@@ -135,28 +127,23 @@ service testService_1 on testEP {
                     if (result1 is string) {
                         firstVal = result1;
                     } else {
-                        error err = result1;
-                        firstVal = err.reason();
+                        firstVal = result1.message();
                     }
 
                     var result2 = <@untainted> secondResponse.getTextPayload();
                     if (result2 is string) {
                         secondVal = result2;
                     } else {
-                        error err = result2;
-                        secondVal = err.reason();
+                        secondVal = result2.message();
                     }
                 } else {
-                    error err = secondResponse;
-                    log:printError(err.reason(), err);
+                    log:printError(secondResponse.message(), secondResponse);
                 }
             } else {
-                error err = firstResponse;
-                log:printError(err.reason(), err);
+                log:printError(firstResponse.message(), firstResponse);
             }
         } else {
-            error err = entity;
-            log:printError(err.reason(), err);
+            log:printError(entity.message(), entity);
         }
         testResponse.setTextPayload(firstVal + secondVal);
         checkpanic caller->respond(testResponse);
@@ -178,12 +165,10 @@ service testService_1 on testEP {
             if (result is string) {
                 firstVal = result;
             } else {
-                error err = result;
-                firstVal = err.reason();
+                firstVal = result.message();
             }
         } else {
-            error err = firstResponse;
-            firstVal = err.reason();
+            firstVal = firstResponse.message();
         }
 
         var secondResponse = clientEP1 -> post("/datasource", clientReq);
@@ -192,12 +177,10 @@ service testService_1 on testEP {
             if (result is string) {
                 secondVal = result;
             } else {
-                error err = result;
-                secondVal = err.reason();
+                secondVal = result.message();
             }
         } else {
-            error err = secondResponse;
-            secondVal = err.reason();
+            secondVal = secondResponse.message();
         }
         http:Response testResponse = new;
         testResponse.setPayload(firstVal + secondVal);
@@ -235,19 +218,16 @@ service testService_1 on testEP {
                 if (result2 is string) {
                     firstVal = result2;
                 } else {
-                    error err = result2;
-                    firstVal = err.reason();
+                    firstVal = result2.message();
                 }
 
                 testResponse.setTextPayload(<@untainted> firstVal + <@untainted> secondVal);
                 checkpanic caller->respond(testResponse);
             } else {
-                error err = firstResponse;
-                log:printError(err.reason(), err);
+                log:printError(firstResponse.message(), firstResponse);
             }
         } else {
-            error err = byteChannel;
-            log:printError(err.reason(), err);
+            log:printError(byteChannel.message(), byteChannel);
         }
     }
 }
@@ -285,9 +265,7 @@ service testService_2 on testEP {
         if (stringPayload is string) {
             response.setPayload(<@untainted> stringPayload);
         } else  {
-            error err = stringPayload;
-            string errMsg = <string> err.detail()["message"];
-            response.setPayload(<@untainted> errMsg);
+            response.setPayload(<@untainted> stringPayload.message());
         }
         checkpanic caller->respond(response);
     }
