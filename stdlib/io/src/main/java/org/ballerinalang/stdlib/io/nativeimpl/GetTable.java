@@ -27,6 +27,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
@@ -57,7 +58,7 @@ public class GetTable {
     private GetTable() {
     }
 
-    public static Object getTable(ObjectValue csvChannel, TypedescValue typedescValue) {
+    public static Object getTable(ObjectValue csvChannel, TypedescValue typedescValue, ArrayValue key) {
         try {
             final ObjectValue delimitedObj =
                     (ObjectValue) csvChannel.get(StringUtils.fromString(CSV_CHANNEL_DELIMITED_STRUCT_FIELD));
@@ -70,7 +71,7 @@ public class GetTable {
             while (delimitedChannel.hasNext()) {
                 records.add(delimitedChannel.read());
             }
-            return getTable(typedescValue, records);
+            return getTable(typedescValue, key, records);
         } catch (BallerinaIOException | BallerinaException e) {
             String msg = "failed to process the delimited file: " + e.getMessage();
             log.error(msg, e);
@@ -78,15 +79,21 @@ public class GetTable {
         }
     }
 
-    private static TableValue getTable(TypedescValue typedescValue, List<String[]> records) {
+    private static TableValue getTable(TypedescValue typedescValue, ArrayValue key, List<String[]> records) {
         BType describingType = typedescValue.getDescribingType();
-        BTableType newTableType = new BTableType(describingType, false);
+        BTableType newTableType;
+        if (key.size() == 0) {
+            newTableType = new BTableType(describingType, false);
+        } else {
+            newTableType = new BTableType(describingType, key.getStringArray(), false);
+        }
         TableValue table = new TableValueImpl(newTableType);
         BStructureType structType = (BStructureType) describingType;
         for (String[] fields : records) {
             final MapValueImpl<String, Object> struct = getStruct(fields, structType);
             if (struct != null) {
-                table.add(BallerinaValues.createRecordValue(describingType.getPackage(), describingType.getName(), struct));
+                table.add(BallerinaValues.createRecordValue(describingType.getPackage(), describingType.getName(),
+                        struct));
             }
         }
         return table;

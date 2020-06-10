@@ -16,15 +16,14 @@
 
 import ballerina/file;
 import ballerina/io;
-import ballerina/java;
 import ballerina/log;
 import ballerina/time;
 
 type myCookie record {
     readonly string name;
     string value;
-    string domain;
-    string path;
+    readonly string domain;
+    readonly string path;
     string expires;
     int maxAge;
     boolean httpOnly;
@@ -45,7 +44,7 @@ public type CsvPersistentCookieHandler object {
     *PersistentCookieHandler;
 
     string fileName = "";
-    table<myCookie> key(name) cookiesTable = table [];
+    table<myCookie> key(name, domain, path) cookiesTable = table [];
 
     public function __init(string fileName) {
         self.fileName = checkpanic validateFileExtension(fileName);
@@ -58,17 +57,18 @@ public type CsvPersistentCookieHandler object {
     public function storeCookie(Cookie cookie) returns @tainted CookieHandlingError? {
         if (file:exists(self.fileName) && self.cookiesTable.length() == 0) {
             var tblResult = readFile(self.fileName);
-            if (tblResult is table<myCookie> key(name)) {
+            if (tblResult is table<myCookie> key(name, domain, path)) {
                 self.cookiesTable = tblResult;
             } else {
                 return error(COOKIE_HANDLING_ERROR, message = "Error in reading the csv file", cause = tblResult);
             }
         }
         var tableUpdateResult = addNewCookieToTable(self.cookiesTable, cookie);
-        if (tableUpdateResult is table<myCookie> key(name)) {
+        if (tableUpdateResult is table<myCookie> key(name, domain, path)) {
             self.cookiesTable = tableUpdateResult;
         } else {
-            return error(COOKIE_HANDLING_ERROR, message = "Error in updating the records in csv file", cause = tableUpdateResult);
+            return error(COOKIE_HANDLING_ERROR, message = "Error in updating the records in csv file",
+            cause = tableUpdateResult);
         }
         var result = writeToFile(self.cookiesTable, <@untainted> self.fileName);
         if (result is error) {
@@ -83,7 +83,7 @@ public type CsvPersistentCookieHandler object {
         Cookie[] cookies = [];
         if (file:exists(self.fileName)) {
             var tblResult = readFile(self.fileName);
-            if (tblResult is table<myCookie> key(name)) {
+            if (tblResult is table<myCookie> key(name, domain, path)) {
                 foreach var rec in tblResult {
                     Cookie cookie = new(rec.name, rec.value);
                     cookie.domain = rec.domain;
@@ -123,15 +123,14 @@ public type CsvPersistentCookieHandler object {
         cookiePathToRemove = path;
         if (file:exists(self.fileName)) {
             if(self.cookiesTable.length() == 0) {
-                // Todo: check if this is needed
                 var tblResult = readFile(self.fileName);
-                if (tblResult is table<myCookie> key(name)) {
+                if (tblResult is table<myCookie> key(name, domain, path)) {
                     self.cookiesTable = tblResult;
                 } else {
                     return error(COOKIE_HANDLING_ERROR, message = "Error in reading the csv file", cause = tblResult);
                 }
             }
-            var removedCookie = self.cookiesTable.remove(name);
+            var removedCookie = self.cookiesTable.remove([name, domain, path]);
             error? removeResults = file:remove(<@untainted> self.fileName);
             if (removeResults is error) {
                 return error(COOKIE_HANDLING_ERROR, message = "Error in removing the csv file", cause = removeResults);
@@ -163,12 +162,12 @@ function validateFileExtension(string fileName) returns string|CookieHandlingErr
     return error(COOKIE_HANDLING_ERROR, message = "Invalid file format");
 }
 
-function readFile(string fileName) returns @tainted error|table<myCookie> key(name) {
+function readFile(string fileName) returns @tainted error|table<myCookie> key(name, domain, path) {
     io:ReadableCSVChannel rCsvChannel2 = check io:openReadableCsvFile(fileName);
-    var tblResult = getCookieTable(rCsvChannel2, myCookie);
+    var tblResult = rCsvChannel2.getTable(myCookie, ["name", "domain", "path"]);
     closeReadableCSVChannel(rCsvChannel2);
     if (tblResult is table<record{| anydata...; |}>) {
-        return <table<myCookie> key(name)>tblResult;
+        return <table<myCookie> key(name, domain, path)>tblResult;
     } else {
         return tblResult;
     }
@@ -182,8 +181,9 @@ function closeReadableCSVChannel(io:ReadableCSVChannel csvChannel) {
 }
 
 // Updates the table with new cookie.
-function addNewCookieToTable(table<myCookie> key(name) cookiesTable, Cookie cookieToAdd) returns table<myCookie> key(name)|error {
-    table<myCookie> key(name) tableToReturn = cookiesTable;
+function addNewCookieToTable(table<myCookie> key(name, domain, path) cookiesTable, Cookie cookieToAdd)
+returns table<myCookie> key(name, domain, path)|error {
+    table<myCookie> key(name, domain, path) tableToReturn = cookiesTable;
     var name = cookieToAdd.name;
     var value = cookieToAdd.value;
     var domain = cookieToAdd.domain;
@@ -191,8 +191,11 @@ function addNewCookieToTable(table<myCookie> key(name) cookiesTable, Cookie cook
     var expires = cookieToAdd.expires;
     var createdTime = time:format(cookieToAdd.createdTime, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     var lastAccessedTime = time:format(cookieToAdd.lastAccessedTime, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-    if (name is string && value is string && domain is string && path is string && createdTime is string && lastAccessedTime is string) {
-        myCookie c1 = { name: name, value: value, domain: domain, path: path, expires: expires is string ? expires : "-", maxAge: cookieToAdd.maxAge, httpOnly: cookieToAdd.httpOnly, secure: cookieToAdd.secure, createdTime: createdTime, lastAccessedTime: lastAccessedTime, hostOnly: cookieToAdd.hostOnly };
+    if (name is string && value is string && domain is string && path is string && createdTime is string &&
+    lastAccessedTime is string) {
+        myCookie c1 = { name: name, value: value, domain: domain, path: path, expires: expires is string ?
+        expires : "-", maxAge: cookieToAdd.maxAge, httpOnly: cookieToAdd.httpOnly, secure: cookieToAdd.secure,
+        createdTime: createdTime, lastAccessedTime: lastAccessedTime, hostOnly: cookieToAdd.hostOnly };
         var result = tableToReturn.add(c1);
         return tableToReturn;
     }
@@ -201,10 +204,12 @@ function addNewCookieToTable(table<myCookie> key(name) cookiesTable, Cookie cook
 }
 
 // Writes the updated table to the file.
-function writeToFile(table<myCookie> key(name) cookiesTable, string fileName) returns @tainted error? {
+function writeToFile(table<myCookie> key(name, domain, path) cookiesTable, string fileName) returns @tainted error? {
     io:WritableCSVChannel wCsvChannel2 = check io:openWritableCsvFile(fileName);
     foreach var entry in cookiesTable {
-        string[] rec = [entry.name, entry.value, entry.domain, entry.path, entry.expires, entry.maxAge.toString(), entry.httpOnly.toString(), entry.secure.toString(), entry.createdTime, entry.lastAccessedTime, entry.hostOnly.toString()];
+        string[] rec = [entry.name, entry.value, entry.domain, entry.path, entry.expires, entry.maxAge.toString(),
+        entry.httpOnly.toString(), entry.secure.toString(), entry.createdTime, entry.lastAccessedTime,
+        entry.hostOnly.toString()];
         var writeResult = writeDataToCSVChannel(wCsvChannel2, rec);
         if (writeResult is error) {
             return writeResult;
@@ -228,13 +233,3 @@ function closeWritableCSVChannel(io:WritableCSVChannel csvChannel) {
         log:printError("Error occurred while closing the channel: ", result);
     }
 }
-
-function checkRemoveCriteria(myCookie rec) returns boolean {
-    return rec.name == cookieNameToRemove && rec.domain == cookieDomainToRemove && rec.path == cookiePathToRemove;
-}
-
-function getCookieTable(io:ReadableCSVChannel csvChannel, typedesc<record {}> structType)
-            returns @tainted table<myCookie>|error = @java:Method {
-    name: "getCookieTable",
-    class: "org.ballerinalang.net.http.nativeimpl.GetTable"
-} external;

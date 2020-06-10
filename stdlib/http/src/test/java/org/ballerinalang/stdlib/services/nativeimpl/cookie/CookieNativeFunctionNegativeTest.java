@@ -157,6 +157,7 @@ public class CookieNativeFunctionNegativeTest {
                           "Cookie objects are in the Return Values");
     }
 
+    //TODO Table remove - Fix
     @Test(description = "Test to remove a specific cookie which is not in the cookie store, when there is a " +
             "persistent cookie store", enabled = false)
     public void testRemovePersistentCookieFromCookieStore_1() {

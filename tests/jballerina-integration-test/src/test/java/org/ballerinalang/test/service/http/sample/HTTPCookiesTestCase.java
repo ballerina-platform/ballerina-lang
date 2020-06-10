@@ -36,8 +36,8 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
     @Test(description = "Test to send requests by cookie client for first, second and third times", enabled = false)
     public void testSendRequestsByCookieClient() throws BallerinaTestException {
         String balFilePath = (new File("src" + File.separator + "test" + File.separator + "resources" +
-                                               File.separator + "http" + File.separator + "src" + File.separator +
-                                               "cookie")).getAbsolutePath();
+                File.separator + "http" + File.separator + "src" + File.separator +
+                "cookie")).getAbsolutePath();
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
                 "cookieClient_01.bal"}, balFilePath);
@@ -48,8 +48,8 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
     @Test(description = "Test to remove a session cookie by client", enabled = false)
     public void testRemoveSessionCookieByClient() throws BallerinaTestException {
         String balFilePath = (new File("src" + File.separator + "test" + File.separator + "resources" +
-                                               File.separator + "http" + File.separator + "src" + File.separator +
-                                               "cookie")).getAbsolutePath();
+                File.separator + "http" + File.separator + "src" + File.separator +
+                "cookie")).getAbsolutePath();
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
                 "cookieClient_02.bal"}, balFilePath);
@@ -60,8 +60,8 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
             " cookie in the cookie store")
     public void testAddSimilarSessionCookies() throws BallerinaTestException {
         String balFilePath = (new File("src" + File.separator + "test" + File.separator + "resources" +
-                                               File.separator + "http" + File.separator + "src" + File.separator +
-                                               "cookie")).getAbsolutePath();
+                File.separator + "http" + File.separator + "src" + File.separator +
+                "cookie")).getAbsolutePath();
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
                 "cookieClient_03.bal"}, balFilePath);
@@ -72,8 +72,8 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
     @Test(description = "Test to remove a session cookie by server", enabled = false)
     public void testRemoveSessionCookieByServer() throws BallerinaTestException {
         String balFilePath = (new File("src" + File.separator + "test" + File.separator + "resources" +
-                                               File.separator + "http" + File.separator + "src" + File.separator +
-                                               "cookie")).getAbsolutePath();
+                File.separator + "http" + File.separator + "src" + File.separator +
+                "cookie")).getAbsolutePath();
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
                 "cookieClient_04.bal"}, balFilePath);
@@ -84,8 +84,8 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
     @Test(description = "Test to send concurrent requests by cookie client", enabled = false)
     public void testSendConcurrentRequests() throws BallerinaTestException {
         String balFilePath = (new File("src" + File.separator + "test" + File.separator + "resources" +
-                                               File.separator + "http" + File.separator + "src" + File.separator +
-                                               "cookie")).getAbsolutePath();
+                File.separator + "http" + File.separator + "src" + File.separator +
+                "cookie")).getAbsolutePath();
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
                 "cookieClient_05.bal"}, balFilePath);
@@ -98,8 +98,8 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
             "enabled", enabled = false)
     public void testSendRequestsByClient() throws BallerinaTestException {
         String balFilePath = (new File("src" + File.separator + "test" + File.separator + "resources" +
-                                               File.separator + "http" + File.separator + "src" + File.separator +
-                                               "cookie")).getAbsolutePath();
+                File.separator + "http" + File.separator + "src" + File.separator +
+                "cookie")).getAbsolutePath();
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
                 "cookieClient_06.bal"}, balFilePath);
@@ -110,8 +110,8 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
     @Test(description = "Test to remove a persistent cookie by the client", enabled = false)
     public void testRemovePersistentCookieByClient() throws BallerinaTestException {
         String balFilePath = (new File("src" + File.separator + "test" + File.separator + "resources" +
-                                               File.separator + "http" + File.separator + "src" + File.separator +
-                                               "cookie")).getAbsolutePath();
+                File.separator + "http" + File.separator + "src" + File.separator +
+                "cookie")).getAbsolutePath();
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
                 "cookieClient_07.bal"}, balFilePath);
@@ -123,8 +123,8 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
             "replaced by the new cookie in the cookie store", enabled = false)
     public void testAddSimilarPersistentCookies() throws BallerinaTestException {
         String balFilePath = (new File("src" + File.separator + "test" + File.separator + "resources" +
-                                               File.separator + "http" + File.separator + "src" + File.separator +
-                                               "cookie")).getAbsolutePath();
+                File.separator + "http" + File.separator + "src" + File.separator +
+                "cookie")).getAbsolutePath();
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
                 "cookieClient_08.bal"}, balFilePath);
@@ -136,8 +136,8 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
             " old session cookie is replaced by the new persistent cookie in the cookie store", enabled = false)
     public void testSendSimilarPersistentAndSessionCookies_1() throws BallerinaTestException {
         String balFilePath = (new File("src" + File.separator + "test" + File.separator + "resources" +
-                                               File.separator + "http" + File.separator + "src" + File.separator +
-                                               "cookie")).getAbsolutePath();
+                File.separator + "http" + File.separator + "src" + File.separator +
+                "cookie")).getAbsolutePath();
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
                 "cookieClient_09.bal"}, balFilePath);
@@ -149,8 +149,8 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
             " The old persistent cookie is replaced by the new session cookie in the cookie store", enabled = false)
     public void testSendSimilarPersistentAndSessionCookies_2() throws BallerinaTestException {
         String balFilePath = (new File("src" + File.separator + "test" + File.separator + "resources" +
-                                               File.separator + "http" + File.separator + "src" + File.separator +
-                                               "cookie")).getAbsolutePath();
+                File.separator + "http" + File.separator + "src" + File.separator +
+                "cookie")).getAbsolutePath();
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
                 "cookieClient_10.bal"}, balFilePath);
@@ -161,8 +161,8 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
     @Test(description = "Test to remove a persistent cookie by the server", enabled = false)
     public void testRemovePersistentCookieByServer() throws BallerinaTestException {
         String balFilePath = (new File("src" + File.separator + "test" + File.separator + "resources" +
-                                               File.separator + "http" + File.separator + "src" + File.separator +
-                                               "cookie")).getAbsolutePath();
+                File.separator + "http" + File.separator + "src" + File.separator +
+                "cookie")).getAbsolutePath();
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
                 "cookieClient_11.bal"}, balFilePath);
@@ -174,8 +174,8 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
             enabled = false)
     public void testSendPersistentCookiesWithoutPersistentCookieHandler() throws BallerinaTestException {
         String balFilePath = (new File("src" + File.separator + "test" + File.separator + "resources" +
-                                               File.separator + "http" + File.separator + "src" + File.separator +
-                                               "cookie")).getAbsolutePath();
+                File.separator + "http" + File.separator + "src" + File.separator +
+                "cookie")).getAbsolutePath();
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
                 "cookieClient_12.bal"}, balFilePath);
