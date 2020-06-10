@@ -10809,7 +10809,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseConditionalExpression(STNode lhsExpr) {
         startContext(ParserRuleContext.CONDITIONAL_EXPRESSION);
         STNode questionMark = parseQuestionMark();
-        STNode middleExpr = parseExpression(OperatorPrecedence.ELVIS_CONDITIONAL, true, false, true);
+        STNode middleExpr = parseExpression(OperatorPrecedence.CONDITIONAL, true, false, true);
 
         // Special case "a ? b : c", since "b:c" matches to var-ref due to expr-precedence.
         STNode nextToken = peek();
@@ -10823,7 +10823,7 @@ public class BallerinaParser extends AbstractParser {
         } else {
             colon = parseColon();
             endContext();
-            endExpr = parseExpression(OperatorPrecedence.ELVIS_CONDITIONAL, true, false);
+            endExpr = parseExpression(OperatorPrecedence.CONDITIONAL, true, false);
         }
 
         return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, colon, endExpr);
