@@ -1299,13 +1299,23 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLiteralNode.fields.add(bLRecordSpreadOpField);
             } else {
                 SpecificFieldNode specificField = (SpecificFieldNode) field;
-                BLangRecordKeyValueField bLRecordKeyValueField =
-                        (BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
-                bLRecordKeyValueField.valueExpr = createExpression(specificField.valueExpr());
-                bLRecordKeyValueField.key =
-                        new BLangRecordLiteral.BLangRecordKey(createExpression(specificField.fieldName()));
-                bLRecordKeyValueField.key.computedKey = false;
-                bLiteralNode.fields.add(bLRecordKeyValueField);
+                io.ballerinalang.compiler.syntax.tree.ExpressionNode valueExpr = specificField.valueExpr();
+                if (valueExpr == null) {
+                    BLangRecordLiteral.BLangRecordVarNameField fieldVar =
+                            (BLangRecordLiteral.BLangRecordVarNameField) TreeBuilder.createRecordVarRefNameFieldNode();
+                    fieldVar.variableName = createIdentifier(((SpecificFieldNode) field).fieldName());
+                    fieldVar.pkgAlias = createIdentifier(null, "");
+                    fieldVar.pos = fieldVar.variableName.pos;
+                    bLiteralNode.fields.add(fieldVar);
+                } else {
+                    BLangRecordKeyValueField bLRecordKeyValueField =
+                            (BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
+                    bLRecordKeyValueField.valueExpr = createExpression(valueExpr);
+                    bLRecordKeyValueField.key =
+                            new BLangRecordLiteral.BLangRecordKey(createExpression(specificField.fieldName()));
+                    bLRecordKeyValueField.key.computedKey = false;
+                    bLiteralNode.fields.add(bLRecordKeyValueField);
+                }
             }
         }
         bLiteralNode.pos = getPosition(mapConstruct);
