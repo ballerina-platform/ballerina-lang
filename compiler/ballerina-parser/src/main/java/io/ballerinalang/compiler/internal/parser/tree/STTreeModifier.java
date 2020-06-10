@@ -2141,6 +2141,46 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 typeRef);
     }
 
+    @Override
+    public STMatchStatementNode transform(
+            STMatchStatementNode matchStatementNode) {
+        STNode matchKeyword = modifyNode(matchStatementNode.matchKeyword);
+        STNode condition = modifyNode(matchStatementNode.condition);
+        STNode openBrace = modifyNode(matchStatementNode.openBrace);
+        STNode matchClauses = modifyNode(matchStatementNode.matchClauses);
+        STNode closeBrace = modifyNode(matchStatementNode.closeBrace);
+        return matchStatementNode.modify(
+                matchKeyword,
+                condition,
+                openBrace,
+                matchClauses,
+                closeBrace);
+    }
+
+    @Override
+    public STMatchClauseNode transform(
+            STMatchClauseNode matchClauseNode) {
+        STNode matchPatterns = modifyNode(matchClauseNode.matchPatterns);
+        STNode matchGuard = modifyNode(matchClauseNode.matchGuard);
+        STNode rightDoubleArrow = modifyNode(matchClauseNode.rightDoubleArrow);
+        STNode blockStatement = modifyNode(matchClauseNode.blockStatement);
+        return matchClauseNode.modify(
+                matchPatterns,
+                matchGuard,
+                rightDoubleArrow,
+                blockStatement);
+    }
+
+    @Override
+    public STMatchGuardNode transform(
+            STMatchGuardNode matchGuardNode) {
+        STNode ifKeyword = modifyNode(matchGuardNode.ifKeyword);
+        STNode expression = modifyNode(matchGuardNode.expression);
+        return matchGuardNode.modify(
+                ifKeyword,
+                expression);
+    }
+
     // Tokens
 
     public STToken transform(STToken token) {
