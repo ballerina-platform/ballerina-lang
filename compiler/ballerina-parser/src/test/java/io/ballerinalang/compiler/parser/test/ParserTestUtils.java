@@ -545,6 +545,8 @@ public class ParserTestUtils {
                 return SyntaxKind.BASE16_KEYWORD;
             case "BASE64_KEYWORD":
                 return SyntaxKind.BASE64_KEYWORD;
+            case "MATCH_KEYWORD":
+                return SyntaxKind.MATCH_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -819,6 +821,8 @@ public class ParserTestUtils {
                 return SyntaxKind.RETRY_STATEMENT;
             case "ROLLBACK_STATEMENT":
                 return SyntaxKind.ROLLBACK_STATEMENT;
+            case "MATCH_STATEMENT":
+                return SyntaxKind.MATCH_STATEMENT;
 
             // Types
             case "TYPE_DESC":
@@ -977,7 +981,7 @@ public class ParserTestUtils {
                 return SyntaxKind.EXPRESSION_FUNCTION_BODY;
             case "INFER_PARAM_LIST":
                 return SyntaxKind.INFER_PARAM_LIST;
-            case "FUNCTION_DECLARATION":
+            case "METHOD_DECLARATION":
                 return SyntaxKind.METHOD_DECLARATION;
             case "TYPED_BINDING_PATTERN":
                 return SyntaxKind.TYPED_BINDING_PATTERN;
@@ -1009,6 +1013,12 @@ public class ParserTestUtils {
                 return SyntaxKind.ENUM_MEMBER;
             case "WILDCARD_BINDING_PATTERN":
                 return SyntaxKind.WILDCARD_BINDING_PATTERN;
+            case "MATCH_CLAUSE":
+                return SyntaxKind.MATCH_CLAUSE;
+            case "MATCH_GUARD":
+                return SyntaxKind.MATCH_GUARD;
+            case "OBJECT_METHOD_DEFINITION":
+                return SyntaxKind.OBJECT_METHOD_DEFINITION;
 
             // XML template
             case "XML_ELEMENT":

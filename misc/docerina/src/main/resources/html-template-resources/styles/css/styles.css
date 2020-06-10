@@ -208,6 +208,12 @@ body .content-wrapper .returns-listing ul li:first-child {
 body .content-wrapper .details-table {
   padding-bottom: 20px;
 }
+body .content-wrapper .ui.table.row-border td {
+  border-bottom: 1px solid #e8e9e9;
+}
+body .content-wrapper .ui.table.pad-left td {
+  padding-left: 10px;
+}
 body .content-wrapper .ui.table,
 body .content-wrapper .ui.table tr td {
   border: 0;

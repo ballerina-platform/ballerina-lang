@@ -63,7 +63,32 @@ public class STXMLStepExpressionNode extends STXMLNavigateExpressionNode {
                 diagnostics);
     }
 
+    public STXMLStepExpressionNode modify(
+            STNode expression,
+            STNode xmlStepStart) {
+        if (checkForReferenceEquality(
+                expression,
+                xmlStepStart)) {
+            return this;
+        }
+
+        return new STXMLStepExpressionNode(
+                expression,
+                xmlStepStart,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLStepExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

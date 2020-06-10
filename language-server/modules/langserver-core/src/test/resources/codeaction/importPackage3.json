@@ -1,0 +1,22 @@
+{
+    "line": 16,
+    "character": 20,
+    "expected": {
+        "title": "Import Module 'ballerina/http'",
+        "edits": [
+            {
+                "range": {
+                    "start": {
+                        "line": 16,
+                        "character": 0
+                    },
+                    "end": {
+                        "line": 16,
+                        "character": 0
+                    }
+                },
+                "newText": "import ballerina/http;\n"
+            }
+        ]
+    }
+}

@@ -17,7 +17,7 @@
 type Foo1 client object {
     string name;
 
-    function __init(string name) {
+    function init(string name) {
         self.name = name;
     }
 

@@ -74,3 +74,16 @@ public function createNull() returns handle = external;
 # + return - The Java Class object for the class with the given name
 public function getClass(string name) returns handle | error = external;
 
+# Returns an `JObject|error`, which is obtained after casting the provided `JObject` instance
+# to the given `JObject` type depending on assignability.
+# ```ballerina
+# JObject|error obj = java:cast(inputStream, typedesc<FileInputStream>);
+# if (obj is JObject) {
+#   FileInputStream fileInputStream = <FileInputStream>obj;
+# }
+# ```
+#
+# + value - The `JObject` instance which is to be casted
+# + castType - The `JObject` implementation type `typedesc<JObject>` to which the given object is casted to if assignable
+# + return - The `JObject|error`, which refers to the new `JObject` instance or an `error`
+public function cast(JObject value, typedesc<JObject> castType) returns JObject|error = external;

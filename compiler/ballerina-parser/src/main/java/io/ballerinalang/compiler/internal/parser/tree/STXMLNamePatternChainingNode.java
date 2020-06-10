@@ -70,7 +70,35 @@ public class STXMLNamePatternChainingNode extends STNode {
                 diagnostics);
     }
 
+    public STXMLNamePatternChainingNode modify(
+            STNode startToken,
+            STNode xmlNamePattern,
+            STNode gtToken) {
+        if (checkForReferenceEquality(
+                startToken,
+                xmlNamePattern,
+                gtToken)) {
+            return this;
+        }
+
+        return new STXMLNamePatternChainingNode(
+                startToken,
+                xmlNamePattern,
+                gtToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLNamePatternChainingNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

@@ -165,7 +165,7 @@ function testRecordInsideTupleInsideRecord2() returns [string, int, int, string]
 type Object object {
     private int 'field;
 
-    public function __init() {
+    public function init() {
         self.'field = 12;
     }
 

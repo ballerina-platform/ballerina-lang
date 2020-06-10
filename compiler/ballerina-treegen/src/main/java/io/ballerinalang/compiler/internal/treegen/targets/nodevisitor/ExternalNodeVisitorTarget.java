@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.internal.treegen.targets.nodevisitor;
 
 import io.ballerinalang.compiler.internal.treegen.TreeGenConfig;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.EXTERNAL_NODE_OUTPUT_DIR_KEY;
@@ -59,7 +59,7 @@ public class ExternalNodeVisitorTarget extends AbstractNodeVisitorTarget {
 
     @Override
     protected List<String> getImportClasses() {
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     @Override

@@ -24,7 +24,7 @@ annotation map<int> Foo on function;
 @Foo {
     i // variable 'i' is not initialized
 }
-function __init() {
+function init() {
 }
 
 @Foo {

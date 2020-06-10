@@ -77,7 +77,38 @@ public class STFunctionSignatureNode extends STNode {
                 diagnostics);
     }
 
+    public STFunctionSignatureNode modify(
+            STNode openParenToken,
+            STNode parameters,
+            STNode closeParenToken,
+            STNode returnTypeDesc) {
+        if (checkForReferenceEquality(
+                openParenToken,
+                parameters,
+                closeParenToken,
+                returnTypeDesc)) {
+            return this;
+        }
+
+        return new STFunctionSignatureNode(
+                openParenToken,
+                parameters,
+                closeParenToken,
+                returnTypeDesc,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FunctionSignatureNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

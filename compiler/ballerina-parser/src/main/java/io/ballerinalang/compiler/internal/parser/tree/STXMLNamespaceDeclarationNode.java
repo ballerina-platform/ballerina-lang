@@ -84,7 +84,41 @@ public class STXMLNamespaceDeclarationNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STXMLNamespaceDeclarationNode modify(
+            STNode xmlnsKeyword,
+            STNode namespaceuri,
+            STNode asKeyword,
+            STNode namespacePrefix,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                xmlnsKeyword,
+                namespaceuri,
+                asKeyword,
+                namespacePrefix,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STXMLNamespaceDeclarationNode(
+                xmlnsKeyword,
+                namespaceuri,
+                asKeyword,
+                namespacePrefix,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLNamespaceDeclarationNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

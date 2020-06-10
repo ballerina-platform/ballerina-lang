@@ -63,7 +63,32 @@ public class STUnaryExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STUnaryExpressionNode modify(
+            STNode unaryOperator,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                unaryOperator,
+                expression)) {
+            return this;
+        }
+
+        return new STUnaryExpressionNode(
+                unaryOperator,
+                expression,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new UnaryExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

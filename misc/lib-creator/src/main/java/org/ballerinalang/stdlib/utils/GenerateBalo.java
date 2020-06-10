@@ -156,7 +156,7 @@ public class GenerateBalo {
                                                          docModuleFilter);
         String apiDocPath = "./build/generated-apidocs/";
         Files.createDirectories(Paths.get(apiDocPath));
-        BallerinaDocGenerator.writeAPIDocsForModules(moduleDocMap, apiDocPath);
+        BallerinaDocGenerator.writeAPIDocsForModules(moduleDocMap, apiDocPath, false);
     }
 
     private static void printErrors(boolean reportWarnings, CompileResult.CompileResultDiagnosticListener diagListner,

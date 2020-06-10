@@ -2,7 +2,7 @@ import a;
 import b;
 import ballerina/io;
 
-function __init() {
+function init() {
 	io:println("Initializing module c");
 }
 

@@ -707,6 +707,22 @@ public abstract class NodeVisitor {
         visitSyntaxNode(typeReferenceTypeDescNode);
     }
 
+    public void visit(MatchStatementNode matchStatementNode) {
+        visitSyntaxNode(matchStatementNode);
+    }
+
+    public void visit(MatchClauseNode matchClauseNode) {
+        visitSyntaxNode(matchClauseNode);
+    }
+
+    public void visit(MatchGuardNode matchGuardNode) {
+        visitSyntaxNode(matchGuardNode);
+    }
+
+    public void visit(ObjectMethodDefinitionNode objectMethodDefinitionNode) {
+        visitSyntaxNode(objectMethodDefinitionNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

@@ -37,4 +37,9 @@ public class ResiliencyTest extends AbstractMiscTest {
     public void testParsingJavaHelloWorld() {
         testFile("resiliency/resiliency_source_02.bal", "resiliency/resiliency_assert_02.json");
     }
+    
+    @Test
+    public void testInvalidTokensInModuleLevel() {
+        testFile("resiliency/resiliency_source_03.bal", "resiliency/resiliency_assert_03.json");
+    }
 }

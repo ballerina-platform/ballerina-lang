@@ -70,7 +70,35 @@ public class STExplicitNewExpressionNode extends STNewExpressionNode {
                 diagnostics);
     }
 
+    public STExplicitNewExpressionNode modify(
+            STNode newKeyword,
+            STNode typeDescriptor,
+            STNode parenthesizedArgList) {
+        if (checkForReferenceEquality(
+                newKeyword,
+                typeDescriptor,
+                parenthesizedArgList)) {
+            return this;
+        }
+
+        return new STExplicitNewExpressionNode(
+                newKeyword,
+                typeDescriptor,
+                parenthesizedArgList,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ExplicitNewExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

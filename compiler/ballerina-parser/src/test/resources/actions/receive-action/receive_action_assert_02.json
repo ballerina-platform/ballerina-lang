@@ -234,20 +234,8 @@
                               "kind": "COMMA_TOKEN"
                             },
                             {
-                              "kind": "QUALIFIED_NAME_REFERENCE",
-                              "children": [
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "isMissing": true
-                                },
-                                {
-                                  "kind": "COLON_TOKEN"
-                                },
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "c"
-                                }
-                              ]
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "c"
                             },
                             {
                               "kind": "COMMA_TOKEN"

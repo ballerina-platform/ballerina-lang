@@ -1152,7 +1152,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         if (this.env.logErrors && symbol == symTable.notFoundSymbol) {
-            if (!missingNodesHelper.isMissingNode(pkgAlias) && !missingNodesHelper.isMissingNode(typeName)) {
+            if (!missingNodesHelper.isMissingNode(pkgAlias) && !missingNodesHelper.isMissingNode(typeName) &&
+                    !symbolEnter.isUnknownTypeRef(userDefinedTypeNode)) {
                 dlog.error(userDefinedTypeNode.pos, diagCode, typeName);
             }
             resultType = symTable.semanticError;

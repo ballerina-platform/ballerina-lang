@@ -1,5 +1,5 @@
 import ballerina/io;
 
-function __init() {
+function init() {
     io:println("initializing bar");
 }

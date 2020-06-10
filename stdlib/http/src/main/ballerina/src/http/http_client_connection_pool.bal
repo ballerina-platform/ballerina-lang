@@ -33,7 +33,7 @@ public type PoolConfiguration record {
 //This is a hack to get the global map initialized, without involving locking.
 type ConnectionManager object {
     public PoolConfiguration poolConfig = {};
-    public function __init() {
+    public function init() {
         self.initGlobalPool(self.poolConfig);
     }
     function initGlobalPool(PoolConfiguration poolConfig) {

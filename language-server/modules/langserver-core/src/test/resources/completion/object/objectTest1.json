@@ -1355,7 +1355,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "240",
-      "insertText": "public function __init(${1:any arg}) {\n\t${2}\n}",
+      "insertText": "public function init(${1:any arg}) {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     },
     {

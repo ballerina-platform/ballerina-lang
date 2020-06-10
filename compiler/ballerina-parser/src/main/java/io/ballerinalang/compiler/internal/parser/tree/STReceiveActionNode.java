@@ -63,7 +63,32 @@ public class STReceiveActionNode extends STActionNode {
                 diagnostics);
     }
 
+    public STReceiveActionNode modify(
+            STNode leftArrow,
+            STNode receiveWorkers) {
+        if (checkForReferenceEquality(
+                leftArrow,
+                receiveWorkers)) {
+            return this;
+        }
+
+        return new STReceiveActionNode(
+                leftArrow,
+                receiveWorkers,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReceiveActionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }
