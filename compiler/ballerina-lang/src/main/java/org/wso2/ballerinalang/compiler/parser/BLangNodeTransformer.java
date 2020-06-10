@@ -132,6 +132,7 @@ import io.ballerinalang.compiler.syntax.tree.TableTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TemplateMemberNode;
 import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerinalang.compiler.syntax.tree.TransactionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.TrapExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeCastExpressionNode;
@@ -272,6 +273,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -1977,6 +1979,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         invocation.annAttachments = applyAll(startActionNode.annotations());
 
         return expression;
+    }
+
+    @Override
+    public BLangNode transform(TransactionStatementNode transactionStatementNode) {
+        BLangTransaction transaction = (BLangTransaction) TreeBuilder.createTransactionNode();
+        BLangBlockStmt transactionBlock = (BLangBlockStmt) transactionStatementNode.blockStatement().apply(this);
+        transactionBlock.pos = getPosition(transactionStatementNode.blockStatement());
+        transaction.setTransactionBody(transactionBlock);
+        return transaction;
     }
 
     // -------------------------------------------------Misc------------------------------------------------------------
