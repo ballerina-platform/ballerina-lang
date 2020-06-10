@@ -56,7 +56,7 @@ public enum OperatorPrecedence {
         this.level = level;
     }
 
-    public boolean isHigherOrEqualThan(OperatorPrecedence opPrecedence, boolean allowActions) {
+    public boolean isHigherThanOrEqual(OperatorPrecedence opPrecedence, boolean allowActions) {
         if (allowActions) {
             if (this == EXPRESSION_ACTION && opPrecedence == REMOTE_CALL_ACTION) {
                 return false;
