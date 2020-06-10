@@ -18,14 +18,18 @@
 package org.ballerinalang.packerina;
 
 import com.moandjiezana.toml.Toml;
+import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.Library;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
-import org.wso2.ballerinalang.compiler.NativeDependencyResolver;
+import org.wso2.ballerinalang.compiler.SourceDirectoryManager;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
@@ -42,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.jar.JarEntry;
@@ -59,29 +64,31 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DIST_BIR_
  *
  * @since 2.0.0
  */
-public class NativeDependencyResolverImpl implements NativeDependencyResolver {
+public class JarResolverImpl implements JarResolver {
 
     private List<String> supportedPlatforms = Arrays.stream(ProgramFileConstants.SUPPORTED_PLATFORMS)
             .collect(Collectors.toList());
     private final BuildContext buildContext;
+    private final SourceDirectoryManager sourceDirectoryManager;
     private final Path sourceRootPath;
     private final String balHomePath;
     private final Manifest manifest;
     private boolean skipCopyLibsFromDist;
 
-    public static NativeDependencyResolver getInstance(BuildContext buildContext, boolean skipCopyLibsFromDist) {
+    public static JarResolver getInstance(BuildContext buildContext, boolean skipCopyLibsFromDist) {
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
-        NativeDependencyResolver nativeDependencyResolver = context.get(JAR_RESOLVER_KEY);
-        if (nativeDependencyResolver == null) {
-            nativeDependencyResolver = new NativeDependencyResolverImpl(buildContext, skipCopyLibsFromDist);
+        JarResolver jarResolver = context.get(JAR_RESOLVER_KEY);
+        if (jarResolver == null) {
+            jarResolver = new JarResolverImpl(buildContext, skipCopyLibsFromDist);
         }
-        context.put(JAR_RESOLVER_KEY, nativeDependencyResolver);
-        return nativeDependencyResolver;
+        context.put(JAR_RESOLVER_KEY, jarResolver);
+        return jarResolver;
     }
 
-    private NativeDependencyResolverImpl(BuildContext buildContext, boolean skipCopyLibsFromDist) {
+    private JarResolverImpl(BuildContext buildContext, boolean skipCopyLibsFromDist) {
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
         this.buildContext = buildContext;
+        this.sourceDirectoryManager = SourceDirectoryManager.getInstance(context);
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
         this.sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
@@ -90,9 +97,10 @@ public class NativeDependencyResolverImpl implements NativeDependencyResolver {
     }
 
     @Override
-    public Path moduleJar(PackageID packageID, String platform) {
-        // Look if it is a project module.
-        if (isProjectModule(packageID)) {
+    public Path moduleJar(PackageID packageID) {
+        if (buildContext.getSourceType().equals(SourceType.SINGLE_BAL_FILE)) {
+            return buildContext.getJarPathFromTargetCache(packageID);
+        } else if (isProjectModule(packageID)) {
             // If so fetch from project balo cache
             return buildContext.getBaloFromTarget(packageID);
         } else if (isPathDependency(packageID)) {
@@ -102,7 +110,17 @@ public class NativeDependencyResolverImpl implements NativeDependencyResolver {
             return getJarFromDistribution(packageID);
         } else {
             // If not fetch from home balo cache.
-            return buildContext.getBaloFromHomeCache(packageID, platform);
+            return getBaloPathFromHomeCache(packageID);
+        }
+    }
+
+    @Override
+    public Path moduleTestJar(BLangPackage bLangPackage) {
+        if (bLangPackage.containsTestablePkg()) {
+            return buildContext.getTestJarPathFromTargetCache(bLangPackage.packageID);
+        } else {
+            // Single bal file test code will be in module jar
+            return buildContext.getJarPathFromTargetCache(bLangPackage.packageID);
         }
     }
 
@@ -126,7 +144,7 @@ public class NativeDependencyResolverImpl implements NativeDependencyResolver {
 
     @Override
     public List<Path> nativeDependenciesForTests(PackageID packageID) {
-        List<Path> testPlatformLibs = new ArrayList<>();
+        List<Path> testPlatformLibs = new ArrayList<>(nativeDependencies(packageID));
         List<Library> libraries = manifest.getPlatform().libraries;
         if (libraries != null) {
             for (Library library : libraries) {
@@ -143,6 +161,31 @@ public class NativeDependencyResolverImpl implements NativeDependencyResolver {
             }
         }
         return testPlatformLibs;
+    }
+
+    @Override
+    public List<Path> allDependencies(BLangPackage bLangPackage) {
+        HashSet<PackageID> alreadyImportedSet = new HashSet<>();
+        PackageID pkgId = bLangPackage.packageID;
+        List<Path> modulePlatformLibs = new ArrayList<>(nativeDependencies(pkgId));
+        copyImportedLibs(pkgId, bLangPackage.symbol.imports, modulePlatformLibs, alreadyImportedSet);
+        return modulePlatformLibs;
+    }
+
+    private void copyImportedLibs(PackageID packageID, List<BPackageSymbol> imports, List<Path> moduleDependencySet,
+                                  HashSet<PackageID> alreadyImportedSet) {
+        if (!moduleDependencySet.contains(moduleJar(packageID))) {
+            moduleDependencySet.add(moduleJar(packageID));
+        }
+
+        for (BPackageSymbol importSymbol : imports) {
+            PackageID pkgId = importSymbol.pkgID;
+            if (!alreadyImportedSet.contains(pkgId)) {
+                alreadyImportedSet.add(pkgId);
+                moduleDependencySet.addAll(nativeDependencies(pkgId));
+                copyImportedLibs(importSymbol.pkgID, importSymbol.imports, moduleDependencySet, alreadyImportedSet);
+            }
+        }
     }
 
     private boolean isModuleInDistribution(PackageID packageID) {
@@ -168,12 +211,20 @@ public class NativeDependencyResolverImpl implements NativeDependencyResolver {
                 ProjectDirs.isModuleExist(sourceRootPath, packageID.name.value);
     }
 
-    private void addLibsFromHomeBaloCache(PackageID packageID, List<Path> modulePlatformLibs) {
+    private Path getBaloPathFromHomeCache(PackageID packageID) {
         for (String platform : supportedPlatforms) {
             Path baloPath = buildContext.getBaloFromHomeCache(packageID, platform);
             if (baloPath != null && baloPath.toFile().exists()) {
-                addLibsFromBalo(baloPath, modulePlatformLibs);
+                return baloPath;
             }
+        }
+        return null;
+    }
+
+    private void addLibsFromHomeBaloCache(PackageID packageID, List<Path> modulePlatformLibs) {
+        Path baloPath = getBaloPathFromHomeCache(packageID);
+        if (baloPath != null) {
+            addLibsFromBalo(baloPath, modulePlatformLibs);
         }
     }
 
@@ -303,12 +354,8 @@ public class NativeDependencyResolverImpl implements NativeDependencyResolver {
         }
 
         for (Object lib : libraries) {
-            HashMap libInfo = (HashMap) lib;
-            if (!((libInfo.get("scope") != null) &&
-                    (libInfo.get("scope").toString().equalsIgnoreCase("testOnly")))) {
-                Path fileName = Paths.get(libInfo.get("path").toString()).getFileName();
-                libPaths.add(Paths.get(balHomePath, "bre", "lib", fileName.toString()));
-            }
+            Path fileName = Paths.get(((HashMap) lib).get("path").toString()).getFileName();
+            libPaths.add(Paths.get(balHomePath, "bre", "lib", fileName.toString()));
         }
         return libPaths;
     }
@@ -321,8 +368,9 @@ public class NativeDependencyResolverImpl implements NativeDependencyResolver {
         }
 
         for (Path dependency: dependencies) {
+            String version = packageID.version.value.equals("") ? BLANG_PKG_DEFAULT_VERSION : packageID.version.value;
             if (dependency.getFileName().toString().equals(String.join("-", packageID.orgName.value,
-                    packageID.name.value, RepoUtils.getBallerinaVersion()).concat(".jar"))) {
+                    packageID.name.value, version, "java").concat(".jar"))) {
                 jarPath = dependency;
                 break;
             }
