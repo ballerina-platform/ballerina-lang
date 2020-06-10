@@ -17,8 +17,11 @@
 import ballerina/auth;
 import ballerina/log;
 
-# Represents the LDAP error type with details.
-public type Error distinct error;
+# Represents the LDAP error type with the message and the cause.
+public type LdapError distinct error;
+
+# Represents LDAP module related errors.
+public type Error LdapError;
 
 # Logs and prepares the `error` as an `auth:Error`.
 #

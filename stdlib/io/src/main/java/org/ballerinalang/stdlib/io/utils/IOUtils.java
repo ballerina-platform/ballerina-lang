@@ -64,8 +64,7 @@ public class IOUtils {
      * @return an error which will be propagated to ballerina user
      */
     public static ErrorValue createError(String errorMsg) {
-        return BallerinaErrors.createDistinctError(GenericError.errorCode(), IO_PACKAGE_ID, GenericError.errorCode(),
-                                                   createDetailRecord(errorMsg, null));
+        return BallerinaErrors.createDistinctError(GenericError.errorCode(), IO_PACKAGE_ID, errorMsg);
     }
 
     /**
@@ -79,19 +78,14 @@ public class IOUtils {
     }
 
     /**
-     * Creates an error message with given error code.
+     * Creates an error message with given error type.
      *
      * @param code     the error code which represent the error type
      * @param errorMsg the error message
      * @return an error which will be propagated to ballerina user
      */
     public static ErrorValue createError(IOConstants.ErrorCode code, String errorMsg) {
-        return BallerinaErrors.createError(code.errorCode(), createDetailRecord(errorMsg, null));
-    }
-
-    public static ErrorValue createDistinctError(IOConstants.ErrorCode code, String errorMsg) {
-        return BallerinaErrors.createDistinctError(code.errorCode(), IO_PACKAGE_ID, code.errorCode(),
-                                                   createDetailRecord(errorMsg, null));
+        return BallerinaErrors.createDistinctError(code.errorCode(), IO_PACKAGE_ID, errorMsg);
     }
 
     /**
@@ -100,13 +94,7 @@ public class IOUtils {
      * @return EoF Error
      */
     public static ErrorValue createEoFError() {
-        return IOUtils.createDistinctError(EoF, "EoF when reading from the channel");
-    }
-
-    private static MapValue<BString, Object> createDetailRecord(Object... values) {
-        MapValue<BString, Object> detail = BallerinaValues.
-                createRecordValue(IO_PACKAGE_ID, IOConstants.DETAIL_RECORD_TYPE_NAME);
-        return BallerinaValues.createRecord(detail, values);
+        return IOUtils.createError(EoF, "EoF when reading from the channel");
     }
 
     /**
@@ -242,7 +230,7 @@ public class IOUtils {
         if (accessLC.contains("r")) {
             if (!path.toFile().exists()) {
                 String msg = "no such file or directory: " + path.toFile().getAbsolutePath();
-                throw createDistinctError(FileNotFoundError, msg);
+                throw createError(FileNotFoundError, msg);
             }
             if (!Files.isReadable(path)) {
                 throw new BallerinaIOException("file is not readable: " + path);
@@ -267,7 +255,7 @@ public class IOUtils {
             return FileChannel.open(path, opts);
         } catch (AccessDeniedException e) {
             String msg = "do not have necessary permissions to access: " + e.getMessage();
-            throw createDistinctError(AccessDeniedError, msg);
+            throw createError(AccessDeniedError, msg);
         } catch (IOException | UnsupportedOperationException e) {
             throw new BallerinaIOException("fail to open file: " + e.getMessage(), e);
         }

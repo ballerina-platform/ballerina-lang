@@ -103,7 +103,7 @@ public class EntityBodyHandler {
         try {
             fileChannel = (FileChannel) Files.newByteChannel(path, options);
         } catch (IOException e) {
-            throw IOUtils.createDistinctError(IOConstants.ErrorCode.GenericError,
+            throw IOUtils.createError(IOConstants.ErrorCode.GenericError,
                                               "Error occurred while creating a file channel from a temporary file");
         }
         return new TempFileIOChannel(fileChannel, temporaryFilePath);
