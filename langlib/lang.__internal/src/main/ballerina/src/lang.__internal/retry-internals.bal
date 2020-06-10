@@ -28,7 +28,7 @@ public type RetryManager abstract object {
 @typeParam
 public type DefaultRetryManager object {
     private int count;
-    public function __init(int count = 3) {
+    public function init(int count = 3) {
         self.count = count;
     }
     public function shouldRetry(error? e) returns boolean {
