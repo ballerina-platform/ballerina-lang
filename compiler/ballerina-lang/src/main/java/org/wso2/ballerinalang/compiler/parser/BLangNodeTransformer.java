@@ -3099,11 +3099,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             } else {
                 bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
             }
-        } else if (type == SyntaxKind.UNARY_EXPRESSION) {
-            typeTag = TypeTags.NIL;
-            value = null;
-            originalValue = "()";
-            bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         } 
 
         bLiteral.pos = getPosition(literal);
@@ -3525,8 +3520,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             case NEVER_TYPE_DESC:
             case SERVICE_TYPE_DESC:
             case VAR_TYPE_DESC:
-            case ERROR_TYPE_DESC: // This is for the recovery. <code>error a;</code> scenario recovered here.
-            case STREAM_TYPE_DESC: // This is for recovery logic. <code>stream a;</code> scenario recovered here.
+            case ERROR_TYPE_DESC:
+            case STREAM_TYPE_DESC:
             case READONLY_TYPE_DESC:
             case DISTINCT_TYPE_DESC:
                 return true;
