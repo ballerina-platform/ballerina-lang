@@ -157,9 +157,7 @@ public abstract class STNode {
 
     // Modification methods
 
-    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return null;
-    }
+    public abstract STNode modifyWith(Collection<STNodeDiagnostic> diagnostics);
 
     /**
      * Replaces the given target node with the replacement.
