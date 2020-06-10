@@ -923,7 +923,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         LinkedHashSet<BType> memberTypes = unionTypeNode.memberTypeNodes.stream()
                 .map(memTypeNode -> resolveTypeNode(memTypeNode, env))
                 .flatMap(memBType ->
-                        memBType.tag == TypeTags.UNION && !Symbols.isFlagOn(memBType.tsymbol.flags, Flags.TYPE_PARAM) ?
+                        memBType.tag == TypeTags.UNION && memBType.tsymbol != null &&
+                                !Symbols.isFlagOn(memBType.tsymbol.flags, Flags.TYPE_PARAM) ?
                                 ((BUnionType) memBType).getMemberTypes().stream() :
                                 Stream.of(memBType))
                 .collect(Collectors.toCollection(LinkedHashSet::new));

@@ -50,27 +50,27 @@ public class ObjectTypeReferenceTest {
                 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'salary'", 48, 6);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "cyclic type reference in '[Foo, Foo]'", 52, 1);
+                                  "invalid cyclic type reference in '[Foo, Foo]'", 52, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "cyclic type reference in '[A, B, C, D, A]'", 57, 1);
+                                  "invalid cyclic type reference in '[A, B, C, D, A]'", 57, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "cyclic type reference in '[C, E, C]'", 57, 1);
+                                  "invalid cyclic type reference in '[C, E, C]'", 57, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "cyclic type reference in '[B, C, D, A, B]'", 61, 1);
+                                  "invalid cyclic type reference in '[B, C, D, A, B]'", 61, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                "cyclic type reference in '[C, E, C]'", 61, 1);
+                                "invalid cyclic type reference in '[C, E, C]'", 61, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "cyclic type reference in '[C, D, A, B, C]'", 65, 1);
+                                  "invalid cyclic type reference in '[C, D, A, B, C]'", 65, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "cyclic type reference in '[C, E, C]'", 65, 1);
+                                  "invalid cyclic type reference in '[C, E, C]'", 65, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "cyclic type reference in '[C, E, C]'", 70, 1);
+                                  "invalid cyclic type reference in '[C, E, C]'", 70, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "cyclic type reference in '[D, A, B, C, D]'", 70, 1);
+                                  "invalid cyclic type reference in '[D, A, B, C, D]'", 70, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "cyclic type reference in '[C, D, A, B, C]'", 74, 1);
+                                  "invalid cyclic type reference in '[C, D, A, B, C]'", 74, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "cyclic type reference in '[E, C, E]'", 74, 1);
+                                  "invalid cyclic type reference in '[E, C, E]'", 74, 1);
         BAssertUtil.validateError(negativeResult, i++,
                                   "no implementation found for the function 'getName' of non-abstract object " +
                                           "'Manager2'", 96, 5);
@@ -111,17 +111,17 @@ public class ObjectTypeReferenceTest {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-cyclic-dependency" +
                                                                     "-negative.bal");
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[Foo, Foo]'", 18, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[A, B, C, D, A]'", 23, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, E, C]'", 23, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[B, C, D, A, B]'", 27, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, E, C]'", 27, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, D, A, B, C]'", 31, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, E, C]'", 31, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, E, C]'", 36, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[D, A, B, C, D]'", 36, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, D, A, B, C]'", 40, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[E, C, E]'", 40, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[Foo, Foo]'", 18, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[A, B, C, D, A]'", 23, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[C, E, C]'", 23, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[B, C, D, A, B]'", 27, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[C, E, C]'", 27, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[C, D, A, B, C]'", 31, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[C, E, C]'", 31, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[C, E, C]'", 36, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[D, A, B, C, D]'", 36, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[C, D, A, B, C]'", 40, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[E, C, E]'", 40, 1);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

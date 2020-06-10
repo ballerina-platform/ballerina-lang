@@ -35,6 +35,7 @@ public class BUnionType extends BType {
     private int typeFlags;
     private final boolean readonly;
     private BIntersectionType immutableType;
+    private boolean resolving = false;
 
     /**
      * Create a {@code BUnionType} which represents the union type.
@@ -68,22 +69,19 @@ public class BUnionType extends BType {
 
     public BUnionType(List<BType> memberTypes, boolean readonly) {
         this(memberTypes, 0, readonly);
-        boolean nilable = false, isAnydata = true, isPureType = true;
-        for (BType memberType : memberTypes) {
-            nilable |= memberType.isNilable();
-            isAnydata &= memberType.isAnydata();
-            isPureType &= memberType.isPureType();
-        }
+        setFlagsBasedOnMembers();
+    }
 
-        if (nilable) {
-            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.NILABLE);
-        }
-        if (isAnydata) {
-            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.ANYDATA);
-        }
-        if (isPureType) {
-            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.PURETYPE);
-        }
+    /**
+     * Constructor used when defining union type defs where cyclic reference is possible.
+     *
+     * @param typeFlags flags associated with the type
+     * @param readonly boolean represents if the type is readonly
+     */
+    public BUnionType(int typeFlags, boolean readonly) {
+        super(null, null, Object.class);
+        this.typeFlags = typeFlags;
+        this.readonly = readonly;
     }
 
     public BUnionType(BType[] memberTypes, int typeFlags, boolean readonly) {
@@ -127,6 +125,10 @@ public class BUnionType extends BType {
 
     @Override
     public String toString() {
+        if (resolving) {
+            return this.typeName;
+        }
+        resolving = true;
         if (cachedToString == null) {
             StringBuilder sb = new StringBuilder();
             int size = memberTypes.size();
@@ -140,6 +142,7 @@ public class BUnionType extends BType {
             cachedToString = sb.toString();
 
         }
+        resolving = false;
         return cachedToString;
     }
 
@@ -180,7 +183,20 @@ public class BUnionType extends BType {
         return Objects.hash(super.hashCode(), memberTypes);
     }
 
+    public void setMemberTypes(BType[] memberTypes) {
+        this.memberTypes = Arrays.asList(memberTypes);
+        setFlagsBasedOnMembers();
+    }
+
     public boolean isNilable() {
+        if (memberTypes == null) {
+            return true;
+        }
+
+        if (this.resolving) {
+            return false;
+        }
+
         // TODO: use the flag
         if (nullable == null) {
             nullable = checkNillable(memberTypes);
@@ -189,11 +205,14 @@ public class BUnionType extends BType {
     }
 
     private boolean checkNillable(List<BType> memberTypes) {
+        this.resolving = true;
         for (BType t : memberTypes) {
             if (t.isNilable()) {
+                this.resolving = false;
                 return true;
             }
         }
+        this.resolving = false;
         return false;
     }
 
@@ -224,5 +243,29 @@ public class BUnionType extends BType {
     @Override
     public void setImmutableType(BIntersectionType immutableType) {
         this.immutableType = immutableType;
+    }
+
+    private void setFlagsBasedOnMembers() {
+        if (this.resolving) {
+            return;
+        }
+        this.resolving = true;
+        boolean nilable = false, isAnydata = true, isPureType = true;
+        for (BType memberType : memberTypes) {
+            nilable |= memberType.isNilable();
+            isAnydata &= memberType.isAnydata();
+            isPureType &= memberType.isPureType();
+        }
+        this.resolving = false;
+        if (nilable) {
+            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.NILABLE);
+        }
+        if (isAnydata) {
+            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.ANYDATA);
+        }
+        if (isPureType) {
+            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.PURETYPE);
+        }
+
     }
 }
