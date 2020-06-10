@@ -29,7 +29,7 @@ function testByteArray() returns (string) {
     byte[] bytes = statement.toBytes();
     var addResponse = blockingEp->checkBytes(bytes);
     if (addResponse is grpc:Error) {
-        return io:sprintf("Error from Connector: %s - %s", addResponse.message());
+        return io:sprintf("Error from Connector: %s", addResponse.message());
     } else {
         byte[] result = [];
         grpc:Headers resHeaders = new;
@@ -48,7 +48,7 @@ function testLargeByteArray(string filePath) returns (string) {
         if (resultBytes is byte[]) {
             var addResponse = blockingEp->checkBytes(resultBytes);
             if (addResponse is grpc:Error) {
-                return io:sprintf("Error from Connector: %s - %s", addResponse.message());
+                return io:sprintf("Error from Connector: %s", addResponse.message());
             } else {
                 byte[] result = [];
                 [result, _] = addResponse;
