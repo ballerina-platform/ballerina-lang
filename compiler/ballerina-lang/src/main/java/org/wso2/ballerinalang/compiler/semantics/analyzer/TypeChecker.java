@@ -99,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
@@ -128,6 +129,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -3191,6 +3193,15 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(binaryExpr, actualType, expType);
     }
 
+    public void visit(BLangTransactionalExpr transactionalExpr) {
+        resultType = types.checkType(transactionalExpr, symTable.booleanType, expType);
+    }
+
+    public void visit(BLangCommitExpr commitExpr) {
+        BType actualType = BUnionType.create(null, symTable.errorType, symTable.nilType);
+        resultType = types.checkType(commitExpr, actualType, expType);
+    }
+
     private BType getXMLConstituents(BType type) {
         BType constituent = null;
         if (type.tag == TypeTags.XML) {
@@ -4137,7 +4148,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangNode node = env.node;
         SymbolEnv cEnv = env;
         while (node != null && node.getKind() != NodeKind.FUNCTION) {
-            if (node.getKind() == NodeKind.TRANSACTION) {
+            if (node.getKind() == NodeKind.TRANSACTION || node.getKind() == NodeKind.RETRY) {
                 SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
                 BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
                         SymTag.VARIABLE);
