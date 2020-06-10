@@ -800,7 +800,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         serviceTypeID.pos = pos;
         bLTypeDef.setName(serviceTypeID);
         bLTypeDef.flagSet.add(Flag.SERVICE);
-        bLTypeDef.typeNode = (BLangType) serviceDeclrNode.serviceBody().apply(this);
+        bLTypeDef.typeNode = createTypeNode(serviceDeclrNode.serviceBody());
         bLTypeDef.pos = pos;
         bLService.serviceTypeDefinition = bLTypeDef;
 
@@ -864,10 +864,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             if (field.kind() == SyntaxKind.RECORD_FIELD || field.kind() == SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE) {
                 recordTypeNode.fields.add((BLangSimpleVariable) field.apply(this));
             } else if (field.kind() == SyntaxKind.RECORD_REST_TYPE) {
-                recordTypeNode.restFieldType = (BLangType) field.apply(this);
+                recordTypeNode.restFieldType = createTypeNode(field);
                 hasRestField = true;
             } else if (field.kind() == SyntaxKind.TYPE_REFERENCE) {
-                recordTypeNode.addTypeReference((BLangType) field.apply(this));
+                recordTypeNode.addTypeReference(createTypeNode(field));
             }
         }
         boolean isOpen = recordTypeDescriptorNode.bodyStartDelimiter().kind() == SyntaxKind.OPEN_BRACE_TOKEN;
@@ -2417,9 +2417,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         } else {
             StreamTypeParamsNode params = (StreamTypeParamsNode) paramsNode.get();
             if (params.rightTypeDescNode().isPresent()) {
-                error = (BLangType) params.rightTypeDescNode().get().apply(this);
+                error = createTypeNode(params.rightTypeDescNode().get());
             }
-            constraint = (BLangType) params.leftTypeDescNode().apply(this);
+            constraint = createTypeNode(params.leftTypeDescNode());
         }
 
         BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
