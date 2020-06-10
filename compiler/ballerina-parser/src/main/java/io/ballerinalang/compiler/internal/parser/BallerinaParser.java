@@ -12213,35 +12213,6 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private boolean isPossibleExpression(STNode expression) {
-        switch (expression.kind) {
-            case SIMPLE_NAME_REFERENCE:
-            case QUALIFIED_NAME_REFERENCE:
-                return false;
-            case NIL_LITERAL:
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case STRING_LITERAL:
-            case NULL_KEYWORD:
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
-                return true;
-            case BINARY_EXPRESSION:
-                STBinaryExpressionNode binaryExpr = (STBinaryExpressionNode) expression;
-                if (binaryExpr.operator.kind != SyntaxKind.PIPE_TOKEN ||
-                        binaryExpr.operator.kind == SyntaxKind.BITWISE_AND_TOKEN) {
-                    return false;
-                }
-                return isAmbiguous(binaryExpr.lhsExpr) && isAmbiguous(binaryExpr.rhsExpr);
-            case BRACED_EXPRESSION:
-                return isAmbiguous(((STBracedExpressionNode) expression).expression);
-            default:
-                return false;
-        }
-    }
-
     // ------------------------ Typed binding patterns ---------------------------
 
     /**
