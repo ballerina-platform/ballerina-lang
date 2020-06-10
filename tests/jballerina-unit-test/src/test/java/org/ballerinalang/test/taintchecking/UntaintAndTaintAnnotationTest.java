@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.965.0
  */
-public class UntaintTest {
+public class UntaintAndTaintAnnotationTest {
 
     private CompileResult compileResult;
 
@@ -45,7 +45,13 @@ public class UntaintTest {
     @Test
     public void testUntaint() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/expressions/untaint.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @Test
+    public void testTaint() {
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/expressions/taint.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 1);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'sensitiveInput'", 19, 20);
     }
 
     @Test
