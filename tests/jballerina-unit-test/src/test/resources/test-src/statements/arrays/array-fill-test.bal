@@ -271,7 +271,7 @@ type Student object {
     public string name;
     public int age;
 
-    public function __init(string name, int age) {
+    public function init(string name, int age) {
         self.name = name;
         self.age = age;
     }
@@ -297,7 +297,7 @@ function testTwoDimensionalArrayFill() returns int[][] {
 type Obj object {
     int i;
 
-    function __init() {
+    function init() {
         self.i = 1;
     }
 };

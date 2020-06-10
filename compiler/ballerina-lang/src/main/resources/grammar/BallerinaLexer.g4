@@ -62,7 +62,7 @@ TYPE_NEVER      : 'never' ;
 
 VAR         : 'var' ;
 NEW         : 'new' ;
-OBJECT_INIT : '__init' ;
+OBJECT_INIT : 'init' ;
 IF          : 'if' ;
 MATCH       : 'match' ;
 ELSE        : 'else' ;

@@ -1354,7 +1354,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         // Visit the constructor with the same scope as the object
         if (objectTypeNode.initFunction != null) {
             if (objectTypeNode.initFunction.body == null) {
-                // if the __init() function is defined as an outside function definition
+                // if the init() function is defined as an outside function definition
                 Optional<BLangFunction> outerFuncDef =
                         objectEnv.enclPkg.functions.stream()
                                 .filter(f -> f.symbol.name.equals((objectTypeNode.initFunction).symbol.name))
@@ -1647,7 +1647,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             addDependency(invokableOwnerSymbol, symbol);
         } else if (ownerSymbol.kind == SymbolKind.OBJECT && isGlobalVarSymbol(symbol)) {
             // Global variable reference from a field assignment of an object or a service.
-            // Or global variable reference from a __init function of an object or a service.
+            // Or global variable reference from a init function of an object or a service.
             addDependency(ownerSymbol, symbol);
         }
     }

@@ -30,7 +30,7 @@ public type Client client object {
     #
     # + url - The server URL
     # + config - - The `grpc:ClientConfiguration` of the endpoint
-    public function __init(string url, ClientConfiguration? config = ()) {
+    public function init(string url, ClientConfiguration? config = ()) {
         self.config = config ?: {};
         self.url = url;
         error? err = externInit(self, self.url, self.config, globalGrpcClientConnPool);

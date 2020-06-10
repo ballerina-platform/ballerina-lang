@@ -15,9 +15,10 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler;
+package org.ballerinalang.compiler;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
@@ -28,13 +29,17 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public interface NativeDependencyResolver {
+public interface JarResolver {
 
-    CompilerContext.Key<NativeDependencyResolver> JAR_RESOLVER_KEY = new CompilerContext.Key<>();
+    CompilerContext.Key<JarResolver> JAR_RESOLVER_KEY = new CompilerContext.Key<>();
 
-    Path moduleJar(PackageID packageID, String platform);
+    Path moduleJar(PackageID packageID);
+
+    Path moduleTestJar(BLangPackage bLangPackage);
 
     List<Path> nativeDependencies(PackageID packageID);
 
     List<Path> nativeDependenciesForTests(PackageID packageID);
+
+    List<Path> allDependencies(BLangPackage bLangPackage);
 }

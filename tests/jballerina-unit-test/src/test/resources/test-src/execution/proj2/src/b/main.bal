@@ -1,7 +1,7 @@
 import a;
 import ballerina/io;
 
-function __init() returns error? {
+function init() returns error? {
 	io:println("Initializing module b");
 	error sampleErr = error("error returned while initializing module B");
 	return sampleErr;

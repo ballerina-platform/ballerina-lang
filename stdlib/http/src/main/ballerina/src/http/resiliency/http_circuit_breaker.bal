@@ -138,7 +138,7 @@ public type CircuitBreakerClient client object {
     # + circuitBreakerInferredConfig - Configurations derived from the `http:CircuitBreakerConfig`
     # + httpClient - The underlying `HttpActions` instance, which will be making the actual network calls
     # + circuitHealth - The circuit health monitor
-    public function __init(string url, ClientConfiguration config, CircuitBreakerInferredConfig
+    public function init(string url, ClientConfiguration config, CircuitBreakerInferredConfig
         circuitBreakerInferredConfig, HttpClient httpClient, CircuitHealth circuitHealth) {
         RollingWindow rollingWindow = circuitBreakerInferredConfig.rollingWindow;
         if (rollingWindow.timeWindowInMillis < rollingWindow.bucketSizeInMillis) {

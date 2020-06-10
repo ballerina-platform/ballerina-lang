@@ -41,7 +41,7 @@ public type InboundOAuth2Provider object {
     # Provides authentication based on the provided introspection configurations.
     #
     # + introspectionServerConfig - OAuth2 introspection server configurations
-    public function __init(IntrospectionServerConfig introspectionServerConfig) {
+    public function init(IntrospectionServerConfig introspectionServerConfig) {
         self.introspectionServerConfig = introspectionServerConfig;
     }
 
