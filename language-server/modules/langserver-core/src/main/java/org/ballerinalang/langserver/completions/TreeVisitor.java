@@ -38,7 +38,6 @@ import org.ballerinalang.langserver.completions.util.positioning.resolvers.Recor
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.RecordScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ServiceScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.TopLevelNodeScopeResolver;
-import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.AnnotationSymbol;
@@ -118,14 +117,13 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
 
 /**
  * @since 0.94
@@ -242,17 +240,6 @@ public class TreeVisitor extends LSNodeVisitor {
             // Set the current symbol environment instead of the function environment since the annotation is not
             // within the function
             funcNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, symbolEnv));
-            if (!funcNode.annAttachments.isEmpty()) {
-                BLangAnnotationAttachment lastItem = CommonUtil.getLastItem(funcNode.annAttachments);
-                if (lastItem == null) {
-                    return;
-                }
-                List<Whitespace> wsList = new ArrayList<>(funcNode.getWS());
-                String[] firstWSItem = wsList.get(0).getWs().split(CommonUtil.LINE_SEPARATOR_SPLIT, -1);
-                int precedingNewLines = firstWSItem.length - 1;
-                functionPos.sLine = lastItem.pos.eLine + precedingNewLines;
-                functionPos.sCol = firstWSItem[firstWSItem.length - 1].length() + 1;
-            }
         }
         // TODO: Find a better approach along with the new parser implementation
 //        else if (funcNode.flagSet.contains(Flag.WORKER) && CompletionVisitorUtil
