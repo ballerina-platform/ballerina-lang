@@ -22,6 +22,7 @@ import io.ballerinalang.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
@@ -355,9 +356,65 @@ public abstract class AbstractParserErrorHandler {
                 return DiagnosticErrorCode.ERROR_MISSING_DECIMAL_INTEGER_LITERAL;
             case TYPE_DESC:
                 return DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC;
+            case IMPORT_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_IMPORT_KEYWORD;
             default:
                 throw new UnsupportedOperationException("Unsupported SyntaxKind: " + expectedKind);
         }
+    }
+
+    /**
+     * Clone the given {@code STNode} with the invalid node as leading minutiae.
+     *
+     * @param toClone     the node to be cloned
+     * @param invalidNode the invalid
+     * @return a cloned node with the given invalidNode minutiae
+     */
+    protected STNode cloneWithLeadingInvalidNodeMinutiae(STNode toClone, STNode invalidNode) {
+        STToken firstToken = toClone.firstToken();
+        STToken firstTokenWithInvalidNodeMinutiae = cloneWithLeadingInvalidNodeMinutiae(firstToken, invalidNode);
+        return toClone.replace(firstToken, firstTokenWithInvalidNodeMinutiae);
+    }
+
+    /**
+     * Clone the given {@code STToken} with the invalid node as leading minutiae.
+     *
+     * @param toClone     the token to be cloned
+     * @param invalidNode the invalid
+     * @return a cloned token with the given invalidNode minutiae
+     */
+    protected STToken cloneWithLeadingInvalidNodeMinutiae(STToken toClone, STNode invalidNode) {
+        STNode invalidNodeMinutiae = STNodeFactory.createInvalidNodeMinutiae(invalidNode);
+        STNodeList leadingMinutiae = (STNodeList) toClone.leadingMinutiae();
+        leadingMinutiae = leadingMinutiae.add(0, invalidNodeMinutiae);
+        return toClone.modifyWith(leadingMinutiae, toClone.trailingMinutiae());
+    }
+
+    /**
+     * Clone the given {@code STNode} with the invalid node as trailing minutiae.
+     *
+     * @param toClone     the node to be cloned
+     * @param invalidNode the invalid
+     * @return a cloned node with the given invalidNode minutiae
+     */
+    protected STNode cloneWithTrailingInvalidNodeMinutiae(STNode toClone, STNode invalidNode) {
+        STToken lastToken = toClone.lastToken();
+        STToken lastTokenWithInvalidNodeMinutiae = cloneWithTrailingInvalidNodeMinutiae(lastToken, invalidNode);
+        return toClone.replace(lastToken, lastTokenWithInvalidNodeMinutiae);
+    }
+
+    /**
+     * Clone the given {@code STToken} with the invalid node as trailing minutiae.
+     *
+     * @param toClone     the token to be cloned
+     * @param invalidNode the invalid
+     * @return a cloned token with the given invalidNode minutiae
+     */
+    protected STToken cloneWithTrailingInvalidNodeMinutiae(STToken toClone, STNode invalidNode) {
+        STNode invalidNodeMinutiae = STNodeFactory.createInvalidNodeMinutiae(invalidNode);
+        STNodeList trailingMinutiae = (STNodeList) toClone.trailingMinutiae();
+        trailingMinutiae = trailingMinutiae.add(invalidNodeMinutiae);
+        return toClone.modifyWith(toClone.leadingMinutiae(), trailingMinutiae);
     }
 
     protected ParserRuleContext getParentContext() {
