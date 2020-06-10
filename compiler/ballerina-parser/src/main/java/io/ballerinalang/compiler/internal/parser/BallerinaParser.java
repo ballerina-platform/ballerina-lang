@@ -1990,15 +1990,6 @@ public class BallerinaParser extends AbstractParser {
                                      STNode qualifier, STNode type, STNode paramName) {
         // Required parameters
         if (isEndOfParameter(tokenKind)) {
-//            if (prevParamKind == SyntaxKind.DEFAULTABLE_PARAM) {
-//                // This is an erroneous scenario, where a required parameters comes after
-//                // a defaulatble parameter. Log an error, and continue.
-//
-//                // TODO: mark the node as erroneous
-//                this.errorHandler.reportInvalidNode(peek(),
-//                        "cannot have a required parameter after a defaultable parameter");
-//            }
-
             return STNodeFactory.createRequiredParameterNode(leadingComma, annots, qualifier, type, paramName);
         } else if (tokenKind == SyntaxKind.EQUAL_TOKEN) {
             // If we were processing required params so far and found a defualtable
