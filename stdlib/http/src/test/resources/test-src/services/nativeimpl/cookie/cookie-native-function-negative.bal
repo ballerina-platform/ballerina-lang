@@ -248,7 +248,6 @@ function testAddPersistentCookieWithoutPersistentStore() returns @tainted http:C
     }
     return cookies;
 }
-
 //TODO Table remove - Fix
 //function testRemovePersistentCookieFromCookieStore_1() returns @tainted http:Cookie[] {
 //    http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");

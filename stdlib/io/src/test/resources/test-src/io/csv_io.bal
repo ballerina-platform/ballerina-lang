@@ -121,7 +121,6 @@ function hasNextRecord() returns boolean? {
     }
 }
 
-//TODO Table remove - Fix
 function getTable(string filePath, string encoding, io:Separator fieldSeparator) returns @tainted float | error {
     var byteChannel = io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {

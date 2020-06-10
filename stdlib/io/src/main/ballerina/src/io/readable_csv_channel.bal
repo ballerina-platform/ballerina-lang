@@ -96,20 +96,22 @@ public type ReadableCSVChannel object {
         return ();
     }
 
-//TODO Table remove - Fix
 # Returns a table, which corresponds to the CSV records.
 # ```ballerina
-# var tblResult = readableCSVChannel.getTable(Employee);
+# var tblResult1 = readableCSVChannel.getTable(Employee);
+# var tblResult2 = readableCSVChannel.getTable(Employee, ["id", "name"]);
 # ```
 #
 # + structType - The object in which the CSV records should be deserialized
+# + tableKey - The key of the table
 # + return - Table, which represents the CSV records or else an `io:Error`
-    public function getTable(typedesc<record {}> structType) returns @tainted table<record {}>|Error {
-        return getTableExtern(self, structType);
+    public function getTable(typedesc<record {}> structType, public string[] tableKey = [])
+    returns @tainted table<record {}>|Error {
+        return getTableExtern(self, structType, tableKey);
     }
 };
 
-function getTableExtern(ReadableCSVChannel csvChannel, typedesc<record {}> structType)
+function getTableExtern(ReadableCSVChannel csvChannel, typedesc<record {}> structType, public string[] tableKey)
             returns @tainted table<record {}>|Error = @java:Method {
     name: "getTable",
     class: "org.ballerinalang.stdlib.io.nativeimpl.GetTable"

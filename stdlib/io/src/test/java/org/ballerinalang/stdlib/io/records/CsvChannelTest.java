@@ -400,7 +400,6 @@ public class CsvChannelTest {
         BRunUtil.invoke(csvInputOutputProgramFile, "close");
     }
 
-    //TODO Table remove - Fix
     @Test(description = "Test successful data load")
     public void loadRecordFromFile() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sample5.csv";
