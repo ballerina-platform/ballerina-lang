@@ -30,9 +30,9 @@ public type Listener object {
     # Gets invoked during the `email:Listener` initialization.
     #
     # + ListenerConfig - Configurations for Email endpoint
-    public function __init(ListenerConfig listenerConfig) {
+    public function init(ListenerConfig listenerConfig) {
         self.config = listenerConfig;
-        checkpanic init(self, self.config);
+        checkpanic externalInit(self, self.config);
     }
 
     # Starts the `email:Listener`.
@@ -172,7 +172,7 @@ function poll(Listener listenerEndpoint) returns error? = @java:Method{
     class: "org.ballerinalang.stdlib.email.server.EmailListenerHelper"
 } external;
 
-function init(Listener listenerEndpoint, ListenerConfig config) returns error? = @java:Method{
+function externalInit(Listener listenerEndpoint, ListenerConfig config) returns error? = @java:Method{
     name: "init",
     class: "org.ballerinalang.stdlib.email.server.EmailListenerHelper"
 } external;

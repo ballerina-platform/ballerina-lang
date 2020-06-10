@@ -26,7 +26,7 @@ public type ParserBufferReader object {
     private Lexer lexer;
     private Token[] tokenArray = [];
 
-    public function __init(Lexer lexer, int capacity = 5) {
+    public function init(Lexer lexer, int capacity = 5) {
         self.lexer = lexer;
         self.capacity = capacity;
         self.fillTokenBuffer();

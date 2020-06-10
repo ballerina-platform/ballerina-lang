@@ -24,7 +24,7 @@ type ErrorHandlerGenerator object {
     BalToJVMIndexMap indexMap;
     string currentPackageName;
 
-    function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, string currentPackageName) {
+    function init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, string currentPackageName) {
         self.mv = mv;
         self.indexMap = indexMap;
         self.currentPackageName = currentPackageName;

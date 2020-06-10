@@ -33,7 +33,7 @@ public type employee object {
     public int id = 0;
     public int employeeId = 123456;
 
-    public function __init (int age, string name) {
+    public function init (int age, string name) {
         self.age = age;
         self.name = name;
     }

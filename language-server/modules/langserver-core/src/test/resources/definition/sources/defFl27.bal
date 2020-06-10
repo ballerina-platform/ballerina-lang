@@ -33,7 +33,7 @@ function stringTemplateWithText14 () returns (string) {
 }
 
 type TestObject1 object {
-    public function __init(int arg1, int arg2 = 12, string... restArg) {
+    public function init(int arg1, int arg2 = 12, string... restArg) {
         
     }
 };

@@ -37,7 +37,7 @@ public type RedirectClient client object {
     # + config - HTTP ClientConfiguration to be used for HTTP client invocation
     # + redirectConfig - Configurations associated with redirect
     # + httpClient - HTTP client for outbound HTTP requests
-    public function __init(string url, ClientConfiguration config, FollowRedirects redirectConfig, HttpClient httpClient) {
+    public function init(string url, ClientConfiguration config, FollowRedirects redirectConfig, HttpClient httpClient) {
         self.url = url;
         self.config = config;
         self.redirectConfig = redirectConfig;

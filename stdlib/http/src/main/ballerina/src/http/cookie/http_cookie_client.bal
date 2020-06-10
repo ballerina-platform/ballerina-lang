@@ -36,7 +36,7 @@ public type CookieClient object {
     # + cookieConfig - Configurations associated with the cookies
     # + httpClient - HTTP client for outbound HTTP requests
     # + cookieStore - Stores the cookies of the client
-     public function __init(string url, ClientConfiguration config, CookieConfig cookieConfig, HttpClient httpClient, CookieStore? cookieStore) {
+     public function init(string url, ClientConfiguration config, CookieConfig cookieConfig, HttpClient httpClient, CookieStore? cookieStore) {
          self.url = url;
          self.config = config;
          self.cookieConfig = cookieConfig;

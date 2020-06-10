@@ -32,7 +32,7 @@ public type AuthzHandler object {
     #
     # + positiveAuthzCache - The `cache:Cache` instance, which holds positive authorizations
     # + negativeAuthzCache - The `cache:Cache` instance, which holds negative authorizations
-    public function __init(cache:Cache? positiveAuthzCache, cache:Cache? negativeAuthzCache) {
+    public function init(cache:Cache? positiveAuthzCache, cache:Cache? negativeAuthzCache) {
         self.positiveAuthzCache = positiveAuthzCache;
         self.negativeAuthzCache = negativeAuthzCache;
     }

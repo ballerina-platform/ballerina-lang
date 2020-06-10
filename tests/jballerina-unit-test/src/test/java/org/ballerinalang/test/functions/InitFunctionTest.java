@@ -74,9 +74,9 @@ public class InitFunctionTest {
     public void invalidInitFunctionSignatureTest() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/functions/test_init_function_negative.bal");
         assertEquals(negativeResult.getErrorCount(), 3);
-        validateError(negativeResult, 0, "the module '__init()' function cannot accept parameters", 17, 1);
-        validateError(negativeResult, 1, "the module '__init()' function cannot be public", 17, 1);
-        validateError(negativeResult, 2, "invalid module '__init()' function return type 'error', expected a subtype " +
-                "of 'error?' containing '()'", 17, 67);
+        validateError(negativeResult, 0, "the module 'init()' function cannot accept parameters", 17, 1);
+        validateError(negativeResult, 1, "the module 'init()' function cannot be public", 17, 1);
+        validateError(negativeResult, 2, "invalid module 'init()' function return type 'error', expected a subtype " +
+                "of 'error?' containing '()'", 17, 65);
     }
 }
