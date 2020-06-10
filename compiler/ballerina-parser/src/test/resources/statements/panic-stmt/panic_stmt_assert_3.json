@@ -1,5 +1,6 @@
 {
   "kind": "PANIC_STATEMENT",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "PANIC_KEYWORD"
@@ -10,7 +11,11 @@
     },
     {
       "kind": "SEMICOLON_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_SEMICOLON_TOKEN"
+      ]
     }
   ]
 }

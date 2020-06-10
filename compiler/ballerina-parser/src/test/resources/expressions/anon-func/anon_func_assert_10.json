@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -34,15 +35,18 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
@@ -53,9 +57,11 @@
                 },
                 {
                   "kind": "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "INFER_PARAM_LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "OPEN_PAREN_TOKEN"
@@ -78,7 +84,11 @@
                         },
                         {
                           "kind": "CLOSE_PAREN_TOKEN",
-                          "isMissing": true
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+                          ]
                         }
                       ]
                     },
@@ -98,6 +108,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
@@ -108,15 +119,18 @@
                 },
                 {
                   "kind": "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "INFER_PARAM_LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "OPEN_PAREN_TOKEN"
                         },
                         {
                           "kind": "LIST",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
@@ -134,7 +148,11 @@
                             },
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_IDENTIFIER"
+                              ]
                             }
                           ]
                         },
@@ -159,6 +177,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
@@ -169,15 +188,18 @@
                 },
                 {
                   "kind": "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "INFER_PARAM_LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "OPEN_PAREN_TOKEN"
                         },
                         {
                           "kind": "LIST",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
@@ -192,7 +214,11 @@
                             },
                             {
                               "kind": "COMMA_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_COMMA_TOKEN"
+                              ]
                             },
                             {
                               "kind": "IDENTIFIER_TOKEN",
@@ -221,6 +247,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
@@ -231,6 +258,7 @@
                 },
                 {
                   "kind": "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "INFER_PARAM_LIST",
@@ -261,7 +289,11 @@
                     },
                     {
                       "kind": "RIGHT_DOUBLE_ARROW_TOKEN",
-                      "isMissing": true
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_RIGHT_DOUBLE_ARROW_TOKEN"
+                      ]
                     },
                     {
                       "kind": "IDENTIFIER_TOKEN",
@@ -276,6 +308,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
@@ -286,9 +319,11 @@
                 },
                 {
                   "kind": "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "INFER_PARAM_LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "OPEN_PAREN_TOKEN"
@@ -311,13 +346,21 @@
                         },
                         {
                           "kind": "CLOSE_PAREN_TOKEN",
-                          "isMissing": true
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+                          ]
                         }
                       ]
                     },
                     {
                       "kind": "RIGHT_DOUBLE_ARROW_TOKEN",
-                      "isMissing": true
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_RIGHT_DOUBLE_ARROW_TOKEN"
+                      ]
                     },
                     {
                       "kind": "IDENTIFIER_TOKEN",

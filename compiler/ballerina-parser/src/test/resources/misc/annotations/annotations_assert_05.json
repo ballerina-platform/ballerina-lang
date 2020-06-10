@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_PART",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -7,18 +8,23 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "FUNCTION_DEFINITION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "ANNOTATION",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "AT_TOKEN"
@@ -29,6 +35,7 @@
                         },
                         {
                           "kind": "MAPPING_CONSTRUCTOR",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "OPEN_BRACE_TOKEN"
@@ -39,7 +46,11 @@
                             },
                             {
                               "kind": "CLOSE_BRACE_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+                              ]
                             }
                           ]
                         }
@@ -93,6 +104,7 @@
         },
         {
           "kind": "TYPE_DEFINITION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -125,6 +137,7 @@
             },
             {
               "kind": "RECORD_TYPE_DESC",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "RECORD_KEYWORD"
@@ -134,18 +147,23 @@
                 },
                 {
                   "kind": "LIST",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "RECORD_FIELD",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "METADATA",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "ANNOTATION",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "AT_TOKEN"
@@ -156,6 +174,7 @@
                                     },
                                     {
                                       "kind": "MAPPING_CONSTRUCTOR",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "OPEN_BRACE_TOKEN"
@@ -166,7 +185,11 @@
                                         },
                                         {
                                           "kind": "CLOSE_BRACE_TOKEN",
-                                          "isMissing": true
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+                                          ]
                                         }
                                       ]
                                     }
@@ -202,6 +225,7 @@
         },
         {
           "kind": "TYPE_DEFINITION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -234,6 +258,7 @@
             },
             {
               "kind": "OBJECT_TYPE_DESC",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -247,18 +272,23 @@
                 },
                 {
                   "kind": "LIST",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "OBJECT_FIELD",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "METADATA",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "ANNOTATION",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "AT_TOKEN"
@@ -269,6 +299,7 @@
                                     },
                                     {
                                       "kind": "MAPPING_CONSTRUCTOR",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "OPEN_BRACE_TOKEN"
@@ -279,7 +310,11 @@
                                         },
                                         {
                                           "kind": "CLOSE_BRACE_TOKEN",
-                                          "isMissing": true
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+                                          ]
                                         }
                                       ]
                                     }
@@ -303,15 +338,19 @@
                     },
                     {
                       "kind": "OBJECT_METHOD_DEFINITION",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "METADATA",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "ANNOTATION",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "AT_TOKEN"
@@ -322,6 +361,7 @@
                                     },
                                     {
                                       "kind": "MAPPING_CONSTRUCTOR",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "OPEN_BRACE_TOKEN"
@@ -332,7 +372,11 @@
                                         },
                                         {
                                           "kind": "CLOSE_BRACE_TOKEN",
-                                          "isMissing": true
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+                                          ]
                                         }
                                       ]
                                     }
@@ -398,15 +442,19 @@
         },
         {
           "kind": "SERVICE_DECLARATION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "ANNOTATION",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "AT_TOKEN"
@@ -417,6 +465,7 @@
                         },
                         {
                           "kind": "MAPPING_CONSTRUCTOR",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "OPEN_BRACE_TOKEN"
@@ -427,7 +476,11 @@
                             },
                             {
                               "kind": "CLOSE_BRACE_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+                              ]
                             }
                           ]
                         }
@@ -463,24 +516,30 @@
             },
             {
               "kind": "SERVICE_BODY",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "OPEN_BRACE_TOKEN"
                 },
                 {
                   "kind": "LIST",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "FUNCTION_DEFINITION",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "METADATA",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "ANNOTATION",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "AT_TOKEN"
@@ -491,6 +550,7 @@
                                     },
                                     {
                                       "kind": "MAPPING_CONSTRUCTOR",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "OPEN_BRACE_TOKEN"
@@ -501,7 +561,11 @@
                                         },
                                         {
                                           "kind": "CLOSE_BRACE_TOKEN",
-                                          "isMissing": true
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+                                          ]
                                         }
                                       ]
                                     }
@@ -555,15 +619,19 @@
                     },
                     {
                       "kind": "FUNCTION_DEFINITION",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "METADATA",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "ANNOTATION",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "AT_TOKEN"
@@ -574,6 +642,7 @@
                                     },
                                     {
                                       "kind": "MAPPING_CONSTRUCTOR",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "OPEN_BRACE_TOKEN"
@@ -584,7 +653,11 @@
                                         },
                                         {
                                           "kind": "CLOSE_BRACE_TOKEN",
-                                          "isMissing": true
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+                                          ]
                                         }
                                       ]
                                     }
@@ -644,15 +717,19 @@
         },
         {
           "kind": "CONST_DECLARATION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "ANNOTATION",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "AT_TOKEN"
@@ -663,6 +740,7 @@
                         },
                         {
                           "kind": "MAPPING_CONSTRUCTOR",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "OPEN_BRACE_TOKEN"
@@ -673,7 +751,11 @@
                             },
                             {
                               "kind": "CLOSE_BRACE_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+                              ]
                             }
                           ]
                         }
@@ -704,15 +786,19 @@
         },
         {
           "kind": "MODULE_VAR_DECL",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "ANNOTATION",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "AT_TOKEN"
@@ -723,6 +809,7 @@
                         },
                         {
                           "kind": "MAPPING_CONSTRUCTOR",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "OPEN_BRACE_TOKEN"
@@ -733,7 +820,11 @@
                             },
                             {
                               "kind": "CLOSE_BRACE_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+                              ]
                             }
                           ]
                         }
@@ -774,15 +865,19 @@
         },
         {
           "kind": "LISTENER_DECLARATION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "ANNOTATION",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "AT_TOKEN"
@@ -793,6 +888,7 @@
                         },
                         {
                           "kind": "MAPPING_CONSTRUCTOR",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "OPEN_BRACE_TOKEN"
@@ -803,7 +899,11 @@
                             },
                             {
                               "kind": "CLOSE_BRACE_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+                              ]
                             }
                           ]
                         }

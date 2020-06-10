@@ -1,5 +1,6 @@
 {
   "kind": "QUERY_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "QUERY_PIPELINE",
@@ -44,13 +45,18 @@
     },
     {
       "kind": "SELECT_CLAUSE",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "SELECT_KEYWORD"
         },
         {
           "kind": "IDENTIFIER_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
         }
       ]
     }

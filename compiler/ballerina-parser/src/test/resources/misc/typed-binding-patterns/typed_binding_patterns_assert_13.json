@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_PART",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -7,9 +8,11 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "FUNCTION_DEFINITION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -44,15 +47,18 @@
             },
             {
               "kind": "FUNCTION_BODY_BLOCK",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "OPEN_BRACE_TOKEN"
                 },
                 {
                   "kind": "LIST",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "ASSIGNMENT_STATEMENT",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
@@ -63,15 +69,18 @@
                         },
                         {
                           "kind": "LET_EXPRESSION",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LET_KEYWORD"
                             },
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "LET_VAR_DECL",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "LIST",
@@ -79,18 +88,21 @@
                                     },
                                     {
                                       "kind": "TYPED_BINDING_PATTERN",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "VAR_KEYWORD"
                                         },
                                         {
                                           "kind": "LIST_BINDING_PATTERN",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
                                               "kind": "OPEN_BRACKET_TOKEN"
                                             },
                                             {
                                               "kind": "LIST",
+                                              "hasDiagnostics": true,
                                               "children": [
                                                 {
                                                   "kind": "CAPTURE_BINDING_PATTERN",
@@ -106,12 +118,14 @@
                                                 },
                                                 {
                                                   "kind": "LIST_BINDING_PATTERN",
+                                                  "hasDiagnostics": true,
                                                   "children": [
                                                     {
                                                       "kind": "OPEN_BRACKET_TOKEN"
                                                     },
                                                     {
                                                       "kind": "LIST",
+                                                      "hasDiagnostics": true,
                                                       "children": [
                                                         {
                                                           "kind": "CAPTURE_BINDING_PATTERN",
@@ -124,7 +138,11 @@
                                                         },
                                                         {
                                                           "kind": "COMMA_TOKEN",
-                                                          "isMissing": true
+                                                          "isMissing": true,
+                                                          "hasDiagnostics": true,
+                                                          "diagnostics": [
+                                                            "ERROR_MISSING_COMMA_TOKEN"
+                                                          ]
                                                         },
                                                         {
                                                           "kind": "CAPTURE_BINDING_PATTERN",
@@ -144,7 +162,11 @@
                                                 },
                                                 {
                                                   "kind": "COMMA_TOKEN",
-                                                  "isMissing": true
+                                                  "isMissing": true,
+                                                  "hasDiagnostics": true,
+                                                  "diagnostics": [
+                                                    "ERROR_MISSING_COMMA_TOKEN"
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "WILDCARD_BINDING_PATTERN",
@@ -159,7 +181,11 @@
                                             },
                                             {
                                               "kind": "CLOSE_BRACKET_TOKEN",
-                                              "isMissing": true
+                                              "isMissing": true,
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
+                                              ]
                                             }
                                           ]
                                         }
@@ -192,6 +218,7 @@
                     },
                     {
                       "kind": "ASSIGNMENT_STATEMENT",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
@@ -202,15 +229,18 @@
                         },
                         {
                           "kind": "LET_EXPRESSION",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LET_KEYWORD"
                             },
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "LET_VAR_DECL",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "LIST",
@@ -218,6 +248,7 @@
                                     },
                                     {
                                       "kind": "TYPED_BINDING_PATTERN",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
@@ -225,12 +256,14 @@
                                         },
                                         {
                                           "kind": "LIST_BINDING_PATTERN",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
                                               "kind": "OPEN_BRACKET_TOKEN"
                                             },
                                             {
                                               "kind": "LIST",
+                                              "hasDiagnostics": true,
                                               "children": [
                                                 {
                                                   "kind": "CAPTURE_BINDING_PATTERN",
@@ -246,12 +279,14 @@
                                                 },
                                                 {
                                                   "kind": "LIST_BINDING_PATTERN",
+                                                  "hasDiagnostics": true,
                                                   "children": [
                                                     {
                                                       "kind": "OPEN_BRACKET_TOKEN"
                                                     },
                                                     {
                                                       "kind": "LIST",
+                                                      "hasDiagnostics": true,
                                                       "children": [
                                                         {
                                                           "kind": "CAPTURE_BINDING_PATTERN",
@@ -264,7 +299,11 @@
                                                         },
                                                         {
                                                           "kind": "COMMA_TOKEN",
-                                                          "isMissing": true
+                                                          "isMissing": true,
+                                                          "hasDiagnostics": true,
+                                                          "diagnostics": [
+                                                            "ERROR_MISSING_COMMA_TOKEN"
+                                                          ]
                                                         },
                                                         {
                                                           "kind": "CAPTURE_BINDING_PATTERN",
@@ -284,7 +323,11 @@
                                                 },
                                                 {
                                                   "kind": "COMMA_TOKEN",
-                                                  "isMissing": true
+                                                  "isMissing": true,
+                                                  "hasDiagnostics": true,
+                                                  "diagnostics": [
+                                                    "ERROR_MISSING_COMMA_TOKEN"
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "WILDCARD_BINDING_PATTERN",
@@ -299,7 +342,11 @@
                                             },
                                             {
                                               "kind": "CLOSE_BRACKET_TOKEN",
-                                              "isMissing": true
+                                              "isMissing": true,
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
+                                              ]
                                             }
                                           ]
                                         }
@@ -332,6 +379,7 @@
                     },
                     {
                       "kind": "ASSIGNMENT_STATEMENT",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
@@ -342,15 +390,18 @@
                         },
                         {
                           "kind": "LET_EXPRESSION",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LET_KEYWORD"
                             },
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "LET_VAR_DECL",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "LIST",
@@ -358,9 +409,11 @@
                                     },
                                     {
                                       "kind": "TYPED_BINDING_PATTERN",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "ARRAY_TYPE_DESC",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
                                               "kind": "ARRAY_TYPE_DESC",
@@ -390,7 +443,11 @@
                                             },
                                             {
                                               "kind": "CLOSE_BRACKET_TOKEN",
-                                              "isMissing": true
+                                              "isMissing": true,
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
+                                              ]
                                             }
                                           ]
                                         },

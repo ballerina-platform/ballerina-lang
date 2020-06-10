@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -22,12 +23,14 @@
     },
     {
       "kind": "FUNCTION_SIGNATURE",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_PAREN_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "REQUIRED_PARAM",
@@ -47,6 +50,10 @@
             },
             {
               "kind": "DEFAULTABLE_PARAM",
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_REQUIRED_PARAMETER_AFTER_THE_DEFAULTABLE_PARAMETER"
+              ],
               "children": [
                 {
                   "kind": "COMMA_TOKEN"

@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_PART",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -7,9 +8,11 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "FUNCTION_DEFINITION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -44,6 +47,7 @@
             },
             {
               "kind": "FUNCTION_BODY_BLOCK",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "OPEN_BRACE_TOKEN"
@@ -54,7 +58,11 @@
                 },
                 {
                   "kind": "CLOSE_BRACE_TOKEN",
-                  "isMissing": true
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+                  ]
                 }
               ]
             }

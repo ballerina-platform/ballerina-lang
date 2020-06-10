@@ -1,5 +1,6 @@
 {
   "kind": "TYPE_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -19,6 +20,7 @@
     },
     {
       "kind": "OBJECT_TYPE_DESC",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "LIST",
@@ -61,7 +63,11 @@
         },
         {
           "kind": "CLOSE_BRACE_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+          ]
         }
       ]
     },

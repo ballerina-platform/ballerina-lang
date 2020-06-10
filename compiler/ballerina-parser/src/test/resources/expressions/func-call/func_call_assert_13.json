@@ -1,5 +1,6 @@
 {
   "kind": "BINARY_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "FUNCTION_CALL",
@@ -32,10 +33,15 @@
     },
     {
       "kind": "PLUS_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_PLUS_TOKEN"
+      ]
     },
     {
       "kind": "FUNCTION_CALL",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "IDENTIFIER_TOKEN",
@@ -50,7 +56,11 @@
         },
         {
           "kind": "CLOSE_PAREN_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+          ]
         }
       ]
     }

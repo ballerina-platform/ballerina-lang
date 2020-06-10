@@ -1,5 +1,6 @@
 {
   "kind": "SERVICE_DECLARATION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -19,7 +20,12 @@
     },
     {
       "kind": "ON_KEYWORD",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_ON_KEYWORD",
+        "ERROR_MISSING_EXPRESSION"
+      ]
     },
     {
       "kind": "LIST",

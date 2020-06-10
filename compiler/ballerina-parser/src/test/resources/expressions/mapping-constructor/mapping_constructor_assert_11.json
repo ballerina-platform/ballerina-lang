@@ -1,11 +1,13 @@
 {
   "kind": "MAPPING_CONSTRUCTOR",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "OPEN_BRACE_TOKEN"
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "SPECIFIC_FIELD",
@@ -37,14 +39,23 @@
         },
         {
           "kind": "COMMA_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_COMMA_TOKEN"
+          ]
         },
         {
           "kind": "SPECIFIC_FIELD",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_IDENTIFIER"
+              ]
             },
             {
               "kind": "COLON_TOKEN"
