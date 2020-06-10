@@ -520,6 +520,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseMatchPattern();
             case MATCH_PATTERN_RHS:
                 return parseMatchPatternEnd();
+            case ENUM_MEMBER_RHS:
+                return parseEnumMemberRhs((STNode) args[0], (STNode) args[1]);
+            case RECEIVE_FIELD:
+                return parseReceiveField();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -5268,7 +5272,7 @@ public class BallerinaParser extends AbstractParser {
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.OBJECT_FIELD_RHS, metadata, visibilityQualifier,
-                        type, fieldName);
+                        readonlyQualifier, type, fieldName);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch

@@ -46,7 +46,7 @@
               ]
             },
             {
-              "kind": "DEFAULTABLE_PARAM",
+              "kind": "REQUIRED_PARAM",
               "children": [
                 {
                   "kind": "COMMA_TOKEN"
@@ -61,14 +61,6 @@
                 {
                   "kind": "IDENTIFIER_TOKEN",
                   "value": "b"
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "isMissing": true
-                },
-                {
-                  "kind": "DECIMAL_INTEGER_LITERAL",
-                  "value": "5"
                 }
               ]
             },
