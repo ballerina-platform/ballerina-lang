@@ -226,6 +226,10 @@ public class Flags {
         return flagSet;
     }
 
+    public static int unset(int mask, int flag) {
+        return mask & (~flag);
+    }
+
     private static void addIfFlagOn(Set<Flag> flagSet, int mask, int flagVal, Flag flag) {
         if ((mask & flagVal) == flagVal) {
             flagSet.add(flag);
