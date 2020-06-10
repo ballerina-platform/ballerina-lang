@@ -2188,16 +2188,16 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode visibilityQualifier = modifyNode(objectMethodDefinitionNode.visibilityQualifier);
         STNode remoteKeyword = modifyNode(objectMethodDefinitionNode.remoteKeyword);
         STNode functionKeyword = modifyNode(objectMethodDefinitionNode.functionKeyword);
-        STNode functionName = modifyNode(objectMethodDefinitionNode.functionName);
-        STNode functionSignature = modifyNode(objectMethodDefinitionNode.functionSignature);
+        STNode methodName = modifyNode(objectMethodDefinitionNode.methodName);
+        STNode methodSignature = modifyNode(objectMethodDefinitionNode.methodSignature);
         STNode functionBody = modifyNode(objectMethodDefinitionNode.functionBody);
         return objectMethodDefinitionNode.modify(
                 metadata,
                 visibilityQualifier,
                 remoteKeyword,
                 functionKeyword,
-                functionName,
-                functionSignature,
+                methodName,
+                methodSignature,
                 functionBody);
     }
 

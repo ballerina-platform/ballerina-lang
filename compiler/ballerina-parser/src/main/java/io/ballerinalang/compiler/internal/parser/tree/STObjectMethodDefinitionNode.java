@@ -35,8 +35,8 @@ public class STObjectMethodDefinitionNode extends STNode {
     public final STNode visibilityQualifier;
     public final STNode remoteKeyword;
     public final STNode functionKeyword;
-    public final STNode functionName;
-    public final STNode functionSignature;
+    public final STNode methodName;
+    public final STNode methodSignature;
     public final STNode functionBody;
 
     STObjectMethodDefinitionNode(
@@ -44,16 +44,16 @@ public class STObjectMethodDefinitionNode extends STNode {
             STNode visibilityQualifier,
             STNode remoteKeyword,
             STNode functionKeyword,
-            STNode functionName,
-            STNode functionSignature,
+            STNode methodName,
+            STNode methodSignature,
             STNode functionBody) {
         this(
                 metadata,
                 visibilityQualifier,
                 remoteKeyword,
                 functionKeyword,
-                functionName,
-                functionSignature,
+                methodName,
+                methodSignature,
                 functionBody,
                 Collections.emptyList());
     }
@@ -63,8 +63,8 @@ public class STObjectMethodDefinitionNode extends STNode {
             STNode visibilityQualifier,
             STNode remoteKeyword,
             STNode functionKeyword,
-            STNode functionName,
-            STNode functionSignature,
+            STNode methodName,
+            STNode methodSignature,
             STNode functionBody,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.OBJECT_METHOD_DEFINITION, diagnostics);
@@ -72,8 +72,8 @@ public class STObjectMethodDefinitionNode extends STNode {
         this.visibilityQualifier = visibilityQualifier;
         this.remoteKeyword = remoteKeyword;
         this.functionKeyword = functionKeyword;
-        this.functionName = functionName;
-        this.functionSignature = functionSignature;
+        this.methodName = methodName;
+        this.methodSignature = methodSignature;
         this.functionBody = functionBody;
 
         addChildren(
@@ -81,8 +81,8 @@ public class STObjectMethodDefinitionNode extends STNode {
                 visibilityQualifier,
                 remoteKeyword,
                 functionKeyword,
-                functionName,
-                functionSignature,
+                methodName,
+                methodSignature,
                 functionBody);
     }
 
@@ -92,8 +92,8 @@ public class STObjectMethodDefinitionNode extends STNode {
                 this.visibilityQualifier,
                 this.remoteKeyword,
                 this.functionKeyword,
-                this.functionName,
-                this.functionSignature,
+                this.methodName,
+                this.methodSignature,
                 this.functionBody,
                 diagnostics);
     }
@@ -103,16 +103,16 @@ public class STObjectMethodDefinitionNode extends STNode {
             STNode visibilityQualifier,
             STNode remoteKeyword,
             STNode functionKeyword,
-            STNode functionName,
-            STNode functionSignature,
+            STNode methodName,
+            STNode methodSignature,
             STNode functionBody) {
         if (checkForReferenceEquality(
                 metadata,
                 visibilityQualifier,
                 remoteKeyword,
                 functionKeyword,
-                functionName,
-                functionSignature,
+                methodName,
+                methodSignature,
                 functionBody)) {
             return this;
         }
@@ -122,8 +122,8 @@ public class STObjectMethodDefinitionNode extends STNode {
                 visibilityQualifier,
                 remoteKeyword,
                 functionKeyword,
-                functionName,
-                functionSignature,
+                methodName,
+                methodSignature,
                 functionBody,
                 diagnostics);
     }

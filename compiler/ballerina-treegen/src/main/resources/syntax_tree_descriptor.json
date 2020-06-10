@@ -3680,11 +3680,11 @@
                     "type": "Token"
                 },
                 {
-                    "name": "functionName",
+                    "name": "methodName",
                     "type": "IdentifierToken"
                 },
                 {
-                    "name": "functionSignature",
+                    "name": "methodSignature",
                     "type": "FunctionSignatureNode"
                 },
                 {

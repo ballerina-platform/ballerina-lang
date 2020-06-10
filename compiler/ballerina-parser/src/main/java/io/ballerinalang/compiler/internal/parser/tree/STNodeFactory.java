@@ -2033,8 +2033,8 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode visibilityQualifier,
             STNode remoteKeyword,
             STNode functionKeyword,
-            STNode functionName,
-            STNode functionSignature,
+            STNode methodName,
+            STNode methodSignature,
             STNode functionBody) {
 
         return new STObjectMethodDefinitionNode(
@@ -2042,8 +2042,8 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 visibilityQualifier,
                 remoteKeyword,
                 functionKeyword,
-                functionName,
-                functionSignature,
+                methodName,
+                methodSignature,
                 functionBody);
     }
 }

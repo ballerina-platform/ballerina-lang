@@ -2714,13 +2714,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token visibilityQualifier,
             Token remoteKeyword,
             Token functionKeyword,
-            IdentifierToken functionName,
-            FunctionSignatureNode functionSignature,
+            IdentifierToken methodName,
+            FunctionSignatureNode methodSignature,
             FunctionBodyNode functionBody) {
         Objects.requireNonNull(metadata, "metadata must not be null");
         Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
-        Objects.requireNonNull(functionName, "functionName must not be null");
-        Objects.requireNonNull(functionSignature, "functionSignature must not be null");
+        Objects.requireNonNull(methodName, "methodName must not be null");
+        Objects.requireNonNull(methodSignature, "methodSignature must not be null");
         Objects.requireNonNull(functionBody, "functionBody must not be null");
 
         STNode stObjectMethodDefinitionNode = STNodeFactory.createObjectMethodDefinitionNode(
@@ -2728,8 +2728,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 getOptionalSTNode(visibilityQualifier),
                 getOptionalSTNode(remoteKeyword),
                 functionKeyword.internalNode(),
-                functionName.internalNode(),
-                functionSignature.internalNode(),
+                methodName.internalNode(),
+                methodSignature.internalNode(),
                 functionBody.internalNode());
         return stObjectMethodDefinitionNode.createUnlinkedFacade();
     }

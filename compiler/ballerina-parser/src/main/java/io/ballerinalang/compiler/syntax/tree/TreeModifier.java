@@ -2759,10 +2759,10 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(objectMethodDefinitionNode.remoteKeyword().orElse(null));
         Token functionKeyword =
                 modifyToken(objectMethodDefinitionNode.functionKeyword());
-        IdentifierToken functionName =
-                modifyNode(objectMethodDefinitionNode.functionName());
-        FunctionSignatureNode functionSignature =
-                modifyNode(objectMethodDefinitionNode.functionSignature());
+        IdentifierToken methodName =
+                modifyNode(objectMethodDefinitionNode.methodName());
+        FunctionSignatureNode methodSignature =
+                modifyNode(objectMethodDefinitionNode.methodSignature());
         FunctionBodyNode functionBody =
                 modifyNode(objectMethodDefinitionNode.functionBody());
         return objectMethodDefinitionNode.modify(
@@ -2770,8 +2770,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 visibilityQualifier,
                 remoteKeyword,
                 functionKeyword,
-                functionName,
-                functionSignature,
+                methodName,
+                methodSignature,
                 functionBody);
     }
 

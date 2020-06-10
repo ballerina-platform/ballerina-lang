@@ -49,11 +49,11 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
         return childInBucket(3);
     }
 
-    public IdentifierToken functionName() {
+    public IdentifierToken methodName() {
         return childInBucket(4);
     }
 
-    public FunctionSignatureNode functionSignature() {
+    public FunctionSignatureNode methodSignature() {
         return childInBucket(5);
     }
 
@@ -78,8 +78,8 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
                 "visibilityQualifier",
                 "remoteKeyword",
                 "functionKeyword",
-                "functionName",
-                "functionSignature",
+                "methodName",
+                "methodSignature",
                 "functionBody"};
     }
 
@@ -88,16 +88,16 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
             Token visibilityQualifier,
             Token remoteKeyword,
             Token functionKeyword,
-            IdentifierToken functionName,
-            FunctionSignatureNode functionSignature,
+            IdentifierToken methodName,
+            FunctionSignatureNode methodSignature,
             FunctionBodyNode functionBody) {
         if (checkForReferenceEquality(
                 metadata,
                 visibilityQualifier,
                 remoteKeyword,
                 functionKeyword,
-                functionName,
-                functionSignature,
+                methodName,
+                methodSignature,
                 functionBody)) {
             return this;
         }
@@ -107,8 +107,8 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
                 visibilityQualifier,
                 remoteKeyword,
                 functionKeyword,
-                functionName,
-                functionSignature,
+                methodName,
+                methodSignature,
                 functionBody);
     }
 
@@ -127,8 +127,8 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
         private Token visibilityQualifier;
         private Token remoteKeyword;
         private Token functionKeyword;
-        private IdentifierToken functionName;
-        private FunctionSignatureNode functionSignature;
+        private IdentifierToken methodName;
+        private FunctionSignatureNode methodSignature;
         private FunctionBodyNode functionBody;
 
         public ObjectMethodDefinitionNodeModifier(ObjectMethodDefinitionNode oldNode) {
@@ -137,8 +137,8 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
             this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
             this.remoteKeyword = oldNode.remoteKeyword().orElse(null);
             this.functionKeyword = oldNode.functionKeyword();
-            this.functionName = oldNode.functionName();
-            this.functionSignature = oldNode.functionSignature();
+            this.methodName = oldNode.methodName();
+            this.methodSignature = oldNode.methodSignature();
             this.functionBody = oldNode.functionBody();
         }
 
@@ -170,17 +170,17 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
             return this;
         }
 
-        public ObjectMethodDefinitionNodeModifier withFunctionName(
-                IdentifierToken functionName) {
-            Objects.requireNonNull(functionName, "functionName must not be null");
-            this.functionName = functionName;
+        public ObjectMethodDefinitionNodeModifier withMethodName(
+                IdentifierToken methodName) {
+            Objects.requireNonNull(methodName, "methodName must not be null");
+            this.methodName = methodName;
             return this;
         }
 
-        public ObjectMethodDefinitionNodeModifier withFunctionSignature(
-                FunctionSignatureNode functionSignature) {
-            Objects.requireNonNull(functionSignature, "functionSignature must not be null");
-            this.functionSignature = functionSignature;
+        public ObjectMethodDefinitionNodeModifier withMethodSignature(
+                FunctionSignatureNode methodSignature) {
+            Objects.requireNonNull(methodSignature, "methodSignature must not be null");
+            this.methodSignature = methodSignature;
             return this;
         }
 
@@ -197,8 +197,8 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
                     visibilityQualifier,
                     remoteKeyword,
                     functionKeyword,
-                    functionName,
-                    functionSignature,
+                    methodName,
+                    methodSignature,
                     functionBody);
         }
     }

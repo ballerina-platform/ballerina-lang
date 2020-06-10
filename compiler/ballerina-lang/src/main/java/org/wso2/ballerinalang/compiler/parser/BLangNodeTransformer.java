@@ -91,6 +91,7 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
 import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerinalang.compiler.syntax.tree.ObjectMethodDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
@@ -937,7 +938,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private BLangFunction createFunctionNode(IdentifierToken funcName, Optional<Token> visibilityQualifier,
-            FunctionSignatureNode functionSignature, FunctionBodyNode functionBody) {
+                                             FunctionSignatureNode functionSignature, FunctionBodyNode functionBody) {
         BLangFunction bLFunction = (BLangFunction) TreeBuilder.createFunctionNode();
 
         // Set function name
@@ -949,8 +950,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLFunction.flagSet.add(Flag.PUBLIC);
             } else if (visibilityQual.kind() == SyntaxKind.PRIVATE_KEYWORD) {
                 bLFunction.flagSet.add(Flag.PRIVATE);
-            } else if (visibilityQual.kind() == SyntaxKind.REMOTE_KEYWORD) {
-                bLFunction.flagSet.add(Flag.REMOTE);
             } else if (visibilityQual.kind() == SyntaxKind.RESOURCE_KEYWORD) {
                 bLFunction.flagSet.add(Flag.RESOURCE);
             }
@@ -958,6 +957,58 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         // Set function signature
         populateFuncSignature(bLFunction, functionSignature);
+
+        // Set the function body
+        if (functionBody == null) {
+            bLFunction.body = null;
+            bLFunction.flagSet.add(Flag.INTERFACE);
+            bLFunction.interfaceFunction = true;
+        } else {
+            bLFunction.body = (BLangFunctionBody) functionBody.apply(this);
+            if (bLFunction.body.getKind() == NodeKind.EXTERN_FUNCTION_BODY) {
+                bLFunction.flagSet.add(Flag.NATIVE);
+            }
+        }
+        return bLFunction;
+    }
+
+    @Override
+    public BLangNode transform(ObjectMethodDefinitionNode methodDefNode) {
+        BLangFunction bLFunction =
+                createObjectMethodNode(methodDefNode.methodName(), methodDefNode.visibilityQualifier(),
+                        methodDefNode.remoteKeyword(), methodDefNode.methodSignature(), methodDefNode.functionBody());
+
+        bLFunction.annAttachments = applyAll(methodDefNode.metadata().annotations());
+        bLFunction.pos = getPosition(methodDefNode);
+        bLFunction.markdownDocumentationAttachment =
+                createMarkdownDocumentationAttachment(methodDefNode.metadata().documentationString());
+        return bLFunction;
+    }
+
+    private BLangFunction createObjectMethodNode(IdentifierToken methodName, Optional<Token> visibilityQualifier,
+                                                 Optional<Token> remoteKeyword, FunctionSignatureNode methodSignature,
+                                                 FunctionBodyNode functionBody) {
+        BLangFunction bLFunction = (BLangFunction) TreeBuilder.createFunctionNode();
+
+        // Set method name
+        bLFunction.name = createIdentifier(methodName);
+
+        // Set the visibility qualifier
+        visibilityQualifier.ifPresent(visibilityQual -> {
+            if (visibilityQual.kind() == SyntaxKind.PUBLIC_KEYWORD) {
+                bLFunction.flagSet.add(Flag.PUBLIC);
+            } else if (visibilityQual.kind() == SyntaxKind.PRIVATE_KEYWORD) {
+                bLFunction.flagSet.add(Flag.PRIVATE);
+            }
+        });
+
+        // Set remote flag
+        if (remoteKeyword.isPresent()) {
+            bLFunction.flagSet.add(Flag.REMOTE);
+        }
+
+        // Set function signature
+        populateFuncSignature(bLFunction, methodSignature);
 
         // Set the function body
         if (functionBody == null) {
