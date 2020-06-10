@@ -3543,6 +3543,8 @@ public class BallerinaParser extends AbstractParser {
             case FALSE_KEYWORD:
             case DECIMAL_FLOATING_POINT_LITERAL:
             case HEX_FLOATING_POINT_LITERAL:
+            case STRING_KEYWORD:
+            case XML_KEYWORD:
                 // These are statement starting tokens that has ambiguity between
                 // being a type-desc or an expressions.
                 return parseStmtStartsWithTypeOrExpr(tokenKind, getAnnotations(annots));
@@ -10061,6 +10063,7 @@ public class BallerinaParser extends AbstractParser {
      * @return <code>true</code> if this is a start of a valid expression. <code>false</code> otherwise
      */
     private boolean isValidExpressionStart(SyntaxKind nextTokenKind, int nextTokenIndex) {
+        nextTokenIndex++;
         switch (nextTokenKind) {
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
@@ -10071,7 +10074,7 @@ public class BallerinaParser extends AbstractParser {
             case DECIMAL_FLOATING_POINT_LITERAL:
             case HEX_FLOATING_POINT_LITERAL:
             case IDENTIFIER_TOKEN:
-                return isValidExprRhsStart(peek(nextTokenIndex + 1).kind);
+                return isValidExprRhsStart(peek(nextTokenIndex).kind);
             case OPEN_PAREN_TOKEN:
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
@@ -10090,7 +10093,6 @@ public class BallerinaParser extends AbstractParser {
                 return true;
             case PLUS_TOKEN:
             case MINUS_TOKEN:
-                nextTokenIndex++;
                 return isValidExpressionStart(peek(nextTokenIndex).kind, nextTokenIndex);
             case FUNCTION_KEYWORD:
 
@@ -11821,7 +11823,6 @@ public class BallerinaParser extends AbstractParser {
             case HEX_FLOATING_POINT_LITERAL:
                 STNode basicLiteral = parseBasicLiteral();
                 return parseTypedBindingPatternOrExprRhs(basicLiteral, allowAssignment);
-
             default:
                 if (isValidExpressionStart(nextTokenKind, 1)) {
                     return parseActionOrExpressionInLhs(nextTokenKind, null);
@@ -14377,7 +14378,7 @@ public class BallerinaParser extends AbstractParser {
     // ---------------------- Convert ambiguous nodes to a specific node --------------------------
 
     private List<STNode> getTypeDescList(List<STNode> ambiguousList) {
-        List<STNode> typeDescList = new ArrayList();
+        List<STNode> typeDescList = new ArrayList<>();
         for (STNode item : ambiguousList) {
             typeDescList.add(getTypeDescFromExpr(item));
         }
