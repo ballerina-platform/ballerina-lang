@@ -49,11 +49,21 @@
                   "children": []
                 },
                 {
-                  "kind": "VAR_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "x"
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "VAR_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "x"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "EQUAL_TOKEN"
@@ -77,8 +87,13 @@
                               "kind": "LT_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "foo"
+                              "kind": "XML_SIMPLE_NAME",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "foo"
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
@@ -133,11 +148,21 @@
                   "children": []
                 },
                 {
-                  "kind": "VAR_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "x"
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "VAR_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "x"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "EQUAL_TOKEN"
@@ -164,8 +189,13 @@
                                   "kind": "LT_TOKEN"
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "foo"
+                                  "kind": "XML_SIMPLE_NAME",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "foo"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "LIST",
@@ -190,8 +220,13 @@
                                   "kind": "SLASH_TOKEN"
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "foo"
+                                  "kind": "XML_SIMPLE_NAME",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "foo"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "GT_TOKEN",

@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -30,13 +31,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import javax.xml.namespace.QName;
 
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+
 /**
  * Change the name of element `xmlVal` to `newName`.
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
         functionName = "setName",
         args = {@Argument(name = "xmlValue", type = TypeKind.XML),
                 @Argument(name = "newName", type = TypeKind.STRING)},
@@ -47,7 +50,8 @@ public class SetName {
     private static final String OPERATION = "set element name in xml";
 
 
-    public static void setName(Strand strand, XMLValue xmlVal, String newName) {
+    public static void setName(Strand strand, XMLValue xmlVal, BString newNameBStr) {
+        String newName = newNameBStr.getValue();
         if (!IsElement.isElement(strand, xmlVal)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "setName", "element");
         }

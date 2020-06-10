@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class LetClauseNode extends ClauseNode {
 
@@ -34,7 +36,7 @@ public class LetClauseNode extends ClauseNode {
         return childInBucket(0);
     }
 
-    public SeparatedNodeList<Node> letVarDeclarations() {
+    public SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations() {
         return new SeparatedNodeList<>(childInBucket(1));
     }
 
@@ -57,7 +59,7 @@ public class LetClauseNode extends ClauseNode {
 
     public LetClauseNode modify(
             Token letKeyword,
-            SeparatedNodeList<Node> letVarDeclarations) {
+            SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations) {
         if (checkForReferenceEquality(
                 letKeyword,
                 letVarDeclarations.underlyingListNode())) {
@@ -67,5 +69,46 @@ public class LetClauseNode extends ClauseNode {
         return NodeFactory.createLetClauseNode(
                 letKeyword,
                 letVarDeclarations);
+    }
+
+    public LetClauseNodeModifier modify() {
+        return new LetClauseNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class LetClauseNodeModifier {
+        private final LetClauseNode oldNode;
+        private Token letKeyword;
+        private SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations;
+
+        public LetClauseNodeModifier(LetClauseNode oldNode) {
+            this.oldNode = oldNode;
+            this.letKeyword = oldNode.letKeyword();
+            this.letVarDeclarations = oldNode.letVarDeclarations();
+        }
+
+        public LetClauseNodeModifier withLetKeyword(
+                Token letKeyword) {
+            Objects.requireNonNull(letKeyword, "letKeyword must not be null");
+            this.letKeyword = letKeyword;
+            return this;
+        }
+
+        public LetClauseNodeModifier withLetVarDeclarations(
+                SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations) {
+            Objects.requireNonNull(letVarDeclarations, "letVarDeclarations must not be null");
+            this.letVarDeclarations = letVarDeclarations;
+            return this;
+        }
+
+        public LetClauseNode apply() {
+            return oldNode.modify(
+                    letKeyword,
+                    letVarDeclarations);
+        }
     }
 }

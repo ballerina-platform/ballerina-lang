@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/diagram",
-  "version": "2.0.0-Preview1-M1",
+  "version": "2.0.0-Preview1-M3",
   "description": "Provides a set of react components to draw Ballerina Diagrams.",
   "keywords": [
     "ballerina",
@@ -31,16 +31,16 @@
     "react-dom": "^16.2.0"
   },
   "devDependencies": {
-    "@ballerina/composer-cli": "^2.0.0-Preview1-M1",
-    "@ballerina/font": "^2.0.0-Preview1-M1",
-    "@ballerina/theme": "^2.0.0-Preview1-M1",
+    "@ballerina/composer-cli": "^2.0.0-Preview1-M3",
+    "@ballerina/font": "^2.0.0-Preview1-M3",
+    "@ballerina/theme": "^2.0.0-Preview1-M3",
     "@types/lodash": "^4.14.118",
     "@types/lodash.debounce": "^4.0.4",
     "copyfiles": "^2.1.0"
   },
   "dependencies": {
-    "@ballerina/ast-model": "^2.0.0-Preview1-M1",
-    "@ballerina/lang-service": "^2.0.0-Preview1-M1",
+    "@ballerina/ast-model": "^2.0.0-Preview1-M3",
+    "@ballerina/lang-service": "^2.0.0-Preview1-M3",
     "lodash": "^4.17.11",
     "lodash.debounce": "^4.0.8",
     "log4javascript": "^1.4.15",

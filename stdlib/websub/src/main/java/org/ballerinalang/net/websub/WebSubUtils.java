@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -62,7 +63,7 @@ public class WebSubUtils {
 
     // TODO: 8/1/18 Handle duplicate code
     @SuppressWarnings("unchecked")
-    static MapValue<String, ?> getJsonBody(ObjectValue httpRequest) {
+    static MapValue<BString, ?> getJsonBody(ObjectValue httpRequest) {
         ObjectValue entityObj = extractEntity(httpRequest);
         if (entityObj != null) {
             Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
@@ -70,7 +71,7 @@ public class WebSubUtils {
             if (dataSource != null) {
                 stringPayload = MimeUtil.getMessageAsString(dataSource);
             } else {
-                stringPayload = EntityBodyHandler.constructStringDataSource(entityObj);
+                stringPayload = EntityBodyHandler.constructStringDataSource(entityObj).getValue();
                 EntityBodyHandler.addMessageDataSource(entityObj, stringPayload);
                 // Set byte channel to null, once the message data source has been constructed
                 entityObj.addNativeData(ENTITY_BYTE_CHANNEL, null);
@@ -78,7 +79,7 @@ public class WebSubUtils {
 
             Object result = JSONParser.parse(stringPayload);
             if (result instanceof MapValue) {
-                return (MapValue<String, ?>) result;
+                return (MapValue<BString, ?>) result;
             }
             throw new BallerinaConnectorException("Non-compatible payload received for payload key based dispatching");
         } else {
@@ -117,8 +118,8 @@ public class WebSubUtils {
      */
     public static ErrorValue createError(String reason, String message) {
         Map<String, Object> values = new HashMap<>();
-        values.put(BallerinaErrors.ERROR_MESSAGE_FIELD, message);
-        MapValue<String, Object> detail =
+        values.put(BallerinaErrors.ERROR_MESSAGE_FIELD.getValue(), message);
+        MapValue<BString, Object> detail =
                 BallerinaValues.createRecordValue(WEBSUB_PACKAGE_ID, ERROR_DETAIL_RECORD, values);
         return BallerinaErrors.createError(reason, detail);
     }

@@ -45,14 +45,14 @@
               "kind": "ACTION_STATEMENT",
               "children": [
                 {
-                  "kind": "REMOTE_METHOD_CALL_ACTION",
+                  "kind": "CHECK_ACTION",
                   "children": [
                     {
-                      "kind": "CHECK_EXPRESSION",
+                      "kind": "CHECK_KEYWORD"
+                    },
+                    {
+                      "kind": "REMOTE_METHOD_CALL_ACTION",
                       "children": [
-                        {
-                          "kind": "CHECK_KEYWORD"
-                        },
                         {
                           "kind": "FUNCTION_CALL",
                           "children": [
@@ -71,25 +71,25 @@
                               "kind": "CLOSE_PAREN_TOKEN"
                             }
                           ]
+                        },
+                        {
+                          "kind": "RIGHT_ARROW_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "b"
+                        },
+                        {
+                          "kind": "OPEN_PAREN_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "CLOSE_PAREN_TOKEN"
                         }
                       ]
-                    },
-                    {
-                      "kind": "RIGHT_ARROW_TOKEN"
-                    },
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "b"
-                    },
-                    {
-                      "kind": "OPEN_PAREN_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    },
-                    {
-                      "kind": "CLOSE_PAREN_TOKEN"
                     }
                   ]
                 },

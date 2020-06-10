@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TypeofExpressionNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STTypeofExpressionNode extends STExpressionNode {
     public final STNode typeofKeyword;
@@ -34,7 +37,17 @@ public class STTypeofExpressionNode extends STExpressionNode {
     STTypeofExpressionNode(
             STNode typeofKeyword,
             STNode expression) {
-        super(SyntaxKind.TYPEOF_EXPRESSION);
+        this(
+                typeofKeyword,
+                expression,
+                Collections.emptyList());
+    }
+
+    STTypeofExpressionNode(
+            STNode typeofKeyword,
+            STNode expression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.TYPEOF_EXPRESSION, diagnostics);
         this.typeofKeyword = typeofKeyword;
         this.expression = expression;
 
@@ -43,7 +56,39 @@ public class STTypeofExpressionNode extends STExpressionNode {
                 expression);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STTypeofExpressionNode(
+                this.typeofKeyword,
+                this.expression,
+                diagnostics);
+    }
+
+    public STTypeofExpressionNode modify(
+            STNode typeofKeyword,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                typeofKeyword,
+                expression)) {
+            return this;
+        }
+
+        return new STTypeofExpressionNode(
+                typeofKeyword,
+                expression,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypeofExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

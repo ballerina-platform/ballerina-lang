@@ -22,10 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STBlockStatementNode extends STStatementNode {
     public final STNode openBraceToken;
@@ -36,7 +39,19 @@ public class STBlockStatementNode extends STStatementNode {
             STNode openBraceToken,
             STNode statements,
             STNode closeBraceToken) {
-        super(SyntaxKind.BLOCK_STATEMENT);
+        this(
+                openBraceToken,
+                statements,
+                closeBraceToken,
+                Collections.emptyList());
+    }
+
+    STBlockStatementNode(
+            STNode openBraceToken,
+            STNode statements,
+            STNode closeBraceToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.BLOCK_STATEMENT, diagnostics);
         this.openBraceToken = openBraceToken;
         this.statements = statements;
         this.closeBraceToken = closeBraceToken;
@@ -47,7 +62,43 @@ public class STBlockStatementNode extends STStatementNode {
                 closeBraceToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STBlockStatementNode(
+                this.openBraceToken,
+                this.statements,
+                this.closeBraceToken,
+                diagnostics);
+    }
+
+    public STBlockStatementNode modify(
+            STNode openBraceToken,
+            STNode statements,
+            STNode closeBraceToken) {
+        if (checkForReferenceEquality(
+                openBraceToken,
+                statements,
+                closeBraceToken)) {
+            return this;
+        }
+
+        return new STBlockStatementNode(
+                openBraceToken,
+                statements,
+                closeBraceToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BlockStatementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

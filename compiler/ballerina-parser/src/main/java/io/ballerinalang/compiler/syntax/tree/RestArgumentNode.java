@@ -19,10 +19,13 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+import java.util.Optional;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class RestArgumentNode extends FunctionArgumentNode {
 
@@ -30,8 +33,8 @@ public class RestArgumentNode extends FunctionArgumentNode {
         super(internalNode, position, parent);
     }
 
-    public Token leadingComma() {
-        return childInBucket(0);
+    public Optional<Token> leadingComma() {
+        return optionalChildInBucket(0);
     }
 
     public Token ellipsis() {
@@ -75,5 +78,56 @@ public class RestArgumentNode extends FunctionArgumentNode {
                 leadingComma,
                 ellipsis,
                 expression);
+    }
+
+    public RestArgumentNodeModifier modify() {
+        return new RestArgumentNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class RestArgumentNodeModifier {
+        private final RestArgumentNode oldNode;
+        private Token leadingComma;
+        private Token ellipsis;
+        private ExpressionNode expression;
+
+        public RestArgumentNodeModifier(RestArgumentNode oldNode) {
+            this.oldNode = oldNode;
+            this.leadingComma = oldNode.leadingComma().orElse(null);
+            this.ellipsis = oldNode.ellipsis();
+            this.expression = oldNode.expression();
+        }
+
+        public RestArgumentNodeModifier withLeadingComma(
+                Token leadingComma) {
+            Objects.requireNonNull(leadingComma, "leadingComma must not be null");
+            this.leadingComma = leadingComma;
+            return this;
+        }
+
+        public RestArgumentNodeModifier withEllipsis(
+                Token ellipsis) {
+            Objects.requireNonNull(ellipsis, "ellipsis must not be null");
+            this.ellipsis = ellipsis;
+            return this;
+        }
+
+        public RestArgumentNodeModifier withExpression(
+                ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
+            return this;
+        }
+
+        public RestArgumentNode apply() {
+            return oldNode.modify(
+                    leadingComma,
+                    ellipsis,
+                    expression);
+        }
     }
 }

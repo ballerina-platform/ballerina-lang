@@ -18,10 +18,13 @@
 package org.ballerinalang.packerina.cmd;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.jvm.launch.LaunchUtils;
 import org.ballerinalang.jvm.util.BLangConstants;
+import org.ballerinalang.packerina.JarResolverImpl;
 import org.ballerinalang.packerina.TaskExecutor;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
+import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
 import org.ballerinalang.packerina.task.CopyExecutableTask;
@@ -35,6 +38,7 @@ import org.ballerinalang.packerina.task.CreateJarTask;
 import org.ballerinalang.packerina.task.CreateLockFileTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
 import org.ballerinalang.packerina.task.PrintExecutablePathTask;
+import org.ballerinalang.packerina.task.ResolveMavenDependenciesTask;
 import org.ballerinalang.packerina.task.RunCompilerPluginTask;
 import org.ballerinalang.packerina.task.RunTestsTask;
 import org.ballerinalang.tool.BLauncherCmd;
@@ -55,6 +59,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.NEW_PARSER_ENABLED;
@@ -378,8 +383,9 @@ public class BuildCommand implements BLauncherCmd {
         CompilerContext compilerContext = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(PROJECT_DIR, this.sourceRootPath.toString());
+        options.put(DUMP_BIR, Boolean.toString(dumpBIR));
         options.put(OFFLINE, Boolean.toString(this.offline));
-        options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(LOCK_ENABLED, Boolean.toString(!this.skipLock));
         options.put(SKIP_TESTS, Boolean.toString(this.skipTests));
         options.put(TEST_ENABLED, Boolean.toString(!this.skipTests));
@@ -388,6 +394,8 @@ public class BuildCommand implements BLauncherCmd {
         options.put(NEW_PARSER_ENABLED, Boolean.toString(this.newParserEnabled));
         // create builder context
         BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
+        JarResolver jarResolver = JarResolverImpl.getInstance(buildContext, skipCopyLibsFromDist);
+        buildContext.put(BuildContextField.JAR_RESOLVER, jarResolver);
         buildContext.setOut(outStream);
         buildContext.setErr(errStream);
     
@@ -401,11 +409,11 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CompileTask()) // compile the modules
                 .addTask(new CreateLockFileTask(), this.skipLock || isSingleFileBuild)  // create a lock file if
                                                             // the given skipLock flag does not exist(projects only)
+                .addTask(new ResolveMavenDependenciesTask(), this.compile)
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the BALOs for modules (projects only)
                 .addTask(new CreateBirTask())   // create the bir
-                .addTask(new CopyNativeLibTask(skipCopyLibsFromDist))    // copy the native libs(projects only)
-                // create the jar.
-                .addTask(new CreateJarTask(this.dumpBIR, skipCopyLibsFromDist))
+                .addTask(new CopyNativeLibTask())    // copy the native libs(projects only)
+                .addTask(new CreateJarTask(skipCopyLibsFromDist))   // create the jar
                 .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist, skipTests))
                 .addTask(new RunTestsTask(testReport, coverage, args), this.skipTests || isSingleFileBuild) // run tests

@@ -1,51 +1,51 @@
 {
-    "kind": "MAPPING_CONSTRUCTOR",
-    "children": [
+  "kind": "MAPPING_CONSTRUCTOR",
+  "children": [
+    {
+      "kind": "OPEN_BRACE_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "OPEN_BRACE_TOKEN"
+          "kind": "SPECIFIC_FIELD",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "name"
+            },
+            {
+              "kind": "COLON_TOKEN"
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "value": "John"
+            }
+          ]
         },
         {
-            "kind": "LIST",
-            "children": [
-                {
-                    "kind": "SPECIFIC_FIELD",
-                    "children": [
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "name"
-                        },
-                        {
-                            "kind": "COLON_TOKEN"
-                        },
-                        {
-                            "kind": "STRING_LITERAL",
-                            "value": "John"
-                        }
-                    ]
-                },
-                {
-                    "kind": "SPECIFIC_FIELD",
-                    "children": [
-                        {
-                            "kind": "COMMA_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "isMissing": true
-                        },
-                        {
-                            "kind": "COLON_TOKEN"
-                        },
-                        {
-                            "kind": "DECIMAL_INTEGER_LITERAL",
-                            "value": "4"
-                        }
-                    ]
-                }
-            ]
+          "kind": "COMMA_TOKEN"
         },
         {
-            "kind": "CLOSE_BRACE_TOKEN"
+          "kind": "SPECIFIC_FIELD",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "isMissing": true
+            },
+            {
+              "kind": "COLON_TOKEN"
+            },
+            {
+              "kind": "DECIMAL_INTEGER_LITERAL",
+              "value": "4"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACE_TOKEN"
+    }
+  ]
 }

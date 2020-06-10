@@ -18,61 +18,25 @@
       "value": "Foo"
     },
     {
-      "kind": "OBJECT_TYPE_DESC",
+      "kind": "SINGLETON_TYPE_DESC",
       "children": [
         {
-          "kind": "LIST",
+          "kind": "UNARY_EXPRESSION",
           "children": [
             {
-              "kind": "CLIENT_KEYWORD"
+              "kind": "PLUS_TOKEN"
             },
             {
-              "kind": "ABSTRACT_KEYWORD"
+              "kind": "DECIMAL_INTEGER_LITERAL",
+              "isMissing": true
             }
           ]
-        },
-        {
-          "kind": "OBJECT_KEYWORD"
-        },
-        {
-          "kind": "OPEN_BRACE_TOKEN"
-        },
-        {
-          "kind": "LIST",
-          "children": [
-            {
-              "kind": "OBJECT_FIELD",
-              "children": [
-                {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "kind": "STRING_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "name"
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "CLOSE_BRACE_TOKEN"
         }
       ]
     },
     {
-      "kind": "SEMICOLON_TOKEN"
+      "kind": "SEMICOLON_TOKEN",
+      "isMissing": true
     }
   ]
 }

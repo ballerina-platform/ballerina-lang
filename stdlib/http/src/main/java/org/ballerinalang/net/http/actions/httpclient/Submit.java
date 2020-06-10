@@ -20,6 +20,7 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
@@ -34,14 +35,14 @@ import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_U
  */
 public class Submit extends Execute {
     @SuppressWarnings("unchecked")
-    public static Object submit(ObjectValue httpClient, String httpVerb, String path,
-                                      ObjectValue requestObj) {
+    public static Object submit(ObjectValue httpClient, BString httpVerb, BString path, ObjectValue requestObj) {
         Strand strand = Scheduler.getStrand();
-        String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
-        MapValue<String, Object> config = (MapValue<String, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
+        String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI).getValue();
+        MapValue<BString, Object> config = (MapValue<BString, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
         HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
-        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, config, path, requestObj);
-        outboundRequestMsg.setHttpMethod(httpVerb);
+        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, config, path.getValue(),
+                                                                        requestObj);
+        outboundRequestMsg.setHttpMethod(httpVerb.getValue());
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
                                                   outboundRequestMsg);
         executeNonBlockingAction(dataContext, true);

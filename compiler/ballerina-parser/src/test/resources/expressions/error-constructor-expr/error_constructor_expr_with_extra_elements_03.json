@@ -1,53 +1,28 @@
 {
-    "kind": "FUNCTION_CALL",
-    "children": [
+  "kind": "FUNCTION_CALL",
+  "children": [
+    {
+      "kind": "ERROR_KEYWORD"
+    },
+    {
+      "kind": "OPEN_PAREN_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "ERROR_KEYWORD"
-        },
-        {
-            "kind": "OPEN_PAREN_TOKEN",
-            "isMissing": true
-        },
-        {
-            "kind": "LIST",
-            "children": [
-                {
-                    "kind": "POSITIONAL_ARG",
-                    "children": [
-                        {
-                            "kind": "BINARY_EXPRESSION",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "isMissing": true
-                                },
-                                {
-                                    "kind": "BITWISE_AND_TOKEN"
-                                },
-                                {
-                                    "kind": "BRACED_EXPRESSION",
-                                    "children": [
-                                        {
-                                            "kind": "OPEN_PAREN_TOKEN"
-                                        },
-                                        {
-                                            "kind": "STRING_LITERAL",
-                                            "value": "message"
-                                        },
-                                        {
-                                            "kind": "CLOSE_PAREN_TOKEN"
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "CLOSE_PAREN_TOKEN",
-            "isMissing": true
+          "kind": "POSITIONAL_ARG",
+          "children": [
+            {
+              "kind": "STRING_LITERAL",
+              "value": "message"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "CLOSE_PAREN_TOKEN"
+    }
+  ]
 }

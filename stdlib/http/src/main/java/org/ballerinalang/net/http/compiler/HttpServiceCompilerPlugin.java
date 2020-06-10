@@ -68,7 +68,7 @@ public class HttpServiceCompilerPlugin extends AbstractCompilerPlugin {
         // This is done on the assumption of resources does not mix each other (HTTP and WebSocket)
         if (resources.size() > 0 &&
                 resources.get(0).getParameters().size() > 0 &&
-                WebSocketConstants.FULL_WEBSOCKET_CALLER_NAME.equals(
+                WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(
                         resources.get(0).getParameters().get(0).type.toString())) {
             return;
         }
@@ -85,8 +85,7 @@ public class HttpServiceCompilerPlugin extends AbstractCompilerPlugin {
                                        serviceNode.getName().getValue());
         }
         resources.forEach(res -> {
-            ResourceSignatureValidator.validate(res.getParameters(), dlog, res.pos);
-            ResourceSignatureValidator.validateResourceAnnotation(res, dlog);
+            ResourceSignatureValidator.validate(res, dlog, res.pos);
         });
     }
 
@@ -104,7 +103,7 @@ public class HttpServiceCompilerPlugin extends AbstractCompilerPlugin {
 
         for (BLangRecordLiteral.BLangRecordKeyValueField keyValue : annotationValues) {
             // Validate compression configuration
-            if (checkMatchingConfigKey(keyValue, ANN_CONFIG_ATTR_COMPRESSION)) {
+            if (checkMatchingConfigKey(keyValue, ANN_CONFIG_ATTR_COMPRESSION.getValue())) {
                 if (compressionConfigCount++ == 1) {
                     dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
                                        "Invalid multiple configurations for compression");
@@ -113,7 +112,8 @@ public class HttpServiceCompilerPlugin extends AbstractCompilerPlugin {
                 for (RecordLiteralNode.RecordField field : ((BLangRecordLiteral) keyValue.valueExpr).getFields()) {
                     BLangRecordLiteral.BLangRecordKeyValueField compressionConfig =
                             (BLangRecordLiteral.BLangRecordKeyValueField) field;
-                    if (checkMatchingConfigKey(compressionConfig, ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES)) {
+                    if (checkMatchingConfigKey(compressionConfig,
+                                               ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES.getValue())) {
                         BLangListConstructorExpr valueArray = (BLangListConstructorExpr) compressionConfig.valueExpr;
                         if (valueArray.getExpressions().isEmpty()) {
                             break;

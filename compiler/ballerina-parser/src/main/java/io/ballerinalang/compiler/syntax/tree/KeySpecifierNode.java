@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class KeySpecifierNode extends NonTerminalNode {
 
@@ -38,7 +40,7 @@ public class KeySpecifierNode extends NonTerminalNode {
         return childInBucket(1);
     }
 
-    public SeparatedNodeList<Node> fieldNames() {
+    public SeparatedNodeList<IdentifierToken> fieldNames() {
         return new SeparatedNodeList<>(childInBucket(2));
     }
 
@@ -68,7 +70,7 @@ public class KeySpecifierNode extends NonTerminalNode {
     public KeySpecifierNode modify(
             Token keyKeyword,
             Token openParenToken,
-            SeparatedNodeList<Node> fieldNames,
+            SeparatedNodeList<IdentifierToken> fieldNames,
             Token closeParenToken) {
         if (checkForReferenceEquality(
                 keyKeyword,
@@ -83,5 +85,66 @@ public class KeySpecifierNode extends NonTerminalNode {
                 openParenToken,
                 fieldNames,
                 closeParenToken);
+    }
+
+    public KeySpecifierNodeModifier modify() {
+        return new KeySpecifierNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class KeySpecifierNodeModifier {
+        private final KeySpecifierNode oldNode;
+        private Token keyKeyword;
+        private Token openParenToken;
+        private SeparatedNodeList<IdentifierToken> fieldNames;
+        private Token closeParenToken;
+
+        public KeySpecifierNodeModifier(KeySpecifierNode oldNode) {
+            this.oldNode = oldNode;
+            this.keyKeyword = oldNode.keyKeyword();
+            this.openParenToken = oldNode.openParenToken();
+            this.fieldNames = oldNode.fieldNames();
+            this.closeParenToken = oldNode.closeParenToken();
+        }
+
+        public KeySpecifierNodeModifier withKeyKeyword(
+                Token keyKeyword) {
+            Objects.requireNonNull(keyKeyword, "keyKeyword must not be null");
+            this.keyKeyword = keyKeyword;
+            return this;
+        }
+
+        public KeySpecifierNodeModifier withOpenParenToken(
+                Token openParenToken) {
+            Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+            this.openParenToken = openParenToken;
+            return this;
+        }
+
+        public KeySpecifierNodeModifier withFieldNames(
+                SeparatedNodeList<IdentifierToken> fieldNames) {
+            Objects.requireNonNull(fieldNames, "fieldNames must not be null");
+            this.fieldNames = fieldNames;
+            return this;
+        }
+
+        public KeySpecifierNodeModifier withCloseParenToken(
+                Token closeParenToken) {
+            Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+            this.closeParenToken = closeParenToken;
+            return this;
+        }
+
+        public KeySpecifierNode apply() {
+            return oldNode.modify(
+                    keyKeyword,
+                    openParenToken,
+                    fieldNames,
+                    closeParenToken);
+        }
     }
 }

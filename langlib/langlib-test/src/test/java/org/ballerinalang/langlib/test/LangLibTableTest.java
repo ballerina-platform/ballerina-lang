@@ -219,4 +219,50 @@ public class LangLibTableTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAddWithKeyLessTbl");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IteratorMutabilityError message=Table was " +
+                    "mutated after the iterator was created.*")
+    public void testAddNewRecordAfterIteratorCreation() {
+        BRunUtil.invoke(compileResult, "testAddNewRecordAfterIteratorCreation");
+    }
+
+    @Test
+    public void testRemoveAlreadyReturnedRecordFromIterator() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveAlreadyReturnedRecordFromIterator");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void removeIfHasKeyReturnedRecordFromIterator() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "removeIfHasKeyReturnedRecordFromIterator");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testChangeValueForAGivenKeyWhileIterating() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testChangeValueForAGivenKeyWhileIterating");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IteratorMutabilityError message=Table was " +
+                    "mutated after the iterator was created.*")
+    public void testPutWithKeylessTableAfterIteratorCreation() {
+        BRunUtil.invoke(compileResult, "testPutWithKeylessTableAfterIteratorCreation");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IteratorMutabilityError message=Table was " +
+                    "mutated after the iterator was created.*")
+    public void testAddWithKeylessTableAfterIteratorCreation() {
+        BRunUtil.invoke(compileResult, "testAddWithKeylessTableAfterIteratorCreation");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IteratorMutabilityError message=Table was " +
+                    "mutated after the iterator was created.*")
+    public void testRemoveAllReturnedRecordsFromIteratorKeylessTbl() {
+        BRunUtil.invoke(compileResult, "testRemoveAllReturnedRecordsFromIteratorKeylessTbl");
+    }
 }

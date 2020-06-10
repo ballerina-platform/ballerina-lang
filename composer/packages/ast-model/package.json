@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/ast-model",
-  "version": "2.0.0-Preview1-M1",
+  "version": "2.0.0-Preview1-M3",
   "description": "ast-model",
   "license": "Apache-2.0",
   "files": [
@@ -22,7 +22,7 @@
     "gen-ast-utils": "npm run build && node lib/tools/generate"
   },
   "dependencies": {
-    "@ballerina/lang-service": "^2.0.0-Preview1-M1",
+    "@ballerina/lang-service": "^2.0.0-Preview1-M3",
     "glob": "^7.1.3",
     "lodash": "^4.17.11",
     "prettier": "^1.5.2",
@@ -30,7 +30,7 @@
     "vscode-uri": "^1.0.6"
   },
   "devDependencies": {
-    "@ballerina/composer-cli": "^2.0.0-Preview1-M1",
+    "@ballerina/composer-cli": "^2.0.0-Preview1-M3",
     "@types/lodash": "^4.14.117",
     "copyfiles": "^2.1.0"
   },

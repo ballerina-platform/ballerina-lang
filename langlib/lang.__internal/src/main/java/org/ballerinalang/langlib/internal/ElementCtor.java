@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -35,7 +36,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 2.0.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", functionName = "elementCtor",
+        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0", functionName = "elementCtor",
         args = {
                 @Argument(name = "name", type = TypeKind.STRING),
                 @Argument(name = "attributeMap", type = TypeKind.MAP),
@@ -45,9 +46,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class ElementCtor {
 
-    public static XMLValue elementCtor(Strand strand, String name, MapValue<String, String> attributeMap,
+    public static XMLValue elementCtor(Strand strand, BString name, MapValue<BString, BString> attributeMap,
                                        XMLValue children) {
-        XMLItem xmlElement = (XMLItem) XMLFactory.createXMLElement(new XMLQName(name), (String) null);
+        XMLItem xmlElement = (XMLItem) XMLFactory.createXMLElement(new XMLQName(name), (BString) null);
         xmlElement.setChildren(children);
         xmlElement.setAttributes(attributeMap);
         return xmlElement;

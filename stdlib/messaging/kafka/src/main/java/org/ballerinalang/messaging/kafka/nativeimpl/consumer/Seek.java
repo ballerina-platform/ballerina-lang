@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
 import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
 import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
@@ -54,7 +55,7 @@ public class Seek {
      * @param partitionOffset Partition offset record to seek.
      * @return {@code ErrorValue}, if there's any error, null otherwise.
      */
-    public static Object seek(ObjectValue consumerObject, MapValue<String, Object> partitionOffset) {
+    public static Object seek(ObjectValue consumerObject, MapValue<BString, Object> partitionOffset) {
         KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         TopicPartition topicPartition = createTopicPartitionFromPartitionOffset(partitionOffset);

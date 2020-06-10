@@ -80,6 +80,9 @@ public class HybridNodeStorage {
     }
 
     HybridNode consumeToken() {
+        if (currentToken == null) {
+            currentToken = peekToken();
+        }
         HybridNode hybridNode = currentToken;
         currentToken = null;
         consumedNodeIndex++;
@@ -165,7 +168,7 @@ public class HybridNodeStorage {
         }
 
         STToken internalToken = (STToken) affectedToken.internalNode();
-        for (int lbIndex = 0; lbIndex < internalToken.lookback; lbIndex++) {
+        for (int lbIndex = 0; lbIndex < internalToken.lookbackTokenCount(); lbIndex++) {
             // Since the common lookback = 1, this loop runs only once
             affectedToken = oldTree.findToken(affectedToken.textRangeWithMinutiae().startOffset() - 1);
         }

@@ -27,8 +27,7 @@ public type SmtpClient client object {
     # + clientConfig - Configurations for SMTP Client
     public function __init(@untainted string host, @untainted string username, @untainted string password,
             SmtpConfig clientConfig = {}) {
-        initSmtpClientEndpoint(self, java:fromString(host), java:fromString(username),
-            java:fromString(password), clientConfig);
+        initSmtpClientEndpoint(self, host, username, password, clientConfig);
     }
 
     # Sends a message.
@@ -75,7 +74,7 @@ public type SmtpClient client object {
 
 };
 
-function initSmtpClientEndpoint(SmtpClient clientEndpoint, handle host, handle username, handle password,
+function initSmtpClientEndpoint(SmtpClient clientEndpoint, string host, string username, string password,
         SmtpConfig config) = @java:Method {
     name : "initClientEndpoint",
     class : "org.ballerinalang.stdlib.email.client.SmtpClient"

@@ -31,6 +31,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,8 +122,8 @@ public class MimeUtil {
         if (!primaryType.isEmpty() && !subType.isEmpty()) {
             contentType = primaryType + "/" + subType;
             if (mediaType.get(PARAMETER_MAP_FIELD) != null) {
-                MapValue map = mediaType.get(PARAMETER_MAP_FIELD) != null ?
-                        (MapValue) mediaType.get(PARAMETER_MAP_FIELD) : null;
+                MapValue<BString, BString> map = mediaType.get(PARAMETER_MAP_FIELD) != null ?
+                        (MapValue<BString, BString>) mediaType.get(PARAMETER_MAP_FIELD) : null;
                 if (map != null && !map.isEmpty()) {
                     contentType = contentType + SEMICOLON;
                     return HeaderUtil.appendHeaderParams(new StringBuilder(contentType), map);
@@ -192,18 +193,19 @@ public class MimeUtil {
      */
     public static ObjectValue parseMediaType(ObjectValue mediaType, String contentType) {
         try {
-            MapValueImpl<String, String> parameterMap =
+            MapValueImpl<BString, BString> parameterMap =
                     new MapValueImpl<>(new org.ballerinalang.jvm.types.BMapType(BTypes.typeString));
-            String suffix, primaryType, subType;
+            BString suffix, primaryType, subType;
 
             if (contentType != null) {
                 MimeType mimeType = new MimeType(contentType);
-                primaryType = mimeType.getPrimaryType();
+                primaryType = org.ballerinalang.jvm.StringUtils.fromString(mimeType.getPrimaryType());
 
                 String subTypeStr = mimeType.getSubType();
-                subType = subTypeStr;
+                subType = org.ballerinalang.jvm.StringUtils.fromString(subTypeStr);
                 if (subTypeStr != null && subTypeStr.contains(SUFFIX_ATTACHMENT)) {
-                    suffix = subTypeStr.substring(subTypeStr.lastIndexOf(SUFFIX_ATTACHMENT) + 1);
+                    suffix = org.ballerinalang.jvm.StringUtils.fromString(
+                            subTypeStr.substring(subTypeStr.lastIndexOf(SUFFIX_ATTACHMENT) + 1));
                 } else {
                     suffix = BTypes.typeString.getZeroValue();
                 }
@@ -213,8 +215,8 @@ public class MimeUtil {
 
                 while (keys.hasMoreElements()) {
                     String key = (String) keys.nextElement();
-                    String value = parameterList.get(key);
-                    parameterMap.put(key, value);
+                    BString value = org.ballerinalang.jvm.StringUtils.fromString(parameterList.get(key));
+                    parameterMap.put(org.ballerinalang.jvm.StringUtils.fromString(key), value);
                 }
             } else {
                 primaryType = suffix = subType = BTypes.typeString.getZeroValue();
@@ -225,7 +227,7 @@ public class MimeUtil {
             mediaType.set(SUFFIX_FIELD, suffix);
             mediaType.set(PARAMETER_MAP_FIELD, parameterMap);
         } catch (MimeTypeParseException e) {
-            throw new ErrorValue(INVALID_CONTENT_TYPE, e.getMessage());
+            throw new ErrorValue(org.ballerinalang.jvm.StringUtils.fromString(INVALID_CONTENT_TYPE), e.getMessage());
         }
         return mediaType;
     }
@@ -258,11 +260,11 @@ public class MimeUtil {
             } else {
                 dispositionValue = contentDispositionHeaderWithParams;
             }
-            contentDisposition.set(DISPOSITION_FIELD, dispositionValue);
-            MapValue paramMap = HeaderUtil.getParamMap(contentDispositionHeaderWithParams);
-            for (Object key : paramMap.getKeys()) {
-                String paramValue = (String) paramMap.get(key);
-                switch (key.toString()) {
+            contentDisposition.set(DISPOSITION_FIELD, org.ballerinalang.jvm.StringUtils.fromString(dispositionValue));
+            MapValue<BString, BString> paramMap = HeaderUtil.getParamMap(contentDispositionHeaderWithParams);
+            for (BString key : paramMap.getKeys()) {
+                BString paramValue = paramMap.get(key);
+                switch (key.getValue()) {
                     case CONTENT_DISPOSITION_FILE_NAME:
                         contentDisposition.set(CONTENT_DISPOSITION_FILENAME_FIELD, stripQuotes(paramValue));
                         break;
@@ -272,8 +274,8 @@ public class MimeUtil {
                     default:
                 }
             }
-            paramMap.remove(CONTENT_DISPOSITION_FILE_NAME);
-            paramMap.remove(CONTENT_DISPOSITION_NAME);
+            paramMap.remove(org.ballerinalang.jvm.StringUtils.fromString(CONTENT_DISPOSITION_FILE_NAME));
+            paramMap.remove(org.ballerinalang.jvm.StringUtils.fromString(CONTENT_DISPOSITION_NAME));
             contentDisposition.set(CONTENT_DISPOSITION_PARA_MAP_FIELD, paramMap);
         }
     }
@@ -324,7 +326,8 @@ public class MimeUtil {
                     .append(includeQuotes(fileName)).append(SEMICOLON);
         }
         if (contentDispositionStruct.get(CONTENT_DISPOSITION_PARA_MAP_FIELD) != null) {
-            MapValue map = (MapValue) contentDispositionStruct.get(CONTENT_DISPOSITION_PARA_MAP_FIELD);
+            MapValue<BString, BString> map =
+                    (MapValue<BString, BString>) contentDispositionStruct.get(CONTENT_DISPOSITION_PARA_MAP_FIELD);
             HeaderUtil.appendHeaderParams(appendSemiColon(dispositionBuilder), map);
         }
 
@@ -416,11 +419,11 @@ public class MimeUtil {
      * @param textValue Represent a text value
      * @return a String surrounded by quotes
      */
-    public static String stripQuotes(String textValue) {
-        if (textValue.startsWith(DOUBLE_QUOTE)) {
-            textValue = textValue.substring(1);
+    public static BString stripQuotes(BString textValue) {
+        if (textValue.getValue().startsWith(DOUBLE_QUOTE)) {
+            textValue = textValue.substring(1, textValue.length());
         }
-        if (textValue.endsWith(DOUBLE_QUOTE)) {
+        if (textValue.getValue().endsWith(DOUBLE_QUOTE)) {
             textValue = textValue.substring(0, textValue.length() - 1);
         }
         return textValue;
@@ -484,6 +487,9 @@ public class MimeUtil {
         org.ballerinalang.jvm.types.BType type = TypeChecker.getType(dataSource);
 //        if (TypeChecker.checkIsType(dataSource, BTypes.typeString)) {
         if (type.getTag() == TypeTags.STRING_TAG) {
+            if (dataSource instanceof BString) {
+                return ((BString) dataSource).getValue();
+            }
             return (String) dataSource;
         } else if (type.getTag() == TypeTags.ARRAY_TAG &&
                 ((org.ballerinalang.jvm.types.BArrayType) type).getElementType().getTag() == TypeTags.BYTE_TAG) {

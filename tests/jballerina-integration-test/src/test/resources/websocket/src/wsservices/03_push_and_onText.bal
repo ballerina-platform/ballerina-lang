@@ -53,7 +53,7 @@ type Person record {|
 service onTextRecord on new http:Listener(21025) {
 
     resource function onText(http:WebSocketCaller caller, Person data) {
-        var personData = json.constructFrom(data);
+        var personData = data.cloneWithType(json);
         if (personData is error) {
             panic personData;
         } else {

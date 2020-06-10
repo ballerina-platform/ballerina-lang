@@ -1490,7 +1490,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand keyRegIndex = this.env.targetOperand;
         if (variableStore) {
             emit(new BIRNonTerminator.FieldAccess(astMapAccessExpr.pos, InstructionKind.MAP_STORE, varRefRegIndex,
-                                                  keyRegIndex, rhsOp));
+                                                  keyRegIndex, rhsOp, astMapAccessExpr.isStoreOnCreation));
             return;
         }
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(astMapAccessExpr.type, this.env.nextLocalVarId(names),
@@ -2149,6 +2149,7 @@ public class BIRGen extends BLangNodeVisitor {
             case MOD:
                 return InstructionKind.MOD;
             case EQUAL:
+            case EQUALS:
                 return InstructionKind.EQUAL;
             case NOT_EQUAL:
                 return InstructionKind.NOT_EQUAL;
@@ -2297,7 +2298,7 @@ public class BIRGen extends BLangNodeVisitor {
                 insKind = InstructionKind.MAP_STORE;
             }
             emit(new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos, insKind, varRefRegIndex, keyRegIndex,
-                                                  rhsOp));
+                                                  rhsOp, astIndexBasedAccessExpr.isStoreOnCreation));
         } else {
             BIRVariableDcl tempVarDcl = new BIRVariableDcl(astIndexBasedAccessExpr.type, this.env.nextLocalVarId(names),
                     VarScope.FUNCTION, VarKind.TEMP);

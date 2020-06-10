@@ -9,7 +9,7 @@
       "kind": "LIST",
       "children": [
         {
-          "kind": "FUNCTION_DEFINITION",
+          "kind": "MODULE_VAR_DECL",
           "children": [
             {
               "kind": "METADATA",
@@ -38,25 +38,52 @@
                               "value": "annot1"
                             }
                           ]
-                        },
-                        {
-                          "kind": "MAPPING_CONSTRUCTOR",
-                          "children": [
-                            {
-                              "kind": "OPEN_BRACE_TOKEN"
-                            },
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            },
-                            {
-                              "kind": "CLOSE_BRACE_TOKEN"
-                            }
-                          ]
                         }
                       ]
                     }
                   ]
+                }
+              ]
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "bar"
+                },
+                {
+                  "kind": "MAPPING_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "OPEN_BRACE_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "CLOSE_BRACE_TOKEN"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "isMissing": true
+            }
+          ]
+        },
+        {
+          "kind": "FUNCTION_DEFINITION",
+          "children": [
+            {
+              "kind": "METADATA",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
                 }
               ]
             },

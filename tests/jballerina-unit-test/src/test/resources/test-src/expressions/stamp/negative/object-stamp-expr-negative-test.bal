@@ -82,42 +82,42 @@ type Teacher record {
 
 function stampObjectsToRecord() returns Employee|error {
     PersonObj p = new PersonObj();
-    Employee|error employee = Employee.constructFrom(p);
+    Employee|error employee = p.cloneWithType(Employee);
 
     return employee;
 }
 
 function stampObjectsToJSON() returns json|error {
     PersonObj p = new PersonObj();
-    json|error jsonValue = json.constructFrom(p);
+    json|error jsonValue = p.cloneWithType(json);
 
     return jsonValue;
 }
 
 function stampObjectsToXML() returns xml|error {
     PersonObj p = new PersonObj();
-    xml|error xmlValue = xml.constructFrom(p);
+    xml|error xmlValue = p.cloneWithType(xml);
 
     return xmlValue;
 }
 
 function stampObjectsToMap() returns map<any>|error {
     PersonObj p = new PersonObj();
-    map<any>|error mapValue = map<any>.constructFrom(p);
+    map<any>|error mapValue = p.cloneWithType(map<any>);
 
     return mapValue;
 }
 
 function stampObjectsToArray() returns any[]|error {
     PersonObj p = new PersonObj();
-    any[]|error anyValue = any[].constructFrom(p);
+    any[]|error anyValue = p.cloneWithType(any[]);
 
     return anyValue;
 }
 
 function stampObjectsToTuple() returns [int,string]|error {
     PersonObj p = new PersonObj();
-    [int, string]|error tupleValue = [int,string].constructFrom(p);
+    [int, string]|error tupleValue = p.cloneWithType([int,string]);
 
     return tupleValue;
 }
@@ -125,7 +125,7 @@ function stampObjectsToTuple() returns [int,string]|error {
 function stampAnyToObject() returns PersonObj|error {
 
     anydata anydataValue = new PersonObj();
-    PersonObj|error personObj = PersonObj.constructFrom(anydataValue);
+    PersonObj|error personObj = anydataValue.cloneWithType(PersonObj);
 
     return personObj;
 }
@@ -133,7 +133,7 @@ function stampAnyToObject() returns PersonObj|error {
 function stampAnyArrayToObject() returns EmployeeObject|error {
 
     anydata[] anyArray = ["Mohan", "Single", "LK2014"];
-    EmployeeObject|error objectValue = EmployeeObject.constructFrom(anyArray);
+    EmployeeObject|error objectValue = anyArray.cloneWithType(EmployeeObject);
 
     return objectValue;
 }
@@ -141,7 +141,7 @@ function stampAnyArrayToObject() returns EmployeeObject|error {
 function stampJSONToObject() returns EmployeeObj|error {
 
     json employee = { name: "John", status: "Single", batch: "LK2014" };
-    EmployeeObject|error employeeObj = EmployeeObject.constructFrom(employee);
+    EmployeeObject|error employeeObj = employee.cloneWithType(EmployeeObject);
     return employeeObj;
 }
 
@@ -149,13 +149,13 @@ function stampXMLToObject() returns BookObject|error {
 
     xml xmlValue = xml `<book>The Lost World</book>`;
 
-    BookObject|error objectValue = BookObject.constructFrom(xmlValue);
+    BookObject|error objectValue = xmlValue.cloneWithType(BookObject);
     return objectValue;
 }
 
 function stampMapToObject() returns IntObject|error {
     map<anydata> m = { "firstName": "mohan", "lastName": "raj" };
-    IntObject|error objectValue = IntObject.constructFrom(m);
+    IntObject|error objectValue = m.cloneWithType(IntObject);
 
     return objectValue;
 }
@@ -163,7 +163,7 @@ function stampMapToObject() returns IntObject|error {
 function stampRecordToObject() returns TeacherObj|error {
 
     Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    TeacherObj|error returnValue = TeacherObj.constructFrom(teacher);
+    TeacherObj|error returnValue = teacher.cloneWithType(TeacherObj);
 
     return returnValue;
 }
@@ -171,6 +171,6 @@ function stampRecordToObject() returns TeacherObj|error {
 function stampTupleToObject() returns EmployeeObj|error {
     [string, int] tupleValue = ["Mohan", 30];
 
-    EmployeeObj|error objectValue = EmployeeObj.constructFrom(tupleValue);
+    EmployeeObj|error objectValue = tupleValue.cloneWithType(EmployeeObj);
     return objectValue;
 }

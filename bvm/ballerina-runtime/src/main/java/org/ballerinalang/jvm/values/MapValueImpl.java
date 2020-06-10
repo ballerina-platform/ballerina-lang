@@ -69,7 +69,7 @@ import static org.ballerinalang.jvm.values.ReadOnlyUtils.handleInvalidUpdate;
  * <i>Note: This is an internal API and may change in future versions.</i>
  * </p>
  * @see MapValue
- * 
+ *
  * @param <K> the type of keys maintained by this map
  * @param <V> the type of mapped values
  *
@@ -105,47 +105,35 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         type = BTypes.typeMap;
     }
 
-    /**
-     * Retrieve the value for the given key from map.
-     * A null will be returned if the key does not exists.
-     *
-     * @param key key used to get the value
-     * @return value associated with the key
-     */
-    @Override
-    public V get(Object key) {
-        return super.get(key);
-    }
-
-    public Long getIntValue(String key) {
+    public Long getIntValue(BString key) {
         return (Long) get(key);
     }
 
-    public Double getFloatValue(String key) {
+    public Double getFloatValue(BString key) {
         return (Double) get(key);
     }
 
-    public String getStringValue(String key) {
-        return (String) get(key);
+    public BString getStringValue(BString key) {
+        return (BString) get(key);
     }
 
-    public Boolean getBooleanValue(String key) {
+    public Boolean getBooleanValue(BString key) {
         return (Boolean) get(key);
     }
 
-    public MapValueImpl<?, ?> getMapValue(String key) {
+    public MapValueImpl<?, ?> getMapValue(BString key) {
         return (MapValueImpl<?, ?>) get(key);
     }
 
-    public ObjectValue getObjectValue(String key) {
+    public ObjectValue getObjectValue(BString key) {
         return (ObjectValue) get(key);
     }
 
-    public ArrayValue getArrayValue(String key) {
+    public ArrayValue getArrayValue(BString key) {
         return (ArrayValue) get(key);
     }
 
-    public long getDefaultableIntValue(String key) {
+    public long getDefaultableIntValue(BString key) {
         if (get(key) != null) {
             return getIntValue(key);
         }
@@ -262,16 +250,12 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         }
     }
 
-    protected void populateInitialValue(K key, V value) {
-        String bStringProp = System.getProperty("ballerina.bstring");
-        boolean isBString = (bStringProp != null && !"".equals(bStringProp));
-
+    public void populateInitialValue(K key, V value) {
         if (type.getTag() == TypeTags.MAP_TAG) {
-            MapUtils.handleInherentTypeViolatingMapUpdate(value, (BMapType) type, isBString);
+            MapUtils.handleInherentTypeViolatingMapUpdate(value, (BMapType) type);
         } else {
-            String fieldName = isBString ? ((BString) key).getValue() : (String) key;
-            MapUtils.handleInherentTypeViolatingRecordUpdate(this, fieldName, value, (BRecordType) type, isBString,
-                                                             true);
+            BString fieldName = (BString) key;
+            MapUtils.handleInherentTypeViolatingRecordUpdate(this, fieldName, value, (BRecordType) type, true);
         }
 
         putValue(key, value);
@@ -356,10 +340,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @SuppressWarnings("unchecked")
     public K[] getKeys() {
         Set<K> keys = super.keySet();
-        String bStringProp = System.getProperty("ballerina.bstring");
-        boolean isBString = (bStringProp != null && !"".equals(bStringProp));
-        int size = keys.size();
-        return (K[]) (isBString ? keys.toArray(new BString[size]) : keys.toArray(new String[size]));
+        return (K[]) (keys.toArray(new BString[keys.size()]));
     }
 
     /**
@@ -451,7 +432,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             return;
         }
 
-        this.type = ReadOnlyUtils.setImmutableType(this.type);
+        this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
 
         this.values().forEach(val -> {
             if (val instanceof RefValue) {
@@ -590,11 +571,11 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             }
         }
 
-        MapValue<String, Object> m1 = (MapValue<String, Object>) this;
-        MapValue<String, Object> m2 = (MapValue<String, Object>) v2;
+        MapValue<BString, Object> m1 = (MapValue<BString, Object>) this;
+        MapValue<BString, Object> m2 = (MapValue<BString, Object>) v2;
 
-        for (Map.Entry<String, Object> entry : m2.entrySet()) {
-            String key = entry.getKey();
+        for (Map.Entry<BString, Object> entry : m2.entrySet()) {
+            BString key = entry.getKey();
 
             if (!m1.containsKey(key)) {
                 m1.put(key, entry.getValue());

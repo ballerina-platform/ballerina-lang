@@ -20,10 +20,13 @@ package org.ballerinalang.langlib.xml;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
  * Create XML comment value from string.
@@ -31,7 +34,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
         functionName = "createComment",
         args = {@Argument(name = "string", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.XML)},
@@ -39,7 +42,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class CreateComment {
 
-    public static XMLValue createComment(Strand strand, String string) {
+    public static XMLValue createComment(Strand strand, BString string) {
         return XMLFactory.createXMLComment(string);
     }
 }

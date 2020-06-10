@@ -19,22 +19,49 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
-public class STLiteralValueToken extends STToken {
-    public final String text;
-    public final long value;
+import java.util.Collection;
+import java.util.Collections;
 
-    STLiteralValueToken(SyntaxKind kind, String text, long value, STNode leadingTrivia, STNode trailingTrivia) {
-        super(kind, text.length(), leadingTrivia, trailingTrivia);
+/**
+ * Represents a literal value in the Ballerina internal syntax tree.
+ *
+ * @since 2.0.0
+ */
+public class STLiteralValueToken extends STToken {
+    private final String text;
+
+    STLiteralValueToken(SyntaxKind kind, String text, STNode leadingTrivia, STNode trailingTrivia) {
+        this(kind, text, leadingTrivia, trailingTrivia, Collections.emptyList());
+    }
+
+    STLiteralValueToken(SyntaxKind kind,
+                        String text,
+                        STNode leadingTrivia,
+                        STNode trailingTrivia,
+                        Collection<STNodeDiagnostic> diagnostics) {
+        super(kind, text.length(), leadingTrivia, trailingTrivia, diagnostics);
         this.text = text;
-        this.value = value;
     }
 
     public String text() {
         return text;
     }
 
+    public STToken modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STLiteralValueToken(this.kind, this.text, this.leadingMinutiae, this.trailingMinutiae, diagnostics);
+    }
+
+    public STToken modifyWith(STNode leadingMinutiae, STNode trailingMinutiae) {
+        return new STLiteralValueToken(this.kind, this.text, leadingMinutiae, trailingMinutiae, this.diagnostics);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
+    }
+
     @Override
     public String toString() {
-        return leadingTrivia + text + trailingTrivia;
+        return leadingMinutiae + text + trailingMinutiae;
     }
 }

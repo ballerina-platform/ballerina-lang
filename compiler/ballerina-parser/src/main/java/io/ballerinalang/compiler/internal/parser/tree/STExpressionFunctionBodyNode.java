@@ -22,28 +22,83 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STExpressionFunctionBodyNode extends STFunctionBodyNode {
     public final STNode rightDoubleArrow;
     public final STNode expression;
+    public final STNode semicolon;
 
     STExpressionFunctionBodyNode(
             STNode rightDoubleArrow,
-            STNode expression) {
-        super(SyntaxKind.EXPRESSION_FUNCTION_BODY);
+            STNode expression,
+            STNode semicolon) {
+        this(
+                rightDoubleArrow,
+                expression,
+                semicolon,
+                Collections.emptyList());
+    }
+
+    STExpressionFunctionBodyNode(
+            STNode rightDoubleArrow,
+            STNode expression,
+            STNode semicolon,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.EXPRESSION_FUNCTION_BODY, diagnostics);
         this.rightDoubleArrow = rightDoubleArrow;
         this.expression = expression;
+        this.semicolon = semicolon;
 
         addChildren(
                 rightDoubleArrow,
-                expression);
+                expression,
+                semicolon);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STExpressionFunctionBodyNode(
+                this.rightDoubleArrow,
+                this.expression,
+                this.semicolon,
+                diagnostics);
+    }
+
+    public STExpressionFunctionBodyNode modify(
+            STNode rightDoubleArrow,
+            STNode expression,
+            STNode semicolon) {
+        if (checkForReferenceEquality(
+                rightDoubleArrow,
+                expression,
+                semicolon)) {
+            return this;
+        }
+
+        return new STExpressionFunctionBodyNode(
+                rightDoubleArrow,
+                expression,
+                semicolon,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ExpressionFunctionBodyNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

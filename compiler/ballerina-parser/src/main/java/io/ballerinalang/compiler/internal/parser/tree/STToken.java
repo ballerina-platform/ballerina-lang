@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * Represents a terminal node in the internal syntax tree.
  * <p>
@@ -30,33 +33,59 @@ import io.ballerinalang.compiler.syntax.tree.Token;
  * @since 2.0.0
  */
 public class STToken extends STNode {
-
-    public final STNode leadingTrivia;
-    public final STNode trailingTrivia;
+    protected final STNode leadingMinutiae;
+    protected final STNode trailingMinutiae;
 
     // Number of preceding tokens whose lookahead reached lexeme
-    public final int lookback = 1; // TODO These is a default number
+    protected final int lookback = 1; // TODO These is a default number
     // Number of characters read beyond lexeme
-    public final int lookahead = 1; // TODO These is a default number
+    protected final int lookahead = 1; // TODO These is a default number
 
-    STToken(SyntaxKind kind, STNode leadingTrivia, STNode trailingTrivia) {
-        this(kind, kind.stringValue().length(), leadingTrivia, trailingTrivia);
+    STToken(SyntaxKind kind, STNode leadingMinutiae, STNode trailingMinutiae) {
+        this(kind, kind.stringValue().length(), leadingMinutiae, trailingMinutiae);
     }
 
-    STToken(SyntaxKind kind, int width, STNode leadingTrivia, STNode trailingTrivia) {
-        super(kind);
-        this.leadingTrivia = leadingTrivia;
-        this.trailingTrivia = trailingTrivia;
+    STToken(SyntaxKind kind, int width, STNode leadingMinutiae, STNode trailingMinutiae) {
+        this(kind, width, leadingMinutiae, trailingMinutiae, Collections.emptyList());
+    }
+
+    STToken(SyntaxKind kind,
+            int width,
+            STNode leadingMinutiae,
+            STNode trailingMinutiae,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(kind, diagnostics);
+        this.leadingMinutiae = leadingMinutiae;
+        this.trailingMinutiae = trailingMinutiae;
 
         this.width = width;
-        this.widthWithLeadingMinutiae = this.width + leadingTrivia.width;
-        this.widthWithTrailingMinutiae = this.width + trailingTrivia.width;
-        this.widthWithMinutiae = this.width + leadingTrivia.width + trailingTrivia.width;
-
+        this.widthWithLeadingMinutiae = this.width + leadingMinutiae.width;
+        this.widthWithTrailingMinutiae = this.width + trailingMinutiae.width;
+        this.widthWithMinutiae = this.width + leadingMinutiae.width + trailingMinutiae.width;
     }
 
     public String text() {
         return kind.stringValue();
+    }
+
+    public STNode leadingMinutiae() {
+        return leadingMinutiae;
+    }
+
+    public STNode trailingMinutiae() {
+        return trailingMinutiae;
+    }
+
+    public int lookbackTokenCount() {
+        return lookback;
+    }
+
+    public STToken modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STToken(this.kind, this.width, this.leadingMinutiae, this.trailingMinutiae, diagnostics);
+    }
+
+    public STToken modifyWith(STNode leadingMinutiae, STNode trailingMinutiae) {
+        return new STToken(this.kind, this.width, leadingMinutiae, trailingMinutiae, this.diagnostics);
     }
 
     @Override
@@ -65,7 +94,17 @@ public class STToken extends STNode {
     }
 
     @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
+    }
+
+    @Override
     public String toString() {
-        return leadingTrivia + kind.stringValue() + trailingTrivia;
+        return leadingMinutiae + kind.stringValue() + trailingMinutiae;
     }
 }

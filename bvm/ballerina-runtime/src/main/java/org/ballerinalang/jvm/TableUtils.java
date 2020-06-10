@@ -46,11 +46,11 @@ public class TableUtils {
      * @param parent Node linking to the parent object of 'obj'
      * @return The hash value
      */
-    public static Integer hash(Object obj, Node parent) {
-        int result = 0;
+    public static Long hash(Object obj, Node parent) {
+        long result = 0;
 
         if (obj == null) {
-            return 0;
+            return 0L;
         }
 
         if (obj instanceof RefValue) {
@@ -80,11 +80,16 @@ public class TableUtils {
                     result = 31 * result + hash(arrayIterator.next(), node);
                 }
                 return result;
+            } else if (refType.getTag() == TypeTags.XML_TAG || refType.getTag() == TypeTags.XML_ELEMENT_TAG ||
+                    refType.getTag() == TypeTags.XML_TEXT_TAG || refType.getTag() == TypeTags.XML_ATTRIBUTES_TAG ||
+                    refType.getTag() == TypeTags.XML_COMMENT_TAG || refType.getTag() == TypeTags.XML_PI_TAG ||
+                    refType.getTag() == TypeTags.XMLNS_TAG) {
+                return (long) refValue.toString().hashCode();
             } else {
-                return obj.hashCode();
+                return (long) obj.hashCode();
             }
         } else {
-            return obj.hashCode();
+            return (long) obj.hashCode();
         }
     }
 

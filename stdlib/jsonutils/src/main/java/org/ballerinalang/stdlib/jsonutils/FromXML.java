@@ -19,10 +19,12 @@
 package org.ballerinalang.stdlib.jsonutils;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * Converts a XML to the corresponding JSON representation.
@@ -36,8 +38,9 @@ public class FromXML {
 
     public static Object fromXML(XMLValue xml, MapValue<?, ?> options) {
         try {
-            String attributePrefix = (String) options.get(OPTIONS_ATTRIBUTE_PREFIX);
-            boolean preserveNamespaces = ((Boolean) options.get(OPTIONS_PRESERVE_NS));
+            String attributePrefix = ((BString) options.get(StringUtils.fromString(OPTIONS_ATTRIBUTE_PREFIX)))
+                    .getValue();
+            boolean preserveNamespaces = ((Boolean) options.get(StringUtils.fromString(OPTIONS_PRESERVE_NS)));
             return XMLFactory.convertToJSON(xml, attributePrefix, preserveNamespaces);
         } catch (Exception e) {
             try {

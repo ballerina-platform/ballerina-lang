@@ -168,9 +168,13 @@ public enum NodeKind {
     /* Clauses */
     SELECT,
     FROM,
+    JOIN,
     WHERE,
     DO,
     LET_CLAUSE,
+    ON_CONFLICT,
+    ON,
+    LIMIT,
 
     /* Types */
     ARRAY_TYPE,

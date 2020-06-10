@@ -18,6 +18,7 @@
 package org.ballerinalang.openapi.validator;
 
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
@@ -56,7 +57,7 @@ class ValidatorUtil {
      * @return {@link OpenAPI} OpenAPI model
      * @throws OpenApiValidatorException in case of exception
      */
-    static OpenAPI parseOpenAPIFile(String definitionURI) throws OpenApiValidatorException {
+    public static OpenAPI parseOpenAPIFile(String definitionURI) throws OpenApiValidatorException {
         Path contractPath = Paths.get(definitionURI);
         if (!Files.exists(contractPath)) {
             throw new OpenApiValidatorException(ErrorMessages.invalidFilePath(definitionURI));
@@ -81,7 +82,7 @@ class ValidatorUtil {
      * @param contract                openAPI contract
      * @param openAPIComponentSummary list of openAPI components
      */
-    static void summarizeOpenAPI(List<OpenAPIPathSummary> openAPISummaries, OpenAPI contract
+    public static void summarizeOpenAPI(List<OpenAPIPathSummary> openAPISummaries, OpenAPI contract
             , OpenAPIComponentSummary openAPIComponentSummary) {
         io.swagger.v3.oas.models.Paths paths = contract.getPaths();
         for (Map.Entry pathItem : paths.entrySet()) {
@@ -93,43 +94,35 @@ class ValidatorUtil {
 
                 PathItem operations = (PathItem) pathItem.getValue();
                 if (operations.getGet() != null) {
-                    openAPISummary.addAvailableOperation(Constants.GET);
-                    openAPISummary.addOperation(Constants.GET, operations.getGet());
+                    addOpenapiSummary(openAPISummary, Constants.GET, operations.getGet());
                 }
 
                 if (operations.getPost() != null) {
-                    openAPISummary.addAvailableOperation(Constants.POST);
-                    openAPISummary.addOperation(Constants.POST, operations.getPost());
+                    addOpenapiSummary(openAPISummary, Constants.POST, operations.getPost());
                 }
 
                 if (operations.getPut() != null) {
-                    openAPISummary.addAvailableOperation(Constants.PUT);
-                    openAPISummary.addOperation(Constants.PUT, operations.getPut());
+                    addOpenapiSummary(openAPISummary, Constants.PUT, operations.getPut());
                 }
 
                 if (operations.getDelete() != null) {
-                    openAPISummary.addAvailableOperation(Constants.DELETE);
-                    openAPISummary.addOperation(Constants.DELETE, operations.getDelete());
+                    addOpenapiSummary(openAPISummary, Constants.DELETE, operations.getDelete());
                 }
 
                 if (operations.getHead() != null) {
-                    openAPISummary.addAvailableOperation(Constants.HEAD);
-                    openAPISummary.addOperation(Constants.HEAD, operations.getHead());
+                    addOpenapiSummary(openAPISummary, Constants.HEAD, operations.getHead());
                 }
 
                 if (operations.getPatch() != null) {
-                    openAPISummary.addAvailableOperation(Constants.PATCH);
-                    openAPISummary.addOperation(Constants.PATCH, operations.getPatch());
+                    addOpenapiSummary(openAPISummary, Constants.PATCH, operations.getPatch());
                 }
 
                 if (operations.getOptions() != null) {
-                    openAPISummary.addAvailableOperation(Constants.OPTIONS);
-                    openAPISummary.addOperation(Constants.OPTIONS, operations.getOptions());
+                    addOpenapiSummary(openAPISummary, Constants.OPTIONS, operations.getOptions());
                 }
 
                 if (operations.getTrace() != null) {
-                    openAPISummary.addAvailableOperation(Constants.TRACE);
-                    openAPISummary.addOperation(Constants.TRACE, operations.getTrace());
+                    addOpenapiSummary(openAPISummary, Constants.TRACE, operations.getTrace());
                 }
             }
 
@@ -139,13 +132,18 @@ class ValidatorUtil {
         openAPIComponentSummary.setComponents(contract.getComponents());
     }
 
+    private static void addOpenapiSummary(OpenAPIPathSummary openAPISummary, String get, Operation get2) {
+        openAPISummary.addAvailableOperation(get);
+        openAPISummary.addOperation(get, get2);
+    }
+
     /**
      * Extract the details to be validated from the resource.
      *
      * @param resourceSummaryList list of resource summaries
      * @param serviceNode         service node
      */
-    static void summarizeResources(List<ResourceSummary> resourceSummaryList, ServiceNode serviceNode) {
+    public static void summarizeResources(List<ResourceSummary> resourceSummaryList, ServiceNode serviceNode) {
         // Iterate resources available in a service and extract details to be validated.
         for (FunctionNode resource : serviceNode.getResources()) {
             AnnotationAttachmentNode annotation = null;
@@ -230,27 +228,39 @@ class ValidatorUtil {
      *
      * @param tags                    lists of tags to enable validation on
      * @param operations              list of operations enable validation on
+     * @param kind                    Diagnostic.Kind value for enabaling the avoid validate fail
      * @param resourceSummaryList     list of resource summaries
      * @param openAPISummaryList      list of openAPI path summaries
      * @param openAPIComponentSummary component summaries
      * @param dLog                    diagnostic logger
      */
-    static void validateResourcesAgainstOpenApi(List<String> tags, List<String> operations,
+    public static void validateResourcesAgainstOpenApi(List<String> tags, List<String> operations,
+                                                Diagnostic.Kind kind,
+                                                List<String> excludeTags,
+                                                List<String> excludeOperations,
                                                 List<ResourceSummary> resourceSummaryList,
                                                 List<OpenAPIPathSummary> openAPISummaryList,
                                                 OpenAPIComponentSummary openAPIComponentSummary, DiagnosticLog dLog) {
         boolean tagFilteringEnabled = tags.size() > 0;
         boolean operationFilteringEnabled = operations.size() > 0;
+        boolean excludeTagsFilteringEnabled = excludeTags.size() > 0;
+        boolean excludeOperationFilterEnable = excludeOperations.size() > 0;
 
         for (ResourceSummary resourceSummary : resourceSummaryList) {
             OpenAPIPathSummary openAPIPathSummary = getOpenApiSummaryByPath(resourceSummary.getPath(),
                     openAPISummaryList);
             if (openAPIPathSummary == null) {
-                dLog.logDiagnostic(Diagnostic.Kind.ERROR, resourceSummary.getPathPosition(),
+                if (operationFilteringEnabled || tagFilteringEnabled || excludeOperationFilterEnable
+                        || excludeTagsFilteringEnabled) {
+                    kind = Diagnostic.Kind.WARNING;
+                }
+                dLog.logDiagnostic(kind, resourceSummary.getPathPosition(),
                         ErrorMessages.undocumentedResourcePath(resourceSummary.getPath()));
+
             } else {
                 List<String> unmatchedMethods = new ArrayList<>();
-                if (!operationFilteringEnabled && !tagFilteringEnabled) {
+                if (!operationFilteringEnabled && !tagFilteringEnabled && !excludeTagsFilteringEnabled
+                && !excludeOperationFilterEnable) {
                     for (String resourceMethod : resourceSummary.getMethods()) {
                         boolean noMatch = true;
                         for (String method : openAPIPathSummary.getAvailableOperations()) {
@@ -281,29 +291,31 @@ class ValidatorUtil {
                                         if (schema != null) {
                                             isExist = validateResourceAgainstOpenAPIParams(parameter,
                                                     parameter.getParameter().symbol, schema, dLog, resourceMethod,
-                                                    resourceSummary.getPath());
+                                                    resourceSummary.getPath(), kind);
                                         }
                                     }
                                 } else if (openAPIParameter.getName().equals(parameter.getName())) {
                                     isExist = validateResourceAgainstOpenAPIParams(parameter,
                                             parameter.getParameter().symbol,
                                             openAPIParameter.getParameter().getSchema(), dLog, resourceMethod,
-                                            resourceSummary.getPath());
+                                            resourceSummary.getPath(), kind);
                                 }
                             }
 
                             if (!isExist) {
-                                dLog.logDiagnostic(Diagnostic.Kind.ERROR, parameter.getParameter().getPosition(),
+                                dLog.logDiagnostic(kind, parameter.getParameter().getPosition(),
                                         ErrorMessages.undocumentedResourceParameter(parameter.getName(),
                                                 resourceMethod, resourceSummary.getPath()));
+
                             }
                         }
                     }
 
                     String methods = getUnmatchedMethodList(unmatchedMethods);
                     if (!openAPIPathSummary.getAvailableOperations().containsAll(resourceSummary.getMethods())) {
-                        dLog.logDiagnostic(Diagnostic.Kind.ERROR, resourceSummary.getMethodsPosition(),
+                        dLog.logDiagnostic(kind, resourceSummary.getMethodsPosition(),
                                 ErrorMessages.undocumentedResourceMethods(methods, resourceSummary.getPath()));
+
                     }
                 }
             }
@@ -321,90 +333,191 @@ class ValidatorUtil {
      * @param openAPIComponentSummary openAPI component summary
      * @param dLog                    diagnostic logger
      */
-    static void validateOpenApiAgainstResources(ServiceNode serviceNode, List<String> tags, List<String> operations,
+    public static void validateOpenApiAgainstResources(ServiceNode serviceNode, List<String> tags,
+                                                List<String> operations,
+                                                Diagnostic.Kind kind,
+                                                List<String> excludeTags,
+                                                List<String> excludeOperations,
                                                 List<ResourceSummary> resourceSummaryList,
                                                 List<OpenAPIPathSummary> openAPISummaryList,
                                                 OpenAPIComponentSummary openAPIComponentSummary,
                                                 DiagnosticLog dLog) {
         boolean tagFilteringEnabled = tags.size() > 0;
         boolean operationFilteringEnabled = operations.size() > 0;
+        boolean excludeTagsFilteringEnabled = excludeTags.size() > 0;
+        boolean excludeOperationFilterEnabled = excludeOperations.size() > 0;
 
         for (OpenAPIPathSummary openApiSummary : openAPISummaryList) {
             List<ResourceSummary> resourceSummaries = getResourceSummaryByPath(openApiSummary.getPath(),
                     resourceSummaryList);
             if (resourceSummaries == null) {
-                dLog.logDiagnostic(Diagnostic.Kind.ERROR, getServiceNamePosition(serviceNode),
-                        ErrorMessages.unimplementedOpenAPIPath(openApiSummary.getPath()));
+                if (tagFilteringEnabled || operationFilteringEnabled || excludeTagsFilteringEnabled
+                        || excludeOperationFilterEnabled) {
+                    if (operationFilteringEnabled) {
+                        operationsFilter(serviceNode, openApiSummary, operations, kind, Diagnostic.Kind.ERROR,
+                                Diagnostic.Kind.WARNING, dLog);
+                    } else if (excludeOperationFilterEnabled) {
+                        operationsFilter(serviceNode, openApiSummary, excludeOperations, kind, Diagnostic.Kind.WARNING,
+                                Diagnostic.Kind.ERROR, dLog);
+                    }
+
+                    if (tagFilteringEnabled) {
+                        tagsFilter(serviceNode, openApiSummary, tags, kind, Diagnostic.Kind.ERROR,
+                                Diagnostic.Kind.WARNING, dLog);
+                    } else if (excludeTagsFilteringEnabled) {
+                        tagsFilter(serviceNode, openApiSummary, excludeTags, kind, Diagnostic.Kind.WARNING,
+                                Diagnostic.Kind.ERROR, dLog);;
+                    }
+
+                } else {
+                    dLog.logDiagnostic(kind, getServiceNamePosition(serviceNode),
+                            ErrorMessages.unimplementedOpenAPIPath(openApiSummary.getPath()));
+                }
+
             } else {
                 List<String> allAvailableResourceMethods = getAllMethodsInResourceSummaries(resourceSummaries);
                 List<String> unmatchedMethods = new ArrayList<>();
 
                 // If operation filtering available proceed.
-                // Else proceed to check tag filtering.
+                // Else if proceed to check exclude operation filter is enable
+                // Else check tag filtering or excludeTag filtering enable.
                 if (operationFilteringEnabled) {
                     // If tag filtering available validate only the filtered operations grouped by given tags.
+                    // Else if exclude tag filtering available validate only the operations that are not include
+                    // exclude Tags.
                     // Else proceed only to validate filtered operations.
                     if (tagFilteringEnabled) {
                         for (String method : openApiSummary.getAvailableOperations()) {
-                            if (operations.contains(method) && openApiSummary.hasTags(tags, method)) {
+                            if (openApiSummary.hasOperations(operations, method) &&
+                                    openApiSummary.hasTags(tags, method)) {
                                 validateOperationForOpenAPI(unmatchedMethods, allAvailableResourceMethods,
                                         resourceSummaries, method, openApiSummary, dLog, openAPIComponentSummary,
-                                        serviceNode);
+                                        serviceNode, kind);
                             }
                         }
 
                         if (unmatchedMethods.size() > 0) {
-                            String methods = getUnmatchedMethodList(unmatchedMethods);
-                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, getServiceNamePosition(serviceNode),
-                                    ErrorMessages.unimplementedOpenAPIOperationsForPath(methods,
-                                            openApiSummary.getPath()));
+                            validateUnmatchedMethods(unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
+                        }
+                    } else if (excludeTagsFilteringEnabled) {
+                        for (String method : openApiSummary.getAvailableOperations()) {
+                            if (openApiSummary.hasOperations(operations, method) &&
+                                    !openApiSummary.hasTags(excludeTags, method)) {
+                                validateOperationForOpenAPI(unmatchedMethods, allAvailableResourceMethods,
+                                        resourceSummaries, method, openApiSummary, dLog, openAPIComponentSummary,
+                                        serviceNode, kind);
+                            }
+                        }
+
+                        if (unmatchedMethods.size() > 0) {
+                            validateUnmatchedMethods(unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
                         }
                     } else {
                         for (String method : openApiSummary.getAvailableOperations()) {
-                            if (operations.contains(method)) {
+                            if (openApiSummary.hasOperations(operations, method)) {
                                 validateOperationForOpenAPI(unmatchedMethods, allAvailableResourceMethods,
                                         resourceSummaries, method, openApiSummary, dLog, openAPIComponentSummary,
-                                        serviceNode);
+                                        serviceNode, kind);
                             }
                         }
 
                         if (unmatchedMethods.size() > 0) {
-                            String methods = getUnmatchedMethodList(unmatchedMethods);
-                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, getServiceNamePosition(serviceNode),
-                                    ErrorMessages.unimplementedOpenAPIOperationsForPath(methods,
-                                            openApiSummary.getPath()));
+                            validateUnmatchedMethods(unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
                         }
                     }
+                } else if (excludeOperationFilterEnabled) {
+
+                    // If exclude tags filtering available validate only the filtered exclude operations grouped by
+                    // given exclude tags.
+                    // Else If tags filtering available validate only the operations that filtered by exclude
+                    // operations.
+                    // Else proceed only to validate filtered exclude operations.
+                    if (excludeTagsFilteringEnabled) {
+                        for (String method : openApiSummary.getAvailableOperations()) {
+                            if (!openApiSummary.hasOperations(excludeOperations, method) &&
+                                    !openApiSummary.hasTags(excludeTags, method)) {
+                                validateOperationForOpenAPI(unmatchedMethods, allAvailableResourceMethods,
+                                        resourceSummaries, method, openApiSummary, dLog, openAPIComponentSummary,
+                                        serviceNode, kind);
+                            }
+                        }
+
+                        if (unmatchedMethods.size() > 0) {
+                            validateUnmatchedMethods(unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
+                        }
+                    } else if (tagFilteringEnabled) {
+                        for (String method : openApiSummary.getAvailableOperations()) {
+                            if (!openApiSummary.hasOperations(excludeOperations, method) &&
+                                    openApiSummary.hasTags(tags, method)) {
+                                validateOperationForOpenAPI(unmatchedMethods, allAvailableResourceMethods,
+                                        resourceSummaries, method, openApiSummary, dLog, openAPIComponentSummary,
+                                        serviceNode, kind);
+                            }
+                        }
+
+                        if (unmatchedMethods.size() > 0) {
+                            validateUnmatchedMethods(unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
+                        }
+                    } else {
+                        for (String method : openApiSummary.getAvailableOperations()) {
+                            if (!openApiSummary.hasOperations(excludeOperations, method)) {
+                                validateOperationForOpenAPI(unmatchedMethods, allAvailableResourceMethods,
+                                        resourceSummaries, method, openApiSummary, dLog, openAPIComponentSummary,
+                                        serviceNode, kind);
+                            }
+                        }
+
+                        if (unmatchedMethods.size() > 0) {
+                            validateUnmatchedMethods(unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
+                        }
+                    }
+                    // If exclude tag filtering available proceed to validate all the operations grouped by tags which
+                    // are not included in list.
+                    // Else if validate the operations group by tag filtering
+                    // Else proceed without any filtering.
                 } else {
-                    // If tag filtering available proceed to validate all the operations grouped by given tags.
-                    // Else proceed only to validate filtered operations.
-                    if (tagFilteringEnabled) {
+                    if (excludeTagsFilteringEnabled) {
+                        for (String method : openApiSummary.getAvailableOperations()) {
+                            if (!openApiSummary.hasTags(excludeTags, method)) {
+                                validateOperationForOpenAPI(unmatchedMethods, allAvailableResourceMethods,
+                                        resourceSummaries, method, openApiSummary, dLog, openAPIComponentSummary,
+                                        serviceNode, kind);
+                            }
+                        }
+
+                        if (unmatchedMethods.size() > 0) {
+                            validateUnmatchedMethods(unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
+                        }
+                    }  else if (tagFilteringEnabled) {
+                        // If tag filtering available proceed to validate all the operations grouped by given tags.
+                        // Else proceed only to validate filtered operations.
                         for (String method : openApiSummary.getAvailableOperations()) {
                             if (openApiSummary.hasTags(tags, method)) {
                                 validateOperationForOpenAPI(unmatchedMethods, allAvailableResourceMethods,
                                         resourceSummaries, method, openApiSummary, dLog, openAPIComponentSummary,
-                                        serviceNode);
+                                        serviceNode, kind);
                             }
                         }
 
                         if (unmatchedMethods.size() > 0) {
-                            String methods = getUnmatchedMethodList(unmatchedMethods);
-                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, getServiceNamePosition(serviceNode),
-                                    ErrorMessages.unimplementedOpenAPIOperationsForPath(methods,
-                                            openApiSummary.getPath()));
+                            validateUnmatchedMethods(unmatchedMethods, serviceNode, kind, openApiSummary, dLog);
+
                         }
-                    } else {
+
+                    } else  {
+
                         for (String method : openApiSummary.getAvailableOperations()) {
                             validateOperationForOpenAPI(unmatchedMethods, allAvailableResourceMethods,
                                     resourceSummaries, method, openApiSummary, dLog, openAPIComponentSummary,
-                                    serviceNode);
+                                    serviceNode, kind);
                         }
 
                         String methods = getUnmatchedMethodList(unmatchedMethods);
                         if (!allAvailableResourceMethods.containsAll(openApiSummary.getAvailableOperations())) {
-                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, getServiceNamePosition(serviceNode),
+                            dLog.logDiagnostic(kind, getServiceNamePosition(serviceNode),
                                     ErrorMessages.unimplementedOpenAPIOperationsForPath(methods,
                                             openApiSummary.getPath()));
+
                         }
                     }
                 }
@@ -442,7 +555,7 @@ class ValidatorUtil {
                                                     List<ResourceSummary> resourceSummaries, String method,
                                                     OpenAPIPathSummary openApiSummary, DiagnosticLog dLog,
                                                     OpenAPIComponentSummary openApiComponentSummary,
-                                                    ServiceNode serviceNode) {
+                                                    ServiceNode serviceNode, Diagnostic.Kind kind) {
         boolean noMatch = true;
         for (String resourceMethod : allAvailableResourceMethods) {
             if (resourceMethod.equals(method)) {
@@ -457,14 +570,14 @@ class ValidatorUtil {
 
         // Check for parameter mismatch.
         checkForParameterMismatch(openApiSummary, resourceSummaries, method, serviceNode, openApiComponentSummary,
-                dLog);
+                dLog, kind);
     }
 
     private static void checkForParameterMismatch(OpenAPIPathSummary openApiSummary,
                                                   List<ResourceSummary> resourceSummaries,
                                                   String method, ServiceNode serviceNode,
                                                   OpenAPIComponentSummary openAPIComponentSummary,
-                                                  DiagnosticLog dLog) {
+                                                  DiagnosticLog dLog, Diagnostic.Kind kind) {
         List<OpenAPIParameter> operationParamNames = openApiSummary
                 .getParamNamesForOperation(method);
         ResourceSummary resourceSummaryForMethod = getResourceSummaryByMethod(resourceSummaries, method);
@@ -481,32 +594,35 @@ class ValidatorUtil {
                             if (schema != null) {
                                 isExist = validateOpenAPIAgainResourceParams(parameter,
                                         parameter.getParameter().symbol, schema, dLog, method,
-                                        openApiSummary.getPath());
+                                        openApiSummary.getPath(), kind);
                             }
                         }
                     } else if (openAPIParameter.getName().equals(parameter.getName())) {
                         isExist = validateOpenAPIAgainResourceParams(parameter, parameter.getParameter().symbol,
-                                openAPIParameter.getParameter().getSchema(), dLog, method, openApiSummary.getPath());
+                                openAPIParameter.getParameter().getSchema(), dLog, method, openApiSummary.getPath(),
+                                kind);
                     }
 
                     if (!isExist) {
                         nonExistingResourceParameter = parameter;
-                        break;
+                        continue;
                     }
                 }
 
                 if (!isExist) {
                     if (nonExistingResourceParameter != null) {
-                        dLog.logDiagnostic(Diagnostic.Kind.ERROR,
+                        dLog.logDiagnostic(kind,
                                 nonExistingResourceParameter.getParameter().getPosition(),
                                 ErrorMessages.unimplementedParameterForOperation(openAPIParameter.getName(),
                                         method, resourceSummaryForMethod.getPath()));
+
                     } else {
-                        dLog.logDiagnostic(Diagnostic.Kind.ERROR, getServiceNamePosition(serviceNode),
+                        dLog.logDiagnostic(kind, getServiceNamePosition(serviceNode),
                                 ErrorMessages.unimplementedParameterForOperation(openAPIParameter.getName(),
                                         method, resourceSummaryForMethod.getPath()));
+
                     }
-                    break;
+
                 }
             }
         }
@@ -514,7 +630,8 @@ class ValidatorUtil {
 
     private static boolean validateResourceAgainstOpenAPIParams(ResourceParameter resourceParameter,
                                                                 BVarSymbol resourceParameterType, Schema openAPIParam,
-                                                                DiagnosticLog dLog, String method, String path) {
+                                                                DiagnosticLog dLog, String method, String path,
+                                                                Diagnostic.Kind kind) {
         BType resourceParamType = resourceParameterType.getType();
 
         if (resourceParamType.getKind().typeName().equals("record")
@@ -532,15 +649,16 @@ class ValidatorUtil {
                         isExist = true;
                         if (ValidatorUtil.convertOpenAPITypeToBallerina(entry.getValue().getType()).equals("record")) {
                             isExist = validateResourceAgainstOpenAPIParams(resourceParameter,
-                                    field.symbol, entry.getValue(), dLog, method, path);
+                                    field.symbol, entry.getValue(), dLog, method, path, kind);
                         }
                     }
                 }
 
                 if (!isExist) {
-                    dLog.logDiagnostic(Diagnostic.Kind.ERROR, field.pos,
+                    dLog.logDiagnostic(kind, field.pos,
                             ErrorMessages.undocumentedFieldInRecordParam(field.name.getValue(),
                                     resourceParameter.getName(), method, path));
+
                 }
             }
             return true;
@@ -567,7 +685,8 @@ class ValidatorUtil {
     private static boolean validateOpenAPIAgainResourceParams(ResourceParameter resourceParam,
                                                               BVarSymbol resourceParameterType,
                                                               Schema openAPIParam,
-                                                              DiagnosticLog dLog, String operation, String path) {
+                                                              DiagnosticLog dLog, String operation, String path,
+                                                              Diagnostic.Kind kind) {
         BType resourceParamType = resourceParameterType.getType();
         if (resourceParamType.getKind().typeName().equals("record")
                 && resourceParamType instanceof BRecordType
@@ -584,15 +703,16 @@ class ValidatorUtil {
                         isExist = true;
                         if (ValidatorUtil.convertOpenAPITypeToBallerina(entry.getValue().getType()).equals("record")) {
                             isExist = validateOpenAPIAgainResourceParams(resourceParam, field.symbol, entry.getValue(),
-                                    dLog, operation, path);
+                                    dLog, operation, path, kind);
                         }
                     }
                 }
 
                 if (!isExist) {
-                    dLog.logDiagnostic(Diagnostic.Kind.ERROR, resourceParam.getParameter().getPosition(),
+                    dLog.logDiagnostic(kind, resourceParam.getParameter().getPosition(),
                             ErrorMessages.unimplementedFieldInOperation(entry.getKey(), resourceParam.getName(),
                                     operation, path));
+
                 }
             }
             return true;
@@ -683,4 +803,52 @@ class ValidatorUtil {
     private static Diagnostic.DiagnosticPosition getServiceNamePosition(ServiceNode serviceNode) {
         return serviceNode.getName().getPosition();
     }
+// For tag filter
+    private static void tagsFilter (ServiceNode serviceNode,
+                                    OpenAPIPathSummary openApiSummary,
+                                    List<String> tags,
+                                    Diagnostic.Kind kind,
+                                    Diagnostic.Kind kind1,
+                                    Diagnostic.Kind kind2,
+                                    DiagnosticLog dLog) {
+        for (String method : openApiSummary.getAvailableOperations()) {
+            if (openApiSummary.hasTags(tags, method)) {
+                kind = kind1;
+                break;
+            } else {
+                kind = kind2;
+            }
+        }
+        dLog.logDiagnostic(kind, getServiceNamePosition(serviceNode),
+                ErrorMessages.unimplementedOpenAPIPath(openApiSummary.getPath()));
+    }
+    //for Operation Filter
+    private static void operationsFilter (ServiceNode serviceNode,
+                                          OpenAPIPathSummary openApiSummary,
+                                          List<String> operations,
+                                          Diagnostic.Kind kind,
+                                          Diagnostic.Kind kind1,
+                                          Diagnostic.Kind kind2,
+                                          DiagnosticLog dLog) {
+        for (String method : openApiSummary.getAvailableOperations()) {
+            if (openApiSummary.hasOperations(operations, method)) {
+                kind = kind1;
+                break;
+            } else {
+                kind = kind2;
+            }
+        }
+        dLog.logDiagnostic(kind, getServiceNamePosition(serviceNode),
+                ErrorMessages.unimplementedOpenAPIPath(openApiSummary.getPath()));
+    }
+
+    private static void validateUnmatchedMethods(List<String> unmatchedMethods, ServiceNode serviceNode,
+                                                 Diagnostic.Kind kind, OpenAPIPathSummary openApiSummary,
+                                                 DiagnosticLog dLog) {
+        String methods = getUnmatchedMethodList(unmatchedMethods);
+        dLog.logDiagnostic(kind, getServiceNamePosition(serviceNode),
+                ErrorMessages.unimplementedOpenAPIOperationsForPath(methods,
+                        openApiSummary.getPath()));
+    }
+
 }

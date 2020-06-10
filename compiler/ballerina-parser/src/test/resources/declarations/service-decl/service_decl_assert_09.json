@@ -57,6 +57,9 @@
                   ]
                 },
                 {
+                  "kind": "RESOURCE_KEYWORD"
+                },
+                {
                   "kind": "FUNCTION_KEYWORD"
                 },
                 {

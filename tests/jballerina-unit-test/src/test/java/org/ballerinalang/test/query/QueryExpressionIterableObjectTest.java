@@ -18,8 +18,8 @@
 package org.ballerinalang.test.query;
 
 import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -44,41 +44,37 @@ public class QueryExpressionIterableObjectTest {
     @Test
     public void testIterableObject() {
         BValue[] returns = BRunUtil.invoke(program, "testIterableObject");
-
-        BValueArray arr = (BValueArray) returns[0];
-        Assert.assertEquals(arr.size(), 7);
+        Assert.assertEquals(returns.length, 7);
         int i = 0;
-        Assert.assertEquals(arr.getInt(i++), 12);
-        Assert.assertEquals(arr.getInt(i++), 34);
-        Assert.assertEquals(arr.getInt(i++), 56);
-        Assert.assertEquals(arr.getInt(i++), 34);
-        Assert.assertEquals(arr.getInt(i++), 78);
-        Assert.assertEquals(arr.getInt(i++), 21);
-        Assert.assertEquals(arr.getInt(i), 90);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 12);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 34);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 56);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 34);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 78);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 21);
+        Assert.assertEquals(((BInteger) returns[i]).intValue(), 90);
 
     }
 
     @Test
     public void testNestedIterableObject() {
         BValue[] returns = BRunUtil.invoke(program, "testNestedIterableObject");
-
-        BValueArray arr = (BValueArray) returns[0];
-        Assert.assertEquals(arr.size(), 14);
+        Assert.assertEquals(returns.length, 14);
         int i = 0;
-        Assert.assertEquals(arr.getInt(i++), 12);
-        Assert.assertEquals(arr.getInt(i++), 34);
-        Assert.assertEquals(arr.getInt(i++), 56);
-        Assert.assertEquals(arr.getInt(i++), 34);
-        Assert.assertEquals(arr.getInt(i++), 78);
-        Assert.assertEquals(arr.getInt(i++), 21);
-        Assert.assertEquals(arr.getInt(i++), 90);
-        Assert.assertEquals(arr.getInt(i++), 12);
-        Assert.assertEquals(arr.getInt(i++), 34);
-        Assert.assertEquals(arr.getInt(i++), 56);
-        Assert.assertEquals(arr.getInt(i++), 34);
-        Assert.assertEquals(arr.getInt(i++), 78);
-        Assert.assertEquals(arr.getInt(i++), 21);
-        Assert.assertEquals(arr.getInt(i), 90);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 12);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 34);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 56);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 34);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 78);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 21);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 90);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 12);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 34);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 56);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 34);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 78);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 21);
+        Assert.assertEquals(((BInteger) returns[i]).intValue(), 90);
 
     }
 

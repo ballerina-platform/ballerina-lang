@@ -17,16 +17,20 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
+import io.ballerinalang.compiler.diagnostics.Diagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
-import io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils;
+import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
+import io.ballerinalang.compiler.internal.syntax.TreeModifiers;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils.isSTNodePresent;
+import static io.ballerinalang.compiler.internal.syntax.SyntaxUtils.isSTNodePresent;
 
 /**
  * Represents a node with children in the syntax tree.
@@ -68,6 +72,52 @@ public abstract class NonTerminalNode extends Node {
                         .collect(Collectors.toList()));
     }
 
+    public MinutiaeList leadingMinutiae() {
+        throw new UnsupportedOperationException("This method is not yet implemented. Please check again later.");
+    }
+
+    public MinutiaeList trailingMinutiae() {
+        throw new UnsupportedOperationException("This method is not yet implemented. Please check again later.");
+    }
+
+    // TODO Find an efficient implementation which uses the previous children positions
+    // TODO Can we optimize this algo?
+    public Token findToken(int position) {
+        if (!textRangeWithMinutiae().contains(position)) {
+            // TODO Fix with a proper error message
+            throw new IllegalArgumentException();
+        }
+
+        Node foundNode = this;
+        while (!SyntaxUtils.isToken(foundNode)) {
+            foundNode = ((NonTerminalNode) foundNode).findChildNode(position);
+        }
+
+        return (Token) foundNode;
+    }
+
+    // Node modification operations
+
+    /**
+     * Replaces the given target node with the replacement.
+     *
+     * @param target      the node to be replaced
+     * @param replacement the replacement node
+     * @param <T>         the type of the root node
+     * @return return the new root node after replacing the target with the replacement
+     */
+    public <T extends NonTerminalNode> T replace(Node target, Node replacement) {
+        return TreeModifiers.replace((T) this, target, replacement);
+    }
+
+    public Iterable<Diagnostic> diagnostics() {
+        if (!internalNode.hasDiagnostics()) {
+            return Collections::emptyIterator;
+        }
+
+        return () -> collectDiagnostics().iterator();
+    }
+
     protected abstract String[] childNames();
 
     protected int bucketCount() {
@@ -92,7 +142,6 @@ public abstract class NonTerminalNode extends Node {
         return Optional.ofNullable(childInBucket(bucket));
     }
 
-    // TODO Find an efficient implementation which uses the previous children positions
     protected int getChildPosition(int bucket) {
         int childPos = this.position;
         for (int i = 0; i < bucket; i++) {
@@ -107,29 +156,18 @@ public abstract class NonTerminalNode extends Node {
 
     protected boolean checkForReferenceEquality(Node... children) {
         for (int bucket = 0; bucket < children.length; bucket++) {
-            // Here we are using the childBuckets arrays instead of the childInBucket() method.
-            // If the particular child is not loaded, then childBuckets[bucket] will be null.
-            // That means the given child is not equal to what is stored in the childBuckets array.
-            if (children[bucket] != childBuckets[bucket]) {
+            if (!checkForReferenceEquality(bucket, children[bucket])) {
                 return false;
             }
         }
         return true;
     }
 
-    // TODO Can we optimize this algo?
-    public Token findToken(int position) {
-        if (!textRangeWithMinutiae().contains(position)) {
-            // TODO Fix with a proper error message
-            throw new IllegalArgumentException();
-        }
-
-        Node foundNode = this;
-        while (!SyntaxUtils.isToken(foundNode)) {
-            foundNode = ((NonTerminalNode) foundNode).findChildNode(position);
-        }
-
-        return (Token) foundNode;
+    protected boolean checkForReferenceEquality(int index, Node child) {
+        // Here we are using the childBuckets arrays instead of the childInBucket() method.
+        // If the particular child is not loaded, then childBuckets[bucket] will be null.
+        // That means the given child is not equal to what is stored in the childBuckets array.
+        return childBuckets[index] == child;
     }
 
     private Node findChildNode(int position) {
@@ -149,5 +187,24 @@ public abstract class NonTerminalNode extends Node {
         // TODO It is impossible to reach this line
         // TODO Can we rewrite this logic
         throw new IllegalStateException();
+    }
+
+    private List<Diagnostic> collectDiagnostics() {
+        List<Diagnostic> diagnosticList = new ArrayList<>();
+        collectDiagnostics(this, diagnosticList);
+        return diagnosticList;
+    }
+
+    // TODO this is a very inefficient implementation. We need to fix this ASAP.
+    // TODO this implementation builds the complete public tree
+    // TODO find a way to traverse the internal tree to build the diagnostics information
+    private void collectDiagnostics(NonTerminalNode node, List<Diagnostic> diagnosticList) {
+        for (Node child : node.children()) {
+            child.diagnostics().forEach(diagnosticList::add);
+        }
+
+        internalNode.diagnostics().stream()
+                .map(this::createSyntaxDiagnostic)
+                .forEach(diagnosticList::add);
     }
 }

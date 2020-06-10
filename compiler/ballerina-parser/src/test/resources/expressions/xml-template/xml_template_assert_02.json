@@ -76,8 +76,13 @@
                                   "kind": "LT_TOKEN"
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "foo"
+                                  "kind": "XML_SIMPLE_NAME",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "foo"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "LIST",
@@ -86,8 +91,13 @@
                                       "kind": "XML_ATTRIBUTE",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "name"
+                                          "kind": "XML_SIMPLE_NAME",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "name"
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "EQUAL_TOKEN"
@@ -118,18 +128,28 @@
                                       "kind": "XML_ATTRIBUTE",
                                       "children": [
                                         {
-                                          "kind": "QUALIFIED_NAME_REFERENCE",
+                                          "kind": "XML_QUALIFIED_NAME",
                                           "children": [
                                             {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "ns0"
+                                              "kind": "XML_SIMPLE_NAME",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "ns0"
+                                                }
+                                              ]
                                             },
                                             {
                                               "kind": "COLON_TOKEN"
                                             },
                                             {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "age"
+                                              "kind": "XML_SIMPLE_NAME",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "age"
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -162,18 +182,28 @@
                                       "kind": "XML_ATTRIBUTE",
                                       "children": [
                                         {
-                                          "kind": "QUALIFIED_NAME_REFERENCE",
+                                          "kind": "XML_QUALIFIED_NAME",
                                           "children": [
                                             {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "xmlns"
+                                              "kind": "XML_SIMPLE_NAME",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "xmlns"
+                                                }
+                                              ]
                                             },
                                             {
                                               "kind": "COLON_TOKEN"
                                             },
                                             {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "ns0"
+                                              "kind": "XML_SIMPLE_NAME",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "ns0"
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -223,8 +253,13 @@
                                   "kind": "SLASH_TOKEN"
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "foo"
+                                  "kind": "XML_SIMPLE_NAME",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "foo"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "GT_TOKEN"
@@ -274,8 +309,13 @@
                               "kind": "LT_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "foo"
+                              "kind": "XML_SIMPLE_NAME",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "foo"
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
@@ -284,8 +324,13 @@
                                   "kind": "XML_ATTRIBUTE",
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "name"
+                                      "kind": "XML_SIMPLE_NAME",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "name"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "EQUAL_TOKEN"
@@ -316,18 +361,28 @@
                                   "kind": "XML_ATTRIBUTE",
                                   "children": [
                                     {
-                                      "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "kind": "XML_QUALIFIED_NAME",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "ns0"
+                                          "kind": "XML_SIMPLE_NAME",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "ns0"
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "COLON_TOKEN"
                                         },
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "age"
+                                          "kind": "XML_SIMPLE_NAME",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "age"
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -360,18 +415,28 @@
                                   "kind": "XML_ATTRIBUTE",
                                   "children": [
                                     {
-                                      "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "kind": "XML_QUALIFIED_NAME",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "xmlns"
+                                          "kind": "XML_SIMPLE_NAME",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "xmlns"
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "COLON_TOKEN"
                                         },
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "ns0"
+                                          "kind": "XML_SIMPLE_NAME",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "ns0"
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -451,8 +516,13 @@
                               "kind": "LT_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "foo"
+                              "kind": "XML_SIMPLE_NAME",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "foo"
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
@@ -461,8 +531,13 @@
                                   "kind": "XML_ATTRIBUTE",
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "name"
+                                      "kind": "XML_SIMPLE_NAME",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "name"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "EQUAL_TOKEN"
@@ -493,18 +568,28 @@
                                   "kind": "XML_ATTRIBUTE",
                                   "children": [
                                     {
-                                      "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "kind": "XML_QUALIFIED_NAME",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "ns0"
+                                          "kind": "XML_SIMPLE_NAME",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "ns0"
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "COLON_TOKEN"
                                         },
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "age"
+                                          "kind": "XML_SIMPLE_NAME",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "age"
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -537,18 +622,28 @@
                                   "kind": "XML_ATTRIBUTE",
                                   "children": [
                                     {
-                                      "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "kind": "XML_QUALIFIED_NAME",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "xmlns"
+                                          "kind": "XML_SIMPLE_NAME",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "xmlns"
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "COLON_TOKEN"
                                         },
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "ns0"
+                                          "kind": "XML_SIMPLE_NAME",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "ns0"
+                                            }
+                                          ]
                                         }
                                       ]
                                     },

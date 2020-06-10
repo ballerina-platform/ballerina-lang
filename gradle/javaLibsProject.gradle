@@ -87,8 +87,6 @@ dependencies {
     dist 'io.netty:netty-transport-native-kqueue:4.1.39.Final'
     dist 'org.apache.ws.commons.axiom:axiom-api:1.2.22'
     dist 'org.apache.ws.commons.axiom:axiom-impl:1.2.22'
-    dist 'org.apache.ws.commons.axiom:axiom-c14n:1.2.22'
-    dist 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
     dist 'commons-codec:commons-codec:1.9'
 //    dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
 //    dist 'org.codehaus.woodstox:stax2-api:3.1.1'
@@ -103,7 +101,7 @@ dependencies {
     dist project(':ballerina-filepath')
     dist project(':ballerina-grpc')
     dist project(':ballerina-sql')
-    dist project(':ballerina-jdbc2')
+    dist project(':ballerina-jdbc')
     dist project(':ballerina-mysql')
     dist project(':ballerina-http')
     dist project(':ballerina-openapi')
@@ -118,7 +116,6 @@ dependencies {
     dist project(':ballerina-observability')
     dist project(':ballerina-reflect')
     dist project(':ballerina-runtime-api')
-    dist project(':ballerina-socket')
     dist project(':ballerina-system')
     dist project(':ballerina-task')
     dist project(':ballerina-time')
@@ -158,5 +155,6 @@ dependencies {
     dist project(':ballerina-lang:value')
     dist project(':ballerina-lang:xml')
     dist project(':ballerina-lang:bool')
+    dist project(':ballerina-lang:query')
 
 }

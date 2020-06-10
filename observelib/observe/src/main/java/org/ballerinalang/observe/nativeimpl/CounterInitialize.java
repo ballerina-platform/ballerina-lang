@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.Receiver;
  */
 @BallerinaFunction(
         orgName = "ballerina",
-        packageName = "observe",
+        packageName = "observe", version = "0.8.0",
         functionName = "initialize",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = ObserveNativeImplConstants.COUNTER,
                 structPackage = ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH)
@@ -40,8 +40,8 @@ import org.ballerinalang.natives.annotations.Receiver;
 public class CounterInitialize {
 
     public static void initialize(Strand strand, ObjectValue counterObj) {
-        Counter counter = Counter.builder((String) counterObj.get(ObserveNativeImplConstants.NAME_FIELD))
-                .description((String) counterObj.get(ObserveNativeImplConstants.DESCRIPTION_FIELD))
+        Counter counter = Counter.builder(counterObj.get(ObserveNativeImplConstants.NAME_FIELD).toString())
+                .description(counterObj.get(ObserveNativeImplConstants.DESCRIPTION_FIELD).toString())
                 .tags(Utils.toStringMap((MapValue) counterObj.get(ObserveNativeImplConstants.TAGS_FIELD)))
                 .build();
         counterObj.addNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY, counter);

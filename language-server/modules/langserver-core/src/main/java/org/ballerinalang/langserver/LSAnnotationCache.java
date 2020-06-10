@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.AttachPoints;
 
 import java.util.ArrayList;
@@ -96,7 +95,8 @@ public class LSAnnotationCache {
         // Annotation cache will only load the sk packages initially and the others will load in the runtime
         for (BallerinaPackage sdkPackage : LSPackageLoader.getSdkPackages()) {
             PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name(sdkPackage.getOrgName()),
-                    new org.wso2.ballerinalang.compiler.util.Name(sdkPackage.getPackageName()), Names.DEFAULT_VERSION);
+                                                new Name(sdkPackage.getPackageName()),
+                                                new Name(sdkPackage.getVersion()));
             try {
                 // We will wrap this with a try catch to prevent LS crashing due to compiler errors.
                 Optional<BPackageSymbol> bPackageSymbol = LSPackageLoader.getPackageSymbolById(compilerCtx, packageID);

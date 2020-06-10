@@ -49,23 +49,33 @@
                   "children": []
                 },
                 {
-                  "kind": "UNION_TYPE_DESC",
+                  "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "INT_KEYWORD"
+                      "kind": "UNION_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "INT_KEYWORD"
+                        },
+                        {
+                          "kind": "PIPE_TOKEN"
+                        },
+                        {
+                          "kind": "TYPE_DESC",
+                          "isMissing": true
+                        }
+                      ]
                     },
                     {
-                      "kind": "PIPE_TOKEN"
-                    },
-                    {
-                      "kind": "TYPE_DESC",
-                      "isMissing": true
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "isMissing": true
+                        }
+                      ]
                     }
                   ]
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "isMissing": true
                 },
                 {
                   "kind": "SEMICOLON_TOKEN"

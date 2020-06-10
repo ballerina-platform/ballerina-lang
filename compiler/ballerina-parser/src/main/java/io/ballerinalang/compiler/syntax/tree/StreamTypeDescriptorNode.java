@@ -19,10 +19,13 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+import java.util.Optional;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class StreamTypeDescriptorNode extends TypeDescriptorNode {
 
@@ -34,8 +37,8 @@ public class StreamTypeDescriptorNode extends TypeDescriptorNode {
         return childInBucket(0);
     }
 
-    public Node streamTypeParamsNode() {
-        return childInBucket(1);
+    public Optional<Node> streamTypeParamsNode() {
+        return optionalChildInBucket(1);
     }
 
     @Override
@@ -67,5 +70,46 @@ public class StreamTypeDescriptorNode extends TypeDescriptorNode {
         return NodeFactory.createStreamTypeDescriptorNode(
                 streamKeywordToken,
                 streamTypeParamsNode);
+    }
+
+    public StreamTypeDescriptorNodeModifier modify() {
+        return new StreamTypeDescriptorNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class StreamTypeDescriptorNodeModifier {
+        private final StreamTypeDescriptorNode oldNode;
+        private Token streamKeywordToken;
+        private Node streamTypeParamsNode;
+
+        public StreamTypeDescriptorNodeModifier(StreamTypeDescriptorNode oldNode) {
+            this.oldNode = oldNode;
+            this.streamKeywordToken = oldNode.streamKeywordToken();
+            this.streamTypeParamsNode = oldNode.streamTypeParamsNode().orElse(null);
+        }
+
+        public StreamTypeDescriptorNodeModifier withStreamKeywordToken(
+                Token streamKeywordToken) {
+            Objects.requireNonNull(streamKeywordToken, "streamKeywordToken must not be null");
+            this.streamKeywordToken = streamKeywordToken;
+            return this;
+        }
+
+        public StreamTypeDescriptorNodeModifier withStreamTypeParamsNode(
+                Node streamTypeParamsNode) {
+            Objects.requireNonNull(streamTypeParamsNode, "streamTypeParamsNode must not be null");
+            this.streamTypeParamsNode = streamTypeParamsNode;
+            return this;
+        }
+
+        public StreamTypeDescriptorNode apply() {
+            return oldNode.modify(
+                    streamKeywordToken,
+                    streamTypeParamsNode);
+        }
     }
 }

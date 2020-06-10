@@ -40,6 +40,8 @@ type EmployeeTable table<Employee> key(name);
 
 type CustomerTable table<Customer> key(id);
 
+type CustomerKeyLessTable table<Customer>;
+
 PersonalTable tab = table key(name)[
   { name: "Chiran", age: 33 },
   { name: "Mohan", age: 37 },
@@ -87,8 +89,75 @@ function testIterator() returns boolean {
     testPassed = testPassed && person == personList[2];
     person = getPerson(itr.next());
     testPassed = testPassed && person == personList[3];
-
+    person = getPerson(itr.next());
+    testPassed = testPassed && person == ();
     return testPassed;
+}
+
+function testAddNewRecordAfterIteratorCreation() {
+    table<Person> key(name) tab = table [
+      { name: "Chiran", age: 33 },
+      { name: "Mohan", age: 37 },
+      { name: "Gima", age: 38 },
+      { name: "Granier", age: 34 }
+    ];
+
+    var itr = tab.iterator();
+    Person p = { name: "Lasini", age: 25 };
+    tab.put(p);
+    var value = itr.next();
+}
+
+function testRemoveAlreadyReturnedRecordFromIterator() returns boolean {
+    table<Person> key(name) tab = table [
+      { name: "Chiran", age: 33 },
+      { name: "Mohan", age: 37 },
+      { name: "Gima", age: 38 },
+      { name: "Granier", age: 34 }
+    ];
+
+    var itr = tab.iterator();
+    var value = itr.next();
+    value = itr.next();
+    _ = tab.remove("Chiran");
+    value = itr.next();
+
+    return value?.value?.name == "Gima";
+}
+
+function removeIfHasKeyReturnedRecordFromIterator() returns boolean {
+    table<Person> key(name) tab = table [
+      { name: "Chiran", age: 33 },
+      { name: "Mohan", age: 37 },
+      { name: "Gima", age: 38 },
+      { name: "Granier", age: 34 }
+    ];
+
+    var itr = tab.iterator();
+    var value = itr.next();
+    value = itr.next();
+    _ = tab.removeIfHasKey("Chiran");
+    value = itr.next();
+
+    return value?.value?.name == "Gima";
+}
+
+function testChangeValueForAGivenKeyWhileIterating() returns boolean {
+    table<Person> key(name) tab = table [
+      { name: "Chiran", age: 33 },
+      { name: "Mohan", age: 37 },
+      { name: "Gima", age: 38 },
+      { name: "Granier", age: 34 }
+    ];
+
+    var itr = tab.iterator();
+    var value = itr.next();
+    value = itr.next();
+    Person p = { name: "Gima", age: 50 };
+    tab["Gima"] = p;
+    value = itr.next();
+
+    return value?.value?.age == 50;
 }
 
 function getValueFromKey() returns boolean {
@@ -248,7 +317,6 @@ function testAddExistingMember() returns any[]|error {
     return custTbl.toArray();
 }
 
-
 function testPutData() returns boolean {
     boolean testPassed = true;
     CustomerTable custTbl = table key(id) [
@@ -279,7 +347,7 @@ function testPutData() returns boolean {
 
 function testPutWithKeyLessTbl() returns boolean {
     boolean testPassed = true;
-    CustomerTable custTbl = table [
+    CustomerKeyLessTable custTbl = table [
       { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
       { id: 5, firstName: "Gimantha", lastName: "Bandara" }
     ];
@@ -293,7 +361,7 @@ function testPutWithKeyLessTbl() returns boolean {
 
 function testAddWithKeyLessTbl() returns boolean {
     boolean testPassed = true;
-    CustomerTable custTbl = table [
+    CustomerKeyLessTable custTbl = table [
       { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
       { id: 5, firstName: "Gimantha", lastName: "Bandara" }
     ];
@@ -303,4 +371,41 @@ function testAddWithKeyLessTbl() returns boolean {
     testPassed = testPassed && tableToList.length() == 3;
     testPassed = testPassed && tableToList[2] == customer;
     return testPassed;
+}
+
+function testPutWithKeylessTableAfterIteratorCreation() {
+    CustomerKeyLessTable custTbl = table [
+      { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
+      { id: 2, firstName: "James", lastName: "Clark" }
+    ];
+
+    var itr = custTbl.iterator();
+    Customer customer = { id: 2, firstName: "Jane", lastName: "Eyre"};
+    custTbl.put(customer);
+    var value = itr.next();
+}
+
+function testAddWithKeylessTableAfterIteratorCreation() {
+    CustomerKeyLessTable custTbl = table [
+      { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
+      { id: 2, firstName: "James", lastName: "Clark" }
+    ];
+
+    var itr = custTbl.iterator();
+    Customer customer = { id: 3, firstName: "Jane", lastName: "Eyre"};
+    custTbl.add(customer);
+    var value = itr.next();
+}
+
+function testRemoveAllReturnedRecordsFromIteratorKeylessTbl() {
+    CustomerKeyLessTable custTbl = table [
+      { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
+      { id: 2, firstName: "James", lastName: "Clark" }
+    ];
+
+    var itr = custTbl.iterator();
+    var value = itr.next();
+    value = itr.next();
+    custTbl.removeAll();
+    value = itr.next();
 }

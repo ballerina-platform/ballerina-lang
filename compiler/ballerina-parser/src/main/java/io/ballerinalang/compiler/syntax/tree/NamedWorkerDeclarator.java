@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class NamedWorkerDeclarator extends NonTerminalNode {
 
@@ -67,5 +69,46 @@ public class NamedWorkerDeclarator extends NonTerminalNode {
         return NodeFactory.createNamedWorkerDeclarator(
                 workerInitStatements,
                 namedWorkerDeclarations);
+    }
+
+    public NamedWorkerDeclaratorModifier modify() {
+        return new NamedWorkerDeclaratorModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class NamedWorkerDeclaratorModifier {
+        private final NamedWorkerDeclarator oldNode;
+        private NodeList<StatementNode> workerInitStatements;
+        private NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations;
+
+        public NamedWorkerDeclaratorModifier(NamedWorkerDeclarator oldNode) {
+            this.oldNode = oldNode;
+            this.workerInitStatements = oldNode.workerInitStatements();
+            this.namedWorkerDeclarations = oldNode.namedWorkerDeclarations();
+        }
+
+        public NamedWorkerDeclaratorModifier withWorkerInitStatements(
+                NodeList<StatementNode> workerInitStatements) {
+            Objects.requireNonNull(workerInitStatements, "workerInitStatements must not be null");
+            this.workerInitStatements = workerInitStatements;
+            return this;
+        }
+
+        public NamedWorkerDeclaratorModifier withNamedWorkerDeclarations(
+                NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations) {
+            Objects.requireNonNull(namedWorkerDeclarations, "namedWorkerDeclarations must not be null");
+            this.namedWorkerDeclarations = namedWorkerDeclarations;
+            return this;
+        }
+
+        public NamedWorkerDeclarator apply() {
+            return oldNode.modify(
+                    workerInitStatements,
+                    namedWorkerDeclarations);
+        }
     }
 }

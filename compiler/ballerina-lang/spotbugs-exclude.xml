@@ -74,6 +74,9 @@
         <Package name="org.wso2.ballerinalang.compiler.packaging.converters" />
     </Match>
     <Match>
+        <Class name = "org.ballerinalang.toml.model.Library"/>
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.programfile" />
     </Match>
     <Match>
@@ -170,6 +173,10 @@
     </Match>
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRNode$BIRVariableDcl"/>
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol"/>
         <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
     </Match>
     <Match>

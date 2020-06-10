@@ -70,8 +70,8 @@ public class ForeachArrayTests {
     @Test
     public void testFloatArrayWithArityOne() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < fValues.length; i++) {
-            sb.append(0).append(":").append(fValues[i]).append(" ");
+        for (double fValue : fValues) {
+            sb.append(0).append(":").append(fValue).append(" ");
         }
         BValue[] returns = BRunUtil.invoke(program, "testFloatArrayWithArityOne");
         Assert.assertEquals(returns.length, 1);
@@ -92,8 +92,8 @@ public class ForeachArrayTests {
     @Test
     public void testStringArrayWithArityOne() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < sValues.length; i++) {
-            sb.append(0).append(":").append(sValues[i]).append(" ");
+        for (String sValue : sValues) {
+            sb.append(0).append(":").append(sValue).append(" ");
         }
         BValue[] returns = BRunUtil.invoke(program, "testStringArrayWithArityOne");
         Assert.assertEquals(returns.length, 1);
@@ -114,8 +114,8 @@ public class ForeachArrayTests {
     @Test
     public void testBooleanArrayWithArityOne() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < bValues.length; i++) {
-            sb.append(0).append(":").append(bValues[i]).append(" ");
+        for (boolean bValue : bValues) {
+            sb.append(0).append(":").append(bValue).append(" ");
         }
         BValue[] returns = BRunUtil.invoke(program, "testBooleanArrayWithArityOne");
         Assert.assertEquals(returns.length, 1);
@@ -136,8 +136,8 @@ public class ForeachArrayTests {
     @Test
     public void testStructArrayWithArityOne() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < tValues.length; i++) {
-            sb.append("0").append(":").append(tValues[i]).append(" ");
+        for (String tValue : tValues) {
+            sb.append("0").append(":").append(tValue).append(" ");
         }
         BValue[] returns = BRunUtil.invoke(program, "testStructArrayWithArityOne");
         Assert.assertEquals(returns.length, 1);
@@ -217,5 +217,10 @@ public class ForeachArrayTests {
         BValue[] returns = BRunUtil.invoke(program, "testArrayWithNullElements");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "0:d0 1: 2:d2 3: ");
+    }
+
+    @Test
+    public void testEmptyArray() {
+        BRunUtil.invoke(program, "testEmptyArray");
     }
 }

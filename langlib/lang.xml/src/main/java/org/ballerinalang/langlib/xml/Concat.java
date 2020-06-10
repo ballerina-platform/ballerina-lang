@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -32,13 +33,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+
 /**
  * Concatenate xml items into a new sequence. Empty xml sequence if empty.
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
         functionName = "concat",
         args = {@Argument(name = "arrayValue", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.XML)},
@@ -51,7 +54,7 @@ public class Concat {
         XMLValue lastItem = null;
         for (int i = 0; i < arrayValue.size(); i++) {
             Object refValue = arrayValue.getRefValue(i);
-            if (refValue instanceof String) {
+            if (refValue instanceof BString) {
                 if (lastItem != null && lastItem.getNodeType() == XMLNodeType.TEXT) {
                     // If last added item is a string, then concat prev values with this values and replace prev value.
                     String concat = lastItem.getTextValue() + refValue;
@@ -60,7 +63,7 @@ public class Concat {
                     lastItem = xmlText;
                     continue;
                 }
-                XMLValue xmlText = XMLFactory.createXMLText((String) refValue);
+                XMLValue xmlText = XMLFactory.createXMLText((BString) refValue);
                 backingArray.add(xmlText);
                 lastItem = xmlText;
             } else {
@@ -69,8 +72,5 @@ public class Concat {
             }
         }
         return new XMLSequence(backingArray);
-    }
-    public static XMLValue concat_bstring(Strand strand, ArrayValue arrayValue) {
-        return concat(strand, arrayValue);
     }
 }

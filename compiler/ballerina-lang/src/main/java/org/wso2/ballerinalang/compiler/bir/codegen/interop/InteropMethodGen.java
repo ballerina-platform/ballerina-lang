@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmErrorGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen;
@@ -123,7 +124,7 @@ public class InteropMethodGen {
                                          JvmMethodGen jvmMethodGen,
                                          LambdaMetadata lambdaGenMetadata) {
 
-        String currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
+        String currentPackageName = getPackageName(birModule.org.value, birModule.name.value, birModule.version.value);
 
         // Create a local variable for the strand
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
@@ -600,7 +601,8 @@ public class InteropMethodGen {
         if (TypeTags.isIntegerTypeTag(bElementType.tag)) {
             mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getInt", "(J)J", true);
         } else if (TypeTags.isStringTypeTag(bElementType.tag)) {
-            mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getString", String.format("(J)L%s;", STRING_VALUE), true);
+            mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBString",
+                               String.format("(J)L%s;", JvmConstants.B_STRING_VALUE), true);
         } else if (bElementType.tag == TypeTags.BOOLEAN) {
             mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBoolean", "(J)Z", true);
         } else if (bElementType.tag == TypeTags.BYTE) {

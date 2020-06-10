@@ -19,9 +19,12 @@
 package org.ballerinalang.packerina.cmd;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.jvm.util.BLangConstants;
+import org.ballerinalang.packerina.JarResolverImpl;
 import org.ballerinalang.packerina.TaskExecutor;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
+import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
 import org.ballerinalang.packerina.task.CopyModuleJarTask;
@@ -33,6 +36,7 @@ import org.ballerinalang.packerina.task.CreateJarTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
 import org.ballerinalang.packerina.task.PrintExecutablePathTask;
 import org.ballerinalang.packerina.task.PrintRunningExecutableTask;
+import org.ballerinalang.packerina.task.ResolveMavenDependenciesTask;
 import org.ballerinalang.packerina.task.RunExecutableTask;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.BallerinaCliCommands;
@@ -52,6 +56,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.NEW_PARSER_ENABLED;
@@ -255,7 +260,8 @@ public class RunCommand implements BLauncherCmd {
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(PROJECT_DIR, sourceRootPath.toString());
         options.put(OFFLINE, Boolean.toString(this.offline));
-        options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(DUMP_BIR, Boolean.toString(dumpBIR));
         options.put(LOCK_ENABLED, Boolean.toString(true));
         options.put(SKIP_TESTS, Boolean.toString(true));
         options.put(TEST_ENABLED, Boolean.toString(false));
@@ -264,6 +270,8 @@ public class RunCommand implements BLauncherCmd {
 
         // create builder context
         BuildContext buildContext = new BuildContext(sourceRootPath, targetPath, sourcePath, compilerContext);
+        JarResolver jarResolver = JarResolverImpl.getInstance(buildContext, false);
+        buildContext.put(BuildContextField.JAR_RESOLVER, jarResolver);
         buildContext.setOut(this.outStream);
         buildContext.setErr(this.errStream);
 
@@ -273,11 +281,11 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
                 .addTask(new CreateTargetDirTask()) // create target directory.
                 .addTask(new CompileTask()) // compile the modules
+                .addTask(new ResolveMavenDependenciesTask())
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask())    // copy the native libs(projects only)
-                // create the jar.
-                .addTask(new CreateJarTask(this.dumpBIR))
+                .addTask(new CreateJarTask())   // create the jar
                 .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new CopyModuleJarTask(false, true))
                 .addTask(new PrintExecutablePathTask(), isSingleFileBuild)   // print the location of the executable

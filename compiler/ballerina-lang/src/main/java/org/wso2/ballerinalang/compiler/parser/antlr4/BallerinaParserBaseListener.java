@@ -2644,6 +2644,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterBinaryEqualsExpression(BallerinaParser.BinaryEqualsExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBinaryEqualsExpression(BallerinaParser.BinaryEqualsExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterQueryExpression(BallerinaParser.QueryExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -2956,6 +2968,30 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterLimitClause(BallerinaParser.LimitClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLimitClause(BallerinaParser.LimitClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterOnConflictClause(BallerinaParser.OnConflictClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOnConflictClause(BallerinaParser.OnConflictClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterSelectClause(BallerinaParser.SelectClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -2963,6 +2999,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitSelectClause(BallerinaParser.SelectClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterOnClause(BallerinaParser.OnClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOnClause(BallerinaParser.OnClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -2987,6 +3035,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitLetClause(BallerinaParser.LetClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterJoinClause(BallerinaParser.JoinClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitJoinClause(BallerinaParser.JoinClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -3023,6 +3083,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitQueryPipeline(BallerinaParser.QueryPipelineContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterQueryConstructType(BallerinaParser.QueryConstructTypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitQueryConstructType(BallerinaParser.QueryConstructTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

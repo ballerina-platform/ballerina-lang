@@ -72,6 +72,8 @@ public class NativeElementRepository {
         private String orgName;
 
         private String pkgName;
+
+        private String version;
         
         private String callableName;
         
@@ -81,10 +83,12 @@ public class NativeElementRepository {
         
         private TypeKind[] retTypes;
 
-        public NativeFunctionDef(String orgName, String pkgName, String callableName, TypeKind[] argTypes,
+        public NativeFunctionDef(String orgName, String pkgName, String version, String callableName,
+                                 TypeKind[] argTypes,
                                  TypeKind[] retTypes, String className) {
             this.orgName = orgName;
             this.pkgName = pkgName;
+            this.version = version;
             this.callableName = callableName;
             this.argTypes = argTypes;
             this.retTypes = retTypes;
@@ -93,10 +97,10 @@ public class NativeElementRepository {
 
         public String toBvmAlias() {
             if (Names.ANON_ORG.getValue().equals(orgName)) {
-                return pkgName;
+                return pkgName + ORG_NAME_SEPARATOR + version;
             }
             // assume anon org can't expose natives
-            return orgName + ORG_NAME_SEPARATOR + pkgName;
+            return orgName + ORG_NAME_SEPARATOR + pkgName + ORG_NAME_SEPARATOR + version;
         }
 
         public String getCallableName() {
@@ -126,9 +130,9 @@ public class NativeElementRepository {
 
         private String connectorName;
 
-        public NativeActionDef(String orgName, String pkgName, String connectorName, String actionDef,
+        public NativeActionDef(String orgName, String pkgName, String version, String connectorName, String actionDef,
                                TypeKind[] argTypes, TypeKind[] retTypes, String className) {
-            super(orgName, pkgName, actionDef, argTypes, retTypes, className);
+            super(orgName, pkgName, version, actionDef, argTypes, retTypes, className);
             this.connectorName = connectorName;
         }
 

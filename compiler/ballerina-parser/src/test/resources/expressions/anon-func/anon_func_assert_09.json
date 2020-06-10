@@ -6,8 +6,7 @@
             "children": [
                 {
                     "kind": "LIST",
-                    "children": [
-                    ]
+                    "children": []
                 }
             ]
         },
@@ -26,8 +25,7 @@
                 },
                 {
                     "kind": "LIST",
-                    "children": [
-                    ]
+                    "children": []
                 },
                 {
                     "kind": "CLOSE_PAREN_TOKEN"
@@ -77,7 +75,7 @@
                                             ]
                                         },
                                         {
-                                            "kind": "RIGHT_DOUBLE_ARROW"
+                                            "kind": "RIGHT_DOUBLE_ARROW_TOKEN"
                                         },
                                         {
                                             "kind": "IDENTIFIER_TOKEN",
@@ -131,7 +129,49 @@
                                             ]
                                         },
                                         {
-                                            "kind": "RIGHT_DOUBLE_ARROW"
+                                            "kind": "RIGHT_DOUBLE_ARROW_TOKEN"
+                                        },
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "d"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "ASSIGNMENT_STATEMENT",
+                            "children": [
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "a"
+                                },
+                                {
+                                    "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                    "kind": "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
+                                    "children": [
+                                        {
+                                            "kind": "INFER_PARAM_LIST",
+                                            "children": [
+                                                {
+                                                    "kind": "OPEN_PAREN_TOKEN"
+                                                },
+                                                {
+                                                    "kind": "LIST",
+                                                    "children": []
+                                                },
+                                                {
+                                                    "kind": "CLOSE_PAREN_TOKEN"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "kind": "RIGHT_DOUBLE_ARROW_TOKEN"
                                         },
                                         {
                                             "kind": "IDENTIFIER_TOKEN",

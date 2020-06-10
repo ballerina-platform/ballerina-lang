@@ -75,17 +75,17 @@ public class BDecimalTypeConversionTest {
 
         BInteger intVal = (BInteger) returns[0];
         BFloat floatVal = (BFloat) returns[1];
-        BString stringVal = (BString) returns[2];;
+        BString stringVal = (BString) returns[2];
         BDecimal anyVal = (BDecimal) returns[3];
         BDecimal jsonVal = (BDecimal) returns[4];
 
         Assert.assertEquals(intVal.intValue(), 23, "Invalid integer value returned.");
         Assert.assertEquals(floatVal.floatValue(), 23.456, "Invalid float value returned.");
         Assert.assertEquals(stringVal.stringValue(), "23.456", "Invalid string value returned.");
-        Assert.assertTrue(anyVal.decimalValue().compareTo(new BigDecimal("23.456", MathContext.DECIMAL128)) == 0,
-                "Invalid value returned.");
-        Assert.assertTrue(jsonVal.decimalValue().compareTo(new BigDecimal("23.456", MathContext.DECIMAL128)) == 0,
-                "Invalid value returned.");
+        Assert.assertEquals(anyVal.decimalValue().compareTo(new BigDecimal("23.456", MathContext.DECIMAL128)), 0,
+                            "Invalid value returned.");
+        Assert.assertEquals(jsonVal.decimalValue().compareTo(new BigDecimal("23.456", MathContext.DECIMAL128)), 0,
+                            "Invalid value returned.");
     }
 
     @Test(description = "Test other types to decimal conversion")
@@ -100,11 +100,11 @@ public class BDecimalTypeConversionTest {
         BDecimal val2 = (BDecimal) returns[1];
         BDecimal val3 = (BDecimal) returns[2];
 
-        Assert.assertTrue(val1.decimalValue().compareTo(new BigDecimal("12", MathContext.DECIMAL128)) == 0,
-                "Invalid decimal value returned.");
+        Assert.assertEquals(val1.decimalValue().compareTo(new BigDecimal("12", MathContext.DECIMAL128)), 0,
+                            "Invalid decimal value returned.");
         Assert.assertTrue(val2.decimalValue().subtract(new BigDecimal("-12.34", MathContext.DECIMAL128)).
-                        compareTo(DELTA) < 0, "Invalid decimal value returned.");
-        Assert.assertTrue(val3.decimalValue().compareTo(new BigDecimal("23.456", MathContext.DECIMAL128)) == 0,
-                "Invalid decimal value returned.");
+                compareTo(DELTA) < 0, "Invalid decimal value returned.");
+        Assert.assertEquals(val3.decimalValue().compareTo(new BigDecimal("23.456", MathContext.DECIMAL128)), 0,
+                            "Invalid decimal value returned.");
     }
 }

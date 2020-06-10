@@ -19,10 +19,13 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+import java.util.Optional;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ExpressionFunctionBodyNode extends FunctionBodyNode {
 
@@ -36,6 +39,10 @@ public class ExpressionFunctionBodyNode extends FunctionBodyNode {
 
     public ExpressionNode expression() {
         return childInBucket(1);
+    }
+
+    public Optional<Token> semicolon() {
+        return optionalChildInBucket(2);
     }
 
     @Override
@@ -52,20 +59,75 @@ public class ExpressionFunctionBodyNode extends FunctionBodyNode {
     protected String[] childNames() {
         return new String[]{
                 "rightDoubleArrow",
-                "expression"};
+                "expression",
+                "semicolon"};
     }
 
     public ExpressionFunctionBodyNode modify(
             Token rightDoubleArrow,
-            ExpressionNode expression) {
+            ExpressionNode expression,
+            Token semicolon) {
         if (checkForReferenceEquality(
                 rightDoubleArrow,
-                expression)) {
+                expression,
+                semicolon)) {
             return this;
         }
 
         return NodeFactory.createExpressionFunctionBodyNode(
                 rightDoubleArrow,
-                expression);
+                expression,
+                semicolon);
+    }
+
+    public ExpressionFunctionBodyNodeModifier modify() {
+        return new ExpressionFunctionBodyNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ExpressionFunctionBodyNodeModifier {
+        private final ExpressionFunctionBodyNode oldNode;
+        private Token rightDoubleArrow;
+        private ExpressionNode expression;
+        private Token semicolon;
+
+        public ExpressionFunctionBodyNodeModifier(ExpressionFunctionBodyNode oldNode) {
+            this.oldNode = oldNode;
+            this.rightDoubleArrow = oldNode.rightDoubleArrow();
+            this.expression = oldNode.expression();
+            this.semicolon = oldNode.semicolon().orElse(null);
+        }
+
+        public ExpressionFunctionBodyNodeModifier withRightDoubleArrow(
+                Token rightDoubleArrow) {
+            Objects.requireNonNull(rightDoubleArrow, "rightDoubleArrow must not be null");
+            this.rightDoubleArrow = rightDoubleArrow;
+            return this;
+        }
+
+        public ExpressionFunctionBodyNodeModifier withExpression(
+                ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
+            return this;
+        }
+
+        public ExpressionFunctionBodyNodeModifier withSemicolon(
+                Token semicolon) {
+            Objects.requireNonNull(semicolon, "semicolon must not be null");
+            this.semicolon = semicolon;
+            return this;
+        }
+
+        public ExpressionFunctionBodyNode apply() {
+            return oldNode.modify(
+                    rightDoubleArrow,
+                    expression,
+                    semicolon);
+        }
     }
 }

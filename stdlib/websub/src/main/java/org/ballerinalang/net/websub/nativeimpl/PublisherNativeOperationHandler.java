@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.net.websub.hub.Hub;
@@ -48,12 +49,12 @@ public class PublisherNativeOperationHandler {
      * @param content the content to send to subscribers, with the payload and content-type specified
      * @return `error` if an error occurred during publishing
      */
-    public static Object validateAndPublishToInternalHub(String hubUrl, String topic,
-                                                         MapValue<String, Object> content) {
+    public static Object validateAndPublishToInternalHub(BString hubUrl, BString topic,
+                                                         MapValue<BString, Object> content) {
         Hub hubInstance = Hub.getInstance();
-        if (hubInstance.isStarted() && hubInstance.getPublishUrl().equals(hubUrl)) {
+        if (hubInstance.isStarted() && hubInstance.getPublishUrl().equals(hubUrl.getValue())) {
             try {
-                Hub.getInstance().publish(topic, content);
+                Hub.getInstance().publish(topic.getValue(), content);
             } catch (BallerinaWebSubException e) {
                 return createError(e.getMessage());
             }
