@@ -1696,7 +1696,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangWorkerFlushExpr workerFlushExpr = TreeBuilder.createWorkerFlushExpressionNode();
         Node optionalPeerWorker = flushActionNode.peerWorker();
         if (optionalPeerWorker != null) {
-            SimpleNameReferenceNode peerWorker = (SimpleNameReferenceNode)optionalPeerWorker;
+            SimpleNameReferenceNode peerWorker = (SimpleNameReferenceNode) optionalPeerWorker;
             workerFlushExpr.workerIdentifier = createIdentifier(peerWorker.name());
         }
         workerFlushExpr.pos = getPosition(flushActionNode);
