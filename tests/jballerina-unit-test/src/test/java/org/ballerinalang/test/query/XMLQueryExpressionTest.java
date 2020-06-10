@@ -93,4 +93,68 @@ public class XMLQueryExpressionTest {
                 "<name>Sir Arthur Conan Doyle</name><name>Dan Brown</name>" +
                         "<name>Sir Arthur Conan Doyle</name><name>Dan Brown</name>");
     }
+
+    @Test(description = "Test simple query expression for xml? - #1")
+    public void testSimpleQueryExprForXMLOrNilResult() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleQueryExprForXMLOrNilResult");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(),
+                "<name>Sherlock Holmes</name><name>The Da Vinci Code</name>");
+    }
+
+    @Test(description = "Test simple query expression for xml? - #2")
+    public void testSimpleQueryExprForXMLOrNilResult2() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleQueryExprForXMLOrNilResult2");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(),
+                "<book>the book</book>bit of text✂✅");
+    }
+
+    @Test(description = "Test simple query expression for xml? - #3")
+    public void testSimpleQueryExprForXMLOrNilResult3() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleQueryExprForXMLOrNilResult3");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(),
+                "<price>30.00</price><price>29.99</price><price>49.99</price><price>39.95</price>");
+    }
+
+    @Test(description = "Test simple query expression with limit clause for xml?")
+    public void testQueryExprWithLimitForXMLOrNilResult() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithLimitForXMLOrNilResult");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(),
+                "<author>Sir Arthur Conan Doyle</author><author>Dan Brown</author>");
+    }
+
+    @Test(description = "Test simple query expression with where, let clauses for xml?")
+    public void testQueryExprWithWhereLetClausesForXMLOrNilResult() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithWhereLetClausesForXMLOrNilResult");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(),
+                "<author>Enid Blyton</author>");
+    }
+
+    @Test(description = "Test simple query expression with multiple from clauses for xml?")
+    public void testQueryExprWithMultipleFromClausesForXMLOrNilResult() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithMultipleFromClausesForXMLOrNilResult");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(),
+                "<name>Sir Arthur Conan Doyle</name><name>Dan Brown</name>" +
+                        "<name>Sir Arthur Conan Doyle</name><name>Dan Brown</name>");
+    }
+
+    @Test(description = "Test simple query expression with var for XML")
+    public void testSimpleQueryExprWithVarForXML() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleQueryExprWithVarForXML");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(), "<name>Sherlock Holmes</name>");
+        Assert.assertEquals(returnValues[1].stringValue(), "<name>The Da Vinci Code</name>");
+    }
 }
