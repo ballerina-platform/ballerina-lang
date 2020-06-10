@@ -19,10 +19,7 @@
 package org.ballerinalang.stdlib.io.utils;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.stdlib.io.channels.FileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
