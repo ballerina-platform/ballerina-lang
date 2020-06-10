@@ -46,7 +46,7 @@ function testNonReadOnlyValueForReadOnlyCET() {
 type Obj object {
     int i;
 
-    function __init(int i) {
+    function init(int i) {
         self.i = i;
     }
 };

@@ -55,7 +55,7 @@ type InboundHandlerImpl object {
     *IntermediateInboundHandler;
     readonly int count;
 
-    public function __init(int allow, boolean enabled = false) {
+    public function init(int allow, boolean enabled = false) {
         self.enabled = enabled;
         self.allow = allow;
         self.count = allow * 2;

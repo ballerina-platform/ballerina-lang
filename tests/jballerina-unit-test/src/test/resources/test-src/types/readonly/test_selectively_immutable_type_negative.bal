@@ -180,7 +180,7 @@ type Config abstract object {
 type MyConfig object {
     readonly string name;
 
-    public function __init(string name) {
+    public function init(string name) {
         self.name = name;
     }
 

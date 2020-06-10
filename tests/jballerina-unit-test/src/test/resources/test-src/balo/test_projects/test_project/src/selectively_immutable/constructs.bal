@@ -124,7 +124,7 @@ public type Owner abstract object {
 public type OwnerA object {
     readonly int id;
 
-    public function __init(int id) {
+    public function init(int id) {
         self.id = id;
     }
 
@@ -137,7 +137,7 @@ public type OwnerB object {
     readonly int id;
     string name;
 
-    public function __init(int id, string name) {
+    public function init(int id, string name) {
         self.id = id;
         self.name = name;
     }
@@ -223,7 +223,7 @@ public type Config abstract object {
 public type MyConfig object {
     public readonly string name;
 
-    public function __init(string name) {
+    public function init(string name) {
         self.name = name;
     }
 

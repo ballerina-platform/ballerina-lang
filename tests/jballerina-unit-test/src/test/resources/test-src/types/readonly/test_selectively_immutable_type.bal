@@ -454,7 +454,7 @@ type MyMutableController object {
     Owner owner;
     Printer printer;
 
-    function __init(Owner & readonly owner, Printer printer) {
+    function init(Owner & readonly owner, Printer printer) {
         self.owner = owner;
         self.printer = printer;
     }
@@ -693,7 +693,7 @@ type MyController object {
     readonly Owner owner;
     readonly Printer printer;
 
-    function __init(Owner & readonly ow, Printer pr) {
+    function init(Owner & readonly ow, Printer pr) {
         self.owner = ow;
         self.printer = <Printer & readonly> pr;
     }
@@ -715,7 +715,7 @@ type Owner abstract object {
 type MyPrinter object {
     readonly int id;
 
-    function __init(int id) {
+    function init(int id) {
         self.id = id;
     }
 
