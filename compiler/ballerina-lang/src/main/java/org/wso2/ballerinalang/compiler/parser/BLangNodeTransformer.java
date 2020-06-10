@@ -123,6 +123,8 @@ import io.ballerinalang.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerinalang.compiler.syntax.tree.SpreadFieldNode;
 import io.ballerinalang.compiler.syntax.tree.StartActionNode;
 import io.ballerinalang.compiler.syntax.tree.StatementNode;
+import io.ballerinalang.compiler.syntax.tree.StreamTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.StreamTypeParamsNode;
 import io.ballerinalang.compiler.syntax.tree.SyncSendActionNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TableConstructorExpressionNode;
@@ -283,6 +285,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -390,6 +393,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         for (ModuleMemberDeclarationNode member : modulePart.members()) {
             compilationUnit.addTopLevelNode((TopLevelNode) member.apply(this));
         }
+        pos.sLine = 1;
+        pos.sCol = 1;
+        pos.eLine = 1;
+        pos.eCol = 1;
 
         compilationUnit.pos = pos;
         this.currentCompilationUnit = null;
@@ -430,15 +437,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         List<BLangIdentifier> pkgNameComps = new ArrayList<>();
         NodeList<IdentifierToken> names = importDeclaration.moduleName();
-        names.forEach(name -> pkgNameComps.add(this.createIdentifier(getPosition(name), name.text(), null)));
+        DiagnosticPos position = getPosition(importDeclaration);
+        names.forEach(name -> pkgNameComps.add(this.createIdentifier(position, name.text(), null)));
 
         BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
-        importDcl.pos = getPosition(importDeclaration);
+        importDcl.pos = position;
         importDcl.pkgNameComps = pkgNameComps;
-        importDcl.orgName = this.createIdentifier(getPosition(orgNameNode), orgName);
+        importDcl.orgName = this.createIdentifier(position, orgName);
         importDcl.version = this.createIdentifier(getPosition(versionNode), version);
-        importDcl.alias = (prefixNode != null) ? this.createIdentifier(getPosition(prefixNode), prefixNode.prefix())
-                : pkgNameComps.get(pkgNameComps.size() - 1);
+        importDcl.alias = (prefixNode != null) ? this.createIdentifier(position, prefixNode.prefix())
+                                               : pkgNameComps.get(pkgNameComps.size() - 1);
 
         return importDcl;
     }
@@ -457,8 +465,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangConstant constantNode = (BLangConstant) TreeBuilder.createConstantNode();
         DiagnosticPos pos = getPosition(constantDeclarationNode);
         DiagnosticPos identifierPos = getPosition(constantDeclarationNode.variableName());
-        constantNode.name = createIdentifier(pos, constantDeclarationNode.variableName());
+        constantNode.name = createIdentifier(identifierPos, constantDeclarationNode.variableName());
         constantNode.expr = createExpression(constantDeclarationNode.initializer());
+        constantNode.pos = pos;
         if (constantDeclarationNode.typeDescriptor() != null) {
             constantNode.typeNode = createTypeNode(constantDeclarationNode.typeDescriptor());
         }
@@ -677,7 +686,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
         }
 
-        for (Node node : objTypeDescNode.members()) {
+        NodeList<Node> members = objTypeDescNode.members();
+        for (Node node : members) {
             // TODO: Check for fields other than SimpleVariableNode
             BLangNode bLangNode = node.apply(this);
             if (bLangNode.getKind() == NodeKind.FUNCTION) {
@@ -699,6 +709,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         objectTypeNode.pos = getPosition(objTypeDescNode);
+
+        if (members.size() > 0) {
+            trimLeft(objectTypeNode.pos, getPosition(members.get(0)));
+            trimRight(objectTypeNode.pos, getPosition(members.get(members.size() - 1)));
+        } else {
+            trimLeft(objectTypeNode.pos, getPosition(objTypeDescNode.closeBrace()));
+            trimRight(objectTypeNode.pos, getPosition(objTypeDescNode.openBrace()));
+        }
 
         boolean isAnonymous = checkIfAnonymous(objTypeDescNode);
         objectTypeNode.isAnonymous = isAnonymous;
@@ -1108,6 +1126,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangSimpleVariableDef lamdaWrkr = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
         DiagnosticPos workerNamePos = getPosition(namedWorkerDeclNode.workerName());
         lamdaWrkr.pos = workerNamePos;
+        var.pos = workerNamePos;
         lamdaWrkr.setVariable(var);
         lamdaWrkr.isWorker = true;
 //        if (!this.forkJoinNodesStack.empty()) {
@@ -1840,6 +1859,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(IfElseStatementNode ifElseStmtNode) {
         BLangIf bLIf = (BLangIf) TreeBuilder.createIfElseStatementNode();
         bLIf.pos = getPosition(ifElseStmtNode);
+        trimRight(bLIf.pos, getPosition(ifElseStmtNode.ifBody()));
         bLIf.setCondition(createExpression(ifElseStmtNode.condition()));
         bLIf.setBody((BLangBlockStmt) ifElseStmtNode.ifBody().apply(this));
 
@@ -1857,6 +1877,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         this.isInLocalContext = true;
         bLBlockStmt.stmts = generateBLangStatements(blockStatement.statements());
         this.isInLocalContext = false;
+        bLBlockStmt.pos = getPosition(blockStatement);
+        SyntaxKind parent = blockStatement.parent().kind();
+        if (parent == SyntaxKind.IF_ELSE_STATEMENT || parent == SyntaxKind.ELSE_BLOCK) {
+            expandLeft(bLBlockStmt.pos, getPosition(blockStatement.parent()));
+        }
         return bLBlockStmt;
     }
 
@@ -1987,6 +2012,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         simpleVar.pos = getPosition(requiredParameter);
+        trimLeft(simpleVar.pos, getPosition(requiredParameter.typeName()));
         return simpleVar;
     }
 
@@ -2310,9 +2336,40 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
+    public BLangNode transform(StreamTypeDescriptorNode streamTypeDescriptorNode) {
+        BLangType constraint, error = null;
+        DiagnosticPos pos = getPosition(streamTypeDescriptorNode);
+        Optional<Node> paramsNode = streamTypeDescriptorNode.streamTypeParamsNode();
+
+        boolean hasConstraint = paramsNode.isPresent();
+        if (!hasConstraint) {
+            constraint = addValueType(pos, TypeKind.ANY);
+        } else {
+            StreamTypeParamsNode params = (StreamTypeParamsNode) paramsNode.get();
+            if (params.rightTypeDescNode().isPresent()) {
+                error = (BLangType) params.rightTypeDescNode().get().apply(this);
+            }
+            constraint = (BLangType) params.leftTypeDescNode().apply(this);
+        }
+
+        BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
+        refType.typeKind = TypeKind.STREAM;
+        refType.pos = pos;
+
+        BLangStreamType streamType = (BLangStreamType) TreeBuilder.createStreamTypeNode();
+        streamType.type = refType;
+        streamType.constraint = constraint;
+        streamType.error = error;
+        streamType.pos = pos;
+
+        return streamType;
+    }
+
+    @Override
     public BLangNode transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
         int dimensions = 1;
         List<Integer> sizes = new ArrayList<>();
+        DiagnosticPos position = getPosition(arrayTypeDescriptorNode);
         while (true) {
             if (!arrayTypeDescriptorNode.arrayLength().isPresent()) {
                 sizes.add(UNSEALED_ARRAY_INDICATOR);
@@ -2336,7 +2393,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         BLangArrayType arrayTypeNode = (BLangArrayType) TreeBuilder.createArrayTypeNode();
-        arrayTypeNode.pos = getPosition(arrayTypeDescriptorNode);
+        arrayTypeNode.pos = position;
         arrayTypeNode.elemtype = createTypeNode(arrayTypeDescriptorNode.memberTypeDesc());
         arrayTypeNode.dimensions = dimensions;
         arrayTypeNode.sizes = sizes.stream().mapToInt(val -> val).toArray();
@@ -2442,6 +2499,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     // ------------------------------------------private methods--------------------------------------------------------
+    BLangValueType addValueType(DiagnosticPos pos, TypeKind typeKind) {
+        BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+        typeNode.pos = pos;
+        typeNode.typeKind = typeKind;
+        return typeNode;
+    }
+
     private List<BLangStatement> generateBLangStatements(NodeList<StatementNode> statementNodes) {
         List<BLangStatement> statements = new ArrayList<>();
         for (StatementNode statement : statementNodes) {
@@ -2618,6 +2682,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         } else if (expression.kind() == SyntaxKind.BRACED_EXPRESSION) {
             BLangGroupExpr group = (BLangGroupExpr) TreeBuilder.createGroupExpressionNode();
             group.expression = (BLangExpression) expression.apply(this);
+            group.pos = getPosition(expression);
             return group;
         } else if (expression.kind() == SyntaxKind.EXPRESSION_LIST_ITEM) {
             return createExpression(((ExpressionListItemNode) expression).expression());
@@ -2947,7 +3012,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             Token modulePrefix = iNode.modulePrefix();
             IdentifierToken identifier = iNode.identifier();
             BLangIdentifier pkgAlias = this.createIdentifier(getPosition(modulePrefix), modulePrefix);
-            BLangIdentifier name = this.createIdentifier(getPosition(identifier), identifier);
+            DiagnosticPos namePos = getPosition(identifier);
+            namePos.sCol = namePos.sCol - modulePrefix.text().length() - 1; // 1 = length of colon
+            pkgAlias.pos.eCol = namePos.eCol;
+            BLangIdentifier name = this.createIdentifier(namePos, identifier);
             return new BLangNameReference(getPosition(node), null, pkgAlias, name);
         } else if (node.kind() == SyntaxKind.IDENTIFIER_TOKEN || node.kind() == SyntaxKind.ERROR_KEYWORD) {
             // simple identifier
@@ -3429,5 +3497,39 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (currentCompilationUnit != null) {
             currentCompilationUnit.addTopLevelNode(topLevelNode);
         }
+    }
+
+    private void expandLeft(DiagnosticPos pos, DiagnosticPos upTo) {
+//      pos        |------------|
+//      upTo    |-----..
+//      result  |---------------|
+
+        assert pos.sLine > upTo.sLine ||
+               (pos.sLine == upTo.sLine && pos.sCol >= upTo.sCol);
+        pos.sLine = upTo.sLine;
+        pos.sCol = upTo.sCol;
+    }
+
+    private void trimLeft(DiagnosticPos pos, DiagnosticPos upTo) {
+//      pos     |----------------|
+//      upTo       |-----..
+//      result     |-------------|
+
+        assert pos.sLine < upTo.sLine ||
+               (pos.sLine == upTo.sLine && pos.sCol <= upTo.sCol);
+        pos.sLine = upTo.sLine;
+        pos.sCol = upTo.sCol;
+    }
+
+    private void trimRight(DiagnosticPos pos, DiagnosticPos upTo) {
+
+//      pos     |----------------|
+//      upTo       ..-----|
+//      result  |---------|
+
+        assert pos.eLine > upTo.eLine ||
+               (pos.eLine == upTo.eLine && pos.eCol >= upTo.eCol);
+        pos.eLine = upTo.eLine;
+        pos.eCol = upTo.eCol;
     }
 }

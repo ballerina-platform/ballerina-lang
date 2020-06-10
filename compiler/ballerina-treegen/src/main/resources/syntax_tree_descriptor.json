@@ -2024,7 +2024,8 @@
                 },
                 {
                     "name": "streamTypeParamsNode",
-                    "type": "Node"
+                    "type": "Node",
+                    "isOptional": true
                 }
             ]
         },
@@ -2043,11 +2044,13 @@
                 },
                 {
                     "name": "commaToken",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "rightTypeDescNode",
-                    "type": "Node"
+                    "type": "Node",
+                    "isOptional": true
                 },
                 {
                     "name": "gtToken",
