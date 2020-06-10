@@ -27,7 +27,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PR
  */
 public class XsltConstants {
     private static final String PACKAGE_NAME = "xslt";
-    static final BPackage XSLT_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME);
+    static final BPackage XSLT_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME, "1.0.0");
 
     // Error type IDs
     static final String XSLT_TRANSFORM_ERROR = "TransformError";

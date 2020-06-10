@@ -37,6 +37,6 @@ public class Constant {
 
     private static final String PACKAGE_NAME = "math";
 
-    static final BPackage MATH_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME);
+    static final BPackage MATH_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME, "1.0.0");
 
 }

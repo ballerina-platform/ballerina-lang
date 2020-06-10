@@ -80,5 +80,5 @@ public class LdapConstants {
     public static final String X_509 = "X.509";
     public static final String CERTIFICATE_ALIAS = "ca";
 
-    public static final String LDAP_ERROR_TYPE = "Error";
+    public static final String LDAP_ERROR_TYPE = "LdapError";
 }

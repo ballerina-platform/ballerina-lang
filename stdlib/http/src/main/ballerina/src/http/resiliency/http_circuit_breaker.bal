@@ -142,7 +142,7 @@ public type CircuitBreakerClient client object {
         circuitBreakerInferredConfig, HttpClient httpClient, CircuitHealth circuitHealth) {
         RollingWindow rollingWindow = circuitBreakerInferredConfig.rollingWindow;
         if (rollingWindow.timeWindowInMillis < rollingWindow.bucketSizeInMillis) {
-            panic error(GENERIC_CLIENT_ERROR, message = "Circuit breaker 'timeWindowInMillis' value should be greater" +
+            panic GenericClientError("Circuit breaker 'timeWindowInMillis' value should be greater" +
                 " than the 'bucketSizeInMillis' value.");
         }
         self.url = url;

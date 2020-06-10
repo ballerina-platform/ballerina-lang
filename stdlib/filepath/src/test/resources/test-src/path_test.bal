@@ -67,8 +67,3 @@ function testResolvePath(string path) returns string|error {
 function testPathMatches(string path, string pattern) returns boolean|error {
     return filepath:matches(path, pattern);
 }
-
-public function testModuleVersion() returns filepath:Error {
-    error e = filepath:GenericError("module version error");
-    return <filepath:GenericError> e;
-}
