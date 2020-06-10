@@ -2166,7 +2166,26 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     // Misc
 
     public STNode transform(STNodeList nodeList) {
-        return transformSyntaxNode(nodeList);
+        if (nodeList.isEmpty()) {
+            return nodeList;
+        }
+
+        boolean nodeModified = false;
+        STNode[] newSTNodes = new STNode[nodeList.size()];
+        for (int index = 0; index < nodeList.size(); index++) {
+            STNode oldNode = nodeList.get(index);
+            STNode newNode = modifyNode(oldNode);
+            if (oldNode != newNode) {
+                nodeModified = true;
+            }
+            newSTNodes[index] = newNode;
+        }
+
+        if (!nodeModified) {
+            return nodeList;
+        }
+
+        return STNodeFactory.createNodeList(newSTNodes);
     }
 
     @Override
@@ -2178,7 +2197,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         if (node == null) {
             return null;
         }
-        // TODO
         return (T) node.apply(this);
     }
 }
