@@ -258,7 +258,7 @@ public abstract class ServerCallHandler {
          *
          * <p>There will be no further callbacks for the call.
          */
-        void onCancel();
+        void onCancel(Message message);
 
         /**
          * The call is considered complete and {@link #onCancel} is guaranteed not to be called.

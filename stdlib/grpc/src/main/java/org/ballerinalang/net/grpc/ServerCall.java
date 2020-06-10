@@ -250,7 +250,7 @@ public final class ServerCall {
                 listener.onComplete();
             } else {
                 call.cancelled = true;
-                listener.onCancel();
+                listener.onCancel(new Message(status.asRuntimeException()));
             }
         }
     }

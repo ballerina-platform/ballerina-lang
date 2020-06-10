@@ -27,7 +27,6 @@ import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.ServerCall;
 import org.ballerinalang.net.grpc.ServiceResource;
-import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.callback.StreamingCallableUnitCallBack;
 import org.ballerinalang.net.grpc.callback.UnaryCallableUnitCallBack;
@@ -117,24 +116,28 @@ public class StreamingServerCallHandler extends ServerCallHandler {
 
         @Override
         public void onHalfClose() {
-            halfClosed = true;
-            requestObserver.onCompleted();
+            if (!halfClosed) {
+                halfClosed = true;
+                requestObserver.onCompleted();
+            }
+            // Once the client is closed the connection, 
+            // the client can't send new messages.
         }
 
         @Override
-        public void onCancel() {
+        public void onCancel(Message message) {
             responseObserver.cancelled = true;
-            if (!halfClosed) {
-                Message message = new Message(Status.Code.CANCELLED.toStatus()
-                        .withDescription("cancelled before receiving half close")
-                        .asRuntimeException());
-                requestObserver.onError(message);
-            }
+            requestObserver.onError(message);
         }
 
         @Override
         public void onComplete() {
-            // Additional logic when closing the stream at server side.
+            if (!halfClosed) {
+                halfClosed = true;
+                requestObserver.onCompleted();
+            }
+            // Once the client is closed the connection,
+            // the client can't send new messages.
         }
     }
 
