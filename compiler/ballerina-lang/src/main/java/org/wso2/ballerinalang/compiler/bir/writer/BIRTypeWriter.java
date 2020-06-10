@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -258,6 +259,16 @@ public class BIRTypeWriter implements TypeVisitor {
         for (BType memberType : bUnionType.getMemberTypes()) {
             writeTypeCpIndex(memberType);
         }
+    }
+
+    @Override
+    public void visit(BIntersectionType bIntersectionType) {
+        buff.writeInt(bIntersectionType.getConstituentTypes().size());
+        for (BType constituentType : bIntersectionType.getConstituentTypes()) {
+            writeTypeCpIndex(constituentType);
+        }
+
+        writeTypeCpIndex(bIntersectionType.effectiveType);
     }
 
     @Override

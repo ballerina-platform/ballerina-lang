@@ -27,6 +27,11 @@ public function createInputFunction(function(_Frame _frame) returns _Frame|error
     return new _InputFunction(inputFunc);
 }
 
+public function createNestedFromFunction(function(_Frame _frame) returns any|error? collectionFunc)
+        returns _StreamFunction {
+    return new _NestedFromFunction(collectionFunc);
+}
+
 public function createLetFunction(function(_Frame _frame) returns _Frame|error? letFunc)
         returns _StreamFunction {
     return new _LetFunction(letFunc);

@@ -70,7 +70,35 @@ public class STAnnotAccessExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STAnnotAccessExpressionNode modify(
+            STNode expression,
+            STNode annotChainingToken,
+            STNode annotTagReference) {
+        if (checkForReferenceEquality(
+                expression,
+                annotChainingToken,
+                annotTagReference)) {
+            return this;
+        }
+
+        return new STAnnotAccessExpressionNode(
+                expression,
+                annotChainingToken,
+                annotTagReference,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new AnnotAccessExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

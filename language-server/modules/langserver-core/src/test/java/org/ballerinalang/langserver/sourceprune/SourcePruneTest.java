@@ -191,9 +191,10 @@ public class SourcePruneTest {
                 {"src_prune_config52.json"},
                 {"src_prune_config53.json"},
                 // Transaction statement
-                {"src_prune_config54.json"},
-                {"src_prune_config55.json"},
-                {"src_prune_config56.json"},
+                //TODO Transaction
+//                {"src_prune_config54.json"},
+//                {"src_prune_config55.json"},
+//                {"src_prune_config56.json"},
                 // XML Namespace Declaration statement
 //                {"src_prune_config57.json"},
                 // Array Literal Expression

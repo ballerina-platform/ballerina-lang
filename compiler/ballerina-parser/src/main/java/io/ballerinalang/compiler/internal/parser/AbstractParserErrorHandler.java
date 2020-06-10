@@ -90,14 +90,18 @@ public abstract class AbstractParserErrorHandler {
         Result bestMatch = seekMatch(currentCtx);
         if (bestMatch.matches > 0) {
             Solution sol = bestMatch.solution;
-            applyFix(currentCtx, sol, args);
-            return sol;
-        } else {
-            // Fail safe. This means we can't find a path to recover.
-            removeInvalidToken();
-            Solution sol = new Solution(Action.REMOVE, currentCtx, nextToken.kind, nextToken.toString());
-            return sol;
+            if (sol != null) {
+                applyFix(currentCtx, sol, args);
+                return sol;
+            }
+
+            // else fall through
         }
+
+        // Fail safe. This means we can't find a path to recover.
+        removeInvalidToken();
+        Solution sol = new Solution(Action.REMOVE, currentCtx, nextToken.kind, nextToken.toString());
+        return sol;
     }
 
     /**
@@ -304,7 +308,7 @@ public abstract class AbstractParserErrorHandler {
             case ASTERISK_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_ASTERISK_TOKEN;
             case PIPE_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_ASTERISK_TOKEN;
+                return DiagnosticErrorCode.ERROR_MISSING_PIPE_TOKEN;
 
             case DEFAULT_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_DEFAULT_KEYWORD;
@@ -344,6 +348,8 @@ public abstract class AbstractParserErrorHandler {
                 return DiagnosticErrorCode.ERROR_MISSING_IN_KEYWORD;
             case IF_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_IF_KEYWORD;
+            case IMPORT_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_IMPORT_KEYWORD;
 
             case IDENTIFIER_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;

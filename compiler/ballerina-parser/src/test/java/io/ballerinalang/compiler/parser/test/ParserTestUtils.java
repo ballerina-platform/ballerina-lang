@@ -339,6 +339,7 @@ public class ParserTestUtils {
                 try (BufferedWriter writer =
                         new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
                     writer.write(jsonString);
+                    writer.write("\n");
                 }
             } catch (Exception e) {
                 // Ignore
@@ -544,6 +545,8 @@ public class ParserTestUtils {
                 return SyntaxKind.BASE16_KEYWORD;
             case "BASE64_KEYWORD":
                 return SyntaxKind.BASE64_KEYWORD;
+            case "MATCH_KEYWORD":
+                return SyntaxKind.MATCH_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -818,6 +821,8 @@ public class ParserTestUtils {
                 return SyntaxKind.RETRY_STATEMENT;
             case "ROLLBACK_STATEMENT":
                 return SyntaxKind.ROLLBACK_STATEMENT;
+            case "MATCH_STATEMENT":
+                return SyntaxKind.MATCH_STATEMENT;
 
             // Types
             case "TYPE_DESC":
@@ -977,7 +982,7 @@ public class ParserTestUtils {
             case "INFER_PARAM_LIST":
                 return SyntaxKind.INFER_PARAM_LIST;
             case "FUNCTION_DECLARATION":
-                return SyntaxKind.FUNCTION_DECLARATION;
+                return SyntaxKind.METHOD_DECLARATION;
             case "TYPED_BINDING_PATTERN":
                 return SyntaxKind.TYPED_BINDING_PATTERN;
             case "BINDING_PATTERN":
@@ -1008,6 +1013,10 @@ public class ParserTestUtils {
                 return SyntaxKind.ENUM_MEMBER;
             case "WILDCARD_BINDING_PATTERN":
                 return SyntaxKind.WILDCARD_BINDING_PATTERN;
+            case "MATCH_CLAUSE":
+                return SyntaxKind.MATCH_CLAUSE;
+            case "MATCH_GUARD":
+                return SyntaxKind.MATCH_GUARD;
 
             // XML template
             case "XML_ELEMENT":

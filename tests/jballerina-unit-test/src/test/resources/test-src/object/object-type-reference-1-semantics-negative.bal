@@ -125,19 +125,6 @@ type ObjectWithRedeclaredFunction_2 abstract object {
     *ObjectWithRedeclaredFunction_1;
 };
 
-type RedecalredFieldObject_1 abstract object {
-    int x;
-};
-
-type RedecalredFieldObject_2 abstract object {
-    int x;
-    *RedecalredFieldObject_1;
-};
-
-type RedecalredFieldObject_3 abstract object {
-    *RedecalredFieldObject_2;
-};
-
 type Bar object {
     *Baz;   // non existing type
 };

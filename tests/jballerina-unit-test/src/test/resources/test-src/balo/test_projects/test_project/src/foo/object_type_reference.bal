@@ -103,3 +103,9 @@ public type CorronifiedEmployee object {
 public type NormalPerson object {
     string name = "John";
 };
+
+public type Employee3 abstract object {
+    public int|float salary;
+
+    public function getBonus(float ratio, int months=12) returns float;
+};

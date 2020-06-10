@@ -51,6 +51,7 @@ import io.ballerinalang.compiler.syntax.tree.ForEachStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ForkStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
+import io.ballerinalang.compiler.syntax.tree.FunctionBodyNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
@@ -63,6 +64,7 @@ import io.ballerinalang.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerinalang.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerinalang.compiler.syntax.tree.ImportSubVersionNode;
 import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
 import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.InterpolationNode;
@@ -75,6 +77,7 @@ import io.ballerinalang.compiler.syntax.tree.LockStatementNode;
 import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MappingFieldNode;
 import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -119,6 +122,8 @@ import io.ballerinalang.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerinalang.compiler.syntax.tree.SpreadFieldNode;
 import io.ballerinalang.compiler.syntax.tree.StartActionNode;
 import io.ballerinalang.compiler.syntax.tree.StatementNode;
+import io.ballerinalang.compiler.syntax.tree.StreamTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.StreamTypeParamsNode;
 import io.ballerinalang.compiler.syntax.tree.SyncSendActionNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TableConstructorExpressionNode;
@@ -142,16 +147,21 @@ import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.WaitActionNode;
 import io.ballerinalang.compiler.syntax.tree.WhileStatementNode;
 import io.ballerinalang.compiler.syntax.tree.WildcardBindingPatternNode;
+import io.ballerinalang.compiler.syntax.tree.XMLAtomicNamePatternNode;
 import io.ballerinalang.compiler.syntax.tree.XMLAttributeNode;
 import io.ballerinalang.compiler.syntax.tree.XMLAttributeValue;
 import io.ballerinalang.compiler.syntax.tree.XMLComment;
 import io.ballerinalang.compiler.syntax.tree.XMLElementNode;
+import io.ballerinalang.compiler.syntax.tree.XMLEmptyElementNode;
 import io.ballerinalang.compiler.syntax.tree.XMLEndTagNode;
+import io.ballerinalang.compiler.syntax.tree.XMLFilterExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.XMLNamePatternChainingNode;
 import io.ballerinalang.compiler.syntax.tree.XMLNamespaceDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.XMLProcessingInstruction;
 import io.ballerinalang.compiler.syntax.tree.XMLQualifiedNameNode;
 import io.ballerinalang.compiler.syntax.tree.XMLSimpleNameNode;
 import io.ballerinalang.compiler.syntax.tree.XMLStartTagNode;
+import io.ballerinalang.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.XMLTextNode;
 import io.ballerinalang.compiler.text.LinePosition;
 import io.ballerinalang.compiler.text.LineRange;
@@ -161,6 +171,7 @@ import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.DocumentationReferenceType;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -168,6 +179,7 @@ import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -184,6 +196,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
+import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
@@ -209,7 +222,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -232,7 +248,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
@@ -264,6 +283,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -385,6 +405,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     typedBindingPattern.typeDescriptor(), modVarDeclrNode.initializer(),
                     modVarDeclrNode.finalKeyword().isPresent(), false, null, modVarDeclrNode.metadata().annotations());
         simpleVar.pos = getPosition(modVarDeclrNode);
+        simpleVar.markdownDocumentationAttachment =
+                createMarkdownDocumentationAttachment(modVarDeclrNode.metadata().documentationString());
         return simpleVar;
     }
 
@@ -404,9 +426,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             if (versionNode.isMissing()) {
                 version = missingNodesHelper.getNextMissingNodeName(diagnosticSource.pkgID);
             }
-
-            // TODO: toString will contain trivia such as comments as well.
-            version = versionNode.versionNumber().toString();
+            version = extractVersion(versionNode.versionNumber());
         }
 
         List<BLangIdentifier> pkgNameComps = new ArrayList<>();
@@ -424,17 +444,30 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return importDcl;
     }
 
+    @Override
+    public BLangNode transform(MethodDeclarationNode methodDeclarationNode) {
+        BLangFunction bLFunction = createFunctionNode(methodDeclarationNode.methodName(),
+                methodDeclarationNode.visibilityQualifier(), methodDeclarationNode.methodSignature(), null);
+
+        bLFunction.annAttachments = applyAll(methodDeclarationNode.metadata().annotations());
+        bLFunction.pos = getPosition(methodDeclarationNode);
+        return bLFunction;
+    }
+
     public BLangNode transform(ConstantDeclarationNode constantDeclarationNode) {
         BLangConstant constantNode = (BLangConstant) TreeBuilder.createConstantNode();
         DiagnosticPos pos = getPosition(constantDeclarationNode);
         DiagnosticPos identifierPos = getPosition(constantDeclarationNode.variableName());
         constantNode.name = createIdentifier(pos, constantDeclarationNode.variableName());
         constantNode.expr = createExpression(constantDeclarationNode.initializer());
+        constantNode.pos = pos;
         if (constantDeclarationNode.typeDescriptor() != null) {
             constantNode.typeNode = createTypeNode(constantDeclarationNode.typeDescriptor());
         }
 
         constantNode.annAttachments = applyAll(constantDeclarationNode.metadata().annotations());
+        constantNode.markdownDocumentationAttachment =
+                createMarkdownDocumentationAttachment(constantDeclarationNode.metadata().documentationString());
 
         // TODO: Add markdownDocumentations
         constantNode.flagSet.add(Flag.CONSTANT);
@@ -485,6 +518,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangIdentifier identifierNode =
                 this.createIdentifier(typeDefNode.typeName());
         typeDef.setName(identifierNode);
+        typeDef.markdownDocumentationAttachment =
+                createMarkdownDocumentationAttachment(typeDefNode.metadata().documentationString());
 
         typeDef.typeNode = createTypeNode(typeDefNode.typeDescriptor());
 
@@ -681,7 +716,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ObjectFieldNode objFieldNode) {
         BLangSimpleVariable simpleVar = createSimpleVar(objFieldNode.fieldName(), objFieldNode.typeName(),
                                                         objFieldNode.expression(),
-                                                        false, false, objFieldNode.visibilityQualifier(),
+                                                        false, false, objFieldNode.visibilityQualifier().orElse(null),
                                                         objFieldNode.metadata().annotations());
         simpleVar.pos = getPosition(objFieldNode);
         return simpleVar;
@@ -749,6 +784,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         serviceConstNode.pos = pos;
 
         // Crate Global variable for service.
+        bLService.markdownDocumentationAttachment =
+                createMarkdownDocumentationAttachment(serviceDeclrNode.metadata().documentationString());
         bLService.pos = pos;
         if (!isAnonServiceValue) {
             BLangSimpleVariable var = (BLangSimpleVariable) createBasicVarNodeWithoutType(identifierPos,
@@ -871,14 +908,25 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(FunctionDefinitionNode funcDefNode) {
+        BLangFunction bLFunction = createFunctionNode(funcDefNode.functionName(), funcDefNode.visibilityQualifier(),
+                funcDefNode.functionSignature(), funcDefNode.functionBody());
+
+        bLFunction.annAttachments = applyAll(funcDefNode.metadata().annotations());
+        bLFunction.pos = getPosition(funcDefNode);
+        bLFunction.markdownDocumentationAttachment =
+                createMarkdownDocumentationAttachment(funcDefNode.metadata().documentationString());
+        return bLFunction;
+    }
+
+    private BLangFunction createFunctionNode(IdentifierToken funcName, Optional<Token> visibilityQualifier,
+            FunctionSignatureNode functionSignature, FunctionBodyNode functionBody) {
         BLangFunction bLFunction = (BLangFunction) TreeBuilder.createFunctionNode();
 
         // Set function name
-        IdentifierToken funcName = funcDefNode.functionName();
         bLFunction.name = createIdentifier(getPosition(funcName), funcName);
 
         // Set the visibility qualifier
-        funcDefNode.visibilityQualifier().ifPresent(visibilityQual -> {
+        visibilityQualifier.ifPresent(visibilityQual -> {
             if (visibilityQual.kind() == SyntaxKind.PUBLIC_KEYWORD) {
                 bLFunction.flagSet.add(Flag.PUBLIC);
             } else if (visibilityQual.kind() == SyntaxKind.PRIVATE_KEYWORD) {
@@ -891,22 +939,19 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         });
 
         // Set function signature
-        populateFuncSignature(bLFunction, funcDefNode.functionSignature());
+        populateFuncSignature(bLFunction, functionSignature);
 
         // Set the function body
-        if (funcDefNode.functionBody() == null) {
+        if (functionBody == null) {
             bLFunction.body = null;
             bLFunction.flagSet.add(Flag.INTERFACE);
             bLFunction.interfaceFunction = true;
         } else {
-            bLFunction.body = (BLangFunctionBody) funcDefNode.functionBody().apply(this);
+            bLFunction.body = (BLangFunctionBody) functionBody.apply(this);
             if (bLFunction.body.getKind() == NodeKind.EXTERN_FUNCTION_BODY) {
                 bLFunction.flagSet.add(Flag.NATIVE);
             }
         }
-
-        bLFunction.annAttachments = applyAll(funcDefNode.metadata().annotations());
-        bLFunction.pos = getPosition(funcDefNode);
         return bLFunction;
     }
 
@@ -1065,6 +1110,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangSimpleVariableDef lamdaWrkr = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
         DiagnosticPos workerNamePos = getPosition(namedWorkerDeclNode.workerName());
         lamdaWrkr.pos = workerNamePos;
+        var.pos = workerNamePos;
         lamdaWrkr.setVariable(var);
         lamdaWrkr.isWorker = true;
 //        if (!this.forkJoinNodesStack.empty()) {
@@ -1151,9 +1197,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         annotationDecl.annAttachments = applyAll(annotationDeclarationNode.metadata().annotations());
 
-        annotationDeclarationNode.metadata().documentationString().ifPresent(docString-> {
-            annotationDecl.markdownDocumentationAttachment = createMarkdownDocumentationAttachment(docString);
-        });
+        annotationDecl.markdownDocumentationAttachment =
+                createMarkdownDocumentationAttachment(annotationDeclarationNode.metadata().documentationString());
 
         Node typedesc = annotationDeclarationNode.typeDescriptor();
         if (typedesc != null) {
@@ -1464,12 +1509,27 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
-    public BLangIndexBasedAccess transform(IndexedExpressionNode indexedExpressionNode) {
+    public BLangNode transform(IndexedExpressionNode indexedExpressionNode) {
         BLangIndexBasedAccess indexBasedAccess = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         indexBasedAccess.pos = getPosition(indexedExpressionNode);
         // TODO : Add BLangTableMultiKeyExpr for indexExpr if it is available
         indexBasedAccess.indexExpr = createExpression(indexedExpressionNode.keyExpression().get(0));
-        indexBasedAccess.expr = createExpression(indexedExpressionNode.containerExpression());
+
+        Node containerExpr = indexedExpressionNode.containerExpression();
+        BLangExpression expression = createExpression(containerExpr);
+        if (containerExpr.kind() == SyntaxKind.BRACED_EXPRESSION) {
+            indexBasedAccess.expr = ((BLangGroupExpr) expression).expression;
+            BLangGroupExpr group = (BLangGroupExpr) TreeBuilder.createGroupExpressionNode();
+            group.expression = indexBasedAccess;
+            group.pos = getPosition(indexedExpressionNode);
+            return group;
+        } else if (containerExpr.kind() == SyntaxKind.XML_STEP_EXPRESSION) {
+            // TODO : This check will be removed after changes are done for spec issue #536
+            ((BLangXMLNavigationAccess) expression).childIndex = indexBasedAccess.indexExpr;
+            return expression;
+        }
+        indexBasedAccess.expr = expression;
+
         return indexBasedAccess;
     }
 
@@ -1492,6 +1552,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         switch (kind) {
             case XML_TEXT_CONTENT:
             case TEMPLATE_STRING:
+            case CLOSE_BRACE_TOKEN:
                 return createSimpleLiteral(token);
             default:
                 throw new RuntimeException("Syntax kind is not supported: " + kind);
@@ -1840,7 +1901,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             default:
                 BLangExpressionStmt bLExpressionStmt =
                         (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
-                bLExpressionStmt.expr = (BLangExpression) expressionStatement.expression().apply(this);
+                bLExpressionStmt.expr = createExpression(expressionStatement.expression());
                 bLExpressionStmt.pos = getPosition(expressionStatement);
                 return bLExpressionStmt;
         }
@@ -2085,7 +2146,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(XMLComment xmlComment) {
         BLangXMLCommentLiteral xmlCommentLiteral = (BLangXMLCommentLiteral) TreeBuilder.createXMLCommentLiteralNode();
         for (Node commentNode : xmlComment.content()) {
-            xmlCommentLiteral.textFragments.add((BLangExpression) commentNode.apply(this));
+            xmlCommentLiteral.textFragments.add(createExpression(commentNode));
         }
         xmlCommentLiteral.pos = getPosition(xmlComment);
         return xmlCommentLiteral;
@@ -2206,6 +2267,18 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
+    public BLangNode transform(XMLEmptyElementNode xMLEmptyElementNode) {
+        BLangXMLElementLiteral xmlEmptyElement = (BLangXMLElementLiteral) TreeBuilder.createXMLElementLiteralNode();
+        xmlEmptyElement.startTagName = createExpression(xMLEmptyElementNode.name());
+
+        for (XMLAttributeNode attribute : xMLEmptyElementNode.attributes()) {
+            xmlEmptyElement.attributes.add((BLangXMLAttribute) attribute.apply(this));
+        }
+        xmlEmptyElement.pos = getPosition(xMLEmptyElementNode);
+        return xmlEmptyElement;
+    }
+
+    @Override
     public BLangNode transform(RemoteMethodCallActionNode remoteMethodCallActionNode) {
         BLangInvocation.BLangActionInvocation bLangActionInvocation = (BLangInvocation.BLangActionInvocation)
                 TreeBuilder.createActionInvocation();
@@ -2217,6 +2290,36 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLangActionInvocation.name = (BLangIdentifier) nameReference.name;
         bLangActionInvocation.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
         return bLangActionInvocation;
+    }
+
+    @Override
+    public BLangNode transform(StreamTypeDescriptorNode streamTypeDescriptorNode) {
+        BLangType constraint, error = null;
+        DiagnosticPos pos = getPosition(streamTypeDescriptorNode);
+        Optional<Node> paramsNode = streamTypeDescriptorNode.streamTypeParamsNode();
+
+        boolean hasConstraint = paramsNode.isPresent();
+        if (!hasConstraint) {
+            constraint = addValueType(pos, TypeKind.ANY);
+        } else {
+            StreamTypeParamsNode params = (StreamTypeParamsNode) paramsNode.get();
+            if (params.rightTypeDescNode().isPresent()) {
+                error = (BLangType) params.rightTypeDescNode().get().apply(this);
+            }
+            constraint = (BLangType) params.leftTypeDescNode().apply(this);
+        }
+
+        BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
+        refType.typeKind = TypeKind.STREAM;
+        refType.pos = pos;
+
+        BLangStreamType streamType = (BLangStreamType) TreeBuilder.createStreamTypeNode();
+        streamType.type = refType;
+        streamType.constraint = constraint;
+        streamType.error = error;
+        streamType.pos = pos;
+
+        return streamType;
     }
 
     @Override
@@ -2259,7 +2362,106 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         throw new RuntimeException("Node not supported: " + node.getClass().getSimpleName());
     }
 
+    @Override
+    public BLangNode transform(XMLFilterExpressionNode xmlFilterExpressionNode) {
+        List<BLangXMLElementFilter> filters = new ArrayList<>();
+
+        XMLNamePatternChainingNode xmlNamePatternChainingNode = xmlFilterExpressionNode.xmlPatternChain();
+        for (Node node : xmlNamePatternChainingNode.xmlNamePattern()) {
+            filters.add(createXMLElementFilter(node));
+        }
+
+        BLangExpression expr = createExpression(xmlFilterExpressionNode.expression());
+        BLangXMLElementAccess elementAccess = new BLangXMLElementAccess(getPosition(xmlFilterExpressionNode), null,
+                expr, filters);
+        return elementAccess;
+    }
+
+    @Override
+    public BLangNode transform(XMLStepExpressionNode xmlStepExpressionNode) {
+        List<BLangXMLElementFilter> filters = new ArrayList<>();
+
+        int starCount = 0;
+        if (xmlStepExpressionNode.xmlStepStart().kind() == SyntaxKind.SLASH_ASTERISK_TOKEN) {
+            starCount = 1;
+        } else if (xmlStepExpressionNode.xmlStepStart().kind() == SyntaxKind.XML_NAME_PATTERN_CHAIN) {
+            XMLNamePatternChainingNode xmlNamePatternChainingNode =
+                    (XMLNamePatternChainingNode) xmlStepExpressionNode.xmlStepStart();
+            for (Node node : xmlNamePatternChainingNode.xmlNamePattern()) {
+                filters.add(createXMLElementFilter(node));
+            }
+            switch (xmlNamePatternChainingNode.startToken().kind()) {
+                case DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN:
+                    starCount = 2;
+                    break;
+                case SLASH_ASTERISK_TOKEN:
+                    starCount = 1;
+                    break;
+            }
+        }
+
+        BLangExpression expr = createExpression(xmlStepExpressionNode.expression());
+        // TODO : implement the value for childIndex
+        BLangXMLNavigationAccess xmlNavigationAccess =
+                new BLangXMLNavigationAccess(getPosition(xmlStepExpressionNode), null, expr, filters,
+                XMLNavigationAccess.NavAccessType.fromInt(starCount), null);
+        return xmlNavigationAccess;
+    }
+
+    private BLangXMLElementFilter createXMLElementFilter(Node node) {
+        String ns = "";
+        String elementName = "*";
+        DiagnosticPos nsPos = null;
+        DiagnosticPos elemNamePos = null;
+        SyntaxKind kind = node.kind();
+
+        switch (kind) {
+            case SIMPLE_NAME_REFERENCE:
+                SimpleNameReferenceNode simpleNameReferenceNode = (SimpleNameReferenceNode) node;
+                elementName = simpleNameReferenceNode.name().text();
+                elemNamePos = getPosition(simpleNameReferenceNode);
+                break;
+            case QUALIFIED_NAME_REFERENCE:
+                QualifiedNameReferenceNode qualifiedNameReferenceNode = (QualifiedNameReferenceNode) node;
+                elementName = qualifiedNameReferenceNode.identifier().text();
+                elemNamePos = getPosition(qualifiedNameReferenceNode.identifier());
+                ns = qualifiedNameReferenceNode.modulePrefix().text();
+                nsPos = getPosition(qualifiedNameReferenceNode.modulePrefix());
+                break;
+            case XML_ATOMIC_NAME_PATTERN:
+                XMLAtomicNamePatternNode atomicNamePatternNode = (XMLAtomicNamePatternNode) node;
+                elementName = atomicNamePatternNode.name().text();
+                elemNamePos = getPosition(atomicNamePatternNode.name());
+                ns = atomicNamePatternNode.prefix().text();
+                nsPos = getPosition(atomicNamePatternNode.prefix());
+                break;
+            case ASTERISK_TOKEN:
+                elemNamePos = getPosition(node);
+        }
+
+        // Escape names starting with '.
+        if (stringStartsWithSingleQuote(ns)) {
+            ns = ns.substring(1);
+        }
+        if (stringStartsWithSingleQuote(elementName)) {
+            elementName = elementName.substring(1);
+        }
+
+        return new BLangXMLElementFilter(getPosition(node), null, ns, nsPos, elementName, elemNamePos);
+    }
+
+    private boolean stringStartsWithSingleQuote(String ns) {
+        return ns != null && ns.length() > 0 && ns.charAt(0) == '\'';
+    }
+
     // ------------------------------------------private methods--------------------------------------------------------
+    BLangValueType addValueType(DiagnosticPos pos, TypeKind typeKind) {
+        BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+        typeNode.pos = pos;
+        typeNode.typeKind = typeKind;
+        return typeNode;
+    }
+
     private List<BLangStatement> generateBLangStatements(NodeList<StatementNode> statementNodes) {
         List<BLangStatement> statements = new ArrayList<>();
         for (StatementNode statement : statementNodes) {
@@ -2273,6 +2475,18 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
         }
         return statements;
+    }
+
+    private String extractVersion(NodeList<Node> versionNumbers) {
+        StringBuilder version = null;
+        for (Node versionNumber : versionNumbers) {
+            if (versionNumber.kind() == SyntaxKind.IMPORT_SUB_VERSION) {
+                version.append(".").append(((ImportSubVersionNode) versionNumber).versionNumber().text());
+                continue;
+            }
+            version = new StringBuilder(((Token) versionNumber).text());
+        }
+        return version.toString();
     }
 
     private VariableDefinitionNode createVarDefNode(TypedBindingPatternNode typedBindingPatternNode,
@@ -2773,19 +2987,171 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
     }
 
-    private BLangMarkdownDocumentation createMarkdownDocumentationAttachment(Node docString) {
-        BLangMarkdownDocumentation doc = (BLangMarkdownDocumentation) TreeBuilder.createMarkdownDocumentationNode();
-        DocumentationStringNode docStringNode = (DocumentationStringNode) docString;
-
-        LinkedList<BLangMarkdownDocumentationLine> docLineList = new LinkedList<>();
-        BLangMarkdownDocumentationLine docLine =
-                (BLangMarkdownDocumentationLine) TreeBuilder.createMarkdownDocumentationTextNode();
-        for (Token docTok : docStringNode.documentationLines()) {
-            docLine.text = docTok.text();
-            docLineList.add(docLine);
+    private BLangMarkdownDocumentation createMarkdownDocumentationAttachment(Optional<Node> documentationStringNode) {
+        if (!documentationStringNode.isPresent()) {
+            return null;
         }
-        doc.documentationLines = docLineList;
+        BLangMarkdownDocumentation doc = (BLangMarkdownDocumentation) TreeBuilder.createMarkdownDocumentationNode();
+
+        LinkedList<BLangMarkdownDocumentationLine> documentationLines = new LinkedList<>();
+        LinkedList<BLangMarkdownParameterDocumentation> parameters = new LinkedList<>();
+        LinkedList<BLangMarkdownReferenceDocumentation> references = new LinkedList<>();
+
+        NodeList<Token> tokens = ((DocumentationStringNode) documentationStringNode.get()).documentationLines();
+        List<String> previousParamLines = null;
+        StringBuilder threeTickContent = new StringBuilder();
+        boolean needToAppendThreeTickContent = false;
+        boolean inThreeTicks = false;
+        for (Token token : tokens) {
+            String text = token.text();
+            text = text.substring(1);
+
+            if (text.startsWith("\n#")) { // currently parse sends us empty doc lines prepended to non empty ones
+                BLangMarkdownDocumentationLine docLine = (BLangMarkdownDocumentationLine)
+                        TreeBuilder.createMarkdownDocumentationTextNode();
+                docLine.text = "";
+
+                if (needToAppendThreeTickContent) {
+                    documentationLines.getLast().text += threeTickContent.toString();
+                    threeTickContent.setLength(0);
+                    needToAppendThreeTickContent = false;
+                }
+                documentationLines.add(docLine);
+
+                text = text.substring(2);
+            }
+
+            boolean inThreeTicksPreviousLine = inThreeTicks;
+            inThreeTicks = addReferences(text, references, inThreeTicks);
+
+            if (inThreeTicksPreviousLine) {
+                threeTickContent.append(token.leadingMinutiae())
+                                .append(token.text());
+                if (inThreeTicks) {
+                    threeTickContent.append(token.trailingMinutiae());
+                }
+                needToAppendThreeTickContent = true;
+                continue;
+            }
+
+            if (inThreeTicks) { // inThreeTicksPreviousLine == true && inThreeTicks == false means quote just started
+                threeTickContent.setLength(0);
+            }
+
+            if (text.startsWith(" +")) { // '+' indicates a param
+                text = text.substring(2);
+                int nameSeparator = text.indexOf('-'); // '-' is the param separate
+                String value = text.substring(0, nameSeparator).trim();
+
+                if ("return".equals(value)) { // spacial param name to mark return
+                    BLangMarkdownReturnParameterDocumentation returnParameter =
+                            new BLangMarkdownReturnParameterDocumentation();
+                    previousParamLines = returnParameter.returnParameterDocumentationLines;
+                    doc.returnParameter = returnParameter;
+                } else {
+                    BLangMarkdownParameterDocumentation parameterDoc = new BLangMarkdownParameterDocumentation();
+                    previousParamLines = parameterDoc.parameterDocumentationLines;
+                    BLangIdentifier parameterName = new BLangIdentifier();
+                    parameterDoc.parameterName = parameterName;
+                    parameterName.value = value;
+                    parameters.add(parameterDoc);
+                }
+
+                previousParamLines.add(trimLeftAtMostOne(text.substring(nameSeparator + 1)));
+
+            } else if (text.startsWith(" # Deprecated")) {
+                doc.deprecationDocumentation = new BLangMarkDownDeprecationDocumentation();
+            } else if (previousParamLines != null) {
+                previousParamLines.add(trimLeftAtMostOne(text));
+            } else {
+                if (needToAppendThreeTickContent) {
+                    documentationLines.getLast().text += threeTickContent.toString();
+                    threeTickContent.setLength(0);
+                    needToAppendThreeTickContent = false;
+                }
+
+                BLangMarkdownDocumentationLine docLine =
+                        (BLangMarkdownDocumentationLine) TreeBuilder.createMarkdownDocumentationTextNode();
+                docLine.text = trimLeftAtMostOne(text);
+                documentationLines.add(docLine);
+                threeTickContent.append(token.trailingMinutiae());
+            }
+        }
+
+        if (needToAppendThreeTickContent) {
+            documentationLines.getLast().text += threeTickContent.toString();
+        }
+
+        doc.documentationLines = documentationLines;
+        doc.parameters = parameters;
+        doc.references = references;
         return doc;
+    }
+
+    private String trimLeftAtMostOne(String text) {
+        int countToStrip = 0;
+        if (Character.isWhitespace(text.charAt(0))) {
+            countToStrip = 1;
+        }
+        return text.substring(countToStrip);
+    }
+
+    private boolean addReferences(String text, LinkedList<BLangMarkdownReferenceDocumentation> references,
+                                  boolean startsInsideQuotes) {
+//              _
+//             / \ non-tick (in single quote)
+//             v /
+//            --4<----.                 _____
+//      tick /         \non-tick       /     \ non-tick
+//          v     tick  \       tick  v tick  \        tick
+//     .-> 0-------------->1--------->2--------->3-----------------.
+//    /   ^ \                        ^ \                           |
+//    |   | |                        | |                           |
+//    |   \_/non-tick (un-quoted)    \_/non-tick (in double quote) |
+//    \____________________________________________________________/
+//
+// note this state machine is only design to distinguish single tick and double tick quoted string
+// for simplicity are assuming three tick case is just a subset of double tick case
+
+        int length = text.length();
+        int state = startsInsideQuotes ? 2 : 0;
+        int lastWhiteSpace = 0;
+        int secondToLastWhiteSpace = 0;
+
+        //                0  1  2  3  4
+        int[][] table = {{0, 4, 2, 2, 4},  // non-tick
+                         {1, 2, 3, 0, 0}}; // tick
+
+        for (int i = 0; i < length; i++) {
+            char c = text.charAt(i);
+            int isTick = c == '`' ? 1 : 0;
+            int newState = table[isTick][state];
+
+            if (newState == 0 && c == ' ') {
+                secondToLastWhiteSpace = lastWhiteSpace;
+                lastWhiteSpace = i;
+            }
+
+            if (state == 4 && newState == 0) { // we are coming out of a single quoted string
+                BLangMarkdownReferenceDocumentation ref = new BLangMarkdownReferenceDocumentation();
+                ref.type = DocumentationReferenceType.BACKTICK_CONTENT;
+                if (secondToLastWhiteSpace + 1 < lastWhiteSpace) {
+                    ref.type = stringToRefType(text.substring(secondToLastWhiteSpace + 1, lastWhiteSpace));
+                }
+                references.add(ref);
+            }
+            state = newState;
+        }
+        return state == 2 || state == 3;
+    }
+
+    private DocumentationReferenceType stringToRefType(String refTypeName) {
+        for (DocumentationReferenceType type : DocumentationReferenceType.values()) {
+            if (type.getValue().equals(refTypeName)) {
+                return type;
+            }
+        }
+        return DocumentationReferenceType.BACKTICK_CONTENT;
     }
 
     private Object getIntegerLiteral(Node literal, String nodeValue) {

@@ -784,8 +784,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ImportVersionNode importVersionNode) {
         Token versionKeyword =
                 modifyToken(importVersionNode.versionKeyword());
-        Node versionNumber =
-                modifyNode(importVersionNode.versionNumber());
+        NodeList<Node> versionNumber =
+                modifyNodeList(importVersionNode.versionNumber());
         return importVersionNode.modify(
                 versionKeyword,
                 versionNumber);
@@ -794,6 +794,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public SpecificFieldNode transform(
             SpecificFieldNode specificFieldNode) {
+        Token readonlyKeyword =
+                modifyToken(specificFieldNode.readonlyKeyword().orElse(null));
         Token fieldName =
                 modifyToken(specificFieldNode.fieldName());
         Token colon =
@@ -801,6 +803,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         ExpressionNode valueExpr =
                 modifyNode(specificFieldNode.valueExpr());
         return specificFieldNode.modify(
+                readonlyKeyword,
                 fieldName,
                 colon,
                 valueExpr);
@@ -947,7 +950,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         MetadataNode metadata =
                 modifyNode(objectFieldNode.metadata());
         Token visibilityQualifier =
-                modifyToken(objectFieldNode.visibilityQualifier());
+                modifyToken(objectFieldNode.visibilityQualifier().orElse(null));
+        Token readonlyKeyword =
+                modifyToken(objectFieldNode.readonlyKeyword().orElse(null));
         Node typeName =
                 modifyNode(objectFieldNode.typeName());
         Token fieldName =
@@ -961,6 +966,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return objectFieldNode.modify(
                 metadata,
                 visibilityQualifier,
+                readonlyKeyword,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -973,6 +979,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             RecordFieldNode recordFieldNode) {
         MetadataNode metadata =
                 modifyNode(recordFieldNode.metadata());
+        Token readonlyKeyword =
+                modifyToken(recordFieldNode.readonlyKeyword().orElse(null));
         Node typeName =
                 modifyNode(recordFieldNode.typeName());
         Token fieldName =
@@ -983,6 +991,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(recordFieldNode.semicolonToken());
         return recordFieldNode.modify(
                 metadata,
+                readonlyKeyword,
                 typeName,
                 fieldName,
                 questionMarkToken,
@@ -994,6 +1003,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             RecordFieldWithDefaultValueNode recordFieldWithDefaultValueNode) {
         MetadataNode metadata =
                 modifyNode(recordFieldWithDefaultValueNode.metadata());
+        Token readonlyKeyword =
+                modifyToken(recordFieldWithDefaultValueNode.readonlyKeyword().orElse(null));
         Node typeName =
                 modifyNode(recordFieldWithDefaultValueNode.typeName());
         Token fieldName =
@@ -1006,6 +1017,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(recordFieldWithDefaultValueNode.semicolonToken());
         return recordFieldWithDefaultValueNode.modify(
                 metadata,
+                readonlyKeyword,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -1517,7 +1529,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token streamKeywordToken =
                 modifyToken(streamTypeDescriptorNode.streamKeywordToken());
         Node streamTypeParamsNode =
-                modifyNode(streamTypeDescriptorNode.streamTypeParamsNode());
+                modifyNode(streamTypeDescriptorNode.streamTypeParamsNode().orElse(null));
         return streamTypeDescriptorNode.modify(
                 streamKeywordToken,
                 streamTypeParamsNode);
@@ -1531,9 +1543,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Node leftTypeDescNode =
                 modifyNode(streamTypeParamsNode.leftTypeDescNode());
         Token commaToken =
-                modifyToken(streamTypeParamsNode.commaToken());
+                modifyToken(streamTypeParamsNode.commaToken().orElse(null));
         Node rightTypeDescNode =
-                modifyNode(streamTypeParamsNode.rightTypeDescNode());
+                modifyNode(streamTypeParamsNode.rightTypeDescNode().orElse(null));
         Token gtToken =
                 modifyToken(streamTypeParamsNode.gtToken());
         return streamTypeParamsNode.modify(
@@ -2134,26 +2146,26 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public FunctionDeclarationNode transform(
-            FunctionDeclarationNode functionDeclarationNode) {
+    public MethodDeclarationNode transform(
+            MethodDeclarationNode methodDeclarationNode) {
         MetadataNode metadata =
-                modifyNode(functionDeclarationNode.metadata());
+                modifyNode(methodDeclarationNode.metadata());
         Token visibilityQualifier =
-                modifyToken(functionDeclarationNode.visibilityQualifier().orElse(null));
+                modifyToken(methodDeclarationNode.visibilityQualifier().orElse(null));
         Token functionKeyword =
-                modifyToken(functionDeclarationNode.functionKeyword());
-        IdentifierToken functionName =
-                modifyNode(functionDeclarationNode.functionName());
-        FunctionSignatureNode functionSignature =
-                modifyNode(functionDeclarationNode.functionSignature());
+                modifyToken(methodDeclarationNode.functionKeyword());
+        IdentifierToken methodName =
+                modifyNode(methodDeclarationNode.methodName());
+        FunctionSignatureNode methodSignature =
+                modifyNode(methodDeclarationNode.methodSignature());
         Token semicolon =
-                modifyToken(functionDeclarationNode.semicolon());
-        return functionDeclarationNode.modify(
+                modifyToken(methodDeclarationNode.semicolon());
+        return methodDeclarationNode.modify(
                 metadata,
                 visibilityQualifier,
                 functionKeyword,
-                functionName,
-                functionSignature,
+                methodName,
+                methodSignature,
                 semicolon);
     }
 
@@ -2674,6 +2686,66 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 prefix,
                 colon,
                 name);
+    }
+
+    @Override
+    public TypeReferenceTypeDescNode transform(
+            TypeReferenceTypeDescNode typeReferenceTypeDescNode) {
+        NameReferenceNode typeRef =
+                modifyNode(typeReferenceTypeDescNode.typeRef());
+        return typeReferenceTypeDescNode.modify(
+                typeRef);
+    }
+
+    @Override
+    public MatchStatementNode transform(
+            MatchStatementNode matchStatementNode) {
+        Token matchKeyword =
+                modifyToken(matchStatementNode.matchKeyword());
+        ExpressionNode condition =
+                modifyNode(matchStatementNode.condition());
+        Token openBrace =
+                modifyToken(matchStatementNode.openBrace());
+        SeparatedNodeList<MatchClauseNode> matchClauses =
+                modifySeparatedNodeList(matchStatementNode.matchClauses());
+        Token closeBrace =
+                modifyToken(matchStatementNode.closeBrace());
+        return matchStatementNode.modify(
+                matchKeyword,
+                condition,
+                openBrace,
+                matchClauses,
+                closeBrace);
+    }
+
+    @Override
+    public MatchClauseNode transform(
+            MatchClauseNode matchClauseNode) {
+        SeparatedNodeList<Node> matchPatterns =
+                modifySeparatedNodeList(matchClauseNode.matchPatterns());
+        MatchGuardNode matchGuard =
+                modifyNode(matchClauseNode.matchGuard().orElse(null));
+        Token rightDoubleArrow =
+                modifyToken(matchClauseNode.rightDoubleArrow());
+        BlockStatementNode blockStatement =
+                modifyNode(matchClauseNode.blockStatement());
+        return matchClauseNode.modify(
+                matchPatterns,
+                matchGuard,
+                rightDoubleArrow,
+                blockStatement);
+    }
+
+    @Override
+    public MatchGuardNode transform(
+            MatchGuardNode matchGuardNode) {
+        Token ifKeyword =
+                modifyToken(matchGuardNode.ifKeyword());
+        ExpressionNode expression =
+                modifyNode(matchGuardNode.expression());
+        return matchGuardNode.modify(
+                ifKeyword,
+                expression);
     }
 
     // Tokens

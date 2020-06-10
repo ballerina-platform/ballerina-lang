@@ -17,7 +17,6 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.TupleType;
-import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -40,7 +39,7 @@ public class BTupleType extends BType implements TupleType {
     public BType restType;
     private Optional<Boolean> isAnyData = Optional.empty();
 
-    public BTupleType immutableType;
+    public BIntersectionType immutableType;
 
     public BTupleType(List<BType> tupleTypes) {
         super(TypeTags.TUPLE, null);
@@ -109,7 +108,7 @@ public class BTupleType extends BType implements TupleType {
     }
 
     @Override
-    public Type getImmutableType() {
+    public BIntersectionType getImmutableType() {
         return this.immutableType;
     }
 }
