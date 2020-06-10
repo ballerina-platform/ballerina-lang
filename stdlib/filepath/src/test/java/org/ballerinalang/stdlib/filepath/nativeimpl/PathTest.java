@@ -411,6 +411,14 @@ public class PathTest {
         }
     }
 
+    @Test(description = "Test module version compatible")
+    public void testModuleVersionCompatibility() {
+        BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testModuleVersion");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BError) (returns[0])).getMessage(), "module version error", "The module version" +
+                "stated in ballerina.toml file and the version constant is incompatible");
+    }
+
     private void testPathMatch(String pattern, String path, String expected) {
         BValue[] args = {new BString(path), new BString(pattern)};
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testPathMatches", args);

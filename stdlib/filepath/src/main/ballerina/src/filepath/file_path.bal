@@ -31,23 +31,7 @@ string pathListSeparator = isWindows ? ";" : ":";
 #
 # + path - String value of the file path free from potential malicious codes
 # + return - The absolute path reference or else a `filepath:Error` if the path cannot be derived
-public function absolute(@untainted string path) returns string|Error {
-    var result = externAbsolute(java:fromString(path));
-    if (result is Error) {
-        return result;
-    } else {
-        var stringResult = java:toString(result);
-        if (stringResult is string) {
-            return stringResult;
-        } else {
-            Error e = prepareError(GENERIC_ERROR, "Error occurred while retrieving the absolute path.");
-            return e;
-        }
-    }
-}
-
-function externAbsolute(handle path) returns handle|Error =
-@java:Method {
+public function absolute(@untainted string path) returns string|Error = @java:Method {
     name: "absolute",
     class: "org.ballerinalang.stdlib.filepath.nativeimpl.FilePathUtils"
 } external;

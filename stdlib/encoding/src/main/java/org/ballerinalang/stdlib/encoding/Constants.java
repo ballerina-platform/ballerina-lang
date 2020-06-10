@@ -27,8 +27,9 @@ import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PR
  */
 public class Constants {
     private static final String PACKAGE_NAME = "encoding";
-    static final BPackage ENCODING_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME);
-
+    private static final String MODULE_VERSION = "1.0.0";
+    static final BPackage ENCODING_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME,
+                                                             MODULE_VERSION);
     // Error type IDs
     public static final String ENCODING_ERROR = "EncodingError";
     public static final String DECODING_ERROR = "DecodingError";

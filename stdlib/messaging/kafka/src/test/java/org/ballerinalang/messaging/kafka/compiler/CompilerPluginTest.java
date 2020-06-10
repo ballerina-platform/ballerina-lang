@@ -124,7 +124,7 @@ public class CompilerPluginTest {
     }
 
 
-    @Test(description = "Test ballerina consumer with additional properties provided through a map")
+    @Test(description = "Test ballerina consumer with additional properties provided through a map", enabled = false)
     public void testConsumerWithAdditionalProperties() throws ExecutionException, InterruptedException {
         String balFile = "consumer_with_additional_properties.bal";
         String message = "Hello, Ballerina";

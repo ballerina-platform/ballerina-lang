@@ -32,20 +32,19 @@ public class Constants {
     /**
      * Organization name.
      */
-    public static final String ORG_NAME = "ballerina";
+    private static final String ORG_NAME = "ballerina";
 
     /**
      * Package name.
      */
-    public static final String PACKAGE_NAME = "filepath";
+    private static final String PACKAGE_NAME = "filepath";
 
     /**
      * Package path to path package.
      */
     public static final String PACKAGE_PATH = ORG_NAME + ORG_NAME_SEPARATOR + PACKAGE_NAME;
-    public static final BPackage PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME);
-
-    public static final String ERROR_REASON_PREFIX = "{ballerina/filepath}";
+    private static final String MODULE_VERSION = "0.7.0";
+    static final BPackage PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME, MODULE_VERSION);
 
     public static final String FILE_NOT_FOUND_ERROR = "FileNotFoundError";
     public static final String NOT_LINK_ERROR = "NotLinkError";
