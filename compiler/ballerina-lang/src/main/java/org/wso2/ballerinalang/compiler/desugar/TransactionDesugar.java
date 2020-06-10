@@ -214,10 +214,6 @@ public class TransactionDesugar extends BLangNodeVisitor {
         transactionBlockStmt.stmts.add(trxFuncVarDef);
 
         createRollbackIfFailed(transactionNode.pos, transactionBlockStmt, resultSymbol);
-
-        ClosureExpressionVisitor closureExpressionVisitor = new ClosureExpressionVisitor(context, env, true);
-        trxMainFunc.accept(closureExpressionVisitor);
-
         return transactionBlockStmt;
     }
 

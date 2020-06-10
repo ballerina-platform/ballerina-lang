@@ -592,12 +592,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransactionalExpr transactionalExpr) {
-        //TODO Transactions
+
     }
 
     @Override
     public void visit(BLangCommitExpr commitExpr) {
-        //TODO Transactions
+
     }
 
     @Override

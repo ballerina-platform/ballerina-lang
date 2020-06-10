@@ -345,7 +345,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private Desugar(CompilerContext context) {
         // This is a temporary flag to differentiate desugaring to BVM vs BIR
-        // TODO: remove this once bootstraping is added.
+        // TODO: remove this once bootstrapping is added.
         isJvmTarget = true;
 
         context.put(DESUGAR_KEY, this);
@@ -354,7 +354,6 @@ public class Desugar extends BLangNodeVisitor {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.closureDesugar = ClosureDesugar.getInstance(context);
         this.queryDesugar = QueryDesugar.getInstance(context);
-        this.transactionDesugar = TransactionDesugar.getInstance(context);
         this.annotationDesugar = AnnotationDesugar.getInstance(context);
         this.types = Types.getInstance(context);
         this.names = Names.getInstance(context);

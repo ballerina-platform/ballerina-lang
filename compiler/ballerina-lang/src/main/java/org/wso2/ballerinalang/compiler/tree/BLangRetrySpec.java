@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * @since 1.3.0
@@ -59,5 +60,13 @@ public class BLangRetrySpec extends BLangNode implements RetrySpecNode {
     @Override
     public NodeKind getKind() {
         return NodeKind.RETRY_SPEC;
+    }
+
+    @Override
+    public String toString() {
+        StringJoiner stringJoiner = new StringJoiner(",");
+        argExprs.forEach(arg -> stringJoiner.add(arg.toString()));
+        return (retryManagerType != null ? "<" + retryManagerType + ">" : "") +
+                (argExprs.size() > 0 ? "(" + stringJoiner.toString() + ")" : "");
     }
 }
