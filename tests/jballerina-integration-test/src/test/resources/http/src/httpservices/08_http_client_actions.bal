@@ -42,8 +42,7 @@ service backEndService on new http:Listener(9097) {
         if (byteChannel is io:ReadableByteChannel) {
             checkpanic caller->respond(<@untainted> byteChannel);
         } else {
-            error err = byteChannel;
-            checkpanic caller->respond(<@untainted> err.reason());
+            checkpanic caller->respond(<@untainted> byteChannel.message());
         }
     }
 
@@ -61,40 +60,35 @@ service backEndService on new http:Listener(9097) {
                     if (textValue is string) {
                         checkpanic caller->respond(<@untainted> textValue);
                     } else {
-                        error err = textValue;
-                        checkpanic caller->respond(<@untainted string> err.reason());
+                        checkpanic caller->respond(<@untainted> textValue.message());
                     }
                 } else if (mime:APPLICATION_XML == baseType) {
                     var xmlValue = req.getXmlPayload();
                     if (xmlValue is xml) {
                         checkpanic caller->respond(<@untainted> xmlValue);
                     } else {
-                        error err = xmlValue;
-                        checkpanic caller->respond(<@untainted string> err.reason());
+                        checkpanic caller->respond(<@untainted> xmlValue.message());
                     }
                 } else if (mime:APPLICATION_JSON == baseType) {
                     var jsonValue = req.getJsonPayload();
                     if (jsonValue is json) {
                         checkpanic caller->respond(<@untainted> jsonValue);
                     } else {
-                        error err = jsonValue;
-                        checkpanic caller->respond(<@untainted string> err.reason());
+                        checkpanic caller->respond(<@untainted> jsonValue.message());
                     }
                 } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
                     var blobValue = req.getBinaryPayload();
                     if (blobValue is byte[]) {
                         checkpanic caller->respond(<@untainted> blobValue);
                     } else {
-                        error err = blobValue;
-                        checkpanic caller->respond(<@untainted string> err.reason());
+                        checkpanic caller->respond(<@untainted> blobValue.message());
                     }
                 } else if (mime:MULTIPART_FORM_DATA == baseType) {
                     var bodyParts = req.getBodyParts();
                     if (bodyParts is mime:Entity[]) {
                         checkpanic caller->respond(<@untainted> bodyParts);
                     } else {
-                        error err = bodyParts;
-                        checkpanic caller->respond(<@untainted> <string> err.detail()["message"]);
+                        checkpanic caller->respond(<@untainted> bodyParts.message());
                     }
                 }
             } else {
@@ -145,8 +139,7 @@ service testService on new http:Listener(9098) {
             if (result is string) {
                 value = result;
             } else {
-                error err = result;
-                value = err.reason();
+                value = result.message();
             }
         }
 
@@ -157,8 +150,7 @@ service testService on new http:Listener(9098) {
             if (result is string) {
                 value = value + result;
             } else {
-                error err = result;
-                value = value + err.reason();
+                value = value + result.message();
             }
         }
 
@@ -172,8 +164,7 @@ service testService on new http:Listener(9098) {
             if (result is string) {
                 value = value + result;
             } else {
-                error err = result;
-                value = value + err.reason();
+                value = value + result.message();
             }
         }
         checkpanic caller->respond(<@untainted> value);
@@ -192,13 +183,10 @@ service testService on new http:Listener(9098) {
             if (returnValue is string) {
                 value = returnValue;
             } else {
-                error err = returnValue;
-                string? errMsg = <string>err.detail()?.message;
-                value = errMsg is string ? errMsg : "Error in parsing text payload";
+                value = returnValue.message();
             }
         } else  {
-            error err = clientResponse;
-            value = <string>err.reason();
+            value = clientResponse.message();
         }
 
         checkpanic caller->respond(<@untainted> value);
@@ -216,8 +204,7 @@ service testService on new http:Listener(9098) {
             if (result is string) {
                 value = result;
             } else  {
-                error err = result;
-                value = err.reason();
+                value = result.message();
             }
         }
 
@@ -227,8 +214,7 @@ service testService on new http:Listener(9098) {
             if (result is xml) {
                 value = value + (result/*).toString();
             } else {
-                error err = result;
-                value = value + err.reason();
+                value = value + result.message();
             }
         }
 
@@ -238,8 +224,7 @@ service testService on new http:Listener(9098) {
             if (result is json) {
                 value = value + result.toJsonString();
             } else {
-                error err = result;
-                value = value + err.reason();
+                value = value + result.message();
             }
         }
         checkpanic caller->respond(<@untainted> value);
@@ -259,8 +244,7 @@ service testService on new http:Listener(9098) {
             if (result is string) {
                 value = result;
             } else {
-                error err = result;
-                value = err.reason();
+                value = result.message();
             }
         }
         checkpanic caller->respond(<@untainted> value);
@@ -342,16 +326,13 @@ service testService on new http:Listener(9098) {
                 if (result is string) {
                     value = result;
                 } else {
-                    error err = result;
-                    value = err.reason();
+                    value = result.message();
                 }
             } else {
-                error err = res;
-                value = err.reason();
+                value = res.message();
             }
         } else {
-            error err = byteChannel;
-            value = err.reason();
+            value = byteChannel.message();
         }
         checkpanic caller->respond(<@untainted> value);
     }
@@ -381,8 +362,7 @@ service testService on new http:Listener(9098) {
                             if (payload is json) {
                                 value = payload.toJsonString();
                             } else {
-                                error err = payload;
-                                value = err.reason();
+                                value = payload.message();
                             }
                         }
                         if (mime:TEXT_PLAIN == baseType) {
@@ -390,22 +370,18 @@ service testService on new http:Listener(9098) {
                             if (textVal is string) {
                                 value = value + textVal;
                             } else {
-                                error err = textVal;
-                                value = value + <string>err.reason();
+                                value = value + textVal.message();
                             }
                         }
                     } else {
-                        error err = mediaType;
-                        value = value + <string>err.reason();
+                        value = value + mediaType.message();
                     }
                 }
             } else {
-                error err = returnParts;
-                value = err.reason();
+                value = returnParts.message();
             }
         } else {
-            error err = res;
-            value = err.reason();
+            value = res.message();
         }
         checkpanic caller->respond(<@untainted> value);
     }

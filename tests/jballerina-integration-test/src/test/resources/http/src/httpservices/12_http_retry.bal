@@ -52,11 +52,9 @@ service retryDemoService on serviceEndpoint1 {
                 log:printError("Error sending response", responseToCaller);
             }
         } else {
-            error err = backendResponse;
             http:Response response = new;
             response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
-            string? errCause = err.detail()?.message;
-            response.setPayload(errCause is string ? errCause : "Internal server error");
+            response.setPayload(<@untainted> backendResponse.message());
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
                 log:printError("Error sending response", responseToCaller);
@@ -103,7 +101,7 @@ service mockHelloService on serviceEndpoint1 {
                             && bodyPart.getHeader(mime:CONTENT_TYPE).startsWith(http:MULTIPART_AS_PRIMARY_TYPE)) {
                             var nestedParts = bodyPart.getBodyParts();
                             if (nestedParts is error) {
-                                log:printError(<string> nestedParts.detail().message);
+                                log:printError(nestedParts.message());
                                 response.setPayload("Error in decoding nested multiparts!");
                                 response.statusCode = 500;
                             } else {
@@ -122,8 +120,7 @@ service mockHelloService on serviceEndpoint1 {
                     }
                     response.setBodyParts(<@untainted> bodyParts, <@untainted> req.getContentType());
                 } else {
-                    error err = bodyParts;
-                    log:printError(err.reason());
+                    log:printError(bodyParts.message());
                     response.setPayload("Error in decoding multiparts!");
                     response.statusCode = 500;
                 }
