@@ -33,6 +33,7 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
+import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
@@ -314,6 +315,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangNode result;
     private NodeCloner nodeCloner;
     private SemanticAnalyzer semanticAnalyzer;
+    private BLangAnonymousModelHelper anonModelHelper;
     private ResolvedTypeBuilder typeBuilder;
 
     private BLangStatementLink currentLink;
@@ -365,6 +367,7 @@ public class Desugar extends BLangNodeVisitor {
         this.serviceDesugar = ServiceDesugar.getInstance(context);
         this.nodeCloner = NodeCloner.getInstance(context);
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
+        this.anonModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.typeBuilder = new ResolvedTypeBuilder();
     }
 
@@ -420,6 +423,20 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
+    /**
+     * This method synthesizes an initializer method for objects which is responsible for initializing the default
+     * values given to fields. When a user creates a new instance of the object, first, this synthesized initializer is
+     * invoked on the newly created object instance. Then, if there is a user-defined init method (i.e., the init()
+     * method), an method call expression for this init() method is added in the return statement of the synthesized
+     * initializer. When desugaring, the following method adds params and return type for the synthesized initializer by
+     * looking at the params and return type of the user-defined init() method. Therefore, when desugaring object type
+     * nodes, one should always take care to call this method **after** desugaring the init() method (if there is
+     * supposed to be one).
+     *
+     * @param objectTypeNode The object type node for which the initializer is created
+     * @param env            The env for the type node
+     * @return The generated initializer method
+     */
     private BLangFunction createGeneratedInitializerFunction(BLangObjectTypeNode objectTypeNode, SymbolEnv env) {
         BLangFunction generatedInitFunc = createInitFunctionForObjectType(objectTypeNode, env);
         if (objectTypeNode.initFunction == null) {
@@ -430,7 +447,7 @@ public class Desugar extends BLangNodeVisitor {
         BAttachedFunction generatedInitializerFunc =
                 ((BObjectTypeSymbol) objectTypeNode.symbol).generatedInitializerFunc;
         addRequiredParamsToGeneratedInitFunction(objectTypeNode.initFunction, generatedInitFunc,
-                generatedInitializerFunc);
+                                                 generatedInitializerFunc);
         addRestParamsToGeneratedInitFunction(objectTypeNode.initFunction, generatedInitFunc, generatedInitializerFunc);
 
         generatedInitFunc.returnTypeNode = objectTypeNode.initFunction.returnTypeNode;
@@ -2991,8 +3008,8 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     BLangLambdaFunction createLambdaFunction(DiagnosticPos pos, String functionNamePrefix,
-                                                     List<BLangSimpleVariable> lambdaFunctionVariable,
-                                                     TypeNode returnType, BLangFunctionBody lambdaBody) {
+                                             List<BLangSimpleVariable> lambdaFunctionVariable,
+                                             TypeNode returnType, BLangFunctionBody lambdaBody) {
         BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         BLangFunction func = ASTBuilderUtil.createFunction(pos, functionNamePrefix + lambdaFunctionCount++);
         lambdaFunction.function = func;
@@ -4269,68 +4286,157 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     /**
-     * The raw template literal gets desugared to an object value of type object:RawTemplate or a subtype of it,
-     * depending on the contextually expected type. For example, consider the following statement:
+     * The raw template literal gets desugared to a type init expression. For each literal, a new object class type
+     * def is generated from the object type. The type init expression creates an instance of this generated object
+     * type. For example, consider the following statements:
      *      string name = "Pubudu";
      *      'object:RawTemplate rt = `Hello ${name}!`;
      *
-     * The raw template literal above is desugared to the following statement expression:
-     * {
-     *     'object:RawTemplate $template$ = new;
-     *     $template$.strings = ["Hello ", "!"];
-     *     $template$.insertions = [name];
-     *     return $template$;
-     * }
+     * The raw template literal above is desugared to:
+     *      type RawTemplate$Impl$0 object {
+     *          public string[] strings = ["Hello ", "!"];
+     *          public (any|error)[] insertions;
+     *
+     *          function init((any|error)[] insertions) {
+     *              self.insertions = insertions;
+     *          }
+     *      };
+     *
+     *      // somewhere in code
+     *      'object:RawTemplate rt = new RawTemplate$Impl$0([name]);
      *
      * @param rawTemplateLiteral The raw template literal to be desugared.
      */
     @Override
     public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
         DiagnosticPos pos = rawTemplateLiteral.pos;
-        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(pos);
-
-        // RawTemplate $template$ = new;
         BObjectType objType = (BObjectType) rawTemplateLiteral.type;
-        BLangTypeInit typeNewExpr = ASTBuilderUtil.createEmptyTypeInit(pos, objType);
-        BLangSimpleVariableDef objVarDef = createVarDef("$template$", objType, typeNewExpr, pos);
-        BLangSimpleVarRef objVarRef = ASTBuilderUtil.createVariableRef(pos, objVarDef.var.symbol);
-        blockStmt.addStatement(objVarDef);
+        BLangTypeDefinition objClassDef = desugarTemplateLiteralObjectTypedef(rawTemplateLiteral.strings, objType, pos);
+        BObjectType classObjType = (BObjectType) objClassDef.type;
 
-        // $template$.strings = ["hello", "world"];
-        BLangFieldBasedAccess strings = ASTBuilderUtil
-                .createFieldAccessExpr(objVarRef, ASTBuilderUtil.createIdentifier(pos, "strings"));
-        strings.symbol = objType.fields.get("strings").symbol;
-        strings.type = strings.expectedType = strings.originalType = strings.symbol.type;
-        strings.lhsVar = true;
-
-        BLangListConstructorExpr stringsList = ASTBuilderUtil.createEmptyArrayLiteral(pos, strings.type);
-        stringsList.exprs.addAll(rawTemplateLiteral.strings);
-        stringsList.expectedType = strings.type;
-
-        BLangAssignment stringsAssignment = ASTBuilderUtil.createAssignmentStmt(pos, strings, stringsList);
-        blockStmt.addStatement(stringsAssignment);
-
-        // $template$.insertions = [x];
-        BLangFieldBasedAccess insertions = ASTBuilderUtil
-                .createFieldAccessExpr(objVarRef, ASTBuilderUtil.createIdentifier(pos, "insertions"));
-        insertions.symbol = objType.fields.get("insertions").symbol;
-        insertions.type = insertions.expectedType = insertions.originalType = insertions.symbol.type;
-        insertions.lhsVar = true;
-
-        BLangListConstructorExpr insertionsList = ASTBuilderUtil.createEmptyArrayLiteral(pos, insertions.type);
+        BVarSymbol insertionsSym = classObjType.fields.get("insertions").symbol;
+        BLangListConstructorExpr insertionsList = ASTBuilderUtil.createEmptyArrayLiteral(pos, insertionsSym.type);
         insertionsList.exprs.addAll(rawTemplateLiteral.insertions);
-        insertionsList.expectedType = insertions.type;
+        insertionsList.expectedType = insertionsSym.type;
 
-        BLangAssignment insertionsAssignment = ASTBuilderUtil.createAssignmentStmt(pos, insertions, insertionsList);
-        blockStmt.addStatement(insertionsAssignment);
+        // Create an instance of the generated object class
+        BLangTypeInit typeNewExpr = ASTBuilderUtil.createEmptyTypeInit(pos, classObjType);
+        typeNewExpr.argsExpr.add(insertionsList);
+        typeNewExpr.initInvocation.argExprs.add(insertionsList);
+        typeNewExpr.initInvocation.requiredArgs.add(insertionsList);
 
-        // Add it all to a statement expression
-        BLangSimpleVarRef resultVarRef =
-                ASTBuilderUtil.createVariableRef(pos, objVarDef.var.symbol);
-        BLangStatementExpression stmtExpr = createStatementExpression(blockStmt, resultVarRef);
-        stmtExpr.type = resultVarRef.symbol.type;
+        result = rewriteExpr(typeNewExpr);
+    }
 
-        result = rewriteExpr(stmtExpr);
+    /**
+     * This method desugars a raw template literal object class for the provided raw template object type as follows:
+     * A literal defined as 'object:RawTemplate rt = `Hello ${name}!`;
+     * is desugared to,
+     *      type $anonType$0 object {
+     *          public string[] strings = ["Hello ", "!"];
+     *          public (any|error)[] insertions;
+     *
+     *          function init((any|error)[] insertions) {
+     *              self.insertions = insertions;
+     *          }
+     *      };
+     * @param strings    The string portions of the literal
+     * @param objectType The abstract object type for which an object class needs to be generated
+     * @param pos        The diagnostic position info for the type node
+     * @return Returns the generated concrete object class def
+     */
+    private BLangTypeDefinition desugarTemplateLiteralObjectTypedef(List<BLangLiteral> strings, BObjectType objectType,
+                                                                    DiagnosticPos pos) {
+        // TODO: Use the anon model helper to generate the object name?
+        BObjectTypeSymbol tSymbol = (BObjectTypeSymbol) objectType.tsymbol;
+        Name objectClassName = names.fromString(anonModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
+        final int updatedFlags = Flags.unset(tSymbol.flags, Flags.ABSTRACT);
+        BObjectTypeSymbol classTSymbol = (BObjectTypeSymbol) Symbols
+                .createObjectSymbol(updatedFlags, objectClassName, env.enclPkg.packageID, null,
+                                    env.enclPkg.symbol);
+
+        // Create a new concrete, class type for the provided abstract object type
+        BObjectType objectClassType = new BObjectType(classTSymbol, updatedFlags);
+        objectClassType.fields = objectType.fields;
+        classTSymbol.type = objectClassType;
+
+        // Create a new object type node and a type def from the concrete class type
+        BLangObjectTypeNode objectClassNode = TypeDefBuilderHelper.createObjectTypeNode(objectClassType, pos);
+        BLangTypeDefinition typeDef = TypeDefBuilderHelper.addTypeDefinition(objectClassType, objectClassType.tsymbol,
+                                                                             objectClassNode, env);
+        typeDef.name = ASTBuilderUtil.createIdentifier(pos, objectClassType.tsymbol.name.value);
+        typeDef.pos = pos;
+
+        // Create a list constructor expr for the strings field. This gets assigned to the corresponding field in the
+        // object since this needs to be initialized in the generated init method.
+        BType stringsType = objectClassType.fields.get("strings").symbol.type;
+        BLangListConstructorExpr stringsList = ASTBuilderUtil.createEmptyArrayLiteral(pos, stringsType);
+        stringsList.exprs.addAll(strings);
+        stringsList.expectedType = stringsType;
+        objectClassNode.fields.get(0).expr = stringsList;
+
+        // Create the init() method
+        BLangFunction userDefinedInitFunction = createUserDefinedObjectInitFn(objectClassNode, env);
+        objectClassNode.initFunction = userDefinedInitFunction;
+        env.enclPkg.functions.add(userDefinedInitFunction);
+        env.enclPkg.topLevelNodes.add(userDefinedInitFunction);
+
+        // Create the initializer method for initializing default values
+        BLangFunction tempGeneratedInitFunction = createGeneratedInitializerFunction(objectClassNode, env);
+        tempGeneratedInitFunction.clonedEnv = SymbolEnv.createFunctionEnv(tempGeneratedInitFunction,
+                                                                          tempGeneratedInitFunction.symbol.scope, env);
+        this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, env);
+        objectClassNode.generatedInitFunction = tempGeneratedInitFunction;
+        env.enclPkg.functions.add(objectClassNode.generatedInitFunction);
+        env.enclPkg.topLevelNodes.add(objectClassNode.generatedInitFunction);
+
+        return rewrite(typeDef, env);
+    }
+
+    /**
+     * Creates a user-defined init() method for the provided object type node. If there are fields without default
+     * values specified in the type node, this will add parameters for those fields in the init() method and assign the
+     * param values to the respective fields in the method body.
+     *
+     * @param objectTypeNode The object type node for which the init() method is generated
+     * @param env            The symbol env for the object type node
+     * @return The generated init() method
+     */
+    private BLangFunction createUserDefinedObjectInitFn(BLangObjectTypeNode objectTypeNode, SymbolEnv env) {
+        BLangFunction initFunction =
+                TypeDefBuilderHelper.createInitFunctionForStructureType(objectTypeNode, env,
+                                                                        Names.USER_DEFINED_INIT_SUFFIX, names,
+                                                                        symTable);
+        BObjectTypeSymbol typeSymbol = ((BObjectTypeSymbol) objectTypeNode.type.tsymbol);
+        typeSymbol.initializerFunc = new BAttachedFunction(Names.USER_DEFINED_INIT_SUFFIX, initFunction.symbol,
+                                                           (BInvokableType) initFunction.type);
+        objectTypeNode.initFunction = initFunction;
+        initFunction.returnTypeNode.type = symTable.nilType;
+
+        BLangBlockFunctionBody initFuncBody = (BLangBlockFunctionBody) initFunction.body;
+        BInvokableType initFnType = (BInvokableType) initFunction.type;
+        for (BLangSimpleVariable field : objectTypeNode.fields) {
+            if (field.expr != null) {
+                continue;
+            }
+            BVarSymbol fieldSym = field.symbol;
+            BVarSymbol paramSym = new BVarSymbol(Flags.FINAL, fieldSym.name, this.env.scope.owner.pkgID, fieldSym.type,
+                                                 initFunction.symbol);
+            BLangSimpleVariable param = ASTBuilderUtil.createVariable(objectTypeNode.pos, fieldSym.name.value,
+                                                                      fieldSym.type, null, paramSym);
+            param.flagSet.add(Flag.FINAL);
+            initFunction.symbol.scope.define(paramSym.name, paramSym);
+            initFunction.symbol.params.add(paramSym);
+            initFnType.paramTypes.add(param.type);
+            initFunction.requiredParams.add(param);
+
+            BLangSimpleVarRef paramRef = ASTBuilderUtil.createVariableRef(initFunction.pos, paramSym);
+            BLangAssignment fieldInit = createStructFieldUpdate(initFunction, paramRef, fieldSym, field.type,
+                                                                initFunction.receiver.symbol, field.name);
+            initFuncBody.addStatement(fieldInit);
+        }
+
+        return initFunction;
     }
 
     @Override
@@ -5946,17 +6052,24 @@ public class Desugar extends BLangNodeVisitor {
         return assignmentStmt;
     }
 
-    private BLangAssignment createStructFieldUpdateOnInit(BLangFunction function, BLangSimpleVariable variable,
-                                                          BVarSymbol symbol) {
-        BLangSimpleVarRef selfVarRef = ASTBuilderUtil.createVariableRef(variable.pos, symbol);
-        BLangFieldBasedAccess fieldAccess = ASTBuilderUtil.createFieldAccessExpr(selfVarRef, variable.name);
-        fieldAccess.symbol = variable.symbol;
-        fieldAccess.type = variable.type;
+    private BLangAssignment createStructFieldUpdate(BLangFunction function, BLangSimpleVariable variable,
+                                                    BVarSymbol selfSymbol) {
+        return createStructFieldUpdate(function, variable.expr, variable.symbol, variable.type, selfSymbol,
+                                       variable.name);
+    }
+
+    private BLangAssignment createStructFieldUpdate(BLangFunction function, BLangExpression expr,
+                                                    BVarSymbol fieldSymbol, BType fieldType, BVarSymbol selfSymbol,
+                                                    BLangIdentifier fieldName) {
+        BLangSimpleVarRef selfVarRef = ASTBuilderUtil.createVariableRef(function.pos, selfSymbol);
+        BLangFieldBasedAccess fieldAccess = ASTBuilderUtil.createFieldAccessExpr(selfVarRef, fieldName);
+        fieldAccess.symbol = fieldSymbol;
+        fieldAccess.type = fieldType;
         fieldAccess.isStoreOnCreation = true;
 
         BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
-        assignmentStmt.expr = variable.expr;
-        assignmentStmt.pos = variable.pos;
+        assignmentStmt.expr = expr;
+        assignmentStmt.pos = function.pos;
         assignmentStmt.setVariable(fieldAccess);
 
         SymbolEnv initFuncEnv = SymbolEnv.createFunctionEnv(function, function.symbol.scope, env);
