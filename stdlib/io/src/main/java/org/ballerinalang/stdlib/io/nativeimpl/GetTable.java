@@ -18,6 +18,7 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
+import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BStructureType;
@@ -79,13 +80,13 @@ public class GetTable {
 
     private static TableValue getTable(TypedescValue typedescValue, List<String[]> records) {
         BType describingType = typedescValue.getDescribingType();
-        BTableType newTableType = new BTableType(describingType, false, null);
+        BTableType newTableType = new BTableType(describingType, false);
         TableValue table = new TableValueImpl(newTableType);
         BStructureType structType = (BStructureType) describingType;
         for (String[] fields : records) {
             final MapValueImpl<String, Object> struct = getStruct(fields, structType);
             if (struct != null) {
-                table.add(struct);
+                table.add(BallerinaValues.createRecordValue(describingType.getPackage(), describingType.getName(), struct));
             }
         }
         return table;
