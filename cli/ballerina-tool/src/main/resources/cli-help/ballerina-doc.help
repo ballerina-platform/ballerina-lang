@@ -4,7 +4,8 @@ NAME
 SYNOPSIS
        ballerina doc [<options>] <module-name>
        ballerina doc -a | --all [<options>]
-
+       ballerina doc -a | <module-name> -toJSON | --toJSON
+       ballerina doc -fromJSON | --fromJSON [path to json]
 
 DESCRIPTION
        Doc builds documentation for a given module or a ballerina file.
@@ -14,6 +15,11 @@ DESCRIPTION
 
        This command writes the module documentation to the 'target/apidocs'
        directory inside the project.
+
+       Using the -toJSON option will create a JSON containing all the data
+       used to generate the documentation.
+
+       The command -fromJSON generates documentation using the specified JSON.
 
 
 
@@ -35,6 +41,15 @@ OPTIONS
        -a, --all
            Build documentation for all the modules of a project.
 
+       -toJSON, --toJSON
+           Generates a JSON containing all the documentation data.
+
+       -fromJSON, --fromJSON
+           Generates documentation from a specified JSON.
+
+       -excludeIndex, --excludeIndex
+           Prevents project index from being generated.
+
 
 EXAMPLES
        Generate API documentation for all modules in the current project.
@@ -42,3 +57,9 @@ EXAMPLES
 
        Generate API documentation for a single module.
           $ ballerina doc hello
+
+       Generate a JSON containing all API documentation data.
+          $ ballerina doc -a -toJSON
+
+       Generate API documentation using a JSON.
+          $ ballerina doc -fromJSON target/apidocs/api-doc-data.json
