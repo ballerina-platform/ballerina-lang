@@ -214,7 +214,7 @@ public abstract class AbstractParserErrorHandler {
         this.errorListener.reportMissingTokenError(currentToken, diagnosticCode);
     }
 
-    public STNode addDiagnostics(STNode node, DiagnosticCode... diagnosticCodes) {
+    public <T extends STNode> T addDiagnostics(T node, DiagnosticCode... diagnosticCodes) {
         Collection<STNodeDiagnostic> diagnosticsToAdd = new ArrayList<>();
         for (DiagnosticCode diagnosticCode : diagnosticCodes) {
             diagnosticsToAdd.add(new STNodeDiagnostic(diagnosticCode));
@@ -222,7 +222,7 @@ public abstract class AbstractParserErrorHandler {
         return addDiagnostics(node, diagnosticsToAdd);
     }
 
-    private STNode addDiagnostics(STNode node, Collection<STNodeDiagnostic> diagnosticsToAdd) {
+    private <T extends STNode> T addDiagnostics(T node, Collection<STNodeDiagnostic> diagnosticsToAdd) {
         if (diagnosticsToAdd.isEmpty()) {
             return node;
         }
@@ -236,7 +236,7 @@ public abstract class AbstractParserErrorHandler {
             newDiagnostics = new ArrayList<>(oldDiagnostics);
             newDiagnostics.addAll(diagnosticsToAdd);
         }
-        return node.modifyWith(newDiagnostics);
+        return (T) node.modifyWith(newDiagnostics);
     }
 
     public STToken createMissingToken(SyntaxKind expectedKind) {
@@ -376,22 +376,44 @@ public abstract class AbstractParserErrorHandler {
      */
     protected STNode cloneWithLeadingInvalidNodeMinutiae(STNode toClone, STNode invalidNode) {
         STToken firstToken = toClone.firstToken();
-        STToken firstTokenWithInvalidNodeMinutiae = cloneWithLeadingInvalidNodeMinutiae(firstToken, invalidNode);
+        STToken firstTokenWithInvalidNodeMinutiae = cloneWithLeadingInvalidNodeMinutiae(firstToken,
+                invalidNode, new DiagnosticCode[0]);
+        return toClone.replace(firstToken, firstTokenWithInvalidNodeMinutiae);
+    }
+
+    /**
+     * Clone the given {@code STNode} with the invalid node as leading minutiae.
+     *
+     * @param toClone         the node to be cloned
+     * @param invalidNode     the invalid
+     * @param diagnosticCodes the list of diagnostics to be added
+     * @return a cloned node with the given invalidNode minutiae
+     */
+    protected STNode cloneWithLeadingInvalidNodeMinutiae(STNode toClone,
+                                                         STNode invalidNode,
+                                                         DiagnosticCode... diagnosticCodes) {
+        STToken firstToken = toClone.firstToken();
+        STToken firstTokenWithInvalidNodeMinutiae = cloneWithLeadingInvalidNodeMinutiae(firstToken,
+                invalidNode, diagnosticCodes);
         return toClone.replace(firstToken, firstTokenWithInvalidNodeMinutiae);
     }
 
     /**
      * Clone the given {@code STToken} with the invalid node as leading minutiae.
      *
-     * @param toClone     the token to be cloned
-     * @param invalidNode the invalid
+     * @param toClone         the token to be cloned
+     * @param invalidNode     the invalid
+     * @param diagnosticCodes the list of diagnostics to be added
      * @return a cloned token with the given invalidNode minutiae
      */
-    protected STToken cloneWithLeadingInvalidNodeMinutiae(STToken toClone, STNode invalidNode) {
+    protected STToken cloneWithLeadingInvalidNodeMinutiae(STToken toClone,
+                                                          STNode invalidNode,
+                                                          DiagnosticCode... diagnosticCodes) {
         STNode invalidNodeMinutiae = STNodeFactory.createInvalidNodeMinutiae(invalidNode);
         STNodeList leadingMinutiae = (STNodeList) toClone.leadingMinutiae();
         leadingMinutiae = leadingMinutiae.add(0, invalidNodeMinutiae);
-        return toClone.modifyWith(leadingMinutiae, toClone.trailingMinutiae());
+        STToken cloned = toClone.modifyWith(leadingMinutiae, toClone.trailingMinutiae());
+        return addDiagnostics(cloned, diagnosticCodes);
     }
 
     /**
@@ -403,22 +425,44 @@ public abstract class AbstractParserErrorHandler {
      */
     protected STNode cloneWithTrailingInvalidNodeMinutiae(STNode toClone, STNode invalidNode) {
         STToken lastToken = toClone.lastToken();
-        STToken lastTokenWithInvalidNodeMinutiae = cloneWithTrailingInvalidNodeMinutiae(lastToken, invalidNode);
+        STToken lastTokenWithInvalidNodeMinutiae = cloneWithTrailingInvalidNodeMinutiae(lastToken,
+                invalidNode, new DiagnosticCode[0]);
+        return toClone.replace(lastToken, lastTokenWithInvalidNodeMinutiae);
+    }
+
+    /**
+     * Clone the given {@code STNode} with the invalid node as trailing minutiae.
+     *
+     * @param toClone         the node to be cloned
+     * @param invalidNode     the invalid
+     * @param diagnosticCodes the list of diagnostics to be added
+     * @return a cloned node with the given invalidNode minutiae
+     */
+    protected STNode cloneWithTrailingInvalidNodeMinutiae(STNode toClone,
+                                                          STNode invalidNode,
+                                                          DiagnosticCode... diagnosticCodes) {
+        STToken lastToken = toClone.lastToken();
+        STToken lastTokenWithInvalidNodeMinutiae = cloneWithTrailingInvalidNodeMinutiae(lastToken,
+                invalidNode, diagnosticCodes);
         return toClone.replace(lastToken, lastTokenWithInvalidNodeMinutiae);
     }
 
     /**
      * Clone the given {@code STToken} with the invalid node as trailing minutiae.
      *
-     * @param toClone     the token to be cloned
-     * @param invalidNode the invalid
+     * @param toClone         the token to be cloned
+     * @param invalidNode     the invalid
+     * @param diagnosticCodes the list of diagnostics to be added
      * @return a cloned token with the given invalidNode minutiae
      */
-    protected STToken cloneWithTrailingInvalidNodeMinutiae(STToken toClone, STNode invalidNode) {
+    protected STToken cloneWithTrailingInvalidNodeMinutiae(STToken toClone,
+                                                           STNode invalidNode,
+                                                           DiagnosticCode... diagnosticCodes) {
         STNode invalidNodeMinutiae = STNodeFactory.createInvalidNodeMinutiae(invalidNode);
         STNodeList trailingMinutiae = (STNodeList) toClone.trailingMinutiae();
         trailingMinutiae = trailingMinutiae.add(invalidNodeMinutiae);
-        return toClone.modifyWith(toClone.leadingMinutiae(), trailingMinutiae);
+        STToken cloned = toClone.modifyWith(toClone.leadingMinutiae(), trailingMinutiae);
+        return addDiagnostics(cloned, diagnosticCodes);
     }
 
     protected ParserRuleContext getParentContext() {
