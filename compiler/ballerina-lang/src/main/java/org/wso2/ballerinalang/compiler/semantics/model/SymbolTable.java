@@ -183,6 +183,7 @@ public class SymbolTable {
 
     private Names names;
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
+    public Map<Name, BPackageSymbol> predeclaredModules = new HashMap<>();
 
     public static SymbolTable getInstance(CompilerContext context) {
         SymbolTable symTable = context.get(SYM_TABLE_KEY);
@@ -338,6 +339,12 @@ public class SymbolTable {
                 return this.xmlTextType;
         }
         throw new IllegalStateException("LangLib Subtype not found: " + name);
+    }
+
+    public void loadPredeclaredModules() {
+        this.predeclaredModules.put(Names.ERROR, this.langErrorModuleSymbol);
+        this.predeclaredModules.put(Names.OBJECT, this.langObjectModuleSymbol);
+        this.predeclaredModules.put(Names.XML, this.langXmlModuleSymbol);
     }
 
     private void initializeType(BType type, String name) {

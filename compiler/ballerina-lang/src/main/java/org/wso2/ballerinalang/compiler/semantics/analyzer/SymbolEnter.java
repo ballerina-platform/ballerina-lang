@@ -115,6 +115,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -153,6 +154,7 @@ import static org.ballerinalang.model.elements.PackageID.VALUE;
 import static org.ballerinalang.model.elements.PackageID.XML;
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
 import static org.ballerinalang.util.diagnostic.DiagnosticCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM;
+import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
 /**
  * @since 0.94
@@ -305,7 +307,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 pkgEnv.scope.define(unresolvedPkgAlias, symbol);
             }
         }
-
+        initPredeclaredModules(symTable.predeclaredModules, pkgEnv);
         // Define type definitions.
         this.typePrecedence = 0;
 
@@ -521,6 +523,25 @@ public class SymbolEnter extends BLangNodeVisitor {
         symbol.scope = pkgSymbol.scope;
         importPkgNode.symbol = symbol;
         this.env.scope.define(pkgAlias, symbol);
+    }
+
+    public void initPredeclaredModules(Map<Name, BPackageSymbol> predeclaredModules, SymbolEnv env) {
+        SymbolEnv prevEnv = this.env;
+        this.env = env;
+        for (Name alias : predeclaredModules.keySet()) {
+            ScopeEntry entry = this.env.scope.lookup(alias);
+            if (predeclaredModules.get(alias) != null) {
+                if (entry == NOT_FOUND_ENTRY) {
+                    this.env.scope.define(alias, predeclaredModules.get(alias));
+                } else {
+                    while (entry.next != NOT_FOUND_ENTRY) {
+                        entry = entry.next;
+                    }
+                    entry.next = new ScopeEntry(predeclaredModules.get(alias), NOT_FOUND_ENTRY);
+                }
+            }
+        }
+        this.env = prevEnv;
     }
 
     @Override
