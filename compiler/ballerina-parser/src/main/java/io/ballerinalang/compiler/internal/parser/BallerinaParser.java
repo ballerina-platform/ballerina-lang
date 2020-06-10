@@ -591,7 +591,7 @@ public class BallerinaParser extends AbstractParser {
         STNode metadata;
         switch (tokenKind) {
             case EOF_TOKEN:
-                return consume();
+                return null;
             case DOCUMENTATION_LINE:
             case AT_TOKEN:
                 metadata = parseMetaData(tokenKind);

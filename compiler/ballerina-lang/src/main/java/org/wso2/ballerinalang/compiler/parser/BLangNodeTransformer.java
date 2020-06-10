@@ -159,6 +159,7 @@ import io.ballerinalang.compiler.syntax.tree.XMLElementNode;
 import io.ballerinalang.compiler.syntax.tree.XMLEmptyElementNode;
 import io.ballerinalang.compiler.syntax.tree.XMLEndTagNode;
 import io.ballerinalang.compiler.syntax.tree.XMLFilterExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.XMLNameNode;
 import io.ballerinalang.compiler.syntax.tree.XMLNamePatternChainingNode;
 import io.ballerinalang.compiler.syntax.tree.XMLNamespaceDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.XMLProcessingInstruction;
@@ -911,6 +912,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         } else {
             simpleVar.flagSet.add(Flag.REQUIRED);
         }
+
+        if (recordFieldNode.readonlyKeyword().isPresent()) {
+            simpleVar.flagSet.add(Flag.READONLY);
+        }
+
         simpleVar.pos = getPosition(recordFieldNode);
         return simpleVar;
     }
@@ -2200,7 +2206,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         for (Node dataNode : xmlProcessingInstruction.data()) {
             xmlProcInsLiteral.dataFragments.add(createExpression(dataNode));
         }
-        xmlProcInsLiteral.target = (BLangLiteral) xmlProcessingInstruction.target().apply(this);
+
+        XMLNameNode target = xmlProcessingInstruction.target();
+        if (target.kind() == SyntaxKind.XML_SIMPLE_NAME) {
+            xmlProcInsLiteral.target = createSimpleLiteral(((XMLSimpleNameNode) target).name());
+        } else {
+            // this could be a bug in the old parser
+            xmlProcInsLiteral.target = createSimpleLiteral(((XMLQualifiedNameNode) target).prefix());
+        }
+
         return xmlProcInsLiteral;
     }
 
