@@ -34,6 +34,7 @@ import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.CompoundAssignmentStatementNode;
+import io.ballerinalang.compiler.syntax.tree.ComputedNameFieldNode;
 import io.ballerinalang.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ContinueStatementNode;
@@ -240,6 +241,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParam
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordSpreadOperatorField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
@@ -1408,6 +1410,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                         (BLangRecordSpreadOperatorField) TreeBuilder.createRecordSpreadOperatorField();
                 bLRecordSpreadOpField.expr = createExpression(spreadFieldNode.valueExpr());
                 bLiteralNode.fields.add(bLRecordSpreadOpField);
+            } else if (field.kind() == SyntaxKind.COMPUTED_NAME_FIELD) {
+                ComputedNameFieldNode computedNameField = (ComputedNameFieldNode) field;
+                BLangRecordKeyValueField bLRecordKeyValueField =
+                        (BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
+                bLRecordKeyValueField.valueExpr = createExpression(computedNameField.valueExpr());
+                bLRecordKeyValueField.key =
+                        new BLangRecordLiteral.BLangRecordKey(createExpression(computedNameField.fieldNameExpr()));
+                bLRecordKeyValueField.key.computedKey = true;
+                bLiteralNode.fields.add(bLRecordKeyValueField);
             } else {
                 SpecificFieldNode specificField = (SpecificFieldNode) field;
                 io.ballerinalang.compiler.syntax.tree.ExpressionNode valueExpr = specificField.valueExpr();
