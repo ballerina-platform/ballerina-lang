@@ -37,7 +37,7 @@ public final class Constants {
     public static final String CONNECTOR_ID_KEY = UUID.randomUUID().toString();
 
     public static final String BATCH_EXECUTE_ERROR_DATA = "BatchExecuteErrorData";
-    public static final String BATCH_EXECUTE_ERROR_CODE = "{ballerina/sql}BatchExecuteError";
+    public static final String BATCH_EXECUTE_ERROR = "BatchExecuteError";
 
     public static final String DATABASE_ERROR_DETAILS = "DatabaseErrorDetail";
     public static final String DATABASE_ERROR = "DatabaseError";

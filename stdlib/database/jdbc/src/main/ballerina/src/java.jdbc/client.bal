@@ -105,13 +105,12 @@ public type Client client object {
     public remote function batchExecute(sql:ParameterizedString[] sqlQueries, boolean rollbackInFailure = false)
                                                                                 returns sql:ExecutionResult[]|sql:Error? {
         if (sqlQueries.length() == 0) {
-            return sql:ApplicationError( message = " Parameter 'sqlQueries' cannot be empty array");
+            return sql:ApplicationError(" Parameter 'sqlQueries' cannot be empty array");
         }
         if (self.clientActive) {
             return nativeBatchExecute(self, sqlQueries, rollbackInFailure);
         } else {
-            return sql:ApplicationError( message = "JDBC Client is already closed,"
-                + " hence further operations are not allowed");
+            return sql:ApplicationError("JDBC Client is already closed, hence further operations are not allowed");
         }
     }
 

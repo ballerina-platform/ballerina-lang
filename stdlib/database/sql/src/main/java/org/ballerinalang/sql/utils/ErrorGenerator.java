@@ -69,7 +69,6 @@ public class ErrorGenerator {
     private static ErrorValue getSQLBatchExecuteError(String message, int vendorCode, String sqlState,
                                                       List<MapValue<BString, Object>> executionResults) {
         Map<String, Object> valueMap = new HashMap<>();
-        valueMap.put(Constants.ErrorRecordFields.MESSAGE, message);
         valueMap.put(Constants.ErrorRecordFields.ERROR_CODE, vendorCode);
         valueMap.put(Constants.ErrorRecordFields.SQL_STATE, sqlState);
         valueMap.put(Constants.ErrorRecordFields.EXECUTION_RESULTS,
@@ -78,7 +77,8 @@ public class ErrorGenerator {
 
         MapValue<BString, Object> sqlClientErrorDetailRecord = BallerinaValues.
                 createRecordValue(Constants.SQL_PACKAGE_ID, Constants.BATCH_EXECUTE_ERROR_DATA, valueMap);
-        return BallerinaErrors.createError(Constants.BATCH_EXECUTE_ERROR_CODE, sqlClientErrorDetailRecord);
+        return BallerinaErrors.createDistinctError(Constants.BATCH_EXECUTE_ERROR, Constants.SQL_PACKAGE_ID,
+                message, sqlClientErrorDetailRecord);
     }
 
     private static ErrorValue getSQLDatabaseError(String message, int vendorCode, String sqlState) {

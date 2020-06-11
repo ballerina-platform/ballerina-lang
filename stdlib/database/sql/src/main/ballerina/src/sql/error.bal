@@ -45,7 +45,7 @@ public type DatabaseErrorDetail record {|
 public type DatabaseError distinct error<DatabaseErrorDetail>;
 
 # Represents an error occured when a batch execution is running.
-public type BatchExecuteError error<BATCH_EXECUTE_ERROR_REASON, BatchExecuteErrorData>;
+public type BatchExecuteError distinct error<BatchExecuteErrorData>;
 
 # Represents an error originating from application-level causes.
 public type ApplicationError distinct error;
