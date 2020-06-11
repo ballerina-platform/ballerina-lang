@@ -1558,10 +1558,10 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STQueryConstructTypeNode transform(
             STQueryConstructTypeNode queryConstructTypeNode) {
-        STNode tableKeyword = modifyNode(queryConstructTypeNode.tableKeyword);
+        STNode keyword = modifyNode(queryConstructTypeNode.keyword);
         STNode keySpecifier = modifyNode(queryConstructTypeNode.keySpecifier);
         return queryConstructTypeNode.modify(
-                tableKeyword,
+                keyword,
                 keySpecifier);
     }
 

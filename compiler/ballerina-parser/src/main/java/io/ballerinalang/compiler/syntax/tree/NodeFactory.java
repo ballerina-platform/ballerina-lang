@@ -1941,14 +1941,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static QueryConstructTypeNode createQueryConstructTypeNode(
-            Token tableKeyword,
+            Token keyword,
             KeySpecifierNode keySpecifier) {
-        Objects.requireNonNull(tableKeyword, "tableKeyword must not be null");
-        Objects.requireNonNull(keySpecifier, "keySpecifier must not be null");
+        Objects.requireNonNull(keyword, "keyword must not be null");
 
         STNode stQueryConstructTypeNode = STNodeFactory.createQueryConstructTypeNode(
-                tableKeyword.internalNode(),
-                keySpecifier.internalNode());
+                keyword.internalNode(),
+                getOptionalSTNode(keySpecifier));
         return stQueryConstructTypeNode.createUnlinkedFacade();
     }
 

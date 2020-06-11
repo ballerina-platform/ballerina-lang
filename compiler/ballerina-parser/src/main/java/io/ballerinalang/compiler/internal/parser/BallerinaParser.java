@@ -9652,7 +9652,7 @@ public class BallerinaParser extends AbstractParser {
                 queryConstructType = STNodeFactory.createEmptyNode();
                 return parseQueryExprRhs(queryConstructType, isRhsExpr);
             case STREAM_KEYWORD:
-                queryConstructType = parseStreamKeyword();
+                queryConstructType = parseQueryConstructType(parseStreamKeyword(), null);
                 return parseQueryExprRhs(queryConstructType, isRhsExpr);
             case TABLE_KEYWORD:
                 STNode tableKeyword = parseTableKeyword();
@@ -9736,12 +9736,12 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse query construct type.
      * <p>
-     * <code>query-construct-type := table key-specifier</code>
+     * <code>query-construct-type := table key-specifier | stream</code>
      *
      * @return Parsed node
      */
-    private STNode parseQueryConstructType(STNode tableKeyword, STNode keySpecifier) {
-        return STNodeFactory.createQueryConstructTypeNode(tableKeyword, keySpecifier);
+    private STNode parseQueryConstructType(STNode keyword, STNode keySpecifier) {
+        return STNodeFactory.createQueryConstructTypeNode(keyword, keySpecifier);
     }
 
     /**
