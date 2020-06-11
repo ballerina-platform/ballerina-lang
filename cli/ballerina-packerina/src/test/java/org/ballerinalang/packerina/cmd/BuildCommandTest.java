@@ -764,7 +764,8 @@ public class BuildCommandTest extends CommandTest {
     public void testBuildCommandSingleFileWithOutput() throws IOException {
         // Build the project
         String[] compileArgs = {"-osample.jar", "hello_world.bal"};
-        BuildCommand buildCommand = new BuildCommand(this.testResources.resolve("valid-bal-file"), printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(this.testResources.resolve("valid-bal-file"), printStream,
+                printStream, false, true);
         new CommandLine(buildCommand).parse(compileArgs);
         buildCommand.execute();
         readOutput();
@@ -782,7 +783,8 @@ public class BuildCommandTest extends CommandTest {
     public void testBuildWithSkipTests() throws IOException {
         // valid source root path where the project contains test bal files with compilation errors
         Path projectWithTestErrors = this.testResources.resolve("project-with-test-errors");
-        BuildCommand buildCommand = new BuildCommand(projectWithTestErrors, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(projectWithTestErrors, printStream, printStream,
+                false, true);
         new CommandLine(buildCommand).parse("--skip-tests", "-a");
         buildCommand.execute();
 

@@ -96,7 +96,7 @@ public class NativePackagingTestCase extends BaseTest {
         String module1BaloFileName = module1Name + "-"
                                      + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
                                      + ProgramFileConstants.SUPPORTED_PLATFORMS[0]
-                                     +"-"
+                                     + "-"
                                      + "0.7.2"
                                      + BLANG_COMPILED_PKG_BINARY_EXT;
         
