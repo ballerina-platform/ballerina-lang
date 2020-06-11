@@ -295,9 +295,13 @@ public class ParserTestUtils {
                                            String minutiaeDirection) {
         assertNodeKind(minutiaeJson, minutiaeNode);
         switch (minutiaeNode.kind) {
-            case WHITESPACE_MINUTIAE:
             case END_OF_LINE_MINUTIAE:
+                Assert.assertEquals(cleanupText(minutiaeNode.text()), minutiaeJson.get(VALUE_FIELD).getAsString(),
+                        "mismatch in " + minutiaeDirection + " minutiae value(" +
+                                minutiaeNode.kind + ") in token '" + token + "'");
+                break;
             case COMMENT_MINUTIAE:
+            case WHITESPACE_MINUTIAE:
                 Assert.assertEquals(minutiaeNode.text(), minutiaeJson.get(VALUE_FIELD).getAsString(),
                         "mismatch in " + minutiaeDirection + " minutiae value(" +
                                 minutiaeNode.kind + ") in token '" + token + "'");
