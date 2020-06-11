@@ -17,20 +17,24 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
+import io.ballerinalang.compiler.internal.diagnostics.DiagnosticCode;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
  * An abstract lexer to be extended by all ballerina lexer implementations.
- * 
+ *
  * @since 2.0.0
  */
 public abstract class AbstractLexer {
 
     protected List<STNode> leadingTriviaList;
+    private Collection<DiagnosticCode> diagnostics = new ArrayList<>();
     protected CharReader reader;
     protected ParserMode mode;
     protected ArrayDeque<ParserMode> modeStack = new ArrayDeque<>();
@@ -74,5 +78,21 @@ public abstract class AbstractLexer {
     public void endMode() {
         this.modeStack.pop();
         this.mode = this.modeStack.peek();
+    }
+
+    protected void resetDiagnosticList() {
+        this.diagnostics = new ArrayList<>();
+    }
+
+    protected void addDiagnostic(DiagnosticCode diagnosticCode) {
+        diagnostics.add(diagnosticCode);
+    }
+
+    protected boolean noDiagnostics() {
+        return diagnostics.isEmpty();
+    }
+
+    protected Collection<DiagnosticCode> getDiagnostics() {
+        return diagnostics;
     }
 }
