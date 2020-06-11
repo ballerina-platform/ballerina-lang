@@ -4329,7 +4329,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     /**
-     * This method desugars a raw template literal object class for the provided raw template object type as follows:
+     * This method desugars a raw template literal object class for the provided raw template object type as follows.
      * A literal defined as 'object:RawTemplate rt = `Hello ${name}!`;
      * is desugared to,
      *      type $anonType$0 object {
