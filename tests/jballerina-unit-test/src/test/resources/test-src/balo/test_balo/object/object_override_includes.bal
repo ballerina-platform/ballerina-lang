@@ -15,7 +15,7 @@ public type NewButSameBin object {
         return [2, "dummy"];
     }
 
-    public function __init(int age, string name, int year, string month) {
+    public function init(int age, string name, int year, string month) {
         self.age = age;
         self.name = name;
         self.year = year;
@@ -39,7 +39,7 @@ public type DustBinOverridingBin object {
 
     *foo:Bin;
 
-    public function __init (int year, int count, string name = "sample value1", string val1 = "default value") {
+    public function init (int year, int count, string name = "sample value1", string val1 = "default value") {
         self.year = year;
         self.name = name;
         self.age = self.age + count + 50;

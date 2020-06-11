@@ -12,7 +12,7 @@ public type employee01 object {
     public string name = "";
     public string zipcode = "95134";
 
-    function __init (int age, string name) {
+    function init (int age, string name) {
         self.age = age;
         self.name = name;
     }
@@ -39,7 +39,7 @@ public type employee02 object {
     public string name = "";
     public int address = 0;
 
-    function __init (int age, string name) {
+    function init (int age, string name) {
         self.age = age;
         self.name = name;
     }
@@ -65,7 +65,7 @@ public type employee03 object {
     public int age = 0;
     public string name = "";
 
-    function __init (int age, string name) {
+    function init (int age, string name) {
         self.age = age;
         self.name = name;
     }
@@ -96,7 +96,7 @@ public type employee04 object {
     private int id = 0;
     private string ss = "";
 
-    function __init (int age, string name) {
+    function init (int age, string name) {
         self.age = age;
         self.name = name;
     }
@@ -119,7 +119,7 @@ public type person05 object {
     private string address = "";
     private string id = "";
 
-    function __init (int age, string name) {
+    function init (int age, string name) {
         self.age = age;
         self.name = name;
     }
@@ -133,7 +133,7 @@ public type employee05 object {
     public string id = "";
     public string ssn = "";
 
-    function __init (int age, string name) {
+    function init (int age, string name) {
         self.age = age;
         self.name = name;
     }
@@ -163,7 +163,7 @@ type employee06 object {
     public string id = "";
     public string ssn = "";
 
-    function __init (int age, string name) {
+    function init (int age, string name) {
         self.age = age;
         self.name = name;
     }
@@ -207,7 +207,7 @@ public type employee07 object {
     public string ssn = "";
 
 
-    function __init (int age, string name) {
+    function init (int age, string name) {
         self.age = age;
         self.name = name;
     }
@@ -260,7 +260,7 @@ public type employee08 object {
     public string ssn = "";
 
 
-    function __init (int age, string name) {
+    function init (int age, string name) {
         self.age = age;
         self.name = name;
     }
@@ -317,7 +317,7 @@ public type employee09 object {
     public string ssn = "";
 
 
-    function __init (int age, string name) {
+    function init (int age, string name) {
         self.age = age;
         self.name = name;
     }
@@ -348,7 +348,7 @@ public type PersonInOrder object {
     public string name = "";
     public string address = "";
 
-    function __init (string name, int age) {
+    function init (string name, int age) {
         self.age = age;
         self.name = name;
     }
@@ -379,7 +379,7 @@ public type PersonNotInOrder object {
         return self.age;
     }
 
-    function __init (string name, int age) {
+    function init (string name, int age) {
         self.age = age;
         self.name = name;
     }
@@ -401,4 +401,81 @@ function testObjectMemberOrder() returns [PersonInOrder, PersonNotInOrder] {
     PersonInOrder p4 = p3;
 
     return [p4, p2];
+}
+
+type ObjWithOnlyRemoteMethod client object {
+    public string name;
+    public string id = "";
+
+    function init(string name) {
+        self.name = name;
+    }
+    public remote function send(string message) returns error? {
+    }
+    public remote function receive(string message) {
+    }
+};
+
+type ObjWithRemoteMethod client object {
+    public string name;
+    public string id = "";
+
+    function init(string name) {
+        self.name = name;
+    }
+    public remote function send(string message) returns error? {
+    }
+    public function receive(string message) {
+    }
+};
+
+type NonClientObj object {
+    public string name;
+    public string id = "";
+
+    function init(string name) {
+        self.name = name;
+    }
+    public function send(string message) returns error? {
+    }
+    public function receive(string message) {
+    }
+};
+
+type ClientObjWithoutRemoteMethod client object {
+    public string name;
+    public string id = "";
+
+    function init(string name) {
+        self.name = name;
+    }
+    public function send(string message) returns error? {
+    }
+    public function receive(string message) {
+    }
+};
+
+function testAssignabilityOfObjectsWithAndWithoutRemoteMethods1() {
+    NonClientObj e = new ("email-1");
+    ObjWithRemoteMethod p = e;
+}
+
+function testAssignabilityOfObjectsWithAndWithoutRemoteMethods2() {
+    ClientObjWithoutRemoteMethod e = new ("email-2");
+    ObjWithRemoteMethod p = e;
+}
+
+function testAssignabilityOfObjectsWithAndWithoutRemoteMethods3() {
+    ClientObjWithoutRemoteMethod e = new ("email-3");
+    ObjWithOnlyRemoteMethod p = e;
+}
+
+function testAssignabilityOfObjectsWithAndWithoutRemoteMethods4() {
+    NonClientObj e = new ("email-4");
+    ObjWithOnlyRemoteMethod p = e;
+}
+
+function testAssignabilityOfObjectsWithAndWithoutRemoteMethods5() {
+    ObjWithRemoteMethod e = new ("email-4");
+    NonClientObj p = e;
 }

@@ -1,11 +1,13 @@
 {
   "kind": "IMPORT_DECLARATION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "IMPORT_KEYWORD"
     },
     {
       "kind": "IMPORT_ORG_NAME",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "IDENTIFIER_TOKEN",
@@ -13,7 +15,11 @@
         },
         {
           "kind": "SLASH_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_SLASH_TOKEN"
+          ]
         }
       ]
     },

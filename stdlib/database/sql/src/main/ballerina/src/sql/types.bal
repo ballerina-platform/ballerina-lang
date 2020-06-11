@@ -33,7 +33,7 @@ public type Value string|int|boolean|float|decimal|byte[]|xml|TypedValue?;
 public type VarcharValue object {
    *TypedValue;
 
-   public function __init(string? value = ()) {
+   public function init(string? value = ()) {
        self.value = value;
    }
 };
@@ -43,7 +43,7 @@ public type VarcharValue object {
 public type NVarcharValue object {
    *TypedValue;
 
-   public function __init(string? value = ()) {
+   public function init(string? value = ()) {
       self.value = value;
    }
 };
@@ -53,7 +53,7 @@ public type NVarcharValue object {
 public type CharValue object {
    *TypedValue;
 
-   public function __init(string? value = ()) {
+   public function init(string? value = ()) {
        self.value = value;
    }
 };
@@ -63,7 +63,7 @@ public type CharValue object {
 public type NCharValue object {
    *TypedValue;
 
-   public function __init(string? value = ()) {
+   public function init(string? value = ()) {
        self.value = value;
    }
 };
@@ -73,7 +73,7 @@ public type NCharValue object {
 public type TextValue object {
    *TypedValue;
 
-   public function __init(io:ReadableCharacterChannel|string? value = ()) {
+   public function init(io:ReadableCharacterChannel|string? value = ()) {
        self.value = value;
    }
 };
@@ -83,7 +83,7 @@ public type TextValue object {
 public type ClobValue object {
    *TypedValue;
 
-   public function __init(io:ReadableCharacterChannel|string? value = ()) {
+   public function init(io:ReadableCharacterChannel|string? value = ()) {
        self.value = value;
    }
 };
@@ -93,7 +93,7 @@ public type ClobValue object {
 public type NClobValue object {
    *TypedValue;
 
-   public function __init(io:ReadableCharacterChannel|string? value = ()) {
+   public function init(io:ReadableCharacterChannel|string? value = ()) {
        self.value = value;
    }
 };
@@ -103,7 +103,7 @@ public type NClobValue object {
 public type SmallIntValue object {
    *TypedValue;
 
-   public function __init(int? value = ()) {
+   public function init(int? value = ()) {
        self.value = value;
    }
 };
@@ -113,7 +113,7 @@ public type SmallIntValue object {
 public type IntegerValue object {
    *TypedValue;
 
-   public function __init(int? value = ()) {
+   public function init(int? value = ()) {
        self.value = value;
    }
 };
@@ -123,7 +123,7 @@ public type IntegerValue object {
 public type BigIntValue object {
    *TypedValue;
 
-   public function __init(int? value = ()) {
+   public function init(int? value = ()) {
        self.value = value;
    }
 };
@@ -133,7 +133,7 @@ public type BigIntValue object {
 public type NumericValue object {
    *TypedValue;
 
-   public function __init(int|float|decimal? value = ()) {
+   public function init(int|float|decimal? value = ()) {
        self.value = value;
    }
 };
@@ -143,7 +143,7 @@ public type NumericValue object {
 public type DecimalValue object {
    *TypedValue;
 
-   public function __init(int|decimal? value = ()) {
+   public function init(int|decimal? value = ()) {
        self.value = value;
    }
 };
@@ -153,7 +153,7 @@ public type DecimalValue object {
 public type RealValue object {
    *TypedValue;
 
-   public function __init(int|float|decimal? value = ()) {
+   public function init(int|float|decimal? value = ()) {
        self.value = value;
    }
 };
@@ -163,7 +163,7 @@ public type RealValue object {
 public type FloatValue object {
    *TypedValue;
 
-   public function __init(int|float? value = ()) {
+   public function init(int|float? value = ()) {
        self.value = value;
    }
 };
@@ -173,7 +173,7 @@ public type FloatValue object {
 public type DoubleValue object {
    *TypedValue;
 
-   public function __init(int|float|decimal? value = ()) {
+   public function init(int|float|decimal? value = ()) {
        self.value = value;
    }
 };
@@ -183,7 +183,7 @@ public type DoubleValue object {
 public type BitValue object {
    *TypedValue;
 
-   public function __init(boolean|int? value = ()) {
+   public function init(boolean|int? value = ()) {
        self.value = value;
    }
 };
@@ -193,7 +193,7 @@ public type BitValue object {
 public type BooleanValue object {
    *TypedValue;
 
-   public function __init(boolean? value = ()) {
+   public function init(boolean? value = ()) {
        self.value = value;
    }
 };
@@ -203,7 +203,7 @@ public type BooleanValue object {
 public type BinaryValue object {
    *TypedValue;
 
-   public function __init(byte[]|io:ReadableByteChannel? value = ()) {
+   public function init(byte[]|io:ReadableByteChannel? value = ()) {
        self.value = value;
    }
 };
@@ -213,7 +213,7 @@ public type BinaryValue object {
 public type VarBinaryValue object {
    *TypedValue;
 
-   public function __init(byte[]|io:ReadableByteChannel? value = ()) {
+   public function init(byte[]|io:ReadableByteChannel? value = ()) {
        self.value = value;
    }
 };
@@ -223,7 +223,7 @@ public type VarBinaryValue object {
 public type BlobValue object {
    *TypedValue;
 
-   public function __init(byte[]|io:ReadableByteChannel? value = ()) {
+   public function init(byte[]|io:ReadableByteChannel? value = ()) {
        self.value = value;
    }
 };
@@ -233,7 +233,7 @@ public type BlobValue object {
 public type DateValue object {
    *TypedValue;
 
-   public function __init(string|int|time:Time? value = ()) {
+   public function init(string|int|time:Time? value = ()) {
        self.value = value;
    }
 };
@@ -243,7 +243,7 @@ public type DateValue object {
 public type TimeValue object {
    *TypedValue;
 
-   public function __init(string|int|time:Time? value = ()) {
+   public function init(string|int|time:Time? value = ()) {
        self.value = value;
    }
 };
@@ -253,7 +253,7 @@ public type TimeValue object {
 public type DateTimeValue object {
    *TypedValue;
 
-   public function __init(string|int|time:Time? value = ()) {
+   public function init(string|int|time:Time? value = ()) {
        self.value = value;
    }
 };
@@ -263,7 +263,7 @@ public type DateTimeValue object {
 public type TimestampValue object {
    *TypedValue;
 
-   public function __init(string|int|time:Time? value = ()) {
+   public function init(string|int|time:Time? value = ()) {
        self.value = value;
    }
 };
@@ -273,7 +273,7 @@ public type TimestampValue object {
 public type ArrayValue object {
    *TypedValue;
 
-   public function __init(string[]|int[]|boolean[]|float[]|decimal[]|byte[][]? value = ()) {
+   public function init(string[]|int[]|boolean[]|float[]|decimal[]|byte[][]? value = ()) {
        self.value = value;
    }
 };
@@ -283,7 +283,7 @@ public type ArrayValue object {
 public type RefValue object {
    *TypedValue;
 
-   public function __init(record{}? value = ()) {
+   public function init(record{}? value = ()) {
        self.value = value;
    }
 };
@@ -293,7 +293,7 @@ public type RefValue object {
 public type StructValue object {
    *TypedValue;
 
-   public function __init(record{}? value = ()) {
+   public function init(record{}? value = ()) {
        self.value = value;
    }
 };
@@ -303,7 +303,7 @@ public type StructValue object {
 public type RowValue object {
    *TypedValue;
 
-   public function __init(byte[]? value = ()) {
+   public function init(byte[]? value = ()) {
        self.value = value;
    }
 };
@@ -335,7 +335,7 @@ type ResultIterator object {
     private boolean isClosed = false;
     private Error? err;
 
-    public function __init(public Error? err = ()) {
+    public function init(public Error? err = ()) {
         self.err = err;
     }
 

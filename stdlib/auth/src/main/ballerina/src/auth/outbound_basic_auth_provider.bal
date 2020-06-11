@@ -35,7 +35,7 @@ public type OutboundBasicAuthProvider object {
     # Provides authentication based on the provided Basic Auth configurations.
     #
     # + credential - Credential configurations
-    public function __init(Credential? credential = ()) {
+    public function init(Credential? credential = ()) {
         self.credential = credential;
     }
 

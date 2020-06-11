@@ -101,7 +101,7 @@ function genJMethodForBFunc(bir:Function func,
     boolean isObserved = false;
     boolean isWorker = (func.flags & bir:WORKER) == bir:WORKER;
     boolean isRemote = (func.flags & bir:REMOTE) == bir:REMOTE;
-    if ((isService || isRemote || isWorker) && funcName != "__init" && funcName != "$__init$") {
+    if ((isService || isRemote || isWorker) && funcName != "init" && funcName != "$init$") {
         // create try catch block to start and stop observability.
         isObserved = true;
         tryStart = labelGen.getLabel("try-start");

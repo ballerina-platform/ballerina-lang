@@ -1,5 +1,6 @@
 {
   "kind": "ASSIGNMENT_STATEMENT",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "IDENTIFIER_TOKEN",
@@ -14,7 +15,11 @@
     },
     {
       "kind": "SEMICOLON_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_SEMICOLON_TOKEN"
+      ]
     }
   ]
 }

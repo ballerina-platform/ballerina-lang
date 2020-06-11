@@ -27,10 +27,12 @@ public class ParserTestConstants {
     public static final String KIND_FIELD = "kind";
 
     public static final String CHILDREN_FIELD = "children";
+    public static final String DIAGNOSTICS_FIELD = "diagnostics";
 
     public static final String VALUE_FIELD = "value";
 
     public static final String IS_MISSING_FIELD = "isMissing";
+    public static final String HAS_DIAGNOSTICS = "hasDiagnostics";
 
     public static final String LEADING_MINUTIAE = "leadingMinutiae";
 

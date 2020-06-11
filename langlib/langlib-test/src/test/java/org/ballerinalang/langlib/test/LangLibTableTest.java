@@ -245,6 +245,12 @@ public class LangLibTableTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test
+    public void testRemoveThenIterate() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveThenIterate");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IteratorMutabilityError message=Table was " +
                     "mutated after the iterator was created.*")

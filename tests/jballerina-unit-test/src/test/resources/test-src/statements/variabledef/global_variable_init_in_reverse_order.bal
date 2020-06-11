@@ -22,7 +22,7 @@ public function testReverseOrderInitialization() {
     panic error(ASSERTION_ERROR_REASON, message = "expected 'true', found 'false'");
 }
 
-function __init() {
+function init() {
     s = "hello";
     int x = 2;
     a = x + 3;

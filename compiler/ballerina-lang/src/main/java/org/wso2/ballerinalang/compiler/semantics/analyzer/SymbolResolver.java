@@ -1205,6 +1205,11 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (param.flagSet.contains(Flag.PUBLIC)) {
                 symbol.flags |= Flags.PUBLIC;
             }
+
+            if (param.flagSet.contains(Flag.TRANSACTIONAL)) {
+                symbol.flags |= Flags.TRANSACTIONAL;
+            }
+
             if (param.expr != null) {
                 symbol.flags |= Flags.OPTIONAL;
                 symbol.defaultableParam = true;

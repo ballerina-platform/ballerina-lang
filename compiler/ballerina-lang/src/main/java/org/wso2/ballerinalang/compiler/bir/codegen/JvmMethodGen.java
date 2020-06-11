@@ -1502,7 +1502,7 @@ public class JvmMethodGen {
         boolean isObserved = false;
         boolean isWorker = (func.flags & Flags.WORKER) == Flags.WORKER;
         boolean isRemote = (func.flags & Flags.REMOTE) == Flags.REMOTE;
-        if ((isService || isRemote || isWorker) && !"__init".equals(funcName) && !"$__init$".equals(funcName)) {
+        if ((isService || isRemote || isWorker) && !"init".equals(funcName) && !"$init$".equals(funcName)) {
             // create try catch block to start and stop observability.
             isObserved = true;
             tryStart = labelGen.getLabel("try-start");
