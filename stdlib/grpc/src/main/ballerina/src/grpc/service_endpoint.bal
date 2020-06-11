@@ -104,7 +104,7 @@ type StreamIterator object {
             return StreamEndError (message = "Stream is closed. Therefore, "
                            + "no operations are allowed further on the stream.");
         }
-        anydata|handle |error? result = nextResult(self);
+        anydata|handle|error? result = nextResult(self);
         if (result is anydata) {
             if (result is ()) {
                 self.isClosed = true;
@@ -123,7 +123,7 @@ type StreamIterator object {
             self.isClosed = true;
             return closeStream(self);
         } else {
-            return StreamEndError (message = "Stream is closed. Therefore, "
+            return StreamEndError(message = "Stream is closed. Therefore, "
                                        + "no operations are allowed further on the stream.");
         }
     }
