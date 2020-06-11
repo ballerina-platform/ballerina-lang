@@ -39,8 +39,6 @@ import static org.ballerinalang.sql.Constants.ErrorRecordFields.EXECUTION_RESULT
 
 /**
  * This test class verifies the behaviour of the batch execute.
- *
- * @since 1.3.0
  */
 public class BatchExecuteTest {
     private CompileResult result;
@@ -48,10 +46,11 @@ public class BatchExecuteTest {
     private static final String JDBC_URL = "jdbc:h2:file:" + SQLDBUtils.DB_DIR + DB_NAME;
     private BValue[] args = {new BString(JDBC_URL), new BString(SQLDBUtils.DB_USER),
             new BString(SQLDBUtils.DB_PASSWORD)};
+
     @BeforeClass
     public void setup() throws SQLException {
         result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("batchexecute",
-                                                                            "batch-execute-query-test.bal"));
+                "batch-execute-query-test.bal"));
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIR, DB_NAME,
                 SQLDBUtils.getSQLResourceDir("batchexecute", "batch-execute-test-data.sql"));

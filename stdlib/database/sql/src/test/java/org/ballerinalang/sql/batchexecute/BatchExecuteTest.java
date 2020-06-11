@@ -38,8 +38,6 @@ import static org.ballerinalang.sql.Constants.ErrorRecordFields.EXECUTION_RESULT
 
 /**
  * This test class verifies the behaviour of the batch execute.
- *
- * @since 1.3.0
  */
 public class BatchExecuteTest {
     private CompileResult result;
