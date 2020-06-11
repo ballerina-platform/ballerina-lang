@@ -160,9 +160,11 @@ public abstract class Node {
 
         Node parent = this.parent;
         if (parent == null) {
-            throw new IllegalStateException("SyntaxTree instance cannot be null");
+            // This is a detached node. Therefore we need to create a new SyntaxTree with this node being the root.
+            setSyntaxTree(SyntaxTree.from(this, false));
+        } else {
+            setSyntaxTree(parent.populateSyntaxTree());
         }
-        setSyntaxTree(parent.populateSyntaxTree());
         return syntaxTree;
     }
 
