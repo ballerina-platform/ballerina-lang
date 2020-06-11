@@ -21,31 +21,41 @@
               ]
             },
             {
-              "kind": "FUNCTION_TYPE_DESC",
+              "kind": "TYPED_BINDING_PATTERN",
               "children": [
                 {
-                  "kind": "FUNCTION_KEYWORD"
-                },
-                {
-                  "kind": "FUNCTION_SIGNATURE",
+                  "kind": "FUNCTION_TYPE_DESC",
                   "children": [
                     {
-                      "kind": "OPEN_PAREN_TOKEN"
+                      "kind": "FUNCTION_KEYWORD"
                     },
                     {
-                      "kind": "LIST",
-                      "children": []
-                    },
+                      "kind": "FUNCTION_SIGNATURE",
+                      "children": [
+                        {
+                          "kind": "OPEN_PAREN_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "CLOSE_PAREN_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
                     {
-                      "kind": "CLOSE_PAREN_TOKEN"
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "f1"
                     }
                   ]
                 }
               ]
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "f1"
             },
             {
               "kind": "EQUAL_TOKEN"
@@ -72,96 +82,106 @@
               ]
             },
             {
-              "kind": "FUNCTION_TYPE_DESC",
+              "kind": "TYPED_BINDING_PATTERN",
               "children": [
                 {
-                  "kind": "FUNCTION_KEYWORD"
-                },
-                {
-                  "kind": "FUNCTION_SIGNATURE",
+                  "kind": "FUNCTION_TYPE_DESC",
                   "children": [
                     {
-                      "kind": "OPEN_PAREN_TOKEN"
+                      "kind": "FUNCTION_KEYWORD"
                     },
                     {
-                      "kind": "LIST",
+                      "kind": "FUNCTION_SIGNATURE",
                       "children": [
                         {
-                          "kind": "REQUIRED_PARAM",
+                          "kind": "OPEN_PAREN_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
                           "children": [
                             {
-                              "kind": "LIST",
-                              "children": []
+                              "kind": "REQUIRED_PARAM",
+                              "children": [
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "INT_KEYWORD"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "a"
+                                }
+                              ]
                             },
                             {
-                              "kind": "INT_KEYWORD"
+                              "kind": "DEFAULTABLE_PARAM",
+                              "children": [
+                                {
+                                  "kind": "COMMA_TOKEN"
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "INT_KEYWORD"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "b"
+                                },
+                                {
+                                  "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "c"
+                                }
+                              ]
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "a"
+                              "kind": "REST_PARAM",
+                              "children": [
+                                {
+                                  "kind": "COMMA_TOKEN"
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "INT_KEYWORD"
+                                },
+                                {
+                                  "kind": "ELLIPSIS_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "d"
+                                }
+                              ]
                             }
                           ]
                         },
                         {
-                          "kind": "DEFAULTABLE_PARAM",
-                          "children": [
-                            {
-                              "kind": "COMMA_TOKEN"
-                            },
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            },
-                            {
-                              "kind": "INT_KEYWORD"
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "b"
-                            },
-                            {
-                              "kind": "EQUAL_TOKEN"
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "c"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "REST_PARAM",
-                          "children": [
-                            {
-                              "kind": "COMMA_TOKEN"
-                            },
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            },
-                            {
-                              "kind": "INT_KEYWORD"
-                            },
-                            {
-                              "kind": "ELLIPSIS_TOKEN"
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "d"
-                            }
-                          ]
+                          "kind": "CLOSE_PAREN_TOKEN"
                         }
                       ]
-                    },
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
                     {
-                      "kind": "CLOSE_PAREN_TOKEN"
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "f2"
                     }
                   ]
                 }
               ]
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "f2"
             },
             {
               "kind": "EQUAL_TOKEN"
@@ -188,84 +208,94 @@
               ]
             },
             {
-              "kind": "FUNCTION_TYPE_DESC",
+              "kind": "TYPED_BINDING_PATTERN",
               "children": [
                 {
-                  "kind": "FUNCTION_KEYWORD"
-                },
-                {
-                  "kind": "FUNCTION_SIGNATURE",
+                  "kind": "FUNCTION_TYPE_DESC",
                   "children": [
                     {
-                      "kind": "OPEN_PAREN_TOKEN"
+                      "kind": "FUNCTION_KEYWORD"
                     },
                     {
-                      "kind": "LIST",
+                      "kind": "FUNCTION_SIGNATURE",
                       "children": [
                         {
-                          "kind": "REQUIRED_PARAM",
+                          "kind": "OPEN_PAREN_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
                           "children": [
                             {
-                              "kind": "LIST",
-                              "children": []
+                              "kind": "REQUIRED_PARAM",
+                              "children": [
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "INT_KEYWORD"
+                                }
+                              ]
                             },
                             {
-                              "kind": "INT_KEYWORD"
+                              "kind": "DEFAULTABLE_PARAM",
+                              "children": [
+                                {
+                                  "kind": "COMMA_TOKEN"
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "INT_KEYWORD"
+                                },
+                                {
+                                  "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "c"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "REST_PARAM",
+                              "children": [
+                                {
+                                  "kind": "COMMA_TOKEN"
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "INT_KEYWORD"
+                                },
+                                {
+                                  "kind": "ELLIPSIS_TOKEN"
+                                }
+                              ]
                             }
                           ]
                         },
                         {
-                          "kind": "DEFAULTABLE_PARAM",
-                          "children": [
-                            {
-                              "kind": "COMMA_TOKEN"
-                            },
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            },
-                            {
-                              "kind": "INT_KEYWORD"
-                            },
-                            {
-                              "kind": "EQUAL_TOKEN"
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "c"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "REST_PARAM",
-                          "children": [
-                            {
-                              "kind": "COMMA_TOKEN"
-                            },
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            },
-                            {
-                              "kind": "INT_KEYWORD"
-                            },
-                            {
-                              "kind": "ELLIPSIS_TOKEN"
-                            }
-                          ]
+                          "kind": "CLOSE_PAREN_TOKEN"
                         }
                       ]
-                    },
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
                     {
-                      "kind": "CLOSE_PAREN_TOKEN"
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "f3"
                     }
                   ]
                 }
               ]
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "f3"
             },
             {
               "kind": "EQUAL_TOKEN"
@@ -330,31 +360,41 @@
                           "children": []
                         },
                         {
-                          "kind": "FUNCTION_TYPE_DESC",
+                          "kind": "TYPED_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "FUNCTION_KEYWORD"
-                            },
-                            {
-                              "kind": "FUNCTION_SIGNATURE",
+                              "kind": "FUNCTION_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "OPEN_PAREN_TOKEN"
+                                  "kind": "FUNCTION_KEYWORD"
                                 },
                                 {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
+                                  "kind": "FUNCTION_SIGNATURE",
+                                  "children": [
+                                    {
+                                      "kind": "OPEN_PAREN_TOKEN"
+                                    },
+                                    {
+                                      "kind": "LIST",
+                                      "children": []
+                                    },
+                                    {
+                                      "kind": "CLOSE_PAREN_TOKEN"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
                                 {
-                                  "kind": "CLOSE_PAREN_TOKEN"
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "f4"
                                 }
                               ]
                             }
                           ]
-                        },
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "f4"
                         },
                         {
                           "kind": "SEMICOLON_TOKEN"
@@ -369,96 +409,106 @@
                           "children": []
                         },
                         {
-                          "kind": "FUNCTION_TYPE_DESC",
+                          "kind": "TYPED_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "FUNCTION_KEYWORD"
-                            },
-                            {
-                              "kind": "FUNCTION_SIGNATURE",
+                              "kind": "FUNCTION_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "OPEN_PAREN_TOKEN"
+                                  "kind": "FUNCTION_KEYWORD"
                                 },
                                 {
-                                  "kind": "LIST",
+                                  "kind": "FUNCTION_SIGNATURE",
                                   "children": [
                                     {
-                                      "kind": "REQUIRED_PARAM",
+                                      "kind": "OPEN_PAREN_TOKEN"
+                                    },
+                                    {
+                                      "kind": "LIST",
                                       "children": [
                                         {
-                                          "kind": "LIST",
-                                          "children": []
+                                          "kind": "REQUIRED_PARAM",
+                                          "children": [
+                                            {
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
+                                            {
+                                              "kind": "INT_KEYWORD"
+                                            },
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "a"
+                                            }
+                                          ]
                                         },
                                         {
-                                          "kind": "INT_KEYWORD"
+                                          "kind": "DEFAULTABLE_PARAM",
+                                          "children": [
+                                            {
+                                              "kind": "COMMA_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
+                                            {
+                                              "kind": "INT_KEYWORD"
+                                            },
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "b"
+                                            },
+                                            {
+                                              "kind": "EQUAL_TOKEN"
+                                            },
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "c"
+                                            }
+                                          ]
                                         },
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "a"
+                                          "kind": "REST_PARAM",
+                                          "children": [
+                                            {
+                                              "kind": "COMMA_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
+                                            {
+                                              "kind": "INT_KEYWORD"
+                                            },
+                                            {
+                                              "kind": "ELLIPSIS_TOKEN"
+                                            },
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "d"
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
                                     {
-                                      "kind": "DEFAULTABLE_PARAM",
-                                      "children": [
-                                        {
-                                          "kind": "COMMA_TOKEN"
-                                        },
-                                        {
-                                          "kind": "LIST",
-                                          "children": []
-                                        },
-                                        {
-                                          "kind": "INT_KEYWORD"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "b"
-                                        },
-                                        {
-                                          "kind": "EQUAL_TOKEN"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "c"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "REST_PARAM",
-                                      "children": [
-                                        {
-                                          "kind": "COMMA_TOKEN"
-                                        },
-                                        {
-                                          "kind": "LIST",
-                                          "children": []
-                                        },
-                                        {
-                                          "kind": "INT_KEYWORD"
-                                        },
-                                        {
-                                          "kind": "ELLIPSIS_TOKEN"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "d"
-                                        }
-                                      ]
+                                      "kind": "CLOSE_PAREN_TOKEN"
                                     }
                                   ]
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
                                 {
-                                  "kind": "CLOSE_PAREN_TOKEN"
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "f5"
                                 }
                               ]
                             }
                           ]
-                        },
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "f5"
                         },
                         {
                           "kind": "SEMICOLON_TOKEN"
@@ -473,84 +523,94 @@
                           "children": []
                         },
                         {
-                          "kind": "FUNCTION_TYPE_DESC",
+                          "kind": "TYPED_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "FUNCTION_KEYWORD"
-                            },
-                            {
-                              "kind": "FUNCTION_SIGNATURE",
+                              "kind": "FUNCTION_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "OPEN_PAREN_TOKEN"
+                                  "kind": "FUNCTION_KEYWORD"
                                 },
                                 {
-                                  "kind": "LIST",
+                                  "kind": "FUNCTION_SIGNATURE",
                                   "children": [
                                     {
-                                      "kind": "REQUIRED_PARAM",
+                                      "kind": "OPEN_PAREN_TOKEN"
+                                    },
+                                    {
+                                      "kind": "LIST",
                                       "children": [
                                         {
-                                          "kind": "LIST",
-                                          "children": []
+                                          "kind": "REQUIRED_PARAM",
+                                          "children": [
+                                            {
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
+                                            {
+                                              "kind": "INT_KEYWORD"
+                                            }
+                                          ]
                                         },
                                         {
-                                          "kind": "INT_KEYWORD"
+                                          "kind": "DEFAULTABLE_PARAM",
+                                          "children": [
+                                            {
+                                              "kind": "COMMA_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
+                                            {
+                                              "kind": "INT_KEYWORD"
+                                            },
+                                            {
+                                              "kind": "EQUAL_TOKEN"
+                                            },
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "c"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "REST_PARAM",
+                                          "children": [
+                                            {
+                                              "kind": "COMMA_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
+                                            {
+                                              "kind": "INT_KEYWORD"
+                                            },
+                                            {
+                                              "kind": "ELLIPSIS_TOKEN"
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
                                     {
-                                      "kind": "DEFAULTABLE_PARAM",
-                                      "children": [
-                                        {
-                                          "kind": "COMMA_TOKEN"
-                                        },
-                                        {
-                                          "kind": "LIST",
-                                          "children": []
-                                        },
-                                        {
-                                          "kind": "INT_KEYWORD"
-                                        },
-                                        {
-                                          "kind": "EQUAL_TOKEN"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "c"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "REST_PARAM",
-                                      "children": [
-                                        {
-                                          "kind": "COMMA_TOKEN"
-                                        },
-                                        {
-                                          "kind": "LIST",
-                                          "children": []
-                                        },
-                                        {
-                                          "kind": "INT_KEYWORD"
-                                        },
-                                        {
-                                          "kind": "ELLIPSIS_TOKEN"
-                                        }
-                                      ]
+                                      "kind": "CLOSE_PAREN_TOKEN"
                                     }
                                   ]
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
                                 {
-                                  "kind": "CLOSE_PAREN_TOKEN"
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "f6"
                                 }
                               ]
                             }
                           ]
-                        },
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "f6"
                         },
                         {
                           "kind": "EQUAL_TOKEN"

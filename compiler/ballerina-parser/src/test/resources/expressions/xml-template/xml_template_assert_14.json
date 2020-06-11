@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -34,32 +35,46 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
                   "children": []
                 },
                 {
-                  "kind": "INT_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "x"
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "INT_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "x"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "EQUAL_TOKEN"
                 },
                 {
                   "kind": "XML_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "XML_KEYWORD"
@@ -69,9 +84,11 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "XML_ELEMENT",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "XML_ELEMENT_START_TAG",
@@ -99,15 +116,18 @@
                             },
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "INTERPOLATION",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "INTERPOLATION_START_TOKEN"
                                     },
                                     {
                                       "kind": "BINARY_EXPRESSION",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
@@ -118,7 +138,11 @@
                                         },
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "isMissing": true
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_IDENTIFIER"
+                                          ]
                                         }
                                       ]
                                     },
@@ -168,23 +192,35 @@
             },
             {
               "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
                   "children": []
                 },
                 {
-                  "kind": "INT_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "x"
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "INT_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "x"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "EQUAL_TOKEN"
                 },
                 {
                   "kind": "XML_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "XML_KEYWORD"
@@ -194,9 +230,11 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "XML_ELEMENT",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "XML_ELEMENT_START_TAG",
@@ -224,15 +262,18 @@
                             },
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "INTERPOLATION",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "INTERPOLATION_START_TOKEN"
                                     },
                                     {
                                       "kind": "BINARY_EXPRESSION",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
@@ -243,6 +284,7 @@
                                         },
                                         {
                                           "kind": "XML_TEMPLATE_EXPRESSION",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
                                               "kind": "XML_KEYWORD"
@@ -252,9 +294,11 @@
                                             },
                                             {
                                               "kind": "LIST",
+                                              "hasDiagnostics": true,
                                               "children": [
                                                 {
                                                   "kind": "XML_ELEMENT",
+                                                  "hasDiagnostics": true,
                                                   "children": [
                                                     {
                                                       "kind": "XML_ELEMENT_START_TAG",
@@ -282,15 +326,18 @@
                                                     },
                                                     {
                                                       "kind": "LIST",
+                                                      "hasDiagnostics": true,
                                                       "children": [
                                                         {
                                                           "kind": "INTERPOLATION",
+                                                          "hasDiagnostics": true,
                                                           "children": [
                                                             {
                                                               "kind": "INTERPOLATION_START_TOKEN"
                                                             },
                                                             {
                                                               "kind": "BINARY_EXPRESSION",
+                                                              "hasDiagnostics": true,
                                                               "children": [
                                                                 {
                                                                   "kind": "IDENTIFIER_TOKEN",
@@ -301,7 +348,11 @@
                                                                 },
                                                                 {
                                                                   "kind": "IDENTIFIER_TOKEN",
-                                                                  "isMissing": true
+                                                                  "isMissing": true,
+                                                                  "hasDiagnostics": true,
+                                                                  "diagnostics": [
+                                                                    "ERROR_MISSING_IDENTIFIER"
+                                                                  ]
                                                                 }
                                                               ]
                                                             },

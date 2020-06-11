@@ -1,5 +1,6 @@
 {
   "kind": "SERVICE_DECLARATION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -18,11 +19,15 @@
       "value": "echoService"
     },
     {
-      "kind": "ON_KEYWORD"
+      "kind": "ON_KEYWORD",
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_EXPRESSION"
+      ]
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "isMissing": true
+      "kind": "LIST",
+      "children": []
     },
     {
       "kind": "SERVICE_BODY",

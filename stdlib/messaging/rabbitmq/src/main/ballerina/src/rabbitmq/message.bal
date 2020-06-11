@@ -93,18 +93,7 @@ public type Message client object {
 #
 # + return - Message data as string value or else a `rabbitmq:Error` if an error is encountered
    public function getTextContent() returns @tainted string | Error {
-        var result =  nativeGetTextContent(self.messageContent);
-        if (result is handle) {
-            var toStringResult = java:toString(result);
-            if (toStringResult is string) {
-                return toStringResult;
-            } else {
-                Error e = Error(message = "Error occuurred while retrieving the text content of the message.");
-                return e;
-            }
-        } else {
-            return result;
-        }
+        return nativeGetTextContent(self.messageContent);
    }
 
 # Retrieves the float content of the RabbitMQ message.
@@ -172,7 +161,7 @@ boolean requeue) returns Error? =
     class: "org.ballerinalang.messaging.rabbitmq.util.MessageUtils"
 } external;
 
-function nativeGetTextContent(byte[] messageContent) returns handle | Error =
+function nativeGetTextContent(byte[] messageContent) returns string | Error =
 @java:Method {
     name: "getTextContent",
     class: "org.ballerinalang.messaging.rabbitmq.util.MessageUtils"

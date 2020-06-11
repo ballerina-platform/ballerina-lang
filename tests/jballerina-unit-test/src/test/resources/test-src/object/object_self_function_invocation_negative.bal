@@ -2,7 +2,7 @@ type Person1 object {
     string name;
     int age;
 
-    public function __init(string name, int age) {
+    public function init(string name, int age) {
         self.modify(self);
         self.name = name;
         self.age = age;
@@ -21,7 +21,7 @@ type Person2 object {
     string name;
     string city;
 
-    public function __init(string name, string city) {
+    public function init(string name, string city) {
         int i = 0;
         while (i < 5) {
             if (i/2 == 2) {
@@ -46,7 +46,7 @@ type Person3 object {
     string name;
     string city;
 
-    public function __init(string name, string city) {
+    public function init(string name, string city) {
         int i = 0;
         while (i < 5) {
             if (i/2 == 2) {
@@ -72,7 +72,7 @@ type Person4 object {
     string name;
     string city;
 
-    public function __init(string name) {
+    public function init(string name) {
         if (name == "") {
             self.name = "tom";
           } else if (name == "tom") {
@@ -99,7 +99,7 @@ type Person5 object {
     string name;
     string city;
 
-    public function __init(string[] names, string city) {
+    public function init(string[] names, string city) {
         foreach string n in names {
             if (n == "person1") {
                 self.modify(self);
@@ -123,7 +123,7 @@ type Person6 object {
     string name;
     string city;
 
-    public function __init(string[] names, string city) {
+    public function init(string[] names, string city) {
         foreach string n in names {
             if (n == "person1") {
                 self.modify("person1");
@@ -147,7 +147,7 @@ public function testSelfKeywordInvocationWithInvocationArg() {
 type Person7 object {
     string name;
 
-    public function __init(string name) {
+    public function init(string name) {
         modify(self);
         self.name = name;
     }
@@ -164,7 +164,7 @@ public function testSelfKeywordInvocationWithModuleLevelFunctionInvocation() {
 type Person8 object {
     string name;
 
-    public function __init(string name) {
+    public function init(string name) {
         change(self);
         self.name = name;
     }

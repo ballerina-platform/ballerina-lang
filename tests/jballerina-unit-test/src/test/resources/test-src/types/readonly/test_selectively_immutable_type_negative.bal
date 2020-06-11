@@ -67,7 +67,7 @@ type AB "A"|"B";
 type Obj object {
     int i;
 
-    function __init(int i) {
+    function init(int i) {
         self.i = i;
     }
 };
@@ -137,4 +137,19 @@ function testInvalidReaoOnlyRecordFieldUpdates() {
     };
     e.dept = dept2;
     e["dept"] = dept2;
+}
+
+type Foo object {
+
+};
+
+type Bar record {|
+    readonly string name;
+    Foo id;
+|};
+
+function testInvalidNeverReadOnlyConstraint() {
+    table<Bar> key(name) & readonly tb = table [
+        {name: "Jo", id: new}
+    ];
 }

@@ -72,7 +72,8 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
      */
     @Deprecated
     public void setAttribute(BXMLQName attributeName, String value) {
-        setAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(), value);
+        setAttributeOnInitialization(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(),
+                                     value);
     }
 
     /**
@@ -84,7 +85,8 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
      */
     @Deprecated
     public void setAttribute(BXMLQName attributeName, BString value) {
-        setAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(), value.getValue());
+        setAttributeOnInitialization(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(),
+                                     value.getValue());
     }
 
     /**
@@ -120,6 +122,11 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
     public BType getType() {
         return type;
     }
+
+    protected abstract void setAttributesOnInitialization(BMap<BString, ?> attributes);
+
+    protected abstract void setAttributeOnInitialization(String localName, String namespace, String prefix,
+                                                         String value);
 
     // private methods
 

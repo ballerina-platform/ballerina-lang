@@ -1,64 +1,64 @@
 {
-    "kind": "BINARY_EXPRESSION",
-    "children": [
+  "kind": "BINARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "x"
+    },
+    {
+      "kind": "PLUS_TOKEN"
+    },
+    {
+      "kind": "BINARY_EXPRESSION",
+      "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "x"
-        },
-        {
-            "kind": "PLUS_TOKEN"
-        },
-        {
-            "kind": "BINARY_EXPRESSION",
-            "children": [
+          "kind": "FIELD_ACCESS",
+          "children": [
+            {
+              "kind": "FIELD_ACCESS",
+              "children": [
                 {
-                    "kind": "FIELD_ACCESS",
-                    "children": [
-                        {
-                            "kind": "FIELD_ACCESS",
-                            "children": [
-                                {
-                                    "kind": "FIELD_ACCESS",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "a"
-                                        },
-                                        {
-                                            "kind": "DOT_TOKEN"
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "b"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "DOT_TOKEN"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "c"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "DOT_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "d"
-                        }
-                    ]
+                  "kind": "FIELD_ACCESS",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "b"
+                    }
+                  ]
                 },
                 {
-                    "kind": "PLUS_TOKEN"
+                  "kind": "DOT_TOKEN"
                 },
                 {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "y"
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "c"
                 }
-            ]
+              ]
+            },
+            {
+              "kind": "DOT_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "d"
+            }
+          ]
+        },
+        {
+          "kind": "PLUS_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "y"
         }
-    ]
+      ]
+    }
+  ]
 }

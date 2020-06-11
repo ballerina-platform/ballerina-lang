@@ -1,18 +1,18 @@
 {
-    "kind": "TABLE_CONSTRUCTOR",
-    "children": [
-        {
-            "kind": "TABLE_KEYWORD"
-        },
-        {
-            "kind": "OPEN_BRACKET_TOKEN"
-        },
-        {
-            "kind": "LIST",
-            "children": []
-        },
-        {
-            "kind": "CLOSE_BRACKET_TOKEN"
-        }
-    ]
+  "kind": "TABLE_CONSTRUCTOR",
+  "children": [
+    {
+      "kind": "TABLE_KEYWORD"
+    },
+    {
+      "kind": "OPEN_BRACKET_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "CLOSE_BRACKET_TOKEN"
+    }
+  ]
 }

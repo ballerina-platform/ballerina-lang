@@ -52,9 +52,6 @@ public class HttpConstants {
     public static final String DEFAULT_SUB_PATH = "/*";
 
     public static final String PROTOCOL_HTTP = "http";
-    public static final String PROTOCOL_PACKAGE_HTTP = "ballerina" + ORG_NAME_SEPARATOR + "http";
-    public static final BPackage PROTOCOL_HTTP_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "http");
-    public static final String HTTP_CALLER_NAME = "ballerina/http:Caller";
     public static final String HTTP_MOCK_SERVER_ENDPOINT_NAME = "Tballerina/http:MockListener;";
     public static final String PROTOCOL_HTTPS = "https";
     public static final String RESOLVED_REQUESTED_URI = "RESOLVED_REQUESTED_URI";
@@ -453,6 +450,13 @@ public class HttpConstants {
 
     // Ballerina error types related constants
     public static final String HTTP_ERROR_DETAIL_RECORD = "Detail";
+
+    public static final String PROTOCOL_PACKAGE_HTTP =
+            PACKAGE + ORG_NAME_SEPARATOR + PROTOCOL_HTTP + COLON + HTTP_MODULE_VERSION;
+    public static final BPackage PROTOCOL_HTTP_PKG_ID =
+            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PROTOCOL_HTTP, HTTP_MODULE_VERSION);
+    public static final String HTTP_CALLER_NAME = PROTOCOL_PACKAGE_HTTP + COLON + CALLER;
+
 
     private HttpConstants() {
     }

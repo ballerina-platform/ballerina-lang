@@ -1,11 +1,11 @@
 {
-    "kind": "RETURN_STATEMENT",
-    "children": [
-        {
-            "kind": "RETURN_KEYWORD"
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
-        }
-    ]
+  "kind": "RETURN_STATEMENT",
+  "children": [
+    {
+      "kind": "RETURN_KEYWORD"
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

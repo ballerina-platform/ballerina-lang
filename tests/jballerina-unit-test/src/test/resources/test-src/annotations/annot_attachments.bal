@@ -125,7 +125,7 @@ service serTwo = @v8 {
 type Listener object {
     *lang:Listener;
 
-    public function __init() {
+    public function init() {
     }
 
     public function __attach(service s, string? name = ()) returns error? {

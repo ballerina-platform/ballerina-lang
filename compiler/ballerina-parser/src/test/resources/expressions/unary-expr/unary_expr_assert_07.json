@@ -1,24 +1,24 @@
 {
-    "kind": "BINARY_EXPRESSION",
-    "children": [
+  "kind": "BINARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "UNARY_EXPRESSION",
+      "children": [
         {
-            "kind": "UNARY_EXPRESSION",
-            "children": [
-                {
-                    "kind": "PLUS_TOKEN"
-                },
-                {
-                    "kind": "DECIMAL_INTEGER_LITERAL",
-                    "value": 8
-                }
-            ]
+          "kind": "PLUS_TOKEN"
         },
         {
-            "kind": "PLUS_TOKEN"
-        },
-        {
-            "kind": "DECIMAL_INTEGER_LITERAL",
-            "value": 3
+          "kind": "DECIMAL_INTEGER_LITERAL",
+          "value": "8"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "PLUS_TOKEN"
+    },
+    {
+      "kind": "DECIMAL_INTEGER_LITERAL",
+      "value": "3"
+    }
+  ]
 }

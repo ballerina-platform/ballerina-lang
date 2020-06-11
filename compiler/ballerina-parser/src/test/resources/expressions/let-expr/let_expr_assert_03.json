@@ -1,98 +1,108 @@
 {
-    "kind": "LET_EXPRESSION",
-    "children": [
+  "kind": "LET_EXPRESSION",
+  "children": [
+    {
+      "kind": "LET_KEYWORD"
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "LET_KEYWORD"
-        },
-        {
-            "kind": "LIST",
-            "children": [
+          "kind": "LET_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": [
                 {
-                    "kind": "LET_VAR_DECL",
-                    "children": [
+                  "kind": "ANNOTATION",
+                  "children": [
+                    {
+                      "kind": "AT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "C"
+                    },
+                    {
+                      "kind": "MAPPING_CONSTRUCTOR",
+                      "children": [
                         {
-                            "kind": "LIST",
-                            "children": [
-                                {
-                                    "kind": "ANNOTATION",
-                                    "children": [
-                                        {
-                                            "kind": "AT_TOKEN"
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "C"
-                                        },
-                                        {
-                                            "kind": "MAPPING_CONSTRUCTOR",
-                                            "children": [
-                                                {
-                                                    "kind": "OPEN_BRACE_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": []
-                                                },
-                                                {
-                                                    "kind": "CLOSE_BRACE_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "ANNOTATION",
-                                    "children": [
-                                        {
-                                            "kind": "AT_TOKEN"
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "D"
-                                        },
-                                        {
-                                            "kind": "MAPPING_CONSTRUCTOR",
-                                            "children": [
-                                                {
-                                                    "kind": "OPEN_BRACE_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": []
-                                                },
-                                                {
-                                                    "kind": "CLOSE_BRACE_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
-                            ]
+                          "kind": "OPEN_BRACE_TOKEN"
                         },
                         {
-                            "kind": "INT_KEYWORD"
+                          "kind": "LIST",
+                          "children": []
                         },
                         {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "B"
-                        },
-                        {
-                            "kind": "EQUAL_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "E1"
+                          "kind": "CLOSE_BRACE_TOKEN"
                         }
-                    ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "ANNOTATION",
+                  "children": [
+                    {
+                      "kind": "AT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "D"
+                    },
+                    {
+                      "kind": "MAPPING_CONSTRUCTOR",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACE_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "CLOSE_BRACE_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
                 }
-            ]
-        },
-        {
-            "kind": "IN_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "E2"
+              ]
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "INT_KEYWORD"
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "B"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "E1"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "IN_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "E2"
+    }
+  ]
 }

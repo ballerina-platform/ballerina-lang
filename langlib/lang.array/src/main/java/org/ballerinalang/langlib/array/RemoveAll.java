@@ -24,13 +24,15 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
+import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
+
 /**
  * Native implementation of lang.array:removeAll((any|error)[]).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "removeAll",
+        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "removeAll",
         args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
         isPublic = true
 )

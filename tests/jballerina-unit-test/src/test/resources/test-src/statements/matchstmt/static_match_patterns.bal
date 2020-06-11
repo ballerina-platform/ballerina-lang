@@ -285,7 +285,7 @@ function testFiniteType2() returns string {
 
 type Obj object {
     int var1;
-    function __init(int var1) {
+    function init(int var1) {
         self.var1 = var1;
     }
 };

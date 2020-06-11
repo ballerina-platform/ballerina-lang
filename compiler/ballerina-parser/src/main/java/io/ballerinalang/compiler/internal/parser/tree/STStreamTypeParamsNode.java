@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.StreamTypeParamsNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -40,7 +43,23 @@ public class STStreamTypeParamsNode extends STNode {
             STNode commaToken,
             STNode rightTypeDescNode,
             STNode gtToken) {
-        super(SyntaxKind.STREAM_TYPE_PARAMS);
+        this(
+                ltToken,
+                leftTypeDescNode,
+                commaToken,
+                rightTypeDescNode,
+                gtToken,
+                Collections.emptyList());
+    }
+
+    STStreamTypeParamsNode(
+            STNode ltToken,
+            STNode leftTypeDescNode,
+            STNode commaToken,
+            STNode rightTypeDescNode,
+            STNode gtToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.STREAM_TYPE_PARAMS, diagnostics);
         this.ltToken = ltToken;
         this.leftTypeDescNode = leftTypeDescNode;
         this.commaToken = commaToken;
@@ -55,7 +74,51 @@ public class STStreamTypeParamsNode extends STNode {
                 gtToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STStreamTypeParamsNode(
+                this.ltToken,
+                this.leftTypeDescNode,
+                this.commaToken,
+                this.rightTypeDescNode,
+                this.gtToken,
+                diagnostics);
+    }
+
+    public STStreamTypeParamsNode modify(
+            STNode ltToken,
+            STNode leftTypeDescNode,
+            STNode commaToken,
+            STNode rightTypeDescNode,
+            STNode gtToken) {
+        if (checkForReferenceEquality(
+                ltToken,
+                leftTypeDescNode,
+                commaToken,
+                rightTypeDescNode,
+                gtToken)) {
+            return this;
+        }
+
+        return new STStreamTypeParamsNode(
+                ltToken,
+                leftTypeDescNode,
+                commaToken,
+                rightTypeDescNode,
+                gtToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new StreamTypeParamsNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

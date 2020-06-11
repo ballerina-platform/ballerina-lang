@@ -1,4 +1,4 @@
 {
-    "kind": "STRING_LITERAL",
-    "value": "hello \\u{A}world \\n how \\tare you?"
+  "kind": "STRING_LITERAL",
+  "value": "hello \\u{A}world \\n how \\tare you?"
 }

@@ -1,15 +1,20 @@
 {
-    "kind": "TYPE_TEST_EXPRESSION",
-    "children": [
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "isMissing": true
-        },
-        {
-            "kind": "IS_KEYWORD"
-        },
-        {
-            "kind": "INT_KEYWORD"
-        }
-    ]
+  "kind": "TYPE_TEST_EXPRESSION",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_IDENTIFIER"
+      ]
+    },
+    {
+      "kind": "IS_KEYWORD"
+    },
+    {
+      "kind": "INT_KEYWORD"
+    }
+  ]
 }

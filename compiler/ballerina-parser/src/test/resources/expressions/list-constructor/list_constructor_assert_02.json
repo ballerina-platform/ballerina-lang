@@ -1,98 +1,98 @@
 {
-    "kind": "LIST_CONSTRUCTOR",
-    "children": [
+  "kind": "LIST_CONSTRUCTOR",
+  "children": [
+    {
+      "kind": "OPEN_BRACKET_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "OPEN_BRACKET_TOKEN"
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a"
         },
         {
-            "kind": "LIST",
-            "children": [
+          "kind": "COMMA_TOKEN"
+        },
+        {
+          "kind": "BINARY_EXPRESSION",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
+            },
+            {
+              "kind": "PLUS_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "b"
+            }
+          ]
+        },
+        {
+          "kind": "COMMA_TOKEN"
+        },
+        {
+          "kind": "UNARY_EXPRESSION",
+          "children": [
+            {
+              "kind": "EXCLAMATION_MARK_TOKEN"
+            },
+            {
+              "kind": "BRACED_EXPRESSION",
+              "children": [
                 {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "a"
+                  "kind": "OPEN_PAREN_TOKEN"
                 },
                 {
-                    "kind": "COMMA_TOKEN"
+                  "kind": "BINARY_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    },
+                    {
+                      "kind": "PLUS_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "c"
+                    }
+                  ]
                 },
                 {
-                    "kind": "BINARY_EXPRESSION",
-                    "children": [
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "a"
-                        },
-                        {
-                            "kind": "PLUS_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "b"
-                        }
-                    ]
-                },
-                {
-                    "kind": "COMMA_TOKEN"
-                },
-                {
-                    "kind": "UNARY_EXPRESSION",
-                    "children": [
-                        {
-                            "kind": "EXCLAMATION_MARK_TOKEN"
-                        },
-                        {
-                            "kind": "BRACED_EXPRESSION",
-                            "children": [
-                                {
-                                    "kind": "OPEN_PAREN_TOKEN"
-                                },
-                                {
-                                    "kind": "BINARY_EXPRESSION",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "a"
-                                        },
-                                        {
-                                            "kind": "PLUS_TOKEN"
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "c"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "CLOSE_PAREN_TOKEN"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "kind": "COMMA_TOKEN"
-                },
-                {
-                    "kind": "TRUE_KEYWORD"
-                },
-                {
-                    "kind": "COMMA_TOKEN"
-                },
-                {
-                    "kind": "UNARY_EXPRESSION",
-                    "children": [
-                        {
-                            "kind": "PLUS_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "d"
-                        }
-                    ]
+                  "kind": "CLOSE_PAREN_TOKEN"
                 }
-            ]
+              ]
+            }
+          ]
         },
         {
-            "kind": "CLOSE_BRACKET_TOKEN"
+          "kind": "COMMA_TOKEN"
+        },
+        {
+          "kind": "TRUE_KEYWORD"
+        },
+        {
+          "kind": "COMMA_TOKEN"
+        },
+        {
+          "kind": "UNARY_EXPRESSION",
+          "children": [
+            {
+              "kind": "PLUS_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "d"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACKET_TOKEN"
+    }
+  ]
 }

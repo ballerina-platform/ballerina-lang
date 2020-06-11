@@ -33,7 +33,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 2.0.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", functionName = "processingInstructionCtor",
+        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0",
+        functionName = "processingInstructionCtor",
         args = {
                 @Argument(name = "target", type = TypeKind.STRING),
                 @Argument(name = "content", type = TypeKind.STRING)

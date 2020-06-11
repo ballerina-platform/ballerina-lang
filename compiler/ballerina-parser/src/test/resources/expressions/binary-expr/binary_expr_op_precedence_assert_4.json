@@ -1,88 +1,88 @@
 {
-    "kind": "BINARY_EXPRESSION",
-    "children": [
+  "kind": "BINARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a"
+    },
+    {
+      "kind": "PLUS_TOKEN"
+    },
+    {
+      "kind": "BINARY_EXPRESSION",
+      "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "PLUS_TOKEN"
-        },
-        {
-            "kind": "BINARY_EXPRESSION",
-            "children": [
+          "kind": "BINARY_EXPRESSION",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "b"
+            },
+            {
+              "kind": "ASTERISK_TOKEN"
+            },
+            {
+              "kind": "BINARY_EXPRESSION",
+              "children": [
                 {
-                    "kind": "BINARY_EXPRESSION",
-                    "children": [
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "b"
-                        },
-                        {
-                            "kind": "ASTERISK_TOKEN"
-                        },
-                        {
-                            "kind": "BINARY_EXPRESSION",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "c"
-                                },
-                                {
-                                    "kind": "ASTERISK_TOKEN"
-                                },
-                                {
-                                    "kind": "BINARY_EXPRESSION",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "d"
-                                        },
-                                        {
-                                            "kind": "ASTERISK_TOKEN"
-                                        },
-                                        {
-                                            "kind": "BINARY_EXPRESSION",
-                                            "children": [
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "g"
-                                                },
-                                                {
-                                                    "kind": "ASTERISK_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "h"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "c"
                 },
                 {
-                    "kind": "MINUS_TOKEN"
+                  "kind": "ASTERISK_TOKEN"
                 },
                 {
-                    "kind": "BINARY_EXPRESSION",
-                    "children": [
+                  "kind": "BINARY_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "d"
+                    },
+                    {
+                      "kind": "ASTERISK_TOKEN"
+                    },
+                    {
+                      "kind": "BINARY_EXPRESSION",
+                      "children": [
                         {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "e"
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "g"
                         },
                         {
-                            "kind": "SLASH_TOKEN"
+                          "kind": "ASTERISK_TOKEN"
                         },
                         {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "f"
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "h"
                         }
-                    ]
+                      ]
+                    }
+                  ]
                 }
-            ]
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "MINUS_TOKEN"
+        },
+        {
+          "kind": "BINARY_EXPRESSION",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "e"
+            },
+            {
+              "kind": "SLASH_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "f"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

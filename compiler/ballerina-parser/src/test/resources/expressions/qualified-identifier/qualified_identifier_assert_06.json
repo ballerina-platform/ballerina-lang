@@ -1,16 +1,16 @@
 {
-    "kind": "QUALIFIED_NAME_REFERENCE",
-    "children": [
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "pkg"
-        },
-        {
-            "kind": "COLON_TOKEN"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "bar"
-        }
-    ]
+  "kind": "QUALIFIED_NAME_REFERENCE",
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "pkg"
+    },
+    {
+      "kind": "COLON_TOKEN"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "bar"
+    }
+  ]
 }

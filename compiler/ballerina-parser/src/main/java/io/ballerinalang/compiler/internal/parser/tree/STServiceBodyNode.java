@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.ServiceBodyNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STServiceBodyNode extends STNode {
             STNode openBraceToken,
             STNode resources,
             STNode closeBraceToken) {
-        super(SyntaxKind.SERVICE_BODY);
+        this(
+                openBraceToken,
+                resources,
+                closeBraceToken,
+                Collections.emptyList());
+    }
+
+    STServiceBodyNode(
+            STNode openBraceToken,
+            STNode resources,
+            STNode closeBraceToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.SERVICE_BODY, diagnostics);
         this.openBraceToken = openBraceToken;
         this.resources = resources;
         this.closeBraceToken = closeBraceToken;
@@ -47,7 +62,43 @@ public class STServiceBodyNode extends STNode {
                 closeBraceToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STServiceBodyNode(
+                this.openBraceToken,
+                this.resources,
+                this.closeBraceToken,
+                diagnostics);
+    }
+
+    public STServiceBodyNode modify(
+            STNode openBraceToken,
+            STNode resources,
+            STNode closeBraceToken) {
+        if (checkForReferenceEquality(
+                openBraceToken,
+                resources,
+                closeBraceToken)) {
+            return this;
+        }
+
+        return new STServiceBodyNode(
+                openBraceToken,
+                resources,
+                closeBraceToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ServiceBodyNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

@@ -1,85 +1,118 @@
 {
-    "kind": "QUERY_EXPRESSION",
-    "children": [
+  "kind": "QUERY_EXPRESSION",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "QUERY_PIPELINE",
+      "hasDiagnostics": true,
+      "children": [
         {
-            "kind": "QUERY_PIPELINE",
-            "children": [
+          "kind": "FROM_CLAUSE",
+          "children": [
+            {
+              "kind": "FROM_KEYWORD"
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
                 {
-                    "kind": "FROM_CLAUSE",
-                    "children": [
-                        {
-                            "kind": "FROM_KEYWORD"
-                        },
-                        {
-                            "kind": "INT_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "a"
-                        },
-                        {
-                            "kind": "IN_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "b"
-                        }
-                    ]
+                  "kind": "INT_KEYWORD"
                 },
                 {
-                    "kind": "LIST",
-                    "children": [
-                        {
-                            "kind": "WHERE_CLAUSE",
-                            "children": [
-                                {
-                                    "kind": "WHERE_KEYWORD"
-                                },
-                                {
-                                    "kind": "ANNOT_ACCESS",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "isMissing": true
-                                        },
-                                        {
-                                            "kind": "ANNOT_CHAINING_TOKEN"
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "isMissing": true
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    }
+                  ]
                 }
-            ]
+              ]
+            },
+            {
+              "kind": "IN_KEYWORD"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "b"
+            }
+          ]
         },
         {
-            "kind": "SELECT_CLAUSE",
-            "children": [
+          "kind": "LIST",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "WHERE_CLAUSE",
+              "hasDiagnostics": true,
+              "children": [
                 {
-                    "kind": "SELECT_KEYWORD"
+                  "kind": "WHERE_KEYWORD"
                 },
                 {
-                    "kind": "ANNOT_ACCESS",
-                    "children": [
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "isMissing": true
-                        },
-                        {
-                            "kind": "ANNOT_CHAINING_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "isMissing": true
-                        }
-                    ]
+                  "kind": "ANNOT_ACCESS",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_IDENTIFIER"
+                      ]
+                    },
+                    {
+                      "kind": "ANNOT_CHAINING_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_IDENTIFIER"
+                      ]
+                    }
+                  ]
                 }
-            ]
+              ]
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "SELECT_CLAUSE",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "SELECT_KEYWORD"
+        },
+        {
+          "kind": "ANNOT_ACCESS",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_IDENTIFIER"
+              ]
+            },
+            {
+              "kind": "ANNOT_CHAINING_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_IDENTIFIER"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

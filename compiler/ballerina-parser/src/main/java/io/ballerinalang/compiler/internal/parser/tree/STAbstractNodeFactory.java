@@ -38,11 +38,24 @@ public abstract class STAbstractNodeFactory {
         return new STIdentifierToken(text, leadingTrivia, trailingTrivia);
     }
 
+    public static STToken createIdentifierToken(String text,
+                                                STNode leadingTrivia,
+                                                STNode trailingTrivia,
+                                                Collection<STNodeDiagnostic> diagnostics) {
+        return new STIdentifierToken(text, leadingTrivia, trailingTrivia, diagnostics);
+    }
+
     public static STNode createNodeList(Collection<STNode> children) {
+        if (children.isEmpty()) {
+            return EMPTY_LIST;
+        }
         return new STNodeList(children);
     }
 
     public static STNode createNodeList(STNode... children) {
+        if (children.length == 0) {
+            return EMPTY_LIST;
+        }
         return new STNodeList(children);
     }
 
@@ -54,9 +67,14 @@ public abstract class STAbstractNodeFactory {
         return null;
     }
 
-    public static STNode createMissingToken(SyntaxKind kind) {
+    public static STToken createMissingToken(SyntaxKind kind) {
         // TODO Seems like we can get these tokens from a cache
         return new STMissingToken(kind);
+    }
+
+    public static STToken createMissingToken(SyntaxKind kind, Collection<STNodeDiagnostic> diagnostics) {
+        // TODO Seems like we can get these tokens from a cache
+        return new STMissingToken(kind, diagnostics);
     }
 
     public static STToken createToken(SyntaxKind kind, STNode leadingTrivia, STNode trailingTrivia) {
@@ -68,6 +86,14 @@ public abstract class STAbstractNodeFactory {
                                                   STNode leadingTrivia,
                                                   STNode trailingTrivia) {
         return new STLiteralValueToken(kind, text, leadingTrivia, trailingTrivia);
+    }
+
+    public static STToken createLiteralValueToken(SyntaxKind kind,
+                                                  String text,
+                                                  STNode leadingTrivia,
+                                                  STNode trailingTrivia,
+                                                  Collection<STNodeDiagnostic> diagnostics) {
+        return new STLiteralValueToken(kind, text, leadingTrivia, trailingTrivia, diagnostics);
     }
 
     public static STNode createMinutiae(SyntaxKind kind, String text) {
@@ -88,7 +114,18 @@ public abstract class STAbstractNodeFactory {
         return new STMinutiae(kind, text, width);
     }
 
+    public static STNode createInvalidNodeMinutiae(STNode invalidNode) {
+        return new STInvalidNodeMinutiae(invalidNode);
+    }
+
     public static STToken createDocumentationLineToken(String text, STNode leadingTrivia, STNode trailingTrivia) {
         return new STDocumentationLineToken(text, leadingTrivia, trailingTrivia);
+    }
+
+    public static STToken createDocumentationLineToken(String text,
+                                                       STNode leadingTrivia,
+                                                       STNode trailingTrivia,
+                                                       Collection<STNodeDiagnostic> diagnostics) {
+        return new STDocumentationLineToken(text, leadingTrivia, trailingTrivia, diagnostics);
     }
 }

@@ -150,7 +150,7 @@ public type HelloWorldBlockingClient client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientConfiguration? config = ()) {
+    public function init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         self.grpcClient = new(url, config);
         checkpanic self.grpcClient.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
@@ -170,7 +170,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders;
         [result, resHeaders] = payload;
-        var value = typedesc<Person>.constructFrom(result);
+        var value = result.cloneWithType(typedesc<Person>);
         if (value is Person) {
             return [value, resHeaders];
         } else {
@@ -183,7 +183,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders;
         [result, resHeaders] = payload;
-        var value = typedesc<StockQuote>.constructFrom(result);
+        var value = result.cloneWithType(typedesc<StockQuote>);
         if (value is StockQuote) {
             return [value, resHeaders];
         } else {
@@ -205,7 +205,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders;
         [result, resHeaders] = payload;
-        var value = typedesc<StockQuotes>.constructFrom(result);
+        var value = result.cloneWithType(typedesc<StockQuotes>);
         if (value is StockQuotes) {
             return [value, resHeaders];
         } else {
@@ -219,7 +219,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders;
         [result, resHeaders] = payload;
-        var value = typedesc<StockNames>.constructFrom(result);
+        var value = result.cloneWithType(typedesc<StockNames>);
         if (value is StockNames) {
             return [value, resHeaders];
         } else {
@@ -234,7 +234,7 @@ public type HelloWorldClient client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientConfiguration? config = ()) {
+    public function init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         self.grpcClient = new(url, config);
         checkpanic self.grpcClient.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());

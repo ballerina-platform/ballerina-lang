@@ -25,7 +25,7 @@ public type ParentFoo object {
     public Baz z = 1;               // :25:5:: 'Baz'
 
 
-    public function __init (int i, ChildFoo  c){    // :28:5:: 'ChildFoo'
+    public function init (int i, ChildFoo  c){    // :28:5:: 'ChildFoo'
         self.i = i;
         self.c = c;
     }
@@ -36,7 +36,7 @@ type ChildFoo object {
     private string name = "";
 
 
-    function __init(string name) {
+    function init(string name) {
         self.name = name;
     }
 };

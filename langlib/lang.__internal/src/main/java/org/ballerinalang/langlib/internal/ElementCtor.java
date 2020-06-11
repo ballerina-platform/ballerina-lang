@@ -36,7 +36,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 2.0.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", functionName = "elementCtor",
+        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0", functionName = "elementCtor",
         args = {
                 @Argument(name = "name", type = TypeKind.STRING),
                 @Argument(name = "attributeMap", type = TypeKind.MAP),

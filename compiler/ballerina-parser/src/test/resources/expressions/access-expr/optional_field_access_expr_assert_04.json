@@ -1,16 +1,21 @@
 {
-    "kind": "OPTIONAL_FIELD_ACCESS",
-    "children": [
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "isMissing": true
-        },
-        {
-            "kind": "OPTIONAL_CHAINING_TOKEN"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        }
-    ]
+  "kind": "OPTIONAL_FIELD_ACCESS",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_IDENTIFIER"
+      ]
+    },
+    {
+      "kind": "OPTIONAL_CHAINING_TOKEN"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a"
+    }
+  ]
 }

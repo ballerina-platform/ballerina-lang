@@ -35,6 +35,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.util.Arrays;
 
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+
 /**
  * Set the children of an XML if its a singleton. Error otherwise.
  * Any existing children will be removed.
@@ -42,7 +44,7 @@ import java.util.Arrays;
  * @since 0.88
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
         functionName = "setChildren",
         args = {@Argument(name = "children", type = TypeKind.UNION)},
         isPublic = true

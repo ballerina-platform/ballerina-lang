@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.ReceiveFieldsNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STReceiveFieldsNode extends STNode {
             STNode openBrace,
             STNode receiveFields,
             STNode closeBrace) {
-        super(SyntaxKind.RECEIVE_FIELDS);
+        this(
+                openBrace,
+                receiveFields,
+                closeBrace,
+                Collections.emptyList());
+    }
+
+    STReceiveFieldsNode(
+            STNode openBrace,
+            STNode receiveFields,
+            STNode closeBrace,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.RECEIVE_FIELDS, diagnostics);
         this.openBrace = openBrace;
         this.receiveFields = receiveFields;
         this.closeBrace = closeBrace;
@@ -47,7 +62,43 @@ public class STReceiveFieldsNode extends STNode {
                 closeBrace);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STReceiveFieldsNode(
+                this.openBrace,
+                this.receiveFields,
+                this.closeBrace,
+                diagnostics);
+    }
+
+    public STReceiveFieldsNode modify(
+            STNode openBrace,
+            STNode receiveFields,
+            STNode closeBrace) {
+        if (checkForReferenceEquality(
+                openBrace,
+                receiveFields,
+                closeBrace)) {
+            return this;
+        }
+
+        return new STReceiveFieldsNode(
+                openBrace,
+                receiveFields,
+                closeBrace,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReceiveFieldsNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

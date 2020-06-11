@@ -1,353 +1,378 @@
 {
-    "kind": "FUNCTION_DEFINITION",
-    "children": [
+  "kind": "FUNCTION_DEFINITION",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
         {
-            "kind": "METADATA",
-            "children": [
-                {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "FUNCTION_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "foo"
-        },
-        {
-            "kind": "FUNCTION_SIGNATURE",
-            "children": [
-                {
-                    "kind": "OPEN_PAREN_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                },
-                {
-                    "kind": "CLOSE_PAREN_TOKEN"
-                }
-            ]
-        },
-        {
-            "kind": "FUNCTION_BODY_BLOCK",
-            "children": [
-                {
-                    "kind": "OPEN_BRACE_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "VAR_KEYWORD"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "x"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "QUERY_ACTION",
-                                    "children": [
-                                        {
-                                            "kind": "QUERY_PIPELINE",
-                                            "children": [
-                                                {
-                                                    "kind": "FROM_CLAUSE",
-                                                    "children": [
-                                                        {
-                                                            "kind": "FROM_KEYWORD"
-                                                        },
-                                                        {
-                                                            "kind": "VAR_KEYWORD"
-                                                        },
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "person"
-                                                        },
-                                                        {
-                                                            "kind": "IN_KEYWORD"
-                                                        },
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "personList"
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                        {
-                                                            "kind": "WHERE_CLAUSE",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "WHERE_KEYWORD"
-                                                                },
-                                                                {
-                                                                    "kind": "BINARY_EXPRESSION",
-                                                                    "children": [
-                                                                        {
-                                                                            "kind": "BRACED_EXPRESSION",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "BINARY_EXPRESSION",
-                                                                                    "children": [
-                                                                                        {
-                                                                                            "kind": "FIELD_ACCESS",
-                                                                                            "children": [
-                                                                                                {
-                                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                                    "value": "person"
-                                                                                                },
-                                                                                                {
-                                                                                                    "kind": "DOT_TOKEN"
-                                                                                                },
-                                                                                                {
-                                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                                    "value": "age"
-                                                                                                }
-                                                                                            ]
-                                                                                        },
-                                                                                        {
-                                                                                            "kind": "ASTERISK_TOKEN"
-                                                                                        },
-                                                                                        {
-                                                                                            "kind": "DECIMAL_INTEGER_LITERAL",
-                                                                                            "value": "2"
-                                                                                        }
-                                                                                    ]
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN"
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "LT_TOKEN"
-                                                                        },
-                                                                        {
-                                                                            "kind": "DECIMAL_INTEGER_LITERAL",
-                                                                            "value": "50"
-                                                                        }
-                                                                    ]
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "DO_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "BLOCK_STATEMENT",
-                                            "children": [
-                                                {
-                                                    "kind": "OPEN_BRACE_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                        {
-                                                            "kind": "LOCAL_VAR_DECL",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "LIST",
-                                                                    "children": [
-                                                                    ]
-                                                                },
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "FullName"
-                                                                },
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "fullName"
-                                                                },
-                                                                {
-                                                                    "kind": "EQUAL_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "MAPPING_CONSTRUCTOR",
-                                                                    "children": [
-                                                                        {
-                                                                            "kind": "OPEN_BRACE_TOKEN"
-                                                                        },
-                                                                        {
-                                                                            "kind": "LIST",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "SPECIFIC_FIELD",
-                                                                                    "children": [
-                                                                                        {
-                                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                                            "value": "firstName"
-                                                                                        },
-                                                                                        {
-                                                                                            "kind": "COLON_TOKEN"
-                                                                                        },
-                                                                                        {
-                                                                                            "kind": "FIELD_ACCESS",
-                                                                                            "children": [
-                                                                                                {
-                                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                                    "value": "person"
-                                                                                                },
-                                                                                                {
-                                                                                                    "kind": "DOT_TOKEN"
-                                                                                                },
-                                                                                                {
-                                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                                    "value": "firstName"
-                                                                                                }
-                                                                                            ]
-                                                                                        }
-                                                                                    ]
-                                                                                },
-                                                                                {
-                                                                                    "kind": "SPECIFIC_FIELD",
-                                                                                    "children": [
-                                                                                        {
-                                                                                            "kind": "COMMA_TOKEN"
-                                                                                        },
-                                                                                        {
-                                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                                            "value": "lastName"
-                                                                                        },
-                                                                                        {
-                                                                                            "kind": "COLON_TOKEN"
-                                                                                        },
-                                                                                        {
-                                                                                            "kind": "FIELD_ACCESS",
-                                                                                            "children": [
-                                                                                                {
-                                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                                    "value": "person"
-                                                                                                },
-                                                                                                {
-                                                                                                    "kind": "DOT_TOKEN"
-                                                                                                },
-                                                                                                {
-                                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                                    "value": "lastName"
-                                                                                                }
-                                                                                            ]
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CLOSE_BRACE_TOKEN"
-                                                                        }
-                                                                    ]
-                                                                },
-                                                                {
-                                                                    "kind": "SEMICOLON_TOKEN"
-                                                                }
-                                                            ]
-                                                        },
-                                                        {
-                                                            "kind": "ASSIGNMENT_STATEMENT",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "INDEXED_EXPRESSION",
-                                                                    "children": [
-                                                                        {
-                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                            "value": "nameList"
-                                                                        },
-                                                                        {
-                                                                            "kind": "OPEN_BRACKET_TOKEN"
-                                                                        },
-                                                                        {
-                                                                            "kind": "LIST",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "METHOD_CALL",
-                                                                                    "children": [
-                                                                                        {
-                                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                                            "value": "nameList"
-                                                                                        },
-                                                                                        {
-                                                                                            "kind": "DOT_TOKEN"
-                                                                                        },
-                                                                                        {
-                                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                                            "value": "length"
-                                                                                        },
-                                                                                        {
-                                                                                            "kind": "OPEN_PAREN_TOKEN"
-                                                                                        },
-                                                                                        {
-                                                                                            "kind": "LIST",
-                                                                                            "children": [
-                                                                                            ]
-                                                                                        },
-                                                                                        {
-                                                                                            "kind": "CLOSE_PAREN_TOKEN"
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CLOSE_BRACKET_TOKEN"
-                                                                        }
-                                                                    ]
-                                                                },
-                                                                {
-                                                                    "kind": "EQUAL_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "fullName"
-                                                                },
-                                                                {
-                                                                    "kind": "SEMICOLON_TOKEN"
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "CLOSE_BRACE_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "kind": "CLOSE_BRACE_TOKEN"
-                }
-            ]
+          "kind": "LIST",
+          "children": []
         }
-    ]
+      ]
+    },
+    {
+      "kind": "FUNCTION_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "foo"
+    },
+    {
+      "kind": "FUNCTION_SIGNATURE",
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN"
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_BODY_BLOCK",
+      "children": [
+        {
+          "kind": "OPEN_BRACE_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "VAR_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "x"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "QUERY_ACTION",
+                  "children": [
+                    {
+                      "kind": "QUERY_PIPELINE",
+                      "children": [
+                        {
+                          "kind": "FROM_CLAUSE",
+                          "children": [
+                            {
+                              "kind": "FROM_KEYWORD"
+                            },
+                            {
+                              "kind": "TYPED_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "VAR_KEYWORD"
+                                },
+                                {
+                                  "kind": "CAPTURE_BINDING_PATTERN",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "person"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "IN_KEYWORD"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "personList"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "WHERE_CLAUSE",
+                              "children": [
+                                {
+                                  "kind": "WHERE_KEYWORD"
+                                },
+                                {
+                                  "kind": "BINARY_EXPRESSION",
+                                  "children": [
+                                    {
+                                      "kind": "BRACED_EXPRESSION",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_PAREN_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BINARY_EXPRESSION",
+                                          "children": [
+                                            {
+                                              "kind": "FIELD_ACCESS",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "person"
+                                                },
+                                                {
+                                                  "kind": "DOT_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "age"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "ASTERISK_TOKEN"
+                                            },
+                                            {
+                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                              "value": "2"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_PAREN_TOKEN"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "LT_TOKEN"
+                                    },
+                                    {
+                                      "kind": "DECIMAL_INTEGER_LITERAL",
+                                      "value": "50"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DO_KEYWORD"
+                    },
+                    {
+                      "kind": "BLOCK_STATEMENT",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACE_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "LOCAL_VAR_DECL",
+                              "children": [
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "TYPED_BINDING_PATTERN",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "FullName"
+                                    },
+                                    {
+                                      "kind": "CAPTURE_BINDING_PATTERN",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "fullName"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                  "kind": "MAPPING_CONSTRUCTOR",
+                                  "children": [
+                                    {
+                                      "kind": "OPEN_BRACE_TOKEN"
+                                    },
+                                    {
+                                      "kind": "LIST",
+                                      "children": [
+                                        {
+                                          "kind": "SPECIFIC_FIELD",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "firstName"
+                                            },
+                                            {
+                                              "kind": "COLON_TOKEN"
+                                            },
+                                            {
+                                              "kind": "FIELD_ACCESS",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "person"
+                                                },
+                                                {
+                                                  "kind": "DOT_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "firstName"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "COMMA_TOKEN"
+                                        },
+                                        {
+                                          "kind": "SPECIFIC_FIELD",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "lastName"
+                                            },
+                                            {
+                                              "kind": "COLON_TOKEN"
+                                            },
+                                            {
+                                              "kind": "FIELD_ACCESS",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "person"
+                                                },
+                                                {
+                                                  "kind": "DOT_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "lastName"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACE_TOKEN"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "SEMICOLON_TOKEN"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "ASSIGNMENT_STATEMENT",
+                              "children": [
+                                {
+                                  "kind": "INDEXED_EXPRESSION",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "nameList"
+                                    },
+                                    {
+                                      "kind": "OPEN_BRACKET_TOKEN"
+                                    },
+                                    {
+                                      "kind": "LIST",
+                                      "children": [
+                                        {
+                                          "kind": "METHOD_CALL",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "nameList"
+                                            },
+                                            {
+                                              "kind": "DOT_TOKEN"
+                                            },
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "length"
+                                            },
+                                            {
+                                              "kind": "OPEN_PAREN_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
+                                            {
+                                              "kind": "CLOSE_PAREN_TOKEN"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "fullName"
+                                },
+                                {
+                                  "kind": "SEMICOLON_TOKEN"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACE_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_BRACE_TOKEN"
+        }
+      ]
+    }
+  ]
 }

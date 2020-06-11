@@ -1,64 +1,64 @@
 {
-    "kind": "BINARY_EXPRESSION",
-    "children": [
+  "kind": "BINARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a"
+    },
+    {
+      "kind": "PLUS_TOKEN"
+    },
+    {
+      "kind": "BINARY_EXPRESSION",
+      "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "PLUS_TOKEN"
-        },
-        {
-            "kind": "BINARY_EXPRESSION",
-            "children": [
+          "kind": "ANNOT_ACCESS",
+          "children": [
+            {
+              "kind": "ANNOT_ACCESS",
+              "children": [
                 {
-                    "kind": "ANNOT_ACCESS",
-                    "children": [
-                        {
-                            "kind": "ANNOT_ACCESS",
-                            "children": [
-                                {
-                                    "kind": "ANNOT_ACCESS",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "b"
-                                        },
-                                        {
-                                            "kind": "ANNOT_CHAINING_TOKEN"
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "c"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "ANNOT_CHAINING_TOKEN"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "d"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ANNOT_CHAINING_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "e"
-                        }
-                    ]
+                  "kind": "ANNOT_ACCESS",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "b"
+                    },
+                    {
+                      "kind": "ANNOT_CHAINING_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "c"
+                    }
+                  ]
                 },
                 {
-                    "kind": "PLUS_TOKEN"
+                  "kind": "ANNOT_CHAINING_TOKEN"
                 },
                 {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "f"
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "d"
                 }
-            ]
+              ]
+            },
+            {
+              "kind": "ANNOT_CHAINING_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "e"
+            }
+          ]
+        },
+        {
+          "kind": "PLUS_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "f"
         }
-    ]
+      ]
+    }
+  ]
 }

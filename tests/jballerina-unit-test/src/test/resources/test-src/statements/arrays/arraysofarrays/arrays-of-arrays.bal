@@ -217,7 +217,7 @@ type Bar object {
     *Foo1;
     *Foo2;
 
-    public function __init() {
+    public function init() {
         self.fooId1 = "Foo1";
         self.fooId2 = "Foo2";
     }

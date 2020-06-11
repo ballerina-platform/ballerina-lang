@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STUnionTypeDescriptorNode extends STTypeDescriptorNode {
             STNode leftTypeDesc,
             STNode pipeToken,
             STNode rightTypeDesc) {
-        super(SyntaxKind.UNION_TYPE_DESC);
+        this(
+                leftTypeDesc,
+                pipeToken,
+                rightTypeDesc,
+                Collections.emptyList());
+    }
+
+    STUnionTypeDescriptorNode(
+            STNode leftTypeDesc,
+            STNode pipeToken,
+            STNode rightTypeDesc,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.UNION_TYPE_DESC, diagnostics);
         this.leftTypeDesc = leftTypeDesc;
         this.pipeToken = pipeToken;
         this.rightTypeDesc = rightTypeDesc;
@@ -47,7 +62,43 @@ public class STUnionTypeDescriptorNode extends STTypeDescriptorNode {
                 rightTypeDesc);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STUnionTypeDescriptorNode(
+                this.leftTypeDesc,
+                this.pipeToken,
+                this.rightTypeDesc,
+                diagnostics);
+    }
+
+    public STUnionTypeDescriptorNode modify(
+            STNode leftTypeDesc,
+            STNode pipeToken,
+            STNode rightTypeDesc) {
+        if (checkForReferenceEquality(
+                leftTypeDesc,
+                pipeToken,
+                rightTypeDesc)) {
+            return this;
+        }
+
+        return new STUnionTypeDescriptorNode(
+                leftTypeDesc,
+                pipeToken,
+                rightTypeDesc,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new UnionTypeDescriptorNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

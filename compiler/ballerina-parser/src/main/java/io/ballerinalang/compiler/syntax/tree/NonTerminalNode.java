@@ -17,12 +17,15 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
+import io.ballerinalang.compiler.diagnostics.Diagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.internal.syntax.TreeModifiers;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -93,7 +96,6 @@ public abstract class NonTerminalNode extends Node {
         return (Token) foundNode;
     }
 
-
     // Node modification operations
 
     /**
@@ -106,6 +108,14 @@ public abstract class NonTerminalNode extends Node {
      */
     public <T extends NonTerminalNode> T replace(Node target, Node replacement) {
         return TreeModifiers.replace((T) this, target, replacement);
+    }
+
+    public Iterable<Diagnostic> diagnostics() {
+        if (!internalNode.hasDiagnostics()) {
+            return Collections::emptyIterator;
+        }
+
+        return () -> collectDiagnostics().iterator();
     }
 
     protected abstract String[] childNames();
@@ -177,5 +187,24 @@ public abstract class NonTerminalNode extends Node {
         // TODO It is impossible to reach this line
         // TODO Can we rewrite this logic
         throw new IllegalStateException();
+    }
+
+    private List<Diagnostic> collectDiagnostics() {
+        List<Diagnostic> diagnosticList = new ArrayList<>();
+        collectDiagnostics(this, diagnosticList);
+        return diagnosticList;
+    }
+
+    // TODO this is a very inefficient implementation. We need to fix this ASAP.
+    // TODO this implementation builds the complete public tree
+    // TODO find a way to traverse the internal tree to build the diagnostics information
+    private void collectDiagnostics(NonTerminalNode node, List<Diagnostic> diagnosticList) {
+        for (Node child : node.children()) {
+            child.diagnostics().forEach(diagnosticList::add);
+        }
+
+        internalNode.diagnostics().stream()
+                .map(this::createSyntaxDiagnostic)
+                .forEach(diagnosticList::add);
     }
 }

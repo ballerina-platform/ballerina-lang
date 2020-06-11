@@ -40,7 +40,9 @@ public class ResourceSignatureValidator {
     private static final String CALLER_TYPE = PROTOCOL_PACKAGE_HTTP + ":" + CALLER;
     private static final String HTTP_REQUEST_TYPE = PROTOCOL_PACKAGE_HTTP + ":" + REQUEST;
 
-    public static void validate(List<BLangSimpleVariable> signatureParams, DiagnosticLog dlog, DiagnosticPos pos) {
+    @SuppressWarnings("unchecked")
+    public static void validate(FunctionNode resourceNode, DiagnosticLog dlog, DiagnosticPos pos) {
+        List<BLangSimpleVariable> signatureParams = (List<BLangSimpleVariable>) resourceNode.getParameters();
         final int nParams = signatureParams.size();
 
         if (nParams < COMPULSORY_PARAM_COUNT) {
@@ -56,6 +58,8 @@ public class ResourceSignatureValidator {
         if (!isValidResourceParam(signatureParams.get(1), HTTP_REQUEST_TYPE)) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "second parameter should be of type " + HTTP_REQUEST_TYPE);
         }
+
+        validateResourceAnnotation(resourceNode, dlog);
     }
 
     private static boolean isValidResourceParam(BLangSimpleVariable param, String expectedType) {

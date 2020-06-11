@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,7 +37,17 @@ public class STOptionalTypeDescriptorNode extends STTypeDescriptorNode {
     STOptionalTypeDescriptorNode(
             STNode typeDescriptor,
             STNode questionMarkToken) {
-        super(SyntaxKind.OPTIONAL_TYPE_DESC);
+        this(
+                typeDescriptor,
+                questionMarkToken,
+                Collections.emptyList());
+    }
+
+    STOptionalTypeDescriptorNode(
+            STNode typeDescriptor,
+            STNode questionMarkToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.OPTIONAL_TYPE_DESC, diagnostics);
         this.typeDescriptor = typeDescriptor;
         this.questionMarkToken = questionMarkToken;
 
@@ -43,7 +56,39 @@ public class STOptionalTypeDescriptorNode extends STTypeDescriptorNode {
                 questionMarkToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STOptionalTypeDescriptorNode(
+                this.typeDescriptor,
+                this.questionMarkToken,
+                diagnostics);
+    }
+
+    public STOptionalTypeDescriptorNode modify(
+            STNode typeDescriptor,
+            STNode questionMarkToken) {
+        if (checkForReferenceEquality(
+                typeDescriptor,
+                questionMarkToken)) {
+            return this;
+        }
+
+        return new STOptionalTypeDescriptorNode(
+                typeDescriptor,
+                questionMarkToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new OptionalTypeDescriptorNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

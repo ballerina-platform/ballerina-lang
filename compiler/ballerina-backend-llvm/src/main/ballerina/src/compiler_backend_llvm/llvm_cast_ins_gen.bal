@@ -9,7 +9,7 @@ type CastInsGenerator object {
     bir:VarRef rhsOp;
     bir:BType castType;
 
-    function __init(llvm:LLVMBuilderRef builder, FuncGenrator parent, bir:TypeCast castIns) {
+    function init(llvm:LLVMBuilderRef builder, FuncGenrator parent, bir:TypeCast castIns) {
         self.builder = builder;
         self.parent = parent;
         self.lhsOp = castIns.lhsOp;

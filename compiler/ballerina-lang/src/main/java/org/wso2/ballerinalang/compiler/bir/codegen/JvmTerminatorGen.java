@@ -164,7 +164,7 @@ public class JvmTerminatorGen {
         this.packageCache = jvmPackageGen.packageCache;
         this.jvmInstructionGen = jvmInstructionGen;
         this.symbolTable = jvmPackageGen.symbolTable;
-        this.currentPackageName = getPackageName(module.org.value, module.name.value);
+        this.currentPackageName = getPackageName(module.org.value, module.name.value, module.version.value);
     }
 
     private static void genYieldCheckForLock(MethodVisitor mv, LabelGenerator labelGen, String funcName,
@@ -385,8 +385,9 @@ public class JvmTerminatorGen {
 
         String orgName = calleePkgId.orgName.value;
         String moduleName = calleePkgId.name.value;
+        String version = calleePkgId.version.value;
         // invoke the function
-        this.genCall(callIns, orgName, moduleName, localVarOffset);
+        this.genCall(callIns, orgName, moduleName, version, localVarOffset);
 
         // store return
         this.storeReturnFromCallIns(callIns.lhsOp != null ? callIns.lhsOp.variableDcl : null);
@@ -594,10 +595,11 @@ public class JvmTerminatorGen {
         }
     }
 
-    private void genCall(BIRTerminator.Call callIns, String orgName, String moduleName, int localVarOffset) {
+        private void genCall(BIRTerminator.Call callIns, String orgName, String moduleName,
+                             String version, int localVarOffset) {
 
         if (!callIns.isVirtual) {
-            this.genFuncCall(callIns, orgName, moduleName, localVarOffset);
+            this.genFuncCall(callIns, orgName, moduleName, version, localVarOffset);
             return;
         }
 
@@ -606,32 +608,33 @@ public class JvmTerminatorGen {
             this.genVirtualCall(callIns, orgName, moduleName, localVarOffset);
         } else {
             // then this is a function attached to a built-in type
-            this.genBuiltinTypeAttachedFuncCall(callIns, orgName, moduleName, localVarOffset);
+            this.genBuiltinTypeAttachedFuncCall(callIns, orgName, moduleName, version, localVarOffset);
         }
     }
 
-    private void genFuncCall(BIRTerminator.Call callIns, String orgName, String moduleName, int localVarOffset) {
+    private void genFuncCall(BIRTerminator.Call callIns, String orgName, String moduleName, String version,
+                             int localVarOffset) {
 
         String methodName = callIns.name.value;
-        this.genStaticCall(callIns, orgName, moduleName, localVarOffset, methodName, methodName);
+        this.genStaticCall(callIns, orgName, moduleName, version, localVarOffset, methodName, methodName);
     }
 
-    private void genBuiltinTypeAttachedFuncCall(BIRTerminator.Call callIns, String orgName, String moduleName,
-                                                int localVarOffset) {
+    private void genBuiltinTypeAttachedFuncCall(BIRTerminator.Call callIns, String orgName,
+                                                String moduleName,  String version, int localVarOffset) {
 
         String methodLookupName = callIns.name.value;
         int optionalIndex = methodLookupName.indexOf(".");
         int index = optionalIndex != -1 ? optionalIndex + 1 : 0;
         String methodName = methodLookupName.substring(index);
-        this.genStaticCall(callIns, orgName, moduleName, localVarOffset, methodName, methodLookupName);
+        this.genStaticCall(callIns, orgName, moduleName, version, localVarOffset, methodName, methodLookupName);
     }
 
-    private void genStaticCall(BIRTerminator.Call callIns, String orgName, String moduleName, int localVarOffset,
+    private void genStaticCall(BIRTerminator.Call callIns, String orgName, String moduleName,
+                               String version, int localVarOffset,
                                String methodName, String methodLookupName) {
         // load strand
         this.mv.visitVarInsn(ALOAD, localVarOffset);
-
-        String lookupKey = getPackageName(orgName, moduleName) + methodLookupName;
+        String lookupKey = getPackageName(orgName, moduleName, version) + methodLookupName;
 
         int argsCount = callIns.args.size();
         int i = 0;
@@ -661,16 +664,19 @@ public class JvmTerminatorGen {
             }
             String balFileName = funcSymbol.source;
 
+
             if (balFileName == null || !balFileName.endsWith(BAL_EXTENSION)) {
                 balFileName = MODULE_INIT_CLASS_NAME;
             }
 
-            jvmClass = getModuleLevelClassName(orgName, moduleName, cleanupPathSeperators(cleanupBalExt(balFileName)));
+            jvmClass = getModuleLevelClassName(orgName, moduleName, version,
+                                               cleanupPathSeperators(cleanupBalExt(balFileName)));
             //TODO: add receiver:  BType attachedType = type.r != null ? receiver.type : null;
             methodDesc = getMethodDesc(params, type.retType, null, false);
         }
         this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanMethodName, methodDesc, false);
     }
+
 
     private void genVirtualCall(BIRTerminator.Call callIns, String orgName, String moduleName, int localVarOffset) {
         // load self
@@ -701,6 +707,7 @@ public class JvmTerminatorGen {
             // i + 1 is used since we skip the first argument (self)
             BIROperand arg = callIns.args.get(i + 1);
             boolean userProvidedArg = this.visitArg(arg);
+
 
             // Add the to the rest params array
             JvmInstructionGen.addBoxInsn(this.mv, arg.variableDcl.type);
@@ -1132,7 +1139,7 @@ public class JvmTerminatorGen {
             emitStopObservationInvocation(this.mv, localVarOffset);
         }
         BType bType = func.type.retType;
-        if (bType.tag == TypeTags.NIL) {
+        if (bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
             this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             this.mv.visitInsn(ARETURN);
         } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
@@ -1153,6 +1160,7 @@ public class JvmTerminatorGen {
         } else if (bType.tag == TypeTags.MAP ||
                 bType.tag == TypeTags.ARRAY ||
                 bType.tag == TypeTags.ANY ||
+                bType.tag == TypeTags.INTERSECTION ||
                 bType.tag == TypeTags.STREAM ||
                 bType.tag == TypeTags.TABLE ||
                 bType.tag == TypeTags.ANYDATA ||

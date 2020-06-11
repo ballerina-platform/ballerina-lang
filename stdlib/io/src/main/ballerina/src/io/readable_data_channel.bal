@@ -23,7 +23,7 @@ public type ReadableDataChannel object {
     # 
     # +byteChannel - The channel, which would represent the source to read/write data
     # +bOrder - network byte order
-    public function __init(ReadableByteChannel byteChannel, public ByteOrder bOrder = "BE") {
+    public function init(ReadableByteChannel byteChannel, public ByteOrder bOrder = "BE") {
         // Remove temp once this got fixed #19842
         string temp = bOrder;
         initReadableDataChannel(self, byteChannel, temp);

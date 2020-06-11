@@ -56,7 +56,7 @@ type Person2 object {
     int year = 2;
     string month = "idk";
     
-    function __init(int age, string name) {
+    function init(int age, string name) {
         self.age = age;
         self.name = name;
         self.year = 50;

@@ -1,37 +1,47 @@
 {
-    "kind": "MODULE_VAR_DECL",
-    "children": [
+  "kind": "MODULE_VAR_DECL",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
         {
-            "kind": "METADATA",
-            "children": [
-                {
-                    "kind": "LIST",
-                    "children": []
-                }
-            ]
-        },
-        {
-            "kind": "INTERSECTION_TYPE_DESC",
-            "children": [
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "T"
-                },
-                {
-                    "kind": "BITWISE_AND_TOKEN"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "A"
-                }
-            ]
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
+          "kind": "LIST",
+          "children": []
         }
-    ]
+      ]
+    },
+    {
+      "kind": "TYPED_BINDING_PATTERN",
+      "children": [
+        {
+          "kind": "INTERSECTION_TYPE_DESC",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "T"
+            },
+            {
+              "kind": "BITWISE_AND_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "A"
+            }
+          ]
+        },
+        {
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

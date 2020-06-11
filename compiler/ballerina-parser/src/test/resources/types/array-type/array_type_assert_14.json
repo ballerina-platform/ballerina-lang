@@ -1,52 +1,61 @@
 {
-    "kind": "MODULE_VAR_DECL",
-    "children": [
+  "kind": "MODULE_VAR_DECL",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
         {
-            "kind": "METADATA",
-            "children": [
-                {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                }
-            ]
-        },
+          "kind": "LIST",
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "TYPED_BINDING_PATTERN",
+      "children": [
         {
-            "kind": "OPTIONAL_TYPE_DESC",
-            "children": [
+          "kind": "OPTIONAL_TYPE_DESC",
+          "children": [
+            {
+              "kind": "ARRAY_TYPE_DESC",
+              "children": [
                 {
-                    "kind": "ARRAY_TYPE_DESC",
-                    "children": [
-                        {
-                            "kind": "OPTIONAL_TYPE_DESC",
-                            "children": [
-                                {
-                                    "kind": "INT_KEYWORD"
-                                },
-                                {
-                                    "kind": "QUESTION_MARK_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "OPEN_BRACKET_TOKEN"
-                        },
-                        {
-                            "kind": "CLOSE_BRACKET_TOKEN"
-                        }
-                    ]
+                  "kind": "OPTIONAL_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "INT_KEYWORD"
+                    },
+                    {
+                      "kind": "QUESTION_MARK_TOKEN"
+                    }
+                  ]
                 },
                 {
-                    "kind": "QUESTION_MARK_TOKEN"
+                  "kind": "OPEN_BRACKET_TOKEN"
+                },
+                {
+                  "kind": "CLOSE_BRACKET_TOKEN"
                 }
-            ]
+              ]
+            },
+            {
+              "kind": "QUESTION_MARK_TOKEN"
+            }
+          ]
         },
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

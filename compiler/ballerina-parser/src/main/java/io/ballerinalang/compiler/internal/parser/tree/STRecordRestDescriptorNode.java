@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.RecordRestDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STRecordRestDescriptorNode extends STNode {
             STNode typeName,
             STNode ellipsisToken,
             STNode semicolonToken) {
-        super(SyntaxKind.RECORD_REST_TYPE);
+        this(
+                typeName,
+                ellipsisToken,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STRecordRestDescriptorNode(
+            STNode typeName,
+            STNode ellipsisToken,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.RECORD_REST_TYPE, diagnostics);
         this.typeName = typeName;
         this.ellipsisToken = ellipsisToken;
         this.semicolonToken = semicolonToken;
@@ -47,7 +62,43 @@ public class STRecordRestDescriptorNode extends STNode {
                 semicolonToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STRecordRestDescriptorNode(
+                this.typeName,
+                this.ellipsisToken,
+                this.semicolonToken,
+                diagnostics);
+    }
+
+    public STRecordRestDescriptorNode modify(
+            STNode typeName,
+            STNode ellipsisToken,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                typeName,
+                ellipsisToken,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STRecordRestDescriptorNode(
+                typeName,
+                ellipsisToken,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RecordRestDescriptorNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

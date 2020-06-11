@@ -22,7 +22,7 @@ type Rec record {
 type Obj object {
     int i;
 
-    function __init() {
+    function init() {
         self.i = 1;
     }
 };
@@ -30,14 +30,14 @@ type Obj object {
 type ObjInitNullable object {
     int i;
 
-    function __init() returns () {
+    function init() returns () {
         self.i = 1;
     }
 };
 
 type Age object {
     public int age;
-    public function __init(int age = 5) {
+    public function init(int age = 5) {
     	 self.age = age;
     }
 };

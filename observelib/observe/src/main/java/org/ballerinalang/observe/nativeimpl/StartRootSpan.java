@@ -35,7 +35,7 @@ import static org.ballerinalang.observe.nativeimpl.OpenTracerBallerinaWrapper.RO
  */
 @BallerinaFunction(
         orgName = "ballerina",
-        packageName = "observe",
+        packageName = "observe", version = "0.8.0",
         functionName = "startRootSpan",
         args = {
                 @Argument(name = "spanName", type = TypeKind.STRING),

@@ -7,8 +7,8 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "java.arrays"
-    version = "@project.version@"
-    path = "./lib/ballerina-java-arrays-@project.version@.jar"
+    version = "0.9.0"
+    path = "./lib/ballerina-java-arrays-0.9.0-java.jar"
     groupId = "ballerina"
     modules = ["java.arrays"]
     

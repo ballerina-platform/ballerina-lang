@@ -1,12 +1,12 @@
 {
-    "kind": "UNARY_EXPRESSION",
-    "children": [
-        {
-            "kind": "PLUS_TOKEN"
-        },
-        {
-            "kind": "DECIMAL_INTEGER_LITERAL",
-            "value": 3
-        }
-    ]
+  "kind": "UNARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "PLUS_TOKEN"
+    },
+    {
+      "kind": "DECIMAL_INTEGER_LITERAL",
+      "value": "3"
+    }
+  ]
 }

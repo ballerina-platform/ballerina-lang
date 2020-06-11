@@ -164,7 +164,7 @@ function getLargeMap() returns map<int> {
 type Person object {
     string name;
 
-    function __init(string n) {
+    function init(string n) {
         self.name = n;
     }
 

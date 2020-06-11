@@ -1,43 +1,53 @@
 {
-    "kind": "MODULE_VAR_DECL",
-    "children": [
+  "kind": "MODULE_VAR_DECL",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
         {
-            "kind": "METADATA",
-            "children": [
-                {
-                    "kind": "LIST",
-                    "children": []
-                }
-            ]
-        },
+          "kind": "LIST",
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "TYPED_BINDING_PATTERN",
+      "children": [
         {
-            "kind": "STREAM_TYPE_DESC",
-            "children": [
+          "kind": "STREAM_TYPE_DESC",
+          "children": [
+            {
+              "kind": "STREAM_KEYWORD"
+            },
+            {
+              "kind": "STREAM_TYPE_PARAMS",
+              "children": [
                 {
-                    "kind": "STREAM_KEYWORD"
+                  "kind": "LT_TOKEN"
                 },
                 {
-                    "kind": "STREAM_TYPE_PARAMS",
-                    "children": [
-                        {
-                            "kind": "LT_TOKEN"
-                        },
-                        {
-                            "kind": "STRING_KEYWORD"
-                        },
-                        {
-                            "kind": "GT_TOKEN"
-                        }
-                    ]
+                  "kind": "STRING_KEYWORD"
+                },
+                {
+                  "kind": "GT_TOKEN"
                 }
-            ]
+              ]
+            }
+          ]
         },
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

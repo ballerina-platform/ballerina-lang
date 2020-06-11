@@ -24,6 +24,8 @@ import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.Flags;
+import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.HashMap;
@@ -148,7 +150,23 @@ public abstract class AbstractObjectValue implements ObjectValue {
         }
     }
 
+    protected void checkFieldUpdateOnInitialization(String fieldName, Object value) {
+        checkFieldUpdateType(fieldName, value);
+    }
+
     protected void checkFieldUpdate(String fieldName, Object value) {
+        BField field = type.getFields().get(fieldName);
+
+        if (Flags.isFlagOn(field.flags, Flags.READONLY)) {
+            throw BallerinaErrors.createError(
+                    getModulePrefixedReason(OBJECT_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.OBJECT_INVALID_READONLY_FIELD_UPDATE,
+                                                         fieldName, type));
+        }
+        checkFieldUpdateType(fieldName, value);
+    }
+
+    private void checkFieldUpdateType(String fieldName, Object value) {
         BType fieldType = type.getFields().get(fieldName).type;
         if (TypeChecker.checkIsType(value, fieldType)) {
             return;

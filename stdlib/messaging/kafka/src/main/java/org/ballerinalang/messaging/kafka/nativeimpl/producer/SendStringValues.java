@@ -21,6 +21,7 @@ package org.ballerinalang.messaging.kafka.nativeimpl.producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,62 +42,64 @@ public class SendStringValues extends Send {
     private static final Logger logger = LoggerFactory.getLogger(SendStringValues.class);
 
     // String and ()
-    public static Object sendStringValuesNilKeys(ObjectValue producer, String value, String topic, Object partition,
+    public static Object sendStringValuesNilKeys(ObjectValue producer, BString value, BString topic, Object partition,
                                                  Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<?, String> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, null,
-                                                                     value);
+        ProducerRecord<?, String> kafkaRecord = new ProducerRecord<>(topic.getValue(), partitionValue, timestampValue,
+                                                                     null, value.getValue());
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
     // String and String
-    public static Object sendStringValuesStringKeys(ObjectValue producer, String value, String topic, String key,
+    public static Object sendStringValuesStringKeys(ObjectValue producer, BString value, BString topic, BString key,
                                                     Object partition, Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<String, String> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, key,
-                                                                          value);
+        ProducerRecord<String, String> kafkaRecord = new ProducerRecord<>(topic.getValue(), partitionValue,
+                                                                          timestampValue, key.getValue(),
+                                                                          value.getValue());
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
     // String and ballerina int
-    public static Object sendStringValuesIntKeys(ObjectValue producer, String value, String topic, long key,
+    public static Object sendStringValuesIntKeys(ObjectValue producer, BString value, BString topic, long key,
                                                  Object partition, Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<Long, String> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, key,
-                                                                        value);
+        ProducerRecord<Long, String> kafkaRecord = new ProducerRecord<>(topic.getValue(), partitionValue,
+                                                                        timestampValue, key, value.getValue());
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
     // String and ballerina float
-    public static Object sendStringValuesFloatKeys(ObjectValue producer, String value, String topic, double key,
+    public static Object sendStringValuesFloatKeys(ObjectValue producer, BString value, BString topic, double key,
                                                    Object partition, Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<Double, String> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
-                                                                          key, value);
+        ProducerRecord<Double, String> kafkaRecord = new ProducerRecord<>(topic.getValue(), partitionValue,
+                                                                          timestampValue, key, value.getValue());
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
     // String and ballerina byte[]
-    public static Object sendStringValuesByteArrayKeys(ObjectValue producer, String value, String topic, BArray key,
+    public static Object sendStringValuesByteArrayKeys(ObjectValue producer, BString value, BString topic, BArray key,
                                                        Object partition, Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<byte[], String> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
-                                                                          key.getBytes(), value);
+        ProducerRecord<byte[], String> kafkaRecord = new ProducerRecord<>(topic.getValue(), partitionValue,
+                                                                          timestampValue, key.getBytes(),
+                                                                          value.getValue());
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
     // String and ballerina anydata
-    public static Object sendStringValuesCustomKeys(ObjectValue producer, String value, String topic, Object key,
+    public static Object sendStringValuesCustomKeys(ObjectValue producer, BString value, BString topic, Object key,
                                                     Object partition, Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<Object, String> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
-                                                                          key, value);
+        ProducerRecord<Object, String> kafkaRecord = new ProducerRecord<>(topic.getValue(), partitionValue,
+                                                                          timestampValue, key, value.getValue());
         return sendKafkaRecord(kafkaRecord, producer);
     }
 }

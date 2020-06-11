@@ -23,6 +23,7 @@ import io.nats.client.Dispatcher;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -46,7 +47,7 @@ public class Detach {
                 (List<ObjectValue>) connectionObject.getNativeData(Constants.SERVICE_LIST);
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
-        MapValue<String, Object> subscriptionConfig = Utils.getSubscriptionConfig(service.getType()
+        MapValue<BString, Object> subscriptionConfig = Utils.getSubscriptionConfig(service.getType()
                 .getAnnotation(Constants.NATS_PACKAGE, Constants.SUBSCRIPTION_CONFIG));
         if (subscriptionConfig == null) {
             return BallerinaErrors.createError(Constants.NATS_ERROR_CODE,

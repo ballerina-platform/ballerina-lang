@@ -77,19 +77,11 @@ public type Listener object {
     # Gets invoked during module initialization to initialize the listener.
     #
     # + port - Listening port of the HTTP service listener
-    # + c - Configurations for HTTP service listener
-    public function __init(int port, public ListenerConfiguration? config = ()) {
+    # + config - Configurations for the HTTP service listener
+    public function init(int port, public ListenerConfiguration? config = ()) {
         self.instanceId = system:uuid();
         self.config = config ?: {};
         self.port = port;
-        self.init(self.config);
-    }
-
-    # Gets invoked during module initialization to initialize the endpoint.
-    #
-    # + c - Configurations for HTTP service endpoints
-    public function init(ListenerConfiguration c) {
-        self.config = c;
         ListenerAuth? auth = self.config["auth"];
         if (auth is ListenerAuth) {
             if (auth.mandateSecureSocket) {
@@ -107,7 +99,7 @@ public type Listener object {
             panic err;
         }
     }
-
+    
     public function initEndpoint() returns error? {
         return externInitEndpoint(self);
     }

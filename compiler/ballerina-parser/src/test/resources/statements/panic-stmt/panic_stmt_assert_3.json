@@ -1,16 +1,21 @@
 {
-    "kind": "PANIC_STATEMENT",
-    "children": [
-        {
-            "kind": "PANIC_KEYWORD"
-        },
-        {
-            "kind": "DECIMAL_INTEGER_LITERAL",
-            "value": 5
-        },
-        {
-            "kind": "SEMICOLON_TOKEN",
-            "isMissing": true
-        }
-    ]
+  "kind": "PANIC_STATEMENT",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "PANIC_KEYWORD"
+    },
+    {
+      "kind": "DECIMAL_INTEGER_LITERAL",
+      "value": "5"
+    },
+    {
+      "kind": "SEMICOLON_TOKEN",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_SEMICOLON_TOKEN"
+      ]
+    }
+  ]
 }

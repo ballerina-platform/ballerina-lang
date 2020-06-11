@@ -6,13 +6,31 @@
   "source": "function/source/typeGuardSuggestions2.bal",
   "items": [
     {
+      "label": "cloneWithType(typedesc<anydata> t)((anydata|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConstructs a value with a specified type by cloning another value.  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed  \n  \n**Returns** `(anydata|error)`   \n- a new value that belongs to `t`, or an error if this cannot be done  \n  \nWhen `v` is a structural value, the inherent type of the value to be constructed  \ncomes from `t`. When `t` is a union, it must be possible to determine which  \nmember of the union to use for the inherent type by following the same rules  \nthat are used by list constructor expressions and mapping constructor expressions  \nwith the contextually expected type. If not, then an error is returned.  \nThe `constructFrom` operation is recursively applied to each member of `v` using  \nthe type descriptor that the inherent type requires for that member.  \n  \nLike the Clone abstract operation, this does a deep copy, but differs in  \nthe following respects:  \n- the inherent type of any structural values constructed comes from the specified  \n  type descriptor rather than the value being constructed  \n- the read-only bit of values and fields comes from the specified type descriptor  \n- the graph structure of `v` is not preserved; the result will always be a tree;  \n  an error will be returned if `v` has cycles  \n- immutable structural values are copied rather being returned as is; all  \n  structural values in the result will be mutable, except for error values  \n  (which are always immutable)  \n- numeric values can be converted using the NumericConvert abstract operation  \n- if a record type descriptor specifies default values, these will be used  \n  to supply any missing members  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "cloneWithType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "fromJsonString()((json|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nParses a string in JSON format and returns the the value that it represents.\nAll numbers in the JSON will be represented as float values.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `(json|error)`   \n- `str` parsed to json or error  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format and returns the the value that it represents.\nAll numbers in the JSON will be represented as float values.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `(json|error)`   \n- `str` parsed to json or error  \n  \n"
         }
       },
       "sortText": "120",
@@ -26,7 +44,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns the code point of a character in a string.\n  \n**Params**  \n- `int` index: an index in `str`  \n  \n**Returns** `int`   \n- the Unicode code point of the character at `index` in `str`  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nReturns the code point of a character in a string.\n  \n**Params**  \n- `int` index: an index in `str`  \n  \n**Returns** `int`   \n- the Unicode code point of the character at `index` in `str`  \n  \n"
         }
       },
       "sortText": "120",
@@ -44,7 +62,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nConverts a string to an array of code points.\n  \n  \n  \n**Returns** `int[]`   \n- an array with a code point for each character of `str`  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nConverts a string to an array of code points.\n  \n  \n  \n**Returns** `int[]`   \n- an array with a code point for each character of `str`  \n  \n"
         }
       },
       "sortText": "120",
@@ -58,7 +76,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nTests whether two strings are the same, ignoring the case of ASCII characters.\nA character in the range a-z is treated the same as the corresponding character in the range A-Z.\n  \n**Params**  \n- `string` str2: the second string to be compared  \n  \n**Returns** `boolean`   \n- true if `str1` is the same as `str2`, treating upper-case and lower-case  \nASCII letters as the same; false, otherwise  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nTests whether two strings are the same, ignoring the case of ASCII characters.\nA character in the range a-z is treated the same as the corresponding character in the range A-Z.\n  \n**Params**  \n- `string` str2: the second string to be compared  \n  \n**Returns** `boolean`   \n- true if `str1` is the same as `str2`, treating upper-case and lower-case  \nASCII letters as the same; false, otherwise  \n  \n"
         }
       },
       "sortText": "120",
@@ -76,7 +94,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nConverts occurrences of a-z to A-Z.\nOther characters are left unchanged.\n  \n  \n  \n**Returns** `string`   \n- `str` with any occurrences of a-z converted to A-Z  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nConverts occurrences of a-z to A-Z.\nOther characters are left unchanged.\n  \n  \n  \n**Returns** `string`   \n- `str` with any occurrences of a-z converted to A-Z  \n  \n"
         }
       },
       "sortText": "120",
@@ -90,7 +108,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns a substring of a string.\n  \n**Params**  \n- `int` startIndex: the starting index, inclusive  \n- `int` endIndex: the ending index, exclusive(Defaultable)  \n  \n**Returns** `string`   \n- substring consisting of characters with index >= startIndex and < endIndex  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nReturns a substring of a string.\n  \n**Params**  \n- `int` startIndex: the starting index, inclusive  \n- `int` endIndex: the ending index, exclusive(Defaultable)  \n  \n**Returns** `string`   \n- substring consisting of characters with index >= startIndex and < endIndex  \n  \n"
         }
       },
       "sortText": "120",
@@ -108,7 +126,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns an iterator over the string.\nThe iterator will yield the substrings of length 1 in order.\n  \n  \n  \n**Returns** ``   \n- a new iterator object  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nReturns an iterator over the string.\nThe iterator will yield the substrings of length 1 in order.\n  \n  \n  \n**Returns** ``   \n- a new iterator object  \n  \n"
         }
       },
       "sortText": "120",
@@ -122,7 +140,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nTests whether `v` is read-only, i.e. immutable\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Returns** `boolean`   \n- true if read-only, false otherwise  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nTests whether `v` is read-only, i.e. immutable\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Returns** `boolean`   \n- true if read-only, false otherwise  \n  \n"
         }
       },
       "sortText": "120",
@@ -136,7 +154,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nRemoves ASCII white space characters from the start and end of a string.\nThe ASCII white space characters are 0x9...0xD, 0x20.\n  \n  \n  \n**Returns** `string`   \n- `str` with leading or trailing ASCII white space characters removed  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nRemoves ASCII white space characters from the start and end of a string.\nThe ASCII white space characters are 0x9...0xD, 0x20.\n  \n  \n  \n**Returns** `string`   \n- `str` with leading or trailing ASCII white space characters removed  \n  \n"
         }
       },
       "sortText": "120",
@@ -150,7 +168,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nJoins zero or more strings together with a separator.\n  \n**Params**  \n- `string[]` strs: strings to be joined  \n  \n**Returns** `string`   \n- a string consisting of all of `strs` concatenated in order  \n    with `separator` in between them  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nJoins zero or more strings together with a separator.\n  \n**Params**  \n- `string[]` strs: strings to be joined  \n  \n**Returns** `string`   \n- a string consisting of all of `strs` concatenated in order  \n    with `separator` in between them  \n  \n"
         }
       },
       "sortText": "120",
@@ -168,7 +186,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nFinds the first occurrence of one string in another string.\n  \n**Params**  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching from(Defaultable)  \n  \n**Returns** `(int|())`   \n- index of the first occurrence of `substr` in `str` that is >= `startIndex`,  \n   or `()` if there is no such occurrence  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nFinds the first occurrence of one string in another string.\n  \n**Params**  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching from(Defaultable)  \n  \n**Returns** `(int|())`   \n- index of the first occurrence of `substr` in `str` that is >= `startIndex`,  \n   or `()` if there is no such occurrence  \n  \n"
         }
       },
       "sortText": "120",
@@ -186,7 +204,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nConverts occurrences of A-Z to a-z.\nOther characters are left unchanged.\n  \n  \n  \n**Returns** `string`   \n- `str` with any occurrences of A-Z converted to a-z  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nConverts occurrences of A-Z to a-z.\nOther characters are left unchanged.\n  \n  \n  \n**Returns** `string`   \n- `str` with any occurrences of A-Z converted to a-z  \n  \n"
         }
       },
       "sortText": "120",
@@ -200,7 +218,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns the string that represents `v` in JSON format.\n  \n  \n  \n**Returns** `string`   \n- string representation of json  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns the string that represents `v` in JSON format.\n  \n  \n  \n**Returns** `string`   \n- string representation of json  \n  \n"
         }
       },
       "sortText": "120",
@@ -214,7 +232,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nRepresents `str` as an array of bytes using UTF-8.\n  \n  \n  \n**Returns** `byte[]`   \n- UTF-8 byte array  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nRepresents `str` as an array of bytes using UTF-8.\n  \n  \n  \n**Returns** `byte[]`   \n- UTF-8 byte array  \n  \n"
         }
       },
       "sortText": "120",
@@ -228,7 +246,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns the length of the string.\n  \n  \n  \n**Returns** `int`   \n- the number of characters (code points) in `str`  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nReturns the length of the string.\n  \n  \n  \n**Returns** `int`   \n- the number of characters (code points) in `str`  \n  \n"
         }
       },
       "sortText": "120",
@@ -242,7 +260,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
         }
       },
       "sortText": "120",
@@ -256,7 +274,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nConcatenates zero or more strings.\n  \n  \n  \n**Returns** `string`   \n- concatenation of all of the `strs`; empty string if `strs` is empty  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nConcatenates zero or more strings.\n  \n  \n  \n**Returns** `string`   \n- concatenation of all of the `strs`; empty string if `strs` is empty  \n  \n"
         }
       },
       "sortText": "120",
@@ -274,7 +292,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n**Params**  \n- `typedesc<(any|error)>` resType  \n  \n**Returns** `_StreamPipeline`   \n  \n"
+          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n**Params**  \n- `typedesc<(any|error)>` resType  \n  \n**Returns** `_StreamPipeline`   \n  \n"
         }
       },
       "sortText": "120",
@@ -292,7 +310,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nFinds the last occurrence of one string in another string.\n  \n**Params**  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching backwards from(Defaultable)  \n  \n**Returns** `(int|())`   \n- index of the last occurrence of `substr` in `str` that is <= `startIndex`,  \n   or `()` if there is no such occurrence  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nFinds the last occurrence of one string in another string.\n  \n**Params**  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching backwards from(Defaultable)  \n  \n**Returns** `(int|())`   \n- index of the last occurrence of `substr` in `str` that is <= `startIndex`,  \n   or `()` if there is no such occurrence  \n  \n"
         }
       },
       "sortText": "120",
@@ -310,7 +328,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n"
+          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n"
         }
       },
       "sortText": "120",
@@ -324,7 +342,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nMerges two json values.\n  \n**Params**  \n- `json` j2: json value  \n  \n**Returns** `(json|error)`   \n- the merge of `j1` with `j2` or an error if the merge fails  \n  \nThe merge of `j1` with `j2` is defined as follows:  \n- if `j1` is `()`, then the result is `j2`  \n- if `j2` is `()`, then the result is `j1`  \n- if `j1` is a mapping and `j2` is a mapping, then for each entry [k, j] in j2,  \n  set `j1[k]` to the merge of `j1[k]` with `j`  \n    - if `j1[k]` is undefined, then set `j1[k]` to `j`  \n    - if any merge fails, then the merge of `j1` with `j2` fails  \n    - otherwise, the result is `j1`.  \n- otherwise, the merge fails  \nIf the merge fails, then `j1` is unchanged.  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nMerges two json values.\n  \n**Params**  \n- `json` j2: json value  \n  \n**Returns** `(json|error)`   \n- the merge of `j1` with `j2` or an error if the merge fails  \n  \nThe merge of `j1` with `j2` is defined as follows:  \n- if `j1` is `()`, then the result is `j2`  \n- if `j2` is `()`, then the result is `j1`  \n- if `j1` is a mapping and `j2` is a mapping, then for each entry [k, j] in j2,  \n  set `j1[k]` to the merge of `j1[k]` with `j`  \n    - if `j1[k]` is undefined, then set `j1[k]` to `j`  \n    - if any merge fails, then the merge of `j1` with `j2` fails  \n    - otherwise, the result is `j1`.  \n- otherwise, the merge fails  \nIf the merge fails, then `j1` is unchanged.  \n  \n"
         }
       },
       "sortText": "120",
@@ -342,7 +360,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `v`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
         }
       },
       "sortText": "120",
@@ -356,7 +374,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nTests whether a string ends with another string.\n  \n**Params**  \n- `string` substr: the ending string  \n  \n**Returns** `boolean`   \n- true if `str` ends with `substr`; false otherwise  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nTests whether a string ends with another string.\n  \n**Params**  \n- `string` substr: the ending string  \n  \n**Returns** `boolean`   \n- true if `str` ends with `substr`; false otherwise  \n  \n"
         }
       },
       "sortText": "120",
@@ -368,27 +386,13 @@
       }
     },
     {
-      "label": "toString()(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nPerforms a minimal conversion of a value to a string.\nThe conversion is minimal in particular in the sense\nthat the conversion applied to a value that is already\na string does nothing.  \n  \n  \n**Returns** `string`   \n- a string resulting from the conversion  \n  \nThe result of `toString(v)` is as follows:  \n  \n- if `v` is a string, then returns `v`  \n- if `v` is `()`, then returns an empty string  \n- if `v` is boolean, then the string `true` or `false`  \n- if `v` is an int, then return `v` represented as a decimal string  \n- if `v` is a float or decimal, then return `v` represented as a decimal string,  \n  with a decimal point only if necessary, but without any suffix indicating the type of `v`;  \n  return `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity  \n- if `v` is a list, then returns the results toString on each member of the list  \n  separated by a space character  \n- if `v` is a map, then returns key=value for each member separated by a space character  \n- if `v` is xml, then returns `v` in XML format (as if it occurred within an XML element)  \n- if `v` is table, TBD  \n- if `v` is an error, then a string consisting of the following in order  \n    1. the string `error`  \n    2. a space character  \n    3. the reason string  \n    4. if the detail record is non-empty  \n        1. a space character  \n        2. the result of calling toString on the detail record  \n- if `v` is an object, then  \n    - if `v` provides a `toString` method with a string return type and no required methods,  \n      then the result of calling that method on `v`  \n    - otherwise, `object` followed by some implementation-dependent string  \n- if `v` is any other behavioral type, then the identifier for the behavioral type  \n  (`function`, `future`, `service`, `typedesc` or `handle`)  \n  followed by some implementation-dependent string  \n  \nNote that `toString` may produce the same string for two Ballerina values  \nthat are not equal (in the sense of the `==` operator).  \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "toString()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "codePointCompare(string str2)(int)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nLexicographically compares strings using their Unicode code points.\nThis orders strings in a consistent and well-defined way,\nbut the ordering will often not be consistent with cultural expectations\nfor sorted order.\n  \n**Params**  \n- `string` str2: the second string to be compared  \n  \n**Returns** `int`   \n- an int that is less than, equal to or greater than zero,  \n   according as `str1` is less than, equal to or greater than `str2`  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nLexicographically compares strings using their Unicode code points.\nThis orders strings in a consistent and well-defined way,\nbut the ordering will often not be consistent with cultural expectations\nfor sorted order.\n  \n**Params**  \n- `string` str2: the second string to be compared  \n  \n**Returns** `int`   \n- an int that is less than, equal to or greater than zero,  \n   according as `str1` is less than, equal to or greater than `str2`  \n  \n"
         }
       },
       "sortText": "120",
@@ -406,7 +410,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nTests whether a string starts with another string.\n  \n**Params**  \n- `string` substr: the starting string  \n  \n**Returns** `boolean`   \n- true if `str` starts with `substr`; false otherwise  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nTests whether a string starts with another string.\n  \n**Params**  \n- `string` substr: the starting string  \n  \n**Returns** `boolean`   \n- true if `str` starts with `substr`; false otherwise  \n  \n"
         }
       },
       "sortText": "120",

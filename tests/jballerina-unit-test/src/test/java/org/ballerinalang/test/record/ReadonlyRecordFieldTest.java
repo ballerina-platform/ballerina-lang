@@ -33,7 +33,7 @@ import static org.testng.Assert.assertEquals;
  */
 public class ReadonlyRecordFieldTest {
 
-    @Test(enabled = false)
+    @Test
     public void testReadonlyRecordFields() {
         CompileResult result = BCompileUtil.compile("test-src/record/readonly_record_fields.bal");
         BRunUtil.invoke(result, "testReadonlyRecordFields");
@@ -46,7 +46,7 @@ public class ReadonlyRecordFieldTest {
 
         validateError(result, index++, "cannot update 'readonly' record field 'name' in 'Student'", 27, 5);
         validateError(result, index++, "cannot update 'readonly' record field 'name' in 'Student'", 28, 5);
-        validateError(result, index++, "incompatible types: expected 'Details & readonly', found 'Details'", 52, 9);
+        validateError(result, index++, "incompatible types: expected '(Details & readonly)', found 'Details'", 52, 9);
         validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 56, 5);
         validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 57, 5);
         validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 58, 5);

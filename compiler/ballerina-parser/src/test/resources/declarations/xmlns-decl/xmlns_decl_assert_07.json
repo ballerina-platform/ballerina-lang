@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_PART",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -7,9 +8,11 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
-          "kind": "XML_NAMESPACE_DECLARATION",
+          "kind": "MODULE_XML_NAMESPACE_DECLARATION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "XMLNS_KEYWORD"
@@ -20,12 +23,17 @@
             },
             {
               "kind": "SEMICOLON_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_SEMICOLON_TOKEN"
+              ]
             }
           ]
         },
         {
           "kind": "MODULE_VAR_DECL",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -37,21 +45,35 @@
               ]
             },
             {
-              "kind": "SINGLETON_TYPE_DESC",
+              "kind": "TYPED_BINDING_PATTERN",
               "children": [
                 {
-                  "kind": "STRING_LITERAL",
-                  "value": "http://ballerinalang.org/ns1"
+                  "kind": "SINGLETON_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "STRING_LITERAL",
+                      "value": "http://ballerinalang.org/ns1"
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "ns1"
+                    }
+                  ]
                 }
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "ns1"
-            },
-            {
               "kind": "EQUAL_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_EQUAL_TOKEN"
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",

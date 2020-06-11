@@ -24,11 +24,7 @@ import ballerina/java;
 #
 # + input - Byte array to be encoded
 # + return - Encoded output
-public function encodeBase64Url(byte[] input) returns string {
-    return externEncodeBase64Url(input).toString();
-}
-
-function externEncodeBase64Url(byte[] input) returns handle = @java:Method {
+public function encodeBase64Url(byte[] input) returns string = @java:Method {
     name: "encodeBase64Url",
     class: "org.ballerinalang.stdlib.encoding.nativeimpl.Encode"
 } external;
@@ -40,11 +36,7 @@ function externEncodeBase64Url(byte[] input) returns handle = @java:Method {
 #
 # + input - Value to be decoded
 # + return - Decoded output or else a `mime:Error` if the input is not a valid Base64 URL encoded value
-public function decodeBase64Url(string input) returns byte[]|Error {
-    return externDecodeBase64Url(java:fromString(input));
-}
-
-function externDecodeBase64Url(handle input) returns byte[]|Error = @java:Method {
+public function decodeBase64Url(string input) returns byte[]|Error = @java:Method {
     name: "decodeBase64Url",
     class: "org.ballerinalang.stdlib.encoding.nativeimpl.Decode"
 } external;
@@ -58,12 +50,7 @@ function externDecodeBase64Url(handle input) returns byte[]|Error = @java:Method
 # + uriComponent - URI component to be encoded
 # + charset - Character set to be used in encoding the URI
 # + return - The `string` value of the encoded URI component or an `Error` that occurred during encoding
-public function encodeUriComponent(string uriComponent, string charset) returns string|Error {
-    handle encodedUriComponent = check externEncodeUriComponent(java:fromString(uriComponent), java:fromString(charset));
-    return encodedUriComponent.toString();
-}
-
-function externEncodeUriComponent(handle uriComponent, handle charset) returns handle|Error = @java:Method {
+public function encodeUriComponent(string uriComponent, string charset) returns string|Error = @java:Method {
     name: "encodeUriComponent",
     class: "org.ballerinalang.stdlib.encoding.nativeimpl.Encode"
 } external;
@@ -77,12 +64,7 @@ function externEncodeUriComponent(handle uriComponent, handle charset) returns h
 # + uriComponent - URI component to be decoded
 # + charset - Character set to be used in decoding the URI
 # + return - The `string` value of the decoded URI component or an `Error` that occurred during decoding
-public function decodeUriComponent(string uriComponent, string charset) returns string|Error {
-    handle decodedUriComponent = check externDecodeUriComponent(java:fromString(uriComponent), java:fromString(charset));
-    return decodedUriComponent.toString();
-}
-
-function externDecodeUriComponent(handle uriComponent, handle charset) returns handle|Error = @java:Method {
+public function decodeUriComponent(string uriComponent, string charset) returns string|Error = @java:Method {
     name: "decodeUriComponent",
     class: "org.ballerinalang.stdlib.encoding.nativeimpl.Decode"
 } external;

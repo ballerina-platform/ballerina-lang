@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STExternalFunctionBodyNode extends STFunctionBodyNode {
             STNode annotations,
             STNode externalKeyword,
             STNode semicolonToken) {
-        super(SyntaxKind.EXTERNAL_FUNCTION_BODY);
+        this(
+                equalsToken,
+                annotations,
+                externalKeyword,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STExternalFunctionBodyNode(
+            STNode equalsToken,
+            STNode annotations,
+            STNode externalKeyword,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.EXTERNAL_FUNCTION_BODY, diagnostics);
         this.equalsToken = equalsToken;
         this.annotations = annotations;
         this.externalKeyword = externalKeyword;
@@ -51,7 +68,47 @@ public class STExternalFunctionBodyNode extends STFunctionBodyNode {
                 semicolonToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STExternalFunctionBodyNode(
+                this.equalsToken,
+                this.annotations,
+                this.externalKeyword,
+                this.semicolonToken,
+                diagnostics);
+    }
+
+    public STExternalFunctionBodyNode modify(
+            STNode equalsToken,
+            STNode annotations,
+            STNode externalKeyword,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                equalsToken,
+                annotations,
+                externalKeyword,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STExternalFunctionBodyNode(
+                equalsToken,
+                annotations,
+                externalKeyword,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ExternalFunctionBodyNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }
