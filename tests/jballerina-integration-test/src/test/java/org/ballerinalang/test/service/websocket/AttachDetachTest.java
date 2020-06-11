@@ -58,7 +58,8 @@ public class AttachDetachTest extends WebSocketTestCommons {
         client.setCountDownLatch(countDownLatch);
         client.sendText("client_attach");
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-        Assert.assertEquals(client.getTextReceived(), "Client service cannot be attached to the Listener");
+        Assert.assertEquals(client.getTextReceived(), "GenericError: Client service cannot be attached to" +
+                " the Listener");
     }
 
     @Test(description = "Detach the service first")
@@ -67,7 +68,8 @@ public class AttachDetachTest extends WebSocketTestCommons {
         client.setCountDownLatch(countDownLatch);
         client.sendText(DETACH_TEXT);
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-        Assert.assertEquals(client.getTextReceived(), "Cannot detach service. Service has not been registered");
+        Assert.assertEquals(client.getTextReceived(), "GenericError: Cannot detach service. Service has " +
+                "not been registered");
     }
 
     @Test(description = "Tests echoed text message from the attached servers", priority = 1)
@@ -131,7 +133,8 @@ public class AttachDetachTest extends WebSocketTestCommons {
         client.sendText(DETACH_TEXT);
         client.sendText(DETACH_TEXT);
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-        Assert.assertEquals(client.getTextReceived(), "Cannot detach service. Service has not been registered");
+        Assert.assertEquals(client.getTextReceived(), "GenericError: Cannot detach service. Service has not" +
+                " been registered");
     }
 
     @AfterClass

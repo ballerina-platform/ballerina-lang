@@ -14,38 +14,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Error reason for failures during connection closure
-public const CONNECTION_CLOSURE_ERROR = "{ballerina/http}WsConnectionClosureError";
 # Raised during failures in connection closure
 public type WsConnectionClosureError distinct error;
 
-# Error reason for WebSocket handshake failures
-public const INVALID_HANDSHAKE_ERROR = "{ballerina/http}WsInvalidHandshakeError";
 # Raised during the handshake when the WebSocket upgrade fails
 public type WsInvalidHandshakeError distinct error;
 
-# Error reason for exceeding maximum frame size
-public const PAYLOAD_TOO_BIG_ERROR = "{ballerina/http}WsPayloadTooBigError";
 # Raised when receiving a frame with a payload exceeding the maximum size
 public type WsPayloadTooBigError distinct error;
 
-# Error reason for other side breaking the protocol
-public const PROTOCOL_ERROR = "{ballerina/http}WsProtocolError";
 # Raised when the other side breaks the protocol
 public type WsProtocolError distinct error;
 
-# Error reason for connection failures
-public const CONNECTION_ERROR = "{ballerina/http}WsConnectionError";
 # Raised during connection failures
 public type WsConnectionError distinct error;
 
-# Error reason for invalid continuation frame
-public const INVALID_CONTINUATION_FRAME_ERROR = "{ballerina/http}WsInvalidContinuationFrameError";
 # Raised when an out of order/invalid continuation frame is received
 public type WsInvalidContinuationFrameError distinct error;
 
-# Error reason for errors not captured by the specific errors
-public const GENERIC_ERROR = "{ballerina/http}WsGenericError";
 # Raised for errors not captured by the specific errors
 public type WsGenericError distinct error;
 
