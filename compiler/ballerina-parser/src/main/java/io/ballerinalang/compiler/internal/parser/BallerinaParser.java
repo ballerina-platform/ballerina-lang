@@ -10737,6 +10737,7 @@ public class BallerinaParser extends AbstractParser {
         switch (nextTokenKind) {
             case IDENTIFIER_TOKEN:
                 STNode identifier = parseIdentifier(ParserRuleContext.WAIT_FIELD_NAME);
+                identifier = STNodeFactory.createSimpleNameReferenceNode(identifier);
                 return createQualifiedWaitField(identifier);
             default:
                 Solution solution = recover(peek(), ParserRuleContext.WAIT_FIELD_NAME);

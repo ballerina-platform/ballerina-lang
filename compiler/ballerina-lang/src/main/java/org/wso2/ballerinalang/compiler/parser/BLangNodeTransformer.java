@@ -159,6 +159,8 @@ import io.ballerinalang.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.WaitActionNode;
+import io.ballerinalang.compiler.syntax.tree.WaitFieldNode;
+import io.ballerinalang.compiler.syntax.tree.WaitFieldsListNode;
 import io.ballerinalang.compiler.syntax.tree.WhereClauseNode;
 import io.ballerinalang.compiler.syntax.tree.WhileStatementNode;
 import io.ballerinalang.compiler.syntax.tree.WildcardBindingPatternNode;
@@ -255,6 +257,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordSpreadOperatorField;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr.BLangWaitKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
@@ -269,6 +272,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
@@ -1257,6 +1261,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         workerInvoc.pos = workerNamePos;
         workerInvoc.setVariable(invoc);
         workerInvoc.isWorker = true;
+        invoc.flagSet.add(Flag.WORKER);
         this.additionalStatements.push(workerInvoc);
 
         return lamdaWrkr;
@@ -2139,12 +2144,53 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(WaitActionNode waitActionNode) {
+        Node waitFutureExpr = waitActionNode.waitFutureExpr();
+        if (waitFutureExpr.kind() == SyntaxKind.WAIT_FIELDS_LIST) {
+            return getWaitForAllExpr((WaitFieldsListNode) waitFutureExpr);
+        }
+
         BLangWaitExpr waitExpr = TreeBuilder.createWaitExpressionNode();
         waitExpr.pos = getPosition(waitActionNode);
-        if (waitActionNode.waitFutureExpr().kind() != SyntaxKind.WAIT_FIELDS_LIST) {
-            waitExpr.exprList = Collections.singletonList(createExpression(waitActionNode.waitFutureExpr()));
-        }
+        waitExpr.exprList = Collections.singletonList(createExpression(waitFutureExpr));
         return waitExpr;
+    }
+
+    private BLangWaitForAllExpr getWaitForAllExpr(WaitFieldsListNode waitFields) {
+        BLangWaitForAllExpr bLangWaitForAll = TreeBuilder.createWaitForAllExpressionNode();
+
+        List<BLangWaitKeyValue> exprs = new ArrayList<>();
+        for (Node waitField : waitFields.waitFields()) {
+            exprs.add(getWaitForAllExpr(waitField));
+        }
+
+        bLangWaitForAll.keyValuePairs = exprs;
+        return bLangWaitForAll;
+    }
+
+    private BLangWaitKeyValue getWaitForAllExpr(Node waitFields) {
+        BLangWaitForAllExpr.BLangWaitKeyValue keyValue = TreeBuilder.createWaitKeyValueNode();
+        keyValue.pos = getPosition(waitFields);
+
+        if (waitFields.kind() == SyntaxKind.WAIT_FIELD) {
+            WaitFieldNode waitFieldNode = (WaitFieldNode) waitFields;
+            BLangIdentifier key = createIdentifier(waitFieldNode.fieldName().name());
+            key.setLiteral(false);
+            keyValue.key = key;
+            keyValue.valueExpr = createExpression(waitFieldNode.waitFutureExpr());
+            return keyValue;
+        }
+
+        SimpleNameReferenceNode varName = (SimpleNameReferenceNode) waitFields;
+        BLangIdentifier key = createIdentifier(varName.name());
+        key.setLiteral(false);
+        keyValue.key = key;
+
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        varRef.pos = getPosition(varName);
+        varRef.variableName = key;
+        varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        keyValue.keyExpr = varRef;
+        return keyValue;
     }
 
     @Override

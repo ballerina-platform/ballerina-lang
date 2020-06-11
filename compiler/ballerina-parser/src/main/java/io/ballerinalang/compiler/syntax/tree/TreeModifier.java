@@ -2397,7 +2397,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public WaitFieldNode transform(
             WaitFieldNode waitFieldNode) {
-        NameReferenceNode fieldName =
+        SimpleNameReferenceNode fieldName =
                 modifyNode(waitFieldNode.fieldName());
         Token colon =
                 modifyToken(waitFieldNode.colon());
