@@ -77,10 +77,9 @@ service loadBalancerDemoService on new http:Listener(9313) {
                 log:printError("Error sending response", responseToCaller);
             }
         } else {
-            error err = response;
             http:Response outResponse = new;
             outResponse.statusCode = 500;
-            outResponse.setPayload(<string> err.detail()?.message);
+            outResponse.setPayload(<@untainted> response.message());
             var responseToCaller = caller->respond(outResponse);
             if (responseToCaller is error) {
                 log:printError("Error sending response", responseToCaller);
@@ -100,10 +99,9 @@ service loadBalancerDemoService on new http:Listener(9313) {
                 log:printError("Error sending response", responseToCaller);
             }
         } else {
-            error err = response;
             http:Response outResponse = new;
             outResponse.statusCode = 500;
-            outResponse.setPayload(<string> err.detail()?.message);
+            outResponse.setPayload(<@untainted> response.message());
             var responseToCaller = caller->respond(outResponse);
             if (responseToCaller is error) {
                 log:printError("Error sending response", responseToCaller);
@@ -123,10 +121,9 @@ service loadBalancerDemoService on new http:Listener(9313) {
                 log:printError("Error sending response", responseToCaller);
             }
         } else {
-            error err = response;
             http:Response outResponse = new;
             outResponse.statusCode = 500;
-            outResponse.setPayload(<string> err.detail()?.message);
+            outResponse.setPayload(<@untainted> response.message());
             var responseToCaller = caller->respond(outResponse);
             if (responseToCaller is error) {
                 log:printError("Error sending response", responseToCaller);
@@ -146,10 +143,9 @@ service loadBalancerDemoService on new http:Listener(9313) {
                 log:printError("Error sending response", responseToCaller);
             }
         } else {
-            error err = response;
             http:Response outResponse = new;
             outResponse.statusCode = 500;
-            outResponse.setPayload(<string> err.detail()?.message);
+            outResponse.setPayload(<@untainted> response.message());
             var responseToCaller = caller->respond(outResponse);
             if (responseToCaller is error) {
                 log:printError("Error sending response", responseToCaller);
@@ -244,9 +240,7 @@ public type CustomLoadBalancerRule object {
     public function getNextClient(http:Client?[] loadBalanceClientsArray) returns http:Client|http:ClientError {
         http:Client httpClient = <http:Client>loadBalanceClientsArray[self.index];
         if (self.index >= loadBalanceClientsArray.length()) {
-            http:AllLoadBalanceEndpointsFailedError err = error(http:ALL_LOAD_BALANCE_ENDPOINTS_FAILED,
-                                                        message = "Provided index is doesn't match with the targets.");
-            return err;
+            return http:AllLoadBalanceEndpointsFailedError("Provided index is doesn't match with the targets.");
         }
         lock {
             if (self.index == (loadBalanceClientsArray.length() - 1)) {
