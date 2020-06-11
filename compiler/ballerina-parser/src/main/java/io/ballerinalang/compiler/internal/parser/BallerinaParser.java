@@ -2307,7 +2307,7 @@ public class BallerinaParser extends AbstractParser {
      * <code>
      * distinct-type-descriptor := distinct type-descriptor
      * </code>
-     *
+     * 
      * @param context Context in which the type desc is used.
      * @return Distinct type descriptor
      */
