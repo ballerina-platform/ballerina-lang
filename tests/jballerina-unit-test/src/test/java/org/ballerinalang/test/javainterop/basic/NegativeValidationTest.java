@@ -127,7 +127,6 @@ public class NegativeValidationTest {
         String path = "test-src/javainterop/negative/" + testFileName;
 
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 4);
 
         String message = "{ballerina/java}METHOD_NOT_FOUND 'No such public method '%s' that matches with " +

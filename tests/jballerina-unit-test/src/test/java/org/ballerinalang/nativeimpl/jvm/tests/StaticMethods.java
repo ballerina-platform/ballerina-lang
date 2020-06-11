@@ -377,19 +377,19 @@ public class StaticMethods {
         return json;
     }
 
-    public static void getFuture(BTypedesc typedesc, BFuture future) {
-
+    public static BFuture getFuture(BTypedesc typeDesc, BFuture future) {
+        return future;
     }
 
-    public static void getTypeDesc(BTypedesc typedesc, BFuture future) {
-
+    public static BTypedesc getTypeDesc(BTypedesc typeDesc, BFuture future) {
+        return typeDesc;
     }
 
-    public static void getFutureOnly(BFuture future) {
-
+    public static BFuture getFutureOnly(BFuture future) {
+        return future;
     }
 
-    public static void getTypeDescOnly(BTypedesc typedesc) {
-
+    public static BTypedesc getTypeDescOnly(BTypedesc typeDesc) {
+        return typeDesc;
     }
 }
