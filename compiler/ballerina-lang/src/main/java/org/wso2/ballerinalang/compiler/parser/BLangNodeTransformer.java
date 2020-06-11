@@ -1151,6 +1151,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         DiagnosticPos forkStmtPos = getPosition(forkStatementNode);
         forkJoin.pos = forkStmtPos;
         String nextAnonymousForkKey = anonymousModelHelper.getNextAnonymousForkKey(forkStmtPos.src.pkgID);
+
+        List<BLangSimpleVariableDef> workerVarDecl = applyAll(forkStatementNode.namedWorkerDeclarations());
+        forkJoin.workers = workerVarDecl;
+
         for (BLangSimpleVariableDef worker : forkJoin.workers) {
             BLangFunction function = ((BLangLambdaFunction) worker.var.expr).function;
             function.flagSet.add(Flag.FORKED);
@@ -1224,6 +1228,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         var.pos = pos;
         lamdaWrkr.setVariable(var);
         lamdaWrkr.isWorker = true;
+        if (namedWorkerDeclNode.parent().kind() == SyntaxKind.FORK_STATEMENT) {
+            lamdaWrkr.isInFork = true;
+            lamdaWrkr.var.flagSet.add(Flag.FORKED);
+            this.additionalStatements.push(lamdaWrkr);
+        }
+
+
 //        if (!this.forkJoinNodesStack.empty()) {
 //            // TODO: Revisit the fork join worker declaration and decide whether move this to desugar.
 //            lamdaWrkr.isInFork = true;
