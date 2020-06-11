@@ -1854,8 +1854,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(CaptureBindingPatternNode captureBindingPatternNode) {
         Node parent = captureBindingPatternNode.parent();
-        if (parent instanceof FieldBindingPatternVarnameNode || parent instanceof FieldBindingPatternFullNode
-                || parent instanceof ListBindingPatternNode) {
+        if (parent.kind() == SyntaxKind.FIELD_BINDING_PATTERN || parent.kind() == SyntaxKind.LIST_BINDING_PATTERN) {
             return addBindingPatternMemberVariable(getPosition(captureBindingPatternNode),
                     captureBindingPatternNode.variableName().text(),
                     getPosition(captureBindingPatternNode.variableName()));
