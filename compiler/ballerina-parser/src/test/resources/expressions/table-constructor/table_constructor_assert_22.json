@@ -1,9 +1,14 @@
 {
   "kind": "TABLE_CONSTRUCTOR",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "TABLE_KEYWORD",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_TABLE_KEYWORD"
+      ]
     },
     {
       "kind": "KEY_SPECIFIER",

@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -37,15 +38,18 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
@@ -56,6 +60,7 @@
                 },
                 {
                   "kind": "XML_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "XML_KEYWORD"
@@ -65,12 +70,15 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "XML_ELEMENT",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "XML_ELEMENT_START_TAG",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "LT_TOKEN"
@@ -86,6 +94,7 @@
                                 },
                                 {
                                   "kind": "LIST",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "XML_ATTRIBUTE",
@@ -126,6 +135,7 @@
                                     },
                                     {
                                       "kind": "XML_ATTRIBUTE",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "XML_SIMPLE_NAME",
@@ -138,10 +148,15 @@
                                         },
                                         {
                                           "kind": "EQUAL_TOKEN",
-                                          "isMissing": true
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_EQUAL_TOKEN"
+                                          ]
                                         },
                                         {
                                           "kind": "XML_ATTRIBUTE_VALUE",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
                                               "kind": "DOUBLE_QUOTE_TOKEN"
@@ -157,7 +172,11 @@
                                             },
                                             {
                                               "kind": "DOUBLE_QUOTE_TOKEN",
-                                              "isMissing": true
+                                              "isMissing": true,
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_DOUBLE_QUOTE_TOKEN"
+                                              ]
                                             }
                                           ]
                                         }
@@ -167,7 +186,11 @@
                                 },
                                 {
                                   "kind": "GT_TOKEN",
-                                  "isMissing": true
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_GT_TOKEN"
+                                  ]
                                 }
                               ]
                             },
@@ -177,22 +200,39 @@
                             },
                             {
                               "kind": "XML_ELEMENT_END_TAG",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "LT_TOKEN",
-                                  "isMissing": true
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_LT_TOKEN"
+                                  ]
                                 },
                                 {
                                   "kind": "SLASH_TOKEN",
-                                  "isMissing": true
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_SLASH_TOKEN"
+                                  ]
                                 },
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
-                                  "isMissing": true
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_IDENTIFIER"
+                                  ]
                                 },
                                 {
                                   "kind": "GT_TOKEN",
-                                  "isMissing": true
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_GT_TOKEN"
+                                  ]
                                 }
                               ]
                             }

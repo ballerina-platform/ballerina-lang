@@ -80,6 +80,14 @@ public class STToken extends STNode {
         return lookback;
     }
 
+    public STToken firstToken() {
+        return this;
+    }
+
+    public STToken lastToken() {
+        return this;
+    }
+
     public STToken modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STToken(this.kind, this.width, this.leadingMinutiae, this.trailingMinutiae, diagnostics);
     }

@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -37,15 +38,18 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -84,15 +88,21 @@
                 },
                 {
                   "kind": "BINARY_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "BYTE_ARRAY_LITERAL",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "BASE64_KEYWORD"
                         },
                         {
-                          "kind": "BACKTICK_TOKEN"
+                          "kind": "BACKTICK_TOKEN",
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_BASE64_CONTENT_IN_BYTE_ARRAY_LITERAL"
+                          ]
                         },
                         {
                           "kind": "TEMPLATE_STRING",
@@ -105,7 +115,11 @@
                     },
                     {
                       "kind": "PLUS_TOKEN",
-                      "isMissing": true
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_PLUS_TOKEN"
+                      ]
                     },
                     {
                       "kind": "IDENTIFIER_TOKEN",
@@ -115,12 +129,17 @@
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",
-                  "isMissing": true
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_SEMICOLON_TOKEN"
+                  ]
                 }
               ]
             },
             {
               "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -146,7 +165,11 @@
                 },
                 {
                   "kind": "EQUAL_TOKEN",
-                  "isMissing": true
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_EQUAL_TOKEN"
+                  ]
                 },
                 {
                   "kind": "DECIMAL_INTEGER_LITERAL",
@@ -154,12 +177,17 @@
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",
-                  "isMissing": true
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_SEMICOLON_TOKEN"
+                  ]
                 }
               ]
             },
             {
               "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -188,7 +216,11 @@
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "isMissing": true
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_IDENTIFIER"
+                  ]
                 },
                 {
                   "kind": "SEMICOLON_TOKEN"

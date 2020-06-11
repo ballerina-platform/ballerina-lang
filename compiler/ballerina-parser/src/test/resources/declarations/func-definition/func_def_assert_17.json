@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -19,10 +20,15 @@
     },
     {
       "kind": "FUNCTION_SIGNATURE",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_PAREN_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_OPEN_PAREN_TOKEN"
+          ]
         },
         {
           "kind": "LIST",
@@ -35,10 +41,15 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_OPEN_BRACE_TOKEN"
+          ]
         },
         {
           "kind": "LIST",

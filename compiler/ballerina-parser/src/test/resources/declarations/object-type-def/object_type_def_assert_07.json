@@ -1,5 +1,6 @@
 {
   "kind": "TYPE_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -19,6 +20,7 @@
     },
     {
       "kind": "OBJECT_TYPE_DESC",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "LIST",
@@ -26,7 +28,11 @@
         },
         {
           "kind": "OBJECT_KEYWORD",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_OBJECT_KEYWORD"
+          ]
         },
         {
           "kind": "OPEN_BRACE_TOKEN"

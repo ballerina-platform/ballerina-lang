@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -37,15 +38,18 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "IF_ELSE_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "IF_KEYWORD"
@@ -82,12 +86,14 @@
                 },
                 {
                   "kind": "ELSE_BLOCK",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "ELSE_KEYWORD"
                     },
                     {
                       "kind": "IF_ELSE_STATEMENT",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "IF_KEYWORD"
@@ -98,15 +104,18 @@
                         },
                         {
                           "kind": "BLOCK_STATEMENT",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "OPEN_BRACE_TOKEN"
                             },
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "IF_ELSE_STATEMENT",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "IF_KEYWORD"
@@ -143,16 +152,22 @@
                                     },
                                     {
                                       "kind": "ELSE_BLOCK",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "ELSE_KEYWORD"
                                         },
                                         {
                                           "kind": "IF_ELSE_STATEMENT",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
                                               "kind": "IF_KEYWORD",
-                                              "isMissing": true
+                                              "isMissing": true,
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_IF_KEYWORD"
+                                              ]
                                             },
                                             {
                                               "kind": "IDENTIFIER_TOKEN",
