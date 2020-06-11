@@ -90,9 +90,9 @@ public class InvalidSyntaxParserTest {
         BAssertUtil.validateError(result, index++, "extraneous input '{'", 5, 26);
         BAssertUtil.validateError(result, index++, "mismatched input ':'. expecting ';'", 6, 16);
         BAssertUtil.validateError(result, index++, "mismatched input '\"GET\"'. expecting {'service', 'function', " +
-                "'object', 'record', 'abstract', 'client', 'distinct', 'int', 'byte', 'float', 'decimal', 'boolean', 'string', " +
-                "'error', 'map', 'json', 'xml', 'table', 'stream', 'any', 'typedesc', 'future', 'anydata', 'handle', " +
-                "'readonly', 'never', '(', '[', Identifier}", 6, 18);
+                "'object', 'record', 'abstract', 'client', 'distinct', 'int', 'byte', 'float', 'decimal', 'boolean', " +
+                "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', 'typedesc', 'future', 'anydata', " +
+                "'handle', 'readonly', 'never', '(', '[', Identifier}", 6, 18);
         BAssertUtil.validateError(result, index++, "mismatched input ':'. expecting ';'", 7, 13);
         BAssertUtil.validateError(result, index++, "invalid token '{'", 9, 29);
         BAssertUtil.validateError(result, index++, "mismatched input '{'. expecting '('", 9, 29);
@@ -117,7 +117,7 @@ public class InvalidSyntaxParserTest {
         BAssertUtil.validateError(result, 4, "extraneous input '}'", 8, 1);
     }
 
-    @Test(groups = "brokenOnErrorChange")
+    @Test
     public void testResourceWithReply() {
         CompileResult result = BCompileUtil.compile("test-src/parser/resource-with-reply-negative.bal");
         BAssertUtil.validateError(result, 0, "undefined symbol 'reply'", 6, 5);
@@ -131,7 +131,7 @@ public class InvalidSyntaxParserTest {
         BAssertUtil.validateError(result, 0, "token recognition error at: '*'", 4, 15);
     }
 
-    @Test(groups = "brokenOnErrorChange")
+    @Test
     public void testListenerDeclarationWithDefinedDifferentType() {
         CompileResult result = BCompileUtil.compile("test-src/parser/listener_declaration_type_reuse_negative.bal");
         BAssertUtil.validateError(result, 0, "invalid assignment: 'listener' declaration is final", 22, 5);

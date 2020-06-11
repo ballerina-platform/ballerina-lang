@@ -1040,7 +1040,8 @@ public class BRunUtil {
 
                 BType detailType = getBVMType(errorType.detailType, selfTypeStack);
                 BErrorType bvmErrorType =
-                        // todo: using reason type as string is just a hack to get the code compile after removing error reason type.
+                        // todo: using reason type as string is just a hack to get the code compile
+                        //  after removing error reason type.
                         new BErrorType(errorType.getName(), BTypes.typeString, detailType, errorType.getPackage().name);
                 return bvmErrorType;
             case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:

@@ -362,7 +362,7 @@ public class TaintedStatusPropagationTest {
         Assert.assertEquals(result.getDiagnostics().length, i);
     }
 
-    @Test(groups = "brokenOnErrorChange")
+    @Test
     public void testHttpService() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/http-service.bal");
         Assert.assertEquals(result.getDiagnostics().length, 3);
@@ -372,7 +372,7 @@ public class TaintedStatusPropagationTest {
     }
 
 
-    @Test(groups = "brokenOnErrorChange")
+    @Test
     public void testHttpServiceInlineListenerDecl() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/taintchecking/propagation/http-service-in-line-listener.bal");
@@ -521,14 +521,14 @@ public class TaintedStatusPropagationTest {
         BAssertUtil.validateError(result, 4, "tainted value passed to untainted parameter 'secureIn'", 44, 20);
     }
 
-    @Test(groups = "brokenOnErrorChange")
+    @Test
     public void testParameterStatusWithNativeInvocations() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/" +
                 "param-status-with-native-invocations.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test(groups = "brokenOnErrorChange")
+    @Test
     public void testParameterStatusWithNativeInvocationsNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/" +
                 "param-status-with-native-invocations-negative.bal");

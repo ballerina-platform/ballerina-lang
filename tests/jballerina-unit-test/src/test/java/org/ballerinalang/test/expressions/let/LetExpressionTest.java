@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
  *
  * @since 1.2.0
  */
-@Test(groups = "brokenOnErrorChange")
+@Test
 public class LetExpressionTest {
 
     private CompileResult compileResult, negativeResult, notSupportedResult;

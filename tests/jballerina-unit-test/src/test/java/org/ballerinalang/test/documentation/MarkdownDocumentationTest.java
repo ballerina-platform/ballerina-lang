@@ -321,7 +321,7 @@ public class MarkdownDocumentationTest {
 
     }
 
-    @Test(description = "Test doc negative cases.",groups = "brokenOnErrorChange")
+    @Test(description = "Test doc negative cases.")
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
@@ -382,7 +382,7 @@ public class MarkdownDocumentationTest {
         BAssertUtil.validateWarning(compileResult, index, "undocumented parameter 'filePath'", 117, 22);
     }
 
-    @Test(description = "Test doc service", groups = "brokenOnErrorChange")
+    @Test(description = "Test doc service")
     public void testDocService() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_service.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
@@ -579,7 +579,7 @@ public class MarkdownDocumentationTest {
                 "    # ```");
     }
 
-    @Test(description = "Test doc multiple.", groups = "brokenOnErrorChange")
+    @Test(description = "Test doc multiple.")
     public void testMultiple() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_multiple.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);

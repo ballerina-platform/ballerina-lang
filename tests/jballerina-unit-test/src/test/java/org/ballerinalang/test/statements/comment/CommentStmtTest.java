@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * Class to test comments.
  */
-@Test(groups = "brokenOnErrorChange")
+@Test
 public class CommentStmtTest {
 
     private CompileResult result;

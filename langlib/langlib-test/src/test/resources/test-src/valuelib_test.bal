@@ -383,8 +383,8 @@ public function testCloneWithTypeOptionalFieldToMandotoryField() {
     assert(b is error, true);
 
     error bbe = <error> b;
-    assert(bbe.reason(), "{ballerina/lang.typedesc}ConversionError");
-    assert(bbe.detail()?.message, "'CRec' value cannot be converted to 'BRec'");
+    assert(bbe.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(bbe.detail()["message"].toString(), "'CRec' value cannot be converted to 'BRec'");
 }
 
 type Foo record {
@@ -407,8 +407,8 @@ function testCloneWithTypeAmbiguousTargetType() {
     assert(bb is error, true);
 
     error bbe = <error> bb;
-    assert(bbe.reason(), "{ballerina/lang.typedesc}ConversionError");
-    assert(bbe.detail()?.message, "'Foo' value cannot be converted to 'Bar|Baz': ambiguous target type");
+    assert(bbe.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(bbe.detail()["message"].toString(), "'Foo' value cannot be converted to 'Bar|Baz': ambiguous target type");
 }
 
 function testCloneWithTypeForNilPositive() {
@@ -427,7 +427,7 @@ function testCloneWithTypeForNilNegative() {
     assert(c2 is error, true);
 
     error c1e = <error> c1;
-    assert(c1e.detail()?.message, "cannot convert '()' to type 'string|int'");
+    assert(c1e.detail()["message"].toString(), "cannot convert '()' to type 'string|int'");
 }
 
 function testCloneWithTypeNumeric1() {

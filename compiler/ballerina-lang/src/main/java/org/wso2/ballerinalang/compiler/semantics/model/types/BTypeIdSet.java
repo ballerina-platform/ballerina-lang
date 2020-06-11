@@ -121,6 +121,11 @@ public class BTypeIdSet {
         return primary.isEmpty() && secondary.isEmpty();
     }
 
+    /**
+     * Represent Ballerina type id.
+     *
+     * @since 2.0
+     */
     public static class BTypeId {
         public final PackageID packageID;
         public final String name;

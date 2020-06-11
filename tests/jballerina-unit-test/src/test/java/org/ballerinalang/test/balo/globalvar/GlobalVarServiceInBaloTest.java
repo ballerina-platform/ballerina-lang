@@ -41,7 +41,7 @@ import java.io.IOException;
  * 
  * @since 0.975.0
  */
-@Test(groups = "brokenOnErrorChange")
+@Test
 public class GlobalVarServiceInBaloTest {
 
     CompileResult result;

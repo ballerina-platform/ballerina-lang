@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 /**
  * Test HTTP Client related natives and Request/Response objects for taint checking operations.
  */
-@Test(groups = "brokenOnErrorChange")
+@Test
 public class HttpClientTest {
 
     @Test

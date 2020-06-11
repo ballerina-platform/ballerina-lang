@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases for duplicate definitions in tests vs src.
  */
-@Test(groups = "brokenOnErrorChange")
+@Test
 public class TopLevelNodesTest {
     private CompileResult compileResult;
 

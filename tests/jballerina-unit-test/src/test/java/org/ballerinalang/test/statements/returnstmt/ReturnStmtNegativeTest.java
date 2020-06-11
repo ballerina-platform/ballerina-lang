@@ -186,7 +186,7 @@ public class ReturnStmtNegativeTest {
         BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found '[string,int]'", 2, 13);
     }
 
-    @Test(description = "Test return statement in resource with mismatching types", groups = "brokenOnErrorChange")
+    @Test(description = "Test return statement in resource with mismatching types")
     public void testReturnInResourceWithMismatchingTypes() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/return-in-resource-with-" +
                 "mismatching-types.bal");

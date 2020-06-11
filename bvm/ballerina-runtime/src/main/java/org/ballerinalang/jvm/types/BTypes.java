@@ -19,7 +19,6 @@ package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.ReadOnlyUtils;
 
 import java.util.Arrays;

@@ -41,7 +41,7 @@ public class FinalAccessTest {
                 "final-field-test");
     }
 
-    @Test(description = "Test final field access failures", groups = "brokenOnErrorChange")
+    @Test(description = "Test final field access failures")
     public void testFinalFailCase() {
         CompileResult compileResultNegative = BCompileUtil.compile(
                 "test-src/types/finaltypes/final-field-test-negative.bal");

@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 /**
  * Test taintedness propagation when listener is marked @tainted and @untainted.
  */
-@Test(groups = "brokenOnErrorChange")
+@Test
 public class ListenerServiceTaintedStatusPropagationTest {
     @Test
     public void testUntaintedListernBasedService() {

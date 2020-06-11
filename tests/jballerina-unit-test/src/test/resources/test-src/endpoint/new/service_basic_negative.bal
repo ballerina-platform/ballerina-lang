@@ -96,7 +96,7 @@ type BarErr error<record { string message?; error cause?; int code; }>;
 
 service ser4 = service {
     resource function foo() returns FooErr|BarErr {
-        return FooErr();
+        return FooErr(R1);
     }
 };
 
