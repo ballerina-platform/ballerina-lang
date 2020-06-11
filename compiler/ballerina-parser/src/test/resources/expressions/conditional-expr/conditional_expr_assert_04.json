@@ -2,11 +2,60 @@
   "kind": "CONDITIONAL_EXPRESSION",
   "children": [
     {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "QUESTION_MARK_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "BRACED_EXPRESSION",
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "b"
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "COLON_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
       "kind": "CONDITIONAL_EXPRESSION",
       "children": [
         {
           "kind": "IDENTIFIER_TOKEN",
-          "value": "a",
+          "value": "c",
           "trailingMinutiae": [
             {
               "kind": "WHITESPACE_MINUTIAE",
@@ -31,7 +80,7 @@
             },
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "b"
+              "value": "d"
             },
             {
               "kind": "CLOSE_PAREN_TOKEN",
@@ -55,58 +104,9 @@
         },
         {
           "kind": "IDENTIFIER_TOKEN",
-          "value": "c",
-          "trailingMinutiae": [
-            {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
-            }
-          ]
+          "value": "e"
         }
       ]
-    },
-    {
-      "kind": "QUESTION_MARK_TOKEN",
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
-        }
-      ]
-    },
-    {
-      "kind": "BRACED_EXPRESSION",
-      "children": [
-        {
-          "kind": "OPEN_PAREN_TOKEN"
-        },
-        {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "d"
-        },
-        {
-          "kind": "CLOSE_PAREN_TOKEN",
-          "trailingMinutiae": [
-            {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "kind": "COLON_TOKEN",
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
-        }
-      ]
-    },
-    {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "e"
     }
   ]
 }

@@ -2,62 +2,62 @@
   "kind": "BINARY_EXPRESSION",
   "children": [
     {
-      "kind": "BRACED_EXPRESSION",
+      "kind": "BINARY_EXPRESSION",
       "children": [
         {
-          "kind": "OPEN_PAREN_TOKEN"
-        },
-        {
-          "kind": "BINARY_EXPRESSION",
+          "kind": "BRACED_EXPRESSION",
           "children": [
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "a",
+              "kind": "OPEN_PAREN_TOKEN"
+            },
+            {
+              "kind": "BINARY_EXPRESSION",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "PLUS_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b"
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_PAREN_TOKEN",
               "trailingMinutiae": [
                 {
                   "kind": "WHITESPACE_MINUTIAE",
                   "value": " "
                 }
               ]
-            },
-            {
-              "kind": "PLUS_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "b"
             }
           ]
         },
         {
-          "kind": "CLOSE_PAREN_TOKEN",
+          "kind": "ASTERISK_TOKEN",
           "trailingMinutiae": [
             {
               "kind": "WHITESPACE_MINUTIAE",
               "value": " "
             }
           ]
-        }
-      ]
-    },
-    {
-      "kind": "ASTERISK_TOKEN",
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
-        }
-      ]
-    },
-    {
-      "kind": "BINARY_EXPRESSION",
-      "children": [
+        },
         {
           "kind": "BRACED_EXPRESSION",
           "children": [
@@ -102,21 +102,21 @@
               ]
             }
           ]
-        },
-        {
-          "kind": "SLASH_TOKEN",
-          "trailingMinutiae": [
-            {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
-            }
-          ]
-        },
-        {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "e"
         }
       ]
+    },
+    {
+      "kind": "SLASH_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "e"
     }
   ]
 }

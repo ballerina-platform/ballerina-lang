@@ -87,7 +87,7 @@ public type Listener object {
             if (auth.mandateSecureSocket) {
                 ListenerSecureSocket? secureSocket = self.config.secureSocket;
                 if (secureSocket is ()) {
-                    error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
+                    error err = error("Secure sockets have not been configured in order to enable auth providers.");
                     panic err;
                 }
             }

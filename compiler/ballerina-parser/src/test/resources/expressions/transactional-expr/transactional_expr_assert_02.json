@@ -188,32 +188,31 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "TRANSACTIONAL_EXPRESSION",
+                      "kind": "BINARY_EXPRESSION",
                       "children": [
                         {
-                          "kind": "TRANSACTIONAL_KEYWORD",
+                          "kind": "TRANSACTIONAL_EXPRESSION",
+                          "children": [
+                            {
+                              "kind": "TRANSACTIONAL_KEYWORD",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "PIPE_TOKEN",
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
                               "value": " "
                             }
                           ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "PIPE_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BINARY_EXPRESSION",
-                      "hasDiagnostics": true,
-                      "children": [
+                        },
                         {
                           "kind": "TRUE_KEYWORD",
                           "trailingMinutiae": [
@@ -222,22 +221,22 @@
                               "value": "  "
                             }
                           ]
-                        },
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "PLUS_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_PLUS_TOKEN"
+                      ]
+                    },
+                    {
+                      "kind": "TRANSACTIONAL_EXPRESSION",
+                      "children": [
                         {
-                          "kind": "PLUS_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_PLUS_TOKEN"
-                          ]
-                        },
-                        {
-                          "kind": "TRANSACTIONAL_EXPRESSION",
-                          "children": [
-                            {
-                              "kind": "TRANSACTIONAL_KEYWORD"
-                            }
-                          ]
+                          "kind": "TRANSACTIONAL_KEYWORD"
                         }
                       ]
                     }

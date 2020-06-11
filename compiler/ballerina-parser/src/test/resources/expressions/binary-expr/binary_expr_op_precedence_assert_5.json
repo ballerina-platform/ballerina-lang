@@ -5,8 +5,41 @@
       "kind": "BINARY_EXPRESSION",
       "children": [
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "a",
+          "kind": "BINARY_EXPRESSION",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "MINUS_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "b",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "NOT_EQUAL_TOKEN",
           "trailingMinutiae": [
             {
               "kind": "WHITESPACE_MINUTIAE",
@@ -15,17 +48,8 @@
           ]
         },
         {
-          "kind": "MINUS_TOKEN",
-          "trailingMinutiae": [
-            {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
-            }
-          ]
-        },
-        {
           "kind": "IDENTIFIER_TOKEN",
-          "value": "b",
+          "value": "c",
           "trailingMinutiae": [
             {
               "kind": "WHITESPACE_MINUTIAE",
@@ -36,7 +60,7 @@
       ]
     },
     {
-      "kind": "NOT_EQUAL_TOKEN",
+      "kind": "TRIPPLE_EQUAL_TOKEN",
       "trailingMinutiae": [
         {
           "kind": "WHITESPACE_MINUTIAE",
@@ -47,25 +71,6 @@
     {
       "kind": "BINARY_EXPRESSION",
       "children": [
-        {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "c",
-          "trailingMinutiae": [
-            {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
-            }
-          ]
-        },
-        {
-          "kind": "TRIPPLE_EQUAL_TOKEN",
-          "trailingMinutiae": [
-            {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
-            }
-          ]
-        },
         {
           "kind": "BINARY_EXPRESSION",
           "children": [
@@ -92,65 +97,8 @@
               "kind": "BINARY_EXPRESSION",
               "children": [
                 {
-                  "kind": "BINARY_EXPRESSION",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "e",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "PLUS_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BINARY_EXPRESSION",
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "f",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "ASTERISK_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "g",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "LT_TOKEN",
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "e",
                   "trailingMinutiae": [
                     {
                       "kind": "WHITESPACE_MINUTIAE",
@@ -159,12 +107,64 @@
                   ]
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "h"
+                  "kind": "PLUS_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "BINARY_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "f",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "ASTERISK_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "g",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }
           ]
+        },
+        {
+          "kind": "LT_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "h"
         }
       ]
     }

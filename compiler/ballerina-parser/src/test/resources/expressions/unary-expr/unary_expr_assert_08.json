@@ -2,10 +2,34 @@
   "kind": "BINARY_EXPRESSION",
   "children": [
     {
-      "kind": "UNARY_EXPRESSION",
+      "kind": "BINARY_EXPRESSION",
       "children": [
         {
-          "kind": "NEGATION_TOKEN",
+          "kind": "UNARY_EXPRESSION",
+          "children": [
+            {
+              "kind": "NEGATION_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "PLUS_TOKEN",
           "trailingMinutiae": [
             {
               "kind": "WHITESPACE_MINUTIAE",
@@ -13,30 +37,6 @@
             }
           ]
         },
-        {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "a",
-          "trailingMinutiae": [
-            {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "kind": "PLUS_TOKEN",
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
-        }
-      ]
-    },
-    {
-      "kind": "BINARY_EXPRESSION",
-      "children": [
         {
           "kind": "BINARY_EXPRESSION",
           "children": [
@@ -78,7 +78,21 @@
               ]
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      "kind": "PLUS_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "UNARY_EXPRESSION",
+      "children": [
         {
           "kind": "PLUS_TOKEN",
           "trailingMinutiae": [
@@ -89,22 +103,8 @@
           ]
         },
         {
-          "kind": "UNARY_EXPRESSION",
-          "children": [
-            {
-              "kind": "PLUS_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "d"
-            }
-          ]
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "d"
         }
       ]
     }

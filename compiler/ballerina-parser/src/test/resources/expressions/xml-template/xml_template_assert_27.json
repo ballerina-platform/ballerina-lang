@@ -119,38 +119,51 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "XML_TEMPLATE_EXPRESSION",
+                      "kind": "BINARY_EXPRESSION",
+                      "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "XML_KEYWORD",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "BACKTICK_TOKEN"
-                        },
-                        {
-                          "kind": "LIST",
+                          "kind": "XML_TEMPLATE_EXPRESSION",
                           "children": [
                             {
-                              "kind": "XML_ELEMENT",
+                              "kind": "XML_KEYWORD",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "BACKTICK_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "XML_ELEMENT_START_TAG",
+                                  "kind": "XML_ELEMENT",
                                   "children": [
                                     {
-                                      "kind": "LT_TOKEN"
-                                    },
-                                    {
-                                      "kind": "XML_SIMPLE_NAME",
+                                      "kind": "XML_ELEMENT_START_TAG",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "foo"
+                                          "kind": "LT_TOKEN"
+                                        },
+                                        {
+                                          "kind": "XML_SIMPLE_NAME",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "foo"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
+                                        {
+                                          "kind": "GT_TOKEN"
                                         }
                                       ]
                                     },
@@ -159,57 +172,44 @@
                                       "children": []
                                     },
                                     {
-                                      "kind": "GT_TOKEN"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "XML_ELEMENT_END_TAG",
-                                  "children": [
-                                    {
-                                      "kind": "LT_TOKEN"
-                                    },
-                                    {
-                                      "kind": "SLASH_TOKEN"
-                                    },
-                                    {
-                                      "kind": "XML_SIMPLE_NAME",
+                                      "kind": "XML_ELEMENT_END_TAG",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "foo"
+                                          "kind": "LT_TOKEN"
+                                        },
+                                        {
+                                          "kind": "SLASH_TOKEN"
+                                        },
+                                        {
+                                          "kind": "XML_SIMPLE_NAME",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "foo"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "GT_TOKEN"
                                         }
                                       ]
-                                    },
-                                    {
-                                      "kind": "GT_TOKEN"
                                     }
                                   ]
+                                },
+                                {
+                                  "kind": "XML_TEXT_CONTENT",
+                                  "value": ";\n    xml x2 \u003d xml "
                                 }
                               ]
                             },
                             {
-                              "kind": "XML_TEXT_CONTENT",
-                              "value": ";\n    xml x2 \u003d xml "
+                              "kind": "BACKTICK_TOKEN"
                             }
                           ]
                         },
                         {
-                          "kind": "BACKTICK_TOKEN"
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "LT_TOKEN"
-                    },
-                    {
-                      "kind": "BINARY_EXPRESSION",
-                      "hasDiagnostics": true,
-                      "children": [
+                          "kind": "LT_TOKEN"
+                        },
                         {
                           "kind": "BINARY_EXPRESSION",
                           "hasDiagnostics": true,
@@ -230,34 +230,34 @@
                               ]
                             }
                           ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "GT_TOKEN"
+                    },
+                    {
+                      "kind": "RAW_TEMPLATE_EXPRESSION",
+                      "hasDiagnostics": true,
+                      "children": [
+                        {
+                          "kind": "BACKTICK_TOKEN"
                         },
                         {
-                          "kind": "GT_TOKEN"
-                        },
-                        {
-                          "kind": "RAW_TEMPLATE_EXPRESSION",
-                          "hasDiagnostics": true,
+                          "kind": "LIST",
                           "children": [
                             {
-                              "kind": "BACKTICK_TOKEN"
-                            },
-                            {
-                              "kind": "LIST",
-                              "children": [
-                                {
-                                  "kind": "TEMPLATE_STRING",
-                                  "value": ";\n}\n"
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "BACKTICK_TOKEN",
-                              "isMissing": true,
-                              "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_MISSING_BACKTICK_TOKEN"
-                              ]
+                              "kind": "TEMPLATE_STRING",
+                              "value": ";\n}\n"
                             }
+                          ]
+                        },
+                        {
+                          "kind": "BACKTICK_TOKEN",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_BACKTICK_TOKEN"
                           ]
                         }
                       ]

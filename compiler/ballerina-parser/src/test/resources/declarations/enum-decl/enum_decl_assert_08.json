@@ -103,17 +103,12 @@
                   "kind": "ENUM_MEMBER",
                   "children": [
                     {
-                      "kind": "ENUM_MEMBER",
-                      "children": [
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "B",
+                      "leadingMinutiae": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "B",
-                          "leadingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ]
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
                         }
                       ]
                     }
@@ -330,22 +325,12 @@
                   "kind": "ENUM_MEMBER",
                   "children": [
                     {
-                      "kind": "ENUM_MEMBER",
-                      "children": [
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "RED",
+                      "leadingMinutiae": [
                         {
-                          "kind": "ENUM_MEMBER",
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "RED",
-                              "leadingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "  "
-                                }
-                              ]
-                            }
-                          ]
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "  "
                         }
                       ]
                     }

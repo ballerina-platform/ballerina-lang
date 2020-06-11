@@ -950,8 +950,6 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.FOREACH_KEYWORD);
             case LexerTerminals.TABLE:
                 return getSyntaxToken(SyntaxKind.TABLE_KEYWORD);
-            case LexerTerminals.KEY:
-                return getSyntaxToken(SyntaxKind.KEY_KEYWORD);
             case LexerTerminals.ERROR:
                 return getSyntaxToken(SyntaxKind.ERROR_KEYWORD);
             case LexerTerminals.LET:
