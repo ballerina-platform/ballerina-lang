@@ -27,6 +27,7 @@ dependencies {
     implementation project(':ballerina-jvm')
     implementation project(':ballerina-tool')
     implementation project(':ballerina-lang')
+    implementation project(':maven-resolver')
     implementation project(':ballerina-lang:annotations')
     testCompile 'org.testng:testng'
 }
