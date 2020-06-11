@@ -3119,6 +3119,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private BLangLiteral createSimpleLiteral(Node literal) {
+        if (literal.kind() == SyntaxKind.UNARY_EXPRESSION) {
+            UnaryExpressionNode unaryExpr = (UnaryExpressionNode) literal;
+            return createSimpleLiteral(unaryExpr.expression(), unaryExpr.unaryOperator().kind());
+        }
+
+        return createSimpleLiteral(literal, SyntaxKind.NONE);
+    }
+
+    private BLangLiteral createSimpleLiteral(Node literal, SyntaxKind sign) {
         BLangLiteral bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         SyntaxKind type = literal.kind();
         int typeTag = -1;
@@ -3132,6 +3141,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             textValue = ((Token) literal).text();
         } else {
             textValue = "";
+        }
+
+        if (sign == SyntaxKind.PLUS_TOKEN) {
+            textValue = "+" + textValue;
+        } else if (sign == SyntaxKind.MINUS_TOKEN) {
+            textValue = "-" + textValue;
         }
 
         //TODO: Verify all types, only string type tested
@@ -3209,7 +3224,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             } else {
                 bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
             }
-        } 
+        }
 
         bLiteral.pos = getPosition(literal);
         bLiteral.type = symTable.getTypeFromTag(typeTag);
