@@ -38,7 +38,7 @@ type Manager1 object {
         return self.name + " from inner function";
     }
     
-    function __init() {
+    function init() {
         self.age = 99;
         self.name = "sample name 2";
         self.salary = 8.0;
@@ -65,7 +65,7 @@ type Manager2 object {
         return self.name + " from inner function";
     }
 
-    function __init(int age=20) {
+    function init(int age=20) {
         self.age = age;
         self.name = "John";
         self.salary = 1000.0;
@@ -86,7 +86,7 @@ type Manager3 object {
 
     *Employee2;
 
-    function __init(int age=20) {
+    function init(int age=20) {
         self.age = age;
         self.salary = 2500.0;
         self.name = "Doe";
@@ -120,7 +120,7 @@ type Manager4 object {
 
     *Employee3;
 
-    function __init(string name, int age=25) {
+    function init(string name, int age=25) {
         self.name = name;
         self.age = age;
         self.salary = 3000.0;
@@ -158,7 +158,7 @@ public function testAbstractObjectFuncWithDefaultVal() returns [string, float] {
 type Ant object {
     int id;
 
-    public function __init(int id) {
+    public function init(int id) {
         self.id = id;
     }
 
@@ -174,7 +174,7 @@ type Ant object {
 type FireAnt object {
     *Ant;
 
-    public function __init(int id) {
+    public function init(int id) {
         self.id = id;
     }
 
@@ -205,7 +205,7 @@ type DefaultPerson object {
     int age;
     string name;
 
-    function __init(int age=18, string name = "UNKNOWN") {
+    function init(int age=18, string name = "UNKNOWN") {
        self.age = age;
        self.name = name;
     }
@@ -234,7 +234,7 @@ type DefaultPersonGreetedName object {
     string name;
     int age;
 
-    function __init(int age = 18, string name = "UNKNOWN") {
+    function init(int age = 18, string name = "UNKNOWN") {
        self.age = age;
        self.name = name;
     }

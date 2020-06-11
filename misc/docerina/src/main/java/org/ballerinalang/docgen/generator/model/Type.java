@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import com.google.gson.annotations.Expose;
 import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
 import org.ballerinalang.model.elements.Flag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -46,22 +47,39 @@ import java.util.stream.Collectors;
  * Represents a Ballerina Type.
  */
 public class Type {
+    @Expose
     public String orgName;
+    @Expose
     public String moduleName;
+    @Expose
     public String name;
+    @Expose
     public String description;
+    @Expose
     public String category;
+    @Expose
     public boolean isAnonymousUnionType;
+    @Expose
     public boolean isArrayType;
+    @Expose
     public boolean isNullable;
+    @Expose
     public boolean isTuple;
+    @Expose
     public boolean isLambda;
+    @Expose
     public boolean isDeprecated;
+    @Expose
     public boolean generateUserDefinedTypeLink = true;
+    @Expose
     public List<Type> memberTypes = new ArrayList<>();
+    @Expose
     public List<Type> paramTypes = new ArrayList<>();
+    @Expose
     public int arrayDimensions;
+    @Expose
     public Type elementType;
+    @Expose
     public Type returnType;
 
     private Type() {

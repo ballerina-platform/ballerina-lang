@@ -85,7 +85,7 @@ public class TaintedParamCodeAction extends AbstractCodeActionProvider {
                 String content = CommandUtil.getContentOfRange(documentManager, uri, range);
                 // Add `untaint` keyword
                 matcher = CommandConstants.NO_CONCAT_PATTERN.matcher(content);
-                String editText = matcher.find() ? "<@untained>  " + content : "<@untained> (" + content + ")";
+                String editText = matcher.find() ? "<@untainted>  " + content : "<@untainted> (" + content + ")";
                 // Create text-edit
                 List<TextEdit> edits = new ArrayList<>();
                 edits.add(new TextEdit(range, editText));

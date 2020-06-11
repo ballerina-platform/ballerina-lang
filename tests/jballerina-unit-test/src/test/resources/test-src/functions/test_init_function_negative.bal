@@ -14,6 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function __init(string s, int i = 1, boolean... b) returns error {
+public function init(string s, int i = 1, boolean... b) returns error {
     return error("invalid");
 }

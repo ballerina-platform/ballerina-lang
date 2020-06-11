@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_VAR_DECL",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -12,15 +13,18 @@
     },
     {
       "kind": "TYPED_BINDING_PATTERN",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "ERROR_TYPE_DESC",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "ERROR_KEYWORD"
             },
             {
               "kind": "ERROR_TYPE_PARAMS",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LT_TOKEN"
@@ -31,7 +35,11 @@
                 },
                 {
                   "kind": "GT_TOKEN",
-                  "isMissing": true
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_GT_TOKEN"
+                  ]
                 }
               ]
             }

@@ -34,8 +34,7 @@
         <Bug pattern="EI_EXPOSE_REP2"/>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.packerina.NativeDependencyResolverImpl"/>
-        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+        <Class name="org.ballerinalang.packerina.JarResolverImpl"/>
     </Match>
     <Match>
         <Class name="org.ballerinalang.packerina.task.CopyNativeLibTask"/>

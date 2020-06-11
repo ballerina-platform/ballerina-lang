@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -15,14 +16,23 @@
     },
     {
       "kind": "IDENTIFIER_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_FUNCTION_NAME"
+      ]
     },
     {
       "kind": "FUNCTION_SIGNATURE",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_PAREN_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_OPEN_PAREN_TOKEN"
+          ]
         },
         {
           "kind": "LIST",
@@ -30,16 +40,25 @@
         },
         {
           "kind": "CLOSE_PAREN_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+          ]
         }
       ]
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_OPEN_BRACE_TOKEN"
+          ]
         },
         {
           "kind": "LIST",

@@ -31,7 +31,7 @@ public type BufferReader object {
     //counter to fill the buffer
     private int bufferSize = 0;
 
-    public function __init(io:ReadableCharacterChannel sourceChannel, int capacity = 5) returns  @tainted error? {
+    public function init(io:ReadableCharacterChannel sourceChannel, int capacity = 5) returns  @tainted error? {
         self.capacity = capacity;
         self.sourceChannel = sourceChannel;
         return self.fillBuffer();

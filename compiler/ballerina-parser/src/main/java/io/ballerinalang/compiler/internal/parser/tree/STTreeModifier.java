@@ -2141,6 +2141,66 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 typeRef);
     }
 
+    @Override
+    public STMatchStatementNode transform(
+            STMatchStatementNode matchStatementNode) {
+        STNode matchKeyword = modifyNode(matchStatementNode.matchKeyword);
+        STNode condition = modifyNode(matchStatementNode.condition);
+        STNode openBrace = modifyNode(matchStatementNode.openBrace);
+        STNode matchClauses = modifyNode(matchStatementNode.matchClauses);
+        STNode closeBrace = modifyNode(matchStatementNode.closeBrace);
+        return matchStatementNode.modify(
+                matchKeyword,
+                condition,
+                openBrace,
+                matchClauses,
+                closeBrace);
+    }
+
+    @Override
+    public STMatchClauseNode transform(
+            STMatchClauseNode matchClauseNode) {
+        STNode matchPatterns = modifyNode(matchClauseNode.matchPatterns);
+        STNode matchGuard = modifyNode(matchClauseNode.matchGuard);
+        STNode rightDoubleArrow = modifyNode(matchClauseNode.rightDoubleArrow);
+        STNode blockStatement = modifyNode(matchClauseNode.blockStatement);
+        return matchClauseNode.modify(
+                matchPatterns,
+                matchGuard,
+                rightDoubleArrow,
+                blockStatement);
+    }
+
+    @Override
+    public STMatchGuardNode transform(
+            STMatchGuardNode matchGuardNode) {
+        STNode ifKeyword = modifyNode(matchGuardNode.ifKeyword);
+        STNode expression = modifyNode(matchGuardNode.expression);
+        return matchGuardNode.modify(
+                ifKeyword,
+                expression);
+    }
+
+    @Override
+    public STObjectMethodDefinitionNode transform(
+            STObjectMethodDefinitionNode objectMethodDefinitionNode) {
+        STNode metadata = modifyNode(objectMethodDefinitionNode.metadata);
+        STNode visibilityQualifier = modifyNode(objectMethodDefinitionNode.visibilityQualifier);
+        STNode remoteKeyword = modifyNode(objectMethodDefinitionNode.remoteKeyword);
+        STNode functionKeyword = modifyNode(objectMethodDefinitionNode.functionKeyword);
+        STNode methodName = modifyNode(objectMethodDefinitionNode.methodName);
+        STNode methodSignature = modifyNode(objectMethodDefinitionNode.methodSignature);
+        STNode functionBody = modifyNode(objectMethodDefinitionNode.functionBody);
+        return objectMethodDefinitionNode.modify(
+                metadata,
+                visibilityQualifier,
+                remoteKeyword,
+                functionKeyword,
+                methodName,
+                methodSignature,
+                functionBody);
+    }
+
     // Tokens
 
     public STToken transform(STToken token) {
@@ -2166,7 +2226,26 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     // Misc
 
     public STNode transform(STNodeList nodeList) {
-        return transformSyntaxNode(nodeList);
+        if (nodeList.isEmpty()) {
+            return nodeList;
+        }
+
+        boolean nodeModified = false;
+        STNode[] newSTNodes = new STNode[nodeList.size()];
+        for (int index = 0; index < nodeList.size(); index++) {
+            STNode oldNode = nodeList.get(index);
+            STNode newNode = modifyNode(oldNode);
+            if (oldNode != newNode) {
+                nodeModified = true;
+            }
+            newSTNodes[index] = newNode;
+        }
+
+        if (!nodeModified) {
+            return nodeList;
+        }
+
+        return STNodeFactory.createNodeList(newSTNodes);
     }
 
     @Override
@@ -2178,7 +2257,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         if (node == null) {
             return null;
         }
-        // TODO
         return (T) node.apply(this);
     }
 }

@@ -20,7 +20,7 @@ public type FuncBodyParser object {
     TypeDef?[] typeDefs;
     VariableDcl? receiver;
 
-    public function __init(BirChannelReader reader, map<VariableDcl> localVarMap,
+    public function init(BirChannelReader reader, map<VariableDcl> localVarMap,
                            TypeDef?[] typeDefs, VariableDcl? receiver) {
         self.reader = reader;
         self.localVarMap = localVarMap;

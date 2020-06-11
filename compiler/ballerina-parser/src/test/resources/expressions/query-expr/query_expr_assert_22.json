@@ -1,11 +1,17 @@
 {
   "kind": "QUERY_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "QUERY_PIPELINE",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "FROM_CLAUSE",
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_SELECT_CLAUSE"
+          ],
           "children": [
             {
               "kind": "FROM_KEYWORD"
@@ -32,6 +38,7 @@
             },
             {
               "kind": "BINARY_EXPRESSION",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
@@ -39,7 +46,11 @@
                 },
                 {
                   "kind": "PLUS_TOKEN",
-                  "isMissing": true
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_PLUS_TOKEN"
+                  ]
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",

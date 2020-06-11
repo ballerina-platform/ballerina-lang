@@ -159,7 +159,7 @@ type Foo record {
 type Bar object {
     int b;
 
-    public function __init() {
+    public function init() {
         self.b = 11;
     }
 };

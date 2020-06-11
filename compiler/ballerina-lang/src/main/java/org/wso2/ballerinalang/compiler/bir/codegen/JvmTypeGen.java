@@ -290,8 +290,8 @@ class JvmTypeGen {
                     addObjectFields(mv, objectType.fields);
                     BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) objectType.tsymbol;
                     addObjectInitFunction(mv, objectTypeSymbol.generatedInitializerFunc, objectType, indexMap,
-                            "$__init$", "setGeneratedInitializer", symbolTable);
-                    addObjectInitFunction(mv, objectTypeSymbol.initializerFunc, objectType, indexMap, "__init",
+                            "$init$", "setGeneratedInitializer", symbolTable);
+                    addObjectInitFunction(mv, objectTypeSymbol.initializerFunc, objectType, indexMap, "init",
                             "setInitializer", symbolTable);
                     addObjectAttachedFunctions(mv, objectTypeSymbol.attachedFuncs, objectType, indexMap, symbolTable);
                 }
@@ -493,7 +493,7 @@ class JvmTypeGen {
             mv.visitVarInsn(ALOAD, tempVarIndex);
             mv.visitVarInsn(ALOAD, strandVarIndex);
 
-            mv.visitLdcInsn("$__init$");
+            mv.visitLdcInsn("$init$");
             mv.visitVarInsn(ALOAD, argsIndex);
 
             String methodDesc = String.format("(L%s;L%s;[L%s;)L%s;", STRAND, STRING_VALUE, OBJECT, OBJECT);

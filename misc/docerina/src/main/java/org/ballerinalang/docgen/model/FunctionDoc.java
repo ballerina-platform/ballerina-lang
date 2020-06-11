@@ -43,7 +43,7 @@ public class FunctionDoc extends Documentable {
         super(name, "fw-function", description, children);
         this.parameters = parameters;
         this.returnParams = returnParams;
-        if (name.equals("__init")) {
+        if (name.equals("init")) {
             isConstructor = true;
             super.icon = "fw-constructor";
         } else {

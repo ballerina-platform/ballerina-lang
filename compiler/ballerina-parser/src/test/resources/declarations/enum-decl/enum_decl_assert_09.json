@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_PART",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -7,9 +8,11 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "ENUM_DECLARATION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -32,17 +35,27 @@
             },
             {
               "kind": "OPEN_BRACE_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_OPEN_BRACE_TOKEN"
+              ]
             },
             {
               "kind": "LIST",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "ENUM_MEMBER",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
-                      "isMissing": true
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_IDENTIFIER"
+                      ]
                     }
                   ]
                 },
@@ -51,6 +64,7 @@
                 },
                 {
                   "kind": "ENUM_MEMBER",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
@@ -58,7 +72,11 @@
                     },
                     {
                       "kind": "EQUAL_TOKEN",
-                      "isMissing": true
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_EQUAL_TOKEN"
+                      ]
                     },
                     {
                       "kind": "IDENTIFIER_TOKEN",
@@ -70,7 +88,11 @@
             },
             {
               "kind": "CLOSE_BRACE_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+              ]
             }
           ]
         }

@@ -157,8 +157,18 @@ public abstract class STNode {
 
     // Modification methods
 
-    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return null;
+    public abstract STNode modifyWith(Collection<STNodeDiagnostic> diagnostics);
+
+    /**
+     * Replaces the given target node with the replacement.
+     *
+     * @param target      the node to be replaced
+     * @param replacement the replacement node
+     * @param <T>         the type of the root node
+     * @return return the new root node after replacing the target with the replacement
+     */
+    public <T extends STNode> T replace(STNode target, STNode replacement) {
+        return STTreeModifiers.replace((T) this, target, replacement);
     }
 
     @SuppressWarnings("unchecked")

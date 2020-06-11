@@ -25,7 +25,7 @@ public type ObjectGenerator object {
     private bir:BObjectType? currentObjectType = ();
     private bir:BRecordType? currentRecordType = ();
 
-    public function __init(bir:Package module) {
+    public function init(bir:Package module) {
         self.module = module;
     }
 
@@ -423,7 +423,7 @@ public type ObjectGenerator object {
         string valueClassName;
         bir:Function?[] attachedFuncs = <bir:Function?[]>typeDef.attachedFuncs;
 
-        // Attached functions are empty for type-labeling. In such cases, call the __init() of
+        // Attached functions are empty for type-labeling. In such cases, call the init() of
         // the original type value;
         if (attachedFuncs.length() != 0) {
             initFuncName = <string> attachedFuncs[0]?.name?.value;

@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -34,18 +35,22 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST_BINDING_PATTERN",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "OPEN_BRACKET_TOKEN"
@@ -78,7 +83,11 @@
                     },
                     {
                       "kind": "CLOSE_BRACKET_TOKEN",
-                      "isMissing": true
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
+                      ]
                     }
                   ]
                 },
@@ -96,15 +105,18 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST_BINDING_PATTERN",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "OPEN_BRACKET_TOKEN"
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "CAPTURE_BINDING_PATTERN",
@@ -129,7 +141,11 @@
                         },
                         {
                           "kind": "COMMA_TOKEN",
-                          "isMissing": true
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_COMMA_TOKEN"
+                          ]
                         }
                       ]
                     },
@@ -164,9 +180,11 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST_BINDING_PATTERN",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "OPEN_BRACKET_TOKEN"
@@ -177,13 +195,18 @@
                     },
                     {
                       "kind": "REST_BINDING_PATTERN",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "ELLIPSIS_TOKEN"
                         },
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "isMissing": true
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_IDENTIFIER"
+                          ]
                         }
                       ]
                     },
@@ -206,15 +229,18 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST_BINDING_PATTERN",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "OPEN_BRACKET_TOKEN"
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "CAPTURE_BINDING_PATTERN",
@@ -242,12 +268,14 @@
                         },
                         {
                           "kind": "LIST_BINDING_PATTERN",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "OPEN_BRACKET_TOKEN"
                             },
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "CAPTURE_BINDING_PATTERN",
@@ -272,7 +300,11 @@
                                 },
                                 {
                                   "kind": "COMMA_TOKEN",
-                                  "isMissing": true
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_COMMA_TOKEN"
+                                  ]
                                 }
                               ]
                             },

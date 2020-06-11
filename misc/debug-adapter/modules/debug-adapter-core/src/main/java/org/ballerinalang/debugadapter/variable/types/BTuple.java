@@ -40,8 +40,7 @@ public class BTuple extends BCompoundVariable {
     private final ObjectReferenceImpl jvmValueRef;
 
     public BTuple(Value value, Variable dapVariable) {
-
-         this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
+        this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
         dapVariable.setType(BVariableType.TUPLE.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
@@ -66,8 +65,6 @@ public class BTuple extends BCompoundVariable {
                     .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
             int arraySize = ((IntegerValue) jvmValueRef.getValue(arraySizeField)).value();
             return String.format("%s[%d]", arrayType, arraySize);
-        } catch (RuntimeException e) {
-            throw e;
         } catch (Exception ignored) {
             return "unknown";
         }
@@ -99,8 +96,6 @@ public class BTuple extends BCompoundVariable {
                 values.put("[" + varIndex + "]", valueSubList.get(varIndex));
             });
             this.setChildVariables(values);
-        } catch (RuntimeException e) {
-            throw e;
         } catch (Exception ignored) {
             this.setChildVariables(new HashMap<>());
         }

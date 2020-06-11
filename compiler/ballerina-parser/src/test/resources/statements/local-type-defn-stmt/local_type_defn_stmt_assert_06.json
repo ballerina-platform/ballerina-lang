@@ -94,14 +94,6 @@
                               "value": "b"
                             },
                             {
-                              "kind": "EQUAL_TOKEN",
-                              "isMissing": true
-                            },
-                            {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
-                              "value": "7"
-                            },
-                            {
                               "kind": "SEMICOLON_TOKEN"
                             }
                           ]
