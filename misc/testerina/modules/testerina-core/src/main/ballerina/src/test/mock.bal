@@ -64,7 +64,7 @@ public function mock(typedesc<object {}> T, object{} mockObj = new) returns obje
     return <object{}>mockExtResult;
 }
 
-# Prepares a provided mock object.
+# Prepares a provided mock object to register mock cases.
 #
 # + mockObj - created mock object
 # + return - prepared object that expects a member functon/field to mock
@@ -151,11 +151,11 @@ public  type Case object {
     # + args - arguments list
     # + return - mock case that expects the function behavior
     public function withArguments(anydata|error... args) returns Case {
-        if (self.functionName == "") {
-             error err = error("function to mock is not specified.");
-             panic err;
-        }
         self.args = args;
+        Error? result = validateArgumentsExt(self);
+        if (result is Error) {
+            panic result;
+        }
         return self;
     }
 
@@ -261,5 +261,14 @@ function validateFunctionNameExt(object{} case) returns Error? = @java:Method {
 # + return - error if field does not exist
 function validateFieldNameExt(object{} case) returns Error? = @java:Method {
     name: "validateFieldName",
+    class: "org.ballerinalang.testerina.natives.test.Mock"
+} external;
+
+# Inter-op to validate the arguments list.
+#
+# + case - case to validate
+# + return - error in case of an argument mismatch
+function validateArgumentsExt(object{} case) returns Error? = @java:Method {
+    name: "validateArguments",
     class: "org.ballerinalang.testerina.natives.test.Mock"
 } external;
