@@ -17,6 +17,8 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
+import io.ballerinalang.compiler.internal.diagnostics.DiagnosticCode;
+import io.ballerinalang.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
@@ -42,25 +44,42 @@ public class BallerinaLexer extends AbstractLexer {
      * @return Next lexical token.
      */
     public STToken nextToken() {
+        STToken token;
         switch (this.mode) {
             case TEMPLATE:
                 this.leadingTriviaList = new ArrayList<>(0);
-                return readTemplateToken();
+                token = readTemplateToken();
+                break;
             case INTERPOLATION:
                 processLeadingTrivia();
-                return readTokenInInterpolation();
+                token = readTokenInInterpolation();
+                break;
             case INTERPOLATION_BRACED_CONTENT:
                 processLeadingTrivia();
-                return readTokenInBracedContentInInterpolation();
+                token = readTokenInBracedContentInInterpolation();
+                break;
             case DEFAULT:
             case IMPORT:
             default:
                 processLeadingTrivia();
-                return readToken();
+                token = readToken();
         }
+
+        // Can we improve this logic by creating the token with diagnostics then and there?
+        return cloneWithDiagnostics(token);
     }
 
-    public STToken nextTokenInternal() {
+    private STToken cloneWithDiagnostics(STToken toClone) {
+        if (noDiagnostics()) {
+            return toClone;
+        }
+
+        STToken cloned = SyntaxErrors.addDiagnostics(toClone, getDiagnostics());
+        resetDiagnosticList();
+        return cloned;
+    }
+
+    private STToken nextTokenInternal() {
         switch (this.mode) {
             case TEMPLATE:
                 return readTemplateToken();
@@ -577,7 +596,7 @@ public class BallerinaLexer extends AbstractLexer {
 
                     // Integer part of the float cannot have a leading zero
                     if (startChar == '0' && len > 1) {
-                        reportLexerError("extra leading zero");
+                        reportLexerError(DiagnosticErrorCode.ERROR_LEADING_ZEROS_IN_NUMERIC_LITERALS);
                     }
 
                     // Code would not reach here if the floating point starts with a dot
@@ -596,7 +615,7 @@ public class BallerinaLexer extends AbstractLexer {
 
         // Integer cannot have a leading zero
         if (startChar == '0' && len > 1) {
-            reportLexerError("extra leading zero");
+            reportLexerError(DiagnosticErrorCode.ERROR_LEADING_ZEROS_IN_NUMERIC_LITERALS);
         }
 
         return getLiteral(SyntaxKind.DECIMAL_INTEGER_LITERAL);
@@ -987,8 +1006,6 @@ public class BallerinaLexer extends AbstractLexer {
     /**
      * Process and returns an invalid token. Consumes the input until {@link #isEndOfInvalidToken()}
      * is reached.
-     *
-     * @return The invalid token.
      */
     private void processInvalidToken() {
         while (!isEndOfInvalidToken()) {
@@ -996,9 +1013,9 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         String tokenText = getLexeme();
-        reportLexerError("invalid token '" + tokenText + "'");
-        STNode trivia = STNodeFactory.createMinutiae(SyntaxKind.INVALID, tokenText);
-        this.leadingTriviaList.add(trivia);
+        STNode invalidToken = STNodeFactory.createInvalidToken(tokenText);
+        STNode invalidNodeMinutiae = STNodeFactory.createInvalidNodeMinutiae(invalidToken);
+        this.leadingTriviaList.add(invalidNodeMinutiae);
     }
 
     /**
@@ -1238,6 +1255,10 @@ public class BallerinaLexer extends AbstractLexer {
 
     private void reportLexerError(String message) {
         this.errorListener.reportInvalidNodeError(null, message);
+    }
+
+    private void reportLexerError(DiagnosticCode diagnosticCode) {
+        addDiagnostic(diagnosticCode);
     }
 
     /**
