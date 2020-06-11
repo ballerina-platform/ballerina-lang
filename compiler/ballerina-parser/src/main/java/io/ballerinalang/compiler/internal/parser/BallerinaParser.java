@@ -186,7 +186,7 @@ public class BallerinaParser extends AbstractParser {
             case TYPE_REFERENCE:
             case ANNOT_REFERENCE:
             case FIELD_ACCESS_IDENTIFIER:
-                return parseQualifiedIdentifier(context);
+                return parseQualifiedIdentifier(context, (boolean) args[0]);
             case VAR_DECL_STMT_RHS:
                 return parseVarDeclRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (boolean) args[3]);
             case FIELD_DESCRIPTOR_RHS:
@@ -373,8 +373,6 @@ public class BallerinaParser extends AbstractParser {
             case FUNCTION_KEYWORD_RHS:
                 return parseFunctionKeywordRhs((STNode) args[0], (STNode) args[1], (boolean) args[2], (boolean) args[3],
                         (STNode[]) args[4]);
-            case FUNC_OPTIONAL_RETURNS:
-                return parseFuncReturnTypeDescriptor();
             case RETURNS_KEYWORD:
                 return parseReturnsKeyword();
             case NEW_KEYWORD:
@@ -574,12 +572,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseStartKeyword();
             case FLUSH_KEYWORD:
                 return parseFlushKeyword();
-            case RECEIVE_FIELD:
-                return parseReceiveField();
             case ENUM_KEYWORD:
                 return parseEnumKeyword();
-            case ENUM_MEMBER_RHS:
-                return parseEnumMemberRhs((STNode) args[0], (STNode) args[1]);
             case MATCH_KEYWORD:
                 return parseMatchKeyword();
             case RECORD_KEYWORD:
@@ -4777,7 +4771,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Error constructor expression
      */
     private STNode parseErrorConstructorExpr() {
-        return parseFuncCall(parseErrorKeyword())
+        return parseFuncCall(parseErrorKeyword());
     }
 
     /**
