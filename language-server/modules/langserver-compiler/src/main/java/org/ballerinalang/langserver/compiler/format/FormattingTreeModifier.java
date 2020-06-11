@@ -33,9 +33,9 @@ public class FormattingTreeModifier extends TreeModifier {
 
         SeparatedNodeList<IdentifierToken> moduleNames = this.modifySeparatedNodeList(
                 importDeclarationNode.moduleName());
-        Node orgName = importDeclarationNode.orgName().orElse(null);
-        Node prefix = importDeclarationNode.prefix().orElse(null);
-        Node version = importDeclarationNode.version().orElse(null);
+        ImportOrgNameNode orgName = importDeclarationNode.orgName().orElse(null);
+        ImportPrefixNode prefix = importDeclarationNode.prefix().orElse(null);
+        ImportVersionNode version = importDeclarationNode.version().orElse(null);
 
         if (orgName != null) {
             importDeclarationNode = importDeclarationNode.modify().withOrgName(this.modifyNode(orgName)).apply();
@@ -111,6 +111,8 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public FunctionDefinitionNode transform(FunctionDefinitionNode functionDefinitionNode) {
+//        int startCol = getPosition(getParent(functionDefinitionNode)).sCol + 4;
+
         Token visibilityQualifier = getToken(functionDefinitionNode.visibilityQualifier().orElse(null));
         Token functionKeyword = getToken(functionDefinitionNode.functionKeyword());
         Token functionName = getToken(functionDefinitionNode.functionName());
@@ -118,6 +120,14 @@ public class FormattingTreeModifier extends TreeModifier {
         FunctionSignatureNode functionSignatureNode = this.modifyNode(functionDefinitionNode.functionSignature());
         Token functionSignatureOpenPara = getToken(functionSignatureNode.openParenToken());
         Token functionSignatureClosePara = getToken(functionSignatureNode.closeParenToken());
+
+        functionDefinitionNode = functionDefinitionNode.modify()
+                .withFunctionKeyword(formatToken(functionKeyword, 1, 0, 0, 0))
+                .withFunctionName((IdentifierToken) formatToken(functionName, 1, 0, 0, 0))
+                .withFunctionSignature(functionSignatureNode
+                        .modify(functionSignatureOpenPara, functionSignatureNode.parameters(),
+                                functionSignatureClosePara, null))
+                .apply();
 
         FunctionBodyNode functionBodyNode = this.modifyNode(functionDefinitionNode.functionBody());
 
@@ -127,11 +137,6 @@ public class FormattingTreeModifier extends TreeModifier {
                     .apply();
         }
         return functionDefinitionNode.modify()
-                .withFunctionKeyword(formatToken(functionKeyword, 1, 0, 0, 0))
-                .withFunctionName((IdentifierToken) formatToken(functionName, 1, 0, 0, 0))
-                .withFunctionSignature(functionSignatureNode
-                        .modify(functionSignatureOpenPara, functionSignatureNode.parameters(),
-                                functionSignatureClosePara, null))
                 .withFunctionBody(functionBodyNode)
                 .apply();
     }
@@ -286,14 +291,18 @@ public class FormattingTreeModifier extends TreeModifier {
 
         MetadataNode metadata = this.modifyNode(serviceDeclarationNode.metadata());
         NodeList<ExpressionNode> expressions = this.modifyNodeList(serviceDeclarationNode.expressions());
-        Node serviceBody = this.modifyNode(serviceDeclarationNode.serviceBody());
 
-        return serviceDeclarationNode.modify()
+        serviceDeclarationNode = serviceDeclarationNode.modify()
                 .withServiceKeyword(formatToken(serviceKeyword, 0, 0, 1, 0))
                 .withServiceName((IdentifierToken) formatToken(serviceName, 1, 0, 0, 0))
                 .withOnKeyword(formatToken(onKeyword, 1, 0, 0, 0))
                 .withExpressions(expressions)
                 .withMetadata(metadata)
+                .apply();
+
+        Node serviceBody = this.modifyNode(serviceDeclarationNode.serviceBody());
+
+        return serviceDeclarationNode.modify()
                 .withServiceBody(serviceBody)
                 .apply();
     }
@@ -610,6 +619,17 @@ public class FormattingTreeModifier extends TreeModifier {
         if (node == null) return node;
         return node.modify(AbstractNodeFactory.createEmptyMinutiaeList(),
                 AbstractNodeFactory.createEmptyMinutiaeList());
+    }
+
+    private <T extends Node> Node getParent(T node) {
+        if (node.kind() == SyntaxKind.FUNCTION_DEFINITION) {
+            if (node.parent().kind() == SyntaxKind.FUNCTION_BODY_BLOCK) {
+                return node.parent().parent();
+            } else {
+                return node.parent();
+            }
+        }
+        return node;
     }
 
     private DiagnosticPos getPosition(Node node) {
