@@ -133,5 +133,23 @@ public class StringQueryExpressionTest {
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues[0].stringValue(), "Ranjan ");
+        Assert.assertEquals(returnValues[1].stringValue(), "John ");
+    }
+
+    @Test(description = "Test simple query expression with var for string result")
+    public void testQueryExprWithUnionTypeForStringResult() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithUnionTypeForStringResult");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(), "Ranjan John ");
+    }
+
+    @Test(description = "Test simple query expression with var for string result")
+    public void testQueryExprWithUnionTypeForStringResult2() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithUnionTypeForStringResult2");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(), "Ranjan ");
+        Assert.assertEquals(returnValues[1].stringValue(), "John ");
     }
 }

@@ -239,8 +239,6 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
         BLangVariableReference streamRef = buildStream(clauses, queryExpr.type, env, queryBlock);
         BLangStatementExpression streamStmtExpr;
-        boolean hasString = false;
-        boolean hasXml = false;
         if (queryExpr.isStream) {
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, streamRef);
             streamStmtExpr.type = streamRef.type;
@@ -255,17 +253,10 @@ public class QueryDesugar extends BLangNodeVisitor {
             streamStmtExpr.type = tableRef.type;
             onConflictExpr = null;
         } else {
-            if (queryExpr.type.tag == TypeTags.UNION) {
-                if (((BUnionType) queryExpr.type).getMemberTypes().contains(symTable.stringType)) {
-                    hasString = true;
-                } else if (((BUnionType) queryExpr.type).getMemberTypes().contains(symTable.xmlType)) {
-                    hasXml = true;
-                }
-            }
             BLangVariableReference result;
-            if (queryExpr.type.tag == TypeTags.XML || hasXml) {
+            if (queryExpr.type.tag == TypeTags.XML) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION, Lists.of(streamRef), pos);
-            } else if (queryExpr.type.tag == TypeTags.STRING || hasString) {
+            } else if (queryExpr.type.tag == TypeTags.STRING) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STRING_FUNCTION, Lists.of(streamRef), pos);
             } else {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_ARRAY_FUNCTION, Lists.of(streamRef), pos);

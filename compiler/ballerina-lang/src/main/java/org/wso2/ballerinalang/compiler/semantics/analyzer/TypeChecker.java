@@ -3668,7 +3668,6 @@ public class TypeChecker extends BLangNodeVisitor {
                                      BLangQueryExpr queryExpr) {
         List<BType> assignableSelectTypes = new ArrayList<>();
         BType actualType = symTable.semanticError;
-        boolean isUnionWithStringXml = false;
 
         //type checks select type against expected element type
         Map<Boolean, List<BType>> resultTypeMap = types.getAllTypes(targetType).stream()
@@ -3697,16 +3696,21 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (targetType.tag == TypeTags.UNION) {
-            if (((BUnionType) targetType).getMemberTypes().contains(symTable.stringType) ||
-                    ((BUnionType) targetType).getMemberTypes().contains(symTable.xmlType)) {
-                isUnionWithStringXml = true;
+            if (((BUnionType) targetType).getMemberTypes().contains(symTable.xmlType)) {
+                targetType = ((BUnionType) targetType).getMemberTypes()
+                        .stream().filter(tType -> tType.tag == TypeTags.XML)
+                        .findFirst().orElse(symTable.xmlType);
+            } else if (((BUnionType) targetType).getMemberTypes().contains(symTable.stringType)) {
+                targetType = ((BUnionType) targetType).getMemberTypes()
+                        .stream().filter(tType -> tType.tag == TypeTags.STRING)
+                        .findFirst().orElse(symTable.stringType);
             }
         }
 
         if (assignableSelectTypes.size() == 1) {
             actualType = assignableSelectTypes.get(0);
             if ((!queryExpr.isStream && !queryExpr.isTable)) {
-                if (targetType.tag != TypeTags.STRING && targetType.tag != TypeTags.XML && !isUnionWithStringXml) {
+                if (targetType.tag != TypeTags.STRING && targetType.tag != TypeTags.XML) {
                     actualType = new BArrayType(actualType);
                 }
             }
