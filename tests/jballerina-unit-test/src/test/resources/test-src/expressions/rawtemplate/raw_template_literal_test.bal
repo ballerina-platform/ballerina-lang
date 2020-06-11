@@ -55,7 +55,7 @@ type Person object {
     string name;
     int age;
 
-    function __init(string name, int age) {
+    function init(string name, int age) {
         self.name = name;
         self.age = age;
     }
@@ -86,13 +86,9 @@ function testComplexExpressions() {
     assert("name: John Doe, age: 20", rt3.insertions[0].toString());
 }
 
-type Template1 object {
-    public string[] strings = [];
-    public int[] insertions = [];
-
-    function toString() returns string {
-        return string `${self.insertions[0]}${self.strings[0]}${self.insertions[1]}${self.strings[1]}${self.insertions[2]}`;
-    }
+type Template1 abstract object {
+    public string[] strings;
+    public int[] insertions;
 };
 
 function testSubtyping1() {
@@ -100,12 +96,13 @@ function testSubtyping1() {
     int y = 20;
 
     Template1 t = `${x} + ${y} = ${x + y}`;
-    assert("10 + 20 = 30", t.toString());
+    assert(<string[]>[" + ", " = "], t.strings);
+    assert(<int[]>[10, 20, 30], t.insertions);
 }
 
-type Template2 object {
-    public string[] strings = [];
-    public [int, string, float] insertions = [];
+type Template2 abstract object {
+    public string[] strings;
+    public [int, string, float] insertions;
 };
 
 function testSubtyping2() {
@@ -119,14 +116,9 @@ function testSubtyping2() {
     assert(s, t.insertions[1]);
     assert(f, t.insertions[2]);
 
-    object {
-        public string[] strings = [];
+    abstract object {
+        public string[] strings;
         public [int, string, anydata...] insertions;
-        string name = "";
-
-        function __init() {
-            self.insertions = [];
-        }
     } temp2 = `Using tuples 2: ${x}, ${s}, ${f}`;
 
     assert("Using tuples 2:  ,  , ", temp2.strings.toString());
@@ -134,10 +126,9 @@ function testSubtyping2() {
     assert(s, temp2.insertions[1]);
     assert(f, temp2.insertions[2]);
 
-    object {
-        public string[] strings = [];
-        public [anydata...] insertions = [];
-        string name = "";
+    abstract object {
+        public string[] strings;
+        public [anydata...] insertions;
     } temp3 = `Using tuples 3: ${x}, ${s}, ${f}`;
 
     assert("Using tuples 3:  ,  , ", temp3.strings.toString());
@@ -154,9 +145,9 @@ type FooBar FOO|BAR;
 function testSubtyping3() {
     int x = 10;
 
-    object {
-        public FooBar[] strings = [];
-        public int[] insertions = [];
+    abstract object {
+        public FooBar[] strings;
+        public int[] insertions;
     } temp1 = `Foo${x}Bar`;
 
     assert(<string[]>["Foo", "Bar"], temp1.strings);
@@ -182,9 +173,9 @@ function testUsageWithQueryExpressions() {
 
 public type Value ()|int|float|decimal|string|xml;
 
-public type ParameterizedQuery object {
-    public string[] strings = [];
-    public Value[] insertions = [];
+public type ParameterizedQuery abstract object {
+    public string[] strings;
+    public Value[] insertions;
 };
 
 function testUsageWithQueryExpressions2() {
@@ -212,7 +203,7 @@ function testUseWithVar() {
     var rt = `Hello ${name}!`;
     typedesc<any> td = typeof rt;
 
-    assert("typedesc lang.object:RawTemplate", td.toString());
+    assert("typedesc $anonType$20 {\n\tstrings : string[],\n\tinsertions : (any|error)[]\n}", td.toString());
 }
 
 // Util functions
