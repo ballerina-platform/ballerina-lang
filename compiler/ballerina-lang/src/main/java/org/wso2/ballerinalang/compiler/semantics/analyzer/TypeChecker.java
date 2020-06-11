@@ -3674,19 +3674,15 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // Ensure that only the two fields, strings and insertions, are there
         BObjectType litObjType = (BObjectType) type;
+        BObjectTypeSymbol objTSymbol = (BObjectTypeSymbol) litObjType.tsymbol;
 
-        if (!litObjType.fields.containsKey("strings")) {
-            dlog.error(rawTemplateLiteral.pos, DiagnosticCode.MISSING_STRINGS_FIELD, litObjType);
-            type = symTable.semanticError;
-        }
-
-        if (!litObjType.fields.containsKey("insertions")) {
-            dlog.error(rawTemplateLiteral.pos, DiagnosticCode.MISSING_INSERTIONS_FIELD, litObjType);
-            type = symTable.semanticError;
-        }
-
-        if (type != symTable.semanticError && litObjType.fields.size() > 2) {
+        if (litObjType.fields.size() > 2) {
             dlog.error(rawTemplateLiteral.pos, DiagnosticCode.INVALID_NUM_FIELDS, litObjType);
+            type = symTable.semanticError;
+        }
+
+        if (!objTSymbol.attachedFuncs.isEmpty()) {
+            dlog.error(rawTemplateLiteral.pos, DiagnosticCode.METHODS_NOT_ALLOWED, litObjType);
             type = symTable.semanticError;
         }
 

@@ -543,9 +543,8 @@ public enum DiagnosticCode {
 
     INVALID_RAW_TEMPLATE_LITERAL("invalid.raw.template.literal"),
     INVALID_RAW_TEMPLATE_ASSIGNMENT("invalid.raw.template.assignment"),
-    MISSING_STRINGS_FIELD("missing.strings.field"),
-    MISSING_INSERTIONS_FIELD("missing.insertions.field"),
     INVALID_NUM_FIELDS("invalid.number.of.fields"),
+    METHODS_NOT_ALLOWED("methods.not.allowed"),
     ;
     private String value;
 
