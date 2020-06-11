@@ -26,20 +26,20 @@ function testSubtyping1() {
     int x = 10;
     int y = 20;
 
-    object {
-        public string[] strings = [];
-        public int insertions = 0;
+    abstract object {
+        public string[] strings;
+        public int insertions; // invalid insertions field type
     } temp1 = `${x} + ${y} = ${x + y}`;
 
-    object {
-        public string strings = "";
-        public int[] insertions = [];
+    abstract object {
+        public string strings; // invalid strings field type
+        public int[] insertions;
     } temp2 = `${x} + ${y} = ${x + y}`;
 }
 
-type Template object {
-    public string[] strings = [];
-    public [int, string] insertions = [];
+type Template abstract object {
+    public string[] strings;
+    public [int, string] insertions;
 };
 
 function testSubtyping2() {
@@ -47,17 +47,12 @@ function testSubtyping2() {
     string s = "foo";
     float f = 12.34;
 
-    Template t1 = `Using tuples: ${x}, ${s}, ${f}`;
-    Template t2 = `Using tuples: ${x}`;
+    Template t1 = `Using tuples: ${x}, ${s}, ${f}`; // extra insertions
+    Template t2 = `Using tuples: ${x}`; // missing insertions
 
-    object {
-        public string[] strings = [];
+    abstract object {
+        public string[] strings;
         public [int, string, anydata...] insertions;
-        string name = "";
-
-        function __init() {
-            self.insertions = [];
-        }
     } temp2 = `Using tuples 2: ${x}, ${s}, ${t1}`;
 }
 
@@ -69,8 +64,63 @@ type FooBar FOO|BAR;
 function testSubtyping3() {
     int x = 10;
 
-    object {
-        public FooBar[] strings = [];
-        public int[] insertions = [];
+    abstract object {
+        public FooBar[] strings;
+        public int[] insertions;
     } temp1 = `Foo ${x}Bar`;
+}
+
+type Template1 object {
+    public string[] strings = [];
+    public int[] insertions = [];
+};
+
+function testSubtyping4() {
+    int x = 10;
+    int y = 20;
+
+    Template1 t = `${x} + ${y} = ${x + y}`;
+}
+
+function testSubtyping5() {
+    int x = 25;
+    string s = "foo";
+    float f = 12.34;
+
+    object {
+        public string[] strings = [];
+        public [anydata...] insertions = [];
+        string name = "";
+    } temp3 = `Using tuples: ${x}, ${s}, ${f}`;
+}
+
+function testSubtyping6() {
+    abstract object {
+        public string[] strings;
+        public int[] insertions;
+        int name;
+    } rt1 = `Hello World!`;
+
+    abstract object {
+    } rt2 = `Hello World!`;
+
+    abstract object {
+        public string[] strings;
+    } rt3 = `Hello World!`;
+
+    abstract object {
+        public int[] insertions;
+    } rt4 = `Hello World!`;
+
+    abstract object {
+        public int[] insertions;
+        int foo;
+    } rt5 = `Hello World!`;
+
+    abstract object {
+        public string[] strings;
+        public int[] insertions;
+
+        function shouldNotBeHere();
+    } rt6 = `Hello World!`;
 }
