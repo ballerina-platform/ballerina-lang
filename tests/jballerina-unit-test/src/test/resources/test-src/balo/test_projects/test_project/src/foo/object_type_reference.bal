@@ -38,7 +38,7 @@ public type Manager1 object {
         return self.salary*ratio*months;
     }
 
-    public function __init(int age=20) {
+    public function init(int age=20) {
         self.age = age;
         self.name = "John";
         self.salary = 1000.0;
@@ -63,7 +63,7 @@ public type CorronifiedEmployee object {
     public boolean  workingFromHome;
     public float    workingFromHomeAllowance;
 
-    public function __init(boolean workingFromHome, float salary, float workingFromHomeAllowance, int age, string name) {
+    public function init(boolean workingFromHome, float salary, float workingFromHomeAllowance, int age, string name) {
         self.age                        = age;
         self.name                       = name;
         self.workingFromHome            = workingFromHome;

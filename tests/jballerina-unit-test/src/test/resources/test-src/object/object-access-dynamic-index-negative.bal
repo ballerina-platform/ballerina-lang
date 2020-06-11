@@ -4,7 +4,7 @@ type Person object {
     public map<any> adrs = {};
     public int age = 999;
 
-    function __init (string name, map<any> adrs, int age) {
+    function init (string name, map<any> adrs, int age) {
         self.name = name;
         self.age = age;
         self.adrs = adrs;
@@ -14,7 +14,7 @@ type Person object {
 type ObjectField object {
     public string key = "";
 
-    function __init (string key) {
+    function init (string key) {
         self.key = key;
     }
 };

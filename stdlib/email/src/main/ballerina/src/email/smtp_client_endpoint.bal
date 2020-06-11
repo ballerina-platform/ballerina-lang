@@ -25,7 +25,7 @@ public type SmtpClient client object {
     # + username - Username of the SMTP Client
     # + password - Password of the SMTP Client
     # + clientConfig - Configurations for SMTP Client
-    public function __init(@untainted string host, @untainted string username, @untainted string password,
+    public function init(@untainted string host, @untainted string username, @untainted string password,
             SmtpConfig clientConfig = {}) {
         initSmtpClientEndpoint(self, host, username, password, clientConfig);
     }

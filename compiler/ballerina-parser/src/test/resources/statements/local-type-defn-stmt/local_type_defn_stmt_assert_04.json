@@ -75,7 +75,7 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "FUNCTION_DEFINITION",
+                          "kind": "OBJECT_METHOD_DEFINITION",
                           "children": [
                             {
                               "kind": "METADATA",
@@ -94,7 +94,7 @@
                             },
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "__init"
+                              "value": "init"
                             },
                             {
                               "kind": "FUNCTION_SIGNATURE",
@@ -129,7 +129,7 @@
                           ]
                         },
                         {
-                          "kind": "FUNCTION_DEFINITION",
+                          "kind": "OBJECT_METHOD_DEFINITION",
                           "children": [
                             {
                               "kind": "METADATA",
@@ -180,7 +180,7 @@
                           ]
                         },
                         {
-                          "kind": "FUNCTION_DEFINITION",
+                          "kind": "OBJECT_METHOD_DEFINITION",
                           "children": [
                             {
                               "kind": "METADATA",
@@ -192,15 +192,10 @@
                               ]
                             },
                             {
-                              "kind": "LIST",
-                              "children": [
-                                {
-                                  "kind": "PRIVATE_KEYWORD"
-                                },
-                                {
-                                  "kind": "REMOTE_KEYWORD"
-                                }
-                              ]
+                              "kind": "PRIVATE_KEYWORD"
+                            },
+                            {
+                              "kind": "REMOTE_KEYWORD"
                             },
                             {
                               "kind": "FUNCTION_KEYWORD"

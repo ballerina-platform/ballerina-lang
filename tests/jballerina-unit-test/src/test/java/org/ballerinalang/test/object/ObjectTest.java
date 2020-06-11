@@ -486,9 +486,9 @@ public class ObjectTest {
     public void testObjectInitFunctionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_init_function_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
-        BAssertUtil.validateError(result, 0, "object '__init' method cannot have an 'external' implementation",
+        BAssertUtil.validateError(result, 0, "object 'init' method cannot have an 'external' implementation",
                 19, 5);
-        BAssertUtil.validateError(result, 1, "object '__init' method cannot have an 'external' implementation",
+        BAssertUtil.validateError(result, 1, "object 'init' method cannot have an 'external' implementation",
                 23, 5);
     }
 

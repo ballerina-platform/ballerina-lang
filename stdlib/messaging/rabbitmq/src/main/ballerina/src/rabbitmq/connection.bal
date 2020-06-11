@@ -24,7 +24,7 @@ public type Connection object {
     # Initializes a Ballerina RabbitMQ Connection object.
     #
     # + connectionConfiguration - Configurations required to initialize the `rabbitmq:Connection`
-    public function __init(ConnectionConfiguration connectionConfiguration) {
+    public function init(ConnectionConfiguration connectionConfiguration) {
         self.amqpConnection = createConnection(connectionConfiguration);
     }
 

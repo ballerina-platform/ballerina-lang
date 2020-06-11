@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -19,15 +20,18 @@
     },
     {
       "kind": "FUNCTION_SIGNATURE",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_PAREN_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "DEFAULTABLE_PARAM",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -65,12 +69,14 @@
                 },
                 {
                   "kind": "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "FUNCTION_KEYWORD"
                     },
                     {
                       "kind": "FUNCTION_SIGNATURE",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "OPEN_PAREN_TOKEN"
@@ -81,7 +87,11 @@
                         },
                         {
                           "kind": "CLOSE_PAREN_TOKEN",
-                          "isMissing": true
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+                          ]
                         },
                         {
                           "kind": "RETURN_TYPE_DESCRIPTOR",
@@ -156,15 +166,18 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
@@ -175,6 +188,7 @@
                 },
                 {
                   "kind": "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "FUNCTION_KEYWORD"
@@ -196,12 +210,14 @@
                     },
                     {
                       "kind": "FUNCTION_BODY_BLOCK",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "OPEN_BRACE_TOKEN"
                         },
                         {
                           "kind": "LIST",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LOCAL_VAR_DECL",
@@ -241,6 +257,7 @@
                             },
                             {
                               "kind": "LOCAL_VAR_DECL",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "LIST",
@@ -272,7 +289,11 @@
                                 },
                                 {
                                   "kind": "SEMICOLON_TOKEN",
-                                  "isMissing": true
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_SEMICOLON_TOKEN"
+                                  ]
                                 }
                               ]
                             },
@@ -340,6 +361,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
@@ -350,18 +372,21 @@
                 },
                 {
                   "kind": "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "FUNCTION_KEYWORD"
                     },
                     {
                       "kind": "FUNCTION_SIGNATURE",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "OPEN_PAREN_TOKEN"
                         },
                         {
                           "kind": "LIST",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "REQUIRED_PARAM",
@@ -381,10 +406,15 @@
                             },
                             {
                               "kind": "REQUIRED_PARAM",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "COMMA_TOKEN",
-                                  "isMissing": true
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_COMMA_TOKEN"
+                                  ]
                                 },
                                 {
                                   "kind": "LIST",
@@ -401,10 +431,15 @@
                             },
                             {
                               "kind": "REST_PARAM",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "COMMA_TOKEN",
-                                  "isMissing": true
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_COMMA_TOKEN"
+                                  ]
                                 },
                                 {
                                   "kind": "LIST",
@@ -426,10 +461,15 @@
                         },
                         {
                           "kind": "CLOSE_PAREN_TOKEN",
-                          "isMissing": true
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+                          ]
                         },
                         {
                           "kind": "RETURN_TYPE_DESCRIPTOR",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "RETURNS_KEYWORD"
@@ -440,18 +480,21 @@
                             },
                             {
                               "kind": "FUNCTION_TYPE_DESC",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "FUNCTION_KEYWORD"
                                 },
                                 {
                                   "kind": "FUNCTION_SIGNATURE",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "OPEN_PAREN_TOKEN"
                                     },
                                     {
                                       "kind": "LIST",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "REQUIRED_PARAM",
@@ -467,10 +510,15 @@
                                         },
                                         {
                                           "kind": "REQUIRED_PARAM",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
                                               "kind": "COMMA_TOKEN",
-                                              "isMissing": true
+                                              "isMissing": true,
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_COMMA_TOKEN"
+                                              ]
                                             },
                                             {
                                               "kind": "LIST",

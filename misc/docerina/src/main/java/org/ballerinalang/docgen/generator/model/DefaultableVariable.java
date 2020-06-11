@@ -15,10 +15,13 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import com.google.gson.annotations.Expose;
+
 /**
  * Represents a defaultable variable.
  */
 public class DefaultableVariable extends Variable {
+    @Expose
     public String defaultValue;
 
     public DefaultableVariable(String name, String description, boolean isDeprecated, Type type, String defaultValue) {

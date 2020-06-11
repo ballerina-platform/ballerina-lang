@@ -40,7 +40,7 @@ public class BArray extends BCompoundVariable {
     private final ObjectReferenceImpl jvmValueRef;
 
     public BArray(Value value, Variable dapVariable) {
-         this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
+        this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
         dapVariable.setType(BVariableType.ARRAY.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
@@ -65,8 +65,6 @@ public class BArray extends BCompoundVariable {
                     .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
             int arraySize = ((IntegerValue) jvmValueRef.getValue(arraySizeField)).value();
             return String.format("%s[%d]", arrayType, arraySize);
-        } catch (RuntimeException e) {
-            throw e;
         } catch (Exception e) {
             return "unknown";
         }
@@ -97,8 +95,6 @@ public class BArray extends BCompoundVariable {
                 values.put("[" + varIndex + "]", valueSubList.get(varIndex));
             });
             this.setChildVariables(values);
-        } catch (RuntimeException e) {
-            throw e;
         } catch (Exception ignored) {
             this.setChildVariables(new HashMap<>());
         }

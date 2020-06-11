@@ -139,7 +139,7 @@ public type Producer client object {
     # Creates a new Kafka `Producer`.
     #
     # + config - Configurations related to initializing a Kafka `Producer`
-    public function __init(ProducerConfiguration config) {
+    public function init(ProducerConfiguration config) {
         self.producerConfig = config;
         self.keySerializerType = config.keySerializerType;
         self.valueSerializerType = config.valueSerializerType;

@@ -47,7 +47,7 @@ public enum OperatorPrecedence {
     //  Actions cannot reside inside expressions, hence they have the lowest precedence.
     REMOTE_CALL_ACTION(18), //  (x -> y()), 
     ACTION(19),             //  (start x), ...
-    
+    DEFAULT(20),             //  (start x), ...
     ;
 
     private int level = 0;
@@ -56,12 +56,12 @@ public enum OperatorPrecedence {
         this.level = level;
     }
 
-    public boolean isHigherThan(OperatorPrecedence opPrecedence, boolean allowActions) {
+    public boolean isHigherThanOrEqual(OperatorPrecedence opPrecedence, boolean allowActions) {
         if (allowActions) {
             if (this == EXPRESSION_ACTION && opPrecedence == REMOTE_CALL_ACTION) {
                 return false;
             }
         }
-        return this.level < opPrecedence.level;
+        return this.level <= opPrecedence.level;
     }
 }

@@ -310,7 +310,7 @@ type Animal object {
     public string kind = "";
     public string name = "";
 
-    function __init(string name, string kind) {
+    function init(string name, string kind) {
         self.name = name;
         self.kind = kind;
     }

@@ -20,7 +20,7 @@ public type employee object {
     public string name = "";
     public string address = "";
 
-    public function __init (string name, int a = 10) {
+    public function init (string name, int a = 10) {
         self.age = a;
         self.name = name;
     }
@@ -36,7 +36,7 @@ public type student object {
     public string name = "";
     public string address = "";
 
-    function __init() {
+    function init() {
     }
 
     public function getAge() {

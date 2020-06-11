@@ -31,7 +31,7 @@ public type PublisherClient client object {
 #
 # + url    - The URL to publish/notify updates
 # + config - The `http:ClientConfiguration` for the underlying client or else `()`
-    public function __init(string url, http:ClientConfiguration? config = ()) {
+    public function init(string url, http:ClientConfiguration? config = ()) {
         self.url = url;
         self.httpClient = new (self.url, config);
     }

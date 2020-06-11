@@ -409,3 +409,18 @@ function testRemoveAllReturnedRecordsFromIteratorKeylessTbl() {
     custTbl.removeAll();
     value = itr.next();
 }
+
+function testRemoveThenIterate() returns boolean {
+    table<Employee> key(name) data = table [
+        { name: "Mary", department: "IT"},
+        { name: "John", department: "HR" },
+        { name: "Jim", department: "Admin" }
+    ];
+
+    Employee[] ar = [];
+    var rm = data.remove("Mary");
+    foreach var v in data {
+        ar.push(v);
+    }
+    return ar.length() == 2 && ar[0].name == "John" && ar[1].name == "Jim";
+}

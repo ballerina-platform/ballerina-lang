@@ -16,7 +16,7 @@ public type userBar object {
 
     private int ssn;
 
-    public function __init (string name) {
+    public function init (string name) {
         self.name = name;
     }
 

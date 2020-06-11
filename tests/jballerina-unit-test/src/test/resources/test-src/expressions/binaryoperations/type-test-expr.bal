@@ -231,7 +231,7 @@ public type Person object {
     public string name;
     public string address = "";
 
-    public function __init(string name, int age) {
+    public function init(string name, int age) {
         self.age = age;
         self.name = name;
     }
@@ -254,7 +254,7 @@ public type SameAsPerson object {
     public string name;
     public string address = "";
 
-    public function __init(string name, int age) {
+    public function init(string name, int age) {
         self.age = age;
         self.name = name;
     }
@@ -308,7 +308,7 @@ public type PersonInOrder object {
     public string name;
     public string address = "";
 
-    public function __init(string name, int age) {
+    public function init(string name, int age) {
         self.age = age;
         self.name = name;
     }
@@ -338,7 +338,7 @@ public type PersonNotInOrder object {
         return self.age;
     }
 
-    public function __init(string name, int age) {
+    public function init(string name, int age) {
         self.age = age;
         self.name = name;
     }
@@ -397,7 +397,7 @@ public type C4 object {
     *B4;
     public boolean s;
     
-    public function __init(int p, string q, float r, boolean s) {
+    public function init(int p, string q, float r, boolean s) {
         self.p = p;
         self.q = q;
         self.r = r;
@@ -440,7 +440,7 @@ type C5 object {
     *B5;
     boolean s;
     
-    public function __init(int p, string q, float r, boolean s) {
+    public function init(int p, string q, float r, boolean s) {
         self.p = p;
         self.q = q;
         self.r = r;

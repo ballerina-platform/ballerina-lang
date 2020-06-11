@@ -271,6 +271,13 @@ def copyStaticSpec = {
     }
 }
 
+def copyTemplatesSpec = {
+    path -> copySpec {
+        from project(':docerina').file('src/main/resources/template/html')
+        into(path + 'lib/templates')
+    }
+}
+
 def copyResourceSpec = {
     path -> copySpec {
         from configurations.resourceFiles
@@ -448,6 +455,7 @@ task createZip(type: Zip) {
     with copyDebugAdapterLauncher(basePath)
     with apiDocsSpec(basePath)
     with copyStaticSpec(basePath)
+    with copyTemplatesSpec(basePath)
     with copyResourceSpec(basePath)
 //    with copySrcBaloSpec(basePath)
     with copyKraalLib(basePath)
@@ -471,6 +479,7 @@ task updateBalHome(type: Copy) {
     with copyDebugAdapterLauncher(installDir)
     with apiDocsSpec(installDir)
     with copyStaticSpec(installDir)
+    with copyTemplatesSpec(installDir)
     with copyResourceSpec(installDir)
     with copyKraalLib(installDir)
     with copyJaCoCoAgent(installDir)
@@ -497,6 +506,7 @@ task createDistribution(type: Copy) {
     with copyDebugAdapterLauncher("")
     with apiDocsSpec("")
     with copyStaticSpec("")
+    with copyTemplatesSpec("")
     with copyResourceSpec("")
 //    with copySrcBaloSpec("")
     with copyKraalLib("")

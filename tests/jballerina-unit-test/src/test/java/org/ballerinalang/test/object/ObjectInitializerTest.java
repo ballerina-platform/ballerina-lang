@@ -71,7 +71,7 @@ public class ObjectInitializerTest {
     public void testInvalidStructLiteralKey() {
         CompileResult result = BCompileUtil.compile(this, "test-src/object/ObjectProject", "init.negative");
         Assert.assertEquals(result.getErrorCount(), 1);
-        validateError(result, 0, "attempt to refer to non-accessible symbol 'student.__init'", 5, 21);
+        validateError(result, 0, "attempt to refer to non-accessible symbol 'student.init'", 5, 21);
 
     }
 
@@ -80,20 +80,20 @@ public class ObjectInitializerTest {
         CompileResult result = BCompileUtil.compile("test-src/object/object_initializer_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 8);
         int i = 0;
-        validateError(result, i++, "redeclared symbol 'Foo.__init'", 23, 14);
+        validateError(result, i++, "redeclared symbol 'Foo.init'", 23, 14);
         validateError(result, i++,
                       "object initializer function can not be declared as private", 27, 4);
         validateError(result, i++, "incompatible types: expected 'Person', found '(Person|error)'", 47, 17);
         validateError(result, i++, "incompatible types: expected 'Person', found '(Person|error)'", 48, 17);
         validateError(result, i++, "invalid object constructor return type 'string?', " +
-                              "expected a subtype of 'error?' containing '()'", 54, 31);
+                              "expected a subtype of 'error?' containing '()'", 54, 29);
         validateError(result, i++,
                       "invalid object constructor return type 'error', expected a subtype of 'error?' containing '()'",
-                      63, 31);
+                      63, 29);
         validateError(result, i++,
                       "invalid object constructor return type '(FooErr|BarErr)', expected a subtype of 'error?' " +
-                              "containing '()'", 89, 31);
-        validateError(result, i,  "object '__init' method call is allowed only within the type descriptor",
+                              "containing '()'", 89, 29);
+        validateError(result, i,  "object 'init' method call is allowed only within the type descriptor",
                 106, 5);
     }
 
@@ -181,10 +181,10 @@ public class ObjectInitializerTest {
     @Test(description = "Test panic in object init function")
     public void testObjectInitPanic() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testObjectInitPanic");
-        Assert.assertEquals(((BError) returns[0]).stringValue(), "__init panicked {}");
+        Assert.assertEquals(((BError) returns[0]).stringValue(), "init panicked {}");
     }
 
-    @Test(description = "Test invoking '__init' function in a function inside object descriptor")
+    @Test(description = "Test invoking 'init' function in a function inside object descriptor")
     public void testInitActionInsideObjectDescriptor() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testInitActionInsideObjectDescriptor");
 
@@ -192,109 +192,109 @@ public class ObjectInitializerTest {
         Assert.assertEquals(returns[0].stringValue(), "Ballerina");
     }
 
-    @Test(description = "Test invoking '__init' function in a function inside object descriptor.")
+    @Test(description = "Test invoking 'init' function in a function inside object descriptor.")
     public void testInitInvocationInsideObject() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationInsideObject");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
 
-    @Test(description = "Test invoking '__init' function with args in a function inside object descriptor with args.")
+    @Test(description = "Test invoking 'init' function with args in a function inside object descriptor with args.")
     public void testInitInvocationInsideObjectWithArgs() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationInsideObjectWithArgs");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
 
-    @Test(description = "Test invoking '__init' function with args in a function inside object descriptor with error " +
+    @Test(description = "Test invoking 'init' function with args in a function inside object descriptor with error " +
             "return.")
     public void testObjInitWithCheck1() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testObjInitWithCheck1");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
 
-    @Test(description = "Test invoking '__init' function with args in a function inside object descriptor with error " +
+    @Test(description = "Test invoking 'init' function with args in a function inside object descriptor with error " +
             "nil.")
     public void testObjInitWithCheck2() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testObjInitWithCheck2");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
 
-    @Test(description = "Test invoking '__init' function with args in a function inside object descriptor with rest " +
+    @Test(description = "Test invoking 'init' function with args in a function inside object descriptor with rest " +
             "args.")
     public void testInitInvocationWithRestArgs() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithRestArgs");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
 
-    @Test(description = "Test invoking '__init' function with args in a function inside object descriptor with error " +
+    @Test(description = "Test invoking 'init' function with args in a function inside object descriptor with error " +
             "return and rest params.")
     public void testInitInvocationWithCheckAndRestParams1() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithCheckAndRestParams1");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
 
-    @Test(description = "Test invoking '__init' function with args in a function inside object descriptor with error " +
+    @Test(description = "Test invoking 'init' function with args in a function inside object descriptor with error " +
             "nil and rest param.")
     public void testInitInvocationWithCheckAndRestParams2() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithCheckAndRestParams2");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
 
-    @Test(description = "Test invoking '__init' function with args with default values.")
+    @Test(description = "Test invoking 'init' function with args with default values.")
     public void testInitInvocationWithDefaultParams1() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithDefaultParams1");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
 
-    @Test(description = "Test invoking '__init' function with args with default values.")
+    @Test(description = "Test invoking 'init' function with args with default values.")
     public void testInitInvocationWithDefaultParams2() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithDefaultParams2");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
 
-    @Test(description = "Test invoking '__init' function with args with finite type.")
+    @Test(description = "Test invoking 'init' function with args with finite type.")
     public void testInitInvocationWithFiniteType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithFiniteType");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
 
-    @Test(description = "Test invoking '__init' function with args with error as a default value.")
+    @Test(description = "Test invoking 'init' function with args with error as a default value.")
     public void testInitInvocationWithDefaultError() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithDefaultError");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
 
-    @Test(description = "Test invoking '__init' function with args with default values and some of them are " +
+    @Test(description = "Test invoking 'init' function with args with default values and some of them are " +
             "referenced by params.")
     public void testInitInvocationWithReferenceToDefaultValue1() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithReferenceToDefaultValue1");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
 
-    @Test(description = "Test invoking '__init' function with args with default values and some of them are " +
+    @Test(description = "Test invoking 'init' function with args with default values and some of them are " +
             "referenced by params.")
     public void testInitInvocationWithReferenceToDefaultValue2() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithReferenceToDefaultValue2");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
 
-    @Test(description = "Test invoking '__init' function with args with default values and returns error.")
+    @Test(description = "Test invoking 'init' function with args with default values and returns error.")
     public void testErrorReturnWithInitialization() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testErrorReturnWithInitialization");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
 
-    @Test(description = "Test invoking '__init' function with args with constant references as default values.")
+    @Test(description = "Test invoking 'init' function with args with constant references as default values.")
     public void testConstRefsAsDefaultValue() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstRefsAsDefaultValue");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
 
-    @Test(description = "Test invoking '__init' function with function pointer args")
+    @Test(description = "Test invoking 'init' function with function pointer args")
     public void testFunctionPointerAsDefaultableParam1() {
         BRunUtil.invoke(compileResult, "testFunctionPointerAsDefaultableParam1");
     }
 
-    @Test(description = "Test invoking '__init' function with lambda function args")
+    @Test(description = "Test invoking 'init' function with lambda function args")
     public void testFunctionPointerAsDefaultableParam2() {
         BRunUtil.invoke(compileResult, "testFunctionPointerAsDefaultableParam2");
     }

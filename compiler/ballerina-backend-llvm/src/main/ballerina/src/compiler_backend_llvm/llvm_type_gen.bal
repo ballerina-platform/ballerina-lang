@@ -8,7 +8,7 @@ type NewArray object {
     bir:VarRef sizeOp;
     bir:BArrayType typeValue; 
 
-    function __init(llvm:LLVMBuilderRef builder, FuncGenrator parent, bir:NewArray newArrayIns) {
+    function init(llvm:LLVMBuilderRef builder, FuncGenrator parent, bir:NewArray newArrayIns) {
         self.builder = builder;
         self.parent = parent;
         self.lhsOp = newArrayIns.lhsOp;
@@ -55,7 +55,7 @@ type FieldAccess object {
     bir:VarRef rhsOp;
     bir:InstructionKind kind;
 
-    function __init(llvm:LLVMBuilderRef builder, FuncGenrator parent, bir:FieldAccess fieldAccess) {
+    function init(llvm:LLVMBuilderRef builder, FuncGenrator parent, bir:FieldAccess fieldAccess) {
         self.builder = builder;
         self.parent = parent;
         self.lhsOp = fieldAccess.lhsOp;

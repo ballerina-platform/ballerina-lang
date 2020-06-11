@@ -32,7 +32,7 @@ public type Client client object {
     # + connectionPool - The `sql:ConnectionPool` object to be used within the jdbc client.
     #                   If there is no connectionPool is provided, the global connection pool will be used and it will
     #                   be shared by other clients which has same properties
-    public function __init(public string url, public string? user = (), public string? password = (),
+    public function init(public string url, public string? user = (), public string? password = (),
         public Options? options = (), public sql:ConnectionPool? connectionPool = ()) returns sql:Error? {
         ClientConfiguration clientConf = {
             url: url,
@@ -74,9 +74,9 @@ public type Client client object {
     #
     # + sqlQuery - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `string` or `ParameterizedString`
     #              when the query has params to be passed in
-    # + return - Summary of the sql update query as `ExecuteResult` or returns `Error`
+    # + return - Summary of the sql update query as `ExecutionResult` or returns `Error`
     #           if any error occured when executing the query
-    public remote function execute(@untainted string|sql:ParameterizedString sqlQuery) returns sql:ExecuteResult|sql:Error? {
+    public remote function execute(@untainted string|sql:ParameterizedString sqlQuery) returns sql:ExecutionResult|sql:Error? {
         if (self.clientActive) {
             sql:ParameterizedString sqlParamString;
             if (sqlQuery is string) {
@@ -90,6 +90,28 @@ public type Client client object {
             return nativeExecute(self, sqlParamString);
         } else {
             return sql:ApplicationError("JDBC Client is already closed, hence further operations are not allowed");
+        }
+    }
+
+    # Executes a batch of parameterised DDL or DML sql query provided by the user,
+    # and returns the summary of the execution.
+    #
+    # + sqlQueries - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `ParameterizedString` with an array
+    #                of values passed in.
+    # + rollbackInFailure - Whether to rollback the statments executed in case one of the statements in the batch fails
+    # + return - Summary of the sql update query as `ExecutionResult[]` or returns `BatchUpdateError`.
+    #            if any error occured when executing the query. `BatchUpdateError` will include summary of the
+    #            sql update query as `ExecutionResult[]` for commands executed successfully.
+    public remote function batchExecute(sql:ParameterizedString[] sqlQueries, boolean rollbackInFailure = false)
+                                                                                returns sql:ExecutionResult[]|sql:Error? {
+        if (sqlQueries.length() == 0) {
+            return sql:ApplicationError( message = " Parameter 'sqlQueries' cannot be empty array");
+        }
+        if (self.clientActive) {
+            return nativeBatchExecute(self, sqlQueries, rollbackInFailure);
+        } else {
+            return sql:ApplicationError( message = "JDBC Client is already closed,"
+                + " hence further operations are not allowed");
         }
     }
 
@@ -136,7 +158,12 @@ returns stream<record{}, sql:Error> = @java:Method {
 } external;
 
 function nativeExecute(Client sqlClient, sql:ParameterizedString sqlQuery)
-returns sql:ExecuteResult|sql:Error? = @java:Method {
+returns sql:ExecutionResult|sql:Error? = @java:Method {
+    class: "org.ballerinalang.sql.utils.ExecuteUtils"
+} external;
+
+function nativeBatchExecute(Client sqlClient, sql:ParameterizedString[] sqlQueries, boolean rollbackInFailure)
+returns sql:ExecutionResult[]|sql:Error? = @java:Method {
     class: "org.ballerinalang.sql.utils.ExecuteUtils"
 } external;
 

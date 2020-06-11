@@ -320,7 +320,7 @@ public type WebhookListener object {
 
     private websub:Listener websubListener;
 
-    public function __init(int port) {
+    public function init(int port) {
         // Introduce the extension config, based on the mapping details.
         websub:ExtensionConfig extensionConfig = {
             topicIdentifier: websub:TOPIC_ID_HEADER,

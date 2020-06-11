@@ -1,24 +1,24 @@
 {
-    "kind": "XML_FILTER_EXPRESSION",
-    "children": [
+  "kind": "XML_FILTER_EXPRESSION",
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a"
+    },
+    {
+      "kind": "XML_NAME_PATTERN_CHAIN",
+      "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
+          "kind": "DOT_LT_TOKEN"
         },
         {
-            "kind": "XML_NAME_PATTERN_CHAIN",
-            "children": [
-                {
-                    "kind": "DOT_LT_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": []
-                },
-                {
-                    "kind": "GT_TOKEN"
-                }
-            ]
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "GT_TOKEN"
         }
-    ]
+      ]
+    }
+  ]
 }
