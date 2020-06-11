@@ -46,7 +46,7 @@ public type CsvPersistentCookieHandler object {
     string fileName = "";
     table<myCookie> key(name, domain, path) cookiesTable = table [];
 
-    public function __init(string fileName) {
+    public function init(string fileName) {
         self.fileName = checkpanic validateFileExtension(fileName);
     }
 

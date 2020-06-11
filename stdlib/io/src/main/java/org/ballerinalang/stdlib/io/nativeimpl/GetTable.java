@@ -74,7 +74,6 @@ public class GetTable {
             return getTable(typedescValue, key, records);
         } catch (BallerinaIOException | BallerinaException e) {
             String msg = "failed to process the delimited file: " + e.getMessage();
-            log.error(msg, e);
             return IOUtils.createError(msg);
         }
     }
