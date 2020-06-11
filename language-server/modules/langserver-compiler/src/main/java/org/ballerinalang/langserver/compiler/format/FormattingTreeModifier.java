@@ -79,7 +79,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ImportVersionNode transform(ImportVersionNode importVersionNode) {
         Token versionKeyword = getToken(importVersionNode.versionKeyword());
-        Node versionNumber = this.modifyNode(importVersionNode.versionNumber());
+        NodeList<Node> versionNumber = this.modifyNodeList(importVersionNode.versionNumber());
 
         return importVersionNode.modify()
                 .withVersionKeyword(formatToken(versionKeyword, 1, 0, 0, 0))
