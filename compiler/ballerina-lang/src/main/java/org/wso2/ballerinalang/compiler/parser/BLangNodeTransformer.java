@@ -3705,18 +3705,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private boolean checkIfAnonymous(Node node) {
         Node parent = node.parent();
-        switch (parent.kind()) {
-            case UNION_TYPE_DESC:
-            case ARRAY_TYPE_DESC:
-            case OPTIONAL_TYPE_DESC:
-            case TYPE_TEST_EXPRESSION:
-            case TUPLE_TYPE_DESC:
-            case TYPED_BINDING_PATTERN:
-            case RECORD_FIELD:
-                return true;
-            default:
-                return false;
-        }
+        return parent.kind() != SyntaxKind.TYPE_DEFINITION;
     }
 
     private boolean ifInLocalContext(Node parent) {
