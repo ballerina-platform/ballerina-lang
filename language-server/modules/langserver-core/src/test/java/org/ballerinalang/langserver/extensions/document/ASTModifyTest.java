@@ -171,6 +171,9 @@ public class ASTModifyTest {
         TestUtil.openDocument(serviceEndpoint, tempFile);
 
         Gson gson = new Gson();
+        //Adding ballerina/io to check how it duplicate import definitions are handled.
+        ASTModification modification0 = new ASTModification(1, 1, 1, 1, "IMPORT",
+                gson.fromJson("{\"TYPE\":\"ballerina/io\"}", JsonObject.class));
         ASTModification modification1 = new ASTModification(1, 1, 1, 1, "IMPORT",
                 gson.fromJson("{\"TYPE\":\"ballerina/http\"}", JsonObject.class));
         ASTModification modification2 = new ASTModification(4, 1, 4, 1, "DECLARATION",
@@ -183,7 +186,8 @@ public class ASTModifyTest {
                         "\"PARAMS\": [\"\\\"/get?test=123\\\"\"]}", JsonObject.class));
         BallerinaASTResponse astModifyResponse = LSExtensionTestUtil
                 .modifyAndGetBallerinaAST(tempFile.toString(),
-                        new ASTModification[]{modification1, modification2, modification3}, this.serviceEndpoint);
+                        new ASTModification[]{modification0, modification1, modification2, modification3},
+                        this.serviceEndpoint);
         BallerinaASTResponse astResponse = LSExtensionTestUtil.getBallerinaDocumentAST(
                 mainHttpCallWithPrintFile.toString(), this.serviceEndpoint);
         String expectedFileContent = new String(Files.readAllBytes(mainHttpCallWithPrintFile));

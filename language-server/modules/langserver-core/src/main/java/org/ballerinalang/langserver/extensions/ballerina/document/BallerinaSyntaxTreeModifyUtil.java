@@ -75,4 +75,13 @@ public class BallerinaSyntaxTreeModifyUtil {
         }
         return mapping;
     }
+
+    public static String getImport(JsonObject config) {
+        JsonElement value = config.get("TYPE");
+        if (value != null) {
+            return value.getAsString();
+        }
+        return null;
+    }
+
 }

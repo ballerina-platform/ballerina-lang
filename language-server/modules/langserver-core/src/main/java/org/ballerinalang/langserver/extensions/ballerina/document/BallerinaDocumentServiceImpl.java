@@ -100,6 +100,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
     private static final String DELETE = "delete";
+    private static final String IMPORT = "import";
     public static final LSContext.Key<SyntaxTree> UPDATED_SYNTAX_TREE = new LSContext.Key<>();
 //    private static final Logger logger = LoggerFactory.getLogger(BallerinaDocumentServiceImpl.class);
 
@@ -425,6 +426,12 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         }
         for (int i = 0; i < astModifications.length; i++) {
             ASTModification astModification = astModifications[i];
+            if (IMPORT.equalsIgnoreCase(astModification.getType())) {
+                String importValue = BallerinaSyntaxTreeModifyUtil.getImport(astModification.getConfig());
+                if (importValue != null && unusedNodeVisitor.usedImports().contains(importValue)) {
+                    continue;
+                }
+            }
             String mapping = BallerinaSyntaxTreeModifyUtil.resolveMapping(astModification.getType(),
                     astModification.getConfig() == null ? new JsonObject() : astModification.getConfig());
             if (mapping != null) {
