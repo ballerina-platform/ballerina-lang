@@ -51,10 +51,10 @@ import io.ballerinalang.compiler.syntax.tree.ExpressionListItemNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ExternalFunctionBodyNode;
 import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.FlushActionNode;
 import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternFullNode;
 import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternVarnameNode;
+import io.ballerinalang.compiler.syntax.tree.FlushActionNode;
 import io.ballerinalang.compiler.syntax.tree.ForEachStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ForkStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FromClauseNode;
@@ -2891,7 +2891,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return recordKeyValue;
     }
 
-    private BLangVariable addBindingPatternMemberVariable(DiagnosticPos pos, String identifier, DiagnosticPos identifierPos) {
+    private BLangVariable addBindingPatternMemberVariable(DiagnosticPos pos, String identifier,
+            DiagnosticPos identifierPos) {
         BLangSimpleVariable memberVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         memberVar.pos = pos;
         IdentifierNode name = createIdentifier(identifierPos, identifier);
