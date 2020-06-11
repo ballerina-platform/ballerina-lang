@@ -809,7 +809,10 @@ public class BIRPackageSymbolEnter {
                     return symTable.neverType;
                 case TypeTags.ANYDATA:
                     BType anydataNominalType = typeParamAnalyzer.getNominalType(symTable.anydataType, name, flags);
-                    return isImmutable(flags) ? getEffectiveImmutableType(anydataNominalType) : anydataNominalType;
+                    return isImmutable(flags) ? getEffectiveImmutableType(anydataNominalType,
+                                                                          symTable.anydataType.tsymbol.pkgID,
+                                                                          symTable.anydataType.tsymbol.owner) :
+                            anydataNominalType;
                 case TypeTags.RECORD:
                     int pkgCpIndex = inputStream.readInt();
                     PackageID pkgId = getPackageId(pkgCpIndex);
@@ -938,7 +941,10 @@ public class BIRPackageSymbolEnter {
                 // All the above types are branded types
                 case TypeTags.ANY:
                     BType anyNominalType = typeParamAnalyzer.getNominalType(symTable.anyType, name, flags);
-                    return isImmutable(flags) ? getEffectiveImmutableType(anyNominalType) : anyNominalType;
+                    return isImmutable(flags) ? getEffectiveImmutableType(anyNominalType,
+                                                                          symTable.anyType.tsymbol.pkgID,
+                                                                          symTable.anyType.tsymbol.owner) :
+                            anyNominalType;
                 case TypeTags.HANDLE:
                     return symTable.handleType;
                 case TypeTags.READONLY:
@@ -1232,5 +1238,10 @@ public class BIRPackageSymbolEnter {
         return ImmutableTypeCloner.getEffectiveImmutableType(null, types, (SelectivelyImmutableReferenceType) type,
                                                              type.tsymbol.pkgID, type.tsymbol.owner,
                                                              symTable, null, names);
+    }
+
+    private BType getEffectiveImmutableType(BType type, PackageID pkgID, BSymbol owner) {
+        return ImmutableTypeCloner.getEffectiveImmutableType(null, types, (SelectivelyImmutableReferenceType) type,
+                                                             pkgID, owner, symTable, null, names);
     }
 }
