@@ -68,4 +68,4 @@ public type BatchExecuteError error<BATCH_EXECUTE_ERROR_REASON, BatchExecuteErro
 public type ApplicationError error<APPLICATION_ERROR_REASON, ApplicationErrorData>;
 
 # Represents a database or application level error returned from JDBC client remote functions.
-public type Error DatabaseError|ApplicationError;
+public type Error DatabaseError|BatchExecuteError|ApplicationError;

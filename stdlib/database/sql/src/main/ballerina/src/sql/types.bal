@@ -320,10 +320,10 @@ public type ParameterizedString record {|
 
 # Constant indicating that the specific batch statement executed successfully
 # but that no count of the number of rows it affected is available.
-public const SUCCESS_NO_INFO = -1;
+public const SUCCESS_NO_INFO = -2;
 
 #Constant indicating that the specific batch statement failed.
-public const EXECUTION_FAILED = -2;
+public const EXECUTION_FAILED = -3;
 
 # The result of the query without returning the rows.
 #

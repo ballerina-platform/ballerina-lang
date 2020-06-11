@@ -30,7 +30,6 @@ import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.sql.SQLException;
@@ -72,12 +71,15 @@ public class BatchExecuteTest {
     }
 
     @Test
-    @Ignore
     public void testInsertIntoDataTableFailure() {
         BValue[] returns = BRunUtil.invokeFunction(result, "insertIntoDataTableFailure", args);
         Assert.assertTrue(returns[0] instanceof BError);
-        BMap errorDetails = (BMap) ((BError) returns[0]).getDetails();
-        Assert.assertNotNull(errorDetails.get(EXECUTION_RESULTS));
+        BMap<String, BValue> errorDetails = (BMap<String, BValue>) ((BError) returns[0]).getDetails();
+        Assert.assertTrue(errorDetails.get(EXECUTION_RESULTS) instanceof BValueArray);
+        BValueArray executionResults = (BValueArray) errorDetails.get(EXECUTION_RESULTS);
+        Assert.assertEquals(executionResults.size(), 1);
+        BMap<String, BValueType> result = (BMap<String, BValueType>) executionResults.getValues()[0];
+        Assert.assertEquals(result.get(Constants.AFFECTED_ROW_COUNT_FIELD).intValue(), 1);
     }
 
     private void validateResult(BValue[] returns, int[] rowCount, int[] lastId) {
