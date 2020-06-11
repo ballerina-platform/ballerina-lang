@@ -2675,20 +2675,21 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangSelectClause selectClause = (BLangSelectClause) queryExprNode.selectClause().apply(this);
         queryExpr.queryClauseList.add(selectClause);
 
+        boolean isTable = false;
+        boolean isStream = false;
+
         QueryConstructTypeNode queryConstructTypeNode = queryExprNode.queryConstructType();
         if (queryConstructTypeNode != null) {
-            KeySpecifierNode keySpecifierNode = queryConstructTypeNode.keySpecifier();
-
-            if (keySpecifierNode != null) {
-                for (IdentifierToken fieldNameNode : keySpecifierNode.fieldNames()) {
-                    BLangIdentifier fieldName = createIdentifier(getPosition(fieldNameNode), fieldNameNode);
-                    queryExpr.fieldNameIdentifierList.add(fieldName);
+            isTable = queryConstructTypeNode.keyword().kind() == SyntaxKind.TABLE_KEYWORD;
+            isStream = queryConstructTypeNode.keyword().kind() == SyntaxKind.STREAM_KEYWORD;
+            if (queryConstructTypeNode.keySpecifier().isPresent()) {
+                for (IdentifierToken fieldNameNode : queryConstructTypeNode.keySpecifier().get().fieldNames()) {
+                    queryExpr.fieldNameIdentifierList.add(createIdentifier(getPosition(fieldNameNode), fieldNameNode));
                 }
             }
-
-            // TODO: Set queryExpr.isStream field once issue #23742 is fixed
         }
-
+        queryExpr.isStream = isStream;
+        queryExpr.isTable = isTable;
         return queryExpr;
     }
 

@@ -2,7 +2,12 @@
   "kind": "QUERY_EXPRESSION",
   "children": [
     {
-      "kind": "STREAM_KEYWORD"
+      "kind": "QUERY_CONSTRUCT_TYPE",
+      "children": [
+        {
+          "kind": "STREAM_KEYWORD"
+        }
+      ]
     },
     {
       "kind": "QUERY_PIPELINE",
