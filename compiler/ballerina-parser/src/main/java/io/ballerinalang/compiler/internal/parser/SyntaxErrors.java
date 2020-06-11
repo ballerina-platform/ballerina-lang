@@ -142,6 +142,8 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_ASTERISK_TOKEN;
             case PIPE_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_PIPE_TOKEN;
+            case DOT_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_DOT_TOKEN;
 
             case DEFAULT_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_DEFAULT_KEYWORD;
