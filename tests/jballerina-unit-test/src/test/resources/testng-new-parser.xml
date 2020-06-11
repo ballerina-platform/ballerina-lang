@@ -119,7 +119,7 @@
 <!--            <package name="org.ballerinalang.test.expressions.typecast.*"/>-->
 <!--            <package name="org.ballerinalang.test.expressions.literals.*"/>-->
 <!--            <package name="org.ballerinalang.test.expressions.varref.*"/>-->
-<!--            <package name="org.ballerinalang.test.worker.*"/>-->
+            <package name="org.ballerinalang.test.worker.*"/>
 <!--            <package name="org.ballerinalang.test.taintchecking.*"/>-->
 <!--            <package name="org.ballerinalang.test.statements.transaction.*"/>-->
 <!--            <package name="org.ballerinalang.test.functions.*"/>-->
