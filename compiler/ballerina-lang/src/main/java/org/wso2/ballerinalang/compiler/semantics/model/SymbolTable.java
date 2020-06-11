@@ -113,12 +113,12 @@ public class SymbolTable {
     public final BType jsonType = new BJSONType(TypeTags.JSON, null);
     public final BType anyType = new BAnyType(TypeTags.ANY, null);
     public final BType anydataType = new BAnydataType(TypeTags.ANYDATA, null);
-    public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
-    public final BType mapStringType = new BMapType(TypeTags.MAP, stringType, null);
-    public final BType mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
-    public final BType mapJsonType = new BMapType(TypeTags.MAP, jsonType, null);
+    public final BMapType mapType = new BMapType(TypeTags.MAP, anyType, null);
+    public final BMapType mapStringType = new BMapType(TypeTags.MAP, stringType, null);
+    public final BMapType mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
+    public final BMapType mapJsonType = new BMapType(TypeTags.MAP, jsonType, null);
     public final BFutureType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
-    public final BType arrayType = new BArrayType(anyType);
+    public final BArrayType arrayType = new BArrayType(anyType);
     public final BArrayType arrayStringType = new BArrayType(stringType);
     public final BArrayType arrayAnydataType = new BArrayType(anydataType);
     public final BArrayType arrayJsonType = new BArrayType(jsonType);

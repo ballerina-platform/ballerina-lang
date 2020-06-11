@@ -22,7 +22,7 @@ public type StringReader object {
     #
     # + content - The content, which should be written
     # + encoding - Encoding of the characters of the content
-    public function __init(string content, public string encoding = "UTF-8") {
+    public function init(string content, public string encoding = "UTF-8") {
         byte[] contentBytes = content.toBytes();
         ReadableByteChannel byteChannel = checkpanic createReadableChannel(contentBytes);
         self.charChannel = new ReadableCharacterChannel(byteChannel, encoding);

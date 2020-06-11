@@ -23,6 +23,10 @@ public type JObject abstract object {
     public handle jObj;
 };
 
+# Returns the string representation of a Java object stored in a handle reference.
+#
+# + jObj - The `handle` reference to the corresponding Java object.
+# + return - The `string` representation of the Java object.
 public function jObjToString(handle jObj) returns string {
     handle jStringValue = toStringInternal(jObj);
     return toString(jStringValue) ?: "null";

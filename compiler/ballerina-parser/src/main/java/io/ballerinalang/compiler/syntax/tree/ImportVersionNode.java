@@ -36,8 +36,8 @@ public class ImportVersionNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Node versionNumber() {
-        return childInBucket(1);
+    public NodeList<Node> versionNumber() {
+        return new NodeList<>(childInBucket(1));
     }
 
     @Override
@@ -59,10 +59,10 @@ public class ImportVersionNode extends NonTerminalNode {
 
     public ImportVersionNode modify(
             Token versionKeyword,
-            Node versionNumber) {
+            NodeList<Node> versionNumber) {
         if (checkForReferenceEquality(
                 versionKeyword,
-                versionNumber)) {
+                versionNumber.underlyingListNode())) {
             return this;
         }
 
@@ -83,7 +83,7 @@ public class ImportVersionNode extends NonTerminalNode {
     public static class ImportVersionNodeModifier {
         private final ImportVersionNode oldNode;
         private Token versionKeyword;
-        private Node versionNumber;
+        private NodeList<Node> versionNumber;
 
         public ImportVersionNodeModifier(ImportVersionNode oldNode) {
             this.oldNode = oldNode;
@@ -99,7 +99,7 @@ public class ImportVersionNode extends NonTerminalNode {
         }
 
         public ImportVersionNodeModifier withVersionNumber(
-                Node versionNumber) {
+                NodeList<Node> versionNumber) {
             Objects.requireNonNull(versionNumber, "versionNumber must not be null");
             this.versionNumber = versionNumber;
             return this;

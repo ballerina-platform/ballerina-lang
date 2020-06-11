@@ -20,7 +20,7 @@ public type BirChannelReader object {
     ChannelReader reader;
     ConstPool cp;
 
-    public function __init(ChannelReader reader, ConstPool cp) {
+    public function init(ChannelReader reader, ConstPool cp) {
         self.reader = reader;
         self.cp = cp;
     }

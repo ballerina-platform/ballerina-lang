@@ -60,7 +60,7 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
         boolean skipRule;
         int matchingRulesCount = 0;
 
-        while (currentDepth < lookaheadLimit) {
+        while (currentDepth < LOOKAHEAD_LIMIT) {
             hasMatch = true;
             skipRule = false;
             STToken nextToken = this.tokenReader.peek(lookahead);

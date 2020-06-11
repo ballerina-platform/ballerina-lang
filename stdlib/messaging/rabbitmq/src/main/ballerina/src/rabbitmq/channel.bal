@@ -25,7 +25,7 @@ public type Channel client object {
     # Creates a `rabbitmq:Connection` object if only the connection configuration is given.
     #
     # + connectionOrConnectionConfig - A `rabbitmq:Connection` object or a connection configuration
-    public function __init(ConnectionConfiguration|Connection connectionOrConnectionConfig) {
+    public function init(ConnectionConfiguration|Connection connectionOrConnectionConfig) {
         Connection connection = (connectionOrConnectionConfig is Connection) ?
                                 connectionOrConnectionConfig : new Connection(connectionOrConnectionConfig);
         self.amqpChannel = createChannel(connection.amqpConnection);

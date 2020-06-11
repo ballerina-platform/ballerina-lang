@@ -60,9 +60,9 @@
                 {{/if}}
             </h1>
             <div class="constants">
-                <table class="ui table details-table">
-                    {{#each functions}}
-                        <tbody>
+                <table class="ui table row-border details-table">
+                    <tbody>
+                        {{#each functions}}
                             <tr>
                                 <td width="30%"><a class="functions {{#if isDeprecated}}strike{{/if}}" href="#{{name}}">{{name}}</a></td>
                                 <td width="70%">
@@ -74,8 +74,8 @@
                                     </div>
                                 </td>
                             </tr>
-                        </tbody>
-                    {{/each}}
+                        {{/each}}
+                    </tbody>
                 </table>
                 <div>
                     {{#if functions}}

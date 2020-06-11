@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -22,6 +23,7 @@
     },
     {
       "kind": "FUNCTION_SIGNATURE",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_PAREN_TOKEN"
@@ -35,6 +37,7 @@
         },
         {
           "kind": "RETURN_TYPE_DESCRIPTOR",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "RETURNS_KEYWORD"
@@ -45,7 +48,11 @@
             },
             {
               "kind": "TYPE_DESC",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_TYPE_DESC"
+              ]
             }
           ]
         }

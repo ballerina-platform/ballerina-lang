@@ -96,7 +96,7 @@ function test2DObjectArrays() returns PersonObj[][] {
 type PersonObj2 object {
     string name = "John Doe";
 
-    public function __init(string name = "Pubudu") {
+    public function init(string name = "Pubudu") {
         self.name = name;
     }
 };
@@ -110,7 +110,7 @@ function test2DObjectArrays2() returns PersonObj2[][] {
 type PersonObj3 object {
     string name = "John Doe";
 
-    public function __init(string name) {
+    public function init(string name) {
         self.name = name;
     }
 };

@@ -17,7 +17,7 @@
 type ObjInitWithParam object {
     int i;
 
-    function __init(int i) {
+    function init(int i) {
         self.i = i;
     }
 };
@@ -62,7 +62,7 @@ type Student object {
     public string name;
     public int age;
 
-    public function __init(string name, int age) {
+    public function init(string name, int age) {
         self.name = name;
         self.age = age;
     }

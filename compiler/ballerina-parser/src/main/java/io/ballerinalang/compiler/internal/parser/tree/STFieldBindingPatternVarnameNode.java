@@ -56,7 +56,29 @@ public class STFieldBindingPatternVarnameNode extends STFieldBindingPatternNode 
                 diagnostics);
     }
 
+    public STFieldBindingPatternVarnameNode modify(
+            STNode variableName) {
+        if (checkForReferenceEquality(
+                variableName)) {
+            return this;
+        }
+
+        return new STFieldBindingPatternVarnameNode(
+                variableName,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FieldBindingPatternVarnameNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

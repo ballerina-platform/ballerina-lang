@@ -157,7 +157,7 @@ public abstract class BType {
         throw new BallerinaException(this.typeName + " cannot be immutable");
     }
 
-    public void setImmutableType(BType immutableType) {
+    public void setImmutableType(BIntersectionType immutableType) {
         // Do nothing since already set.
         // For types that immutable type may be set later, the relevant type overrides this method.
     }

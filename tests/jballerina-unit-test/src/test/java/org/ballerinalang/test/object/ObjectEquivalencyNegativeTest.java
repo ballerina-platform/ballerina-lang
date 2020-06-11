@@ -31,7 +31,7 @@ public class ObjectEquivalencyNegativeTest {
     @Test(description = "Test equivalence of objects that are in the same package")
     public void testEquivalenceOfObjectsInSamePackage() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-equivalency-01-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 6);
+        Assert.assertEquals(compileResult.getErrorCount(), 11);
         BAssertUtil.validateError(compileResult, 0,
                                   "incompatible types: 'employee01' cannot be cast to 'person01'", 24, 18);
         BAssertUtil.validateError(compileResult, 1,
@@ -46,6 +46,17 @@ public class ObjectEquivalencyNegativeTest {
                                   "incompatible types: 'employee08' cannot be cast to 'person08'", 284, 18);
         BAssertUtil.validateError(compileResult, 5,
                                   "incompatible types: 'employee09' cannot be cast to 'person09'", 341, 18);
+        BAssertUtil.validateError(compileResult, 6,
+                "incompatible types: expected 'ObjWithRemoteMethod', found 'NonClientObj'", 460, 29);
+        BAssertUtil.validateError(compileResult, 7,
+                "incompatible types: expected 'ObjWithRemoteMethod', found 'ClientObjWithoutRemoteMethod'", 465, 29);
+        BAssertUtil.validateError(compileResult, 8,
+                "incompatible types: expected 'ObjWithOnlyRemoteMethod', " +
+                        "found 'ClientObjWithoutRemoteMethod'", 470, 33);
+        BAssertUtil.validateError(compileResult, 9,
+                "incompatible types: expected 'ObjWithOnlyRemoteMethod', found 'NonClientObj'", 475, 33);
+        BAssertUtil.validateError(compileResult, 10,
+                "incompatible types: expected 'NonClientObj', found 'ObjWithRemoteMethod'", 480, 22);
     }
 
     // TODO: 5/23/19 enabled this after ballerina-lang/issues/15384 is fixed

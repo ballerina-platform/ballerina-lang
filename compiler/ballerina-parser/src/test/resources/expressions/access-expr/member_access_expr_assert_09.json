@@ -1,5 +1,6 @@
 {
   "kind": "INDEXED_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "IDENTIFIER_TOKEN",
@@ -48,7 +49,11 @@
     },
     {
       "kind": "CLOSE_BRACKET_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
+      ]
     }
   ]
 }

@@ -60,7 +60,31 @@ public class STBasicLiteralNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STBasicLiteralNode modify(
+            SyntaxKind kind,
+            STNode literalToken) {
+        if (checkForReferenceEquality(
+                literalToken)) {
+            return this;
+        }
+
+        return new STBasicLiteralNode(
+                kind,
+                literalToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BasicLiteralNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

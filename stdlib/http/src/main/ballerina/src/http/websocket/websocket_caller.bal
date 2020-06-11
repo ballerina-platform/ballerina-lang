@@ -25,7 +25,7 @@ public type WebSocketCaller client object {
 
     private WebSocketConnector conn = new;
 
-    function __init() {
+    function init() {
         // package private function to prevent object creation
     }
 

@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
  */
 public class Listener extends Object {
 
+    @Expose
     public List<Function> lifeCycleMethods;
 
     public Listener(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,

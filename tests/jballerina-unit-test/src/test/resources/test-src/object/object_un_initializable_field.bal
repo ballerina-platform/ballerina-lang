@@ -7,7 +7,7 @@ type Person object {
     public int age = 0;
     public Employee emp;
 
-    function __init (int age, Employee emp) {
+    function init (int age, Employee emp) {
         self.age = age;
         self.emp = emp;
     }
@@ -18,7 +18,7 @@ type Employee object {
     public Foo foo;
     public Bar bar = {};
 
-    function __init (int age) {
+    function init (int age) {
         self.age = age;
     }
 };
@@ -26,7 +26,7 @@ type Employee object {
 type Foo object {
     public int calc;
 
-    function __init (int calc) {
+    function init (int calc) {
         self.calc = calc;
     }
 };

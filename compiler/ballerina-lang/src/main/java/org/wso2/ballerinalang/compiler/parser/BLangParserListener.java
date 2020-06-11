@@ -359,11 +359,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean publicFunc = ctx.PUBLIC() != null;
         boolean privateFunc = ctx.PRIVATE() != null;
         boolean remoteFunc = ctx.REMOTE() != null;
+        boolean transactionalFunc = ctx.TRANSACTIONAL() != null;
         boolean nativeFunc = ctx.functionDefinitionBody().externalFunctionBody() != null;
 
         this.pkgBuilder.endFunctionDefinition(getCurrentPos(ctx), getWS(ctx), funcName,
                                               getCurrentPos(ctx.anyIdentifierName()), publicFunc, remoteFunc,
-                                              nativeFunc, privateFunc, false);
+                                              transactionalFunc, nativeFunc, privateFunc, false);
     }
 
     @Override
@@ -569,9 +570,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isPrivate = ctx.PRIVATE() != null;
         boolean isPublic = ctx.PUBLIC() != null;
         boolean markdownExists = ctx.documentationString() != null;
+        boolean isReadonly = ctx.TYPE_READONLY() != null;
 
         this.pkgBuilder.addObjectFieldVariable(currentPos, ws, name, identifierPos, exprAvailable, annotationCount,
-                                               isPrivate, isPublic, markdownExists);
+                                               isPrivate, isPublic, markdownExists, isReadonly);
     }
 
     /**
@@ -2424,21 +2426,24 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addExpressionStmt(getCurrentPos(ctx), getWS(ctx));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    public void exitRollbackStatement(BallerinaParser.RollbackStatementContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addRollbackStatement(this.getCurrentPos(ctx), getWS(ctx), ctx.expression() != null);
+    }
+
     @Override
     public void enterTransactionStatement(BallerinaParser.TransactionStatementContext ctx) {
         if (isInErrorState) {
             return;
         }
 
-        this.pkgBuilder.startTransactionStmt();
+        this.pkgBuilder.startBlock();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void exitTransactionStatement(BallerinaParser.TransactionStatementContext ctx) {
         if (isInErrorState) {
@@ -2447,31 +2452,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         DiagnosticPos pos = getCurrentPos(ctx);
         this.pkgBuilder.endTransactionStmt(pos, getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitTransactionClause(BallerinaParser.TransactionClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-        this.pkgBuilder.addTransactionBlock(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitTransactionPropertyInitStatementList(
-            BallerinaParser.TransactionPropertyInitStatementListContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.endTransactionPropertyInitStatementList(getWS(ctx));
-
     }
 
     /**
@@ -2526,84 +2506,24 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterOnretryClause(BallerinaParser.OnretryClauseContext ctx) {
+    public void exitRetrySpec(BallerinaParser.RetrySpecContext ctx) {
         if (isInErrorState) {
             return;
         }
 
-        this.pkgBuilder.startOnretryBlock();
+        boolean typeParamAvailable = ctx.typeName() != null;
+        boolean argsAvailable = ctx.invocationArgList() != null;
+
+        this.pkgBuilder.createRetrySpec(getCurrentPos(ctx), getWS(ctx), typeParamAvailable, argsAvailable);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void exitOnretryClause(BallerinaParser.OnretryClauseContext ctx) {
+    public void enterRetryStatement(BallerinaParser.RetryStatementContext ctx) {
         if (isInErrorState) {
             return;
         }
 
-        this.pkgBuilder.addOnretryBlock(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterCommittedClause(BallerinaParser.CommittedClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.startCommittedBlock();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitCommittedClause(BallerinaParser.CommittedClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.endCommittedBlock(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterAbortedClause(BallerinaParser.AbortedClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.startAbortedBlock();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitAbortedClause(BallerinaParser.AbortedClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.endAbortedBlock(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitAbortStatement(BallerinaParser.AbortStatementContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.addAbortStatement(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startBlock();
     }
 
     /**
@@ -2618,15 +2538,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addRetryStatement(getCurrentPos(ctx), getWS(ctx));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void exitRetriesStatement(BallerinaParser.RetriesStatementContext ctx) {
+    public void exitRetryTransactionStatement(BallerinaParser.RetryTransactionStatementContext ctx) {
         if (isInErrorState) {
             return;
         }
-        this.pkgBuilder.addRetryCountExpression(getWS(ctx));
+
+        this.pkgBuilder.addRetryTransactionStatement(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**
@@ -2655,12 +2573,32 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterTransactionalExpression(BallerinaParser.TransactionalExpressionContext ctx) {
+    }
+
+    public void exitTransactionalExpression(BallerinaParser.TransactionalExpressionContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.addTransactionalExpr(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
     public void exitBinaryDivMulModExpression(BallerinaParser.BinaryDivMulModExpressionContext ctx) {
         if (isInErrorState) {
             return;
         }
 
         this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
+    }
+
+    @Override
+    public void exitCommitActionExpression(BallerinaParser.CommitActionExpressionContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addCommitExpr(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

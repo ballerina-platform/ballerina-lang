@@ -26,12 +26,12 @@ type Person object {
     string month = "february";
 
 
-    function __init () {
+    function init () {
         self.name = "llll";
         self.age  = 6;
     }
 
-    function init(int | string | boolean | Foo inVal) {
+    function _init_(int | string | boolean | Foo inVal) {
         if inVal is int {
 
             self.age = self.age + inVal;

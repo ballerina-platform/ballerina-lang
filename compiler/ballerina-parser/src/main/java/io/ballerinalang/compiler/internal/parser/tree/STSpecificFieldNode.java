@@ -77,7 +77,38 @@ public class STSpecificFieldNode extends STMappingFieldNode {
                 diagnostics);
     }
 
+    public STSpecificFieldNode modify(
+            STNode readonlyKeyword,
+            STNode fieldName,
+            STNode colon,
+            STNode valueExpr) {
+        if (checkForReferenceEquality(
+                readonlyKeyword,
+                fieldName,
+                colon,
+                valueExpr)) {
+            return this;
+        }
+
+        return new STSpecificFieldNode(
+                readonlyKeyword,
+                fieldName,
+                colon,
+                valueExpr,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new SpecificFieldNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }
