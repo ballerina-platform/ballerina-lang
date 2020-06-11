@@ -1974,12 +1974,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public QueryConstructTypeNode transform(
             QueryConstructTypeNode queryConstructTypeNode) {
-        Token tableKeyword =
-                modifyToken(queryConstructTypeNode.tableKeyword());
+        Token keyword =
+                modifyToken(queryConstructTypeNode.keyword());
         KeySpecifierNode keySpecifier =
-                modifyNode(queryConstructTypeNode.keySpecifier());
+                modifyNode(queryConstructTypeNode.keySpecifier().orElse(null));
         return queryConstructTypeNode.modify(
-                tableKeyword,
+                keyword,
                 keySpecifier);
     }
 
@@ -2746,6 +2746,33 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return matchGuardNode.modify(
                 ifKeyword,
                 expression);
+    }
+
+    @Override
+    public ObjectMethodDefinitionNode transform(
+            ObjectMethodDefinitionNode objectMethodDefinitionNode) {
+        MetadataNode metadata =
+                modifyNode(objectMethodDefinitionNode.metadata());
+        Token visibilityQualifier =
+                modifyToken(objectMethodDefinitionNode.visibilityQualifier().orElse(null));
+        Token remoteKeyword =
+                modifyToken(objectMethodDefinitionNode.remoteKeyword().orElse(null));
+        Token functionKeyword =
+                modifyToken(objectMethodDefinitionNode.functionKeyword());
+        IdentifierToken methodName =
+                modifyNode(objectMethodDefinitionNode.methodName());
+        FunctionSignatureNode methodSignature =
+                modifyNode(objectMethodDefinitionNode.methodSignature());
+        FunctionBodyNode functionBody =
+                modifyNode(objectMethodDefinitionNode.functionBody());
+        return objectMethodDefinitionNode.modify(
+                metadata,
+                visibilityQualifier,
+                remoteKeyword,
+                functionKeyword,
+                methodName,
+                methodSignature,
+                functionBody);
     }
 
     // Tokens

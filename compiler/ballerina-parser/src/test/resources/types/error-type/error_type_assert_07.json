@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_VAR_DECL",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -18,22 +19,6 @@
           "children": [
             {
               "kind": "ERROR_KEYWORD"
-            },
-            {
-              "kind": "ERROR_TYPE_PARAMS",
-              "children": [
-                {
-                  "kind": "LT_TOKEN",
-                  "isMissing": true
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "NO_MATCHING_OBJECT"
-                },
-                {
-                  "kind": "GT_TOKEN"
-                }
-              ]
             }
           ]
         },
@@ -42,9 +27,38 @@
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "a"
+              "value": "NO_MATCHING_OBJECT"
             }
           ]
+        }
+      ]
+    },
+    {
+      "kind": "EQUAL_TOKEN",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_EQUAL_TOKEN"
+      ]
+    },
+    {
+      "kind": "BINARY_EXPRESSION",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
+        },
+        {
+          "kind": "GT_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a"
         }
       ]
     },

@@ -30,6 +30,7 @@ under the License.
             <class name="org.ballerinalang.jdbc.query.ParamsQueryTest"/>
             <class name="org.ballerinalang.jdbc.execute.ExecuteTest"/>
             <class name="org.ballerinalang.jdbc.execute.ParamsExecuteTest"/>
+            <class name="org.ballerinalang.jdbc.batchexecute.BatchExecuteTest"/>
         </classes>
     </test>
 </suite>

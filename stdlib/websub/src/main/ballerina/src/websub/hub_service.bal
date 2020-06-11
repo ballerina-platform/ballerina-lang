@@ -139,7 +139,7 @@ function getHubService() returns service {
                                 string errorMessage = "Error fetching updates for topic URL [" + topic + "]: "
                                 + errorCause;
                                 log:printError(errorMessage);
-                                response.setTextPayload(<@untaintedstring>errorMessage);
+                                response.setTextPayload(<@untainted string>errorMessage);
                                 response.statusCode = http:STATUS_BAD_REQUEST;
                                 var responseError = httpCaller->respond(response);
                                 if (responseError is error) {
@@ -162,7 +162,7 @@ function getHubService() returns service {
                             publishStatus = publishToInternalHub(topic, notification);
                         } else {
                             string errorCause = <string>binaryPayload.detail()?.message;
-                            string errorMessage = "Error extracting payload: " + <@untaintedstring>errorCause;
+                            string errorMessage = "Error extracting payload: " + <@untainted string>errorCause;
                             log:printError(errorMessage);
                             response.statusCode = http:STATUS_BAD_REQUEST;
                             response.setTextPayload(errorMessage);
@@ -177,7 +177,7 @@ function getHubService() returns service {
                         if (publishStatus is error) {
                             string errorCause = <string>publishStatus.detail()?.message;
                             string errorMessage = "Update notification failed for Topic [" + topic + "]: " + errorCause;
-                            response.setTextPayload(<@untaintedstring>errorMessage);
+                            response.setTextPayload(<@untainted string>errorMessage);
                             log:printError(errorMessage);
                         } else {
                             log:printInfo("Update notification done for Topic [" + topic + "]");
@@ -192,7 +192,7 @@ function getHubService() returns service {
                     } else {
                         string errorMessage = "Publish request denied for unregistered topic[" + topic + "]";
                         log:printDebug(errorMessage);
-                        response.setTextPayload(<@untaintedstring>errorMessage);
+                        response.setTextPayload(<@untainted string>errorMessage);
                     }
                     response.statusCode = http:STATUS_BAD_REQUEST;
                     var responseError = httpCaller->respond(response);

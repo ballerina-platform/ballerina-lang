@@ -1558,10 +1558,10 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STQueryConstructTypeNode transform(
             STQueryConstructTypeNode queryConstructTypeNode) {
-        STNode tableKeyword = modifyNode(queryConstructTypeNode.tableKeyword);
+        STNode keyword = modifyNode(queryConstructTypeNode.keyword);
         STNode keySpecifier = modifyNode(queryConstructTypeNode.keySpecifier);
         return queryConstructTypeNode.modify(
-                tableKeyword,
+                keyword,
                 keySpecifier);
     }
 
@@ -2179,6 +2179,26 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return matchGuardNode.modify(
                 ifKeyword,
                 expression);
+    }
+
+    @Override
+    public STObjectMethodDefinitionNode transform(
+            STObjectMethodDefinitionNode objectMethodDefinitionNode) {
+        STNode metadata = modifyNode(objectMethodDefinitionNode.metadata);
+        STNode visibilityQualifier = modifyNode(objectMethodDefinitionNode.visibilityQualifier);
+        STNode remoteKeyword = modifyNode(objectMethodDefinitionNode.remoteKeyword);
+        STNode functionKeyword = modifyNode(objectMethodDefinitionNode.functionKeyword);
+        STNode methodName = modifyNode(objectMethodDefinitionNode.methodName);
+        STNode methodSignature = modifyNode(objectMethodDefinitionNode.methodSignature);
+        STNode functionBody = modifyNode(objectMethodDefinitionNode.functionBody);
+        return objectMethodDefinitionNode.modify(
+                metadata,
+                visibilityQualifier,
+                remoteKeyword,
+                functionKeyword,
+                methodName,
+                methodSignature,
+                functionBody);
     }
 
     // Tokens

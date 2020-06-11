@@ -68,9 +68,6 @@
               "kind": "SEMICOLON_TOKEN"
             }
           ]
-        },
-        {
-          "kind": "EOF_TOKEN"
         }
       ]
     },

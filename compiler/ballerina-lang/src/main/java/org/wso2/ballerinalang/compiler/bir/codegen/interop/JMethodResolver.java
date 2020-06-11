@@ -550,6 +550,12 @@ class JMethodResolver {
             for (JMethod jMethod : jMethods) {
                 boolean resolved = true;
                 Class<?>[] formalParamTypes = jMethod.getParamTypes();
+
+                // skip if the given constraint params are not of the same size as method's params
+                if (constraints.length != formalParamTypes.length) {
+                    continue;
+                }
+
                 for (int paramIndex = 0; paramIndex < formalParamTypes.length; paramIndex++) {
                     Class<?> formalParamType = formalParamTypes[paramIndex];
                     if (formalParamType.isAssignableFrom(constraints[paramIndex].get())) {

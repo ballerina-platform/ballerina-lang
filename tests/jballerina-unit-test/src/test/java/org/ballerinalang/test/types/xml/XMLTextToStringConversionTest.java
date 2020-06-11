@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
  *
  * @since 1.3.0
  */
+@Test(groups = { "brokenOnNewParser" })
 public class XMLTextToStringConversionTest {
 
     private CompileResult result;

@@ -347,11 +347,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        this.acceptNode(transactionNode.retryCount);
         this.acceptNode(transactionNode.transactionBody);
-        this.acceptNode(transactionNode.onRetryBody);
-        this.acceptNode(transactionNode.committedBody);
-        this.acceptNode(transactionNode.abortedBody);
     }
 
     @Override

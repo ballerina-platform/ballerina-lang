@@ -1457,11 +1457,11 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createQueryConstructTypeNode(
-            STNode tableKeyword,
+            STNode keyword,
             STNode keySpecifier) {
 
         return new STQueryConstructTypeNode(
-                tableKeyword,
+                keyword,
                 keySpecifier);
     }
 
@@ -2026,6 +2026,25 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STMatchGuardNode(
                 ifKeyword,
                 expression);
+    }
+
+    public static STNode createObjectMethodDefinitionNode(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode remoteKeyword,
+            STNode functionKeyword,
+            STNode methodName,
+            STNode methodSignature,
+            STNode functionBody) {
+
+        return new STObjectMethodDefinitionNode(
+                metadata,
+                visibilityQualifier,
+                remoteKeyword,
+                functionKeyword,
+                methodName,
+                methodSignature,
+                functionBody);
     }
 }
 

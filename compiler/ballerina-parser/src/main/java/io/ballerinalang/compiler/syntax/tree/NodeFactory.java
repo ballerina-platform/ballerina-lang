@@ -1941,14 +1941,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static QueryConstructTypeNode createQueryConstructTypeNode(
-            Token tableKeyword,
+            Token keyword,
             KeySpecifierNode keySpecifier) {
-        Objects.requireNonNull(tableKeyword, "tableKeyword must not be null");
-        Objects.requireNonNull(keySpecifier, "keySpecifier must not be null");
+        Objects.requireNonNull(keyword, "keyword must not be null");
 
         STNode stQueryConstructTypeNode = STNodeFactory.createQueryConstructTypeNode(
-                tableKeyword.internalNode(),
-                keySpecifier.internalNode());
+                keyword.internalNode(),
+                getOptionalSTNode(keySpecifier));
         return stQueryConstructTypeNode.createUnlinkedFacade();
     }
 
@@ -2707,6 +2706,31 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 ifKeyword.internalNode(),
                 expression.internalNode());
         return stMatchGuardNode.createUnlinkedFacade();
+    }
+
+    public static ObjectMethodDefinitionNode createObjectMethodDefinitionNode(
+            MetadataNode metadata,
+            Token visibilityQualifier,
+            Token remoteKeyword,
+            Token functionKeyword,
+            IdentifierToken methodName,
+            FunctionSignatureNode methodSignature,
+            FunctionBodyNode functionBody) {
+        Objects.requireNonNull(metadata, "metadata must not be null");
+        Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
+        Objects.requireNonNull(methodName, "methodName must not be null");
+        Objects.requireNonNull(methodSignature, "methodSignature must not be null");
+        Objects.requireNonNull(functionBody, "functionBody must not be null");
+
+        STNode stObjectMethodDefinitionNode = STNodeFactory.createObjectMethodDefinitionNode(
+                metadata.internalNode(),
+                getOptionalSTNode(visibilityQualifier),
+                getOptionalSTNode(remoteKeyword),
+                functionKeyword.internalNode(),
+                methodName.internalNode(),
+                methodSignature.internalNode(),
+                functionBody.internalNode());
+        return stObjectMethodDefinitionNode.createUnlinkedFacade();
     }
 }
 

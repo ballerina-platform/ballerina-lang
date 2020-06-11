@@ -1143,6 +1143,9 @@ public class TypeChecker {
                             lhsFunc.flags, rhsFunc.flags)) {
                 return false;
             }
+            if (Flags.isFlagOn(lhsFunc.flags, Flags.REMOTE) != Flags.isFlagOn(rhsFunc.flags, Flags.REMOTE)) {
+                return false;
+            }
         }
 
         return true;

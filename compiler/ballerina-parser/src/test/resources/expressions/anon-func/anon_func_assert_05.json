@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -19,15 +20,18 @@
     },
     {
       "kind": "FUNCTION_SIGNATURE",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_PAREN_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "DEFAULTABLE_PARAM",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -65,6 +69,7 @@
                 },
                 {
                   "kind": "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "FUNCTION_KEYWORD"
@@ -101,13 +106,18 @@
                     },
                     {
                       "kind": "EXPRESSION_FUNCTION_BODY",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "RIGHT_DOUBLE_ARROW_TOKEN"
                         },
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "isMissing": true
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_IDENTIFIER"
+                          ]
                         }
                       ]
                     }
@@ -124,15 +134,18 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
@@ -143,6 +156,7 @@
                 },
                 {
                   "kind": "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "FUNCTION_KEYWORD"
@@ -164,16 +178,22 @@
                     },
                     {
                       "kind": "EXPRESSION_FUNCTION_BODY",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "RIGHT_DOUBLE_ARROW_TOKEN"
                         },
                         {
                           "kind": "BINARY_EXPRESSION",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_IDENTIFIER"
+                              ]
                             },
                             {
                               "kind": "ASTERISK_TOKEN"
