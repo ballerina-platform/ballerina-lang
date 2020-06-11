@@ -101,14 +101,14 @@ type StreamIterator object {
 
     public function next() returns record {|anydata value;|}|error? {
         if (self.isClosed) {
-            return StreamEndError (message = "Stream is closed. Therefore, "
+            return StreamEndError(message = "Stream is closed. Therefore, "
                            + "no operations are allowed further on the stream.");
         }
         anydata|handle|error? result = nextResult(self);
         if (result is anydata) {
             if (result is ()) {
                 self.isClosed = true;
-                return prepareError (EOS_REASON, "End of stream reached", result);
+                return prepareError(EOS_REASON, "End of stream reached", result);
             }
             return {value: result};
         } else if (result is handle) {
