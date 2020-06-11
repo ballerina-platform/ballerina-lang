@@ -57,9 +57,8 @@ public class GrpcConstants {
     public static final String RESPONSE_OBSERVER = "RESPONSE_OBSERVER";
     public static final String RESPONSE_MESSAGE_DEFINITION = "RESPONSE_DEFINITION";
     public static final BString CALLER_ID = StringUtils.fromString("instanceId");
-    public static final String ITERATOR_LOCK = "iteratorLock";
-    public static final String LISTENER_LOCK = "listenerLock";
-    public static final String NEXT_MESSAGE = "nextMessage";
+    public static final String MESSAGE_QUEUE = "messageQueue";
+    public static final String COMPLETED_MESSAGE = "completedMessage";
     public static final String ERROR_MESSAGE = "errorMessage";
     public static final String ITERATOR_OBJECT_NAME = "StreamIterator";
 

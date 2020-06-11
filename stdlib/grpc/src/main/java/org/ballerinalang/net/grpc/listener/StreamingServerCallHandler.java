@@ -26,30 +26,28 @@ import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
-import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.ServerCall;
 import org.ballerinalang.net.grpc.ServiceResource;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.callback.StreamingCallableUnitCallBack;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
-import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
-import static org.ballerinalang.net.grpc.GrpcConstants.ERROR_MESSAGE;
-import static org.ballerinalang.net.grpc.GrpcConstants.ITERATOR_LOCK;
+import static org.ballerinalang.net.grpc.GrpcConstants.COMPLETED_MESSAGE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ITERATOR_OBJECT_NAME;
-import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER_LOCK;
-import static org.ballerinalang.net.grpc.GrpcConstants.NEXT_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_QUEUE;
+
+
 
 /**
  * Interface to initiate processing of incoming remote calls for streaming services.
@@ -82,62 +80,34 @@ public class StreamingServerCallHandler extends ServerCallHandler {
         ObserverContext context = call.getObserverContext();
         ObjectValue streamIterator = BallerinaValues.createObjectValue(GrpcConstants.PROTOCOL_GRPC_PKG_ID,
                 ITERATOR_OBJECT_NAME, new Object[1]);
-        Semaphore listenerSemaphore = new Semaphore(1, true);
-        Semaphore iteratorSemaphore = new Semaphore(0, true);
-        streamIterator.addNativeData(LISTENER_LOCK, listenerSemaphore);
-        streamIterator.addNativeData(ITERATOR_LOCK, iteratorSemaphore);
+        BlockingQueue<Message> messageQueue = new LinkedBlockingQueue<>();
+        streamIterator.addNativeData(MESSAGE_QUEUE, messageQueue);
         streamIterator.addNativeData(CLIENT_ENDPOINT_TYPE, getConnectionParameter(responseObserver));
         StreamValue requestStream = new StreamValue(new BStreamType(inputType), streamIterator);
         onStreamInvoke(resource, requestStream, call.getHeaders(), responseObserver, context);
-        return new StreamingServerRequestObserver(streamIterator, iteratorSemaphore, listenerSemaphore);
+        return new StreamingServerRequestObserver(streamIterator, messageQueue);
     }
 
     private static final class StreamingServerRequestObserver implements StreamObserver {
-        
-        private final ObjectValue streamIterator;
-        private final Semaphore iteratorSemaphore;
-        private final Semaphore listenerSemaphore;
+        private final BlockingQueue<Message> messageQueue;
 
-        StreamingServerRequestObserver(ObjectValue streamIterator, Semaphore iteratorSemaphore,
-                                       Semaphore listenerSemaphore) {
-            this.streamIterator = streamIterator;
-            this.iteratorSemaphore = iteratorSemaphore;
-            this.listenerSemaphore = listenerSemaphore;
+        StreamingServerRequestObserver(ObjectValue streamIterator, BlockingQueue<Message> messageQueue) {
+            this.messageQueue = messageQueue;
         }
 
         @Override
         public void onNext(Message value) {
-            try {
-                listenerSemaphore.acquire();
-                streamIterator.addNativeData(NEXT_MESSAGE, value);
-                iteratorSemaphore.release();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                String message = "Internal error occurred. The current thread got interrupted";
-                throw MessageUtils.getConnectorError(new StatusRuntimeException(Status
-                        .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription(message)));
-            }
+            messageQueue.add(value);
         }
 
         @Override
         public void onError(Message error) {
-            ErrorValue errorStruct = MessageUtils.getConnectorError(error.getError());
-            streamIterator.addNativeData(ERROR_MESSAGE, errorStruct);
-            iteratorSemaphore.release();
+            messageQueue.add(error);
         }
 
         @Override
         public void onCompleted() {
-            try {
-                listenerSemaphore.acquire();
-                streamIterator.addNativeData(NEXT_MESSAGE, null);
-                iteratorSemaphore.release();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                String message = "Internal error occurred. The current thread got interrupted";
-                throw MessageUtils.getConnectorError(new StatusRuntimeException(Status
-                        .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription(message)));
-            }
+            messageQueue.add(new Message(COMPLETED_MESSAGE, null));
         }
     }
 

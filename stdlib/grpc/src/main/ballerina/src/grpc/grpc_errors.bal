@@ -114,7 +114,7 @@ public type ResiliencyErrorType ALL_RETRY_ATTEMPTS_FAILED;
 public type ResiliencyError AllRetryAttemptsFailed;
 
 # Represents the reason of calling next after the stream has closed.
-public const STREAM_END_REASON = "{ballerina/grpc}StreamEndError";
+public const STREAM_END_REASON = "{ballerina/grpc}StreamClosedError";
 # Represents an error when calling next when the stream has closed.
 public type StreamEndError error<STREAM_END_REASON, Detail>;
 

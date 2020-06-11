@@ -280,7 +280,7 @@ public class ServicesBuilderUtils {
             if (inputType != null && "Headers".equals(inputType.getName()) &&
                     inputType.getPackage() != null && PROTOCOL_PACKAGE_GRPC.equals(inputType.getPackage().getName())) {
                 return BTypes.typeNull;
-            } else if (inputType != null && "stream".equals(inputType.getName())) {
+            } else if (inputType instanceof BStreamType) {
                 return ((BStreamType) inputType).getConstrainedType();
             } else {
                 return inputParams[1];

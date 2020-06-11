@@ -41,14 +41,13 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
 
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Semaphore;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.ANN_SERVICE_DESCRIPTOR_FQN;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ERROR_MESSAGE;
-import static org.ballerinalang.net.grpc.GrpcConstants.ITERATOR_LOCK;
-import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER_LOCK;
-import static org.ballerinalang.net.grpc.GrpcConstants.NEXT_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_QUEUE;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVER_CONNECTOR;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_REGISTRY_BUILDER;
 import static org.ballerinalang.net.grpc.GrpcUtil.getListenerConfig;
@@ -165,22 +164,13 @@ public class FunctionUtils  extends AbstractGrpcNativeFunction  {
     }
 
     public static Object nextResult(ObjectValue streamIterator) {
-        Semaphore iteratorSemaphore = (Semaphore) streamIterator.getNativeData(ITERATOR_LOCK);
-        Semaphore listenerSemaphore = (Semaphore) streamIterator.getNativeData(LISTENER_LOCK);
+        BlockingQueue<?> messageQueue = (BlockingQueue<?>) streamIterator.getNativeData(MESSAGE_QUEUE);
         try {
-            iteratorSemaphore.acquire();
-            Object nextMessage = streamIterator.getNativeData(NEXT_MESSAGE);
-            Object errorVal = streamIterator.getNativeData(ERROR_MESSAGE);
-            if (errorVal instanceof ErrorValue) {
-                while (listenerSemaphore.hasQueuedThreads()) {
-                    listenerSemaphore.release();
-                }
-                return errorVal;
-            } else if (nextMessage instanceof Message) {
-                listenerSemaphore.release();
-                return ((Message) nextMessage).getbMessage();
+            Message nextMessage = (Message) messageQueue.take();
+            if (nextMessage.isError()) {
+                return MessageUtils.getConnectorError(nextMessage.getError());
             } else {
-                return null;
+                return nextMessage.getbMessage();
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -191,7 +181,7 @@ public class FunctionUtils  extends AbstractGrpcNativeFunction  {
     }
 
     public static Object closeStream(ObjectValue streamIterator) {
-        Semaphore listenerSemaphore = (Semaphore) streamIterator.getNativeData(LISTENER_LOCK);
+        Semaphore listenerSemaphore = (Semaphore) streamIterator.getNativeData(MESSAGE_QUEUE);
         ObjectValue clientEndpoint = (ObjectValue) streamIterator.getNativeData(CLIENT_ENDPOINT_TYPE);
         Object errorVal = streamIterator.getNativeData(ERROR_MESSAGE);
         ErrorValue returnError;
