@@ -493,6 +493,11 @@
                                                         },
                                                         {
                                                           "kind": "STRING_LITERAL",
+                                                          "hasDiagnostics": true,
+                                                          "diagnostics": [
+                                                            "ERROR_INVALID_ESCAPE_SEQUENCE",
+                                                            "ERROR_INVALID_ESCAPE_SEQUENCE"
+                                                          ],
                                                           "value": "b${v2}c\\}cc{d{}e}{f{\u0027 bar2\u003d\u0027aaa{${v1}}b\\${b"
                                                         }
                                                       ]

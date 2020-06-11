@@ -95,4 +95,18 @@ public abstract class AbstractLexer {
     protected Collection<DiagnosticCode> getDiagnostics() {
         return diagnostics;
     }
+
+    protected STToken cloneWithDiagnostics(STToken toClone) {
+        if (noDiagnostics()) {
+            return toClone;
+        }
+
+        STToken cloned = SyntaxErrors.addDiagnostics(toClone, getDiagnostics());
+        resetDiagnosticList();
+        return cloned;
+    }
+
+    protected void reportLexerError(DiagnosticCode diagnosticCode) {
+        addDiagnostic(diagnosticCode);
+    }
 }

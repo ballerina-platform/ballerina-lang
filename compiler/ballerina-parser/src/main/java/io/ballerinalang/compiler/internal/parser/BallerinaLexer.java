@@ -17,7 +17,6 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
-import io.ballerinalang.compiler.internal.diagnostics.DiagnosticCode;
 import io.ballerinalang.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
@@ -67,16 +66,6 @@ public class BallerinaLexer extends AbstractLexer {
 
         // Can we improve this logic by creating the token with diagnostics then and there?
         return cloneWithDiagnostics(token);
-    }
-
-    private STToken cloneWithDiagnostics(STToken toClone) {
-        if (noDiagnostics()) {
-            return toClone;
-        }
-
-        STToken cloned = SyntaxErrors.addDiagnostics(toClone, getDiagnostics());
-        resetDiagnosticList();
-        return cloned;
     }
 
     private STToken nextTokenInternal() {
@@ -702,7 +691,7 @@ public class BallerinaLexer extends AbstractLexer {
 
         // Make sure at least one digit is present after the indicator
         if (!isDigit(nextChar)) {
-            reportLexerError("missing digit after exponent indicator");
+            reportLexerError(DiagnosticErrorCode.ERROR_MISSING_DIGIT_AFTER_EXPONENT_INDICATOR);
         }
 
         while (isDigit(nextChar)) {
@@ -773,7 +762,7 @@ public class BallerinaLexer extends AbstractLexer {
 
         // Make sure at least one hex-digit present if processing started from a dot
         if (peek() == LexerTerminals.DOT && !isHexDigit(reader.peek(1))) {
-            reportLexerError("missing hex-digit after dot");
+            reportLexerError(DiagnosticErrorCode.ERROR_MISSING_HEX_DIGIT_AFTER_DOT);
         }
 
         int nextChar;
@@ -1180,7 +1169,7 @@ public class BallerinaLexer extends AbstractLexer {
             switch (nextChar) {
                 case LexerTerminals.NEWLINE:
                 case LexerTerminals.CARRIAGE_RETURN:
-                    reportLexerError("missing double-quote");
+                    reportLexerError(DiagnosticErrorCode.ERROR_MISSING_DOUBLE_QUOTE);
                     break;
                 case LexerTerminals.DOUBLE_QUOTE:
                     this.reader.advance();
@@ -1198,12 +1187,12 @@ public class BallerinaLexer extends AbstractLexer {
                             if (this.reader.peek(2) == LexerTerminals.OPEN_BRACE) {
                                 processStringNumericEscape();
                             } else {
-                                reportLexerError("invalid string numeric escape sequence");
+                                reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
                                 this.reader.advance(2);
                             }
                             continue;
                         default:
-                            reportLexerError("invalid escape sequence");
+                            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE);
                             this.reader.advance();
                             continue;
                     }
@@ -1228,7 +1217,7 @@ public class BallerinaLexer extends AbstractLexer {
 
         // Process code-point
         if (!isHexDigit(peek())) {
-            reportLexerError("invalid string numeric escape sequence");
+            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
             return;
         }
 
@@ -1239,19 +1228,11 @@ public class BallerinaLexer extends AbstractLexer {
 
         // Process close brace
         if (peek() != LexerTerminals.CLOSE_BRACE) {
-            reportLexerError("invalid string numeric escape sequence");
+            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
             return;
         }
 
         this.reader.advance();
-    }
-
-    private void reportLexerError(String message) {
-        this.errorListener.reportInvalidNodeError(null, message);
-    }
-
-    private void reportLexerError(DiagnosticCode diagnosticCode) {
-        addDiagnostic(diagnosticCode);
     }
 
     /**

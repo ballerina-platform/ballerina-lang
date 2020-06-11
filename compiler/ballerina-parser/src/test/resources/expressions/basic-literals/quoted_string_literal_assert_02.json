@@ -116,6 +116,10 @@
                 },
                 {
                   "kind": "STRING_LITERAL",
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_DOUBLE_QUOTE"
+                  ],
                   "value": "hello world;",
                   "trailingMinutiae": [
                     {
