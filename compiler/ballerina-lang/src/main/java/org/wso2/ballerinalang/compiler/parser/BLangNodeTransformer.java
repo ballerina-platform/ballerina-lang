@@ -76,6 +76,7 @@ import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.InterpolationNode;
 import io.ballerinalang.compiler.syntax.tree.KeySpecifierNode;
 import io.ballerinalang.compiler.syntax.tree.KeyTypeConstraintNode;
+import io.ballerinalang.compiler.syntax.tree.LetClauseNode;
 import io.ballerinalang.compiler.syntax.tree.LetExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ListBindingPatternNode;
@@ -224,6 +225,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -819,7 +821,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         serviceTypeID.pos = pos;
         bLTypeDef.setName(serviceTypeID);
         bLTypeDef.flagSet.add(Flag.SERVICE);
-        bLTypeDef.typeNode = (BLangType) serviceDeclrNode.serviceBody().apply(this);
+        bLTypeDef.typeNode = createTypeNode(serviceDeclrNode.serviceBody());
         bLTypeDef.pos = pos;
         bLService.serviceTypeDefinition = bLTypeDef;
 
@@ -883,10 +885,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             if (field.kind() == SyntaxKind.RECORD_FIELD || field.kind() == SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE) {
                 recordTypeNode.fields.add((BLangSimpleVariable) field.apply(this));
             } else if (field.kind() == SyntaxKind.RECORD_REST_TYPE) {
-                recordTypeNode.restFieldType = (BLangType) field.apply(this);
+                recordTypeNode.restFieldType = createTypeNode(field);
                 hasRestField = true;
             } else if (field.kind() == SyntaxKind.TYPE_REFERENCE) {
-                recordTypeNode.addTypeReference((BLangType) field.apply(this));
+                recordTypeNode.addTypeReference(createTypeNode(field));
             }
         }
         boolean isOpen = recordTypeDescriptorNode.bodyStartDelimiter().kind() == SyntaxKind.OPEN_BRACE_TOKEN;
@@ -1839,15 +1841,21 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         for (LetVariableDeclarationNode letVarDecl : letExpressionNode.letVarDeclarations()) {
             letVars.add(createLetVariable(letVarDecl));
         }
-
-        letExpr.letVarDeclarations = letVars;
+        if (!letVars.isEmpty()) {
+            letExpr.letVarDeclarations = letVars;
+        }
         return letExpr;
     }
 
     public BLangLetVariable createLetVariable(LetVariableDeclarationNode letVarDecl) {
-        BLangLetVariable letVar = (BLangLetVariable) TreeBuilder.createLetVariableNode();
-        letVar.definitionNode = createSimpleVarDef(getPosition(letVarDecl), letVarDecl.typedBindingPattern(),
-                Optional.of(letVarDecl.expression()), Optional.empty());
+        BLangLetVariable letVar = TreeBuilder.createLetVariableNode();
+        boolean isDeclaredWithVar =
+                letVarDecl.typedBindingPattern().typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC;
+        VariableDefinitionNode varDefNode = createVarDefNode(letVarDecl.typedBindingPattern(), isDeclaredWithVar);
+        if (letVarDecl.expression() != null) {
+            varDefNode.getVariable().setInitialExpression(createExpression(letVarDecl.expression()));
+        }
+        letVar.definitionNode = varDefNode;
         return letVar;
     }
 
@@ -1897,6 +1905,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 .setVisibility(visibilityQualifier)
                 .isListenerVar()
                 .build();
+        var.pos = getPosition(listenerDeclarationNode);
         var.annAttachments = applyAll(listenerDeclarationNode.metadata().annotations());
         return var;
     }
@@ -2530,9 +2539,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         } else {
             StreamTypeParamsNode params = (StreamTypeParamsNode) paramsNode.get();
             if (params.rightTypeDescNode().isPresent()) {
-                error = (BLangType) params.rightTypeDescNode().get().apply(this);
+                error = createTypeNode(params.rightTypeDescNode().get());
             }
-            constraint = (BLangType) params.leftTypeDescNode().apply(this);
+            constraint = createTypeNode(params.leftTypeDescNode());
         }
 
         BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
@@ -2681,6 +2690,20 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         return queryExpr;
+    }
+
+    @Override
+    public BLangNode transform(LetClauseNode letClauseNode) {
+        BLangLetClause bLLetClause = (BLangLetClause) TreeBuilder.createLetClauseNode();
+        bLLetClause.pos = getPosition(letClauseNode);
+        List<BLangLetVariable> letVars = new ArrayList<>();
+        for (LetVariableDeclarationNode letVarDeclr : letClauseNode.letVarDeclarations()) {
+            letVars.add(createLetVariable(letVarDeclr));
+        }
+        if (!letVars.isEmpty()) {
+            bLLetClause.letVarDeclarations = letVars;
+        }
+        return bLLetClause;
     }
 
     @Override

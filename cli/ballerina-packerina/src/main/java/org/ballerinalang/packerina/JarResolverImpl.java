@@ -346,8 +346,12 @@ public class JarResolverImpl implements JarResolver {
         }
 
         for (Object lib : libraries) {
-            Path fileName = Paths.get(((HashMap) lib).get("path").toString()).getFileName();
-            libPaths.add(Paths.get(balHomePath, "bre", "lib", fileName.toString()));
+            HashMap libInfo = (HashMap) lib;
+            if (!((libInfo.get("scope") != null) &&
+                    (libInfo.get("scope").toString().equalsIgnoreCase("testOnly")))) {
+                Path fileName = Paths.get(libInfo.get("path").toString()).getFileName();
+                libPaths.add(Paths.get(balHomePath, "bre", "lib", fileName.toString()));
+            }
         }
         return libPaths;
     }
