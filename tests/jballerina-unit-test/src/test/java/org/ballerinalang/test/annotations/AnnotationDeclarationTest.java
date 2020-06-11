@@ -62,7 +62,7 @@ public class AnnotationDeclarationTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/annotations/annots_with_invalid_type.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         BAssertUtil.validateError(compileResult, 0, "annotation declaration requires a subtype of 'true', " +
-                "'map<anydata>' or 'map<anydata>[]', but found 'int'", 17, 12);
+                "'map<anydata|readonly>' or 'map<anydata|readonly>[]', but found 'int'", 17, 12);
     }
 
     @Test
