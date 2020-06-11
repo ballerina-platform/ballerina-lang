@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -32,12 +33,12 @@ public class QueryConstructTypeNode extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public Token tableKeyword() {
+    public Token keyword() {
         return childInBucket(0);
     }
 
-    public KeySpecifierNode keySpecifier() {
-        return childInBucket(1);
+    public Optional<KeySpecifierNode> keySpecifier() {
+        return optionalChildInBucket(1);
     }
 
     @Override
@@ -53,21 +54,21 @@ public class QueryConstructTypeNode extends NonTerminalNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "tableKeyword",
+                "keyword",
                 "keySpecifier"};
     }
 
     public QueryConstructTypeNode modify(
-            Token tableKeyword,
+            Token keyword,
             KeySpecifierNode keySpecifier) {
         if (checkForReferenceEquality(
-                tableKeyword,
+                keyword,
                 keySpecifier)) {
             return this;
         }
 
         return NodeFactory.createQueryConstructTypeNode(
-                tableKeyword,
+                keyword,
                 keySpecifier);
     }
 
@@ -82,19 +83,19 @@ public class QueryConstructTypeNode extends NonTerminalNode {
      */
     public static class QueryConstructTypeNodeModifier {
         private final QueryConstructTypeNode oldNode;
-        private Token tableKeyword;
+        private Token keyword;
         private KeySpecifierNode keySpecifier;
 
         public QueryConstructTypeNodeModifier(QueryConstructTypeNode oldNode) {
             this.oldNode = oldNode;
-            this.tableKeyword = oldNode.tableKeyword();
-            this.keySpecifier = oldNode.keySpecifier();
+            this.keyword = oldNode.keyword();
+            this.keySpecifier = oldNode.keySpecifier().orElse(null);
         }
 
-        public QueryConstructTypeNodeModifier withTableKeyword(
-                Token tableKeyword) {
-            Objects.requireNonNull(tableKeyword, "tableKeyword must not be null");
-            this.tableKeyword = tableKeyword;
+        public QueryConstructTypeNodeModifier withKeyword(
+                Token keyword) {
+            Objects.requireNonNull(keyword, "keyword must not be null");
+            this.keyword = keyword;
             return this;
         }
 
@@ -107,7 +108,7 @@ public class QueryConstructTypeNode extends NonTerminalNode {
 
         public QueryConstructTypeNode apply() {
             return oldNode.modify(
-                    tableKeyword,
+                    keyword,
                     keySpecifier);
         }
     }
