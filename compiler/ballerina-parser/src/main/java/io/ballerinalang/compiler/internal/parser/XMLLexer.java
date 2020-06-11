@@ -43,47 +43,61 @@ public class XMLLexer extends AbstractLexer {
      */
     @Override
     public STToken nextToken() {
+        STToken token;
         switch (this.mode) {
             case XML_CONTENT:
                 // XML content have no trivia. Whitespace is captured
                 // as XML text.
                 this.leadingTriviaList = new ArrayList<>(0);
-                return readTokenInXMLContent();
+                token = readTokenInXMLContent();
+                break;
             case XML_ELEMENT_START_TAG:
                 processLeadingXMLTrivia();
-                return readTokenInXMLElement(true);
+                token = readTokenInXMLElement(true);
+                break;
             case XML_ELEMENT_END_TAG:
                 processLeadingXMLTrivia();
-                return readTokenInXMLElement(false);
+                token = readTokenInXMLElement(false);
+                break;
             case XML_TEXT:
                 // XML text have no trivia. Whitespace is part of the text.
                 this.leadingTriviaList = new ArrayList<>(0);
-                return readTokenInXMLText();
+                token = readTokenInXMLText();
+                break;
             case INTERPOLATION:
                 this.leadingTriviaList = new ArrayList<>(0);
-                return readTokenInInterpolation();
+                token = readTokenInInterpolation();
+                break;
             case XML_ATTRIBUTES:
                 processLeadingXMLTrivia();
-                return readTokenInXMLAttributes(true);
+                token = readTokenInXMLAttributes(true);
+                break;
             case XML_COMMENT:
                 this.leadingTriviaList = new ArrayList<>(0);
-                return readTokenInXMLComment();
+                token = readTokenInXMLComment();
+                break;
             case XML_PI:
                 processLeadingXMLTrivia();
-                return readTokenInXMLPI();
+                token = readTokenInXMLPI();
+                break;
             case XML_PI_DATA:
                 processLeadingXMLTrivia();
-                return readTokenInXMLPIData();
+                token = readTokenInXMLPIData();
+                break;
             case XML_SINGLE_QUOTED_STRING:
                 this.leadingTriviaList = new ArrayList<>(0);
-                return processXMLSingleQuotedString();
+                token = processXMLSingleQuotedString();
+                break;
             case XML_DOUBLE_QUOTED_STRING:
                 this.leadingTriviaList = new ArrayList<>(0);
-                return processXMLDoubleQuotedString();
+                token = processXMLDoubleQuotedString();
+                break;
             default:
-                // should never reach here.
-                return null;
+                token = null;
         }
+
+        // Can we improve this logic by creating the token with diagnostics then and there?
+        return cloneWithDiagnostics(token);
     }
 
     /*
@@ -661,8 +675,6 @@ public class XMLLexer extends AbstractLexer {
      * <code>
      * Reference := EntityRef | CharRef
      * </code>
-     * 
-     * @param startingQuote Starting quote
      */
     private void processXMLReference() {
         this.reader.advance();
