@@ -3578,7 +3578,7 @@ public class BallerinaParser extends AbstractParser {
             case WAIT_KEYWORD:
             case FROM_KEYWORD:
             case COMMIT_KEYWORD:
-                return parseExpressionStament(tokenKind, getAnnotations(annots));
+                return parseExpressionStatement(tokenKind, getAnnotations(annots));
             case XMLNS_KEYWORD:
                 return parseXMLNamespaceDeclaration(false);
             case TRANSACTION_KEYWORD:
@@ -6946,7 +6946,7 @@ public class BallerinaParser extends AbstractParser {
      * @param nextTokenKind Next token kind
      * @return Statement node
      */
-    private STNode parseExpressionStament(SyntaxKind nextTokenKind, STNode annots) {
+    private STNode parseExpressionStatement(SyntaxKind nextTokenKind, STNode annots) {
         startContext(ParserRuleContext.EXPRESSION_STATEMENT);
         STNode expression = parseActionOrExpressionInLhs(nextTokenKind, annots);
         return getExpressionAsStatement(expression);
@@ -7011,6 +7011,8 @@ public class BallerinaParser extends AbstractParser {
         if (exprs.isEmpty()) {
             return STNodeFactory.createEmptyNode();
         }
+
+        exprs;
 
         STNode lengthExpr = exprs.get(0);
         switch (lengthExpr.kind) {
@@ -11308,18 +11310,20 @@ public class BallerinaParser extends AbstractParser {
 
         STNodeList items = (STNodeList) byteArrayContent;
         if (items.size() == 1) {
-            content = items.get(0);
+            STNode item = items.get(0);
             if (baseKind == SyntaxKind.BASE16_KEYWORD &&
-                    !BallerinaLexer.isValidBase16LiteralContent(content.toString())) {
-                newStartingBackTick = errorHandler.cloneWithTrailingInvalidNodeMinutiae(startingBackTick, content,
+                    !BallerinaLexer.isValidBase16LiteralContent(item.toString())) {
+                newStartingBackTick = errorHandler.cloneWithTrailingInvalidNodeMinutiae(startingBackTick, item,
                         DiagnosticErrorCode.ERROR_INVALID_BASE16_CONTENT_IN_BYTE_ARRAY_LITERAL);
             } else if (baseKind == SyntaxKind.BASE64_KEYWORD &&
-                    !BallerinaLexer.isValidBase64LiteralContent(content.toString())) {
-                newStartingBackTick = errorHandler.cloneWithTrailingInvalidNodeMinutiae(startingBackTick, content,
+                    !BallerinaLexer.isValidBase64LiteralContent(item.toString())) {
+                newStartingBackTick = errorHandler.cloneWithTrailingInvalidNodeMinutiae(startingBackTick, item,
                         DiagnosticErrorCode.ERROR_INVALID_BASE64_CONTENT_IN_BYTE_ARRAY_LITERAL);
-            } else if (content.kind != SyntaxKind.TEMPLATE_STRING) {
-                newStartingBackTick = errorHandler.cloneWithTrailingInvalidNodeMinutiae(startingBackTick, content,
+            } else if (item.kind != SyntaxKind.TEMPLATE_STRING) {
+                newStartingBackTick = errorHandler.cloneWithTrailingInvalidNodeMinutiae(startingBackTick, item,
                         DiagnosticErrorCode.ERROR_INVALID_CONTENT_IN_BYTE_ARRAY_LITERAL);
+            } else {
+                content = item;
             }
         } else if (items.size() > 1) {
             // In this iteration, I am marking all the items as invalid
