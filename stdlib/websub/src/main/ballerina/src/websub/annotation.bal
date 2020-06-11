@@ -39,8 +39,8 @@ public type SubscriberServiceConfiguration record {|
     string secret?;
     string callback?;
     boolean expectIntentVerification = false;
-    http:ClientConfiguration publisherClientConfig?;
-    http:ClientConfiguration hubClientConfig?;
+    (http:ClientConfiguration & readonly) publisherClientConfig?;
+    (http:ClientConfiguration & readonly) hubClientConfig?;
 |};
 
 # WebSub Subscriber Configuration for the service, indicating subscription related parameters.
