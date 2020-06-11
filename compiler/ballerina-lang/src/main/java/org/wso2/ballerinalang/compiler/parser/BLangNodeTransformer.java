@@ -812,6 +812,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLService.attachedExprs.add(createExpression(expr));
             }
         }
+
+        bLService.annAttachments = applyAll(serviceDeclrNode.metadata().annotations());
+
         // We add all service nodes to top level, only for future reference.
         addToTop(bLService);
 
