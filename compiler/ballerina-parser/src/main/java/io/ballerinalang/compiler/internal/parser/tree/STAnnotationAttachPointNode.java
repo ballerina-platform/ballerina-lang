@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STAnnotationAttachPointNode extends STNode {
             STNode sourceKeyword,
             STNode firstIdent,
             STNode secondIdent) {
-        super(SyntaxKind.ANNOTATION_ATTACH_POINT);
+        this(
+                sourceKeyword,
+                firstIdent,
+                secondIdent,
+                Collections.emptyList());
+    }
+
+    STAnnotationAttachPointNode(
+            STNode sourceKeyword,
+            STNode firstIdent,
+            STNode secondIdent,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.ANNOTATION_ATTACH_POINT, diagnostics);
         this.sourceKeyword = sourceKeyword;
         this.firstIdent = firstIdent;
         this.secondIdent = secondIdent;
@@ -47,7 +62,43 @@ public class STAnnotationAttachPointNode extends STNode {
                 secondIdent);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STAnnotationAttachPointNode(
+                this.sourceKeyword,
+                this.firstIdent,
+                this.secondIdent,
+                diagnostics);
+    }
+
+    public STAnnotationAttachPointNode modify(
+            STNode sourceKeyword,
+            STNode firstIdent,
+            STNode secondIdent) {
+        if (checkForReferenceEquality(
+                sourceKeyword,
+                firstIdent,
+                secondIdent)) {
+            return this;
+        }
+
+        return new STAnnotationAttachPointNode(
+                sourceKeyword,
+                firstIdent,
+                secondIdent,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new AnnotationAttachPointNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

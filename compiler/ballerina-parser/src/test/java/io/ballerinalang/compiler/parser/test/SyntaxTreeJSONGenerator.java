@@ -27,8 +27,8 @@ import io.ballerinalang.compiler.internal.parser.ParserFactory;
 import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
 import io.ballerinalang.compiler.internal.parser.tree.STBasicLiteralNode;
 import io.ballerinalang.compiler.internal.parser.tree.STBuiltinSimpleNameReferenceNode;
-import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STSimpleNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.STXMLTextNode;
@@ -40,8 +40,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.CHILDREN_FIELD;
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.DIAGNOSTICS_FIELD;
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.HAS_DIAGNOSTICS;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.IS_MISSING_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.KIND_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.LEADING_MINUTIAE;
@@ -51,7 +54,7 @@ import static io.ballerinalang.compiler.parser.test.ParserTestConstants.VALUE_FI
 /**
  * Generates a JSON that represents the structure of the syntax tree. This JSON
  * can be used to validate the parsed tree during unit-tests.
- * 
+ *
  * @since 1.2.0
  */
 public class SyntaxTreeJSONGenerator {
@@ -60,7 +63,7 @@ public class SyntaxTreeJSONGenerator {
      * Change the below two constants as required, depending on the type of test.
      */
     private static final boolean INCLUDE_TRIVIA = false;
-    private static final ParserRuleContext PARSER_CONTEXT = ParserRuleContext.TOP_LEVEL_NODE;
+    private static final ParserRuleContext PARSER_CONTEXT = ParserRuleContext.COMP_UNIT;
 
     private static final PrintStream STANDARD_OUT = System.out;
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
@@ -81,10 +84,14 @@ public class SyntaxTreeJSONGenerator {
         return generateJSON(content, context);
     }
 
+    public static String generateJSON(STNode treeNode) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(getJSON(treeNode));
+    }
+
     public static String generateJSON(String source, ParserRuleContext context) {
         STNode tree = getParserTree(source, context);
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        return gson.toJson(getJSON(tree));
+        return generateJSON(tree);
     }
 
     private static STNode getParserTree(String source, ParserRuleContext context) {
@@ -108,12 +115,13 @@ public class SyntaxTreeJSONGenerator {
         SyntaxKind nodeKind = treeNode.kind;
         jsonNode.addProperty(KIND_FIELD, nodeKind.name());
 
-        boolean isMissing = treeNode instanceof STMissingToken;
-        if (isMissing) {
-            jsonNode.addProperty(IS_MISSING_FIELD, isMissing);
+        if (treeNode.isMissing()) {
+            jsonNode.addProperty(IS_MISSING_FIELD, treeNode.isMissing());
+            addDiagnostics(treeNode, jsonNode);
             return jsonNode;
         }
 
+        addDiagnostics(treeNode, jsonNode);
         if (ParserTestUtils.isTerminalNode(nodeKind)) {
 
             // If the node is a terminal node with a dynamic value (i.e: non-syntax node)
@@ -154,5 +162,22 @@ public class SyntaxTreeJSONGenerator {
     private static void addTrivia(STToken token, JsonObject jsonNode) {
         addNodeList(token.leadingMinutiae(), jsonNode, LEADING_MINUTIAE);
         addNodeList(token.trailingMinutiae(), jsonNode, TRAILING_MINUTIAE);
+    }
+
+    private static void addDiagnostics(STNode treeNode, JsonObject jsonNode) {
+        if (!treeNode.hasDiagnostics()) {
+            return;
+        }
+
+        jsonNode.addProperty(HAS_DIAGNOSTICS, treeNode.hasDiagnostics());
+        Collection<STNodeDiagnostic> diagnostics = treeNode.diagnostics();
+        if (diagnostics.isEmpty()) {
+            return;
+        }
+
+        JsonArray diagnosticsJsonArray = new JsonArray();
+        diagnostics.forEach(syntaxDiagnostic ->
+                diagnosticsJsonArray.add(syntaxDiagnostic.diagnosticCode().toString()));
+        jsonNode.add(DIAGNOSTICS_FIELD, diagnosticsJsonArray);
     }
 }

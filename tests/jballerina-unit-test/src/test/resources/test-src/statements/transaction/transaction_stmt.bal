@@ -5,7 +5,6 @@ function testRollback() {
     if(x is string) {
         assertEquality("start fc-0 inTrx Commit endTrx end", x);
     }
-    io:println(x);
 }
 
 function testCommit() {
@@ -13,7 +12,6 @@ function testCommit() {
     if(x is string) {
         assertEquality("start fc-0 inTrx Commit endTrx end", x);
     }
-    io:println(x);
 }
 
 function testPanic() {
@@ -21,7 +19,6 @@ function testPanic() {
     if(x is string) {
         assertEquality("start fc-1 inTrx blowUp", x);
     }
-    io:println(x);
 }
 
 function actualCode(int failureCutOff, boolean requestRollback) returns (string) {

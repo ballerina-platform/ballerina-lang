@@ -33,7 +33,7 @@ public type Listener object {
     # + prefetchCount - Maximum number of messages that the server will deliver. Give the value as 0 if unlimited.
     #                   Unless explicitly given, this value is 10 by default.
     # + prefetchSize - Maximum amount of content (measured in octets) that the server will deliver and 0 if unlimited
-    public function __init(ConnectionConfiguration|Connection connectionOrConnectionConfig, int? prefetchCount = (),
+    public function init(ConnectionConfiguration|Connection connectionOrConnectionConfig, int? prefetchCount = (),
                                     int? prefetchSize = ()) {
         self.amqpChannel = new Channel(connectionOrConnectionConfig);
         var result = self.setQosSettings(prefetchCount, prefetchSize);

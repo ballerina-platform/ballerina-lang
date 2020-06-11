@@ -26,6 +26,26 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.wso2.ballerinalang.compiler.util.Names.ANNOTATIONS_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.ARRAY_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.BOOLEAN_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.DECIMAL_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.ERROR_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.FLOAT_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.FUTURE_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.INTERNAL_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.INT_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.MAP_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.OBJECT_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.QUERY_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.STREAM_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.STRING_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.TABLE_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.TYPEDESC_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.VALUE_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.XML_VERSION;
+
 /**
  * This represents a specific package and its version.
  *
@@ -33,53 +53,53 @@ import java.util.stream.Collectors;
  */
 public class PackageID {
 
-    public static final PackageID DEFAULT = new PackageID(Names.ANON_ORG, Names.DEFAULT_PACKAGE, Names.DEFAULT_VERSION);
+    public static final PackageID DEFAULT = new PackageID(Names.ANON_ORG, Names.DEFAULT_PACKAGE, DEFAULT_VERSION);
 
     // Lang.* Modules IDs
 
     // lang.__internal module is visible only to the compiler and peer lang.* modules.
     public static final PackageID INTERNAL = new PackageID(Names.BALLERINA_ORG,
-            Lists.of(Names.LANG, Names.INTERNAL), Names.EMPTY);
+            Lists.of(Names.LANG, Names.INTERNAL), INTERNAL_VERSION);
 
     // Visible Lang modules.
     public static final PackageID ANNOTATIONS = new PackageID(Names.BALLERINA_ORG,
-            Lists.of(Names.LANG, Names.ANNOTATIONS), Names.EMPTY);
+            Lists.of(Names.LANG, Names.ANNOTATIONS), ANNOTATIONS_VERSION);
     public static final PackageID ARRAY = new PackageID(Names.BALLERINA_ORG,
-            Lists.of(Names.LANG, Names.ARRAY), Names.EMPTY);
+            Lists.of(Names.LANG, Names.ARRAY), ARRAY_VERSION);
     public static final PackageID DECIMAL = new PackageID(Names.BALLERINA_ORG,
-            Lists.of(Names.LANG, Names.DECIMAL), Names.EMPTY);
+            Lists.of(Names.LANG, Names.DECIMAL), DECIMAL_VERSION);
     public static final PackageID ERROR = new PackageID(Names.BALLERINA_ORG,
-            Lists.of(Names.LANG, Names.ERROR), Names.EMPTY);
+            Lists.of(Names.LANG, Names.ERROR), ERROR_VERSION);
     public static final PackageID FLOAT = new PackageID(Names.BALLERINA_ORG,
-            Lists.of(Names.LANG, Names.FLOAT), Names.EMPTY);
+            Lists.of(Names.LANG, Names.FLOAT), FLOAT_VERSION);
     public static final PackageID FUTURE = new PackageID(Names.BALLERINA_ORG,
-            Lists.of(Names.LANG, Names.FUTURE), Names.EMPTY);
+            Lists.of(Names.LANG, Names.FUTURE), FUTURE_VERSION);
     public static final PackageID INT = new PackageID(Names.BALLERINA_ORG,
-            Lists.of(Names.LANG, Names.INT), Names.EMPTY);
+            Lists.of(Names.LANG, Names.INT), INT_VERSION);
     public static final PackageID MAP = new PackageID(Names.BALLERINA_ORG,
-            Lists.of(Names.LANG, Names.MAP), Names.EMPTY);
+            Lists.of(Names.LANG, Names.MAP), MAP_VERSION);
     public static final PackageID OBJECT = new PackageID(Names.BALLERINA_ORG,
-            Lists.of(Names.LANG, Names.OBJECT), Names.EMPTY);
+            Lists.of(Names.LANG, Names.OBJECT), OBJECT_VERSION);
     public static final PackageID STREAM = new PackageID(Names.BALLERINA_ORG,
-            Lists.of(Names.LANG, Names.STREAM), Names.EMPTY);
+            Lists.of(Names.LANG, Names.STREAM), STREAM_VERSION);
     public static final PackageID STRING = new PackageID(Names.BALLERINA_ORG,
-            Lists.of(Names.LANG, Names.STRING), Names.EMPTY);
+            Lists.of(Names.LANG, Names.STRING), STRING_VERSION);
     public static final PackageID TABLE = new PackageID(Names.BALLERINA_ORG,
-            Lists.of(Names.LANG, Names.TABLE), Names.EMPTY);
+            Lists.of(Names.LANG, Names.TABLE), TABLE_VERSION);
     public static final PackageID TYPEDESC = new PackageID(Names.BALLERINA_ORG,
-            Lists.of(Names.LANG, Names.TYPEDESC), Names.EMPTY);
+            Lists.of(Names.LANG, Names.TYPEDESC), TYPEDESC_VERSION);
     public static final PackageID VALUE = new PackageID(Names.BALLERINA_ORG,
-            Lists.of(Names.LANG, Names.VALUE), Names.EMPTY);
+            Lists.of(Names.LANG, Names.VALUE), VALUE_VERSION);
     public static final PackageID XML = new PackageID(Names.BALLERINA_ORG,
-            Lists.of(Names.LANG, Names.XML), Names.EMPTY);
+                                                      Lists.of(Names.LANG, Names.XML), XML_VERSION);
     public static final PackageID BOOLEAN = new PackageID(Names.BALLERINA_ORG,
-            Lists.of(Names.LANG, Names.BOOLEAN), Names.EMPTY);
+            Lists.of(Names.LANG, Names.BOOLEAN), BOOLEAN_VERSION);
     public static final PackageID QUERY = new PackageID(Names.BALLERINA_ORG,
-            Lists.of(Names.LANG, Names.QUERY), Names.EMPTY);
+            Lists.of(Names.LANG, Names.QUERY), QUERY_VERSION);
 
     public final Name orgName;
     public Name name;
-    public Name version = Names.DEFAULT_VERSION;
+    public Name version = DEFAULT_VERSION;
 
     public boolean isUnnamed = false;
     public Name sourceFileName = null;

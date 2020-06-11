@@ -18,6 +18,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -27,7 +28,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -36,36 +39,121 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordSpreadOperatorField;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -80,7 +168,9 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class responsible for desugar query pipeline into actual Ballerina code.
@@ -88,20 +178,28 @@ import java.util.List;
  * @since 1.2.0
  */
 public class QueryDesugar extends BLangNodeVisitor {
-
     private static final Name QUERY_CREATE_PIPELINE_FUNCTION = new Name("createPipeline");
     private static final Name QUERY_CREATE_INPUT_FUNCTION = new Name("createInputFunction");
+    private static final Name QUERY_CREATE_NESTED_FROM_FUNCTION = new Name("createNestedFromFunction");
     private static final Name QUERY_CREATE_LET_FUNCTION = new Name("createLetFunction");
     private static final Name QUERY_CREATE_JOIN_FUNCTION = new Name("createJoinFunction");
     private static final Name QUERY_CREATE_FILTER_FUNCTION = new Name("createFilterFunction");
     private static final Name QUERY_CREATE_SELECT_FUNCTION = new Name("createSelectFunction");
     private static final Name QUERY_CREATE_DO_FUNCTION = new Name("createDoFunction");
+    private static final Name QUERY_CREATE_LIMIT_FUNCTION = new Name("createLimitFunction");
     private static final Name QUERY_ADD_STREAM_FUNCTION = new Name("addStreamFunction");
     private static final Name QUERY_CONSUME_STREAM_FUNCTION = new Name("consumeStream");
     private static final Name QUERY_TO_ARRAY_FUNCTION = new Name("toArray");
+    private static final Name QUERY_TO_STRING_FUNCTION = new Name("toString");
+    private static final Name QUERY_TO_XML_FUNCTION = new Name("toXML");
+    private static final Name QUERY_ADD_TO_TABLE_FUNCTION = new Name("addToTable");
     private static final Name QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION = new Name("getStreamFromPipeline");
     private static final String FRAME_PARAMETER_NAME = "$frame$";
     private static final CompilerContext.Key<QueryDesugar> QUERY_DESUGAR_KEY = new CompilerContext.Key<>();
+    private BLangExpression onConflictExpr;
+    private BVarSymbol currentFrameSymbol;
+    private BLangBlockFunctionBody currentLambdaBody;
+    private Map<String, BSymbol> identifiers;
     private int streamElementCount = 0;
     private final Desugar desugar;
     private final SymbolTable symTable;
@@ -109,7 +207,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     private final Names names;
     private final Types types;
     private SymbolEnv env;
-    private CompilerContext context;
 
     private QueryDesugar(CompilerContext context) {
         context.put(QUERY_DESUGAR_KEY, this);
@@ -118,7 +215,6 @@ public class QueryDesugar extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.types = Types.getInstance(context);
         this.desugar = Desugar.getInstance(context);
-        this.context = context;
     }
 
     public static QueryDesugar getInstance(CompilerContext context) {
@@ -129,25 +225,54 @@ public class QueryDesugar extends BLangNodeVisitor {
         return desugar;
     }
 
+    /**
+     * Desugar query expression.
+     *
+     * @param queryExpr query expression to be desugared.
+     * @param env       symbol env.
+     * @return desugared query expression.
+     */
     BLangStatementExpression desugar(BLangQueryExpr queryExpr, SymbolEnv env) {
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         DiagnosticPos pos = clauses.get(0).pos;
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
         BLangVariableReference streamRef = buildStream(clauses, queryExpr.type, env, queryBlock);
         BLangStatementExpression streamStmtExpr;
-        // TODO check queryExpr.isTable
         if (queryExpr.isStream) {
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, streamRef);
             streamStmtExpr.type = streamRef.type;
-        } else {
+        } else if (queryExpr.isTable) {
+            onConflictExpr = (onConflictExpr == null)
+                    ? ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE)
+                    : onConflictExpr;
+            BLangVariableReference tableRef = addTableConstructor(queryExpr, queryBlock);
             BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
-                    QUERY_TO_ARRAY_FUNCTION, Lists.of(streamRef), pos);
+                    QUERY_ADD_TO_TABLE_FUNCTION, Lists.of(streamRef, tableRef, onConflictExpr), pos);
+            streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, result);
+            streamStmtExpr.type = tableRef.type;
+            onConflictExpr = null;
+        } else {
+            BLangVariableReference result;
+            if (queryExpr.type.tag == TypeTags.XML) {
+                result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION, Lists.of(streamRef), pos);
+            } else if (queryExpr.type.tag == TypeTags.STRING) {
+                result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STRING_FUNCTION, Lists.of(streamRef), pos);
+            } else {
+                result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_ARRAY_FUNCTION, Lists.of(streamRef), pos);
+            }
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, result);
             streamStmtExpr.type = result.type;
         }
         return streamStmtExpr;
     }
 
+    /**
+     * Desugar query action.
+     *
+     * @param queryAction query action to be desugared.
+     * @param env         symbol env.
+     * @return desugared query action.
+     */
     BLangStatementExpression desugar(BLangQueryAction queryAction, SymbolEnv env) {
         List<BLangNode> clauses = queryAction.getQueryClauses();
         DiagnosticPos pos = clauses.get(0).pos;
@@ -163,26 +288,35 @@ public class QueryDesugar extends BLangNodeVisitor {
     /**
      * Write the pipeline to the given `block` and return the reference to the resulting stream.
      *
-     * @param clauses
-     * @param resultType
-     * @param env
-     * @param block
-     * @return
+     * @param clauses list of query clauses.
+     * @param resultType result type of the query output.
+     * @param env symbol env.
+     * @param block parent block to write to.
+     * @return variableReference to created _StreamPipeline.
      */
     BLangVariableReference buildStream(List<BLangNode> clauses, BType resultType, SymbolEnv env, BLangBlockStmt block) {
         this.env = env;
-        BLangNode initFromClause = clauses.get(0);
-        final BLangVariableReference initPipeline = addPipeline(block, (BLangFromClause) initFromClause, resultType);
-        BLangVariableReference initFrom = addInputFunction(block, (BLangFromClause) initFromClause);
+        BLangFromClause initFromClause = (BLangFromClause) clauses.get(0);
+        final BLangVariableReference initPipeline = addPipeline(block, initFromClause.pos,
+                initFromClause.collection, resultType);
+        BLangVariableReference initFrom = addInputFunction(block, initFromClause);
         addStreamFunction(block, initPipeline, initFrom);
         for (BLangNode clause : clauses.subList(1, clauses.size())) {
             switch (clause.getKind()) {
                 case FROM:
+                    BLangFromClause fromClause = (BLangFromClause) clause;
+                    BLangVariableReference nestedFromFunc = addNestedFromFunction(block, fromClause);
+                    addStreamFunction(block, initPipeline, nestedFromFunc);
+                    BLangVariableReference fromInputFunc = addInputFunction(block, fromClause);
+                    addStreamFunction(block, initPipeline, fromInputFunc);
+                    break;
                 case JOIN:
-                    BLangVariableReference pipeline = addPipeline(block, (BLangInputClause) clause, resultType);
-                    BLangVariableReference fromFunc = addInputFunction(block, (BLangInputClause) clause);
-                    addStreamFunction(block, pipeline, fromFunc);
-                    BLangVariableReference joinFunc = addJoinFunction(block, pipeline);
+                    BLangJoinClause joinClause = (BLangJoinClause) clause;
+                    BLangVariableReference joinPipeline = addPipeline(block, joinClause.pos,
+                            joinClause.collection, resultType);
+                    BLangVariableReference joinInputFunc = addInputFunction(block, joinClause);
+                    addStreamFunction(block, joinPipeline, joinInputFunc);
+                    BLangVariableReference joinFunc = addJoinFunction(block, joinPipeline);
                     addStreamFunction(block, initPipeline, joinFunc);
                     break;
                 case LET_CLAUSE:
@@ -205,28 +339,38 @@ public class QueryDesugar extends BLangNodeVisitor {
                     BLangVariableReference doFunc = addDoFunction(block, (BLangDoClause) clause);
                     addStreamFunction(block, initPipeline, doFunc);
                     break;
+                case LIMIT:
+                    BLangVariableReference limitFunc = addLimitFunction(block, (BLangLimitClause) clause);
+                    addStreamFunction(block, initPipeline, limitFunc);
+                    break;
+                case ON_CONFLICT:
+                    final BLangOnConflictClause onConflict = (BLangOnConflictClause) clause;
+                    onConflictExpr = onConflict.expression;
+                    break;
             }
         }
         return addGetStreamFromPipeline(block, initPipeline);
     }
 
+    // ---- Util methods to create the stream pipeline. ---- //
     /**
      * Desugar fromClause/joinClause to below and return a reference to created join _StreamPipeline.
      * _StreamPipeline pipeline = createPipeline(collection);
      *
-     * @param blockStmt   parent block to write to.
-     * @param inputClause to init pipeline.
+     * @param blockStmt  parent block to write to.
+     * @param pos diagnostic pos of the collection.
+     * @param collection reference to the collection.
+     * @param resultType constraint type of the collection.
      * @return variableReference to created _StreamPipeline.
      */
-    BLangVariableReference addPipeline(BLangBlockStmt blockStmt, BLangInputClause inputClause, BType resultType) {
-        BLangExpression collection = inputClause.collection;
-        DiagnosticPos pos = inputClause.pos;
+    BLangVariableReference addPipeline(BLangBlockStmt blockStmt, DiagnosticPos pos,
+                                       BLangExpression collection, BType resultType) {
         String name = getNewVarName();
         BVarSymbol dataSymbol = new BVarSymbol(0, names.fromString(name), env.scope.owner.pkgID,
                 collection.type, this.env.scope.owner);
-        BLangSimpleVariable dataVariable = ASTBuilderUtil.createVariable(inputClause.pos, name,
+        BLangSimpleVariable dataVariable = ASTBuilderUtil.createVariable(pos, name,
                 collection.type, collection, dataSymbol);
-        BLangSimpleVariableDef dataVarDef = ASTBuilderUtil.createVariableDef(inputClause.pos, dataVariable);
+        BLangSimpleVariableDef dataVarDef = ASTBuilderUtil.createVariableDef(pos, dataVariable);
         BLangVariableReference valueVarRef = ASTBuilderUtil.createVariableRef(pos, dataSymbol);
         blockStmt.addStatement(dataVarDef);
         if (resultType.tag == TypeTags.ARRAY) {
@@ -239,7 +383,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         typedescExpr.resolvedType = resultType;
         typedescExpr.type = typedescType;
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_PIPELINE_FUNCTION,
-                Lists.of(valueVarRef, typedescExpr), inputClause.pos);
+                Lists.of(valueVarRef, typedescExpr), pos);
     }
 
     /**
@@ -250,7 +394,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      * return frame;
      * });
      *
-     * @param blockStmt   parent block to write to.
+     * @param blockStmt  parent block to write to.
      * @param inputClause to be desugared.
      * @return variableReference to created from _StreamFunction.
      */
@@ -283,9 +427,36 @@ public class QueryDesugar extends BLangNodeVisitor {
         //      frame["x"] = x;
         //      return frame;
         // }
-        ClosureExpressionVisitor closureExpressionVisitor = new ClosureExpressionVisitor(context, env, false);
-        lambda.accept(closureExpressionVisitor);
+        lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_INPUT_FUNCTION, Lists.of(lambda), pos);
+    }
+
+    /**
+     * Desugar fromClause to below and return a reference to created from _StreamFunction.
+     * _StreamFunction xnFrom = createNestedFromFunction(function(_Frame frame) returns any|error? {
+     * any collection = frame["collection"]
+     * return collection;
+     * });
+     *
+     * @param blockStmt  parent block to write to.
+     * @param fromClause to be desugared.
+     * @return variableReference to created from _StreamFunction.
+     */
+    BLangVariableReference addNestedFromFunction(BLangBlockStmt blockStmt, BLangFromClause fromClause) {
+        DiagnosticPos pos = fromClause.pos;
+        // function(_Frame frame) returns any|error? { return collection; }
+        BLangUnionTypeNode returnType = getAnyErrorNilTypeNode();
+        BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
+        returnNode.expr = fromClause.collection;
+        returnNode.pos = pos;
+        BLangLambdaFunction lambda = createLambdaFunction(pos, returnType, returnNode, false);
+        lambda.accept(this);
+        // at this point;
+        // function(_Frame frame) returns any|error? {
+        //      any collection = frame["collection"]
+        //      return collection;
+        // }
+        return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_NESTED_FROM_FUNCTION, Lists.of(lambda), pos);
     }
 
     /**
@@ -328,8 +499,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             // add at 0, otherwise, this goes under existing stmts.
             body.stmts.add(0, (BLangStatement) letVariable.definitionNode);
         }
-        ClosureExpressionVisitor closureExpressionVisitor = new ClosureExpressionVisitor(context, env, false);
-        lambda.accept(closureExpressionVisitor);
+        lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_LET_FUNCTION, Lists.of(lambda), pos);
     }
 
@@ -378,8 +548,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         returnNode.pos = pos;
         returnNode.setExpression(filterExpression);
         body.addStatement(returnNode);
-        ClosureExpressionVisitor closureExpressionVisitor = new ClosureExpressionVisitor(context, env, false);
-        lambda.accept(closureExpressionVisitor);
+        lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_FILTER_FUNCTION, Lists.of(lambda), pos);
     }
 
@@ -405,8 +574,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         // $frame$["$value$"] = select-expr;
         BLangStatement assignment = getAddToFrameStmt(pos, frame, "$value$", selectClause.expression);
         body.stmts.add(body.stmts.size() - 1, assignment);
-        ClosureExpressionVisitor closureExpressionVisitor = new ClosureExpressionVisitor(context, env, false);
-        lambda.accept(closureExpressionVisitor);
+        lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_SELECT_FUNCTION, Lists.of(lambda), pos);
     }
 
@@ -428,9 +596,21 @@ public class QueryDesugar extends BLangNodeVisitor {
         for (BLangStatement stmt : doClause.body.stmts) {
             body.addStatement(stmt);
         }
-        ClosureExpressionVisitor closureExpressionVisitor = new ClosureExpressionVisitor(context, env, false);
-        lambda.accept(closureExpressionVisitor);
+        lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_DO_FUNCTION, Lists.of(lambda), pos);
+    }
+
+    /**
+     * Desugar limit clause and return a reference to created limit _StreamFunction.
+     *
+     * @param blockStmt parent block to write to.
+     * @param limitClause  to be desugared.
+     * @return variableReference to created do _StreamFunction.
+     */
+    BLangVariableReference addLimitFunction(BLangBlockStmt blockStmt, BLangLimitClause limitClause) {
+        DiagnosticPos pos = limitClause.pos;
+        return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_LIMIT_FUNCTION,
+                Lists.of(limitClause.expression), pos);
     }
 
     /**
@@ -459,11 +639,49 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     BLangVariableReference addGetStreamFromPipeline(BLangBlockStmt blockStmt, BLangVariableReference pipelineRef) {
         DiagnosticPos pos = pipelineRef.pos;
-        // TODO: instead of null, send the expected type;??
-        // TODO: for now type will be stream<any|error, error?> ; we can pass the expected type and add a cast
         BLangVariableReference streamVarRef = getStreamFunctionVariableRef(blockStmt,
                 QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION, null, Lists.of(pipelineRef), pos);
         return streamVarRef;
+    }
+
+    /**
+     * Create a table constructor expression.
+     *
+     * @param queryExpr  query expression.
+     * @param queryBlock parent block to write to.
+     * @return reference to updated table.
+     */
+    BLangVariableReference addTableConstructor(BLangQueryExpr queryExpr, BLangBlockStmt queryBlock) {
+        // desugar `table<Customer> key(id, name) tab = table key(id, name);`
+        DiagnosticPos pos = queryExpr.pos;
+        final BType type = queryExpr.type;
+        String name = getNewVarName();
+        BType tableType = type;
+        if (type.tag == TypeTags.UNION) {
+            tableType = ((BUnionType) type).getMemberTypes()
+                    .stream().filter(m -> m.tag == TypeTags.TABLE)
+                    .findFirst().orElse(symTable.tableType);
+        }
+        final List<BLangIdentifier> keyFieldIdentifiers = queryExpr.fieldNameIdentifierList;
+        BLangTableConstructorExpr tableConstructorExpr = (BLangTableConstructorExpr)
+                TreeBuilder.createTableConstructorExpressionNode();
+        tableConstructorExpr.pos = pos;
+        tableConstructorExpr.type = tableType;
+        if (!keyFieldIdentifiers.isEmpty()) {
+            BLangTableKeySpecifier keySpecifier = (BLangTableKeySpecifier)
+                    TreeBuilder.createTableKeySpecifierNode();
+            keySpecifier.pos = pos;
+            for (BLangIdentifier identifier : keyFieldIdentifiers) {
+                keySpecifier.addFieldNameIdentifier(identifier);
+            }
+            tableConstructorExpr.tableKeySpecifier = keySpecifier;
+        }
+        BVarSymbol tableSymbol = new BVarSymbol(0, names.fromString(name),
+                env.scope.owner.pkgID, tableType, this.env.scope.owner);
+        BLangSimpleVariable tableVariable = ASTBuilderUtil.createVariable(pos,
+                name, tableType, tableConstructorExpr, tableSymbol);
+        queryBlock.addStatement(ASTBuilderUtil.createVariableDef(pos, tableVariable));
+        return ASTBuilderUtil.createVariableRef(pos, tableSymbol);
     }
 
     /**
@@ -474,7 +692,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     private BLangLambdaFunction createPassthroughLambda(DiagnosticPos pos) {
         // returns (_Frame|error)?
-        BLangUnionTypeNode returnType = getUnionTypeNode();
+        BLangUnionTypeNode returnType = getFrameErrorNilTypeNode();
         // return frame;
         BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
         returnNode.pos = pos;
@@ -768,15 +986,31 @@ public class QueryDesugar extends BLangNodeVisitor {
      *
      * @return a union type node.
      */
-    private BLangUnionTypeNode getUnionTypeNode() {
+    private BLangUnionTypeNode getFrameErrorNilTypeNode() {
         BType frameType = getFrameTypeSymbol().type;
         BUnionType unionType = BUnionType.create(null, frameType, symTable.errorType, symTable.nilType);
         BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
         unionTypeNode.type = unionType;
-        unionTypeNode.desugared = true;
         unionTypeNode.memberTypeNodes.add(getFrameTypeNode());
         unionTypeNode.memberTypeNodes.add(getErrorTypeNode());
         unionTypeNode.memberTypeNodes.add(getNilTypeNode());
+        unionTypeNode.desugared = true;
+        return unionTypeNode;
+    }
+
+    /**
+     * Return union type node consists of any, error & ().
+     *
+     * @return a any, error & nil type node.
+     */
+    private BLangUnionTypeNode getAnyErrorNilTypeNode() {
+        BUnionType unionType = BUnionType.create(null, symTable.anyType, symTable.errorType, symTable.nilType);
+        BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
+        unionTypeNode.memberTypeNodes.add(getAnyTypeNode());
+        unionTypeNode.memberTypeNodes.add(getErrorTypeNode());
+        unionTypeNode.memberTypeNodes.add(getNilTypeNode());
+        unionTypeNode.type = unionType;
+        unionTypeNode.desugared = true;
         return unionTypeNode;
     }
 
@@ -810,6 +1044,706 @@ public class QueryDesugar extends BLangNodeVisitor {
     private BRecordTypeSymbol getFrameTypeSymbol() {
         return (BRecordTypeSymbol) symTable.langQueryModuleSymbol
                 .scope.lookup(names.fromString("_Frame")).symbol;
+    }
+
+    // ---- Visitor methods to replace frame access and mark closure variables ---- //
+    @Override
+    public void visit(BLangLambdaFunction lambda) {
+        BLangFunction function = lambda.function;
+        currentFrameSymbol = function.requiredParams.get(0).symbol;
+        identifiers = new HashMap<>();
+        currentLambdaBody = (BLangBlockFunctionBody) function.getBody();
+        List<BLangStatement> stmts = new ArrayList<>(currentLambdaBody.getStatements());
+        stmts.forEach(stmt -> {
+            stmt.accept(this);
+        });
+        currentFrameSymbol = null;
+        identifiers = null;
+        currentLambdaBody = null;
+    }
+
+    @Override
+    public void visit(BLangSimpleVariableDef bLangSimpleVariableDef) {
+        bLangSimpleVariableDef.getVariable().accept(this);
+    }
+
+    @Override
+    public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
+        bLangRecordVariableDef.var.accept(this);
+    }
+
+    @Override
+    public void visit(BLangRecordVariable bLangRecordVariable) {
+        bLangRecordVariable.variableList.forEach(v -> v.getValue().accept(this));
+        if (bLangRecordVariable.expr != null) {
+            bLangRecordVariable.expr.accept(this);
+        }
+        if (bLangRecordVariable.hasRestParam()) {
+            ((BLangNode) bLangRecordVariable.restParam).accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangSimpleVariable bLangSimpleVariable) {
+        identifiers.putIfAbsent(bLangSimpleVariable.name.value, bLangSimpleVariable.symbol);
+        if (bLangSimpleVariable.expr != null) {
+            bLangSimpleVariable.expr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangTypeConversionExpr conversionExpr) {
+        conversionExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        fieldAccessExpr.expr.accept(this);
+        if (fieldAccessExpr.impConversionExpr != null) {
+            fieldAccessExpr.impConversionExpr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangExpressionStmt exprStmtNode) {
+        exprStmtNode.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangInvocation invocationExpr) {
+        List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
+        if (invocationExpr.langLibInvocation && !requiredArgs.isEmpty()) {
+            requiredArgs = requiredArgs.subList(1, requiredArgs.size());
+        }
+        requiredArgs.forEach(arg -> arg.accept(this));
+        invocationExpr.restArgs.forEach(arg -> arg.accept(this));
+        if (invocationExpr.expr != null) {
+            invocationExpr.expr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangLiteral literalExpr) {
+        // do nothing;
+    }
+
+    @Override
+    public void visit(BLangReturn bLangReturn) {
+        bLangReturn.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangBinaryExpr bLangBinaryExpr) {
+        bLangBinaryExpr.lhsExpr.accept(this);
+        bLangBinaryExpr.rhsExpr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangAssignment bLangAssignment) {
+        bLangAssignment.varRef.accept(this);
+        bLangAssignment.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral bLangRecordLiteral) {
+        for (RecordLiteralNode.RecordField field : bLangRecordLiteral.fields) {
+            ((BLangNode) field).accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangRecordKeyValueField recordKeyValue) {
+        recordKeyValue.key.expr.accept(this);
+        recordKeyValue.valueExpr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangRecordSpreadOperatorField spreadOperatorField) {
+        spreadOperatorField.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangConstRef constRef) {
+        //do nothing
+    }
+
+    @Override
+    public void visit(BLangNumericLiteral literalExpr) {
+        //do nothing
+    }
+
+    @Override
+    public void visit(BLangTupleVarRef varRefExpr) {
+        varRefExpr.expressions.forEach(expression -> expression.accept(this));
+        if (varRefExpr.restParam != null) {
+            BLangExpression restExpr = (BLangExpression) varRefExpr.restParam;
+            restExpr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangRecordVarRef varRefExpr) {
+        varRefExpr.recordRefFields.forEach(recordVarRefKeyValue
+                -> recordVarRefKeyValue.variableReference.accept(this));
+        if (varRefExpr.restParam != null) {
+            BLangExpression restExpr = (BLangExpression) varRefExpr.restParam;
+            restExpr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangErrorVarRef varRefExpr) {
+        if (varRefExpr.reason != null) {
+            varRefExpr.reason.accept(this);
+        }
+        if (varRefExpr.restVar != null) {
+            varRefExpr.restVar.accept(this);
+        }
+        varRefExpr.detail.forEach(bLangNamedArgsExpression -> bLangNamedArgsExpression.accept(this));
+    }
+
+    @Override
+    public void visit(BLangSimpleVarRef bLangSimpleVarRef) {
+        BSymbol symbol = bLangSimpleVarRef.symbol;
+        BSymbol resolvedSymbol = symResolver
+                .lookupClosureVarSymbol(env, names.fromIdNode(bLangSimpleVarRef.variableName),
+                        SymTag.VARIABLE);
+        if (symbol != null && resolvedSymbol == symTable.notFoundSymbol) {
+            String identifier = bLangSimpleVarRef.variableName.getValue();
+            if (!FRAME_PARAMETER_NAME.equals(identifier) && !identifiers.containsKey(identifier)) {
+                DiagnosticPos pos = currentLambdaBody.pos;
+                BLangFieldBasedAccess frameAccessExpr = desugar.getFieldAccessExpression(pos, identifier,
+                        symTable.anyOrErrorType, currentFrameSymbol);
+                frameAccessExpr.expr = desugar.addConversionExprIfRequired(frameAccessExpr.expr,
+                        types.getSafeType(frameAccessExpr.expr.type, true, false));
+
+                if (symbol instanceof BVarSymbol) {
+                    ((BVarSymbol) symbol).originalSymbol = null;
+                    BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, identifier, symbol.type,
+                            desugar.addConversionExprIfRequired(frameAccessExpr, symbol.type), (BVarSymbol) symbol);
+                    BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos, variable);
+                    currentLambdaBody.stmts.add(0, variableDef);
+                }
+                identifiers.put(identifier, symbol);
+            }
+        } else if (resolvedSymbol != symTable.notFoundSymbol) {
+            resolvedSymbol.closure = true;
+        }
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess indexAccessExpr) {
+        indexAccessExpr.indexExpr.accept(this);
+        indexAccessExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangTypeInit connectorInitExpr) {
+        connectorInitExpr.argsExpr.forEach(arg -> arg.accept(this));
+        connectorInitExpr.initInvocation.accept(this);
+    }
+
+    @Override
+    public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
+        actionInvocationExpr.argExprs.forEach(arg -> arg.accept(this));
+    }
+
+    @Override
+    public void visit(BLangTernaryExpr ternaryExpr) {
+        ternaryExpr.expr.accept(this);
+        ternaryExpr.elseExpr.accept(this);
+        ternaryExpr.thenExpr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangWaitExpr awaitExpr) {
+        awaitExpr.exprList.forEach(expression -> expression.accept(this));
+    }
+
+    @Override
+    public void visit(BLangTrapExpr trapExpr) {
+        trapExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangElvisExpr elvisExpr) {
+        elvisExpr.lhsExpr.accept(this);
+        elvisExpr.rhsExpr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangGroupExpr groupExpr) {
+        groupExpr.expression.accept(this);
+    }
+
+    @Override
+    public void visit(BLangLetExpression letExpr) {
+        letExpr.expr.accept(this);
+        letExpr.letVarDeclarations.forEach(var -> ((BLangNode) var.definitionNode).accept(this));
+    }
+
+    @Override
+    public void visit(BLangLetVariable letVariable) {
+        //do nothing
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr listConstructorExpr) {
+        listConstructorExpr.exprs.forEach(expression -> expression.accept(this));
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr.BLangTupleLiteral tupleLiteral) {
+        tupleLiteral.exprs.forEach(expression -> expression.accept(this));
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr.BLangArrayLiteral arrayLiteral) {
+        arrayLiteral.exprs.forEach(expression -> expression.accept(this));
+    }
+
+    @Override
+    public void visit(BLangUnaryExpr unaryExpr) {
+        unaryExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangTypedescExpr accessExpr) {
+    }
+
+    @Override
+    public void visit(BLangXMLQName xmlQName) {
+    }
+
+    @Override
+    public void visit(BLangXMLAttribute xmlAttribute) {
+    }
+
+    @Override
+    public void visit(BLangXMLElementLiteral xmlElementLiteral) {
+        xmlElementLiteral.startTagName.accept(this);
+        xmlElementLiteral.endTagName.accept(this);
+        xmlElementLiteral.attributes.forEach(bLangXMLAttribute -> bLangXMLAttribute.accept(this));
+        xmlElementLiteral.children.forEach(child -> child.accept(this));
+    }
+
+    @Override
+    public void visit(BLangXMLTextLiteral xmlTextLiteral) {
+        xmlTextLiteral.textFragments.forEach(fragment -> fragment.accept(this));
+        if (xmlTextLiteral.concatExpr != null) {
+            xmlTextLiteral.concatExpr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
+        xmlCommentLiteral.textFragments.forEach(fragment -> fragment.accept(this));
+        if (xmlCommentLiteral.concatExpr != null) {
+            xmlCommentLiteral.concatExpr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
+        xmlProcInsLiteral.dataFragments.forEach(fragment -> fragment.accept(this));
+        if (xmlProcInsLiteral.dataConcatExpr != null) {
+            xmlProcInsLiteral.dataConcatExpr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangXMLQuotedString xmlQuotedString) {
+        xmlQuotedString.textFragments.forEach(fragment -> fragment.accept(this));
+        if (xmlQuotedString.concatExpr != null) {
+            xmlQuotedString.concatExpr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
+        stringTemplateLiteral.exprs.forEach(expression -> expression.accept(this));
+    }
+
+    @Override
+    public void visit(BLangArrowFunction bLangArrowFunction) {
+        bLangArrowFunction.params.forEach(param -> param.accept(this));
+        bLangArrowFunction.function.accept(this);
+        bLangArrowFunction.body.accept(this);
+    }
+
+    @Override
+    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
+    }
+
+    @Override
+    public void visit(BLangIntRangeExpression intRangeExpression) {
+        intRangeExpression.startExpr.accept(this);
+        intRangeExpression.endExpr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
+        bLangVarArgsExpression.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
+        bLangNamedArgsExpression.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangIsAssignableExpr assignableExpr) {
+        assignableExpr.lhsExpr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangMatchExpression bLangMatchExpression) {
+        bLangMatchExpression.expr.accept(this);
+        bLangMatchExpression.patternClauses.forEach(bLangMatchExprPatternClause ->
+                bLangMatchExpression.patternClauses.forEach(pattern -> pattern.expr.accept(this)));
+        bLangMatchExpression.patternClauses.forEach(bLangMatchExprPatternClause ->
+                bLangMatchExpression.patternClauses.forEach(pattern -> pattern.variable.accept(this)));
+        bLangMatchExpression.patternClauses.forEach(bLangMatchExprPatternClause ->
+                bLangMatchExpression.expr.accept(this));
+    }
+
+    @Override
+    public void visit(BLangMatchExpression.BLangMatchExprPatternClause bLangMatchExprPatternClause) {
+    }
+
+    @Override
+    public void visit(BLangCheckedExpr checkedExpr) {
+        checkedExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangCheckPanickedExpr checkPanickedExpr) {
+        checkPanickedExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
+        serviceConstructorExpr.serviceNode.accept(this);
+    }
+
+    @Override
+    public void visit(BLangTypeTestExpr typeTestExpr) {
+        typeTestExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangIsLikeExpr typeTestExpr) {
+        typeTestExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangIgnoreExpr ignoreExpr) {
+    }
+
+    @Override
+    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+    }
+
+    @Override
+    public void visit(BLangXMLNS.BLangLocalXMLNS xmlnsNode) {
+    }
+
+    @Override
+    public void visit(BLangXMLNS.BLangPackageXMLNS xmlnsNode) {
+    }
+
+    @Override
+    public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
+        bLangXMLSequenceLiteral.xmlItems.forEach(item -> item.accept(this));
+    }
+
+    @Override
+    public void visit(BLangStatementExpression bLangStatementExpression) {
+        bLangStatementExpression.expr.accept(this);
+        bLangStatementExpression.stmt.accept(this);
+    }
+
+    @Override
+    public void visit(BLangTupleVariable bLangTupleVariable) {
+        if (bLangTupleVariable.restVariable != null) {
+            bLangTupleVariable.restVariable.accept(this);
+        }
+        bLangTupleVariable.memberVariables.forEach(var -> var.accept(this));
+    }
+
+    @Override
+    public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
+        if (bLangTupleVariableDef.var.restVariable != null) {
+            bLangTupleVariableDef.var.restVariable.accept(this);
+        }
+        if (bLangTupleVariableDef.var.expr != null) {
+            bLangTupleVariableDef.var.expr.accept(this);
+        }
+        if (bLangTupleVariableDef.var.memberVariables != null) {
+            bLangTupleVariableDef.var.memberVariables.forEach(var -> var.accept(this));
+        }
+    }
+
+    @Override
+    public void visit(BLangErrorVariable bLangErrorVariable) {
+        if (bLangErrorVariable.reason != null) {
+            bLangErrorVariable.reason.accept(this);
+        }
+        bLangErrorVariable.detail.forEach(var -> var.valueBindingPattern.accept(this));
+        if (bLangErrorVariable.restDetail != null) {
+            bLangErrorVariable.restDetail.accept(this);
+        }
+        if (bLangErrorVariable.detailExpr != null) {
+            bLangErrorVariable.detailExpr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
+        bLangErrorVariableDef.errorVariable.accept(this);
+    }
+
+    @Override
+    public void visit(BLangMatchStaticBindingPatternClause bLangMatchStmtStaticBindingPatternClause) {
+        bLangMatchStmtStaticBindingPatternClause.literal.accept(this);
+    }
+
+    @Override
+    public void visit(BLangMatchStructuredBindingPatternClause bLangMatchStmtStructuredBindingPatternClause) {
+        if (bLangMatchStmtStructuredBindingPatternClause.bindingPatternVariable != null) {
+            bLangMatchStmtStructuredBindingPatternClause.bindingPatternVariable.accept(this);
+        }
+        if (bLangMatchStmtStructuredBindingPatternClause.typeGuardExpr != null) {
+            bLangMatchStmtStructuredBindingPatternClause.typeGuardExpr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangWorkerFlushExpr workerFlushExpr) {
+    }
+
+    @Override
+    public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
+    }
+
+    @Override
+    public void visit(BLangWaitForAllExpr waitForAllExpr) {
+        waitForAllExpr.keyValuePairs.forEach(pair -> pair.accept(this));
+    }
+
+    @Override
+    public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
+    }
+
+    @Override
+    public void visit(BLangMarkdownReferenceDocumentation bLangMarkdownReferenceDocumentation) {
+    }
+
+    @Override
+    public void visit(BLangWaitForAllExpr.BLangWaitKeyValue waitKeyValue) {
+        waitKeyValue.key.accept(this);
+        waitKeyValue.valueExpr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangXMLElementFilter xmlElementFilter) {
+        if (xmlElementFilter.impConversionExpr != null) {
+            xmlElementFilter.impConversionExpr.expr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangXMLElementAccess xmlElementAccess) {
+        xmlElementAccess.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangXMLNavigationAccess xmlNavigation) {
+        xmlNavigation.expr.accept(this);
+        if (xmlNavigation.childIndex != null) {
+            xmlNavigation.childIndex.accept(this);
+        }
+    }
+
+    //statements
+    @Override
+    public void visit(BLangBlockStmt blockNode) {
+        blockNode.stmts.forEach(statement -> statement.accept(this));
+    }
+
+    @Override
+    public void visit(BLangLock.BLangLockStmt lockStmtNode) {
+        lockStmtNode.body.accept(this);
+    }
+
+    @Override
+    public void visit(BLangLock.BLangUnLockStmt unLockNode) {
+        unLockNode.body.accept(this);
+    }
+
+    @Override
+    public void visit(BLangCompoundAssignment compoundAssignNode) {
+        if (compoundAssignNode.expr != null) {
+            compoundAssignNode.expr.accept(this);
+        }
+        if (compoundAssignNode.modifiedExpr != null) {
+            compoundAssignNode.modifiedExpr.accept(this);
+        }
+        if (compoundAssignNode.varRef != null) {
+            compoundAssignNode.varRef.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangRetry retryNode) {
+    }
+
+    @Override
+    public void visit(BLangContinue continueNode) {
+    }
+
+    @Override
+    public void visit(BLangBreak breakNode) {
+    }
+
+    @Override
+    public void visit(BLangThrow throwNode) {
+        throwNode.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangPanic panicNode) {
+        panicNode.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangXMLNSStatement xmlnsStmtNode) {
+        xmlnsStmtNode.xmlnsDecl.accept(this);
+    }
+
+    @Override
+    public void visit(BLangIf ifNode) {
+        ifNode.expr.accept(this);
+        ifNode.body.accept(this);
+        if (ifNode.elseStmt != null) {
+            ifNode.elseStmt.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangQueryAction queryAction) {
+    }
+
+    @Override
+    public void visit(BLangMatch matchNode) {
+        matchNode.expr.accept(this);
+        matchNode.patternClauses.forEach(pattern -> pattern.accept(this));
+    }
+
+    @Override
+    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
+        patternClauseNode.body.accept(this);
+        patternClauseNode.matchExpr.accept(this);
+        patternClauseNode.variable.accept(this);
+    }
+
+    @Override
+    public void visit(BLangForeach foreach) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public void visit(BLangFromClause fromClause) {
+    }
+
+    @Override
+    public void visit(BLangLetClause letClause) {
+    }
+
+    @Override
+    public void visit(BLangSelectClause selectClause) {
+    }
+
+    @Override
+    public void visit(BLangWhereClause whereClause) {
+    }
+
+    @Override
+    public void visit(BLangDoClause doClause) {
+    }
+
+    @Override
+    public void visit(BLangLimitClause limitClause) {
+    }
+
+    @Override
+    public void visit(BLangWhile whileNode) {
+        whileNode.expr.accept(this);
+        whileNode.body.accept(this);
+    }
+
+    @Override
+    public void visit(BLangLock lockNode) {
+        lockNode.body.accept(this);
+    }
+
+    @Override
+    public void visit(BLangTransaction transactionNode) {
+        transactionNode.transactionBody.accept(this);
+    }
+
+    @Override
+    public void visit(BLangTryCatchFinally tryNode) {
+        tryNode.tryBody.accept(this);
+        tryNode.catchBlocks.forEach(block -> block.accept(this));
+        if (tryNode.finallyBody != null) {
+            tryNode.finallyBody.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangTupleDestructure stmt) {
+        stmt.varRef.accept(this);
+        stmt.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangRecordDestructure stmt) {
+        stmt.expr.accept(this);
+        stmt.varRef.accept(this);
+    }
+
+    @Override
+    public void visit(BLangErrorDestructure stmt) {
+        stmt.expr.accept(this);
+        stmt.varRef.accept(this);
+    }
+
+    @Override
+    public void visit(BLangCatch catchNode) {
+        catchNode.param.accept(this);
+        catchNode.body.accept(this);
+    }
+
+    @Override
+    public void visit(BLangForkJoin forkJoin) {
+        forkJoin.workers.forEach(worker -> worker.accept(this));
+    }
+
+    @Override
+    public void visit(BLangWorkerSend workerSendNode) {
+        workerSendNode.expr.accept(this);
+        if (workerSendNode.keyExpr != null) {
+            workerSendNode.keyExpr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangWorkerReceive workerReceiveNode) {
+        workerReceiveNode.sendExpression.accept(this);
+        if (workerReceiveNode.keyExpr != null) {
+            workerReceiveNode.keyExpr.accept(this);
+        }
     }
 
 }

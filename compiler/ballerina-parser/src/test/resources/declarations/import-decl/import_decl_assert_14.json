@@ -1,11 +1,14 @@
 {
   "kind": "MODULE_PART",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "IMPORT_DECLARATION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "IMPORT_KEYWORD"
@@ -21,16 +24,22 @@
             },
             {
               "kind": "IMPORT_VERSION",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "VERSION_KEYWORD"
                 },
                 {
                   "kind": "LIST",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_INTEGER_LITERAL",
-                      "isMissing": true
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DECIMAL_INTEGER_LITERAL"
+                      ]
                     }
                   ]
                 }
@@ -43,6 +52,7 @@
         },
         {
           "kind": "IMPORT_DECLARATION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "IMPORT_KEYWORD"
@@ -58,12 +68,14 @@
             },
             {
               "kind": "IMPORT_VERSION",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "VERSION_KEYWORD"
                 },
                 {
                   "kind": "LIST",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_INTEGER_LITERAL",
@@ -71,13 +83,18 @@
                     },
                     {
                       "kind": "IMPORT_SUB_VERSION",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "DOT_TOKEN"
                         },
                         {
                           "kind": "DECIMAL_INTEGER_LITERAL",
-                          "isMissing": true
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_DECIMAL_INTEGER_LITERAL"
+                          ]
                         }
                       ]
                     }
@@ -87,12 +104,17 @@
             },
             {
               "kind": "SEMICOLON_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_SEMICOLON_TOKEN"
+              ]
             }
           ]
         },
         {
           "kind": "IMPORT_DECLARATION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "IMPORT_KEYWORD"
@@ -108,12 +130,14 @@
             },
             {
               "kind": "IMPORT_VERSION",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "VERSION_KEYWORD"
                 },
                 {
                   "kind": "LIST",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_INTEGER_LITERAL",
@@ -133,13 +157,18 @@
                     },
                     {
                       "kind": "IMPORT_SUB_VERSION",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "DOT_TOKEN"
                         },
                         {
                           "kind": "DECIMAL_INTEGER_LITERAL",
-                          "isMissing": true
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_DECIMAL_INTEGER_LITERAL"
+                          ]
                         }
                       ]
                     }

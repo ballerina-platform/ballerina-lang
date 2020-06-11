@@ -18,10 +18,13 @@
 package org.ballerinalang.packerina.cmd;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.jvm.launch.LaunchUtils;
 import org.ballerinalang.jvm.util.BLangConstants;
+import org.ballerinalang.packerina.JarResolverImpl;
 import org.ballerinalang.packerina.TaskExecutor;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
+import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
 import org.ballerinalang.packerina.task.CopyModuleJarTask;
@@ -51,6 +54,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
@@ -348,13 +352,16 @@ public class TestCommand implements BLauncherCmd {
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(PROJECT_DIR, this.sourceRootPath.toString());
         options.put(OFFLINE, Boolean.toString(this.offline));
-        options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(DUMP_BIR, Boolean.toString(dumpBIR));
         options.put(LOCK_ENABLED, Boolean.toString(!this.skipLock));
         options.put(TEST_ENABLED, "true");
         options.put(SKIP_TESTS, "false");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
         // create builder context
         BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
+        JarResolver jarResolver = JarResolverImpl.getInstance(buildContext, skipCopyLibsFromDist);
+        buildContext.put(BuildContextField.JAR_RESOLVER, jarResolver);
         buildContext.setOut(outStream);
         buildContext.setErr(errStream);
 
@@ -368,9 +375,8 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CreateBaloTask(), isSingleFileBuild || listGroups) // create the balos for modules
                 // (projects only)
                 .addTask(new CreateBirTask(), listGroups)   // create the bir
-                .addTask(new CopyNativeLibTask(skipCopyLibsFromDist), listGroups) // copy the native libs(projects only)
-                // create the jar.
-                .addTask(new CreateJarTask(this.dumpBIR, this.skipCopyLibsFromDist), listGroups)
+                .addTask(new CopyNativeLibTask(), listGroups) // copy the native libs(projects only)
+                .addTask(new CreateJarTask(this.skipCopyLibsFromDist), listGroups)  // create the jar
                 .addTask(new CopyResourcesTask(), isSingleFileBuild || listGroups)
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist, false), listGroups)
                 // tasks to list groups or execute tests. the 'listGroups' boolean is used to decide whether to

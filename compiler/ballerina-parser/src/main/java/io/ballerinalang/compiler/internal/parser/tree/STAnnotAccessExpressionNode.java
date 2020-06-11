@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STAnnotAccessExpressionNode extends STExpressionNode {
             STNode expression,
             STNode annotChainingToken,
             STNode annotTagReference) {
-        super(SyntaxKind.ANNOT_ACCESS);
+        this(
+                expression,
+                annotChainingToken,
+                annotTagReference,
+                Collections.emptyList());
+    }
+
+    STAnnotAccessExpressionNode(
+            STNode expression,
+            STNode annotChainingToken,
+            STNode annotTagReference,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.ANNOT_ACCESS, diagnostics);
         this.expression = expression;
         this.annotChainingToken = annotChainingToken;
         this.annotTagReference = annotTagReference;
@@ -47,7 +62,43 @@ public class STAnnotAccessExpressionNode extends STExpressionNode {
                 annotTagReference);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STAnnotAccessExpressionNode(
+                this.expression,
+                this.annotChainingToken,
+                this.annotTagReference,
+                diagnostics);
+    }
+
+    public STAnnotAccessExpressionNode modify(
+            STNode expression,
+            STNode annotChainingToken,
+            STNode annotTagReference) {
+        if (checkForReferenceEquality(
+                expression,
+                annotChainingToken,
+                annotTagReference)) {
+            return this;
+        }
+
+        return new STAnnotAccessExpressionNode(
+                expression,
+                annotChainingToken,
+                annotTagReference,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new AnnotAccessExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

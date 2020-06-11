@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TupleTypeDescriptorNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STTupleTypeDescriptorNode extends STTypeDescriptorNode {
             STNode openBracketToken,
             STNode memberTypeDesc,
             STNode closeBracketToken) {
-        super(SyntaxKind.TUPLE_TYPE_DESC);
+        this(
+                openBracketToken,
+                memberTypeDesc,
+                closeBracketToken,
+                Collections.emptyList());
+    }
+
+    STTupleTypeDescriptorNode(
+            STNode openBracketToken,
+            STNode memberTypeDesc,
+            STNode closeBracketToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.TUPLE_TYPE_DESC, diagnostics);
         this.openBracketToken = openBracketToken;
         this.memberTypeDesc = memberTypeDesc;
         this.closeBracketToken = closeBracketToken;
@@ -47,7 +62,43 @@ public class STTupleTypeDescriptorNode extends STTypeDescriptorNode {
                 closeBracketToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STTupleTypeDescriptorNode(
+                this.openBracketToken,
+                this.memberTypeDesc,
+                this.closeBracketToken,
+                diagnostics);
+    }
+
+    public STTupleTypeDescriptorNode modify(
+            STNode openBracketToken,
+            STNode memberTypeDesc,
+            STNode closeBracketToken) {
+        if (checkForReferenceEquality(
+                openBracketToken,
+                memberTypeDesc,
+                closeBracketToken)) {
+            return this;
+        }
+
+        return new STTupleTypeDescriptorNode(
+                openBracketToken,
+                memberTypeDesc,
+                closeBracketToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TupleTypeDescriptorNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

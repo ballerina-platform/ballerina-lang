@@ -25,13 +25,15 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
+
 /**
  * Native implementation of lang.array:length((any|error)[]).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "length",
+        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "length",
         args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true

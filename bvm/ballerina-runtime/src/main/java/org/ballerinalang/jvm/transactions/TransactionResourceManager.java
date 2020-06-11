@@ -208,9 +208,10 @@ public class TransactionResourceManager {
      * @param strand the strand
      * @param transactionId      the global transaction id
      * @param transactionBlockId the block id of the transaction
+     * @param error the cause of abortion
      * @return the status of the abort operation
      */
-    public boolean notifyAbort(Strand strand, String transactionId, String transactionBlockId) {
+    public boolean notifyAbort(Strand strand, String transactionId, String transactionBlockId, Object error) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         boolean abortSuccess = true;
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
@@ -237,7 +238,7 @@ public class TransactionResourceManager {
 
         // todo: Temporaraly disabling abort functions as there is no clear way to separate rollback and full abort.
 
-        invokeAbortedFunction(strand, transactionId, transactionBlockId);
+        invokeAbortedFunction(strand, transactionId, transactionBlockId, error);
         removeContextsFromRegistry(combinedId, transactionId);
         failedResourceParticipantSet.remove(transactionId);
         failedLocalParticipantSet.remove(transactionId);
@@ -295,9 +296,9 @@ public class TransactionResourceManager {
         }
     }
 
-    void rollbackTransaction(Strand strand, String transactionId, String transactionBlockId) {
+    void rollbackTransaction(Strand strand, String transactionId, String transactionBlockId, Object error) {
         endXATransaction(transactionId, transactionBlockId);
-        notifyAbort(strand, transactionId, transactionBlockId);
+        notifyAbort(strand, transactionId, transactionBlockId, error);
     }
 
     private void removeContextsFromRegistry(String transactionCombinedId, String gTransactionId) {
@@ -311,7 +312,7 @@ public class TransactionResourceManager {
 
     private void invokeCommittedFunction(Strand strand, String transactionId, String transactionBlockId) {
         List<FPValue> fpValueList = committedFuncRegistry.get(transactionBlockId);
-        Object[] args = { strand, null, true };
+        Object[] args = { strand, strand.transactionLocalContext.getInfoRecord(), true };
         if (fpValueList != null) {
             for (int i = fpValueList.size(); i > 0; i--) {
                 FPValue fp = fpValueList.get(i - 1);
@@ -323,9 +324,10 @@ public class TransactionResourceManager {
         }
     }
 
-    private void invokeAbortedFunction(Strand strand, String transactionId, String transactionBlockId) {
+    private void invokeAbortedFunction(Strand strand, String transactionId, String transactionBlockId, Object error) {
         List<FPValue> fpValueList = abortedFuncRegistry.get(transactionBlockId);
-        Object[] args = { strand, null, true, null, true, false, true };
+        //TODO: Need to pass the retryManager to get the willRetry value.
+        Object[] args = { strand, strand.transactionLocalContext.getInfoRecord(), true, error, true, false, true };
         if (fpValueList != null) {
             for (int i = fpValueList.size(); i > 0; i--) {
                 FPValue fp = fpValueList.get(i - 1);

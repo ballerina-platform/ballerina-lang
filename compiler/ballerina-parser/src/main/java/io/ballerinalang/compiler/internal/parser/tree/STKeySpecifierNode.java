@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STKeySpecifierNode extends STNode {
             STNode openParenToken,
             STNode fieldNames,
             STNode closeParenToken) {
-        super(SyntaxKind.KEY_SPECIFIER);
+        this(
+                keyKeyword,
+                openParenToken,
+                fieldNames,
+                closeParenToken,
+                Collections.emptyList());
+    }
+
+    STKeySpecifierNode(
+            STNode keyKeyword,
+            STNode openParenToken,
+            STNode fieldNames,
+            STNode closeParenToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.KEY_SPECIFIER, diagnostics);
         this.keyKeyword = keyKeyword;
         this.openParenToken = openParenToken;
         this.fieldNames = fieldNames;
@@ -51,7 +68,47 @@ public class STKeySpecifierNode extends STNode {
                 closeParenToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STKeySpecifierNode(
+                this.keyKeyword,
+                this.openParenToken,
+                this.fieldNames,
+                this.closeParenToken,
+                diagnostics);
+    }
+
+    public STKeySpecifierNode modify(
+            STNode keyKeyword,
+            STNode openParenToken,
+            STNode fieldNames,
+            STNode closeParenToken) {
+        if (checkForReferenceEquality(
+                keyKeyword,
+                openParenToken,
+                fieldNames,
+                closeParenToken)) {
+            return this;
+        }
+
+        return new STKeySpecifierNode(
+                keyKeyword,
+                openParenToken,
+                fieldNames,
+                closeParenToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new KeySpecifierNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

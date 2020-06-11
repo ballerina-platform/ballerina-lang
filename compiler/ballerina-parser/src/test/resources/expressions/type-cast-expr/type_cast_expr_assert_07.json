@@ -1,123 +1,123 @@
 {
-    "kind": "BINARY_EXPRESSION",
-    "children": [
+  "kind": "BINARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "TYPE_CAST_EXPRESSION",
+      "children": [
         {
-            "kind": "TYPE_CAST_EXPRESSION",
-            "children": [
+          "kind": "LT_TOKEN"
+        },
+        {
+          "kind": "TYPE_CAST_PARAM",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": [
                 {
-                    "kind": "LT_TOKEN"
-                },
-                {
-                    "kind": "TYPE_CAST_PARAM",
-                    "children": [
+                  "kind": "ANNOTATION",
+                  "children": [
+                    {
+                      "kind": "AT_TOKEN"
+                    },
+                    {
+                      "kind": "QUALIFIED_NAME_REFERENCE",
+                      "children": [
                         {
-                            "kind": "LIST",
-                            "children": [
-                                {
-                                    "kind": "ANNOTATION",
-                                    "children": [
-                                        {
-                                            "kind": "AT_TOKEN"
-                                        },
-                                        {
-                                            "kind": "QUALIFIED_NAME_REFERENCE",
-                                            "children": [
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "foo"
-                                                },
-                                                {
-                                                    "kind": "COLON_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "bar"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "MAPPING_CONSTRUCTOR",
-                                            "children": [
-                                                {
-                                                    "kind": "OPEN_BRACE_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                        {
-                                                            "kind": "SPECIFIC_FIELD",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "a"
-                                                                },
-                                                                {
-                                                                    "kind": "COLON_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "b"
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "CLOSE_BRACE_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "ANNOTATION",
-                                    "children": [
-                                        {
-                                            "kind": "AT_TOKEN"
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "bar"
-                                        },
-                                        {
-                                            "kind": "MAPPING_CONSTRUCTOR",
-                                            "children": [
-                                                {
-                                                    "kind": "OPEN_BRACE_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": []
-                                                },
-                                                {
-                                                    "kind": "CLOSE_BRACE_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
-                            ]
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "foo"
                         },
                         {
-                            "kind": "INT_KEYWORD"
+                          "kind": "COLON_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "bar"
                         }
-                    ]
+                      ]
+                    },
+                    {
+                      "kind": "MAPPING_CONSTRUCTOR",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACE_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "SPECIFIC_FIELD",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "a"
+                                },
+                                {
+                                  "kind": "COLON_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "b"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACE_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
-                    "kind": "GT_TOKEN"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "c"
+                  "kind": "ANNOTATION",
+                  "children": [
+                    {
+                      "kind": "AT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "bar"
+                    },
+                    {
+                      "kind": "MAPPING_CONSTRUCTOR",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACE_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "CLOSE_BRACE_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
                 }
-            ]
+              ]
+            },
+            {
+              "kind": "INT_KEYWORD"
+            }
+          ]
         },
         {
-            "kind": "PLUS_TOKEN"
+          "kind": "GT_TOKEN"
         },
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "d"
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "c"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "PLUS_TOKEN"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "d"
+    }
+  ]
 }

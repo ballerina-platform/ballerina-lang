@@ -1,7 +1,7 @@
 type Listener object {
     Listener2 ls2 = 
 
-    public function __init() {
+    public function init() {
     }
 
     public function __attach(service s, string? name = ()) returns error? {

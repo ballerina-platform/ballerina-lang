@@ -1,22 +1,22 @@
 {
-    "kind": "COMPOUND_ASSIGNMENT_STATEMENT",
-    "children": [
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "PLUS_TOKEN"
-        },
-        {
-            "kind": "EQUAL_TOKEN"
-        },
-        {
-            "kind": "DECIMAL_INTEGER_LITERAL",
-            "value": 5
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
-        }
-    ]
+  "kind": "COMPOUND_ASSIGNMENT_STATEMENT",
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a"
+    },
+    {
+      "kind": "PLUS_TOKEN"
+    },
+    {
+      "kind": "EQUAL_TOKEN"
+    },
+    {
+      "kind": "DECIMAL_INTEGER_LITERAL",
+      "value": "5"
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

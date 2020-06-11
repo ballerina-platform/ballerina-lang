@@ -1,28 +1,34 @@
 {
-    "kind": "ANNOT_ACCESS",
-    "children": [
+  "kind": "ANNOT_ACCESS",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a"
+    },
+    {
+      "kind": "ANNOT_CHAINING_TOKEN"
+    },
+    {
+      "kind": "QUALIFIED_NAME_REFERENCE",
+      "hasDiagnostics": true,
+      "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
         },
         {
-            "kind": "ANNOT_CHAINING_TOKEN"
+          "kind": "COLON_TOKEN"
         },
         {
-            "kind": "QUALIFIED_NAME_REFERENCE",
-            "children": [
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "isMissing": true
-                },
-                {
-                    "kind": "COLON_TOKEN"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "b"
-                }
-            ]
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "b"
         }
-    ]
+      ]
+    }
+  ]
 }

@@ -27,7 +27,7 @@ public type Listener object {
     # Creates a new NATS Listener.
     #
     # + connection - An established NATS connection.
-    public function __init(Connection connection) {
+    public function init(Connection connection) {
         self.conn = connection;
         consumerInit(self, connection);
     }

@@ -1,19 +1,19 @@
 {
-    "kind": "ASSIGNMENT_STATEMENT",
-    "children": [
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "EQUAL_TOKEN"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "b"
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
-        }
-    ]
+  "kind": "ASSIGNMENT_STATEMENT",
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a"
+    },
+    {
+      "kind": "EQUAL_TOKEN"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "b"
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

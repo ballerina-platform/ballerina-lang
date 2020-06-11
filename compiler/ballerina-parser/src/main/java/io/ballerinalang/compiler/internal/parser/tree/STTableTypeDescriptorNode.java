@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TableTypeDescriptorNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STTableTypeDescriptorNode extends STTypeDescriptorNode {
             STNode tableKeywordToken,
             STNode rowTypeParameterNode,
             STNode keyConstraintNode) {
-        super(SyntaxKind.TABLE_TYPE_DESC);
+        this(
+                tableKeywordToken,
+                rowTypeParameterNode,
+                keyConstraintNode,
+                Collections.emptyList());
+    }
+
+    STTableTypeDescriptorNode(
+            STNode tableKeywordToken,
+            STNode rowTypeParameterNode,
+            STNode keyConstraintNode,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.TABLE_TYPE_DESC, diagnostics);
         this.tableKeywordToken = tableKeywordToken;
         this.rowTypeParameterNode = rowTypeParameterNode;
         this.keyConstraintNode = keyConstraintNode;
@@ -47,7 +62,43 @@ public class STTableTypeDescriptorNode extends STTypeDescriptorNode {
                 keyConstraintNode);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STTableTypeDescriptorNode(
+                this.tableKeywordToken,
+                this.rowTypeParameterNode,
+                this.keyConstraintNode,
+                diagnostics);
+    }
+
+    public STTableTypeDescriptorNode modify(
+            STNode tableKeywordToken,
+            STNode rowTypeParameterNode,
+            STNode keyConstraintNode) {
+        if (checkForReferenceEquality(
+                tableKeywordToken,
+                rowTypeParameterNode,
+                keyConstraintNode)) {
+            return this;
+        }
+
+        return new STTableTypeDescriptorNode(
+                tableKeywordToken,
+                rowTypeParameterNode,
+                keyConstraintNode,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TableTypeDescriptorNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

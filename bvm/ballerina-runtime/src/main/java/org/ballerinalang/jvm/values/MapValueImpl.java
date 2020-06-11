@@ -250,11 +250,11 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         }
     }
 
-    protected void populateInitialValue(K key, V value) {
+    public void populateInitialValue(K key, V value) {
         if (type.getTag() == TypeTags.MAP_TAG) {
             MapUtils.handleInherentTypeViolatingMapUpdate(value, (BMapType) type);
         } else {
-            String fieldName = ((BString) key).getValue();
+            BString fieldName = (BString) key;
             MapUtils.handleInherentTypeViolatingRecordUpdate(this, fieldName, value, (BRecordType) type, true);
         }
 
@@ -432,7 +432,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             return;
         }
 
-        this.type = ReadOnlyUtils.setImmutableType(this.type);
+        this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
 
         this.values().forEach(val -> {
             if (val instanceof RefValue) {

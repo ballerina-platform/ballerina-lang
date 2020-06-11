@@ -69,7 +69,7 @@ type FooObj object {
     public string s;
     public float f;
     public byte b;
-    public function __init(string s, float f, byte b) {
+    public function init(string s, float f, byte b) {
         self.s = s;
         self.f = f;
         self.b = b;
@@ -79,7 +79,7 @@ type FooObj object {
 type BarObj object {
     public boolean b;
     public int i;
-    public function __init(boolean b, int i) {
+    public function init(boolean b, int i) {
         self.b = b;
         self.i = i;
     }

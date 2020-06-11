@@ -1,11 +1,11 @@
 {
-    "kind": "NIL_LITERAL",
-    "children": [
-        {
-            "kind": "OPEN_PAREN_TOKEN"
-        },
-        {
-            "kind": "CLOSE_PAREN_TOKEN"
-        }
-    ]
+  "kind": "NIL_LITERAL",
+  "children": [
+    {
+      "kind": "OPEN_PAREN_TOKEN"
+    },
+    {
+      "kind": "CLOSE_PAREN_TOKEN"
+    }
+  ]
 }

@@ -1,20 +1,25 @@
 {
-    "kind": "ASSIGNMENT_STATEMENT",
-    "children": [
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "EQUAL_TOKEN",
-            "isMissing": true
-        },
-        {
-            "kind": "DECIMAL_INTEGER_LITERAL",
-            "value": 5
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
-        }
-    ]
+  "kind": "ASSIGNMENT_STATEMENT",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a"
+    },
+    {
+      "kind": "EQUAL_TOKEN",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_EQUAL_TOKEN"
+      ]
+    },
+    {
+      "kind": "DECIMAL_INTEGER_LITERAL",
+      "value": "5"
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

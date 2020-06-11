@@ -1,16 +1,21 @@
 {
-    "kind": "TYPE_TEST_EXPRESSION",
-    "children": [
-        {
-            "kind": "DECIMAL_INTEGER_LITERAL",
-            "value": "3"
-        },
-        {
-            "kind": "IS_KEYWORD"
-        },
-        {
-            "kind": "TYPE_DESC",
-            "isMissing": true
-        }
-    ]
+  "kind": "TYPE_TEST_EXPRESSION",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "DECIMAL_INTEGER_LITERAL",
+      "value": "3"
+    },
+    {
+      "kind": "IS_KEYWORD"
+    },
+    {
+      "kind": "TYPE_DESC",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_TYPE_DESC"
+      ]
+    }
+  ]
 }

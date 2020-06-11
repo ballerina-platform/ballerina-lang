@@ -1,51 +1,51 @@
 {
-    "kind": "BINARY_EXPRESSION",
-    "children": [
+  "kind": "BINARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a"
+    },
+    {
+      "kind": "DOUBLE_EQUAL_TOKEN"
+    },
+    {
+      "kind": "BINARY_EXPRESSION",
+      "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "DOUBLE_EQUAL_TOKEN"
-        },
-        {
-            "kind": "BINARY_EXPRESSION",
-            "children": [
+          "kind": "TYPE_TEST_EXPRESSION",
+          "children": [
+            {
+              "kind": "BINARY_EXPRESSION",
+              "children": [
                 {
-                    "kind": "TYPE_TEST_EXPRESSION",
-                    "children": [
-                        {
-                            "kind": "BINARY_EXPRESSION",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "b"
-                                },
-                                {
-                                    "kind": "SLASH_TOKEN"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "c"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "IS_KEYWORD"
-                        },
-                        {
-                            "kind": "INT_KEYWORD"
-                        }
-                    ]
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b"
                 },
                 {
-                    "kind": "PLUS_TOKEN"
+                  "kind": "SLASH_TOKEN"
                 },
                 {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "d"
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "c"
                 }
-            ]
+              ]
+            },
+            {
+              "kind": "IS_KEYWORD"
+            },
+            {
+              "kind": "INT_KEYWORD"
+            }
+          ]
+        },
+        {
+          "kind": "PLUS_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "d"
         }
-    ]
+      ]
+    }
+  ]
 }

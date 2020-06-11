@@ -1,54 +1,53 @@
 {
-    "kind": "INDEXED_EXPRESSION",
-    "children": [
+  "kind": "INDEXED_EXPRESSION",
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "foo"
+    },
+    {
+      "kind": "OPEN_BRACKET_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "foo"
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a"
         },
         {
-            "kind": "OPEN_BRACKET_TOKEN"
+          "kind": "COMMA_TOKEN"
         },
         {
-            "kind": "LIST",
-            "children": [
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "a"
-                },
-                {
-                    "kind": "COMMA_TOKEN"
-                },
-                {
-                    "kind": "DECIMAL_INTEGER_LITERAL",
-                    "value": "4"
-                },
-                {
-                    "kind": "COMMA_TOKEN"
-                },
-                {
-                    "kind": "FUNCTION_CALL",
-                    "children": [
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "bar"
-                        },
-                        {
-                            "kind": "OPEN_PAREN_TOKEN"
-                        },
-                        {
-                            "kind": "LIST",
-                            "children": [
-                            ]
-                        },
-                        {
-                            "kind": "CLOSE_PAREN_TOKEN"
-                        }
-                    ]
-                }
-            ]
+          "kind": "DECIMAL_INTEGER_LITERAL",
+          "value": "4"
         },
         {
-            "kind": "CLOSE_BRACKET_TOKEN"
+          "kind": "COMMA_TOKEN"
+        },
+        {
+          "kind": "FUNCTION_CALL",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "bar"
+            },
+            {
+              "kind": "OPEN_PAREN_TOKEN"
+            },
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "CLOSE_PAREN_TOKEN"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACKET_TOKEN"
+    }
+  ]
 }

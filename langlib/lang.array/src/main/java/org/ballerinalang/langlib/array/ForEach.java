@@ -31,6 +31,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.getElementAccessFunction;
+import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 
 /**
  * Native implementation of lang.array:forEach(Type[]).
@@ -38,7 +39,7 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.getElementAccessFunc
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "forEach",
+        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "forEach",
         args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "func", type = TypeKind.FUNCTION)},
         isPublic = true
 )

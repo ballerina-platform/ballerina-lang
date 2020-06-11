@@ -17,7 +17,7 @@
 public type Sched object {
     private function () processFunc;
 
-    public function __init(function () processFunc) {
+    public function init(function () processFunc) {
         self.processFunc = processFunc;
     }
 

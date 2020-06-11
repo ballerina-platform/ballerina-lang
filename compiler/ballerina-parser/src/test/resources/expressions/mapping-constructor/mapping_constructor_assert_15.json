@@ -1,221 +1,221 @@
 {
-    "kind": "MAPPING_CONSTRUCTOR",
-    "children": [
+  "kind": "MAPPING_CONSTRUCTOR",
+  "children": [
+    {
+      "kind": "OPEN_BRACE_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "OPEN_BRACE_TOKEN"
+          "kind": "SPECIFIC_FIELD",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "age"
+            },
+            {
+              "kind": "COLON_TOKEN"
+            },
+            {
+              "kind": "DECIMAL_INTEGER_LITERAL",
+              "value": "20"
+            }
+          ]
         },
         {
-            "kind": "LIST",
-            "children": [
+          "kind": "COMMA_TOKEN"
+        },
+        {
+          "kind": "SPREAD_FIELD",
+          "children": [
+            {
+              "kind": "ELLIPSIS_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "marks1"
+            }
+          ]
+        },
+        {
+          "kind": "COMMA_TOKEN"
+        },
+        {
+          "kind": "SPECIFIC_FIELD",
+          "children": [
+            {
+              "kind": "STRING_LITERAL",
+              "value": "name"
+            },
+            {
+              "kind": "COLON_TOKEN"
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "value": "John"
+            }
+          ]
+        },
+        {
+          "kind": "COMMA_TOKEN"
+        },
+        {
+          "kind": "SPECIFIC_FIELD",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "parent"
+            },
+            {
+              "kind": "COLON_TOKEN"
+            },
+            {
+              "kind": "MAPPING_CONSTRUCTOR",
+              "children": [
                 {
-                    "kind": "SPECIFIC_FIELD",
-                    "children": [
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "age"
-                        },
-                        {
-                            "kind": "COLON_TOKEN"
-                        },
-                        {
-                            "kind": "DECIMAL_INTEGER_LITERAL",
-                            "value": "20"
-                        }
-                    ]
+                  "kind": "OPEN_BRACE_TOKEN"
                 },
                 {
-                    "kind": "SPREAD_FIELD",
-                    "children": [
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "SPECIFIC_FIELD",
+                      "children": [
                         {
-                            "kind": "COMMA_TOKEN"
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "age"
                         },
                         {
-                            "kind": "ELLIPSIS_TOKEN"
+                          "kind": "COLON_TOKEN"
                         },
                         {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "marks1"
+                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "value": "50"
                         }
-                    ]
+                      ]
+                    },
+                    {
+                      "kind": "COMMA_TOKEN"
+                    },
+                    {
+                      "kind": "SPREAD_FIELD",
+                      "children": [
+                        {
+                          "kind": "ELLIPSIS_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "marks2"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "COMMA_TOKEN"
+                    },
+                    {
+                      "kind": "SPECIFIC_FIELD",
+                      "children": [
+                        {
+                          "kind": "STRING_LITERAL",
+                          "value": "name"
+                        },
+                        {
+                          "kind": "COLON_TOKEN"
+                        },
+                        {
+                          "kind": "STRING_LITERAL",
+                          "value": "Jane"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "COMMA_TOKEN"
+                    },
+                    {
+                      "kind": "SPECIFIC_FIELD",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "address2"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "COMMA_TOKEN"
+                    },
+                    {
+                      "kind": "COMPUTED_NAME_FIELD",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACKET_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "expr2"
+                        },
+                        {
+                          "kind": "CLOSE_BRACKET_TOKEN"
+                        },
+                        {
+                          "kind": "COLON_TOKEN"
+                        },
+                        {
+                          "kind": "STRING_LITERAL",
+                          "value": "value2"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
-                    "kind": "SPECIFIC_FIELD",
-                    "children": [
-                        {
-                            "kind": "COMMA_TOKEN"
-                        },
-                        {
-                            "kind": "STRING_LITERAL",
-                            "value": "name"
-                        },
-                        {
-                            "kind": "COLON_TOKEN"
-                        },
-                        {
-                            "kind": "STRING_LITERAL",
-                            "value": "John"
-                        }
-                    ]
-                },
-                {
-                    "kind": "SPECIFIC_FIELD",
-                    "children": [
-                        {
-                            "kind": "COMMA_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "parent"
-                        },
-                        {
-                            "kind": "COLON_TOKEN"
-                        },
-                        {
-                            "kind": "MAPPING_CONSTRUCTOR",
-                            "children": [
-                                {
-                                    "kind": "OPEN_BRACE_TOKEN"
-                                },
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                        {
-                                            "kind": "SPECIFIC_FIELD",
-                                            "children": [
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "age"
-                                                },
-                                                {
-                                                    "kind": "COLON_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "DECIMAL_INTEGER_LITERAL",
-                                                    "value": "50"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "SPREAD_FIELD",
-                                            "children": [
-                                                {
-                                                    "kind": "COMMA_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "ELLIPSIS_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "marks2"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "SPECIFIC_FIELD",
-                                            "children": [
-                                                {
-                                                    "kind": "COMMA_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "STRING_LITERAL",
-                                                    "value": "name"
-                                                },
-                                                {
-                                                    "kind": "COLON_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "STRING_LITERAL",
-                                                    "value": "Jane"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "SPECIFIC_FIELD",
-                                            "children": [
-                                                {
-                                                    "kind": "COMMA_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "address2"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "COMPUTED_NAME_FIELD",
-                                            "children": [
-                                                {
-                                                    "kind": "COMMA_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "OPEN_BRACKET_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "expr2"
-                                                },
-                                                {
-                                                    "kind": "CLOSE_BRACKET_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "COLON_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "STRING_LITERAL",
-                                                    "value": "value2"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "CLOSE_BRACE_TOKEN"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "kind": "SPECIFIC_FIELD",
-                    "children": [
-                        {
-                            "kind": "COMMA_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "address"
-                        }
-                    ]
-                },
-                {
-                    "kind": "COMPUTED_NAME_FIELD",
-                    "children": [
-                        {
-                            "kind": "COMMA_TOKEN"
-                        },
-                        {
-                            "kind": "OPEN_BRACKET_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "expr1"
-                        },
-                        {
-                            "kind": "CLOSE_BRACKET_TOKEN"
-                        },
-                        {
-                            "kind": "COLON_TOKEN"
-                        },
-                        {
-                            "kind": "STRING_LITERAL",
-                            "value": "value1"
-                        }
-                    ]
+                  "kind": "CLOSE_BRACE_TOKEN"
                 }
-            ]
+              ]
+            }
+          ]
         },
         {
-            "kind": "CLOSE_BRACE_TOKEN"
+          "kind": "COMMA_TOKEN"
+        },
+        {
+          "kind": "SPECIFIC_FIELD",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "address"
+            }
+          ]
+        },
+        {
+          "kind": "COMMA_TOKEN"
+        },
+        {
+          "kind": "COMPUTED_NAME_FIELD",
+          "children": [
+            {
+              "kind": "OPEN_BRACKET_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "expr1"
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN"
+            },
+            {
+              "kind": "COLON_TOKEN"
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "value": "value1"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACE_TOKEN"
+    }
+  ]
 }

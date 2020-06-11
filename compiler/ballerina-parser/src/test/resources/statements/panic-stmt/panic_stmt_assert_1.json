@@ -1,15 +1,15 @@
 {
-    "kind": "PANIC_STATEMENT",
-    "children": [
-        {
-            "kind": "PANIC_KEYWORD"
-        },
-        {
-            "kind": "DECIMAL_INTEGER_LITERAL",
-            "value": 5
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
-        }
-    ]
+  "kind": "PANIC_STATEMENT",
+  "children": [
+    {
+      "kind": "PANIC_KEYWORD"
+    },
+    {
+      "kind": "DECIMAL_INTEGER_LITERAL",
+      "value": "5"
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

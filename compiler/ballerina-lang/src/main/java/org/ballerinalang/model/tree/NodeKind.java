@@ -179,6 +179,7 @@ public enum NodeKind {
     LET_CLAUSE,
     ON_CONFLICT,
     ON,
+    LIMIT,
 
     /* Types */
     ARRAY_TYPE,

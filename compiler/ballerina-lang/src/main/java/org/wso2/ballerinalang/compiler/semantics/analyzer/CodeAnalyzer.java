@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -69,6 +70,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
@@ -80,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -213,6 +216,7 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.ballerinalang.util.BLangCompilerConstants.RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC;
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
@@ -248,6 +252,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private Stack<Boolean> returnWithintransactionCheckStack = new Stack<>();
     private Stack<Boolean> doneWithintransactionCheckStack = new Stack<>();
     private Stack<Boolean> transactionalFuncCheckStack = new Stack<>();
+    private Stack<Boolean> returnWithinRetryCheckStack = new Stack<>();
     private BLangNode parent;
     private Names names;
     private SymbolEnv env;
@@ -427,10 +432,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (funcNode.body != null) {
             analyzeNode(funcNode.body, invokableEnv);
 
-            boolean isNilableReturn = funcNode.symbol.type.getReturnType().isNullable();
+            boolean isNeverOrNilableReturn = funcNode.symbol.type.getReturnType().tag == TypeTags.NEVER ||
+                    funcNode.symbol.type.getReturnType().isNullable();
             // If the return signature is nil-able, an implicit return will be added in Desugar.
             // Hence this only checks for non-nil-able return signatures and uncertain return in the body.
-            if (!isNilableReturn && !this.statementReturns) {
+            if (!isNeverOrNilableReturn && !this.statementReturns) {
                 this.dlog.error(funcNode.pos, DiagnosticCode.INVOKABLE_MUST_RETURN,
                         funcNode.getKind().toString().toLowerCase());
             }
@@ -527,7 +533,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransactionalExpr transactionalExpr) {
-        //TODO Transactions
+
     }
 
     @Override
@@ -571,17 +577,30 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
-        //TODO Transactions
-//        if (this.transactionCount == 0) {
-//            this.dlog.error(retryNode.pos, DiagnosticCode.RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
-//            return;
-//        }
-//        this.lastStatement = true;
+        this.returnWithinRetryCheckStack.push(false);
+        retryNode.retrySpec.accept(this);
+        retryNode.retryBody.accept(this);
+        retryNode.retryBodyReturns = this.returnWithinRetryCheckStack.peek();
+        this.returnWithinRetryCheckStack.pop();
+    }
+
+    @Override
+    public void visit(BLangRetrySpec retrySpec) {
+        if (retrySpec.retryManagerType != null) {
+            BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) symTable.langInternalModuleSymbol
+                    .scope.lookup(names.fromString("RetryManager")).symbol;
+            BType abstractRetryManagerType = retryManagerTypeSymbol.type;
+            if (!types.isAssignable(retrySpec.retryManagerType.type, abstractRetryManagerType)) {
+                dlog.error(retrySpec.pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT,
+                        RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC, retrySpec.retryManagerType.type);
+            }
+        }
     }
 
     @Override
     public void visit(BLangRetryTransaction retryTransaction) {
-        //TODO Transactions
+        analyzeNode(retryTransaction.retrySpec, env);
+        analyzeNode(retryTransaction.transaction, env);
     }
 
     private void checkUnreachableCode(BLangStatement stmt) {
@@ -624,6 +643,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (checkReturnValidityInTransaction()) {
             this.dlog.error(returnStmt.pos, DiagnosticCode.RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;
+        }
+        if (!this.returnWithinRetryCheckStack.empty()) {
+            this.returnWithinRetryCheckStack.pop();
+            this.returnWithinRetryCheckStack.push(true);
         }
         this.statementReturns = true;
         analyzeExpr(returnStmt.expr);
@@ -2090,6 +2113,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (Symbols.isFlagOn(funcSymbol.flags, Flags.DEPRECATED)) {
                 dlog.warning(invocationExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, invocationExpr);
             }
+
+            if (((BInvokableSymbol) funcSymbol).getReturnType().tag == TypeTags.NEVER &&
+                    invocationExpr.parent.getKind() != NodeKind.EXPRESSION_STATEMENT) {
+                // Log an error if the function returns never and invoked invalidly.
+                dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_NEVER_RETURN_TYPED_FUNCTION_INVOCATION,
+                        funcSymbol.name);
+            }
         }
     }
 
@@ -2585,12 +2615,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             dlog.error(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
 
-        //TODO Transaction - not required
-//        if (checkReturnValidityInTransaction()) {
-//            this.dlog.error(checkedExpr.pos, DiagnosticCode.CHECK_EXPRESSION_INVALID_USAGE_WITHIN_TRANSACTION_BLOCK);
-//            return;
-//        }
-
         returnTypes.peek().add(exprType);
     }
 
@@ -2680,6 +2704,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangDoClause doClause) {
         analyzeNode(doClause.body, env);
+    }
+
+    @Override
+    public void visit(BLangLimitClause limitClause) {
+        analyzeExpr(limitClause.expression);
     }
 
     @Override

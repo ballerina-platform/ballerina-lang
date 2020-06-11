@@ -160,7 +160,7 @@ public class DefinitionUtil {
         }
         BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) objectNode.get().typeNode;
         String symbolName = CommonUtil.getSymbolName(symbol);
-        if ("__init".equals(symbolName)) {
+        if ("init".equals(symbolName)) {
             // Definition is invoked over the new keyword
             BLangFunction initFunction = objectTypeNode.initFunction;
             DiagnosticPos pos;

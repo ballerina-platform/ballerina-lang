@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STForkStatementNode extends STStatementNode {
             STNode openBraceToken,
             STNode namedWorkerDeclarations,
             STNode closeBraceToken) {
-        super(SyntaxKind.FORK_STATEMENT);
+        this(
+                forkKeyword,
+                openBraceToken,
+                namedWorkerDeclarations,
+                closeBraceToken,
+                Collections.emptyList());
+    }
+
+    STForkStatementNode(
+            STNode forkKeyword,
+            STNode openBraceToken,
+            STNode namedWorkerDeclarations,
+            STNode closeBraceToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.FORK_STATEMENT, diagnostics);
         this.forkKeyword = forkKeyword;
         this.openBraceToken = openBraceToken;
         this.namedWorkerDeclarations = namedWorkerDeclarations;
@@ -51,7 +68,47 @@ public class STForkStatementNode extends STStatementNode {
                 closeBraceToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STForkStatementNode(
+                this.forkKeyword,
+                this.openBraceToken,
+                this.namedWorkerDeclarations,
+                this.closeBraceToken,
+                diagnostics);
+    }
+
+    public STForkStatementNode modify(
+            STNode forkKeyword,
+            STNode openBraceToken,
+            STNode namedWorkerDeclarations,
+            STNode closeBraceToken) {
+        if (checkForReferenceEquality(
+                forkKeyword,
+                openBraceToken,
+                namedWorkerDeclarations,
+                closeBraceToken)) {
+            return this;
+        }
+
+        return new STForkStatementNode(
+                forkKeyword,
+                openBraceToken,
+                namedWorkerDeclarations,
+                closeBraceToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ForkStatementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

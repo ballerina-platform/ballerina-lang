@@ -736,7 +736,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetryTransaction retryTransaction) {
-        //TODO Transactions
+        /* ignore */
     }
 
     @Override
@@ -1272,7 +1272,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
         // If @untainted annotation is attached, we consider resulting value after conversion is untainted
         if (!conversionExpr.annAttachments.isEmpty()) {
-            getCurrentAnalysisState().taintedStatus = getTaintedStatusBasedOnAnnotations(conversionExpr.annAttachments);
+            TaintedStatus annotStatus = getTaintedStatusBasedOnAnnotations(conversionExpr.annAttachments);
+            if (annotStatus != TaintedStatus.IGNORED) {
+                getCurrentAnalysisState().taintedStatus = annotStatus;
+            }
         }
     }
 

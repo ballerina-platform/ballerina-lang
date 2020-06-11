@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STListBindingPatternNode extends STBindingPatternNode {
             STNode bindingPatterns,
             STNode restBindingPattern,
             STNode closeBracket) {
-        super(SyntaxKind.LIST_BINDING_PATTERN);
+        this(
+                openBracket,
+                bindingPatterns,
+                restBindingPattern,
+                closeBracket,
+                Collections.emptyList());
+    }
+
+    STListBindingPatternNode(
+            STNode openBracket,
+            STNode bindingPatterns,
+            STNode restBindingPattern,
+            STNode closeBracket,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.LIST_BINDING_PATTERN, diagnostics);
         this.openBracket = openBracket;
         this.bindingPatterns = bindingPatterns;
         this.restBindingPattern = restBindingPattern;
@@ -51,7 +68,47 @@ public class STListBindingPatternNode extends STBindingPatternNode {
                 closeBracket);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STListBindingPatternNode(
+                this.openBracket,
+                this.bindingPatterns,
+                this.restBindingPattern,
+                this.closeBracket,
+                diagnostics);
+    }
+
+    public STListBindingPatternNode modify(
+            STNode openBracket,
+            STNode bindingPatterns,
+            STNode restBindingPattern,
+            STNode closeBracket) {
+        if (checkForReferenceEquality(
+                openBracket,
+                bindingPatterns,
+                restBindingPattern,
+                closeBracket)) {
+            return this;
+        }
+
+        return new STListBindingPatternNode(
+                openBracket,
+                bindingPatterns,
+                restBindingPattern,
+                closeBracket,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ListBindingPatternNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

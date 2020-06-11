@@ -24,7 +24,7 @@ package io.ballerinalang.compiler.internal.parser;
  */
 public enum OperatorPrecedence {
 
-    MEMBER_ACCESS(0),       //  x.k, x.@a, f(x), x.f(y), x[y], x?.k
+    MEMBER_ACCESS(0),       //  x.k, x.@a, f(x), x.f(y), x[y], x?.k, x.<y>, x/<y>, x/**/<y>, x/*xml-step-extend
     UNARY(1),               //  (+x), (-x), (~x), (!x), (<T>x), (typeof x),
     EXPRESSION_ACTION(1),   //  Expression that can also be an action. eg: (check x), (checkpanic x). Same as unary.
     MULTIPLICATIVE(2),      //  (x * y), (x / y), (x % y)
@@ -47,7 +47,7 @@ public enum OperatorPrecedence {
     //  Actions cannot reside inside expressions, hence they have the lowest precedence.
     REMOTE_CALL_ACTION(18), //  (x -> y()), 
     ACTION(19),             //  (start x), ...
-    
+    DEFAULT(20),             //  (start x), ...
     ;
 
     private int level = 0;
@@ -56,12 +56,12 @@ public enum OperatorPrecedence {
         this.level = level;
     }
 
-    public boolean isHigherThan(OperatorPrecedence opPrecedence, boolean allowActions) {
+    public boolean isHigherThanOrEqual(OperatorPrecedence opPrecedence, boolean allowActions) {
         if (allowActions) {
             if (this == EXPRESSION_ACTION && opPrecedence == REMOTE_CALL_ACTION) {
                 return false;
             }
         }
-        return this.level < opPrecedence.level;
+        return this.level <= opPrecedence.level;
     }
 }

@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STMappingConstructorExpressionNode extends STExpressionNode {
             STNode openBrace,
             STNode fields,
             STNode closeBrace) {
-        super(SyntaxKind.MAPPING_CONSTRUCTOR);
+        this(
+                openBrace,
+                fields,
+                closeBrace,
+                Collections.emptyList());
+    }
+
+    STMappingConstructorExpressionNode(
+            STNode openBrace,
+            STNode fields,
+            STNode closeBrace,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.MAPPING_CONSTRUCTOR, diagnostics);
         this.openBrace = openBrace;
         this.fields = fields;
         this.closeBrace = closeBrace;
@@ -47,7 +62,43 @@ public class STMappingConstructorExpressionNode extends STExpressionNode {
                 closeBrace);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STMappingConstructorExpressionNode(
+                this.openBrace,
+                this.fields,
+                this.closeBrace,
+                diagnostics);
+    }
+
+    public STMappingConstructorExpressionNode modify(
+            STNode openBrace,
+            STNode fields,
+            STNode closeBrace) {
+        if (checkForReferenceEquality(
+                openBrace,
+                fields,
+                closeBrace)) {
+            return this;
+        }
+
+        return new STMappingConstructorExpressionNode(
+                openBrace,
+                fields,
+                closeBrace,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MappingConstructorExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

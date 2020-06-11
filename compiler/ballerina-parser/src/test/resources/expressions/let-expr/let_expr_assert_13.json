@@ -1,94 +1,114 @@
 {
-    "kind": "BINARY_EXPRESSION",
-    "children": [
+  "kind": "BINARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "LET_EXPRESSION",
+      "children": [
         {
-            "kind": "LET_EXPRESSION",
-            "children": [
-                {
-                    "kind": "LET_KEYWORD"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                        {
-                            "kind": "LET_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": []
-                                },
-                                {
-                                    "kind": "INT_KEYWORD"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "b"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "kind": "IN_KEYWORD"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "c"
-                }
-            ]
+          "kind": "LET_KEYWORD"
         },
         {
-            "kind": "PLUS_TOKEN"
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "LET_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "INT_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b"
+                }
+              ]
+            }
+          ]
         },
         {
-            "kind": "LET_EXPRESSION",
-            "children": [
-                {
-                    "kind": "LET_KEYWORD"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                        {
-                            "kind": "LET_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": []
-                                },
-                                {
-                                    "kind": "INT_KEYWORD"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "d"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "e"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "kind": "IN_KEYWORD"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "f"
-                }
-            ]
+          "kind": "IN_KEYWORD"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "c"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "PLUS_TOKEN"
+    },
+    {
+      "kind": "LET_EXPRESSION",
+      "children": [
+        {
+          "kind": "LET_KEYWORD"
+        },
+        {
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "LET_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "INT_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "d"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "e"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "IN_KEYWORD"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "f"
+        }
+      ]
+    }
+  ]
 }

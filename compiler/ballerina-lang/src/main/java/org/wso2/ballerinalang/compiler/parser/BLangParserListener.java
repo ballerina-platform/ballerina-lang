@@ -570,9 +570,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isPrivate = ctx.PRIVATE() != null;
         boolean isPublic = ctx.PUBLIC() != null;
         boolean markdownExists = ctx.documentationString() != null;
+        boolean isReadonly = ctx.TYPE_READONLY() != null;
 
         this.pkgBuilder.addObjectFieldVariable(currentPos, ws, name, identifierPos, exprAvailable, annotationCount,
-                                               isPrivate, isPublic, markdownExists);
+                                               isPrivate, isPublic, markdownExists, isReadonly);
     }
 
     /**
@@ -1543,6 +1544,24 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgBuilder.endExprNodeList(getWS(ctx), ctx.getChildCount() / 2 + 1);
         this.pkgBuilder.createMultiKeyExpressionNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterTableRowList(BallerinaParser.TableRowListContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.startExprNodeList();
+    }
+
+    @Override
+    public void exitTableRowList(BallerinaParser.TableRowListContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.endExprNodeList(getWS(ctx), ctx.getChildCount() / 2 + 1);
     }
 
     @Override
@@ -2916,6 +2935,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.createDoClause(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitLimitClause(BallerinaParser.LimitClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.createLimitClause(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

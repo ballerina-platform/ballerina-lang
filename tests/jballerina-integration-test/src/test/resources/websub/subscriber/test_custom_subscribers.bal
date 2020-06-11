@@ -109,7 +109,7 @@ public type WebhookServerForPayload object {
 
     private websub:Listener websubListener;
 
-    public function __init(int port, WebhookListenerConfiguration? config = ()) {
+    public function init(int port, WebhookListenerConfiguration? config = ()) {
         websub:ExtensionConfig extensionConfig = {
             topicIdentifier: websub:TOPIC_ID_PAYLOAD_KEY,
             payloadKeyResourceMap: {
@@ -160,7 +160,7 @@ public type WebhookServerForHeader object {
 
     private websub:Listener websubListener;
 
-    public function __init(int port, WebhookListenerConfiguration? config = ()) {
+    public function init(int port, WebhookListenerConfiguration? config = ()) {
         websub:ExtensionConfig extensionConfig = {
             topicIdentifier: websub:TOPIC_ID_HEADER,
             topicHeader: MOCK_HEADER,
@@ -206,7 +206,7 @@ public type WebhookServerForHeaderAndPayload object {
 
     private websub:Listener websubListener;
 
-    public function __init(int port, WebhookListenerConfiguration? config = ()) {
+    public function init(int port, WebhookListenerConfiguration? config = ()) {
         websub:ExtensionConfig extensionConfig = {
             topicIdentifier: websub:TOPIC_ID_HEADER_AND_PAYLOAD,
             topicHeader: MOCK_HEADER,
