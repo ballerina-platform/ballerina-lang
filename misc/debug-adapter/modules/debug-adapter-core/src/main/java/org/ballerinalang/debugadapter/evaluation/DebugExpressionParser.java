@@ -29,6 +29,8 @@ import io.ballerinalang.compiler.text.TextDocuments;
 import java.util.Optional;
 import java.util.StringJoiner;
 
+import static org.ballerinalang.debugadapter.utils.PackageUtils.isBlank;
+
 /**
  * A simple ballerina expression-specific parsing implementation, used to validate, parse and transform ballerina
  * expressions into corresponding java expressions.
@@ -84,7 +86,7 @@ class DebugExpressionParser {
      * Returns expression input in a parsable format.
      *
      * @param expression user expression input.
-     * @return expression input inside a parsable unit.
+     * @return parsable unit which wraps the expression.
      */
     private static String getParsableExpression(String expression) {
         // Adds missing semicolon, if required.
@@ -93,9 +95,5 @@ class DebugExpressionParser {
         }
         // As expressions cannot be parsed standalone, wraps it inside a function template, as the return value;
         return String.format(BAL_FUNCTION_DEF_TEMPLATE, expression);
-    }
-
-    private static boolean isBlank(String str) {
-        return str == null || str.isEmpty() || str.chars().allMatch(Character::isWhitespace);
     }
 }

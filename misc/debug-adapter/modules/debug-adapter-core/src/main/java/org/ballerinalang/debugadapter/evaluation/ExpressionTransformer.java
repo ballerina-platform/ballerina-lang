@@ -100,23 +100,26 @@ public class ExpressionTransformer extends NodeTransformer<Node> {
         // expressions
         supportedSyntax.add(SyntaxKind.BINARY_EXPRESSION);
         supportedSyntax.add(SyntaxKind.BRACED_EXPRESSION);
-        // arithmetic/logical operators
+        // arithmetic operators
         supportedSyntax.add(SyntaxKind.PLUS_TOKEN);
         supportedSyntax.add(SyntaxKind.MINUS_TOKEN);
         supportedSyntax.add(SyntaxKind.ASTERISK_TOKEN);
         supportedSyntax.add(SyntaxKind.SLASH_TOKEN);
+        // relational operators
         supportedSyntax.add(SyntaxKind.LT_TOKEN);
         supportedSyntax.add(SyntaxKind.LT_EQUAL_TOKEN);
         supportedSyntax.add(SyntaxKind.GT_TOKEN);
         supportedSyntax.add(SyntaxKind.GT_EQUAL_TOKEN);
-        // variables
+        // variable identifiers
+        supportedSyntax.add(SyntaxKind.BASIC_LITERAL);
         supportedSyntax.add(SyntaxKind.SIMPLE_NAME_REFERENCE);
         supportedSyntax.add(SyntaxKind.IDENTIFIER_TOKEN);
         // numeric literals
-        supportedSyntax.add(SyntaxKind.BASIC_LITERAL);
         supportedSyntax.add(SyntaxKind.DECIMAL_INTEGER_LITERAL);
         supportedSyntax.add(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL);
         // misc
+        supportedSyntax.add(SyntaxKind.OPEN_PAREN_TOKEN);
+        supportedSyntax.add(SyntaxKind.CLOSE_PAREN_TOKEN);
         supportedSyntax.add(SyntaxKind.NONE);
         supportedSyntax.add(SyntaxKind.EOF_TOKEN);
     }
@@ -134,7 +137,7 @@ public class ExpressionTransformer extends NodeTransformer<Node> {
         Node jExpression = parsedExpr.apply(this);
         if (unsupportedSyntaxDetected()) {
             final StringJoiner errors = new StringJoiner(System.lineSeparator());
-            unsupportedNodes.forEach(node -> errors.add(String.format("%s (%s)", node.toString(), node.kind())));
+            unsupportedNodes.forEach(node -> errors.add(String.format("%s - %s", node.toString(), node.kind())));
             throw new EvaluationException(String.format(EvaluationExceptionKind.UNSUPPORTED.getString(), errors));
         }
         return jExpression.toString();
