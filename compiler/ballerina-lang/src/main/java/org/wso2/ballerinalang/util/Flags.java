@@ -87,7 +87,7 @@ public class Flags {
                     mask |= INTERFACE;
                     break;
                 case REQUIRED:
-                    mask |= REQUIRED;assignment
+                    mask |= REQUIRED;
                     break;
                 case RECORD:
                     mask |= RECORD;
@@ -146,7 +146,7 @@ public class Flags {
         int flagVal;
         for (Flag flag : Flag.values()) {
             switch (flag) {
-                case PUBLIC:assignment
+                case PUBLIC:
                     flagVal = PUBLIC;
                     break;
                 case PRIVATE:
