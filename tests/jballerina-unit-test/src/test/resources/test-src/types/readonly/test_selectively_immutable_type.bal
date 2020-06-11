@@ -54,6 +54,7 @@ function testImmutableTypes() {
     testImmutableAnydata();
     testImmutableAny();
     testImmutableUnion();
+    testDefaultValuesOfFields();
 }
 
 function testSimpleInitializationForSelectivelyImmutableTypes() {
@@ -816,6 +817,71 @@ function testImmutableUnion() {
     assertTrue(an is readonly);
     assertTrue(a.isReadOnly());
     assertEquality(12.0f, an);
+}
+
+type Versioning record {|
+    string pattern = "v{major}.{minor}";
+    boolean allow = true;
+    boolean matchMajor = false;
+|};
+
+type Quota record {
+    int initial = 10;
+    float factor = 2.0;
+};
+
+type IdentifierRec record {
+    string id = "record";
+};
+
+type IdentifierAbstractObj abstract object {
+    function getId() returns string;
+};
+
+type IdentifierObj object {
+    readonly string id;
+
+    function init() {
+        self.id = "object";
+    }
+
+    function getId() returns string {
+        return self.id;
+    }
+};
+
+type ConfigRec record {
+    Versioning versioning;
+    Quota quota;
+    IdentifierRec rec?;
+    IdentifierAbstractObj obj;
+};
+
+function testDefaultValuesOfFields() {
+    ConfigRec & readonly cr = {versioning: {}, quota: {initial: 5}, rec: {}, obj: new IdentifierObj()};
+
+    any a = cr;
+    assertTrue(a is ConfigRec);
+    assertTrue(a is ConfigRec & readonly);
+
+    ConfigRec cr2 = cr;
+
+    assertTrue(cr2.versioning is Versioning & readonly);
+    assertTrue(cr2.versioning.isReadOnly());
+    assertEquality(<Versioning> {pattern: "v{major}.{minor}", allow: true, matchMajor: false}, cr2.versioning);
+
+    assertTrue(cr2.quota is Quota & readonly);
+    assertTrue(cr2.quota.isReadOnly());
+    assertEquality(<Quota> {initial: 5, factor: 2.0}, cr2.quota);
+
+    assertTrue(cr2?.rec is IdentifierRec & readonly);
+    assertTrue(cr2?.rec.isReadOnly());
+    assertEquality(<IdentifierRec> {id: "record"}, cr2?.rec);
+
+    assertTrue(cr2.obj is IdentifierAbstractObj & readonly);
+    assertTrue(cr2.obj is IdentifierObj);
+    IdentifierObj obj = <IdentifierObj> cr2.obj;
+    assertEquality("object", obj.getId());
 }
 
 type AssertionError error<ASSERTION_ERROR_REASON>;

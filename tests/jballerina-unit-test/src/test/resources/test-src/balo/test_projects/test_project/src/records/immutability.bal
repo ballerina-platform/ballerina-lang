@@ -24,3 +24,7 @@ public type Details record {|
     int yob;
 |};
 
+public type Quota record {
+    int initial = 10;
+    float factor = 2.0;
+};

@@ -26,6 +26,7 @@ function testImmutableTypes() {
     testImmutableMappings();
     testMutability();
     testSameNamedConstructFromDifferentModules();
+    testDefaultValuesOfFields();
 }
 
 function testXmlComment() {
@@ -395,6 +396,60 @@ function testSameNamedConstructFromDifferentModules() {
     assertEquality("May", e2.details.name);
     assertEquality(1990, e2.details.yob);
     assertEquality(2314, e2.id);
+}
+
+type IdentifierRec record {
+    string id = "record";
+};
+
+type IdentifierAbstractObj abstract object {
+    function getId() returns string;
+};
+
+type IdentifierObj object {
+    readonly string id;
+
+    function init() {
+        self.id = "object";
+    }
+
+    function getId() returns string {
+        return self.id;
+    }
+};
+
+type ConfigRec record {
+    se:Versioning versioning;
+    records:Quota quota;
+    IdentifierRec rec?;
+    IdentifierAbstractObj obj;
+};
+
+function testDefaultValuesOfFields() {
+    ConfigRec & readonly cr = {versioning: {}, quota: {initial: 5}, rec: {}, obj: new IdentifierObj()};
+
+    any a = cr;
+    assertTrue(a is ConfigRec);
+    assertTrue(a is ConfigRec & readonly);
+
+    ConfigRec cr2 = cr;
+
+    assertTrue(cr2.versioning is se:Versioning & readonly);
+    assertTrue(cr2.versioning.isReadOnly());
+    assertEquality(<se:Versioning> {pattern: "v{major}.{minor}", allow: true, matchMajor: false}, cr2.versioning);
+
+    assertTrue(cr2.quota is records:Quota & readonly);
+    assertTrue(cr2.quota.isReadOnly());
+    assertEquality(<records:Quota> {initial: 5, factor: 2.0}, cr2.quota);
+
+    assertTrue(cr2?.rec is IdentifierRec & readonly);
+    assertTrue(cr2?.rec.isReadOnly());
+    assertEquality(<IdentifierRec> {id: "record"}, cr2?.rec);
+
+    assertTrue(cr2.obj is IdentifierAbstractObj & readonly);
+    assertTrue(cr2.obj is IdentifierObj);
+    IdentifierObj obj = <IdentifierObj> cr2.obj;
+    assertEquality("object", obj.getId());
 }
 
 type AssertionError error<ASSERTION_ERROR_REASON>;

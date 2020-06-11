@@ -235,3 +235,9 @@ public type MyConfig object {
 public function getImmutableConfig() returns Config & readonly {
     return new MyConfig("client config");
 }
+
+public type Versioning record {|
+    string pattern = "v{major}.{minor}";
+    boolean allow = true;
+    boolean matchMajor = false;
+|};

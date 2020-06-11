@@ -55,6 +55,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -251,8 +252,8 @@ public class ImmutableTypeCloner {
             case TypeTags.RECORD:
                 BRecordType origRecordType = (BRecordType) type;
 
-                return defineImmutableRecordType(origTypeNode, pos, origRecordType, env, symTable,
-                                                 anonymousModelHelper, names, types, unresolvedTypes);
+                return defineImmutableRecordType(pos, origRecordType, env, symTable, anonymousModelHelper, names, types,
+                                                 unresolvedTypes);
             case TypeTags.OBJECT:
                 BObjectType origObjectType = (BObjectType) type;
 
@@ -426,7 +427,7 @@ public class ImmutableTypeCloner {
         BRecordType origRecordType = immutableRecordType.mutableType;
         if (origRecordType.fields.size() != immutableRecordType.fields.size()) {
 
-            populateImmutableStructureFields(null, types, symTable, anonymousModelHelper, names,
+            populateImmutableStructureFields(types, symTable, anonymousModelHelper, names,
                                              (BLangRecordTypeNode) immutableTypeDefinition.typeNode,
                                              immutableRecordType, origRecordType, pos, env, pkgID, new HashSet<>());
         }
@@ -449,15 +450,14 @@ public class ImmutableTypeCloner {
         BObjectType origObjectType = immutableObjectType.mutableType;
         if (origObjectType.fields.size() != immutableObjectType.fields.size()) {
 
-            populateImmutableStructureFields(null, types, symTable, anonymousModelHelper, names,
+            populateImmutableStructureFields(types, symTable, anonymousModelHelper, names,
                                              (BLangObjectTypeNode) immutableTypeDefinition.typeNode,
                                              immutableObjectType, origObjectType,
                                              pos, env, pkgID, new HashSet<>());
         }
     }
 
-    private static void populateImmutableStructureFields(BLangType origBLangType, Types types,
-                                                         SymbolTable symTable,
+    private static void populateImmutableStructureFields(Types types, SymbolTable symTable,
                                                          BLangAnonymousModelHelper anonymousModelHelper, Names names,
                                                          BLangStructureTypeNode immutableStructureTypeNode,
                                                          BStructureType immutableStructureType,
@@ -488,9 +488,28 @@ public class ImmutableTypeCloner {
         }
         immutableStructureType.fields = fields;
 
-        if (origBLangType != null) {
-            immutableStructureTypeNode.typeRefs.add(origBLangType);
+        BLangUserDefinedType origTypeRef = new BLangUserDefinedType(
+                ASTBuilderUtil.createIdentifier(pos, getPackageAlias(env, pos.getSource().getCompilationUnitName(),
+                                                                     origStructureType.tsymbol.pkgID)),
+                ASTBuilderUtil.createIdentifier(pos, origStructureType.tsymbol.name.value));
+        origTypeRef.pos = pos;
+        origTypeRef.type = origStructureType;
+        immutableStructureTypeNode.typeRefs.add(origTypeRef);
+    }
+
+    private static String getPackageAlias(SymbolEnv env, String compUnitName, PackageID typePkgId) {
+        for (BLangImportPackage importStmt : env.enclPkg.imports) {
+            if (!typePkgId.equals(importStmt.symbol.pkgID)) {
+                continue;
+            }
+
+            if (importStmt.compUnit.value.equals(compUnitName)) {
+                return importStmt.alias.value;
+            }
+
         }
+
+        return ""; // current module
     }
 
     private static void setRestType(Types types, SymbolTable symTable, BLangAnonymousModelHelper anonymousModelHelper,
@@ -509,9 +528,8 @@ public class ImmutableTypeCloner {
                                                              unresolvedTypes);
     }
 
-    private static BIntersectionType defineImmutableRecordType(BLangType origTypeNode, DiagnosticPos pos,
-                                                               BRecordType origRecordType, SymbolEnv env,
-                                                               SymbolTable symTable,
+    private static BIntersectionType defineImmutableRecordType(DiagnosticPos pos, BRecordType origRecordType,
+                                                               SymbolEnv env, SymbolTable symTable,
                                                                BLangAnonymousModelHelper anonymousModelHelper,
                                                                Names names, Types types, Set<BType> unresolvedTypes) {
         PackageID pkgID = env.enclPkg.symbol.pkgID;
@@ -547,9 +565,8 @@ public class ImmutableTypeCloner {
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(),
                                                                                        immutableRecordType, pos);
 
-        populateImmutableStructureFields(origTypeNode, types, symTable, anonymousModelHelper, names,
-                                         recordTypeNode, immutableRecordType, origRecordType, pos, env,
-                                         pkgID, unresolvedTypes);
+        populateImmutableStructureFields(types, symTable, anonymousModelHelper, names, recordTypeNode,
+                                         immutableRecordType, origRecordType, pos, env, pkgID, unresolvedTypes);
 
         setRestType(types, symTable, anonymousModelHelper, names, immutableRecordType, origRecordType, pos, env,
                     unresolvedTypes);
@@ -602,9 +619,8 @@ public class ImmutableTypeCloner {
             }
         }
 
-        populateImmutableStructureFields(origTypeNode, types, symTable, anonymousModelHelper, names,
-                                         objectTypeNode, immutableObjectType, origObjectType, pos, env,
-                                         pkgID, unresolvedTypes);
+        populateImmutableStructureFields(types, symTable, anonymousModelHelper, names, objectTypeNode,
+                                         immutableObjectType, origObjectType, pos, env, pkgID, unresolvedTypes);
 
         BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.addTypeDefinition(immutableObjectType, objectSymbol,
                                                                                     objectTypeNode, env);
