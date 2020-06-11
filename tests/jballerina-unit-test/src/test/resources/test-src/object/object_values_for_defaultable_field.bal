@@ -11,7 +11,7 @@ type Person object {
     public int age;
     public string name;
 
-    function __init (int age = 10, string name = "sample result") {
+    function init (int age = 10, string name = "sample result") {
         self.age = age;
         self.name = name;
         resValue = age;

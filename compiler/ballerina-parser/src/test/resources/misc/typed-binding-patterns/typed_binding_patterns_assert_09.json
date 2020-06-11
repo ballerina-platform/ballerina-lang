@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_PART",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -7,6 +8,7 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "MODULE_VAR_DECL",
@@ -57,6 +59,7 @@
         },
         {
           "kind": "MODULE_VAR_DECL",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -69,6 +72,7 @@
             },
             {
               "kind": "TYPED_BINDING_PATTERN",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "ARRAY_TYPE_DESC",
@@ -89,12 +93,14 @@
                 },
                 {
                   "kind": "LIST_BINDING_PATTERN",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "OPEN_BRACKET_TOKEN"
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "CAPTURE_BINDING_PATTERN",
@@ -107,7 +113,11 @@
                         },
                         {
                           "kind": "COMMA_TOKEN",
-                          "isMissing": true
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_COMMA_TOKEN"
+                          ]
                         },
                         {
                           "kind": "CAPTURE_BINDING_PATTERN",
@@ -141,6 +151,7 @@
         },
         {
           "kind": "MODULE_VAR_DECL",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -153,6 +164,7 @@
             },
             {
               "kind": "TYPED_BINDING_PATTERN",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "ARRAY_TYPE_DESC",
@@ -170,6 +182,7 @@
                 },
                 {
                   "kind": "LIST_BINDING_PATTERN",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "OPEN_BRACKET_TOKEN"
@@ -205,7 +218,11 @@
                     },
                     {
                       "kind": "CLOSE_BRACKET_TOKEN",
-                      "isMissing": true
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
+                      ]
                     }
                   ]
                 }
@@ -225,6 +242,7 @@
         },
         {
           "kind": "MODULE_VAR_DECL",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -237,6 +255,7 @@
             },
             {
               "kind": "TYPED_BINDING_PATTERN",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "ARRAY_TYPE_DESC",
@@ -258,12 +277,14 @@
                 },
                 {
                   "kind": "LIST_BINDING_PATTERN",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "OPEN_BRACKET_TOKEN"
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "CAPTURE_BINDING_PATTERN",
@@ -316,7 +337,11 @@
                         },
                         {
                           "kind": "COMMA_TOKEN",
-                          "isMissing": true
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_COMMA_TOKEN"
+                          ]
                         },
                         {
                           "kind": "WILDCARD_BINDING_PATTERN",
@@ -350,6 +375,7 @@
         },
         {
           "kind": "FUNCTION_DEFINITION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -384,12 +410,14 @@
             },
             {
               "kind": "FUNCTION_BODY_BLOCK",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "OPEN_BRACE_TOKEN"
                 },
                 {
                   "kind": "LIST",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "LOCAL_VAR_DECL",
@@ -438,6 +466,7 @@
                     },
                     {
                       "kind": "LOCAL_VAR_DECL",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "LIST",
@@ -445,6 +474,7 @@
                         },
                         {
                           "kind": "TYPED_BINDING_PATTERN",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "ARRAY_TYPE_DESC",
@@ -462,6 +492,7 @@
                             },
                             {
                               "kind": "LIST_BINDING_PATTERN",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "OPEN_BRACKET_TOKEN"
@@ -494,7 +525,11 @@
                                 },
                                 {
                                   "kind": "CLOSE_BRACKET_TOKEN",
-                                  "isMissing": true
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
+                                  ]
                                 }
                               ]
                             }
@@ -507,6 +542,7 @@
                     },
                     {
                       "kind": "LOCAL_VAR_DECL",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "LIST",
@@ -514,6 +550,7 @@
                         },
                         {
                           "kind": "TYPED_BINDING_PATTERN",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "ARRAY_TYPE_DESC",
@@ -535,12 +572,14 @@
                             },
                             {
                               "kind": "LIST_BINDING_PATTERN",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "OPEN_BRACKET_TOKEN"
                                 },
                                 {
                                   "kind": "LIST",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "CAPTURE_BINDING_PATTERN",
@@ -553,7 +592,11 @@
                                     },
                                     {
                                       "kind": "COMMA_TOKEN",
-                                      "isMissing": true
+                                      "isMissing": true,
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "ERROR_MISSING_COMMA_TOKEN"
+                                      ]
                                     }
                                   ]
                                 },
@@ -583,6 +626,7 @@
                     },
                     {
                       "kind": "LOCAL_VAR_DECL",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "LIST",
@@ -590,6 +634,7 @@
                         },
                         {
                           "kind": "TYPED_BINDING_PATTERN",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "ARRAY_TYPE_DESC",
@@ -610,12 +655,14 @@
                             },
                             {
                               "kind": "LIST_BINDING_PATTERN",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "OPEN_BRACKET_TOKEN"
                                 },
                                 {
                                   "kind": "LIST",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "CAPTURE_BINDING_PATTERN",
@@ -668,7 +715,11 @@
                                     },
                                     {
                                       "kind": "COMMA_TOKEN",
-                                      "isMissing": true
+                                      "isMissing": true,
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "ERROR_MISSING_COMMA_TOKEN"
+                                      ]
                                     },
                                     {
                                       "kind": "WILDCARD_BINDING_PATTERN",

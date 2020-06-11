@@ -22,7 +22,7 @@ public type ChannelReader object {
     io:ReadableByteChannel byteChannel;
     io:ReadableDataChannel dataChannel;
 
-    public function __init(io:ReadableByteChannel byteChannel) {
+    public function init(io:ReadableByteChannel byteChannel) {
         self.byteChannel = byteChannel;
         self.dataChannel = new (byteChannel, "BE");
     }

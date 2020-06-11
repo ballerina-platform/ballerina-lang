@@ -1,5 +1,6 @@
 {
   "kind": "EXPLICIT_NEW_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "NEW_KEYWORD"
@@ -10,10 +11,15 @@
     },
     {
       "kind": "PARENTHESIZED_ARG_LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_PAREN_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_OPEN_PAREN_TOKEN"
+          ]
         },
         {
           "kind": "LIST",

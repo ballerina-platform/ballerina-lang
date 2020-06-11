@@ -16,7 +16,7 @@
 
 int i = 1;
 
-function __init() {
+function init() {
     i += 23;
 }
 

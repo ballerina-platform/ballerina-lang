@@ -22,7 +22,7 @@ import ballerina/io;
 
 int initCount = 0;
 
-function __init() {
+function init() {
     initCount += 1;
 	io:println("Initializing module 'current'");
 }

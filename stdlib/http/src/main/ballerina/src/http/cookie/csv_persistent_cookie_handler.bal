@@ -47,7 +47,7 @@
 //    string fileName = "";
 //    table<myCookie> cookiesTable = table{};
 //
-//    public function __init(string fileName) {
+//    public function init(string fileName) {
 //        self.fileName = checkpanic validateFileExtension(fileName);
 //    }
 //

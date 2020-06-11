@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -34,15 +35,18 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -70,6 +74,7 @@
                 },
                 {
                   "kind": "STRING_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "STRING_KEYWORD"
@@ -79,15 +84,18 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "INTERPOLATION",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "INTERPOLATION_START_TOKEN"
                             },
                             {
                               "kind": "BINARY_EXPRESSION",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
@@ -95,7 +103,11 @@
                                 },
                                 {
                                   "kind": "PLUS_TOKEN",
-                                  "isMissing": true
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_PLUS_TOKEN"
+                                  ]
                                 },
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
@@ -122,6 +134,7 @@
             },
             {
               "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -149,6 +162,7 @@
                 },
                 {
                   "kind": "STRING_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "STRING_KEYWORD"
@@ -158,15 +172,18 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "INTERPOLATION",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "INTERPOLATION_START_TOKEN"
                             },
                             {
                               "kind": "STRING_TEMPLATE_EXPRESSION",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "STRING_KEYWORD"
@@ -176,6 +193,7 @@
                                 },
                                 {
                                   "kind": "LIST",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "TEMPLATE_STRING",
@@ -183,12 +201,14 @@
                                     },
                                     {
                                       "kind": "INTERPOLATION",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "INTERPOLATION_START_TOKEN"
                                         },
                                         {
                                           "kind": "STRING_TEMPLATE_EXPRESSION",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
                                               "kind": "STRING_KEYWORD"
@@ -198,15 +218,18 @@
                                             },
                                             {
                                               "kind": "LIST",
+                                              "hasDiagnostics": true,
                                               "children": [
                                                 {
                                                   "kind": "INTERPOLATION",
+                                                  "hasDiagnostics": true,
                                                   "children": [
                                                     {
                                                       "kind": "INTERPOLATION_START_TOKEN"
                                                     },
                                                     {
                                                       "kind": "BINARY_EXPRESSION",
+                                                      "hasDiagnostics": true,
                                                       "children": [
                                                         {
                                                           "kind": "IDENTIFIER_TOKEN",
@@ -217,7 +240,11 @@
                                                         },
                                                         {
                                                           "kind": "IDENTIFIER_TOKEN",
-                                                          "isMissing": true
+                                                          "isMissing": true,
+                                                          "hasDiagnostics": true,
+                                                          "diagnostics": [
+                                                            "ERROR_MISSING_IDENTIFIER"
+                                                          ]
                                                         }
                                                       ]
                                                     },

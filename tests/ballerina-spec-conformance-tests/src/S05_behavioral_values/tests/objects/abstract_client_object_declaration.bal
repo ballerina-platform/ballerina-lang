@@ -101,7 +101,7 @@ type ObjReferenceToAbstractClientObject client object {
         return self.defaultVisibilityFloatField;
     }
 
-    function __init(string argOne, int argTwo, float argThree) {
+    function init(string argOne, int argTwo, float argThree) {
         self.publicStringField = argOne;
         self.privateIntField = argTwo;
         self.defaultVisibilityFloatField = argThree;
@@ -185,7 +185,7 @@ type ObjReferenceToClientAbstractObject client object {
 
     private float privateFloatField;
 
-    function __init() {
+    function init() {
         self.publicStringField = STRING_FIELD;
         self.floatField = FLOAT_VALUE_ONE;
         self.privateFloatField = FLOAT_VALUE_TWO;

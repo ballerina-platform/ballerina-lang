@@ -15,13 +15,15 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.List;
 
 /**
  * Represents a finite type.
  */
 public class FiniteType extends Type {
-
+    @Expose
     public List<String> valueSpace;
 
     public FiniteType(String name, String description, boolean isDeprecated,  List<String> valueSpace) {

@@ -3226,7 +3226,7 @@
                 },
                 {
                     "name": "annotTagReference",
-                    "type": "Node"
+                    "type": "NameReferenceNode"
                 }
             ]
         },
@@ -3653,6 +3653,43 @@
                 {
                     "name": "expression",
                     "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "ObjectMethodDefinitionNode",
+            "base": "Node",
+            "kind": "OBJECT_METHOD_DEFINITION",
+            "attributes": [
+                {
+                    "name": "metadata",
+                    "type": "MetadataNode"
+                },
+                {
+                    "name": "visibilityQualifier",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "remoteKeyword",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "functionKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "methodName",
+                    "type": "IdentifierToken"
+                },
+                {
+                    "name": "methodSignature",
+                    "type": "FunctionSignatureNode"
+                },
+                {
+                    "name": "functionBody",
+                    "type": "FunctionBodyNode"
                 }
             ]
         }

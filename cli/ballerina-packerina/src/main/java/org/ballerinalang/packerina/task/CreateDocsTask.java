@@ -41,28 +41,46 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_AP
  */
 public class CreateDocsTask implements Task {
 
+    private boolean excludeIndex;
+    private boolean toJson;
+    private Path jsonPath;
 
-    public CreateDocsTask() { }
+    public CreateDocsTask(boolean toJson, Path jsonPath, boolean excludeIndex) {
+        this.excludeIndex = excludeIndex;
+        this.toJson = toJson;
+        this.jsonPath = jsonPath;
+    }
 
     @Override
     public void execute(BuildContext buildContext) {
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
         Path outputPath = targetDir.resolve(TARGET_API_DOC_DIRECTORY);
-        List<BLangPackage> modules = buildContext.getModules();
         buildContext.out().println();
-        buildContext.out().println("Generating API Documentation");
-        try {
-            // disable deprecated verbose logs from docerina
-            BallerinaDocGenerator.setPrintStream(new EmptyPrintStream());
-            Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator
-                    .generateModuleDocs(sourceRootPath.toString(), modules);
-            Files.createDirectories(outputPath);
-            BallerinaDocGenerator.writeAPIDocsForModules(moduleDocMap,
-                    outputPath.toString());
+        if (jsonPath != null) {
+            buildContext.out().println("Generating API Documentation using data in JSON");
+            BallerinaDocGenerator.writeAPIDocsForModulesFromJson(jsonPath, outputPath.toString(), excludeIndex);
             buildContext.out().println("\t" + sourceRootPath.relativize(outputPath).toString());
-        } catch (IOException e) {
-            throw createLauncherException("Unable to generate API Documentation.");
+        } else {
+            buildContext.out().println("Generating API Documentation");
+            List<BLangPackage> modules = buildContext.getModules();
+            try {
+                // disable deprecated verbose logs from docerina
+                BallerinaDocGenerator.setPrintStream(new EmptyPrintStream());
+                Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator
+                        .generateModuleDocs(sourceRootPath.toString(), modules);
+                Files.createDirectories(outputPath);
+                if (toJson) {
+                    BallerinaDocGenerator.writeAPIDocsToJSON(moduleDocMap, outputPath.toString());
+                    buildContext.out().println("\t" + "data saved as a JSON in: " +
+                            sourceRootPath.relativize(outputPath).toString());
+                } else {
+                    BallerinaDocGenerator.writeAPIDocsForModules(moduleDocMap, outputPath.toString(), excludeIndex);
+                    buildContext.out().println("\t" + sourceRootPath.relativize(outputPath).toString());
+                }
+            } catch (IOException e) {
+                throw createLauncherException("Unable to generate API Documentation.");
+            }
         }
     }
 

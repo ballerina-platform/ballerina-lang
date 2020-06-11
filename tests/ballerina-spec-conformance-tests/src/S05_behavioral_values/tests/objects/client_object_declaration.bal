@@ -46,7 +46,7 @@ type ClientObject client object {
     private int privateIntField;
     float defaultVisibilityFloatField;
 
-    function __init(string argOne, int argTwo, float argThree) {
+    function init(string argOne, int argTwo, float argThree) {
         self.publicStringField = argOne;
         self.privateIntField = argTwo;
         self.defaultVisibilityFloatField = argThree;

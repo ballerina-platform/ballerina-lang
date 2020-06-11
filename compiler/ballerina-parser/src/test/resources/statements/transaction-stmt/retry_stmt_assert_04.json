@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -34,31 +35,40 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "ROLLBACK_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "RETRY_KEYWORD"
                 },
                 {
                   "kind": "TRANSACTION_STATEMENT",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "TRANSACTION_KEYWORD"
                     },
                     {
                       "kind": "BLOCK_STATEMENT",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "OPEN_BRACE_TOKEN",
-                          "isMissing": true
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_OPEN_BRACE_TOKEN"
+                          ]
                         },
                         {
                           "kind": "LIST",
@@ -75,12 +85,14 @@
             },
             {
               "kind": "ROLLBACK_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "RETRY_KEYWORD"
                 },
                 {
                   "kind": "TYPE_PARAMETER",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "LT_TOKEN"
@@ -91,7 +103,11 @@
                     },
                     {
                       "kind": "GT_TOKEN",
-                      "isMissing": true
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_GT_TOKEN"
+                      ]
                     }
                   ]
                 },
@@ -122,19 +138,25 @@
             },
             {
               "kind": "ROLLBACK_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "RETRY_KEYWORD"
                 },
                 {
                   "kind": "TYPE_PARAMETER",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "LT_TOKEN"
                     },
                     {
                       "kind": "TYPE_DESC",
-                      "isMissing": true
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_TYPE_DESC"
+                      ]
                     },
                     {
                       "kind": "GT_TOKEN"
@@ -168,12 +190,14 @@
             },
             {
               "kind": "ROLLBACK_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "RETRY_KEYWORD"
                 },
                 {
                   "kind": "PARENTHESIZED_ARG_LIST",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "OPEN_PAREN_TOKEN"
@@ -206,7 +230,11 @@
                     },
                     {
                       "kind": "CLOSE_PAREN_TOKEN",
-                      "isMissing": true
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+                      ]
                     }
                   ]
                 },
@@ -237,12 +265,14 @@
             },
             {
               "kind": "ROLLBACK_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "RETRY_KEYWORD"
                 },
                 {
                   "kind": "TYPE_PARAMETER",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "LT_TOKEN"
@@ -253,16 +283,25 @@
                     },
                     {
                       "kind": "GT_TOKEN",
-                      "isMissing": true
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_GT_TOKEN"
+                      ]
                     }
                   ]
                 },
                 {
                   "kind": "PARENTHESIZED_ARG_LIST",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "OPEN_PAREN_TOKEN",
-                      "isMissing": true
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_OPEN_PAREN_TOKEN"
+                      ]
                     },
                     {
                       "kind": "LIST",

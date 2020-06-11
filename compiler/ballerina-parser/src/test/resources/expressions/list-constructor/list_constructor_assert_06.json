@@ -1,9 +1,14 @@
 {
   "kind": "LIST_CONSTRUCTOR",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "OPEN_BRACKET_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_OPEN_BRACKET_TOKEN"
+      ]
     },
     {
       "kind": "LIST",

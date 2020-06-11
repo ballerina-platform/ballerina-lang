@@ -106,7 +106,7 @@ function testImplicitInitialValueOfTypedesc() {
 public type QuxObject object {
     public string fooFieldOne;
 
-    public function __init() {
+    public function init() {
         self.fooFieldOne = "init value";
     }
 

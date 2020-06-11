@@ -19,8 +19,8 @@ import ballerina/java;
 # ReadableByteChannel represents an input resource (i.e file). which could be used to source bytes.
 public type ReadableByteChannel object {
 
-    # Adding default __init function to prevent object getting initialized from the user code.
-    function __init() {}
+    # Adding default init function to prevent object getting initialized from the user code.
+    function init() {}
 
 # Source bytes from a given input/output resource. The number of bytes returned will be < 0 if the file reached its end.
 # This operation will be asynchronous in which the total number of required bytes might not be returned at a given

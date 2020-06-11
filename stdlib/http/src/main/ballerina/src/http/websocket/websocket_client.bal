@@ -34,7 +34,7 @@ public type WebSocketClient client object {
     #
     # + url - URL of the target service
     # + config - The configurations to be used when initializing the client
-    public function __init(string url, public WebSocketClientConfiguration? config = ()) {
+    public function init(string url, public WebSocketClientConfiguration? config = ()) {
         self.url = url;
         self.config = config ?: {};
         self.initEndpoint();
