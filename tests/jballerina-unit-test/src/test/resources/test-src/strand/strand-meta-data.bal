@@ -95,17 +95,17 @@ function foo() {
 function assertStrandMetadataResult(string assertString) {
     string result = "";
     var strand = getStrand();
-    var metadata = getMetaData(strand);
-    if (nonNull(metadata)) {
+    var Metadata = getMetadata(strand);
+    if (nonNull(Metadata)) {
         int id = getId(strand);
         var strandName = getName(strand);
         var isStrandHasName = isPresent(strandName);
-        string org = <string>java:toString(getModuleOrg(metadata));
-        string modName = <string>java:toString(getModuleName(metadata));
-        string modVersion = <string>java:toString(getModuleVersion(metadata));
-        string parentFunc = <string>java:toString(getParentFunctionName(metadata));
+        string org = <string>java:toString(getModuleOrg(Metadata));
+        string modName = <string>java:toString(getModuleName(Metadata));
+        string modVersion = <string>java:toString(getModuleVersion(Metadata));
+        string parentFunc = <string>java:toString(getParentFunctionName(Metadata));
         string typeName = "";
-        var typeNameVal = java:toString(getTypeName(metadata));
+        var typeNameVal = java:toString(getTypeName(Metadata));
         string name = "";
         if (isStrandHasName) {
             name = "."+ <string>java:toString(get(strandName));
@@ -145,31 +145,31 @@ function getStrand() returns handle = @java:Method {
     class: "org.ballerinalang.jvm.scheduling.Scheduler"
 } external;
 
-function getMetaData(handle strand) returns handle = @java:Method {
+function getMetadata(handle strand) returns handle = @java:Method {
     class: "org.ballerinalang.jvm.scheduling.Strand"
 } external;
 
-function getModuleOrg(handle strandMetaData) returns handle = @java:FieldGet {
+function getModuleOrg(handle strandMetadata) returns handle = @java:FieldGet {
     class: "org.ballerinalang.jvm.scheduling.StrandMetadata",
     name : "moduleOrg"
 } external;
 
-function getModuleName(handle strandMetaData) returns handle = @java:FieldGet {
+function getModuleName(handle strandMetadata) returns handle = @java:FieldGet {
     class: "org.ballerinalang.jvm.scheduling.StrandMetadata",
      name : "moduleName"
 } external;
 
-function getModuleVersion(handle strandMetaData) returns handle = @java:FieldGet {
+function getModuleVersion(handle strandMetadata) returns handle = @java:FieldGet {
     class: "org.ballerinalang.jvm.scheduling.StrandMetadata",
     name : "moduleVersion"
 } external;
 
-function getParentFunctionName(handle strandMetaData) returns handle = @java:FieldGet {
+function getParentFunctionName(handle strandMetadata) returns handle = @java:FieldGet {
     class: "org.ballerinalang.jvm.scheduling.StrandMetadata",
     name : "parentFunctionName"
 } external;
 
-function getTypeName(handle strandMetaData) returns handle = @java:FieldGet {
+function getTypeName(handle strandMetadata) returns handle = @java:FieldGet {
     class: "org.ballerinalang.jvm.scheduling.StrandMetadata",
     name : "typeName"
 

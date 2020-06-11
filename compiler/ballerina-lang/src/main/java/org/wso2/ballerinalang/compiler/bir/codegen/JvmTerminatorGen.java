@@ -24,8 +24,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaMetadata;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.StrandMetadata;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncInvocationData;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIConstructorCall;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
@@ -230,7 +230,7 @@ public class JvmTerminatorGen {
 
     void genTerminator(BIRTerminator terminator, String moduleClassName, BIRNode.BIRFunction func,
                        String funcName, int localVarOffset, int returnVarRefIndex,
-                       BType attachedType, boolean isObserved, LambdaMetadata lambdaMetadata) {
+                       BType attachedType, boolean isObserved, AsyncInvocationData asyncInvocationData) {
 
         switch (terminator.kind) {
             case LOCK:
@@ -247,7 +247,7 @@ public class JvmTerminatorGen {
                 return;
             case ASYNC_CALL:
                 this.genAsyncCallTerm((BIRTerminator.AsyncCall) terminator, localVarOffset, moduleClassName,
-                                      attachedType, funcName, lambdaMetadata);
+                                      attachedType, funcName, asyncInvocationData);
                 return;
             case BRANCH:
                 this.genBranchTerm((BIRTerminator.Branch) terminator, funcName);
@@ -267,7 +267,7 @@ public class JvmTerminatorGen {
                 return;
             case FP_CALL:
                 this.genFPCallIns((BIRTerminator.FPCall) terminator, moduleClassName, attachedType, funcName,
-                                  lambdaMetadata, localVarOffset);
+                                  asyncInvocationData, localVarOffset);
                 return;
             case WK_SEND:
                 this.genWorkerSendIns((BIRTerminator.WorkerSend) terminator, funcName, localVarOffset);
@@ -767,7 +767,7 @@ public class JvmTerminatorGen {
     }
 
     private void genAsyncCallTerm(BIRTerminator.AsyncCall callIns, int localVarOffset, String moduleClassName,
-                                  BType attachedType, String parentFunction, LambdaMetadata lambdaMetadata) {
+                                  BType attachedType, String parentFunction, AsyncInvocationData asyncInvocationData) {
 
         PackageID calleePkgId = callIns.calleePkg;
 
@@ -816,11 +816,11 @@ public class JvmTerminatorGen {
             paramIndex += 1;
         }
         String funcName = callIns.name.value;
-        String lambdaName = "$" + funcName + "$lambda$" + lambdaMetadata.getLambdaIndex() + "$";
+        String lambdaName = "$" + funcName + "$lambda$" + asyncInvocationData.getLambdaIndex() + "$";
 
-        createFunctionPointer(this.mv, lambdaMetadata.getEnclosingClass(), lambdaName, 0);
-        lambdaMetadata.add(lambdaName, callIns);
-        lambdaMetadata.incrementLambdaIndex();
+        createFunctionPointer(this.mv, asyncInvocationData.getEnclosingClass(), lambdaName, 0);
+        asyncInvocationData.add(lambdaName, callIns);
+        asyncInvocationData.incrementLambdaIndex();
 
         boolean concurrent = false;
         String strandName = null;
@@ -880,7 +880,7 @@ public class JvmTerminatorGen {
             this.mv.visitLdcInsn(workerName);
         }
 
-        this.submitToScheduler(callIns.lhsOp, moduleClassName, attachedType, parentFunction, lambdaMetadata,
+        this.submitToScheduler(callIns.lhsOp, moduleClassName, attachedType, parentFunction, asyncInvocationData,
                                concurrent);
     }
 
@@ -951,7 +951,7 @@ public class JvmTerminatorGen {
     }
 
     private void genFPCallIns(BIRTerminator.FPCall fpCall, String moduleClassName, BType attachedType, String funcName,
-                              LambdaMetadata lambdaMetadata, int localVarOffset) {
+                              AsyncInvocationData asyncInvocationData, int localVarOffset) {
 
         if (fpCall.isAsync) {
             // Check if already locked before submitting to scheduler.
@@ -1026,7 +1026,7 @@ public class JvmTerminatorGen {
             this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "getStrandName",
                                     String.format("(L%s;L%s;)L%s;", FUNCTION_POINTER, STRING_VALUE, STRING_VALUE),
                                     false);
-            this.submitToScheduler(fpCall.lhsOp, moduleClassName, attachedType, funcName, lambdaMetadata, true);
+            this.submitToScheduler(fpCall.lhsOp, moduleClassName, attachedType, funcName, asyncInvocationData, true);
             Label afterSubmit = new Label();
             this.mv.visitJumpInsn(GOTO, afterSubmit);
             this.mv.visitLabel(notConcurrent);
@@ -1042,7 +1042,7 @@ public class JvmTerminatorGen {
             this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "getStrandName",
                                     String.format("(L%s;L%s;)L%s;", FUNCTION_POINTER, STRING_VALUE, STRING_VALUE),
                                     false);
-            this.submitToScheduler(fpCall.lhsOp, moduleClassName, attachedType, funcName, lambdaMetadata, false);
+            this.submitToScheduler(fpCall.lhsOp, moduleClassName, attachedType, funcName, asyncInvocationData, false);
             this.mv.visitLabel(afterSubmit);
         } else {
             this.mv.visitMethodInsn(INVOKEINTERFACE, FUNCTION, "apply",
@@ -1141,19 +1141,19 @@ public class JvmTerminatorGen {
     }
 
     private void submitToScheduler(BIROperand lhsOp, String moduleClassName, BType attachedType, String parentFunction,
-                                   LambdaMetadata lambdaMetadata, boolean concurrent) {
+                                   AsyncInvocationData asyncInvocationData, boolean concurrent) {
 
         String metaDataVarName;
-        StrandMetadata strandMetaData;
+        ScheduleFunctionInfo strandMetaData;
         if (attachedType != null) {
             metaDataVarName = getStrandMetadataVarName(attachedType.tsymbol.name.value, parentFunction);
-            strandMetaData = new StrandMetadata(attachedType.tsymbol.name.value, parentFunction);
+            strandMetaData = new ScheduleFunctionInfo(attachedType.tsymbol.name.value, parentFunction);
         } else {
             metaDataVarName = getStrandMetadataVarName(parentFunction);
-            strandMetaData = new StrandMetadata(parentFunction);
+            strandMetaData = new ScheduleFunctionInfo(parentFunction);
 
         }
-        lambdaMetadata.getStrandMetadata().putIfAbsent(metaDataVarName, strandMetaData);
+        asyncInvocationData.getStrandMetadata().putIfAbsent(metaDataVarName, strandMetaData);
         this.mv.visitFieldInsn(GETSTATIC, moduleClassName, metaDataVarName, String.format("L%s;", STRAND_METADATA));
         if (concurrent) {
             mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,

@@ -25,7 +25,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaMetadata;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncInvocationData;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JCast;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInsKind;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInstruction;
@@ -1583,13 +1583,13 @@ public class JvmInstructionGen {
         this.storeToVar(objectNewIns.lhsOp.variableDcl);
     }
 
-    void generateFPLoadIns(BIRNonTerminator.FPLoad inst, LambdaMetadata lambdaMetadata) {
+    void generateFPLoadIns(BIRNonTerminator.FPLoad inst, AsyncInvocationData asyncInvocationData) {
 
         this.mv.visitTypeInsn(NEW, FUNCTION_POINTER);
         this.mv.visitInsn(DUP);
 
-        String lambdaName = inst.funcName.value + "$lambda" + lambdaMetadata.getLambdaIndex() + "$";
-        lambdaMetadata.incrementLambdaIndex();
+        String lambdaName = inst.funcName.value + "$lambda" + asyncInvocationData.getLambdaIndex() + "$";
+        asyncInvocationData.incrementLambdaIndex();
         String pkgName = JvmPackageGen.getPackageName(inst.pkgId.orgName, inst.pkgId.name, inst.pkgId.version);
 
         BType returnType = inst.lhsOp.variableDcl.type;
@@ -1603,7 +1603,7 @@ public class JvmInstructionGen {
             }
         }
 
-        visitInvokeDyn(mv, lambdaMetadata.getEnclosingClass(), lambdaName, inst.closureMaps.size());
+        visitInvokeDyn(mv, asyncInvocationData.getEnclosingClass(), lambdaName, inst.closureMaps.size());
         loadType(this.mv, returnType);
         if (inst.strandName != null) {
             mv.visitLdcInsn(inst.strandName);
@@ -1629,7 +1629,7 @@ public class JvmInstructionGen {
                 String.format("(L%s;L%s;L%s;)V", FUNCTION_POINTER, MAP_VALUE, STRING_VALUE), false);
 
         this.storeToVar(inst.lhsOp.variableDcl);
-        lambdaMetadata.add(lambdaName, inst);
+        asyncInvocationData.add(lambdaName, inst);
     }
 
     void generateNewXMLElementIns(BIRNonTerminator.NewXMLElement newXMLElement) {

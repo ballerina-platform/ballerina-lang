@@ -23,7 +23,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaMetadata;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncInvocationData;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.NameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.OldStyleExternalFunctionWrapper;
@@ -312,7 +312,7 @@ class JvmValueGen {
         throw new BLangCompilerException(String.format("Invalid node: %s", node));
     }
 
-    private void createLambdas(ClassWriter cw, LambdaMetadata lambdaGenMetadata) {
+    private void createLambdas(ClassWriter cw, AsyncInvocationData lambdaGenMetadata) {
 
         for (Map.Entry<String, BIRInstruction> entry : lambdaGenMetadata.getLambdas().entrySet()) {
             jvmMethodGen.generateLambdaMethod(entry.getValue(), cw, entry.getKey());
@@ -336,7 +336,7 @@ class JvmValueGen {
 
     private void createObjectMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs, boolean isService,
                                      String moduleClassName, String typeName, BObjectType currentObjectType,
-                                     LambdaMetadata lambdaGenMetadata) {
+                                     AsyncInvocationData lambdaGenMetadata) {
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
@@ -671,7 +671,7 @@ class JvmValueGen {
         } else {
             cw.visitSource(className, null);
         }
-        LambdaMetadata lambdaGenMetadata = new LambdaMetadata(className);
+        AsyncInvocationData lambdaGenMetadata = new AsyncInvocationData(className);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className,
                 String.format("<K:L%s;V:L%s;>L%s<TK;TV;>;L%s<TK;TV;>;", OBJECT, OBJECT, MAP_VALUE_IMPL, MAP_VALUE),
                 MAP_VALUE_IMPL, new String[]{MAP_VALUE});
@@ -706,7 +706,7 @@ class JvmValueGen {
     }
 
     private void createRecordMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs, String moduleClassName,
-                                     LambdaMetadata lambdaGenMetadata) {
+                                     AsyncInvocationData lambdaGenMetadata) {
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
@@ -753,13 +753,13 @@ class JvmValueGen {
     }
 
     private void generateStaticInitializer(ClassWriter cw, String moduleClass, BIRNode.BIRPackage module,
-                                                  LambdaMetadata lambdaMetadata) {
+                                                  AsyncInvocationData asyncInvocationData) {
 
-        if (lambdaMetadata.getStrandMetadata().isEmpty()) {
+        if (asyncInvocationData.getStrandMetadata().isEmpty()) {
             return;
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
-        generateStrandMetadata(mv, moduleClass, module, lambdaMetadata);
+        generateStrandMetadata(mv, moduleClass, module, asyncInvocationData);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -1383,7 +1383,7 @@ class JvmValueGen {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.getSource().cUnitName, null);
 
-        LambdaMetadata lambdaGenMetadata = new LambdaMetadata(className);
+        AsyncInvocationData lambdaGenMetadata = new AsyncInvocationData(className);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{OBJECT_VALUE});
 
         Map<String, BField> fields = objectType.fields;

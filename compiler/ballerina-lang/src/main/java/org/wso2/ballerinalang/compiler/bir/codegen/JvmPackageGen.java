@@ -28,7 +28,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaMetadata;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncInvocationData;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
@@ -228,9 +228,9 @@ public class JvmPackageGen {
 
     private static void generateStaticInitializer(ClassWriter cw, String className,
                                                   BIRPackage module, boolean isInitClass,
-                                                  boolean serviceEPAvailable, LambdaMetadata lambdaMetadata) {
+                                                  boolean serviceEPAvailable, AsyncInvocationData asyncInvocationData) {
 
-        if (!isInitClass && lambdaMetadata.getStrandMetadata().isEmpty()) {
+        if (!isInitClass && asyncInvocationData.getStrandMetadata().isEmpty()) {
             return;
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
@@ -243,7 +243,7 @@ public class JvmPackageGen {
             setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
             setModuleStatusField(cw, mv, className);
         }
-        generateStrandMetadata(mv, className, module, lambdaMetadata);
+        generateStrandMetadata(mv, className, module, asyncInvocationData);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -489,14 +489,15 @@ public class JvmPackageGen {
             String moduleClass = entry.getKey();
             JavaClass javaClass = entry.getValue();
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-            LambdaMetadata lambdaMetadata = new LambdaMetadata(moduleClass);
+            AsyncInvocationData asyncInvocationData = new AsyncInvocationData(moduleClass);
             boolean serviceEPAvailable = false;
             boolean isInitClass = Objects.equals(moduleClass, moduleInitClass);
             if (isInitClass) {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
                 generateDefaultConstructor(cw, VALUE_CREATOR);
                 generateUserDefinedTypeFields(cw, module.typeDefs);
-                generateValueCreatorMethods(cw, module.typeDefs, module, moduleInitClass, symbolTable, lambdaMetadata);
+                generateValueCreatorMethods(cw, module.typeDefs, module, moduleInitClass, symbolTable,
+                                            asyncInvocationData);
                 // populate global variable to class name mapping and generate them
                 for (BIRGlobalVariableDcl globalVar : module.globalVars) {
                     if (globalVar != null) {
@@ -513,7 +514,8 @@ public class JvmPackageGen {
 
                 serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
 
-                jvmMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable, lambdaMetadata);
+                jvmMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable,
+                                                asyncInvocationData);
                 if (mainFunc != null) {
                     jvmMethodGen.generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
                 }
@@ -522,7 +524,8 @@ public class JvmPackageGen {
                 generateLockForVariable(cw);
                 generateCreateTypesMethod(cw, module.typeDefs, moduleInitClass, symbolTable);
                 jvmMethodGen.generateModuleInitializer(cw, module, moduleInitClass);
-                jvmMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, moduleImports, lambdaMetadata);
+                jvmMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, moduleImports,
+                                                         asyncInvocationData);
             } else {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
                 generateDefaultConstructor(cw, OBJECT);
@@ -532,16 +535,17 @@ public class JvmPackageGen {
             for (BIRFunction func : javaClass.functions) {
                 String workerName = getFunction(func).workerName == null ? null : func.workerName.value;
                 jvmMethodGen.generateMethod(getFunction(func), cw, module, null, false, moduleClass, workerName,
-                                            lambdaMetadata);
+                                            asyncInvocationData);
             }
             // generate lambdas created during generating methods
-            for (Map.Entry<String, BIRInstruction> lambda : lambdaMetadata.getLambdas().entrySet()) {
+            for (Map.Entry<String, BIRInstruction> lambda : asyncInvocationData.getLambdas().entrySet()) {
                 String name = lambda.getKey();
                 BIRInstruction call = lambda.getValue();
                 jvmMethodGen.generateLambdaMethod(call, cw, name);
             }
-            visitStrandMetadataField(cw, lambdaMetadata);
-            generateStaticInitializer(cw, moduleClass, module, isInitClass, serviceEPAvailable, lambdaMetadata);
+            visitStrandMetadataField(cw, asyncInvocationData);
+            generateStaticInitializer(cw, moduleClass, module, isInitClass, serviceEPAvailable,
+                                      asyncInvocationData);
             cw.visitEnd();
 
             byte[] bytes = getBytes(cw, module);

@@ -18,21 +18,21 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.internal;
 
 /**
- * A metadata holder to keep track of strand meta data.
+ * A data holder to keep the metadata of scheduling function which will be used when generating strand metadata.
  *
  * @since 2.0.0
  */
-public class StrandMetadata {
+public class ScheduleFunctionInfo {
 
     public String parentFunctionName;
 
     public String typeName;
 
-    public StrandMetadata(String parentFunctionName) {
+    public ScheduleFunctionInfo(String parentFunctionName) {
         this.parentFunctionName = parentFunctionName;
     }
 
-    public StrandMetadata(String typeName, String parentFunctionName) {
+    public ScheduleFunctionInfo(String typeName, String parentFunctionName) {
         this.typeName = typeName;
         this.parentFunctionName = parentFunctionName;
     }

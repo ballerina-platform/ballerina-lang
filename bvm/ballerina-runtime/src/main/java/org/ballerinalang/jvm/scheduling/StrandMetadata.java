@@ -25,14 +25,29 @@ package org.ballerinalang.jvm.scheduling;
 
 public class StrandMetadata {
 
+    /**
+     * Organization name of module @{@link Strand} was initiated.
+     */
     public final String moduleOrg;
 
+    /**
+     * Name of module @{@link Strand} was initiated.
+     */
     public final String moduleName;
 
+    /**
+     * Version of module @{@link Strand} was initiated.
+     */
     public final String moduleVersion;
 
+    /**
+     * Type Name if @{@link Strand} was initiated inside type.
+     */
     public final String typeName;
 
+    /**
+     * Parent Function Name where @{@link Strand} was initiated.
+     */
     public final String parentFunctionName;
 
     public StrandMetadata(String moduleOrg, String moduleName, String moduleVersion, String typeName,
