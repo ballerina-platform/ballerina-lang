@@ -52,6 +52,7 @@ import io.ballerinalang.compiler.syntax.tree.ExternalFunctionBodyNode;
 import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ForEachStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ForkStatementNode;
+import io.ballerinalang.compiler.syntax.tree.FromClauseNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyNode;
@@ -106,6 +107,8 @@ import io.ballerinalang.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.QueryConstructTypeNode;
+import io.ballerinalang.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ReceiveActionNode;
 import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
 import io.ballerinalang.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
@@ -119,6 +122,7 @@ import io.ballerinalang.compiler.syntax.tree.RestDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RestParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.SelectClauseNode;
 import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerinalang.compiler.syntax.tree.ServiceBodyNode;
 import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
@@ -152,6 +156,7 @@ import io.ballerinalang.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.WaitActionNode;
+import io.ballerinalang.compiler.syntax.tree.WhereClauseNode;
 import io.ballerinalang.compiler.syntax.tree.WhileStatementNode;
 import io.ballerinalang.compiler.syntax.tree.WildcardBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.XMLAtomicNamePatternNode;
@@ -216,6 +221,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -238,6 +246,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDo
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordSpreadOperatorField;
@@ -2591,6 +2600,68 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             bLangConstant.associatedTypeDefinition = null;
         }
         return bLangConstant;
+    }
+
+    @Override
+    public BLangNode transform(QueryExpressionNode queryExprNode) {
+        BLangQueryExpr queryExpr = (BLangQueryExpr) TreeBuilder.createQueryExpressionNode();
+        queryExpr.pos = getPosition(queryExprNode);
+
+        BLangFromClause fromClause = (BLangFromClause) queryExprNode.queryPipeline().fromClause().apply(this);
+        queryExpr.queryClauseList.add(fromClause);
+
+        for (Node clauseNode : queryExprNode.queryPipeline().intermediateClauses()) {
+            queryExpr.queryClauseList.add(clauseNode.apply(this));
+        }
+
+        BLangSelectClause selectClause = (BLangSelectClause) queryExprNode.selectClause().apply(this);
+        queryExpr.queryClauseList.add(selectClause);
+
+        QueryConstructTypeNode queryConstructTypeNode = queryExprNode.queryConstructType();
+        if (queryConstructTypeNode != null) {
+            KeySpecifierNode keySpecifierNode = queryConstructTypeNode.keySpecifier();
+
+            if (keySpecifierNode != null) {
+                for (IdentifierToken fieldNameNode : keySpecifierNode.fieldNames()) {
+                    BLangIdentifier fieldName = createIdentifier(getPosition(fieldNameNode), fieldNameNode);
+                    queryExpr.fieldNameIdentifierList.add(fieldName);
+                }
+            }
+
+            // TODO: Set queryExpr.isStream field once issue #23742 is fixed
+        }
+
+        return queryExpr;
+    }
+
+    @Override
+    public BLangNode transform(FromClauseNode fromClauseNode) {
+        BLangFromClause fromClause = (BLangFromClause) TreeBuilder.createFromClauseNode();
+        fromClause.pos = getPosition(fromClauseNode);
+        fromClause.collection = createExpression(fromClauseNode.expression());
+
+        TypedBindingPatternNode bindingPatternNode = fromClauseNode.typedBindingPattern();
+        boolean isDeclaredWithVar = bindingPatternNode.typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC;
+        fromClause.variableDefinitionNode = createVarDefNode(bindingPatternNode, isDeclaredWithVar);
+        fromClause.isDeclaredWithVar = isDeclaredWithVar;
+
+        return fromClause;
+    }
+
+    @Override
+    public BLangNode transform(WhereClauseNode whereClauseNode) {
+        BLangWhereClause whereClause = (BLangWhereClause) TreeBuilder.createWhereClauseNode();
+        whereClause.pos = getPosition(whereClauseNode);
+        whereClause.expression = createExpression(whereClauseNode.expression());
+        return whereClause;
+    }
+
+    @Override
+    public BLangNode transform(SelectClauseNode selectClauseNode) {
+        BLangSelectClause selectClause = (BLangSelectClause) TreeBuilder.createSelectClauseNode();
+        selectClause.pos = getPosition(selectClauseNode);
+        selectClause.expression = createExpression(selectClauseNode.expression());
+        return selectClause;
     }
 
     @Override
