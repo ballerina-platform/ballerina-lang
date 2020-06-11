@@ -7012,8 +7012,6 @@ public class BallerinaParser extends AbstractParser {
             return STNodeFactory.createEmptyNode();
         }
 
-        exprs;
-
         STNode lengthExpr = exprs.get(0);
         switch (lengthExpr.kind) {
             case DECIMAL_INTEGER_LITERAL:
@@ -7056,7 +7054,11 @@ public class BallerinaParser extends AbstractParser {
 
                 STNode semicolon = parseSemicolon();
                 endContext();
-                return STNodeFactory.createExpressionStatementNode(SyntaxKind.INVALID, expression, semicolon);
+                STNode exprStmt = STNodeFactory.createExpressionStatementNode(
+                        SyntaxKind.INVALID_EXPRESSION_STATEMENT, expression, semicolon);
+                exprStmt = errorHandler.addDiagnostics(exprStmt,
+                        DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_STATEMENT);
+                return exprStmt;
         }
     }
 
