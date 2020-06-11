@@ -194,6 +194,9 @@ public enum SyntaxKind {
     DOCUMENTATION_LINE(1503),
     INVALID_NODE_MINUTIAE(1504),
 
+    // Invalid nodes
+    INVALID_TOKEN(1600),
+
     // module-level declarations
     IMPORT_DECLARATION(2000),
     FUNCTION_DEFINITION(2001),
@@ -230,6 +233,7 @@ public enum SyntaxKind {
     RETRY_STATEMENT(1220),
     XML_NAMESPACE_DECLARATION(1221),
     MATCH_STATEMENT(1222),
+    INVALID_EXPRESSION_STATEMENT(1223),
 
     // Expressions
     BINARY_EXPRESSION(1300),
