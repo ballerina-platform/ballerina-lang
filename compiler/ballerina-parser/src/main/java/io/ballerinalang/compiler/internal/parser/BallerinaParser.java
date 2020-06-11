@@ -12600,7 +12600,10 @@ public class BallerinaParser extends AbstractParser {
         STNode ellipsis = parseEllipsis();
         STNode varName = parseVariableName();
         endContext();
-        return STNodeFactory.createRestBindingPatternNode(ellipsis, varName);
+
+        STSimpleNameReferenceNode simpleNameReferenceNode = (STSimpleNameReferenceNode) STNodeFactory
+                .createSimpleNameReferenceNode(varName);
+        return STNodeFactory.createRestBindingPatternNode(ellipsis, simpleNameReferenceNode);
     }
 
     /**
