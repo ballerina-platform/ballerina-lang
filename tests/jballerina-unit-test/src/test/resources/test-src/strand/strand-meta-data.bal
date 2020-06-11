@@ -25,14 +25,14 @@ string[] errorMessages = [];
 
 type Person object {
     public string name;
-    function __init(string name) {
+    function init(string name) {
         // async calls inside object
-        _ = start assertStrandMetadataResult("$anon/.:0.0.0.Person.__init");
+        _ = start assertStrandMetadataResult("$anon/.:0.0.0.Person.init");
         worker w2 {
-            assertStrandMetadataResult("$anon/.:0.0.0.Person.__init.w2");
+            assertStrandMetadataResult("$anon/.:0.0.0.Person.init.w2");
         }
          _ =  @strand{name:"**my strand inside object**"}
-                        start assertStrandMetadataResult("$anon/.:0.0.0.Person.__init.**my strand inside object**");
+                        start assertStrandMetadataResult("$anon/.:0.0.0.Person.init.**my strand inside object**");
         foo();
         self.name = name;
         // object function

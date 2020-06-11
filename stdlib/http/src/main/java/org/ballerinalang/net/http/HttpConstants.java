@@ -459,9 +459,8 @@ public class HttpConstants {
     public static final String HTTP_CALLER_NAME = PROTOCOL_PACKAGE_HTTP + COLON + CALLER;
 
     public static final String ON_MESSAGE_RESOURCE = "onMessage";
-    public static final StrandMetadata METADATA_ON_MESSAGE = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
-                                                                                PROTOCOL_HTTP,
-                                                                                HTTP_MODULE_VERSION, ON_MESSAGE_RESOURCE);
+    public static final StrandMetadata METADATA_ON_MESSAGE =
+            new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, PROTOCOL_HTTP, HTTP_MODULE_VERSION, ON_MESSAGE_RESOURCE);
 
     private HttpConstants() {
     }
