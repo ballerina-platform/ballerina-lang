@@ -143,7 +143,7 @@ type PersonObj object {
     string fname;
     string lname;
 
-    function __init(string fname, string lname) {
+    function init(string fname, string lname) {
         self.fname = fname;
         self.lname = lname;
     }

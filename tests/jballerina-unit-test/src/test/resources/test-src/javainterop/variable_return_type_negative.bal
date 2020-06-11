@@ -71,7 +71,7 @@ function getObject(typedesc<anydata> td) returns object {
                                                      string name;
                                                      td misc;
 
-                                                     public function __init(string name, td misc) {
+                                                     public function init(string name, td misc) {
                                                          self.name = name;
                                                          self.misc = misc;
                                                      }
