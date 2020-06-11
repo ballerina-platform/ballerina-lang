@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -34,10 +35,15 @@
     },
     {
       "kind": "EXTERNAL_FUNCTION_BODY",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "EQUAL_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_EQUAL_TOKEN"
+          ]
         },
         {
           "kind": "LIST",
@@ -48,7 +54,11 @@
         },
         {
           "kind": "SEMICOLON_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_SEMICOLON_TOKEN"
+          ]
         }
       ]
     }

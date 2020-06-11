@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -37,15 +38,18 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "LOCAL_TYPE_DEFINITION_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -60,6 +64,7 @@
                 },
                 {
                   "kind": "OBJECT_TYPE_DESC",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "LIST",
@@ -73,6 +78,7 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "OBJECT_FIELD",
@@ -103,6 +109,7 @@
                         },
                         {
                           "kind": "OBJECT_FIELD",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "METADATA",
@@ -115,6 +122,7 @@
                             },
                             {
                               "kind": "OBJECT_TYPE_DESC",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "LIST",
@@ -128,9 +136,11 @@
                                 },
                                 {
                                   "kind": "LIST",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "OBJECT_FIELD",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "METADATA",
@@ -150,12 +160,17 @@
                                         },
                                         {
                                           "kind": "SEMICOLON_TOKEN",
-                                          "isMissing": true
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_SEMICOLON_TOKEN"
+                                          ]
                                         }
                                       ]
                                     },
                                     {
-                                      "kind": "FUNCTION_DECLARATION",
+                                      "kind": "METHOD_DECLARATION",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "METADATA",
@@ -171,7 +186,11 @@
                                         },
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "isMissing": true
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_FUNCTION_NAME"
+                                          ]
                                         },
                                         {
                                           "kind": "FUNCTION_SIGNATURE",
@@ -190,7 +209,11 @@
                                         },
                                         {
                                           "kind": "SEMICOLON_TOKEN",
-                                          "isMissing": true
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_SEMICOLON_TOKEN"
+                                          ]
                                         }
                                       ]
                                     }
@@ -207,12 +230,16 @@
                             },
                             {
                               "kind": "SEMICOLON_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_SEMICOLON_TOKEN"
+                              ]
                             }
                           ]
                         },
                         {
-                          "kind": "FUNCTION_DEFINITION",
+                          "kind": "OBJECT_METHOD_DEFINITION",
                           "children": [
                             {
                               "kind": "METADATA",

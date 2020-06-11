@@ -196,7 +196,7 @@ public type Person object {
 
 public type Emp object {
     public int val;
-    public function __init(int val = 9) {
+    public function init(int val = 9) {
         self.val = val;
     }
 };

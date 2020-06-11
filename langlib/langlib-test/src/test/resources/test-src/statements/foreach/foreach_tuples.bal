@@ -45,7 +45,7 @@ type Employee object {
     string name;
     int age;
 
-    function __init() {
+    function init() {
         self.name = "John";
         self.age = 10;
     }

@@ -166,7 +166,7 @@ type PersonObj object {
     string name;
     int age;
 
-    function __init(string name, int age) {
+    function init(string name, int age) {
         self.name = name;
         self.age = age;
     }
@@ -197,7 +197,7 @@ function getError(boolean returnErr) returns error? {
 type PersonObj2 object {
     string name = "Anonymous";
 
-    function __init(boolean retErr) returns error? =>  check getError(retErr);
+    function init(boolean retErr) returns error? =>  check getError(retErr);
 };
 
 function testObjectInitBodyAsAnExpr() {

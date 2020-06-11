@@ -215,6 +215,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         entries.clear();
         keys.clear();
         values.clear();
+        keyToIndexMap.clear();
+        indexToKeyMap.clear();
+        noOfAddedEntries = 0;
     }
 
     @Override
@@ -285,7 +288,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return;
         }
 
-        this.type = (BTableType) ReadOnlyUtils.setImmutableType(this.type);
+        this.type = (BTableType) ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
         //we know that values are always RefValues
         this.values().forEach(val -> ((RefValue) val).freezeDirect());
     }
@@ -337,20 +340,25 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         @Override
         public Object next() {
             Long hash = indexToKeyMap.get(cursor);
-            Map.Entry<K, V> next = (Map.Entry<K, V>) entries.get(hash);
-            V value = next.getValue();
-            K key = next.getKey();
+            if (hash != null) {
+                Map.Entry<K, V> next = (Map.Entry<K, V>) entries.get(hash);
+                V value = next.getValue();
+                K key = next.getKey();
 
-            List<BType> types = new ArrayList<>();
-            types.add(TypeChecker.getType(key));
-            types.add(TypeChecker.getType(value));
-            BTupleType tupleType = new BTupleType(types);
+                List<BType> types = new ArrayList<>();
+                types.add(TypeChecker.getType(key));
+                types.add(TypeChecker.getType(value));
+                BTupleType tupleType = new BTupleType(types);
 
-            TupleValueImpl tuple = new TupleValueImpl(tupleType);
-            tuple.add(0, key);
-            tuple.add(1, value);
-            cursor++;
-            return tuple;
+                TupleValueImpl tuple = new TupleValueImpl(tupleType);
+                tuple.add(0, key);
+                tuple.add(1, value);
+                cursor++;
+                return tuple;
+            } else {
+                cursor++;
+                return next();
+            }
         }
 
         @Override
@@ -362,10 +370,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private class ValueHolder {
 
         public void addData(V data) {
-            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(data, data);
-            UUID uuid = UUID.randomUUID();
-            entries.put((long) uuid.hashCode(), entry);
-            values.put((long) uuid.hashCode(), data);
+            putData(data);
         }
 
         public V getData(K key) {
@@ -380,6 +385,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(data, data);
             UUID uuid = UUID.randomUUID();
             entries.put((long) uuid.hashCode(), entry);
+            updateIndexKeyMappings((long) uuid.hashCode());
             return values.put((long) uuid.hashCode(), data);
         }
 
@@ -464,7 +470,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             Long hash = TableUtils.hash(key, null);
             entries.remove(hash);
             keys.remove(hash);
-            indexToKeyMap.remove(keyToIndexMap.remove(hash));
+            Long index = keyToIndexMap.remove(hash);
+            indexToKeyMap.remove(index);
+            if (index != null && index == noOfAddedEntries - 1) {
+                noOfAddedEntries--;
+            }
             return values.remove(hash);
         }
 
@@ -526,5 +536,33 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             indexToKeyMap.put(noOfAddedEntries, hash);
             noOfAddedEntries++;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        TableValueImpl<?, ?> tableValue = (TableValueImpl<?, ?>) o;
+
+        if (tableValue.type.getTag() != this.type.getTag()) {
+            return false;
+        }
+
+        if (this.entrySet().size() != tableValue.entrySet().size()) {
+            return false;
+        }
+
+        return entrySet().equals(tableValue.entrySet());
+    }
+
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
     }
 }

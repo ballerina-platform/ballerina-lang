@@ -34,7 +34,7 @@ public type HttpSecureClient client object {
     #
     # + url - URL of the target service
     # + config - The configurations to be used when initializing the `client`
-    public function __init(string url, ClientConfiguration config) {
+    public function init(string url, ClientConfiguration config) {
         self.url = url;
         self.config = config;
         HttpClient|ClientError simpleClient = createClient(url, self.config);

@@ -19,7 +19,7 @@ type XMLIterator object {
 
     private xml m;
 
-    public function __init(xml m) {
+    public function init(xml m) {
         self.m = m;
     }
 

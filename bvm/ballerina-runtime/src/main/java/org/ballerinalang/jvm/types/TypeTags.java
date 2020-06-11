@@ -44,7 +44,8 @@ public class TypeTags {
     public static final int SERVICE_TAG = ENDPOINT_TAG + 1;
     public static final int ARRAY_TAG = SERVICE_TAG + 1;
     public static final int UNION_TAG = ARRAY_TAG + 1;
-    public static final int PACKAGE_TAG = UNION_TAG + 1;
+    public static final int INTERSECTION_TAG = UNION_TAG + 1;
+    public static final int PACKAGE_TAG = INTERSECTION_TAG + 1;
     public static final int NONE_TAG = PACKAGE_TAG + 1;
     public static final int VOID_TAG = NONE_TAG + 1;
     public static final int XMLNS_TAG = VOID_TAG + 1;
@@ -75,6 +76,7 @@ public class TypeTags {
     public static final int XML_PI_TAG = XML_ELEMENT_TAG + 1;
     public static final int XML_COMMENT_TAG = XML_PI_TAG + 1;
     public static final int XML_TEXT_TAG = XML_COMMENT_TAG + 1;
+    public static final int NEVER_TAG = XML_TEXT_TAG + 1;
 
     public static boolean isIntegerTypeTag(int tag) {
 

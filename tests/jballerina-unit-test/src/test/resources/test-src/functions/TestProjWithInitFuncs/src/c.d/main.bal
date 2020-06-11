@@ -16,7 +16,7 @@
 
 string s = "before init";
 
-function __init() {
+function init() {
     s = "hello world";
 }
 

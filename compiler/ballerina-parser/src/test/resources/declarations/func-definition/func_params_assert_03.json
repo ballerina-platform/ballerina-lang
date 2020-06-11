@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -19,12 +20,14 @@
     },
     {
       "kind": "FUNCTION_SIGNATURE",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_PAREN_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "REQUIRED_PARAM",
@@ -44,10 +47,18 @@
             },
             {
               "kind": "DEFAULTABLE_PARAM",
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_REQUIRED_PARAMETER_AFTER_THE_DEFAULTABLE_PARAMETER"
+              ],
               "children": [
                 {
                   "kind": "COMMA_TOKEN",
-                  "isMissing": true
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_COMMA_TOKEN"
+                  ]
                 },
                 {
                   "kind": "LIST",
@@ -66,47 +77,6 @@
                 {
                   "kind": "DECIMAL_INTEGER_LITERAL",
                   "value": "7"
-                }
-              ]
-            },
-            {
-              "kind": "REQUIRED_PARAM",
-              "children": [
-                {
-                  "kind": "COMMA_TOKEN"
-                },
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "INT_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "c"
-                }
-              ]
-            },
-            {
-              "kind": "REST_PARAM",
-              "children": [
-                {
-                  "kind": "COMMA_TOKEN"
-                },
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "STRING_KEYWORD"
-                },
-                {
-                  "kind": "ELLIPSIS_TOKEN"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "d"
                 }
               ]
             }

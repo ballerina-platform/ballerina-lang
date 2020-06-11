@@ -70,7 +70,35 @@ public class STBlockStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STBlockStatementNode modify(
+            STNode openBraceToken,
+            STNode statements,
+            STNode closeBraceToken) {
+        if (checkForReferenceEquality(
+                openBraceToken,
+                statements,
+                closeBraceToken)) {
+            return this;
+        }
+
+        return new STBlockStatementNode(
+                openBraceToken,
+                statements,
+                closeBraceToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BlockStatementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

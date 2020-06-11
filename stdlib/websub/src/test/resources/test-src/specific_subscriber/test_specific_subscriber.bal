@@ -31,7 +31,7 @@ public type WebhookServerForPayload object {
 
     private websub:Listener websubListener;
 
-    public function __init(int port, string? host = ()) {
+    public function init(int port, string? host = ()) {
         websub:ExtensionConfig extensionConfig = {
             topicIdentifier: websub:TOPIC_ID_PAYLOAD_KEY,
             payloadKeyResourceMap: {

@@ -1,5 +1,6 @@
 {
   "kind": "ANNOT_ACCESS",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "IDENTIFIER_TOKEN",
@@ -10,10 +11,15 @@
     },
     {
       "kind": "QUALIFIED_NAME_REFERENCE",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "IDENTIFIER_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
         },
         {
           "kind": "COLON_TOKEN"

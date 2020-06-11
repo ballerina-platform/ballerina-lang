@@ -17,6 +17,38 @@
 import ballerina/log;
 import ballerina/java;
 
+
+public type Info record {|
+   // unique identifier
+   byte[] xid;
+   // non-zero means this transaction was a retry of
+   // a previous one
+   int retryNumber;
+   // probably useful for timeouts and logs
+   int startTime;
+   // maybe useful
+   Info? prevAttempt;
+|};
+
+public type CommitHandler function(Info info);
+public type RollbackHandler function(Info info, error? cause, boolean willRetry);
+
+
+public function startTransaction(string transactionBlockId, Info? prevAttempt = ()) returns string {
+    string transactionId = "";
+    TransactionContext|error txnContext =  beginTransaction((), transactionBlockId, "", TWO_PHASE_COMMIT);
+    if (txnContext is error) {
+        panic txnContext;
+    } else {
+
+        transactionId = txnContext.transactionId;
+        setTransactionContext(txnContext, prevAttempt);
+    }
+
+    log:printInfo("It is done");
+    return transactionId;
+}
+
 # Handles the transaction initiator block.
 # Transaction initiator block will be desugared to following method.
 #
@@ -27,8 +59,7 @@ import ballerina/java;
 # + committedFunc - Committed function.
 # + abortedFunc - Abort function.
 function beginTransactionInitiator(string transactionBlockId, int rMax, function () returns int trxFunc,
-                                   function () retryFunc, function () committedFunc,
-                                   function () abortedFunc) {
+                                   function () retryFunc, function () committedFunc, function () abortedFunc) {
     boolean isTrxSuccess = false;
     int rCnt = 1;
     if (rMax < 0) {
@@ -49,7 +80,7 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
     error? committedResult = ();
     error? retryResult = ();
     error? rollbackResult = ();
-    
+
     while (true) {
         txnContext =  beginTransaction((), transactionBlockId, "", TWO_PHASE_COMMIT);
         if (txnContext is error) {
@@ -61,7 +92,7 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
         trxResult = trap trxFunc();
         if (trxResult is int) {
             // If transaction result == 0, means it is successful.
-            if (trxResult == 0) { 
+            if (trxResult == 0) {
                 // We need to check any failures in transaction context. This will handle cases where transaction
                 // code will not panic still we need to fail the transaction. ex sql transactions
                 boolean isFailed = getAndClearFailure();
@@ -125,7 +156,7 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
 # + abortedFunc - Abort function.
 # + return - Return value of the participant.
 function beginLocalParticipant(string transactionBlockId, function () returns any|error trxFunc,
-                               function (string trxId) committedFunc, function (string trxId) abortedFunc) returns 
+                               function (string trxId) committedFunc, function (string trxId) abortedFunc) returns
                                any|error|() {
     TransactionContext? txnContext = registerLocalParticipant(transactionBlockId, committedFunc, abortedFunc);
     if (txnContext is ()) {
@@ -158,7 +189,7 @@ function beginLocalParticipant(string transactionBlockId, function () returns an
 # + abortedFunc - Abort function.
 # + return - Return value of the participant.
 function beginRemoteParticipant(string transactionBlockId, function () returns any|error trxFunc,
-                                function (string trxId) committedFunc, function (string trxId) abortedFunc) returns 
+                                function (string trxId) committedFunc, function (string trxId) abortedFunc) returns
                                 any|error|() {
     TransactionContext? txnContext = registerRemoteParticipant(transactionBlockId, committedFunc, abortedFunc);
     if (txnContext is ()) {
@@ -182,8 +213,7 @@ function beginRemoteParticipant(string transactionBlockId, function () returns a
     }
 }
 
-function handleAbortTransaction(string transactionId, string transactionBlockId,
-                                function () abortedFunc) {
+function handleAbortTransaction(string transactionId, string transactionBlockId, function () abortedFunc) {
     var result = trap abortTransaction(transactionId, transactionBlockId);
     notifyResourceManagerOnAbort(transactionBlockId);
     var abortResult = trap abortedFunc();
@@ -210,7 +240,7 @@ function handleAbortTransaction(string transactionId, string transactionBlockId,
 # + registerAtUrl - The URL of the initiator
 # + coordinationType - Coordination type of this transaction
 # + return - Newly created/existing TransactionContext for this transaction.
-function beginTransaction(string? transactionId, string transactionBlockId, string registerAtUrl,
+public function beginTransaction(string? transactionId, string transactionBlockId, string registerAtUrl,
                           string coordinationType) returns TransactionContext|error {
     if (transactionId is string) {
         if (initiatedTransactions.hasKey(transactionId)) { // if participant & initiator are in the same process
@@ -258,7 +288,7 @@ function abortTransaction(string transactionId, string transactionBlockId) retur
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - A string or an error representing the transaction end succcess status or failure respectively.
-function endTransaction(string transactionId, string transactionBlockId) returns @tainted string|error {
+public function endTransaction(string transactionId, string transactionBlockId) returns @tainted string|error {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (!initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
         error err = error("Transaction: " + participatedTxnId + " not found");
@@ -316,12 +346,7 @@ function transactionParticipantWrapper(function () returns any|error trxFunc) re
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - true or false representing whether the resource manager preparation is successful or not.
-function prepareResourceManagers(string transactionId, string transactionBlockId) returns boolean {
-    return externPrepareResourceManagers(java:fromString(transactionId), java:fromString(transactionBlockId));
-}
-
-function externPrepareResourceManagers(handle transactionId, handle transactionBlockId) returns boolean =
-@java:Method {
+function prepareResourceManagers(string transactionId, string transactionBlockId) returns boolean = @java:Method {
     class: "io.ballerina.transactions.Utils",
     name: "prepareResourceManagers"
 } external;
@@ -331,12 +356,7 @@ function externPrepareResourceManagers(handle transactionId, handle transactionB
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - true or false representing whether the commit is successful or not.
-function commitResourceManagers(string transactionId, string transactionBlockId) returns boolean {
-    return externCommitResourceManagers(java:fromString(transactionId), java:fromString(transactionBlockId));
-}
-
-function externCommitResourceManagers(handle transactionId, handle transactionBlockId) returns boolean =
-@java:Method {
+function commitResourceManagers(string transactionId, string transactionBlockId) returns boolean = @java:Method {
     class: "io.ballerina.transactions.Utils",
     name: "commitResourceManagers"
 } external;
@@ -346,12 +366,7 @@ function externCommitResourceManagers(handle transactionId, handle transactionBl
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - true or false representing whether the resource manager abortion is successful or not.
-function abortResourceManagers(string transactionId, string transactionBlockId) returns boolean {
-    return externAbortResourceManagers(java:fromString(transactionId), java:fromString(transactionBlockId));
-}
-
-function externAbortResourceManagers(handle transactionId, handle transactionBlockId) returns boolean =
-@java:Method {
+function abortResourceManagers(string transactionId, string transactionBlockId) returns boolean = @java:Method {
     class: "io.ballerina.transactions.Utils",
     name: "abortResourceManagers"
 } external;
@@ -361,11 +376,7 @@ function externAbortResourceManagers(handle transactionId, handle transactionBlo
 # transaction  that is passed in to those functions.
 #
 # + return - A string representing the ID of the current transaction.
-public function getCurrentTransactionId() returns string {
-    return <string>java:toString(externGetCurrentTransactionId());
-}
-
-function externGetCurrentTransactionId() returns handle = @java:Method {
+public function getCurrentTransactionId() returns string = @java:Method {
     class: "io.ballerina.transactions.Utils",
     name: "getCurrentTransactionId"
 } external;
@@ -381,11 +392,12 @@ function isNestedTransaction() returns boolean = @java:Method {
 # Set the transactionContext.
 #
 # + transactionContext - Transaction context.
-function setTransactionContext(TransactionContext transactionContext) = @java:Method {
+# + prevAttempt - Information related to previous attempt.
+public function setTransactionContext(TransactionContext transactionContext, Info? prevAttempt = ()) = @java:Method {
     class: "io.ballerina.transactions.Utils",
     name: "setTransactionContext"
 } external;
- 
+
 # Register local participant. Functions with participant annotations will be desugered to below functions.
 #
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
@@ -393,12 +405,7 @@ function setTransactionContext(TransactionContext transactionContext) = @java:Me
 # + abortedFunc -  Function pointer for abort function for participant.
 # + return - Transaction context.
 function registerLocalParticipant(string transactionBlockId, function (string trxId) committedFunc,
-                                        function (string trxId) abortedFunc) returns  TransactionContext? {
-     return externRegisterLocalParticipant(java:fromString(transactionBlockId), committedFunc, abortedFunc);
-}
-
-function externRegisterLocalParticipant(handle transactionBlockId, function (string trxId) committedFunc,
-                    function (string trxId) abortedFunc) returns TransactionContext? = @java:Method {
+                                  function (string trxId) abortedFunc) returns TransactionContext? = @java:Method {
     class: "io.ballerina.transactions.Utils",
     name: "registerLocalParticipant"
 } external;
@@ -410,12 +417,7 @@ function externRegisterLocalParticipant(handle transactionBlockId, function (str
 # + abortedFunc -  Function pointer for abort function for participant.
 # + return - Transaction context.
 function registerRemoteParticipant(string transactionBlockId, function (string trxId) committedFunc,
-                                        function (string trxId) abortedFunc) returns  TransactionContext? {
-    return externRegisterRemoteParticipant(java:fromString(transactionBlockId), committedFunc, abortedFunc);
-}
-
-function externRegisterRemoteParticipant(handle transactionBlockId, function (string trxId) committedFunc,
-                    function (string trxId) abortedFunc) returns TransactionContext? = @java:Method {
+                                   function (string trxId) abortedFunc) returns  TransactionContext? = @java:Method {
     class: "io.ballerina.transactions.Utils",
     name: "registerRemoteParticipant"
 } external;
@@ -435,11 +437,7 @@ function notifyRemoteParticipantOnFailure() = @java:Method {
 # Notify the transaction resource manager on abort.
 #
 # + transactionBlockId - ID of the transaction block.
-function notifyResourceManagerOnAbort(string transactionBlockId) {
-    externNotifyResourceManagerOnAbort(java:fromString(transactionBlockId));
-}
-
-function externNotifyResourceManagerOnAbort(handle transactionBlockId) = @java:Method {
+function notifyResourceManagerOnAbort(string transactionBlockId) = @java:Method {
     class: "io.ballerina.transactions.Utils",
     name: "notifyResourceManagerOnAbort"
 } external;
@@ -447,11 +445,8 @@ function externNotifyResourceManagerOnAbort(handle transactionBlockId) = @java:M
 # Rollback the transaction.
 #
 # + transactionBlockId - ID of the transaction block.
-function rollbackTransaction(string transactionBlockId) {
-    externRollbackTransaction(java:fromString(transactionBlockId));
-}
-
-function externRollbackTransaction(handle transactionBlockId) = @java:Method {
+# + err - The cause of the rollback.
+public function rollbackTransaction(string transactionBlockId, error? err = ()) = @java:Method {
     class: "io.ballerina.transactions.Utils",
     name: "rollbackTransaction"
 } external;
@@ -459,11 +454,7 @@ function externRollbackTransaction(handle transactionBlockId) = @java:Method {
 # Cleanup the transaction context.
 #
 # + transactionBlockId - ID of the transaction block.
-function cleanupTransactionContext(string transactionBlockId) {
-    externCleanupTransactionContext(java:fromString(transactionBlockId));
-}
-
-function externCleanupTransactionContext(handle transactionBlockId) = @java:Method {
+public function cleanupTransactionContext(string transactionBlockId) = @java:Method {
     class: "io.ballerina.transactions.Utils",
     name: "cleanupTransactionContext"
 } external;
@@ -471,7 +462,27 @@ function externCleanupTransactionContext(handle transactionBlockId) = @java:Meth
 # Get and Cleanup the failure.
 #
 # + return - is failed.
-function getAndClearFailure() returns boolean = @java:Method {
+public function getAndClearFailure() returns boolean = @java:Method {
     class: "io.ballerina.transactions.Utils",
     name: "getAndClearFailure"
+} external;
+
+public function onCommit(CommitHandler handler) = @java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "onCommit"
+} external;
+
+public function onRollback(RollbackHandler handler) = @java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "onRollback"
+} external;
+
+public function isTransactional() returns boolean = @java:Method {
+class: "io.ballerina.transactions.Utils",
+name: "isTransactional"
+} external;
+
+public function info() returns Info = @java:Method {
+class: "io.ballerina.transactions.Utils",
+name: "info"
 } external;

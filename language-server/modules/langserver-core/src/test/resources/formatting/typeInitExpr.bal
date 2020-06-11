@@ -3,7 +3,7 @@ import ballerinax/java.jdbc;
 type Person object {
     string name = "";
 
-    function __init(string name="" ,record {int id = 0;int address="";}  details={}) {
+    function init(string name="" ,record {int id = 0;int address="";}  details={}) {
         self.name = name;
         var detailRec = details;
     }

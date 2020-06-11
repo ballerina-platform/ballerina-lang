@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -37,15 +38,18 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "FIELD_ACCESS",
@@ -80,7 +84,11 @@
                 },
                 {
                   "kind": "EQUAL_TOKEN",
-                  "isMissing": true
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_EQUAL_TOKEN"
+                  ]
                 },
                 {
                   "kind": "BINARY_EXPRESSION",
@@ -105,6 +113,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "FIELD_ACCESS",
@@ -124,7 +133,11 @@
                 },
                 {
                   "kind": "EQUAL_TOKEN",
-                  "isMissing": true
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_EQUAL_TOKEN"
+                  ]
                 },
                 {
                   "kind": "BINARY_EXPRESSION",
@@ -149,6 +162,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "FIELD_ACCESS",
@@ -188,7 +202,11 @@
                 },
                 {
                   "kind": "EQUAL_TOKEN",
-                  "isMissing": true
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_EQUAL_TOKEN"
+                  ]
                 },
                 {
                   "kind": "BINARY_EXPRESSION",

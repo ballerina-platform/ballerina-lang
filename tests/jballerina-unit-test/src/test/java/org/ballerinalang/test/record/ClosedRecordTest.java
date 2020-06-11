@@ -223,14 +223,14 @@ public class ClosedRecordTest {
                                           "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
                                           "'typedesc', 'future', 'anydata', " +
-                                          "'handle', 'readonly', '(', '[', '|}', '*', '@', Identifier, " +
+                                          "'handle', 'readonly', 'never', '(', '[', '|}', '*', '@', Identifier, " +
                                           "DocumentationLineStart}", 19, 25);
         BAssertUtil.validateError(result, 5,
                                   "mismatched input '}'. expecting {'service', 'function', 'object', 'record', " +
                                           "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
                                           "'typedesc', 'future', 'anydata', " +
-                                          "'handle', 'readonly', '(', '[', '+', '-', DecimalIntegerLiteral, " +
+                                          "'handle', 'readonly', 'never', '(', '[', '+', '-', DecimalIntegerLiteral, " +
                                           "HexIntegerLiteral, HexadecimalFloatingPointLiteral, " +
                                           "DecimalFloatingPointNumber, BooleanLiteral, QuotedStringLiteral, " +
                                           "Base16BlobLiteral, Base64BlobLiteral, 'null', Identifier}",
@@ -242,14 +242,14 @@ public class ClosedRecordTest {
                                           "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
                                           "'typedesc', 'future', 'anydata', " +
-                                          "'handle', 'readonly', '}', '(', '[', '*', '@', Identifier, " +
+                                          "'handle', 'readonly', 'never', '}', '(', '[', '*', '@', Identifier, " +
                                           "DocumentationLineStart}", 25, 25);
         BAssertUtil.validateError(result, 9,
                                   "mismatched input '|'. expecting {'service', 'function', 'object', 'record', " +
                                           "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
                                           "'typedesc', 'future', 'anydata', " +
-                                          "'handle', 'readonly', '(', '[', '+', '-', DecimalIntegerLiteral, " +
+                                          "'handle', 'readonly', 'never', '(', '[', '+', '-', DecimalIntegerLiteral, " +
                                           "HexIntegerLiteral, HexadecimalFloatingPointLiteral, " +
                                           "DecimalFloatingPointNumber, BooleanLiteral, QuotedStringLiteral, " +
                                           "Base16BlobLiteral, Base64BlobLiteral, 'null', Identifier}",
@@ -259,7 +259,7 @@ public class ClosedRecordTest {
                                           "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
                                           "'typedesc', 'future', 'anydata', " +
-                                          "'handle', 'readonly', '(', '[', '+', '-', DecimalIntegerLiteral, " +
+                                          "'handle', 'readonly', 'never', '(', '[', '+', '-', DecimalIntegerLiteral, " +
                                           "HexIntegerLiteral, HexadecimalFloatingPointLiteral, " +
                                           "DecimalFloatingPointNumber, BooleanLiteral, QuotedStringLiteral, " +
                                           "Base16BlobLiteral, Base64BlobLiteral, 'null', Identifier}",
@@ -271,7 +271,7 @@ public class ClosedRecordTest {
     public void testAmbiguityResolutionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/record/closed_record_ambiguous_types_negative.bal");
         BAssertUtil.validateError(result, 0, "ambiguous type '(InMemoryModeConfig|ServerModeConfig" +
-                        "|EmbeddedModeConfig)'", 36, 22);
+                        "|EmbeddedModeConfig)'", 36, 24);
     }
 
     @Test(description = "Test invocation of nil-able function pointer fields in a closed record")

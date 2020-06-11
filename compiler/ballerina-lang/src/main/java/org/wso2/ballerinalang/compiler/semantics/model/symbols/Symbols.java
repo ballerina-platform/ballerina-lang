@@ -184,6 +184,10 @@ public class Symbols {
         return (sym.flags & Flags.PRIVATE) == Flags.PRIVATE;
     }
 
+    public static boolean isRemote(BSymbol sym) {
+        return (sym.flags & Flags.REMOTE) == Flags.REMOTE;
+    }
+
     public static boolean isFlagOn(int mask, int flag) {
         return (mask & flag) == flag;
     }

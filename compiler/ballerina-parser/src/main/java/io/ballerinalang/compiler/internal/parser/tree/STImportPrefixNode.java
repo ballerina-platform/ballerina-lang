@@ -63,7 +63,32 @@ public class STImportPrefixNode extends STNode {
                 diagnostics);
     }
 
+    public STImportPrefixNode modify(
+            STNode asKeyword,
+            STNode prefix) {
+        if (checkForReferenceEquality(
+                asKeyword,
+                prefix)) {
+            return this;
+        }
+
+        return new STImportPrefixNode(
+                asKeyword,
+                prefix,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ImportPrefixNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

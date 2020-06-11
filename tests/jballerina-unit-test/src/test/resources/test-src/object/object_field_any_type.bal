@@ -18,7 +18,7 @@ import ballerina/io;
 public type TypeA object {
     public any attribA = "";
 
-    function __init(any attribA) {
+    function init(any attribA) {
     self.attribA = attribA;
     }
 };

@@ -70,7 +70,35 @@ public class STServiceBodyNode extends STNode {
                 diagnostics);
     }
 
+    public STServiceBodyNode modify(
+            STNode openBraceToken,
+            STNode resources,
+            STNode closeBraceToken) {
+        if (checkForReferenceEquality(
+                openBraceToken,
+                resources,
+                closeBraceToken)) {
+            return this;
+        }
+
+        return new STServiceBodyNode(
+                openBraceToken,
+                resources,
+                closeBraceToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ServiceBodyNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

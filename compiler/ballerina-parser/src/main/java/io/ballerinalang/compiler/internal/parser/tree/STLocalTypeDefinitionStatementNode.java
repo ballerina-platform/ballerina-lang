@@ -84,7 +84,41 @@ public class STLocalTypeDefinitionStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STLocalTypeDefinitionStatementNode modify(
+            STNode annotations,
+            STNode typeKeyword,
+            STNode typeName,
+            STNode typeDescriptor,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                annotations,
+                typeKeyword,
+                typeName,
+                typeDescriptor,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STLocalTypeDefinitionStatementNode(
+                annotations,
+                typeKeyword,
+                typeName,
+                typeDescriptor,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new LocalTypeDefinitionStatementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

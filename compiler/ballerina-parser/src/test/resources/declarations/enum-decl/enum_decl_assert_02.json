@@ -35,8 +35,7 @@
               ]
             },
             {
-              "kind": "ENUM_KEYWORD",
-              "isMissing": true
+              "kind": "ENUM_KEYWORD"
             },
             {
               "kind": "IDENTIFIER_TOKEN",

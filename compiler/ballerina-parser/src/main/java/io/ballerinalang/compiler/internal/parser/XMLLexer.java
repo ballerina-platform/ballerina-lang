@@ -876,7 +876,8 @@ public class XMLLexer extends AbstractLexer {
                     if (reader.peek(1) == LexerTerminals.OPEN_BRACE) {
                         break;
                     }
-                    // fall through
+                    reader.advance();
+                    continue;
                 case LexerTerminals.BACKTICK:
                     endMode();
                     break;
@@ -949,6 +950,7 @@ public class XMLLexer extends AbstractLexer {
             case LexerTerminals.QUESTION_MARK:
                 if (this.reader.peek(1) == LexerTerminals.GT) {
                     reader.advance(2);
+                    endMode();
                     endMode();
                     return getXMLSyntaxToken(SyntaxKind.XML_PI_END_TOKEN);
                 }
