@@ -27,7 +27,7 @@ int p = port;
 
 service hello on lis {
 
-    function __init() {
+    function init() {
         str = b7a;
     }
 
@@ -43,7 +43,7 @@ type Obj object {
     string str;
     int p = port;
 
-    function __init() {
+    function init() {
         self.str = b7a;
     }
 };

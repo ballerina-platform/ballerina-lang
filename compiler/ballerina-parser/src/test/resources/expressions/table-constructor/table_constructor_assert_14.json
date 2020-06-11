@@ -1,11 +1,13 @@
 {
   "kind": "TABLE_CONSTRUCTOR",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "TABLE_KEYWORD"
     },
     {
       "kind": "KEY_SPECIFIER",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "KEY_KEYWORD"
@@ -24,7 +26,11 @@
         },
         {
           "kind": "CLOSE_PAREN_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+          ]
         }
       ]
     },

@@ -1,5 +1,6 @@
 {
   "kind": "TYPE_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -15,10 +16,15 @@
     },
     {
       "kind": "IDENTIFIER_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_IDENTIFIER"
+      ]
     },
     {
       "kind": "RECORD_TYPE_DESC",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "RECORD_KEYWORD"
@@ -81,7 +87,11 @@
         },
         {
           "kind": "CLOSE_BRACE_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+          ]
         }
       ]
     },

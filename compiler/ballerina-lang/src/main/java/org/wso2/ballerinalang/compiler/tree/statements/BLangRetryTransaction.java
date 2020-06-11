@@ -60,8 +60,6 @@ public class BLangRetryTransaction extends BLangStatement implements RetryTransa
 
     @Override
     public String toString() {
-
-        //TODO Transaction
-        return "Retry";
+        return "Retry" + retrySpec + transaction;
     }
 }

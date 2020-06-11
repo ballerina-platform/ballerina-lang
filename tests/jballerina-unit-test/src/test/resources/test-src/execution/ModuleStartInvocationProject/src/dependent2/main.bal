@@ -17,7 +17,7 @@
 import basic;
 import ballerina/io;
 
-function __init() {
+function init() {
 	io:println("Initializing module 'dependent2'");
 }
 

@@ -3,7 +3,7 @@ type testObject object {
     int a = 12;
     
     
-    public function __init() {
+    public function init() {
         
     }
 };

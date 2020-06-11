@@ -32,7 +32,7 @@ public type Client client object {
     # + connectionPool - The `sql:ConnectionPool` object to be used within the jdbc client.
     #                   If there is no connectionPool is provided, the global connection pool will be used and it will
     #                   be shared by other clients which has same properties
-    public function __init(public string url, public string? user = (), public string? password = (),
+    public function init(public string url, public string? user = (), public string? password = (),
         public Options? options = (), public sql:ConnectionPool? connectionPool = ()) returns sql:Error? {
         ClientConfiguration clientConf = {
             url: url,

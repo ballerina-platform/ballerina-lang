@@ -1,11 +1,13 @@
 {
   "kind": "IMPORT_DECLARATION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "IMPORT_KEYWORD"
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "IDENTIFIER_TOKEN",
@@ -16,14 +18,22 @@
         },
         {
           "kind": "IDENTIFIER_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
         },
         {
           "kind": "DOT_TOKEN"
         },
         {
           "kind": "IDENTIFIER_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
         }
       ]
     },

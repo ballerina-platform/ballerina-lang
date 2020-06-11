@@ -1,5 +1,6 @@
 {
   "kind": "TYPE_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -19,6 +20,7 @@
     },
     {
       "kind": "RECORD_TYPE_DESC",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "RECORD_KEYWORD"
@@ -28,9 +30,11 @@
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "RECORD_FIELD",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "METADATA",
@@ -50,12 +54,17 @@
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",
-                  "isMissing": true
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_SEMICOLON_TOKEN"
+                  ]
                 }
               ]
             },
             {
               "kind": "RECORD_FIELD",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "METADATA",
@@ -75,12 +84,17 @@
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",
-                  "isMissing": true
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_SEMICOLON_TOKEN"
+                  ]
                 }
               ]
             },
             {
               "kind": "RECORD_FIELD_WITH_DEFAULT_VALUE",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "METADATA",
@@ -119,12 +133,17 @@
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",
-                  "isMissing": true
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_SEMICOLON_TOKEN"
+                  ]
                 }
               ]
             },
             {
               "kind": "RECORD_REST_TYPE",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "STRING_KEYWORD"
@@ -134,7 +153,11 @@
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",
-                  "isMissing": true
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_SEMICOLON_TOKEN"
+                  ]
                 }
               ]
             }

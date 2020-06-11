@@ -92,7 +92,7 @@ type Person object {
     string zipcode = "95134";
     handle data;
 
-    function __init (handle data) {
+    function init (handle data) {
         self.data = data;
     }
 

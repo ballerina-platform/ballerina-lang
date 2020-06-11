@@ -15,11 +15,11 @@
 // under the License.
 
 public type ClassWriter object {
-    public function __init(int flags){
-        self.init(flags);
+    public function init(int flags){
+        self.externalInit(flags);
     }
 
-    function init(int flags) = external;
+    function externalInit(int flags) = external;
 
     public function visit(int versionNumber, int access, string name, string? signature, string superName,
                             string[]? interfaces) = external;
@@ -80,11 +80,11 @@ public type MethodVisitor object {
 
 
 public type Label object {
-    public function __init(){
-        self.init();
+    public function init(){
+        self.externalInit();
     }
 
-    function init() = external;
+    function externalInit() = external;
 };
 
 public type FieldVisitor object {

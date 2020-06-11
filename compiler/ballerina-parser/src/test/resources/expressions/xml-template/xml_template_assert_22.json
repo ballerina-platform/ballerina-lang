@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -34,15 +35,18 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -70,6 +74,7 @@
                 },
                 {
                   "kind": "XML_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "XML_KEYWORD"
@@ -79,16 +84,22 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "XML_PI",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "XML_PI_START_TOKEN"
                             },
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_IDENTIFIER"
+                              ]
                             },
                             {
                               "kind": "LIST",
@@ -113,6 +124,7 @@
             },
             {
               "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -140,6 +152,7 @@
                 },
                 {
                   "kind": "XML_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "XML_KEYWORD"
@@ -149,16 +162,22 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "XML_PI",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "XML_PI_START_TOKEN"
                             },
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_IDENTIFIER"
+                              ]
                             },
                             {
                               "kind": "LIST",
@@ -166,7 +185,11 @@
                             },
                             {
                               "kind": "XML_PI_END_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_XML_PI_END_TOKEN"
+                              ]
                             }
                           ]
                         }
@@ -184,6 +207,7 @@
             },
             {
               "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -211,6 +235,7 @@
                 },
                 {
                   "kind": "XML_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "XML_KEYWORD"
@@ -220,9 +245,11 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "XML_ELEMENT",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "XML_ELEMENT_START_TAG",
@@ -250,9 +277,11 @@
                             },
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "XML_PI",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "XML_PI_START_TOKEN"
@@ -277,7 +306,11 @@
                                     },
                                     {
                                       "kind": "XML_PI_END_TOKEN",
-                                      "isMissing": true
+                                      "isMissing": true,
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "ERROR_MISSING_XML_PI_END_TOKEN"
+                                      ]
                                     }
                                   ]
                                 }
@@ -285,22 +318,39 @@
                             },
                             {
                               "kind": "XML_ELEMENT_END_TAG",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "LT_TOKEN",
-                                  "isMissing": true
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_LT_TOKEN"
+                                  ]
                                 },
                                 {
                                   "kind": "SLASH_TOKEN",
-                                  "isMissing": true
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_SLASH_TOKEN"
+                                  ]
                                 },
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
-                                  "isMissing": true
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_IDENTIFIER"
+                                  ]
                                 },
                                 {
                                   "kind": "GT_TOKEN",
-                                  "isMissing": true
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_GT_TOKEN"
+                                  ]
                                 }
                               ]
                             }

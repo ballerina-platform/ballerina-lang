@@ -88,7 +88,7 @@ public class ModuleExecutionFlowTests {
         String expectedConsoleString = "Initializing module a\n" +
                 "Initializing module b";
         String expectedErrorString = "error: panicked while initializing module B \n" +
-                "\tat unit-tests.b.0_1_0:__init(main.bal:6)";
+                "\tat unit-tests.b.0_1_0:init(main.bal:6)";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }

@@ -5,7 +5,7 @@ public type ParentFoo object {
     public ChildFoo c;
     private string s = "";
 
-    function __init (int i, ChildFoo c){
+    function init (int i, ChildFoo c){
         self.i = i;
         self.c = c;
     }
@@ -14,7 +14,7 @@ public type ParentFoo object {
 type ChildFoo object {
     private string name = "";
 
-    function __init (string name) {
+    function init (string name) {
         self.name = name;
     }
 };
@@ -24,7 +24,7 @@ type PrivatePerson object {
     public int age = 0;
     public string name = "";
 
-    function __init (int age, string name){
+    function init (int age, string name){
         self.age = age;
         self.name = name;
     }

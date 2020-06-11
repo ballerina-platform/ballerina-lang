@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -34,15 +35,18 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "MATCH_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "MATCH_KEYWORD"
@@ -67,12 +71,15 @@
                 },
                 {
                   "kind": "LIST",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "MATCH_CLAUSE",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "LIST",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "STRING_LITERAL",
@@ -80,7 +87,11 @@
                             },
                             {
                               "kind": "PIPE_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_PIPE_TOKEN"
+                              ]
                             },
                             {
                               "kind": "STRING_LITERAL",
@@ -110,6 +121,7 @@
                     },
                     {
                       "kind": "MATCH_CLAUSE",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "LIST",
@@ -122,7 +134,11 @@
                         },
                         {
                           "kind": "RIGHT_DOUBLE_ARROW_TOKEN",
-                          "isMissing": true
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_RIGHT_DOUBLE_ARROW_TOKEN"
+                          ]
                         },
                         {
                           "kind": "BLOCK_STATEMENT",
@@ -143,6 +159,7 @@
                     },
                     {
                       "kind": "MATCH_CLAUSE",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "LIST",
@@ -155,10 +172,15 @@
                         },
                         {
                           "kind": "MATCH_GUARD",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "IF_KEYWORD",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_IF_KEYWORD"
+                              ]
                             },
                             {
                               "kind": "BINARY_EXPRESSION",
@@ -230,22 +252,33 @@
                     },
                     {
                       "kind": "MATCH_CLAUSE",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "LIST",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_IDENTIFIER"
+                              ]
                             }
                           ]
                         },
                         {
                           "kind": "MATCH_GUARD",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "IF_KEYWORD",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_IF_KEYWORD"
+                              ]
                             },
                             {
                               "kind": "LIST_CONSTRUCTOR",
@@ -300,7 +333,11 @@
         },
         {
           "kind": "CLOSE_BRACE_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+          ]
         }
       ]
     }
