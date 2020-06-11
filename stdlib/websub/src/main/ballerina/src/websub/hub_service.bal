@@ -35,14 +35,14 @@ cache:Cache subscriberCallbackClientCache = new(config);
 function getHubService() returns service {
     return @http:ServiceConfig {
         basePath: hubBasePath,
-        auth: hubServiceAuth
+        auth: <http:ServiceAuth & readonly>hubServiceAuth
     }
     service {
 
         @http:ResourceConfig {
             methods: ["POST"],
             path: hubPublishResourcePath,
-            auth: hubPublisherResourceAuth
+            auth: <http:ResourceAuth & readonly>hubPublisherResourceAuth
         }
         resource function publish(http:Caller httpCaller, http:Request request) {
             http:Response response = new;
@@ -212,7 +212,7 @@ function getHubService() returns service {
         @http:ResourceConfig {
             methods: ["POST"],
             path: hubSubscriptionResourcePath,
-            auth: hubSubscriptionResourceAuth
+            auth: <http:ResourceAuth & readonly>hubSubscriptionResourceAuth
         }
         resource function subscribe(http:Caller httpCaller, http:Request request) {
             http:Response response = new;
