@@ -4246,7 +4246,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void reportErrorDetailMissmatchError(BLangInvocation iExpr, BRecordType targetErrorDetailRec, BRecordType recordType) {
+    private void reportErrorDetailMissmatchError(BLangInvocation iExpr, BRecordType targetErrorDetailRec,
+                                                 BRecordType recordType) {
         boolean detailedErrorReported = false;
         Set<String> checkedFieldNames = new HashSet<>();
         for (Map.Entry<String, BField> fieldEntry : targetErrorDetailRec.fields.entrySet()) {

@@ -34,7 +34,7 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
  *
  * @since 0.8.0
  */
-@Test(groups = "brokenOnErrorChange")
+@Test
 public class FuncInvocationExprTest {
 
     private CompileResult funcInvocationExpResult;

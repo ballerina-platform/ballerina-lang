@@ -56,6 +56,11 @@ public class BTypeIdSet {
         return true;
     }
 
+    /**
+     * Represent Ballerina distinct type id.
+     *
+     * @since 2.0
+     */
     public static class TypeId {
         final BPackage pkg;
         final String name;

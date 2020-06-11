@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model;
 
-import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.OperatorKind;

@@ -231,7 +231,7 @@ function testTransactionStmtWithConstRetryFailed2() returns (string) {
     if (result is string) {
         a = result;
     } else {
-        a = a + <string>result.detail()["message"];
+        a = a + result.message();
     }
     a = a + " end";
     return a;

@@ -88,7 +88,7 @@ public class ObjectDocumentationTest {
                 EMPTY_STRING), "struct `field c` documentation");
     }
 
-    @Test(description = "Test doc negative cases.", groups = "brokenOnErrorChange")
+    @Test(description = "Test doc negative cases.")
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object_documentation_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));

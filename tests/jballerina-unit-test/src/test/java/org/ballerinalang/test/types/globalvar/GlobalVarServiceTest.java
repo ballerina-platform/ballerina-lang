@@ -36,7 +36,7 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 /**
  * Global variables in service test cases.
  */
-@Test(groups = "brokenOnErrorChange")
+@Test
 public class GlobalVarServiceTest {
 
     CompileResult result;

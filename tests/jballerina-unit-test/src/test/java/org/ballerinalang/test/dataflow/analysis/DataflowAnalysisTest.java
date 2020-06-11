@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.985.0
  */
-@Test(groups = "brokenOnErrorChange")
+@Test
 public class DataflowAnalysisTest {
 
     @Test(description = "Test uninitialized variables")
