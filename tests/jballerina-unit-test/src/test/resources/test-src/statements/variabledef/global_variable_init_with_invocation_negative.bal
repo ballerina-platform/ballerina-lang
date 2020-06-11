@@ -17,7 +17,7 @@
 int i; // uninitialized variable 'i'
 string s; // uninitialized variable 's'
 
-function __init() {
+function init() {
     i = foo();
     s = bar();
 }

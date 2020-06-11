@@ -70,7 +70,35 @@ public class STFieldBindingPatternFullNode extends STFieldBindingPatternNode {
                 diagnostics);
     }
 
+    public STFieldBindingPatternFullNode modify(
+            STNode variableName,
+            STNode colon,
+            STNode bindingPattern) {
+        if (checkForReferenceEquality(
+                variableName,
+                colon,
+                bindingPattern)) {
+            return this;
+        }
+
+        return new STFieldBindingPatternFullNode(
+                variableName,
+                colon,
+                bindingPattern,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FieldBindingPatternFullNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

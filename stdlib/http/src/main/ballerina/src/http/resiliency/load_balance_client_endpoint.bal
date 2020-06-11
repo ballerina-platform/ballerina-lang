@@ -32,7 +32,7 @@ public type LoadBalanceClient client object {
     # Load Balancer adds an additional layer to the HTTP client to make network interactions more resilient.
     #
     # + loadBalanceClientConfig - The configurations for the load balance client endpoint
-    public function __init(LoadBalanceClientConfiguration loadBalanceClientConfig) {
+    public function init(LoadBalanceClientConfiguration loadBalanceClientConfig) {
         self.loadBalanceClientConfig = loadBalanceClientConfig;
         self.failover = loadBalanceClientConfig.failover;
         var lbClients = createLoadBalanceHttpClientArray(loadBalanceClientConfig);

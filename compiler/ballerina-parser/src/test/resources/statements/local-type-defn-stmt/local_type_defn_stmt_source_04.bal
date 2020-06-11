@@ -1,6 +1,6 @@
 public function foo() {
     type Foo object {
-        public function __init() {
+        public function init() {
         }
 
         function getName() {

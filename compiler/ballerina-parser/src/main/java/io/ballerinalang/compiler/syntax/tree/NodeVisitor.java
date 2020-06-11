@@ -555,8 +555,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(singletonTypeDescriptorNode);
     }
 
-    public void visit(FunctionDeclarationNode functionDeclarationNode) {
-        visitSyntaxNode(functionDeclarationNode);
+    public void visit(MethodDeclarationNode methodDeclarationNode) {
+        visitSyntaxNode(methodDeclarationNode);
     }
 
     public void visit(TypedBindingPatternNode typedBindingPatternNode) {
@@ -701,6 +701,26 @@ public abstract class NodeVisitor {
 
     public void visit(XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
         visitSyntaxNode(xMLAtomicNamePatternNode);
+    }
+
+    public void visit(TypeReferenceTypeDescNode typeReferenceTypeDescNode) {
+        visitSyntaxNode(typeReferenceTypeDescNode);
+    }
+
+    public void visit(MatchStatementNode matchStatementNode) {
+        visitSyntaxNode(matchStatementNode);
+    }
+
+    public void visit(MatchClauseNode matchClauseNode) {
+        visitSyntaxNode(matchClauseNode);
+    }
+
+    public void visit(MatchGuardNode matchGuardNode) {
+        visitSyntaxNode(matchGuardNode);
+    }
+
+    public void visit(ObjectMethodDefinitionNode objectMethodDefinitionNode) {
+        visitSyntaxNode(objectMethodDefinitionNode);
     }
 
     // Tokens

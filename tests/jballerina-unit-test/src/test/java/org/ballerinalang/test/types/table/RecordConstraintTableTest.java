@@ -113,4 +113,14 @@ public class RecordConstraintTableTest {
         BValue[] values = BRunUtil.invoke(result, "testTableMemberAccessLoad", new BValue[]{});
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
+
+    @Test(description = "Test table as record field")
+    public void testTableAsRecordField() {
+        BRunUtil.invoke(result, "testTableAsRecordField", new BValue[]{});
+    }
+
+    @Test(description = "Test table equality")
+    public void testTableEquality() {
+        BRunUtil.invoke(result, "testTableEquality", new BValue[]{});
+    }
 }

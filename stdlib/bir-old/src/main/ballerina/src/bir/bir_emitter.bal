@@ -25,7 +25,7 @@ public type BirEmitter object {
     private OperandEmitter opEmitter;
     private PositionEmitter posEmitter;
 
-    public function __init (Package pkg){
+    public function init (Package pkg){
         self.pkg = pkg;
         self.typeEmitter = new;
         self.insEmitter = new;
@@ -236,7 +236,7 @@ type InstructionEmitter object {
     private TypeEmitter typeEmitter;
     private PositionEmitter posEmitter;
 
-    function __init() {
+    function init() {
         self.opEmitter = new;
         self.typeEmitter = new;
         self.posEmitter = new;
@@ -381,7 +381,7 @@ type TerminalEmitter object {
     private OperandEmitter opEmitter;
     private PositionEmitter posEmitter;
 
-    function __init() {
+    function init() {
         self.opEmitter = new;
         self.posEmitter = new;
     }

@@ -60,7 +60,31 @@ public class STBuiltinSimpleNameReferenceNode extends STNameReferenceNode {
                 diagnostics);
     }
 
+    public STBuiltinSimpleNameReferenceNode modify(
+            SyntaxKind kind,
+            STNode name) {
+        if (checkForReferenceEquality(
+                name)) {
+            return this;
+        }
+
+        return new STBuiltinSimpleNameReferenceNode(
+                kind,
+                name,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BuiltinSimpleNameReferenceNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

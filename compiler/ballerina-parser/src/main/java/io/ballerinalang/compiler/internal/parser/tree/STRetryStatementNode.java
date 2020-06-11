@@ -77,7 +77,38 @@ public class STRetryStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STRetryStatementNode modify(
+            STNode retryKeyword,
+            STNode typeParameter,
+            STNode arguments,
+            STNode retryBody) {
+        if (checkForReferenceEquality(
+                retryKeyword,
+                typeParameter,
+                arguments,
+                retryBody)) {
+            return this;
+        }
+
+        return new STRetryStatementNode(
+                retryKeyword,
+                typeParameter,
+                arguments,
+                retryBody,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RetryStatementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

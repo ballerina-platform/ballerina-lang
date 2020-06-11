@@ -76,8 +76,8 @@ public class Names {
     public static final Name START_FUNCTION_SUFFIX = new Name(".<start>");
     public static final Name STOP_FUNCTION_SUFFIX = new Name(".<stop>");
     public static final Name SELF = new Name("self");
-    public static final Name USER_DEFINED_INIT_SUFFIX = new Name("__init");
-    public static final Name GENERATED_INIT_SUFFIX = new Name("$__init$");
+    public static final Name USER_DEFINED_INIT_SUFFIX = new Name("init");
+    public static final Name GENERATED_INIT_SUFFIX = new Name("$init$");
     // TODO remove when current project name is read from manifest
     public static final Name ANON_ORG = new Name("$anon");
     public static final Name NIL_VALUE = new Name("()");
@@ -95,6 +95,8 @@ public class Names {
     public static final Name DETAIL_MESSAGE = new Name("message");
     public static final Name DETAIL_CAUSE = new Name("cause");
 
+    public static final Name NEVER = new Name("never");
+
     // Subtypes
     public static final Name SIGNED32 = new Name(STRING_SIGNED32);
     public static final Name SIGNED16 = new Name(STRING_SIGNED16);
@@ -110,13 +112,17 @@ public class Names {
 
     // Names related to transactions.
     public static final Name TRANSACTION_PACKAGE = new Name("transactions");
+    public static final Name TRANSACTION_INFO_RECORD = new Name("Info");
     public static final Name TRANSACTION_ORG = new Name("ballerina");
-    public static final Name TRANSACTION_PACKAGE_VERSION = new Name("0.5.0");
-
-    public static final Name TRX_INITIATOR_BEGIN_FUNCTION = new Name("beginTransactionInitiator");
-    public static final Name TRX_LOCAL_PARTICIPANT_BEGIN_FUNCTION = new Name("beginLocalParticipant");
-    public static final Name TRX_REMOTE_PARTICIPANT_BEGIN_FUNCTION = new Name("beginRemoteParticipant");
     public static final Name CREATE_INT_RANGE = new Name("createIntRange");
+    public static final Name START_TRANSACTION = new Name("startTransaction");
+    public static final Name CURRENT_TRANSACTION_INFO = new Name("info");
+    public static final Name IS_TRANSACTIONAL = new Name("isTransactional");
+    public static final Name ROLLBACK_TRANSACTION = new Name("rollbackTransaction");
+    public static final Name END_TRANSACTION = new Name("endTransaction");
+    public static final Name GET_AND_CLEAR_FAILURE_TRANSACTION = new Name("getAndClearFailure");
+    public static final Name CLEAN_UP_TRANSACTION = new Name("cleanupTransactionContext");
+
     public static final Name CONSTRUCT_STREAM = new Name("construct");
 
     // Module Versions

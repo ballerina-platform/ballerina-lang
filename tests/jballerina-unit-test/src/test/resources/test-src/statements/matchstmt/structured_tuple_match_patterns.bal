@@ -440,7 +440,7 @@ function foo8(any x) returns string {
 type NoFillerObject object {
     int i;
 
-    function __init(int i) {
+    function init(int i) {
         self.i = i;
     }
 };

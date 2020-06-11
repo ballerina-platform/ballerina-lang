@@ -20,6 +20,7 @@ import io.netty.channel.ChannelFuture;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketException;
@@ -42,8 +43,7 @@ import static org.ballerinalang.net.http.websocket.WebSocketConstants.ErrorCode;
 public class Close {
     private static final Logger log = LoggerFactory.getLogger(Close.class);
 
-    public static Object externClose(ObjectValue wsConnection, long statusCode, String reason,
-                                     long timeoutInSecs) {
+    public static Object externClose(ObjectValue wsConnection, long statusCode, BString reason, long timeoutInSecs) {
         Strand strand = Scheduler.getStrand();
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnection
@@ -52,8 +52,8 @@ public class Close {
                                                              WebSocketConstants.RESOURCE_NAME_CLOSE);
         try {
             CountDownLatch countDownLatch = new CountDownLatch(1);
-            ChannelFuture closeFuture =
-                    initiateConnectionClosure(callback, (int) statusCode, reason, connectionInfo, countDownLatch);
+            ChannelFuture closeFuture = initiateConnectionClosure(callback, (int) statusCode, reason.getValue(),
+                                                                  connectionInfo, countDownLatch);
             waitForTimeout(callback, (int) timeoutInSecs, countDownLatch, connectionInfo);
             closeFuture.channel().close().addListener(future -> {
                 WebSocketUtil.setListenerOpenField(connectionInfo);

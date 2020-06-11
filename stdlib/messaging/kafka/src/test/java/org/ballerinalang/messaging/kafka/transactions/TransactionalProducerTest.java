@@ -27,7 +27,6 @@ import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.nio.file.Paths;
@@ -46,6 +45,9 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.getZookeeperTime
 /**
  * Test cases for Kafka abortTransaction method on kafka producer.
  */
+
+//TODO Transaction
+@Test(enabled = false)
 public class TransactionalProducerTest {
 
     private static final String dataDir = getDataDirectoryName(TransactionalProducerTest.class.getSimpleName());
@@ -53,7 +55,8 @@ public class TransactionalProducerTest {
     private static KafkaCluster kafkaCluster;
     private CompileResult result;
 
-    @BeforeTest(alwaysRun = true)
+//    @BeforeTest(alwaysRun = true)
+    @Test(enabled = false)
     public void setup() throws Throwable {
         kafkaCluster = new KafkaCluster(dataDir)
                 .withZookeeper(14051)
@@ -61,7 +64,7 @@ public class TransactionalProducerTest {
                 .start();
     }
 
-    @Test(description = "Test Kafka producer send function within transaction")
+    @Test(description = "Test Kafka producer send function within transaction", enabled = false)
     public void testSendFromTransactionalProducer() {
         String balFile = "transactional_send.bal";
         result = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_TRANSACTIONS, balFile)));
@@ -78,7 +81,7 @@ public class TransactionalProducerTest {
         }
     }
 
-    @Test(description = "Test kafka producer commitConsumerOffsets() function")
+    @Test(description = "Test kafka producer commitConsumerOffsets() function", enabled = false)
     public void testCommitConsumerOffsetsTest() {
         String balFile = "commit_consumer_offsets.bal";
         result = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_TRANSACTIONS, balFile)));
@@ -106,7 +109,7 @@ public class TransactionalProducerTest {
         }
     }
 
-    @Test(description = "Test producer commit consumer functionality")
+    @Test(description = "Test producer commit consumer functionality", enabled = false)
     public void testCommitConsumerTest() {
         String balFile = "commit_consumer.bal";
         result = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_TRANSACTIONS, balFile)));
@@ -123,7 +126,7 @@ public class TransactionalProducerTest {
         }
     }
 
-    @Test(description = "Test transactional producer with idempotence false")
+    @Test(description = "Test transactional producer with idempotence false", enabled = false)
     public void testTransactionalProducerWithoutIdempotenceTest() {
         String message = "Failed to initialize the producer: configuration enableIdempotence must be set to true to " +
                 "enable transactional producer";

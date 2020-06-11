@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_PART",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -7,9 +8,11 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "FUNCTION_DEFINITION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -32,15 +35,18 @@
             },
             {
               "kind": "FUNCTION_SIGNATURE",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "OPEN_PAREN_TOKEN"
                 },
                 {
                   "kind": "LIST",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "REQUIRED_PARAM",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "LIST",
@@ -52,16 +58,25 @@
                         },
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "isMissing": true
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_IDENTIFIER"
+                          ]
                         }
                       ]
                     },
                     {
                       "kind": "DEFAULTABLE_PARAM",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "COMMA_TOKEN",
-                          "isMissing": true
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_COMMA_TOKEN"
+                          ]
                         },
                         {
                           "kind": "LIST",
@@ -149,6 +164,7 @@
         },
         {
           "kind": "FUNCTION_DEFINITION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -171,12 +187,14 @@
             },
             {
               "kind": "FUNCTION_SIGNATURE",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "OPEN_PAREN_TOKEN"
                 },
                 {
                   "kind": "LIST",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "REQUIRED_PARAM",
@@ -197,10 +215,15 @@
                     },
                     {
                       "kind": "DEFAULTABLE_PARAM",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "COMMA_TOKEN",
-                          "isMissing": true
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_COMMA_TOKEN"
+                          ]
                         },
                         {
                           "kind": "LIST",

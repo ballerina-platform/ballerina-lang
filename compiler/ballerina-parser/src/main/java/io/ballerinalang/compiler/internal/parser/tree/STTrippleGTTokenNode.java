@@ -70,7 +70,35 @@ public class STTrippleGTTokenNode extends STNode {
                 diagnostics);
     }
 
+    public STTrippleGTTokenNode modify(
+            STNode openGTToken,
+            STNode middleGTToken,
+            STNode endGTToken) {
+        if (checkForReferenceEquality(
+                openGTToken,
+                middleGTToken,
+                endGTToken)) {
+            return this;
+        }
+
+        return new STTrippleGTTokenNode(
+                openGTToken,
+                middleGTToken,
+                endGTToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TrippleGTTokenNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

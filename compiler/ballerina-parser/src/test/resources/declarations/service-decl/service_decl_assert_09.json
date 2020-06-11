@@ -1,5 +1,6 @@
 {
   "kind": "SERVICE_DECLARATION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -36,10 +37,15 @@
     },
     {
       "kind": "SERVICE_BODY",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_OPEN_BRACE_TOKEN"
+          ]
         },
         {
           "kind": "LIST",
@@ -102,7 +108,11 @@
         },
         {
           "kind": "CLOSE_BRACE_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+          ]
         }
       ]
     }
