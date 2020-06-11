@@ -599,8 +599,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetryTransaction retryTransaction) {
+        this.returnWithinRetryCheckStack.push(false);
         analyzeNode(retryTransaction.retrySpec, env);
         analyzeNode(retryTransaction.transaction, env);
+        retryTransaction.transactionReturns = this.returnWithinRetryCheckStack.peek();
+        this.returnWithinRetryCheckStack.pop();
     }
 
     private void checkUnreachableCode(BLangStatement stmt) {
