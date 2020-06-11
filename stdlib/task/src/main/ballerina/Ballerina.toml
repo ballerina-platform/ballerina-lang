@@ -7,8 +7,8 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "task"
-    version = "@project.version@"
-    path = "./lib/ballerina-task-@project.version@.jar"
+    version = "1.1.0"
+    path = "./lib/ballerina-task-1.1.0-java.jar"
     groupId = "ballerina"
     modules = ["task"]
 

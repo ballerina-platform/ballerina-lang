@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 1.0.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "java",
+        orgName = "ballerina", packageName = "java", version = "0.9.0",
         functionName = "getClass"
 )
 public class JavaUtils {
@@ -44,7 +44,8 @@ public class JavaUtils {
     private static final String longTypeName = "long";
     private static final String floatTypeName = "float";
     private static final String doubleTypeName = "double";
-    private static final BPackage JAVA_PACKAGE_ID = new BPackage(BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX, "java");
+    private static final BPackage JAVA_PACKAGE_ID = new BPackage(BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX, "java",
+                                                                 "0.9.0");
 
     /**
      * Returns the Java Class object associated with the class or interface with the given string name.

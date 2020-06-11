@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.WaitFieldNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STWaitFieldNode extends STNode {
             STNode fieldName,
             STNode colon,
             STNode waitFutureExpr) {
-        super(SyntaxKind.WAIT_FIELD);
+        this(
+                fieldName,
+                colon,
+                waitFutureExpr,
+                Collections.emptyList());
+    }
+
+    STWaitFieldNode(
+            STNode fieldName,
+            STNode colon,
+            STNode waitFutureExpr,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.WAIT_FIELD, diagnostics);
         this.fieldName = fieldName;
         this.colon = colon;
         this.waitFutureExpr = waitFutureExpr;
@@ -47,7 +62,43 @@ public class STWaitFieldNode extends STNode {
                 waitFutureExpr);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STWaitFieldNode(
+                this.fieldName,
+                this.colon,
+                this.waitFutureExpr,
+                diagnostics);
+    }
+
+    public STWaitFieldNode modify(
+            STNode fieldName,
+            STNode colon,
+            STNode waitFutureExpr) {
+        if (checkForReferenceEquality(
+                fieldName,
+                colon,
+                waitFutureExpr)) {
+            return this;
+        }
+
+        return new STWaitFieldNode(
+                fieldName,
+                colon,
+                waitFutureExpr,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new WaitFieldNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

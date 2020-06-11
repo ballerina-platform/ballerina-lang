@@ -1,19 +1,19 @@
 {
-    "kind": "LET_EXPRESSION",
-    "children": [
-        {
-            "kind": "LET_KEYWORD"
-        },
-        {
-            "kind": "LIST",
-            "children": []
-        },
-        {
-            "kind": "IN_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "E2"
-        }
-    ]
+  "kind": "LET_EXPRESSION",
+  "children": [
+    {
+      "kind": "LET_KEYWORD"
+    },
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "IN_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "E2"
+    }
+  ]
 }

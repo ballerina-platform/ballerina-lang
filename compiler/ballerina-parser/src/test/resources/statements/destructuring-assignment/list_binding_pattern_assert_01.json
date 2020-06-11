@@ -1,0 +1,365 @@
+{
+  "kind": "FUNCTION_DEFINITION",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
+        {
+          "kind": "LIST",
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "foo"
+    },
+    {
+      "kind": "FUNCTION_SIGNATURE",
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN"
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_BODY_BLOCK",
+      "children": [
+        {
+          "kind": "OPEN_BRACE_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "LIST_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "OPEN_BRACKET_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "CAPTURE_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "a"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "COMMA_TOKEN"
+                        },
+                        {
+                          "kind": "CAPTURE_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "b"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CLOSE_BRACKET_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "LIST_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "OPEN_BRACKET_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "CAPTURE_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "a"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "COMMA_TOKEN"
+                        },
+                        {
+                          "kind": "WILDCARD_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "_"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "COMMA_TOKEN"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "REST_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "ELLIPSIS_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "b"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CLOSE_BRACKET_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "LIST_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "OPEN_BRACKET_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "REST_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "ELLIPSIS_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "b"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CLOSE_BRACKET_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "LIST_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "OPEN_BRACKET_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "CLOSE_BRACKET_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "LIST_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "OPEN_BRACKET_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "CAPTURE_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "a"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "COMMA_TOKEN"
+                        },
+                        {
+                          "kind": "WILDCARD_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "_"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "COMMA_TOKEN"
+                        },
+                        {
+                          "kind": "LIST_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "OPEN_BRACKET_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "CAPTURE_BINDING_PATTERN",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "x"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "COMMA_TOKEN"
+                                },
+                                {
+                                  "kind": "CAPTURE_BINDING_PATTERN",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "y"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "COMMA_TOKEN"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "REST_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "ELLIPSIS_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "z"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CLOSE_BRACKET_TOKEN"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "COMMA_TOKEN"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "REST_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "ELLIPSIS_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "b"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CLOSE_BRACKET_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_BRACE_TOKEN"
+        }
+      ]
+    }
+  ]
+}

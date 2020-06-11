@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STEnumMemberNode extends STNode {
             STNode identifier,
             STNode equalToken,
             STNode constExprNode) {
-        super(SyntaxKind.ENUM_MEMBER);
+        this(
+                metadata,
+                identifier,
+                equalToken,
+                constExprNode,
+                Collections.emptyList());
+    }
+
+    STEnumMemberNode(
+            STNode metadata,
+            STNode identifier,
+            STNode equalToken,
+            STNode constExprNode,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.ENUM_MEMBER, diagnostics);
         this.metadata = metadata;
         this.identifier = identifier;
         this.equalToken = equalToken;
@@ -51,7 +68,47 @@ public class STEnumMemberNode extends STNode {
                 constExprNode);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STEnumMemberNode(
+                this.metadata,
+                this.identifier,
+                this.equalToken,
+                this.constExprNode,
+                diagnostics);
+    }
+
+    public STEnumMemberNode modify(
+            STNode metadata,
+            STNode identifier,
+            STNode equalToken,
+            STNode constExprNode) {
+        if (checkForReferenceEquality(
+                metadata,
+                identifier,
+                equalToken,
+                constExprNode)) {
+            return this;
+        }
+
+        return new STEnumMemberNode(
+                metadata,
+                identifier,
+                equalToken,
+                constExprNode,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new EnumMemberNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

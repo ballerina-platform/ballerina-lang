@@ -337,3 +337,192 @@ function assertEquality(any|error expected, any|error actual) {
     panic AssertionError(ASSERTION_ERROR_REASON,
             message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
+
+type Person2 record {
+    string name;
+    int age;
+};
+
+function testCloneWithTypeJsonRec1() {
+    Person2  p = {name: "N", age: 3};
+    json|error ss = p.cloneWithType(json);
+    assert(ss is json, true);
+
+    json j = <json> ss;
+    assert(j.toJsonString(), "{\"name\":\"N\", \"age\":3}");
+}
+
+function testCloneWithTypeJsonRec2() {
+   json pj = { name : "tom", age: 2};
+   Person2|error pe = pj.cloneWithType(typedesc<Person2>);
+   assert(pe is Person2, true);
+
+   Person2 p = <Person2> pe;
+   assert(p.name, "tom");
+   assert(p.age, 2);
+
+   Person2 s = { name : "bob", age: 4};
+   json|error ss = s.cloneWithType(json);
+   assert(ss is json, true);
+
+   json j = <json> ss;
+   assert(j.toJsonString(), "{\"name\":\"bob\", \"age\":4}");
+}
+
+type BRec record {
+    int i;
+};
+
+type CRec record {
+    int i?;
+};
+
+public function testCloneWithTypeOptionalFieldToMandotoryField() {
+    CRec c = {  };
+    var b = c.cloneWithType(BRec);
+    assert(b is error, true);
+
+    error bbe = <error> b;
+    assert(bbe.reason(), "{ballerina/lang.typedesc}ConversionError");
+    assert(bbe.detail()?.message, "'CRec' value cannot be converted to 'BRec'");
+}
+
+type Foo record {
+    string s;
+};
+
+type Bar record {|
+    float f?;
+    string s;
+|};
+
+type Baz record {|
+    int i?;
+    string s;
+|};
+
+function testCloneWithTypeAmbiguousTargetType() {
+    Foo f = { s: "test string" };
+    Bar|Baz|error bb = f.cloneWithType(typedesc<Bar|Baz>);
+    assert(bb is error, true);
+
+    error bbe = <error> bb;
+    assert(bbe.reason(), "{ballerina/lang.typedesc}ConversionError");
+    assert(bbe.detail()?.message, "'Foo' value cannot be converted to 'Bar|Baz': ambiguous target type");
+}
+
+function testCloneWithTypeForNilPositive() {
+    anydata a = ();
+    string|error? c1 = a.cloneWithType(string?);
+    json|error c2 = a.cloneWithType(json);
+    assert(c1 is (), true);
+    assert(c2 is (), true);
+}
+
+function testCloneWithTypeForNilNegative() {
+    anydata a = ();
+    string|int|error c1 = a.cloneWithType(string|int);
+    Foo|Bar|error c2 = a.cloneWithType(typedesc<Foo|Bar>);
+    assert(c1 is error, true);
+    assert(c2 is error, true);
+
+    error c1e = <error> c1;
+    assert(c1e.detail()?.message, "cannot convert '()' to type 'string|int'");
+}
+
+function testCloneWithTypeNumeric1() {
+    int a = 1234;
+    float|error b = a.cloneWithType(float);
+    assert(b is float, true);
+    assert(<float> b, 1234.0);
+}
+
+function testCloneWithTypeNumeric2() {
+    anydata a = 1234.6;
+    int|error b = a.cloneWithType(int);
+    assert(b is int, true);
+    assert(<int> b, 1235);
+}
+
+type X record {
+    int a;
+    string b;
+    float c;
+};
+
+type Y record {|
+    float a;
+    string b;
+    decimal...;
+|};
+
+function testCloneWithTypeNumeric3() {
+    X x = { a: 21, b: "Alice", c : 1000.5 };
+    Y|error ye = x.cloneWithType(Y);
+    assert(ye is Y, true);
+
+    Y y = <Y> ye;
+    assert(y.a, 21.0);
+    assert(y.b, "Alice");
+    assert(y["c"], <decimal> 1000.5);
+}
+
+function testCloneWithTypeNumeric4() {
+    json j = { a: 21.3, b: "Alice", c : 1000 };
+    X|error xe = j.cloneWithType(X);
+    assert(xe is X, true);
+
+    X x = <X> xe;
+    assert(x.a, 21);
+    assert(x.b, "Alice");
+    assert(x.c, 1000.0);
+}
+
+function testCloneWithTypeNumeric5() {
+    int[] i = [1, 2];
+    float[]|error j = i.cloneWithType(float[]);
+    (float|boolean)[]|error j2 = i.cloneWithType((float|boolean)[]);
+    assert(j is float[], true);
+
+    float[] jf = <float[]> j;
+    assert(jf.length(), i.length());
+    assert(jf[0], 1.0);
+    assert(jf[1], 2.0);
+    assert(jf, <(float|boolean)[]> j2);
+}
+
+function testCloneWithTypeNumeric6() {
+    map<float> m = { a: 1.2, b: 2.7 };
+    map<int>|error m2 = m.cloneWithType(map<int>);
+    map<string|int>|error m3 = m.cloneWithType(map<string|int>);
+    assert(m2 is map<int>, true);
+
+    map<int> m2m = <map<int>> m2;
+    assert(m2m.length(), m.length());
+    assert(m2m["a"], 1);
+    assert(m2m["b"], 3);
+    assert(m2m, <map<string|int>> m3);
+}
+
+function testCloneWithTypeNumeric7() {
+    int[] a1 = [1, 2, 3];
+    decimal[]|error a2 = a1.cloneWithType(decimal[]);
+    assert(a2 is decimal[], true);
+
+    decimal[] a2d = <decimal[]> a2;
+    assert(a2d.length(), a1.length());
+    assert(a2d[0], <decimal> 1);
+    assert(a2d[1], <decimal> 2);
+    assert(a2d[2], <decimal> 3);
+}
+
+function assert(anydata actual, anydata expected) {
+    if (expected != actual) {
+        typedesc<anydata> expT = typeof expected;
+        typedesc<anydata> actT = typeof actual;
+        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+        error e = error(reason);
+        panic e;
+    }
+}

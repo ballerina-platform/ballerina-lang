@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,7 +37,17 @@ public class STElseBlockNode extends STNode {
     STElseBlockNode(
             STNode elseKeyword,
             STNode elseBody) {
-        super(SyntaxKind.ELSE_BLOCK);
+        this(
+                elseKeyword,
+                elseBody,
+                Collections.emptyList());
+    }
+
+    STElseBlockNode(
+            STNode elseKeyword,
+            STNode elseBody,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.ELSE_BLOCK, diagnostics);
         this.elseKeyword = elseKeyword;
         this.elseBody = elseBody;
 
@@ -43,7 +56,39 @@ public class STElseBlockNode extends STNode {
                 elseBody);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STElseBlockNode(
+                this.elseKeyword,
+                this.elseBody,
+                diagnostics);
+    }
+
+    public STElseBlockNode modify(
+            STNode elseKeyword,
+            STNode elseBody) {
+        if (checkForReferenceEquality(
+                elseKeyword,
+                elseBody)) {
+            return this;
+        }
+
+        return new STElseBlockNode(
+                elseKeyword,
+                elseBody,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ElseBlockNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

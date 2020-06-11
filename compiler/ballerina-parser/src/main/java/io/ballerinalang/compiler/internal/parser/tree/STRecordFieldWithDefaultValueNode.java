@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -29,6 +32,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  */
 public class STRecordFieldWithDefaultValueNode extends STNode {
     public final STNode metadata;
+    public final STNode readonlyKeyword;
     public final STNode typeName;
     public final STNode fieldName;
     public final STNode equalsToken;
@@ -37,13 +41,35 @@ public class STRecordFieldWithDefaultValueNode extends STNode {
 
     STRecordFieldWithDefaultValueNode(
             STNode metadata,
+            STNode readonlyKeyword,
             STNode typeName,
             STNode fieldName,
             STNode equalsToken,
             STNode expression,
             STNode semicolonToken) {
-        super(SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE);
+        this(
+                metadata,
+                readonlyKeyword,
+                typeName,
+                fieldName,
+                equalsToken,
+                expression,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STRecordFieldWithDefaultValueNode(
+            STNode metadata,
+            STNode readonlyKeyword,
+            STNode typeName,
+            STNode fieldName,
+            STNode equalsToken,
+            STNode expression,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE, diagnostics);
         this.metadata = metadata;
+        this.readonlyKeyword = readonlyKeyword;
         this.typeName = typeName;
         this.fieldName = fieldName;
         this.equalsToken = equalsToken;
@@ -52,6 +78,7 @@ public class STRecordFieldWithDefaultValueNode extends STNode {
 
         addChildren(
                 metadata,
+                readonlyKeyword,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -59,7 +86,59 @@ public class STRecordFieldWithDefaultValueNode extends STNode {
                 semicolonToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STRecordFieldWithDefaultValueNode(
+                this.metadata,
+                this.readonlyKeyword,
+                this.typeName,
+                this.fieldName,
+                this.equalsToken,
+                this.expression,
+                this.semicolonToken,
+                diagnostics);
+    }
+
+    public STRecordFieldWithDefaultValueNode modify(
+            STNode metadata,
+            STNode readonlyKeyword,
+            STNode typeName,
+            STNode fieldName,
+            STNode equalsToken,
+            STNode expression,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                metadata,
+                readonlyKeyword,
+                typeName,
+                fieldName,
+                equalsToken,
+                expression,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STRecordFieldWithDefaultValueNode(
+                metadata,
+                readonlyKeyword,
+                typeName,
+                fieldName,
+                equalsToken,
+                expression,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RecordFieldWithDefaultValueNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

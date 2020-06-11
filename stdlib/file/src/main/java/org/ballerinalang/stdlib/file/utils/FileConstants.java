@@ -39,17 +39,22 @@ public class FileConstants {
     public static final String PACKAGE_NAME = "file";
 
     /**
+     * Package version.
+     */
+    public static final String PACKAGE_VERSION = "0.5.0";
+
+    /**
      * Package path.
      */
-    public static final BPackage FILE_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "file");
-
+    public static final BPackage FILE_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME,
+                                                                PACKAGE_VERSION);
     static final String FILE_INFO_TYPE = "FileInfo";
 
-    // File error codes
-    public static final String INVALID_OPERATION_ERROR = "{ballerina/file}InvalidOperationError";
-    public static final String PERMISSION_ERROR = "{ballerina/file}PermissionError";
-    public static final String FILE_SYSTEM_ERROR = "{ballerina/file}FileSystemError";
-    public static final String FILE_NOT_FOUND_ERROR = "{ballerina/file}FileNotFoundError";
+    // File error type IDs
+    public static final String INVALID_OPERATION_ERROR = "InvalidOperationError";
+    public static final String PERMISSION_ERROR = "PermissionError";
+    public static final String FILE_SYSTEM_ERROR = "FileSystemError";
+    public static final String FILE_NOT_FOUND_ERROR = "FileNotFoundError";
     static final String ERROR_DETAILS = "Detail";
     static final String ERROR_MESSAGE = "message";
 

@@ -55,7 +55,7 @@ public function sendResponse (http:Caller caller, any | error responseData) {
     match responseData {
         var [response, header] => {
             if response is anydata {
-                json | error responseJson = json.constructFrom(response);
+                json | error responseJson = response.cloneWithType(json);
                 if responseJson is json {
                 http:Response res = new;
                 res.statusCode = 200;

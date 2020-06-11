@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,7 +37,17 @@ public class STNilTypeDescriptorNode extends STTypeDescriptorNode {
     STNilTypeDescriptorNode(
             STNode openParenToken,
             STNode closeParenToken) {
-        super(SyntaxKind.NIL_TYPE_DESC);
+        this(
+                openParenToken,
+                closeParenToken,
+                Collections.emptyList());
+    }
+
+    STNilTypeDescriptorNode(
+            STNode openParenToken,
+            STNode closeParenToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.NIL_TYPE_DESC, diagnostics);
         this.openParenToken = openParenToken;
         this.closeParenToken = closeParenToken;
 
@@ -43,7 +56,39 @@ public class STNilTypeDescriptorNode extends STTypeDescriptorNode {
                 closeParenToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STNilTypeDescriptorNode(
+                this.openParenToken,
+                this.closeParenToken,
+                diagnostics);
+    }
+
+    public STNilTypeDescriptorNode modify(
+            STNode openParenToken,
+            STNode closeParenToken) {
+        if (checkForReferenceEquality(
+                openParenToken,
+                closeParenToken)) {
+            return this;
+        }
+
+        return new STNilTypeDescriptorNode(
+                openParenToken,
+                closeParenToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new NilTypeDescriptorNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

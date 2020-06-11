@@ -245,9 +245,7 @@ public class CircuitBreakerTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testInvalidRollingWindowConfiguration");
         Assert.assertEquals(returnValues.length, 1);
         Assert.assertTrue(returnValues[0] instanceof BError);
-        String receivedErrorMessage = ((BMap) ((BError) returnValues[0]).getDetails()).getMap().get("message")
-                .toString();
-        Assert.assertEquals(receivedErrorMessage, expectedMessage);
+        Assert.assertEquals(((BError) returnValues[0]).getMessage(), expectedMessage);
     }
 
     private void validateCBResponses(BValueArray responses, BValueArray errors,

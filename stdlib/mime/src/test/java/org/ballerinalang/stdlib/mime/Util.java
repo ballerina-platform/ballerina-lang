@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
@@ -340,9 +341,9 @@ public class Util {
         Assert.assertEquals(xmlData.stringValue(), "<name>Ballerina xml file part</name>");
 
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(2));
-        String textData = EntityBodyHandler.constructStringDataSource(bodyPart);
+        BString textData = EntityBodyHandler.constructStringDataSource(bodyPart);
         Assert.assertNotNull(textData);
-        Assert.assertEquals(textData, "Ballerina text body part");
+        Assert.assertEquals(textData.getValue(), "Ballerina text body part");
 
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(3));
         ArrayValue blobDataSource = EntityBodyHandler.constructBlobDataSource(bodyPart);

@@ -35,9 +35,12 @@ import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
 public class GrpcConstants {
     //gRPC package name.
     public static final String PROTOCOL_PACKAGE_GRPC = "grpc";
+    public static final String PROTOCOL_PACKAGE_VERSION_GRPC = "0.7.0";
     public static final String ORG_NAME = "ballerina";
-    public static final String PROTOCOL_STRUCT_PACKAGE_GRPC = ORG_NAME + ORG_NAME_SEPARATOR + "grpc";
-    public static final BPackage PROTOCOL_GRPC_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "grpc");
+    public static final String PROTOCOL_STRUCT_PACKAGE_GRPC = ORG_NAME + ORG_NAME_SEPARATOR +
+            "grpc:" + PROTOCOL_PACKAGE_VERSION_GRPC;
+    public static final BPackage PROTOCOL_GRPC_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "grpc",
+                                                                     PROTOCOL_PACKAGE_VERSION_GRPC);
 
     public static final String HTTPS_ENDPOINT_STARTED = "[ballerina/grpc] started HTTPS/WSS listener ";
     public static final String HTTP_ENDPOINT_STARTED = "[ballerina/grpc] started HTTP/WS listener ";
@@ -50,9 +53,11 @@ public class GrpcConstants {
     public static final String CONNECTOR_STARTED = "CONNECTOR_STARTED";
     public static final String LISTENER = "Listener";
     public static final String CALLER = "Caller";
+    public static final String CALLER_ENDPOINT_TYPE = PROTOCOL_STRUCT_PACKAGE_GRPC + ":" + CALLER;
     public static final String RESPONSE_OBSERVER = "RESPONSE_OBSERVER";
     public static final String RESPONSE_MESSAGE_DEFINITION = "RESPONSE_DEFINITION";
     public static final BString CALLER_ID = StringUtils.fromString("instanceId");
+
 
     // Service Descriptor Annotation
     public static final String DESCRIPTOR_MAP = "getDescriptorMap";
@@ -61,6 +66,7 @@ public class GrpcConstants {
     public static final String ANN_RECORD_DESCRIPTOR_DATA = "ServiceDescriptorData";
     public static final String ANN_FIELD_DESCRIPTOR = "descriptor";
     public static final String ANN_FIELD_DESC_MAP = "descMap";
+    public static final String ANN_SERVICE_DESCRIPTOR_FQN = PROTOCOL_STRUCT_PACKAGE_GRPC + ":" + ANN_SERVICE_DESCRIPTOR;
     
     //client side endpoint constants
     public static final String CLIENT_ENDPOINT_TYPE = "Client";

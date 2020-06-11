@@ -28,6 +28,10 @@
               "value": "Foo"
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "SEMICOLON_TOKEN"
             }
           ]
@@ -56,6 +60,10 @@
               "value": "Foo"
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "SEMICOLON_TOKEN"
             }
           ]
@@ -81,6 +89,10 @@
             {
               "kind": "IDENTIFIER_TOKEN",
               "value": "Foo"
+            },
+            {
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "SEMICOLON_TOKEN"
@@ -110,6 +122,10 @@
               "value": "Foo"
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "SEMICOLON_TOKEN"
             }
           ]
@@ -138,6 +154,10 @@
             {
               "kind": "IDENTIFIER_TOKEN",
               "value": "Foo"
+            },
+            {
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "SEMICOLON_TOKEN"
@@ -190,6 +210,10 @@
             {
               "kind": "IDENTIFIER_TOKEN",
               "value": "Foo"
+            },
+            {
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "SEMICOLON_TOKEN"

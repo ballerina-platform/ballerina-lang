@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STParameterizedTypeDescriptorNode extends STTypeDescriptorNode {
             STNode ltToken,
             STNode typeNode,
             STNode gtToken) {
-        super(SyntaxKind.PARAMETERIZED_TYPE_DESC);
+        this(
+                parameterizedType,
+                ltToken,
+                typeNode,
+                gtToken,
+                Collections.emptyList());
+    }
+
+    STParameterizedTypeDescriptorNode(
+            STNode parameterizedType,
+            STNode ltToken,
+            STNode typeNode,
+            STNode gtToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.PARAMETERIZED_TYPE_DESC, diagnostics);
         this.parameterizedType = parameterizedType;
         this.ltToken = ltToken;
         this.typeNode = typeNode;
@@ -51,7 +68,47 @@ public class STParameterizedTypeDescriptorNode extends STTypeDescriptorNode {
                 gtToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STParameterizedTypeDescriptorNode(
+                this.parameterizedType,
+                this.ltToken,
+                this.typeNode,
+                this.gtToken,
+                diagnostics);
+    }
+
+    public STParameterizedTypeDescriptorNode modify(
+            STNode parameterizedType,
+            STNode ltToken,
+            STNode typeNode,
+            STNode gtToken) {
+        if (checkForReferenceEquality(
+                parameterizedType,
+                ltToken,
+                typeNode,
+                gtToken)) {
+            return this;
+        }
+
+        return new STParameterizedTypeDescriptorNode(
+                parameterizedType,
+                ltToken,
+                typeNode,
+                gtToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ParameterizedTypeDescriptorNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

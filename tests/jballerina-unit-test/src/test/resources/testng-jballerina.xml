@@ -84,6 +84,7 @@
             <package name="org.ballerinalang.test.types.json.*"/>
             <package name="org.ballerinalang.test.types.nullable.*"/>
             <package name="org.ballerinalang.test.types.nullvalue.*"/>
+            <package name="org.ballerinalang.test.types.never.*"/>
             <package name="org.ballerinalang.test.types.service.*"/>
             <package name="org.ballerinalang.test.types.globalvar.*"/>
             <package name="org.ballerinalang.test.types.readonly.*"/>

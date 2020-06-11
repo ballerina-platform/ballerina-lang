@@ -27,13 +27,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.math.RoundingMode;
 
+import static org.ballerinalang.util.BLangCompilerConstants.DECIMAL_VERSION;
+
 /**
  * Native implementation of lang.decimal:floor(decimal).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.decimal", functionName = "floor",
+        orgName = "ballerina", packageName = "lang.decimal", version = DECIMAL_VERSION, functionName = "floor",
         args = {@Argument(name = "x", type = TypeKind.DECIMAL)},
         returnType = {@ReturnType(type = TypeKind.DECIMAL)},
         isPublic = true

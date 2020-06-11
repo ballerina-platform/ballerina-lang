@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SingletonTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -32,14 +35,50 @@ public class STSingletonTypeDescriptorNode extends STTypeDescriptorNode {
 
     STSingletonTypeDescriptorNode(
             STNode simpleContExprNode) {
-        super(SyntaxKind.SINGLETON_TYPE_DESC);
+        this(
+                simpleContExprNode,
+                Collections.emptyList());
+    }
+
+    STSingletonTypeDescriptorNode(
+            STNode simpleContExprNode,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.SINGLETON_TYPE_DESC, diagnostics);
         this.simpleContExprNode = simpleContExprNode;
 
         addChildren(
                 simpleContExprNode);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STSingletonTypeDescriptorNode(
+                this.simpleContExprNode,
+                diagnostics);
+    }
+
+    public STSingletonTypeDescriptorNode modify(
+            STNode simpleContExprNode) {
+        if (checkForReferenceEquality(
+                simpleContExprNode)) {
+            return this;
+        }
+
+        return new STSingletonTypeDescriptorNode(
+                simpleContExprNode,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new SingletonTypeDescriptorNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

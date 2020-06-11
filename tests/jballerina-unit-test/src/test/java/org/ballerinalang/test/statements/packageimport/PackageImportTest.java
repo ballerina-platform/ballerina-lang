@@ -110,7 +110,8 @@ public class PackageImportTest {
         Assert.assertTrue(output.contains("initializing bar\nRunning foo"), "found: " + output);
     }
 
-    @Test
+    @Test(enabled = false)
+    // New spec change has introduced to support this
     public void testUnderscoreAsPkgQualifier() {
         CompileResult result =
                 BCompileUtil.compile("test-src/statements/package/imports/invalid-package-qualifier-negative.bal");

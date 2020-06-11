@@ -7,7 +7,7 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "java"
-    version = "@project.version@"
-    path = "./lib/ballerina-java-@project.version@.jar"
+    version = "0.9.0"
+    path = "./lib/ballerina-java-0.9.0-java.jar"
     groupId = "ballerina"
     modules = ["java"]

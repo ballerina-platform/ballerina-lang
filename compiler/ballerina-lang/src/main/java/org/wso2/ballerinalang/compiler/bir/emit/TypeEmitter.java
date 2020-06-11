@@ -66,6 +66,8 @@ class TypeEmitter {
                 return "any";
             case TypeTags.NIL:
                 return "()";
+            case TypeTags.NEVER:
+                return "never";
             case TypeTags.BYTE:
                 return "byte";
             case TypeTags.FLOAT:

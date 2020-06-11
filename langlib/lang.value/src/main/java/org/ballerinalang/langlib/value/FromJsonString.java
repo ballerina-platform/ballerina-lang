@@ -31,13 +31,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.io.Reader;
 import java.io.StringReader;
 
+import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
+
 /**
  * Parse a string in JSON format and return the the value that it represents.
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.value",
+        orgName = "ballerina", packageName = "lang.value", version = VALUE_VERSION,
         functionName = "fromJsonString",
         args = {@Argument(name = "str", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.JSON), @ReturnType(type = TypeKind.ERROR)},

@@ -20,6 +20,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
@@ -35,8 +36,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 public class CancelWebSocketUpgrade {
     private static final Logger log = LoggerFactory.getLogger(CancelWebSocketUpgrade.class);
 
-    public static Object cancelWebSocketUpgrade(ObjectValue connectionObj, long statusCode,
-                                                String reason) {
+    public static Object cancelWebSocketUpgrade(ObjectValue connectionObj, long statusCode, BString reason) {
         NonBlockingCallback callback = new NonBlockingCallback(Scheduler.getStrand());
         try {
             WebSocketHandshaker webSocketHandshaker =
@@ -46,7 +46,7 @@ public class CancelWebSocketUpgrade {
                         "Cannot cancel the request", callback);
                 return null;
             }
-            ChannelFuture future = webSocketHandshaker.cancelHandshake((int) statusCode, reason);
+            ChannelFuture future = webSocketHandshaker.cancelHandshake((int) statusCode, reason.getValue());
             future.addListener((ChannelFutureListener) channelFuture -> {
                 Throwable cause = future.cause();
                 if (channelFuture.channel().isOpen()) {

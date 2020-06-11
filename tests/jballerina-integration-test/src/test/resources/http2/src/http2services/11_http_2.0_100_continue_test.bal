@@ -65,6 +65,6 @@ service helloWorld on new http:Listener(9107, {httpVersion: "2.0"}) {
 
 function handleError(error? result) {
     if (result is error) {
-        log:printError(result.reason(), err = result);
+        log:printError(result.message(), result);
     }
 }

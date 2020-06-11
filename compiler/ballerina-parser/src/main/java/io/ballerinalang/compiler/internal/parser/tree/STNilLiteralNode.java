@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,7 +37,17 @@ public class STNilLiteralNode extends STExpressionNode {
     STNilLiteralNode(
             STNode openParenToken,
             STNode closeParenToken) {
-        super(SyntaxKind.NIL_LITERAL);
+        this(
+                openParenToken,
+                closeParenToken,
+                Collections.emptyList());
+    }
+
+    STNilLiteralNode(
+            STNode openParenToken,
+            STNode closeParenToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.NIL_LITERAL, diagnostics);
         this.openParenToken = openParenToken;
         this.closeParenToken = closeParenToken;
 
@@ -43,7 +56,39 @@ public class STNilLiteralNode extends STExpressionNode {
                 closeParenToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STNilLiteralNode(
+                this.openParenToken,
+                this.closeParenToken,
+                diagnostics);
+    }
+
+    public STNilLiteralNode modify(
+            STNode openParenToken,
+            STNode closeParenToken) {
+        if (checkForReferenceEquality(
+                openParenToken,
+                closeParenToken)) {
+            return this;
+        }
+
+        return new STNilLiteralNode(
+                openParenToken,
+                closeParenToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new NilLiteralNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,7 +37,17 @@ public class STImportPrefixNode extends STNode {
     STImportPrefixNode(
             STNode asKeyword,
             STNode prefix) {
-        super(SyntaxKind.IMPORT_PREFIX);
+        this(
+                asKeyword,
+                prefix,
+                Collections.emptyList());
+    }
+
+    STImportPrefixNode(
+            STNode asKeyword,
+            STNode prefix,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.IMPORT_PREFIX, diagnostics);
         this.asKeyword = asKeyword;
         this.prefix = prefix;
 
@@ -43,7 +56,39 @@ public class STImportPrefixNode extends STNode {
                 prefix);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STImportPrefixNode(
+                this.asKeyword,
+                this.prefix,
+                diagnostics);
+    }
+
+    public STImportPrefixNode modify(
+            STNode asKeyword,
+            STNode prefix) {
+        if (checkForReferenceEquality(
+                asKeyword,
+                prefix)) {
+            return this;
+        }
+
+        return new STImportPrefixNode(
+                asKeyword,
+                prefix,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ImportPrefixNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

@@ -23,6 +23,8 @@ import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.values.api.BString;
 
+import static org.ballerinalang.net.http.HttpConstants.HTTP_MODULE_VERSION;
+
 /**
  * Constants of WebSocket.
  */
@@ -40,13 +42,11 @@ public class WebSocketConstants {
     public static final String WEBSOCKET_CLIENT_SERVICE = "WebSocketClientService";
     public static final String WSS_SCHEME = "wss";
     public static final String WS_SCHEME = "ws";
-    public static final String WEBSOCKET_CALLER_NAME = PACKAGE_HTTP + SEPARATOR + WEBSOCKET_CALLER;
-    public static final String FULL_WEBSOCKET_CALLER_NAME = BLangConstants.BALLERINA_PACKAGE_PREFIX +
-            WEBSOCKET_CALLER_NAME;
+    public static final String WEBSOCKET_CALLER_NAME = BLangConstants.BALLERINA_PACKAGE_PREFIX +
+            PACKAGE_HTTP + SEPARATOR + HTTP_MODULE_VERSION + SEPARATOR + WEBSOCKET_CALLER;
     public static final String WEBSOCKET_CLIENT_NAME = PACKAGE_HTTP + SEPARATOR + WEBSOCKET_CLIENT;
     public static final String FULL_WEBSOCKET_CLIENT_NAME = BLangConstants.BALLERINA_PACKAGE_PREFIX +
-            WEBSOCKET_CLIENT_NAME;
-
+            PACKAGE_HTTP + SEPARATOR + HTTP_MODULE_VERSION + SEPARATOR + WEBSOCKET_CLIENT;
 
     public static final String WEBSOCKET_ANNOTATION_CONFIGURATION = "WebSocketServiceConfig";
     public static final BString ANNOTATION_ATTR_PATH = StringUtils.fromString("path");
@@ -92,7 +92,7 @@ public class WebSocketConstants {
     public static final String CONNECTOR_FACTORY = "connectorFactory";
     public static final String FAILOVER_WEBSOCKET_CLIENT = "WebSocketFailoverClient";
     public static final String FULL_FAILOVER_WEBSOCKET_CLIENT_NAME = BLangConstants.BALLERINA_PACKAGE_PREFIX +
-            PACKAGE_HTTP + SEPARATOR + FAILOVER_WEBSOCKET_CLIENT;
+            PACKAGE_HTTP + SEPARATOR + HTTP_MODULE_VERSION + SEPARATOR + FAILOVER_WEBSOCKET_CLIENT;
 
     public static final BString COMPRESSION_ENABLED_CONFIG = StringUtils.fromString("webSocketCompressionEnabled");
 
@@ -118,7 +118,7 @@ public class WebSocketConstants {
 
     public static final int DEFAULT_MAX_FRAME_SIZE = 65536;
     public static final BPackage PROTOCOL_HTTP_PKG_ID = new BPackage(BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX,
-            "http");
+            "http", HTTP_MODULE_VERSION);
 
     // Warning suppression
     public static final String UNCHECKED = "unchecked";

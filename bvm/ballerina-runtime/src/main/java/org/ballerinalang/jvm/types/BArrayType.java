@@ -41,7 +41,7 @@ public class BArrayType extends BType {
     private ArrayState state = ArrayState.UNSEALED;
 
     private final boolean readonly;
-    private BArrayType immutableType;
+    private BIntersectionType immutableType;
 
     public BArrayType(BType elementType) {
         super(null, null, ArrayValue.class);
@@ -54,10 +54,10 @@ public class BArrayType extends BType {
     }
 
     public BArrayType(BType elemType, int size) {
-        this(elemType, size, false, null);
+        this(elemType, size, false);
     }
 
-    public BArrayType(BType elemType, int size, boolean readonly, BArrayType immutableType) {
+    public BArrayType(BType elemType, int size, boolean readonly) {
         super(null, null, ArrayValue.class);
         this.elementType = elemType;
         if (elementType instanceof BArrayType) {
@@ -69,7 +69,6 @@ public class BArrayType extends BType {
         }
         hasFillerValue = TypeChecker.hasFillerValue(this.elementType);
         this.readonly = readonly;
-        this.immutableType = immutableType;
     }
 
     public BType getElementType() {
@@ -190,7 +189,7 @@ public class BArrayType extends BType {
     }
 
     @Override
-    public void setImmutableType(BType immutableType) {
-        this.immutableType = (BArrayType) immutableType;
+    public void setImmutableType(BIntersectionType immutableType) {
+        this.immutableType = immutableType;
     }
 }

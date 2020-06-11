@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.WhereClauseNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,7 +37,17 @@ public class STWhereClauseNode extends STClauseNode {
     STWhereClauseNode(
             STNode whereKeyword,
             STNode expression) {
-        super(SyntaxKind.WHERE_CLAUSE);
+        this(
+                whereKeyword,
+                expression,
+                Collections.emptyList());
+    }
+
+    STWhereClauseNode(
+            STNode whereKeyword,
+            STNode expression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.WHERE_CLAUSE, diagnostics);
         this.whereKeyword = whereKeyword;
         this.expression = expression;
 
@@ -43,7 +56,39 @@ public class STWhereClauseNode extends STClauseNode {
                 expression);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STWhereClauseNode(
+                this.whereKeyword,
+                this.expression,
+                diagnostics);
+    }
+
+    public STWhereClauseNode modify(
+            STNode whereKeyword,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                whereKeyword,
+                expression)) {
+            return this;
+        }
+
+        return new STWhereClauseNode(
+                whereKeyword,
+                expression,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new WhereClauseNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

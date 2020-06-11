@@ -1,440 +1,512 @@
 {
-    "kind": "FUNCTION_DEFINITION",
-    "children": [
+  "kind": "FUNCTION_DEFINITION",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
         {
-            "kind": "METADATA",
-            "children": [
-                {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "PUBLIC_KEYWORD"
-        },
-        {
-            "kind": "FUNCTION_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "foo"
-        },
-        {
-            "kind": "FUNCTION_SIGNATURE",
-            "children": [
-                {
-                    "kind": "OPEN_PAREN_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                },
-                {
-                    "kind": "CLOSE_PAREN_TOKEN"
-                }
-            ]
-        },
-        {
-            "kind": "FUNCTION_BODY_BLOCK",
-            "children": [
-                {
-                    "kind": "OPEN_BRACE_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "STREAM_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "STREAM_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "STREAM_TYPE_PARAMS",
-                                            "children": [
-                                                {
-                                                    "kind": "LT_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "STRING_KEYWORD"
-                                                },
-                                                {
-                                                    "kind": "GT_TOKEN",
-                                                    "isMissing": true
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "STREAM_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "STREAM_KEYWORD"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "STREAM_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "STREAM_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "STREAM_TYPE_PARAMS",
-                                            "children": [
-                                                {
-                                                    "kind": "LT_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "INT_KEYWORD"
-                                                },
-                                                {
-                                                    "kind": "COMMA_TOKEN",
-                                                    "isMissing": true
-                                                },
-                                                {
-                                                    "kind": "ERROR_TYPE_DESC",
-                                                    "children": [
-                                                        {
-                                                            "kind": "ERROR_KEYWORD"
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "GT_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "STREAM_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "STREAM_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "STREAM_TYPE_PARAMS",
-                                            "children": [
-                                                {
-                                                    "kind": "LT_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "INT_KEYWORD"
-                                                },
-                                                {
-                                                    "kind": "COMMA_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "TYPE_DESC",
-                                                    "isMissing": true
-                                                },
-                                                {
-                                                    "kind": "GT_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "STREAM_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "STREAM_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "STREAM_TYPE_PARAMS",
-                                            "children": [
-                                                {
-                                                    "kind": "LT_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "TYPE_DESC",
-                                                    "isMissing": true
-                                                },
-                                                {
-                                                    "kind": "COMMA_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "ERROR_TYPE_DESC",
-                                                    "children": [
-                                                        {
-                                                            "kind": "ERROR_KEYWORD"
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "GT_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "STREAM_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "STREAM_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "STREAM_TYPE_PARAMS",
-                                            "children": [
-                                                {
-                                                    "kind": "LT_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "TYPE_DESC",
-                                                    "isMissing": true
-                                                },
-                                                {
-                                                    "kind": "GT_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "STREAM_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "STREAM_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "STREAM_TYPE_PARAMS",
-                                            "children": [
-                                                {
-                                                    "kind": "LT_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "STRING_KEYWORD"
-                                                },
-                                                {
-                                                    "kind": "GT_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "INVALID",
-                            "children": [
-                                {
-                                    "kind": "TYPE_CAST_EXPRESSION",
-                                    "children": [
-                                        {
-                                            "kind": "LT_TOKEN"
-                                        },
-                                        {
-                                            "kind": "TYPE_CAST_PARAM",
-                                            "children": [
-                                                {
-                                                    "kind": "OBJECT_TYPE_DESC",
-                                                    "children": [
-                                                        {
-                                                            "kind": "LIST",
-                                                            "children": [
-                                                            ]
-                                                        },
-                                                        {
-                                                            "kind": "OBJECT_KEYWORD"
-                                                        },
-                                                        {
-                                                            "kind": "OPEN_BRACE_TOKEN"
-                                                        },
-                                                        {
-                                                            "kind": "LIST",
-                                                            "children": [
-                                                            ]
-                                                        },
-                                                        {
-                                                            "kind": "CLOSE_BRACE_TOKEN"
-                                                        }
-                                                    ]
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "GT_TOKEN"
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "a"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "STREAM_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "STREAM_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "STREAM_TYPE_PARAMS",
-                                            "children": [
-                                                {
-                                                    "kind": "LT_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "STRING_KEYWORD"
-                                                },
-                                                {
-                                                    "kind": "GT_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "kind": "CLOSE_BRACE_TOKEN"
-                }
-            ]
+          "kind": "LIST",
+          "children": []
         }
-    ]
+      ]
+    },
+    {
+      "kind": "PUBLIC_KEYWORD"
+    },
+    {
+      "kind": "FUNCTION_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "foo"
+    },
+    {
+      "kind": "FUNCTION_SIGNATURE",
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN"
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_BODY_BLOCK",
+      "children": [
+        {
+          "kind": "OPEN_BRACE_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "STREAM_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "STREAM_KEYWORD"
+                        },
+                        {
+                          "kind": "STREAM_TYPE_PARAMS",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "STRING_KEYWORD"
+                            },
+                            {
+                              "kind": "GT_TOKEN",
+                              "isMissing": true
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "STREAM_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "STREAM_KEYWORD"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "STREAM_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "STREAM_KEYWORD"
+                        },
+                        {
+                          "kind": "STREAM_TYPE_PARAMS",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "INT_KEYWORD"
+                            },
+                            {
+                              "kind": "COMMA_TOKEN",
+                              "isMissing": true
+                            },
+                            {
+                              "kind": "ERROR_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "ERROR_KEYWORD"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "GT_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "STREAM_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "STREAM_KEYWORD"
+                        },
+                        {
+                          "kind": "STREAM_TYPE_PARAMS",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "INT_KEYWORD"
+                            },
+                            {
+                              "kind": "COMMA_TOKEN"
+                            },
+                            {
+                              "kind": "TYPE_DESC",
+                              "isMissing": true
+                            },
+                            {
+                              "kind": "GT_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "STREAM_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "STREAM_KEYWORD"
+                        },
+                        {
+                          "kind": "STREAM_TYPE_PARAMS",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "TYPE_DESC",
+                              "isMissing": true
+                            },
+                            {
+                              "kind": "COMMA_TOKEN"
+                            },
+                            {
+                              "kind": "ERROR_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "ERROR_KEYWORD"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "GT_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "STREAM_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "STREAM_KEYWORD"
+                        },
+                        {
+                          "kind": "STREAM_TYPE_PARAMS",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "TYPE_DESC",
+                              "isMissing": true
+                            },
+                            {
+                              "kind": "GT_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "STREAM_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "STREAM_KEYWORD"
+                        },
+                        {
+                          "kind": "STREAM_TYPE_PARAMS",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "STRING_KEYWORD"
+                            },
+                            {
+                              "kind": "GT_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "INVALID",
+              "children": [
+                {
+                  "kind": "TYPE_CAST_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "LT_TOKEN"
+                    },
+                    {
+                      "kind": "TYPE_CAST_PARAM",
+                      "children": [
+                        {
+                            "kind": "LIST",
+                            "children": []
+                        },
+                          {
+                          "kind": "OBJECT_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
+                              "kind": "OBJECT_KEYWORD"
+                            },
+                            {
+                              "kind": "OPEN_BRACE_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
+                              "kind": "CLOSE_BRACE_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "GT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "STREAM_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "STREAM_KEYWORD"
+                        },
+                        {
+                          "kind": "STREAM_TYPE_PARAMS",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "STRING_KEYWORD"
+                            },
+                            {
+                              "kind": "GT_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_BRACE_TOKEN"
+        }
+      ]
+    }
+  ]
 }

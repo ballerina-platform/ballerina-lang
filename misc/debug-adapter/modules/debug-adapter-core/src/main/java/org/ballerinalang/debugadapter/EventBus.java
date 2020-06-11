@@ -59,20 +59,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.findProjectRoot;
 
 /**
- * Listens and publishes events from JVM.
+ * Listens and publishes events through JDI.
  */
 public class EventBus {
 
-    private final Context context;
     private Path projectRoot;
-    private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
-    private Map<String, Breakpoint[]> breakpointsList = new HashMap<>();
     private Map<Long, ThreadReference> threadsMap = new HashMap<>();
-    private AtomicInteger nextVariableReference = new AtomicInteger();
-    private List<EventRequest> stepEventRequests = new ArrayList<>();
+    private final DebugContext context;
+    private final Map<String, Breakpoint[]> breakpointsList = new HashMap<>();
+    private final AtomicInteger nextVariableReference = new AtomicInteger();
+    private final List<EventRequest> stepEventRequests = new ArrayList<>();
+    private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
 
-    public EventBus(Context context) {
+    public EventBus(DebugContext context) {
         this.context = context;
+        this.projectRoot = null;
     }
 
     public void setBreakpointsList(String path, Breakpoint[] breakpointsList) {
@@ -82,11 +83,8 @@ public class EventBus {
         if (this.context.getDebuggee() != null) {
             // Setting breakpoints to a already running debug session.
             context.getDebuggee().eventRequestManager().deleteAllBreakpoints();
-            Arrays.stream(breakpointsList).forEach(breakpoint -> {
-                this.context.getDebuggee().allClasses().forEach(referenceType -> {
-                    this.addBreakpoint(referenceType, breakpoint);
-                });
-            });
+            Arrays.stream(breakpointsList).forEach(breakpoint -> this.context.getDebuggee().allClasses()
+                    .forEach(referenceType -> this.addBreakpoint(referenceType, breakpoint)));
         }
 
         projectRoot = findProjectRoot(Paths.get(path));
@@ -117,9 +115,7 @@ public class EventBus {
             return null;
         }
         List<ThreadReference> threadReferences = context.getDebuggee().allThreads();
-        threadReferences.stream().forEach(threadReference -> {
-            threadsMap.put(threadReference.uniqueID(), threadReference);
-        });
+        threadReferences.forEach(threadReference -> threadsMap.put(threadReference.uniqueID(), threadReference));
         return threadsMap;
     }
 
@@ -127,9 +123,7 @@ public class EventBus {
         nextVariableReference.set(1);
         threadsMap = new HashMap<>();
         List<ThreadReference> threadReferences = context.getDebuggee().allThreads();
-        threadReferences.stream().forEach(threadReference -> {
-            threadsMap.put(threadReference.uniqueID(), threadReference);
-        });
+        threadReferences.forEach(threadReference -> threadsMap.put(threadReference.uniqueID(), threadReference));
     }
 
     public void startListening() {
@@ -334,5 +328,4 @@ public class EventBus {
             return relativePath.toString();
         }
     }
-
 }

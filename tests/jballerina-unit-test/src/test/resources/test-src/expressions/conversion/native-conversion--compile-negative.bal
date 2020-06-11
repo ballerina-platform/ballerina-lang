@@ -45,5 +45,5 @@ type Person3 record {|
 
 function testObjectToJson() returns json|error {
     PersonObj p = new PersonObj();
-    return json.constructFrom(p);
+    return p.cloneWithType(json);
 }

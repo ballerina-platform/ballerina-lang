@@ -307,7 +307,7 @@ public class MimeUtilityFunctionTest {
             Assert.assertEquals(returns.length, 1);
             BMap<String, BValue> returnByteChannelStruct = (BMap<String, BValue>) returns[0];
             Channel channel = (Channel) returnByteChannelStruct.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            Assert.assertEquals(StringUtils.getStringFromInputStream(channel.getInputStream()),
+            Assert.assertEquals(StringUtils.getStringFromInputStream(channel.getInputStream()).getValue(),
                                 "Hello Ballerina!");
         } catch (IOException e) {
             log.error("Error occurred in testSetByteChannel", e.getMessage());
@@ -534,7 +534,8 @@ public class MimeUtilityFunctionTest {
             Assert.assertEquals(returns.length, 1);
             BMap<String, BValue> returnByteChannelStruct = (BMap<String, BValue>) returns[0];
             Channel channel = (Channel) returnByteChannelStruct.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            Assert.assertEquals(StringUtils.getStringFromInputStream(channel.getInputStream()), "Hello Ballerina!");
+            Assert.assertEquals(StringUtils.getStringFromInputStream(channel.getInputStream()).getValue(),
+                                "Hello Ballerina!");
         } catch (IOException e) {
             log.error("Error occurred in testSetBodyAndGetByteChannel", e.getMessage());
         }

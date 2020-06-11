@@ -23,7 +23,9 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
+
+import static io.ballerinalang.compiler.internal.syntax.NodeListUtils.rangeCheck;
+import static io.ballerinalang.compiler.internal.syntax.NodeListUtils.rangeCheckForAdd;
 
 /**
  * Represents a list of {@code STNode} instances.
@@ -31,21 +33,19 @@ import java.util.List;
  * @since 2.0.0
  */
 public final class STNodeList extends STNode {
-    private static final STNodeList EMPTY_LIST = new STNodeList();
-
-    STNodeList(List<STNode> nodeList) {
-        super(SyntaxKind.LIST);
-        this.addChildren(nodeList.toArray(new STNode[0]));
-    }
 
     STNodeList(STNode... nodes) {
         super(SyntaxKind.LIST);
         this.addChildren(nodes);
     }
 
+    STNodeList(Collection<STNode> nodes) {
+        this(nodes.toArray(new STNode[0]));
+    }
+
     // Positional access methods
     public STNode get(int index) {
-        rangeCheck(index);
+        rangeCheck(index, bucketCount);
         return childBuckets[index];
     }
 
@@ -59,7 +59,7 @@ public final class STNodeList extends STNode {
     }
 
     public STNodeList add(int index, STNode node) {
-        rangeCheck(index);
+        rangeCheckForAdd(index, bucketCount);
         STNode[] newNodesArray = Arrays.copyOf(childBuckets, bucketCount + 1);
         System.arraycopy(newNodesArray, index, newNodesArray, index + 1, bucketCount - index);
         newNodesArray[index] = node;
@@ -77,14 +77,14 @@ public final class STNodeList extends STNode {
     }
 
     public STNodeList set(int index, STNode node) {
-        rangeCheck(index);
+        rangeCheck(index, bucketCount);
         STNode[] newNodesArray = Arrays.copyOf(childBuckets, bucketCount);
         newNodesArray[index] = node;
         return new STNodeList(newNodesArray);
     }
 
     public STNodeList remove(int index) {
-        rangeCheck(index);
+        rangeCheck(index, bucketCount);
         boolean lastElement = (index + 1) == bucketCount;
         STNode[] newNodesArray = Arrays.copyOf(childBuckets, bucketCount - 1);
         if (lastElement) {
@@ -131,19 +131,19 @@ public final class STNodeList extends STNode {
         return bucketCount == 0;
     }
 
-    public static STNodeList emptyList() {
-        return EMPTY_LIST;
-    }
-
     @Override
     public NonTerminalNode createFacade(int position, NonTerminalNode parent) {
         return new ExternalTreeNodeList(this, position, parent);
     }
 
-    private void rangeCheck(int index) {
-        if (index >= bucketCount || index < 0) {
-            throw new IndexOutOfBoundsException("Index: '" + index + "', Size: '" + bucketCount + "'");
-        }
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 
     private STNodeList removeFirstNullValue() {

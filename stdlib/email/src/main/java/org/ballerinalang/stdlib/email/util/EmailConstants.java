@@ -33,7 +33,7 @@ public class EmailConstants {
 
     // Common constants
     public static final String CONNECTOR_NAME = "email";
-    public static final BPackage EMAIL_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, CONNECTOR_NAME);
+    public static final BPackage EMAIL_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "email", "0.6.0");
     public static final BString PROPS_PORT = StringUtils.fromString("port");
     public static final BString PROPS_USERNAME = StringUtils.fromString("username");
     public static final BString MESSAGE_TO = StringUtils.fromString("to");

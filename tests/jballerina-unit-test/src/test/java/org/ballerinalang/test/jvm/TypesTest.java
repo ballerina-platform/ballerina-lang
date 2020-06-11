@@ -219,6 +219,16 @@ public class TypesTest {
     }
 
     @Test
+    public void testRestType() {
+        BRunUtil.invoke(compileResult, "testRestType");
+    }
+
+    @Test
+    public void testEmptyArrayType() {
+        BRunUtil.invoke(compileResult, "testEmptyArrayType");
+    }
+
+    @Test
     public void testRecords() {
         BValue[] result = BRunUtil.invoke(compileResult, "recordsTest");
         Assert.assertEquals((result[0]).stringValue(), "JBallerina");

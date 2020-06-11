@@ -35,7 +35,7 @@ function testUnarySecuredBlockingWithCerts() returns (string) {
 
     [string, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->hello("WSO2");
     if (unionResp is grpc:Error) {
-        return io:sprintf("Error from Connector: %s - %s", unionResp.message());
+        return io:sprintf("Error from Connector: %s", unionResp.message());
     } else {
         string result;
         [result, _] = unionResp;

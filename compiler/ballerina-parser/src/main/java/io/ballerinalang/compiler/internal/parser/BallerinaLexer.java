@@ -173,7 +173,7 @@ public class BallerinaLexer extends AbstractLexer {
                 token = getSyntaxToken(SyntaxKind.ASTERISK_TOKEN);
                 break;
             case LexerTerminals.SLASH:
-                token = getSyntaxToken(SyntaxKind.SLASH_TOKEN);
+                token = processSlashToken();
                 break;
             case LexerTerminals.PERCENT:
                 token = getSyntaxToken(SyntaxKind.PERCENT_TOKEN);
@@ -220,7 +220,7 @@ public class BallerinaLexer extends AbstractLexer {
                 break;
             case LexerTerminals.BACKTICK:
                 startMode(ParserMode.TEMPLATE);
-                token = getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
+                token = getBacktickToken();
                 break;
             case LexerTerminals.SINGLE_QUOTE:
                 token = processQuotedIdentifier();
@@ -451,8 +451,8 @@ public class BallerinaLexer extends AbstractLexer {
      * @return Dot, ellipsis or decimal floating point token
      */
     private STToken processDot() {
-        int nexChar = reader.peek();
-        if (nexChar == LexerTerminals.DOT) {
+        int nextChar = reader.peek();
+        if (nextChar == LexerTerminals.DOT) {
             int nextNextChar = reader.peek(1);
             if (nextNextChar == LexerTerminals.DOT) {
                 reader.advance(2);
@@ -461,12 +461,15 @@ public class BallerinaLexer extends AbstractLexer {
                 reader.advance(2);
                 return getSyntaxToken(SyntaxKind.DOUBLE_DOT_LT_TOKEN);
             }
-        } else if (nexChar == LexerTerminals.AT) {
+        } else if (nextChar == LexerTerminals.AT) {
             reader.advance();
             return getSyntaxToken(SyntaxKind.ANNOT_CHAINING_TOKEN);
+        } else if (nextChar == LexerTerminals.LT) {
+            reader.advance();
+            return getSyntaxToken(SyntaxKind.DOT_LT_TOKEN);
         }
 
-        if (this.mode != ParserMode.IMPORT && isDigit(nexChar)) {
+        if (this.mode != ParserMode.IMPORT && isDigit(nextChar)) {
             return processDecimalFloatLiteral();
         }
         return getSyntaxToken(SyntaxKind.DOT_TOKEN);
@@ -519,7 +522,7 @@ public class BallerinaLexer extends AbstractLexer {
             case LexerTerminals.GT:
                 // this is '=>'
                 reader.advance();
-                return getSyntaxToken(SyntaxKind.RIGHT_DOUBLE_ARROW);
+                return getSyntaxToken(SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN);
             default:
                 // this is '='
                 return getSyntaxToken(SyntaxKind.EQUAL_TOKEN);
@@ -562,6 +565,11 @@ public class BallerinaLexer extends AbstractLexer {
                 case 'F':
                 case 'd':
                 case 'D':
+                    // If there's more than one dot, only capture the integer
+                    if (reader.peek(1) == LexerTerminals.DOT) {
+                        break;
+                    }
+
                     // In sem-var mode, only decimal integer literals are supported
                     if (this.mode == ParserMode.IMPORT) {
                         break;
@@ -569,7 +577,7 @@ public class BallerinaLexer extends AbstractLexer {
 
                     // Integer part of the float cannot have a leading zero
                     if (startChar == '0' && len > 1) {
-                        break;
+                        reportLexerError("extra leading zero");
                     }
 
                     // Code would not reach here if the floating point starts with a dot
@@ -586,11 +594,9 @@ public class BallerinaLexer extends AbstractLexer {
             break;
         }
 
-        // Integer or integer part of the float cannot have a leading zero
+        // Integer cannot have a leading zero
         if (startChar == '0' && len > 1) {
             reportLexerError("extra leading zero");
-            processInvalidToken();
-            return readToken();
         }
 
         return getLiteral(SyntaxKind.DECIMAL_INTEGER_LITERAL);
@@ -682,9 +688,7 @@ public class BallerinaLexer extends AbstractLexer {
 
         // Make sure at least one digit is present after the indicator
         if (!isDigit(nextChar)) {
-            reportLexerError("missing digit");
-            processInvalidToken();
-            return readToken();
+            reportLexerError("missing digit after exponent indicator");
         }
 
         while (isDigit(nextChar)) {
@@ -755,10 +759,7 @@ public class BallerinaLexer extends AbstractLexer {
 
         // Make sure at least one hex-digit present if processing started from a dot
         if (peek() == LexerTerminals.DOT && !isHexDigit(reader.peek(1))) {
-            reader.advance();
-            reportLexerError("missing hex-digit");
-            processInvalidToken();
-            return readToken();
+            reportLexerError("missing hex-digit after dot");
         }
 
         int nextChar;
@@ -960,8 +961,22 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.WAIT_KEYWORD);
             case LexerTerminals.DO:
                 return getSyntaxToken(SyntaxKind.DO_KEYWORD);
+            case LexerTerminals.TRANSACTION:
+                return getSyntaxToken(SyntaxKind.TRANSACTION_KEYWORD);
+            case LexerTerminals.COMMIT:
+                return getSyntaxToken(SyntaxKind.COMMIT_KEYWORD);
+            case LexerTerminals.RETRY:
+                return getSyntaxToken(SyntaxKind.RETRY_KEYWORD);
+            case LexerTerminals.ROLLBACK:
+                return getSyntaxToken(SyntaxKind.ROLLBACK_KEYWORD);
+            case LexerTerminals.TRANSACTIONAL:
+                return getSyntaxToken(SyntaxKind.TRANSACTIONAL_KEYWORD);
             case LexerTerminals.ENUM:
                 return getSyntaxToken(SyntaxKind.ENUM_KEYWORD);
+            case LexerTerminals.BASE16:
+                return getSyntaxToken(SyntaxKind.BASE16_KEYWORD);
+            case LexerTerminals.BASE64:
+                return getSyntaxToken(SyntaxKind.BASE64_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }
@@ -1070,7 +1085,7 @@ public class BallerinaLexer extends AbstractLexer {
      * @param c character to check
      * @return <code>true</code>, if the character represents a digit. <code>false</code> otherwise.
      */
-    private boolean isDigit(int c) {
+    static boolean isDigit(int c) {
         return ('0' <= c && c <= '9');
     }
 
@@ -1083,7 +1098,7 @@ public class BallerinaLexer extends AbstractLexer {
      * @param c character to check
      * @return <code>true</code>, if the character represents a hex digit. <code>false</code> otherwise.
      */
-    private boolean isHexDigit(int c) {
+    static boolean isHexDigit(int c) {
         if ('a' <= c && c <= 'f') {
             return true;
         }
@@ -1265,6 +1280,31 @@ public class BallerinaLexer extends AbstractLexer {
     }
 
     /**
+     * Process any token that starts with '/'.
+     *
+     * @return One of the tokens: <code>'/', '/<', '/*', '/**\/<' </code>
+     */
+    private STToken processSlashToken() {
+        switch (peek()) { // check for the second char
+            case LexerTerminals.LT:
+                reader.advance();
+                return getSyntaxToken(SyntaxKind.SLASH_LT_TOKEN);
+            case LexerTerminals.ASTERISK:
+                reader.advance();
+                if (peek() != LexerTerminals.ASTERISK) { // check for the third char
+                    return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
+                } else if (reader.peek(1) == LexerTerminals.SLASH && reader.peek(2) == LexerTerminals.LT) {
+                    reader.advance(3);
+                    return getSyntaxToken(SyntaxKind.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN);
+                } else {
+                    return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
+                }
+            default:
+                return getSyntaxToken(SyntaxKind.SLASH_TOKEN);
+        }
+    }
+
+    /**
      * Process and return documentation line.
      * <p>
      * <code>
@@ -1302,6 +1342,15 @@ public class BallerinaLexer extends AbstractLexer {
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
         return STNodeFactory.createDocumentationLineToken(lexeme, leadingTrivia, trailingTrivia);
+    }
+
+    private STToken getBacktickToken() {
+        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        // Trivia after the back-tick including whitespace belongs to the content of the back-tick.
+        // Therefore do not process trailing trivia for starting back-tick. We reach here only for
+        // starting back-tick. Ending back-tick is processed by the template mode.
+        STNode trailingTrivia = STNodeFactory.createEmptyNodeList();
+        return STNodeFactory.createToken(SyntaxKind.BACKTICK_TOKEN, leadingTrivia, trailingTrivia);
     }
 
     private STToken readTemplateToken() {
@@ -1474,5 +1523,128 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         return readToken();
+    }
+
+    /**
+     * <p>
+     * Check whether a given char is a base64 char.
+     * </p>
+     * <code>Base64Char := A .. Z | a .. z | 0 .. 9 | + | /</code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character represents a base64 char. <code>false</code> otherwise.
+     */
+    static boolean isBase64Char(int c) {
+        if ('a' <= c && c <= 'z') {
+            return true;
+        }
+        if ('A' <= c && c <= 'Z') {
+            return true;
+        }
+        if (c == '+' || c == '/') {
+            return true;
+        }
+        return isDigit(c);
+    }
+
+    /**
+     * Validate base16 literal content.
+     * <p>
+     * <code>
+     * Base16Literal := base16 WS ` HexGroup* WS `
+     * <br/>
+     * HexGroup := WS HexDigit WS HexDigit
+     * <br/>
+     * WS := WhiteSpaceChar*
+     * <br/>
+     * WhiteSpaceChar := 0x9 | 0xA | 0xD | 0x20
+     * </code>
+     *
+     * @param content the string surrounded by the backticks
+     * @return <code>true</code>, if the string content is valid. <code>false</code> otherwise.
+     */
+    static boolean isValidBase16LiteralContent(String content) {
+        char[] charArray = content.toCharArray();
+        int hexDigitCount = 0;
+
+        for (char c : charArray) {
+            switch (c) {
+                case LexerTerminals.TAB:
+                case LexerTerminals.NEWLINE:
+                case LexerTerminals.CARRIAGE_RETURN:
+                case LexerTerminals.SPACE:
+                    break;
+                default:
+                    if (isHexDigit(c)) {
+                        hexDigitCount++;
+                    } else {
+                        return false;
+                    }
+                    break;
+            }
+        }
+        return hexDigitCount % 2 == 0;
+    }
+
+    /**
+     * Validate base64 literal content.
+     * <p>
+     * <code>
+     * Base64Literal := base64 WS ` Base64Group* [PaddedBase64Group] WS `
+     * <br/>
+     * Base64Group := WS Base64Char WS Base64Char WS Base64Char WS Base64Char
+     * <br/>
+     * PaddedBase64Group :=
+     *    WS Base64Char WS Base64Char WS Base64Char WS PaddingChar
+     *    | WS Base64Char WS Base64Char WS PaddingChar WS PaddingChar
+     * <br/>
+     * Base64Char := A .. Z | a .. z | 0 .. 9 | + | /
+     * <br/>
+     * PaddingChar := =
+     * <br/>
+     * WS := WhiteSpaceChar*
+     * <br/>
+     * WhiteSpaceChar := 0x9 | 0xA | 0xD | 0x20
+     * </code>
+     *
+     * @param content the string surrounded by the backticks
+     * @return <code>true</code>, if the string content is valid. <code>false</code> otherwise.
+     */
+    static boolean isValidBase64LiteralContent(String content) {
+        char[] charArray = content.toCharArray();
+        int base64CharCount = 0;
+        int paddingCharCount = 0;
+
+        for (char c : charArray) {
+            switch (c) {
+                case LexerTerminals.TAB:
+                case LexerTerminals.NEWLINE:
+                case LexerTerminals.CARRIAGE_RETURN:
+                case LexerTerminals.SPACE:
+                    break;
+                case LexerTerminals.EQUAL:
+                    paddingCharCount++;
+                    break;
+                default:
+                    if (isBase64Char(c)) {
+                        if (paddingCharCount == 0) {
+                            base64CharCount++;
+                        } else {
+                            return false;
+                        }
+                    } else {
+                        return false;
+                    }
+                    break;
+            }
+        }
+
+        if (paddingCharCount > 2) {
+            return false;
+        } else if (paddingCharCount == 0) {
+            return base64CharCount % 4 == 0;
+        } else {
+            return base64CharCount % 4 == 4 - paddingCharCount;
+        }
     }
 }
