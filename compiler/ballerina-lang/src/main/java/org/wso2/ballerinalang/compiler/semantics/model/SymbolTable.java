@@ -134,6 +134,8 @@ public class SymbolTable {
 
     public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
     public final BType nullSet = new BType(TypeTags.NULL_SET, null);
+    public final BUnionType anydataOrReadOnlyType = BUnionType.create(null, anydataType, readonlyType);
+    public final BType anydataOrReadOnlyMapType = new BMapType(TypeTags.MAP, anydataOrReadOnlyType, null);
 
     public BType streamType = new BStreamType(TypeTags.STREAM, anydataType, null, null);
     public BType tableType = new BTableType(TypeTags.TABLE, anydataType, null);

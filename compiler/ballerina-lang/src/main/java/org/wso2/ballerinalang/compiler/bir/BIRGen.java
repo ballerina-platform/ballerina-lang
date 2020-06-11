@@ -608,11 +608,12 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private boolean isCompileTimeAnnotationValue(BLangExpression expr) {
-        // TODO Compile time literal constants
         switch (expr.getKind()) {
             case LITERAL:
             case NUMERIC_LITERAL:
                 return true;
+            case INVOCATION:
+                return isCompileTimeAnnotationValue(((BLangInvocation) expr).expr);
             case RECORD_LITERAL_EXPR:
                 BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expr;
                 for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
@@ -668,6 +669,8 @@ public class BIRGen extends BLangNodeVisitor {
                 return createAnnotationValue(((BLangTypeConversionExpr) expr).expr);
             case STATEMENT_EXPRESSION:
                 return createAnnotationRecordValue((BLangStatementExpression) expr);
+            case INVOCATION:
+                return createAnnotationValue(((BLangInvocation) expr).expr);
             default:
                 // This following line will not be executed
                 throw new IllegalStateException("Invalid annotation value expression kind: " + expr.getKind());
