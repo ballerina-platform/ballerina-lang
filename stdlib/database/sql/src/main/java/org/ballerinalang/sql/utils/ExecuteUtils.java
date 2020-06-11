@@ -83,18 +83,15 @@ public class ExecuteUtils {
                 return BallerinaValues.createRecordValue(Constants.SQL_PACKAGE_ID,
                         Constants.EXECUTION_RESULT_RECORD, resultFields);
             } catch (SQLException e) {
-                Utils.handleErrorOnTransaction(strand);
                 return ErrorGenerator.getSQLDatabaseError(e,
                         "Error while executing sql query: " + sqlQuery + ". ");
             } catch (ApplicationError | IOException e) {
-                Utils.handleErrorOnTransaction(strand);
                 return ErrorGenerator.getSQLApplicationError("Error while executing sql query: "
                         + sqlQuery + ". " + e.getMessage());
             } finally {
                 Utils.closeResources(strand, resultSet, statement, connection);
             }
         } else {
-            Utils.handleErrorOnTransaction(strand);
             return ErrorGenerator.getSQLApplicationError(
                     "Client is not properly initialized!");
         }

@@ -104,18 +104,15 @@ public class QueryUtils {
                 return new StreamValue(new BStreamType(streamConstraint), createRecordIterator(resultSet,
                         statement, connection, columnDefinitions, streamConstraint));
             } catch (SQLException e) {
-                Utils.handleErrorOnTransaction(strand);
                 Utils.closeResources(strand, resultSet, statement, connection);
                 ErrorValue errorValue = ErrorGenerator.getSQLDatabaseError(e,
                         "Error while executing sql query: " + sqlQuery + ". ");
                 return new StreamValue(new BStreamType(getDefaultStreamConstraint()), createRecordIterator(errorValue));
             } catch (ApplicationError applicationError) {
-                Utils.handleErrorOnTransaction(strand);
                 Utils.closeResources(strand, resultSet, statement, connection);
                 ErrorValue errorValue = ErrorGenerator.getSQLApplicationError(applicationError.getMessage());
                 return getErrorStream(recordType, errorValue);
             } catch (Throwable e) {
-                Utils.handleErrorOnTransaction(strand);
                 Utils.closeResources(strand, resultSet, statement, connection);
                 String message = e.getMessage();
                 if (message == null) {
@@ -126,7 +123,6 @@ public class QueryUtils {
                 return getErrorStream(recordType, errorValue);
             }
         } else {
-            Utils.handleErrorOnTransaction(strand);
             ErrorValue errorValue = ErrorGenerator.getSQLApplicationError(
                     "Client is not properly initialized!");
             return getErrorStream(recordType, errorValue);

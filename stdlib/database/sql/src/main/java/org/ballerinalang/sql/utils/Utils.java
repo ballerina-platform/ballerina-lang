@@ -22,8 +22,6 @@ import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.transactions.TransactionLocalContext;
-import org.ballerinalang.jvm.transactions.TransactionUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BRecordType;
@@ -114,18 +112,6 @@ class Utils {
                 }
             }
         }
-    }
-
-    public static void handleErrorOnTransaction(Strand strand) {
-        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
-        if (transactionLocalContext == null || !transactionLocalContext.hasTransactionBlock()) {
-            return;
-        }
-        String globalTransactionId = transactionLocalContext.getGlobalTransactionId();
-        String transactionBlockId = transactionLocalContext.getCurrentTransactionBlockId();
-
-        transactionLocalContext.markFailure();
-        TransactionUtils.notifyTransactionAbort(strand, globalTransactionId, transactionBlockId);
     }
 
     static String getSqlQuery(MapValue<BString, Object> paramString) throws ApplicationError {
