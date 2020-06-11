@@ -1882,6 +1882,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 .setVisibility(visibilityQualifier)
                 .isListenerVar()
                 .build();
+        var.pos = getPosition(listenerDeclarationNode);
         var.annAttachments = applyAll(listenerDeclarationNode.metadata().annotations());
         return var;
     }
