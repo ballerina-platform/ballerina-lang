@@ -169,7 +169,7 @@ public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
         remoteHubTextNotificationLogLeecherOne.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
-    @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")
+    @Test(dependsOnMethods = "testSubscriptionAndIntentVerification", enabled = false)
     public void testUnauthenticatedTextContentReceiptForInternalHub() throws BallerinaTestException {
         internalHubTextNotificationLogLeecherTwo.waitForText(LOG_LEECHER_TIMEOUT);
     }

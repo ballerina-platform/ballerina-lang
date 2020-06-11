@@ -124,31 +124,30 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "a"
-                        },
-                        {
-                          "kind": "PLUS_TOKEN"
-                        },
-                        {
                           "kind": "BINARY_EXPRESSION",
-                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "b"
+                              "value": "a"
                             },
                             {
                               "kind": "PLUS_TOKEN"
                             },
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true,
-                              "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
-                              ]
+                              "value": "b"
                             }
+                          ]
+                        },
+                        {
+                          "kind": "PLUS_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_IDENTIFIER"
                           ]
                         }
                       ]

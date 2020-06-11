@@ -67,13 +67,8 @@
                   "kind": "ENUM_MEMBER",
                   "children": [
                     {
-                      "kind": "ENUM_MEMBER",
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "B"
-                        }
-                      ]
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "B"
                     }
                   ]
                 },
@@ -210,18 +205,8 @@
                   "kind": "ENUM_MEMBER",
                   "children": [
                     {
-                      "kind": "ENUM_MEMBER",
-                      "children": [
-                        {
-                          "kind": "ENUM_MEMBER",
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "RED"
-                            }
-                          ]
-                        }
-                      ]
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "RED"
                     }
                   ]
                 },

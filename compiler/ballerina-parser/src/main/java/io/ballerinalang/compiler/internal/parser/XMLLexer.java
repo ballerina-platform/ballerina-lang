@@ -951,6 +951,7 @@ public class XMLLexer extends AbstractLexer {
                 if (this.reader.peek(1) == LexerTerminals.GT) {
                     reader.advance(2);
                     endMode();
+                    endMode();
                     return getXMLSyntaxToken(SyntaxKind.XML_PI_END_TOKEN);
                 }
                 break;
