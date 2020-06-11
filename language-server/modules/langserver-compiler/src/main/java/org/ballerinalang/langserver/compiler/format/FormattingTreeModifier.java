@@ -79,7 +79,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ImportVersionNode transform(ImportVersionNode importVersionNode) {
         Token versionKeyword = getToken(importVersionNode.versionKeyword());
-        Node versionNumber = this.modifyNode(importVersionNode.versionNumber());
+        NodeList<Node> versionNumber = this.modifyNodeList(importVersionNode.versionNumber());
 
         return importVersionNode.modify()
                 .withVersionKeyword(formatToken(versionKeyword, 1, 0, 0, 0))
@@ -574,6 +574,71 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     @Override
+    public ModuleVariableDeclarationNode transform(ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
+        Token equalsToken = getToken(moduleVariableDeclarationNode.equalsToken());
+        Token semicolonToken = getToken(moduleVariableDeclarationNode.semicolonToken());
+        Token finalKeyword = getToken(moduleVariableDeclarationNode.finalKeyword().orElse(null));
+        ExpressionNode initializer = this.modifyNode(moduleVariableDeclarationNode.initializer());
+        MetadataNode metadata = this.modifyNode(moduleVariableDeclarationNode.metadata());
+        TypedBindingPatternNode typedBindingPatternNode = this.modifyNode(
+                moduleVariableDeclarationNode.typedBindingPattern());
+
+        if (finalKeyword != null) {
+            moduleVariableDeclarationNode = moduleVariableDeclarationNode.modify()
+                    .withFinalKeyword(formatToken(finalKeyword, 0, 1, 0, 0))
+                    .apply();
+        }
+        return moduleVariableDeclarationNode.modify()
+                .withEqualsToken(formatToken(equalsToken, 1, 1, 0, 0))
+                .withInitializer(initializer)
+                .withMetadata(metadata)
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
+                .withTypedBindingPattern(typedBindingPatternNode)
+                .apply();
+    }
+
+    @Override
+    public ConstantDeclarationNode transform(ConstantDeclarationNode constantDeclarationNode) {
+        Token constKeyword = getToken(constantDeclarationNode.constKeyword());
+        Token variableName = getToken(constantDeclarationNode.variableName());
+        Token equalsToken = getToken(constantDeclarationNode.equalsToken());
+        Token semicolonToken = getToken(constantDeclarationNode.semicolonToken());
+        Token visibilityQualifier = getToken(constantDeclarationNode.visibilityQualifier());
+        Node initializer = this.modifyNode(constantDeclarationNode.initializer());
+        MetadataNode metadata = this.modifyNode(constantDeclarationNode.metadata());
+        TypeDescriptorNode typeDescriptorNode = this.modifyNode(constantDeclarationNode.typeDescriptor());
+
+        if (visibilityQualifier != null) {
+            constantDeclarationNode = constantDeclarationNode.modify()
+                    .withVisibilityQualifier(formatToken(visibilityQualifier, 1, 1, 0, 0))
+                    .apply();
+        }
+
+        return constantDeclarationNode.modify()
+                .withConstKeyword(formatToken(constKeyword, 1, 1, 0, 0))
+                .withEqualsToken(formatToken(equalsToken, 1, 1, 0, 0))
+                .withInitializer(initializer)
+                .withMetadata(metadata)
+                .withSemicolonToken(formatToken(semicolonToken, 1, 1, 0, 1))
+                .withTypeDescriptor(typeDescriptorNode)
+                .withVariableName(variableName)
+                .apply();
+    }
+
+    @Override
+    public MetadataNode transform(MetadataNode metadataNode) {
+        NodeList<AnnotationNode> annotations = this.modifyNodeList(metadataNode.annotations());
+        Node documentationString = metadataNode.documentationString().orElse(null);
+
+        if (documentationString != null) {
+            metadataNode = metadataNode.modify().withDocumentationString(this.modifyNode(documentationString)).apply();
+        }
+        return metadataNode.modify()
+                .withAnnotations(annotations)
+                .apply();
+    }
+
+    @Override
     public BlockStatementNode transform(BlockStatementNode blockStatementNode) {
         Token openBraceToken = getToken(blockStatementNode.openBraceToken());
         Token closeBraceToken = getToken(blockStatementNode.closeBraceToken());
@@ -583,6 +648,49 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withOpenBraceToken(formatToken(openBraceToken, 1, 0, 0, 1))
                 .withCloseBraceToken(formatToken(closeBraceToken, 0, 0, 0, 0))
                 .withStatements(statements)
+                .apply();
+    }
+
+    @Override
+    public MappingConstructorExpressionNode transform(
+            MappingConstructorExpressionNode mappingConstructorExpressionNode) {
+        Token openBrace = getToken(mappingConstructorExpressionNode.openBrace());
+        Token closeBrace = getToken(mappingConstructorExpressionNode.closeBrace());
+        SeparatedNodeList<MappingFieldNode> fields = this.modifySeparatedNodeList(
+                mappingConstructorExpressionNode.fields());
+
+        return mappingConstructorExpressionNode.modify()
+                .withOpenBrace(formatToken(openBrace, 0, 0, 0, 1))
+                .withCloseBrace(formatToken(closeBrace, 0, 0, 1, 0))
+                .withFields(fields)
+                .apply();
+    }
+
+    @Override
+    public ListenerDeclarationNode transform(ListenerDeclarationNode listenerDeclarationNode) {
+        Token equalsToken = getToken(listenerDeclarationNode.equalsToken());
+        Token variableName = getToken(listenerDeclarationNode.variableName());
+        Token semicolonToken = getToken(listenerDeclarationNode.semicolonToken());
+        Token listenerKeyword = getToken(listenerDeclarationNode.listenerKeyword());
+        Token visibilityQualifier = getToken(listenerDeclarationNode.visibilityQualifier().orElse(null));
+        Node initializer = this.modifyNode(listenerDeclarationNode.initializer());
+        MetadataNode metadata = this.modifyNode(listenerDeclarationNode.metadata());
+        Node typeDescriptor = this.modifyNode(listenerDeclarationNode.typeDescriptor());
+
+        if (visibilityQualifier != null) {
+            listenerDeclarationNode = listenerDeclarationNode.modify()
+                    .withVisibilityQualifier(formatToken(visibilityQualifier, 0, 0, 0, 0))
+                    .apply();
+        }
+
+        return listenerDeclarationNode.modify()
+                .withEqualsToken(formatToken(equalsToken, 1, 1, 0, 0))
+                .withInitializer(initializer)
+                .withListenerKeyword(formatToken(listenerKeyword, 0, 0, 0, 0))
+                .withMetadata(metadata)
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
+                .withTypeDescriptor(typeDescriptor)
+                .withVariableName(formatToken(variableName, 0, 0, 0, 0))
                 .apply();
     }
 
