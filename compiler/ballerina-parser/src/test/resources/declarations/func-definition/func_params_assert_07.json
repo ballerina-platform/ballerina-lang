@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -19,15 +20,21 @@
     },
     {
       "kind": "FUNCTION_SIGNATURE",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_PAREN_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "REST_PARAM",
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_PARAMETER_AFTER_THE_REST_PARAMETER"
+              ],
               "children": [
                 {
                   "kind": "LIST",

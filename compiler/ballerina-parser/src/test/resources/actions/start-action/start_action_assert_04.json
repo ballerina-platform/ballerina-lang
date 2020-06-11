@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -34,15 +35,18 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
@@ -53,12 +57,15 @@
                 },
                 {
                   "kind": "START_ACTION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "ANNOTATION",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "AT_TOKEN"
@@ -69,6 +76,7 @@
                             },
                             {
                               "kind": "MAPPING_CONSTRUCTOR",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "OPEN_BRACE_TOKEN"
@@ -96,7 +104,11 @@
                                 },
                                 {
                                   "kind": "CLOSE_BRACE_TOKEN",
-                                  "isMissing": true
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+                                  ]
                                 }
                               ]
                             }
@@ -135,15 +147,19 @@
             },
             {
               "kind": "ACTION_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "START_ACTION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "ANNOTATION",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "AT_TOKEN"
@@ -154,15 +170,18 @@
                             },
                             {
                               "kind": "MAPPING_CONSTRUCTOR",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "OPEN_BRACE_TOKEN"
                                 },
                                 {
                                   "kind": "LIST",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "SPECIFIC_FIELD",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
@@ -173,7 +192,11 @@
                                         },
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "isMissing": true
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_IDENTIFIER"
+                                          ]
                                         }
                                       ]
                                     }

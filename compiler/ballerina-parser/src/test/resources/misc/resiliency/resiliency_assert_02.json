@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_PART",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -7,9 +8,11 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "MODULE_VAR_DECL",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -40,12 +43,17 @@
             },
             {
               "kind": "SEMICOLON_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_SEMICOLON_TOKEN"
+              ]
             }
           ]
         },
         {
           "kind": "MODULE_VAR_DECL",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -58,9 +66,11 @@
             },
             {
               "kind": "TYPED_BINDING_PATTERN",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "OBJECT_TYPE_DESC",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "LIST",
@@ -68,16 +78,22 @@
                     },
                     {
                       "kind": "OBJECT_KEYWORD",
-                      "isMissing": true
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_OBJECT_KEYWORD"
+                      ]
                     },
                     {
                       "kind": "OPEN_BRACE_TOKEN"
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "OBJECT_FIELD",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "METADATA",
@@ -101,10 +117,15 @@
                             },
                             {
                               "kind": "EQUAL_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_EQUAL_TOKEN"
+                              ]
                             },
                             {
                               "kind": "FUNCTION_CALL",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
@@ -115,6 +136,7 @@
                                 },
                                 {
                                   "kind": "LIST",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "POSITIONAL_ARG",
@@ -127,10 +149,15 @@
                                     },
                                     {
                                       "kind": "POSITIONAL_ARG",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "COMMA_TOKEN",
-                                          "isMissing": true
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_COMMA_TOKEN"
+                                          ]
                                         },
                                         {
                                           "kind": "INDEXED_EXPRESSION",
@@ -162,12 +189,17 @@
                             },
                             {
                               "kind": "SEMICOLON_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_SEMICOLON_TOKEN"
+                              ]
                             }
                           ]
                         },
                         {
                           "kind": "OBJECT_FIELD",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "METADATA",
@@ -180,6 +212,7 @@
                             },
                             {
                               "kind": "OBJECT_TYPE_DESC",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "LIST",
@@ -187,16 +220,22 @@
                                 },
                                 {
                                   "kind": "OBJECT_KEYWORD",
-                                  "isMissing": true
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_OBJECT_KEYWORD"
+                                  ]
                                 },
                                 {
                                   "kind": "OPEN_BRACE_TOKEN"
                                 },
                                 {
                                   "kind": "LIST",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "OBJECT_FIELD",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "METADATA",
@@ -213,21 +252,35 @@
                                         },
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "isMissing": true
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_IDENTIFIER"
+                                          ]
                                         },
                                         {
                                           "kind": "EQUAL_TOKEN",
-                                          "isMissing": true
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_EQUAL_TOKEN"
+                                          ]
                                         },
                                         {
                                           "kind": "METHOD_CALL",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
                                               "kind": "FIELD_ACCESS",
+                                              "hasDiagnostics": true,
                                               "children": [
                                                 {
                                                   "kind": "IDENTIFIER_TOKEN",
-                                                  "isMissing": true
+                                                  "isMissing": true,
+                                                  "hasDiagnostics": true,
+                                                  "diagnostics": [
+                                                    "ERROR_MISSING_IDENTIFIER"
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "DOT_TOKEN"
@@ -281,11 +334,19 @@
                             },
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_IDENTIFIER"
+                              ]
                             },
                             {
                               "kind": "SEMICOLON_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_SEMICOLON_TOKEN"
+                              ]
                             }
                           ]
                         }
@@ -298,10 +359,15 @@
                 },
                 {
                   "kind": "CAPTURE_BINDING_PATTERN",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
-                      "isMissing": true
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_IDENTIFIER"
+                      ]
                     }
                   ]
                 }
@@ -309,7 +375,11 @@
             },
             {
               "kind": "SEMICOLON_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_SEMICOLON_TOKEN"
+              ]
             }
           ]
         }
