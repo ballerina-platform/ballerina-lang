@@ -1105,13 +1105,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(FunctionBodyBlockNode functionBodyBlockNode) {
         BLangBlockFunctionBody bLFuncBody = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
         this.isInLocalContext = true;
-        List<BLangStatement> statements = generateBLangStatements(functionBodyBlockNode.statements());
-
+        List<BLangStatement> statements = new ArrayList<>();
         if (functionBodyBlockNode.namedWorkerDeclarator().isPresent()) {
             NamedWorkerDeclarator namedWorkerDeclarator = functionBodyBlockNode.namedWorkerDeclarator().get();
-            for (StatementNode statement : namedWorkerDeclarator.workerInitStatements()) {
-                statements.add((BLangStatement) statement.apply(this));
-            }
+            generateAndAddBLangStatements(namedWorkerDeclarator.workerInitStatements(), statements);
+
             for (NamedWorkerDeclarationNode workerDeclarationNode : namedWorkerDeclarator.namedWorkerDeclarations()) {
                 statements.add((BLangStatement) workerDeclarationNode.apply(this));
                 // Consume resultant additional statements
@@ -1120,6 +1118,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 }
             }
         }
+
+        generateAndAddBLangStatements(functionBodyBlockNode.statements(), statements);
 
         bLFuncBody.stmts = statements;
         bLFuncBody.pos = getPosition(functionBodyBlockNode);
@@ -1150,16 +1150,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangForkJoin forkJoin = (BLangForkJoin) TreeBuilder.createForkJoinNode();
         DiagnosticPos forkStmtPos = getPosition(forkStatementNode);
         forkJoin.pos = forkStmtPos;
-        String nextAnonymousForkKey = anonymousModelHelper.getNextAnonymousForkKey(forkStmtPos.src.pkgID);
-
-        List<BLangSimpleVariableDef> workerVarDecl = applyAll(forkStatementNode.namedWorkerDeclarations());
-        forkJoin.workers = workerVarDecl;
-
-        for (BLangSimpleVariableDef worker : forkJoin.workers) {
-            BLangFunction function = ((BLangLambdaFunction) worker.var.expr).function;
-            function.flagSet.add(Flag.FORKED);
-            function.anonForkName = nextAnonymousForkKey;
-        }
         return forkJoin;
     }
 
@@ -1231,9 +1221,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (namedWorkerDeclNode.parent().kind() == SyntaxKind.FORK_STATEMENT) {
             lamdaWrkr.isInFork = true;
             lamdaWrkr.var.flagSet.add(Flag.FORKED);
-            this.additionalStatements.push(lamdaWrkr);
         }
-
 
 //        if (!this.forkJoinNodesStack.empty()) {
 //            // TODO: Revisit the fork join worker declaration and decide whether move this to desugar.
@@ -2904,6 +2892,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private List<BLangStatement> generateBLangStatements(NodeList<StatementNode> statementNodes) {
         List<BLangStatement> statements = new ArrayList<>();
+        return generateAndAddBLangStatements(statementNodes, statements);
+    }
+
+    private List<BLangStatement> generateAndAddBLangStatements(NodeList<StatementNode> statementNodes,
+                                                               List<BLangStatement> statements) {
         for (StatementNode statement : statementNodes) {
             // TODO: Remove this check once statements are non null guaranteed
             if (statement != null) {
@@ -2996,13 +2989,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private void generateForkStatements(List<BLangStatement> statements, ForkStatementNode forkStatementNode) {
         BLangForkJoin forkJoin = (BLangForkJoin) forkStatementNode.apply(this);
-
+        String nextAnonymousForkKey = anonymousModelHelper.getNextAnonymousForkKey(forkJoin.pos.src.pkgID);
         for (NamedWorkerDeclarationNode workerDeclarationNode : forkStatementNode.namedWorkerDeclarations()) {
             BLangSimpleVariableDef workerDef = (BLangSimpleVariableDef) workerDeclarationNode.apply(this);
             workerDef.isWorker = true;
             workerDef.isInFork = true;
-            ((BLangLambdaFunction) workerDef.var.expr).function.addFlag(Flag.FORKED);
             workerDef.var.flagSet.add(Flag.FORKED);
+
+            BLangFunction function = ((BLangLambdaFunction) workerDef.var.expr).function;
+            function.addFlag(Flag.FORKED);
+            function.anonForkName = nextAnonymousForkKey;
+
             statements.add(workerDef);
             while (!this.additionalStatements.empty()) {
                 statements.add(additionalStatements.pop());
