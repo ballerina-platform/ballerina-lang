@@ -126,4 +126,12 @@ public class StringQueryExpressionTest {
 
         Assert.assertEquals(returnValues[0].stringValue(), "Ranjan ");
     }
+
+    @Test(description = "Test simple query expression with var for string result")
+    public void testQueryExprWithListForStringResult() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithListForStringResult");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(), "Ranjan ");
+    }
 }
