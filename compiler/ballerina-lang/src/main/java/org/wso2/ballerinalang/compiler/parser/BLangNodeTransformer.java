@@ -1543,12 +1543,25 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
         BLangFieldBasedAccess bLFieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         Node fieldName = optionalFieldAccessExpressionNode.fieldName();
+
+        if (fieldName.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            QualifiedNameReferenceNode qualifiedFieldName = (QualifiedNameReferenceNode) fieldName;
+            BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess accessWithPrefixNode =
+                    (BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) TreeBuilder
+                            .createFieldBasedAccessWithPrefixNode();
+            accessWithPrefixNode.nsPrefix = createIdentifier(qualifiedFieldName.modulePrefix());
+            accessWithPrefixNode.field = createIdentifier(qualifiedFieldName.identifier());
+            bLFieldBasedAccess = accessWithPrefixNode;
+            bLFieldBasedAccess.fieldKind = FieldKind.WITH_NS;
+        } else {
+            bLFieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
+            bLFieldBasedAccess.field = createIdentifier(((SimpleNameReferenceNode) fieldName).name());
+            bLFieldBasedAccess.fieldKind = FieldKind.SINGLE;
+        }
+
         bLFieldBasedAccess.pos = getPosition(optionalFieldAccessExpressionNode);
-        bLFieldBasedAccess.field =
-                createIdentifier(((SimpleNameReferenceNode) fieldName).name());
         bLFieldBasedAccess.field.pos = getPosition(optionalFieldAccessExpressionNode);
         bLFieldBasedAccess.expr = createExpression(optionalFieldAccessExpressionNode.expression());
-        bLFieldBasedAccess.fieldKind = FieldKind.SINGLE;
         bLFieldBasedAccess.optionalFieldAccess = true;
         return bLFieldBasedAccess;
     }
@@ -1804,6 +1817,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             letVars.add(createLetVariable(letVarDecl));
         }
 
+        letExpr.letVarDeclarations = letVars;
         return letExpr;
     }
 
@@ -2384,7 +2398,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         for (Node value : xmlAttributeValue.value()) {
-            quotedString.textFragments.add((BLangExpression) value.apply(this));
+            quotedString.textFragments.add(createExpression(value));
         }
 
         return quotedString;

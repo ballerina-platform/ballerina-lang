@@ -4513,8 +4513,20 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseFieldAccessOrMethodCall(STNode lhsExpr) {
         STNode dotToken = parseDotToken();
-        STNode fieldOrMethodName = parseFieldAccessIdentifier();
+        STToken token = peek();
+        if (token.kind == SyntaxKind.MAP_KEYWORD) {
+            STToken mapKeyword = consume();
+            STNode methodName = STNodeFactory.createIdentifierToken(mapKeyword.text(), mapKeyword.leadingMinutiae(),
+                    mapKeyword.trailingMinutiae(), mapKeyword.diagnostics());
+            methodName = STNodeFactory.createSimpleNameReferenceNode(methodName);
+            STNode openParen = parseOpenParenthesis(ParserRuleContext.ARG_LIST_START);
+            STNode args = parseArgsList();
+            STNode closeParen = parseCloseParenthesis();
+            return STNodeFactory.createMethodCallExpressionNode(lhsExpr, dotToken, methodName, openParen, args,
+                    closeParen);
+        }
 
+        STNode fieldOrMethodName = parseFieldAccessIdentifier();
         if (fieldOrMethodName.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             return STNodeFactory.createFieldAccessExpressionNode(lhsExpr, dotToken, fieldOrMethodName);
         }
@@ -12162,7 +12174,7 @@ public class BallerinaParser extends AbstractParser {
 
     private boolean isExpression(SyntaxKind kind) {
         return kind.compareTo(SyntaxKind.BINARY_EXPRESSION) >= 0 &&
-                kind.compareTo(SyntaxKind.SERVICE_CONSTRUCTOR_EXPRESSION) <= 0;
+                kind.compareTo(SyntaxKind.XML_ATOMIC_NAME_PATTERN) <= 0;
     }
 
     /**
