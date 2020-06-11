@@ -17,7 +17,6 @@
  */
 package io.ballerinalang.compiler.internal.treegen;
 
-import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxTree;
 import io.ballerinalang.compiler.internal.treegen.targets.SourceText;
@@ -37,6 +36,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -82,7 +82,7 @@ public class TreeGen {
     }
 
     private static SyntaxTree getSyntaxTree(TreeGenConfig config) {
-        try (InputStreamReader reader = new InputStreamReader(getSyntaxTreeStream(config), Charsets.UTF_8)) {
+        try (InputStreamReader reader = new InputStreamReader(getSyntaxTreeStream(config), StandardCharsets.UTF_8)) {
             return new Gson().fromJson(reader, SyntaxTree.class);
         } catch (Throwable e) {
             throw new TreeGenException("Failed to parse the syntax tree descriptor. Reason: " + e.getMessage(), e);
@@ -99,7 +99,7 @@ public class TreeGen {
     }
 
     private static void writeSourceTextFile(SourceText sourceText) {
-        try (BufferedWriter writer = Files.newBufferedWriter(sourceText.filePath, Charsets.UTF_8)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(sourceText.filePath, StandardCharsets.UTF_8)) {
             writer.write(sourceText.content);
         } catch (IOException e) {
             throw new TreeGenException("Failed to write the content to " + sourceText.filePath +
