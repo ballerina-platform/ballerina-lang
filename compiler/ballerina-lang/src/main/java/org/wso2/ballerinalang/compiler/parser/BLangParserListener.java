@@ -257,7 +257,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), false, false, false, true);
+        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), false, false, false, false, true);
     }
 
     /**
@@ -493,7 +493,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean isAbstract = ((ObjectTypeNameLabelContext) ctx.parent).ABSTRACT() != null;
         boolean isClient = ((ObjectTypeNameLabelContext) ctx.parent).CLIENT() != null;
-        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isAnonymous, isAbstract, isClient, false);
+        boolean isReadOnly = ((ObjectTypeNameLabelContext) ctx.parent).TYPE_READONLY() != null;
+        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isAnonymous, isAbstract, isReadOnly, isClient,
+                                      false);
     }
 
     /**

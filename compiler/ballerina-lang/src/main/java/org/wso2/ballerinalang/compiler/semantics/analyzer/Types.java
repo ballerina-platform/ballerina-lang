@@ -942,10 +942,18 @@ public class Types {
     }
 
     boolean isSelectivelyImmutableType(BType type) {
-        return isSelectivelyImmutableType(type, new HashSet<>());
+        return isSelectivelyImmutableType(type, false, new HashSet<>());
+    }
+
+    boolean isSelectivelyImmutableType(BType type, boolean disallowReadOnlyObjects) {
+        return isSelectivelyImmutableType(type, disallowReadOnlyObjects, new HashSet<>());
     }
 
     public boolean isSelectivelyImmutableType(BType type, Set<BType> unresolvedTypes) {
+        return isSelectivelyImmutableType(type, false, unresolvedTypes);
+    }
+
+    boolean isSelectivelyImmutableType(BType type, boolean disallowReadOnlyObjects, Set<BType> unresolvedTypes) {
         if (isInherentlyImmutableType(type) || !(type instanceof SelectivelyImmutableReferenceType)) {
             // Always immutable.
             return false;
@@ -1012,7 +1020,8 @@ public class Types {
             case TypeTags.OBJECT:
                 BObjectType objectType = (BObjectType) type;
 
-                if (!Symbols.isFlagOn(objectType.tsymbol.flags, Flags.ABSTRACT)) {
+                if (!Symbols.isFlagOn(objectType.tsymbol.flags, Flags.ABSTRACT) &&
+                        (disallowReadOnlyObjects || !Symbols.isFlagOn(objectType.flags, Flags.READONLY))) {
                     return false;
                 }
 
@@ -1032,7 +1041,7 @@ public class Types {
                 boolean readonlyIntersectionExists = false;
                 for (BType memberType : ((BUnionType) type).getMemberTypes()) {
                     if (isInherentlyImmutableType(memberType) ||
-                            isSelectivelyImmutableType(memberType, unresolvedTypes)) {
+                            isSelectivelyImmutableType(memberType, disallowReadOnlyObjects, unresolvedTypes)) {
                         readonlyIntersectionExists = true;
                     }
                 }

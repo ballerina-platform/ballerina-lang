@@ -2552,12 +2552,16 @@ public class BLangPackageBuilder {
     }
 
     void addObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isAnonymous, boolean isAbstract,
-                       boolean isClient, boolean isService) {
+                       boolean isReadOnly, boolean isClient, boolean isService) {
         BLangObjectTypeNode objectTypeNode = populateObjectTypeNode(pos, ws, isAnonymous);
         objectTypeNode.addWS(this.objectFieldBlockWs.pop());
 
         if (isAbstract) {
             objectTypeNode.flagSet.add(Flag.ABSTRACT);
+        }
+
+        if (isReadOnly) {
+            objectTypeNode.flagSet.add(Flag.READONLY);
         }
 
         if (isClient) {

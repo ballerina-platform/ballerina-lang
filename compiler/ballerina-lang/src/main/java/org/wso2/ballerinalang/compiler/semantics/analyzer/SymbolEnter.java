@@ -29,6 +29,7 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
@@ -345,6 +346,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define type def members (if any)
         defineMembers(pkgNode.typeDefinitions, pkgEnv);
+
+        defineUndefinedReadOnlyTypes(pkgNode.typeDefinitions, pkgEnv);
 
         // Define service and resource nodes.
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
@@ -1408,36 +1411,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, typeDefEnv);
         }
-
-        // Any newly added typedefs are due to `T & readonly` typed fields. Once the fields are set for all
-        // type-definitions we can revisit the newly added type-definitions and define the fields for them.
-        populateImmutableTypeFields(typeDefNodes, pkgEnv);
-
-        // If all the fields of a structure are readonly, mark the structure type itself as readonly.
-        setReadOnlyForAllReadOnlyFieldStructure(typeDefNodes);
-    }
-
-    private void populateImmutableTypeFields(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
-        int size = typeDefNodes.size();
-        for (int i = 0; i < size; i++) {
-            BLangTypeDefinition typeDef = typeDefNodes.get(i);
-            NodeKind nodeKind = typeDef.typeNode.getKind();
-            if (nodeKind == NodeKind.OBJECT_TYPE) {
-                if (((BObjectType) typeDef.symbol.type).mutableType == null) {
-                    continue;
-                }
-            } else if (nodeKind == NodeKind.RECORD_TYPE) {
-                if (((BRecordType) typeDef.symbol.type).mutableType == null) {
-                    continue;
-                }
-            } else {
-                continue;
-            }
-
-            SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeDef.typeNode, typeDef.symbol.scope, pkgEnv);
-            ImmutableTypeCloner.defineUndefinedImmutableFields(typeDef, types, typeDefEnv, symTable,
-                                                               anonymousModelHelper, names);
-        }
     }
 
     private void resolveFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode,
@@ -1460,46 +1433,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                                   field.symbol));
         }
     }
-
-    private void setReadOnlyForAllReadOnlyFieldStructure(List<BLangTypeDefinition> typeDefNodes) {
-        for (BLangTypeDefinition typeDef : typeDefNodes) {
-            NodeKind nodeKind = typeDef.typeNode.getKind();
-            if (nodeKind != NodeKind.OBJECT_TYPE && nodeKind != NodeKind.RECORD_TYPE) {
-                continue;
-            }
-
-            BStructureType structureType = (BStructureType) typeDef.symbol.type;
-
-            if (Symbols.isFlagOn(structureType.flags, Flags.READONLY)) {
-                continue;
-            }
-
-            if (nodeKind == NodeKind.RECORD_TYPE && !(((BRecordType) structureType).sealed)) {
-                continue;
-            }
-
-            boolean allReadOnlyFields = true;
-
-            Collection<BField> fields = structureType.fields.values();
-
-            if (fields.isEmpty()) {
-                continue;
-            }
-
-            for (BField field : fields) {
-                if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
-                    allReadOnlyFields = false;
-                    break;
-                }
-            }
-
-            if (allReadOnlyFields) {
-                structureType.tsymbol.flags |= Flags.READONLY;
-                structureType.flags |= Flags.READONLY;
-            }
-        }
-    }
-
 
     private void defineMembers(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
         int originalSize = typeDefNodes.size();
@@ -1538,20 +1471,44 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
         }
-
-        populateImmutableTypeMembers(typeDefNodes);
     }
 
-    private void populateImmutableTypeMembers(List<BLangTypeDefinition> typeDefNodes) {
-        int newSize = typeDefNodes.size();
-        for (int i = 0; i < newSize; i++) {
-            BLangTypeDefinition typeDefinition = typeDefNodes.get(i);
+    private void defineUndefinedReadOnlyTypes(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
+        // Any newly added typedefs are due to `T & readonly` typed fields. Once the fields are set for all
+        // type-definitions we can revisit the newly added type-definitions and define the fields and members for them.
+        populateImmutableTypeFieldsAndMembers(typeDefNodes, pkgEnv);
 
-            if (typeDefinition.typeNode.getKind() != NodeKind.OBJECT_TYPE) {
+        // If all the fields of a structure are readonly, mark the structure type itself as readonly.
+        // If the type is a `readonly object` validate if all fields are compatible.
+        validateFieldsAndSetReadOnlyType(typeDefNodes, pkgEnv);
+    }
+
+    private void populateImmutableTypeFieldsAndMembers(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
+        int size = typeDefNodes.size();
+        for (int i = 0; i < size; i++) {
+            BLangTypeDefinition typeDef = typeDefNodes.get(i);
+            NodeKind nodeKind = typeDef.typeNode.getKind();
+            if (nodeKind == NodeKind.OBJECT_TYPE) {
+                if (((BObjectType) typeDef.symbol.type).mutableType == null) {
+                    continue;
+                }
+            } else if (nodeKind == NodeKind.RECORD_TYPE) {
+                if (((BRecordType) typeDef.symbol.type).mutableType == null) {
+                    continue;
+                }
+            } else {
                 continue;
             }
 
-            BObjectType objectType = (BObjectType) typeDefinition.symbol.type;
+            SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeDef.typeNode, typeDef.symbol.scope, pkgEnv);
+            ImmutableTypeCloner.defineUndefinedImmutableFields(typeDef, types, typeDefEnv, symTable,
+                                                               anonymousModelHelper, names);
+
+            if (nodeKind != NodeKind.OBJECT_TYPE) {
+                continue;
+            }
+
+            BObjectType objectType = (BObjectType) typeDef.symbol.type;
             BIntersectionType immutableType = objectType.immutableType;
             if (immutableType == null) {
                 continue;
@@ -1561,6 +1518,82 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             ImmutableTypeCloner.defineObjectFunctions((BObjectTypeSymbol) immutableObjectType.tsymbol,
                                                       (BObjectTypeSymbol) objectType.tsymbol, names);
+        }
+    }
+
+    private void validateFieldsAndSetReadOnlyType(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
+        int origSize = typeDefNodes.size();
+        for (int i = 0; i < origSize; i++) {
+            BLangTypeDefinition typeDef = typeDefNodes.get(i);
+            BLangType typeNode = typeDef.typeNode;
+            NodeKind nodeKind = typeNode.getKind();
+            if (nodeKind != NodeKind.OBJECT_TYPE && nodeKind != NodeKind.RECORD_TYPE) {
+                continue;
+            }
+
+            BTypeSymbol symbol = typeDef.symbol;
+            BStructureType structureType = (BStructureType) symbol.type;
+
+            if (Symbols.isFlagOn(structureType.flags, Flags.READONLY)) {
+                if (structureType.tag != TypeTags.OBJECT || structureType instanceof BServiceType) {
+                    continue;
+                }
+
+                BObjectType objectType = (BObjectType) structureType;
+                if (objectType.mutableType != null) {
+                    // This is an object defined due to `T & readonly` like usage, thus validation has been done
+                    // already.
+                    continue;
+                }
+
+                DiagnosticPos pos = typeDef.pos;
+                // We reach here for `readonly object`s.
+                // We now validate if it is a valid `readonly object` - i.e., all the fields are compatible readonly
+                // types.
+                if (!types.isSelectivelyImmutableType(objectType, new HashSet<>())) {
+                    dlog.error(pos, DiagnosticCode.INVALID_READONLY_OBJECT_TYPE, objectType);
+                    return;
+                }
+
+                SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeNode, symbol.scope, pkgEnv);
+                for (BField field : objectType.fields.values()) {
+                    BType type = field.type;
+
+                    if (!types.isInherentlyImmutableType(type)) {
+                        field.type = field.symbol.type = ImmutableTypeCloner.getImmutableIntersectionType(
+                                typeNode, pos, types, (SelectivelyImmutableReferenceType) type, typeDefEnv, symTable,
+                                anonymousModelHelper, names);
+
+                    }
+
+                    field.symbol.flags |= Flags.READONLY;
+                }
+                continue;
+            }
+
+            if (nodeKind == NodeKind.RECORD_TYPE && !(((BRecordType) structureType).sealed)) {
+                continue;
+            }
+
+            boolean allReadOnlyFields = true;
+
+            Collection<BField> fields = structureType.fields.values();
+
+            if (fields.isEmpty()) {
+                continue;
+            }
+
+            for (BField field : fields) {
+                if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
+                    allReadOnlyFields = false;
+                    break;
+                }
+            }
+
+            if (allReadOnlyFields) {
+                structureType.tsymbol.flags |= Flags.READONLY;
+                structureType.flags |= Flags.READONLY;
+            }
         }
     }
 
