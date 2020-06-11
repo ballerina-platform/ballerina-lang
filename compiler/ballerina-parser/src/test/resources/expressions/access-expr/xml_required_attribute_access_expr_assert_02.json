@@ -2,15 +2,15 @@
   "kind": "BINARY_EXPRESSION",
   "children": [
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
-    },
-    {
-      "kind": "PLUS_TOKEN"
-    },
-    {
       "kind": "BINARY_EXPRESSION",
       "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a"
+        },
+        {
+          "kind": "PLUS_TOKEN"
+        },
         {
           "kind": "FIELD_ACCESS",
           "children": [
@@ -86,15 +86,15 @@
               "value": "h"
             }
           ]
-        },
-        {
-          "kind": "PLUS_TOKEN"
-        },
-        {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "k"
         }
       ]
+    },
+    {
+      "kind": "PLUS_TOKEN"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "k"
     }
   ]
 }

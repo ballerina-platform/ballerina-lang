@@ -2748,6 +2748,33 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 expression);
     }
 
+    @Override
+    public ObjectMethodDefinitionNode transform(
+            ObjectMethodDefinitionNode objectMethodDefinitionNode) {
+        MetadataNode metadata =
+                modifyNode(objectMethodDefinitionNode.metadata());
+        Token visibilityQualifier =
+                modifyToken(objectMethodDefinitionNode.visibilityQualifier().orElse(null));
+        Token remoteKeyword =
+                modifyToken(objectMethodDefinitionNode.remoteKeyword().orElse(null));
+        Token functionKeyword =
+                modifyToken(objectMethodDefinitionNode.functionKeyword());
+        IdentifierToken methodName =
+                modifyNode(objectMethodDefinitionNode.methodName());
+        FunctionSignatureNode methodSignature =
+                modifyNode(objectMethodDefinitionNode.methodSignature());
+        FunctionBodyNode functionBody =
+                modifyNode(objectMethodDefinitionNode.functionBody());
+        return objectMethodDefinitionNode.modify(
+                metadata,
+                visibilityQualifier,
+                remoteKeyword,
+                functionKeyword,
+                methodName,
+                methodSignature,
+                functionBody);
+    }
+
     // Tokens
 
     @Override

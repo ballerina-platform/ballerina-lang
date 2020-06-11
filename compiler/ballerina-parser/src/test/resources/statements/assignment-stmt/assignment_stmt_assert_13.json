@@ -1,37 +1,42 @@
 {
   "kind": "ASSIGNMENT_STATEMENT",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "BINARY_EXPRESSION",
       "children": [
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "a"
-        },
-        {
-          "kind": "PLUS_TOKEN"
-        },
-        {
           "kind": "BINARY_EXPRESSION",
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "b"
+              "value": "a"
             },
             {
               "kind": "PLUS_TOKEN"
             },
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "c"
+              "value": "b"
             }
           ]
+        },
+        {
+          "kind": "PLUS_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "c"
         }
       ]
     },
     {
       "kind": "EQUAL_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_EQUAL_TOKEN"
+      ]
     },
     {
       "kind": "IDENTIFIER_TOKEN",

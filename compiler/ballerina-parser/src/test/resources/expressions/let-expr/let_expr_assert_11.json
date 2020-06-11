@@ -1,8 +1,13 @@
 {
   "kind": "LET_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
-      "kind": "LET_KEYWORD"
+      "kind": "LET_KEYWORD",
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_LET_VARIABLE_DECLARATION"
+      ]
     },
     {
       "kind": "LIST",

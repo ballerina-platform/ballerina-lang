@@ -1,5 +1,6 @@
 {
   "kind": "CONDITIONAL_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "IDENTIFIER_TOKEN",
@@ -13,12 +14,15 @@
       "value": "b"
     },
     {
-      "kind": "COLON_TOKEN",
-      "isMissing": true
+      "kind": "COLON_TOKEN"
     },
     {
       "kind": "IDENTIFIER_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_IDENTIFIER"
+      ]
     }
   ]
 }

@@ -155,3 +155,29 @@ function testSubtypingAnAbsObjectInSameModule() returns string {
 //    jdbc:Client dbClient = subtyping:getClient();
 //    return dbClient;
 //}
+
+public function testObjectAssignabilityBetweenNonClientAndClientObject() {
+    subtyping:NonClientObject obj1 = new subtyping:NonClientObject("NonClientObject");
+    subtyping:ClientObjectWithoutRemoteMethod o2 = new subtyping:ClientObjectWithoutRemoteMethod("ClientObjectWithoutRemoteMethod");
+
+    subtyping:NonClientObject obj3 = o2;
+    subtyping:ClientObjectWithoutRemoteMethod obj4 = obj1;
+
+    assertEquality("NonClientObject", obj4.name);
+    assertEquality("ClientObjectWithoutRemoteMethod", obj3.name);
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if (expected is anydata && actual is anydata && expected == actual) {
+        return;
+    }
+
+    if (expected === actual) {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                 message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

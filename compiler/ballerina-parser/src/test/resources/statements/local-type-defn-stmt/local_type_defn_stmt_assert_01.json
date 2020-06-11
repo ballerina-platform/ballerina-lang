@@ -218,7 +218,7 @@
                           ]
                         },
                         {
-                          "kind": "FUNCTION_DEFINITION",
+                          "kind": "OBJECT_METHOD_DEFINITION",
                           "children": [
                             {
                               "kind": "METADATA",
@@ -287,7 +287,7 @@
                           ]
                         },
                         {
-                          "kind": "FUNCTION_DEFINITION",
+                          "kind": "OBJECT_METHOD_DEFINITION",
                           "children": [
                             {
                               "kind": "METADATA",
@@ -338,7 +338,7 @@
                           ]
                         },
                         {
-                          "kind": "FUNCTION_DEFINITION",
+                          "kind": "OBJECT_METHOD_DEFINITION",
                           "children": [
                             {
                               "kind": "METADATA",
@@ -350,15 +350,10 @@
                               ]
                             },
                             {
-                              "kind": "LIST",
-                              "children": [
-                                {
-                                  "kind": "PRIVATE_KEYWORD"
-                                },
-                                {
-                                  "kind": "REMOTE_KEYWORD"
-                                }
-                              ]
+                              "kind": "PRIVATE_KEYWORD"
+                            },
+                            {
+                              "kind": "REMOTE_KEYWORD"
                             },
                             {
                               "kind": "FUNCTION_KEYWORD"
@@ -571,7 +566,7 @@
                                       ]
                                     },
                                     {
-                                      "kind": "FUNCTION_DEFINITION",
+                                      "kind": "OBJECT_METHOD_DEFINITION",
                                       "children": [
                                         {
                                           "kind": "METADATA",
@@ -640,7 +635,7 @@
                                       ]
                                     },
                                     {
-                                      "kind": "FUNCTION_DEFINITION",
+                                      "kind": "OBJECT_METHOD_DEFINITION",
                                       "children": [
                                         {
                                           "kind": "METADATA",
