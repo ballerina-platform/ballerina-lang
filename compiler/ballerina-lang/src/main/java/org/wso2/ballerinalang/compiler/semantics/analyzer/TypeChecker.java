@@ -194,6 +194,8 @@ import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
 
+import static org.ballerinalang.util.diagnostic.DiagnosticCode.INVALID_NUM_INSERTIONS;
+import static org.ballerinalang.util.diagnostic.DiagnosticCode.INVALID_NUM_STRINGS;
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
@@ -3636,18 +3638,16 @@ public class TypeChecker extends BLangNodeVisitor {
         BObjectType literalType = (BObjectType) type;
         BType stringsType = literalType.fields.get("strings").type;
 
-        if (validateRawTemplateExprs(rawTemplateLiteral.strings, stringsType, rawTemplateLiteral.pos)
-                == symTable.semanticError) {
-            resultType = symTable.semanticError;
-            return;
+        if (evaluateRawTemplateExprs(rawTemplateLiteral.strings, stringsType, INVALID_NUM_STRINGS,
+                                     rawTemplateLiteral.pos)) {
+            type = symTable.semanticError;
         }
 
         BType insertionsType = literalType.fields.get("insertions").type;
 
-        if (validateRawTemplateExprs(rawTemplateLiteral.insertions, insertionsType, rawTemplateLiteral.pos)
-                == symTable.semanticError) {
-            resultType = symTable.semanticError;
-            return;
+        if (evaluateRawTemplateExprs(rawTemplateLiteral.insertions, insertionsType, INVALID_NUM_INSERTIONS,
+                                     rawTemplateLiteral.pos)) {
+            type = symTable.semanticError;
         }
 
         resultType = type;
@@ -3689,39 +3689,42 @@ public class TypeChecker extends BLangNodeVisitor {
         return type;
     }
 
-    private BType validateRawTemplateExprs(List<? extends BLangExpression> exprs, BType listType, DiagnosticPos pos) {
+    private boolean evaluateRawTemplateExprs(List<? extends BLangExpression> exprs, BType listType, DiagnosticCode code,
+                                             DiagnosticPos pos) {
+        boolean errored = false;
+
         if (listType.tag == TypeTags.ARRAY) {
             BArrayType arrayType = (BArrayType) listType;
-            for (BLangExpression insertion : exprs) {
-                checkExpr(insertion, env, arrayType.eType);
+            for (BLangExpression expr : exprs) {
+                errored = (checkExpr(expr, env, arrayType.eType) == symTable.semanticError) || errored;
             }
             // TODO: Consider fixed-length arrays
         } else if (listType.tag == TypeTags.TUPLE) {
             BTupleType tupleType = (BTupleType) listType;
             int size = exprs.size();
-            int requiredInsertions = tupleType.tupleTypes.size();
+            int requiredItems = tupleType.tupleTypes.size();
 
-            if (size < requiredInsertions || (size > requiredInsertions && tupleType.restType == null)) {
-                dlog.error(pos, DiagnosticCode.INVALID_RAW_TEMPLATE_LITERAL,
-                           requiredInsertions, size);
-                return symTable.semanticError;
+            if (size < requiredItems || (size > requiredItems && tupleType.restType == null)) {
+                dlog.error(pos, code, requiredItems, size);
+                return false;
             }
 
             int i;
-            for (i = 0; i < requiredInsertions; i++) {
-                checkExpr(exprs.get(i), env, tupleType.tupleTypes.get(i));
+            List<BType> memberTypes = tupleType.tupleTypes;
+            for (i = 0; i < requiredItems; i++) {
+                errored = (checkExpr(exprs.get(i), env, memberTypes.get(i)) == symTable.semanticError) || errored;
             }
 
-            if (size > requiredInsertions) {
+            if (size > requiredItems) {
                 for (; i < size; i++) {
-                    checkExpr(exprs.get(i), env, tupleType.restType);
+                    errored = (checkExpr(exprs.get(i), env, tupleType.restType) == symTable.semanticError) || errored;
                 }
             }
         } else {
             throw new IllegalStateException("Expected a list type, but found: " + listType);
         }
 
-        return null;
+        return errored;
     }
 
     @Override
