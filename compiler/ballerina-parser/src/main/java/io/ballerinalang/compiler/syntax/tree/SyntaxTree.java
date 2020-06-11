@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.diagnostics.Diagnostic;
 import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 import io.ballerinalang.compiler.internal.parser.ParserFactory;
+import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocumentChange;
 import io.ballerinalang.compiler.text.TextDocuments;
@@ -30,18 +31,18 @@ import io.ballerinalang.compiler.text.TextDocuments;
  * @since 2.0.0
  */
 public class SyntaxTree {
-    private final NonTerminalNode rootNode;
+    private final Node rootNode;
     private final String filePath;
 
     private TextDocument textDocument;
 
-    SyntaxTree(NonTerminalNode rootNode, TextDocument textDocument, String filePath, boolean clone) {
+    SyntaxTree(Node rootNode, TextDocument textDocument, String filePath, boolean clone) {
         this.rootNode = modifyWithMe(rootNode, clone);
         this.textDocument = textDocument;
         this.filePath = filePath;
     }
 
-    static SyntaxTree from(NonTerminalNode rootNode, boolean clone) {
+    static SyntaxTree from(Node rootNode, boolean clone) {
         return new SyntaxTree(rootNode, null, null, clone);
     }
 
@@ -77,7 +78,7 @@ public class SyntaxTree {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends NonTerminalNode> T rootNode() {
+    public <T extends Node> T rootNode() {
         return (T) rootNode;
     }
 
@@ -87,12 +88,17 @@ public class SyntaxTree {
 
     // Syntax tree modification methods
 
-    public SyntaxTree modifyWith(ModulePartNode rootNode) {
+    public SyntaxTree modifyWith(Node rootNode) {
         return new SyntaxTree(rootNode, null, filePath, true);
     }
 
     public SyntaxTree replaceNode(Node target, Node replacement) {
-        ModulePartNode newRootNode = rootNode.replace(target, replacement);
+        Node newRootNode;
+        if (SyntaxUtils.isToken(target)) {
+            newRootNode = replacement;
+        } else {
+            newRootNode = ((NonTerminalNode) rootNode).replace(target, replacement);
+        }
         return this.modifyWith(newRootNode);
     }
 
@@ -118,7 +124,7 @@ public class SyntaxTree {
         return rootNode.toSourceCode();
     }
 
-    private <T extends NonTerminalNode> T modifyWithMe(T node, boolean clone) {
+    private <T extends Node> T modifyWithMe(T node, boolean clone) {
         T clonedNode = clone ? node.internalNode().createUnlinkedFacade() : node;
         clonedNode.setSyntaxTree(this);
         return clonedNode;
