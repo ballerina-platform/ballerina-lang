@@ -33,6 +33,7 @@ import static org.testng.Assert.assertTrue;
  *
  * @since 0.990.4
  */
+@Test(groups = { "brokenOnNewParser" })
 public class MainFunctionsTest {
 
     private static final String MAIN_FUNCTION_TEST_SRC_DIR = "test-src/main.function/";
