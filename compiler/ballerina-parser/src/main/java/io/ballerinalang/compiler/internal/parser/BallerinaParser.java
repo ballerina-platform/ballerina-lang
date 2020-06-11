@@ -129,7 +129,7 @@ public class BallerinaParser extends AbstractParser {
      */
     @Override
     public STNode resumeParsing(ParserRuleContext context, Object... args) {
-        //TODO: revisit the commented resume-points
+        // TODO: revisit the commented resume-points
         switch (context) {
             case FUNC_BODY:
                 return parseFunctionBody((boolean) args[0]);
@@ -578,12 +578,12 @@ public class BallerinaParser extends AbstractParser {
                 return parseMatchKeyword();
             case RECORD_KEYWORD:
                 return parseRecordKeyword();
-//            case RECORD_BODY_END:
-//            case OBJECT_MEMBER_WITHOUT_METADATA:
-//            case REMOTE_CALL_OR_ASYNC_SEND_END:
-//            case RECEIVE_FIELD_END:
-//            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
-//            case LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER:
+            // case RECORD_BODY_END:
+            // case OBJECT_MEMBER_WITHOUT_METADATA:
+            // case REMOTE_CALL_OR_ASYNC_SEND_END:
+            // case RECEIVE_FIELD_END:
+            // case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
+            // case LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER:
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -1785,14 +1785,13 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Return the appropriate {@code DiagnosticCode} if there are parameter order issues.
      *
-     * @param param         the new parameter
+     * @param param the new parameter
      * @param prevParamKind the SyntaxKind of the previously added parameter
      */
     private DiagnosticCode validateParamOrder(STNode param, SyntaxKind prevParamKind) {
         if (prevParamKind == SyntaxKind.REST_PARAM) {
             return DiagnosticErrorCode.ERROR_PARAMETER_AFTER_THE_REST_PARAMETER;
-        } else if (prevParamKind == SyntaxKind.DEFAULTABLE_PARAM &&
-                param.kind == SyntaxKind.REQUIRED_PARAM) {
+        } else if (prevParamKind == SyntaxKind.DEFAULTABLE_PARAM && param.kind == SyntaxKind.REQUIRED_PARAM) {
             return DiagnosticErrorCode.ERROR_REQUIRED_PARAMETER_AFTER_THE_DEFAULTABLE_PARAMETER;
         } else {
             return null;
@@ -1802,12 +1801,11 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Clones the last parameter in list with the invalid node as minutiae and update the list.
      *
-     * @param paramList      function parameter list
-     * @param invalidParam   the param to be attached to the last param in list as minutiae
+     * @param paramList function parameter list
+     * @param invalidParam the param to be attached to the last param in list as minutiae
      * @param diagnosticCode diagnostic code related to the invalid node
      */
-    private void updateParamListWithInvalidNode(ArrayList<STNode> paramList,
-                                                STNode invalidParam,
+    private void updateParamListWithInvalidNode(ArrayList<STNode> paramList, STNode invalidParam,
                                                 DiagnosticCode diagnosticCode) {
         int lastIndex = paramList.size() - 1;
         STNode prevParamNode = paramList.remove(lastIndex);
@@ -8332,8 +8330,8 @@ public class BallerinaParser extends AbstractParser {
         STNode closeBrace = parseCloseBrace();
         endContext();
 
-        openBrace = cloneWithDiagnosticIfListEmpty(namedWorkerDeclarations,
-                openBrace, DiagnosticErrorCode.ERROR_MISSING_NAMED_WORKER_DECLARATION);
+        openBrace = cloneWithDiagnosticIfListEmpty(namedWorkerDeclarations, openBrace,
+                DiagnosticErrorCode.ERROR_MISSING_NAMED_WORKER_DECLARATION);
         return STNodeFactory.createForkStatementNode(forkKeyword, openBrace, namedWorkerDeclarations, closeBrace);
     }
 
@@ -11356,15 +11354,13 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse byte array literal.
      *
-     * @param baseKind         indicates the SyntaxKind base16 or base64
-     * @param typeKeyword      keyword token, possible values are `base16` and `base64`
+     * @param baseKind indicates the SyntaxKind base16 or base64
+     * @param typeKeyword keyword token, possible values are `base16` and `base64`
      * @param startingBackTick starting backtick token
      * @param byteArrayContent byte array literal content to be validated
      * @return parsed byte array literal node
      */
-    private STNode parseByteArrayLiteral(SyntaxKind baseKind,
-                                         STNode typeKeyword,
-                                         STNode startingBackTick,
+    private STNode parseByteArrayLiteral(SyntaxKind baseKind, STNode typeKeyword, STNode startingBackTick,
                                          STNode byteArrayContent) {
         STNode content = STNodeFactory.createEmptyNode();
         STNode newStartingBackTick = startingBackTick;
@@ -11389,16 +11385,15 @@ public class BallerinaParser extends AbstractParser {
             STNode clonedStartingBackTick = startingBackTick;
             for (int index = 0; index < items.size(); index++) {
                 STNode item = items.get(index);
-                clonedStartingBackTick = errorHandler.cloneWithTrailingInvalidNodeMinutiae(
-                        clonedStartingBackTick, item);
+                clonedStartingBackTick =
+                        errorHandler.cloneWithTrailingInvalidNodeMinutiae(clonedStartingBackTick, item);
             }
             newStartingBackTick = errorHandler.addDiagnostics(clonedStartingBackTick,
                     DiagnosticErrorCode.ERROR_INVALID_CONTENT_IN_BYTE_ARRAY_LITERAL);
         }
 
         STNode endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_END);
-        return STNodeFactory.createByteArrayLiteralNode(typeKeyword, newStartingBackTick,
-                content, endingBackTick);
+        return STNodeFactory.createByteArrayLiteralNode(typeKeyword, newStartingBackTick, content, endingBackTick);
     }
 
     /**
@@ -14637,6 +14632,23 @@ public class BallerinaParser extends AbstractParser {
                 STNode memberTypeDescs = STNodeFactory.createNodeList(getTypeDescList(innerList.members));
                 return STNodeFactory.createTupleTypeDescriptorNode(innerList.collectionStartToken, memberTypeDescs,
                         innerList.collectionEndToken);
+            case BINARY_EXPRESSION:
+                STBinaryExpressionNode binaryExpr = (STBinaryExpressionNode) expression;
+                switch (binaryExpr.operator.kind) {
+                    case PIPE_TOKEN:
+                        STNode lhsTypeDesc = getTypeDescFromExpr(binaryExpr.lhsExpr);
+                        STNode rhsTypeDesc = getTypeDescFromExpr(binaryExpr.rhsExpr);
+                        return STNodeFactory.createUnionTypeDescriptorNode(lhsTypeDesc, binaryExpr.operator,
+                                rhsTypeDesc);
+                    case BITWISE_AND_TOKEN:
+                        lhsTypeDesc = getTypeDescFromExpr(binaryExpr.lhsExpr);
+                        rhsTypeDesc = getTypeDescFromExpr(binaryExpr.rhsExpr);
+                        return STNodeFactory.createIntersectionTypeDescriptorNode(lhsTypeDesc, binaryExpr.operator,
+                                rhsTypeDesc);
+                    default:
+                        break;
+                }
+                // fall through
             case SIMPLE_NAME_REFERENCE:
             case QUALIFIED_NAME_REFERENCE:
             default:
