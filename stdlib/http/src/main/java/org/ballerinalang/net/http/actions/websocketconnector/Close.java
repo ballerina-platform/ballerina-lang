@@ -17,14 +17,12 @@
 package org.ballerinalang.net.http.actions.websocketconnector;
 
 import io.netty.channel.ChannelFuture;
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
-import org.ballerinalang.net.http.websocket.WebSocketException;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityConstants;
 import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityUtil;
@@ -124,10 +122,8 @@ public class Close {
     }
 
     private static void setReturnValues(String errMsg, NonBlockingCallback callback) {
-        String errorCode = ErrorCode.WsConnectionClosureError.errorCode();
-        WebSocketException exception = new WebSocketException(errorCode.substring(2) + errMsg);
-        BallerinaErrors.setTypeId(errorCode, WebSocketConstants.PROTOCOL_HTTP_PKG_ID, exception);
-        callback.setReturnValues(exception);
+        callback.setReturnValues(WebSocketUtil.getWebSocketException(errMsg, null,
+                ErrorCode.WsConnectionClosureError.errorCode(), null));
     }
 
     private Close() {

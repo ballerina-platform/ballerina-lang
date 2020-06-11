@@ -257,9 +257,7 @@ public class WebSocketUtil {
                     IOConstants.IO_PACKAGE_ID);
             message = "IO Error";
         }
-        WebSocketException err = new WebSocketException(errorCode.substring(2) + ": " + message, cause);
-        BallerinaErrors.setTypeId(errorCode, WebSocketConstants.PROTOCOL_HTTP_PKG_ID, err);
-        return err;
+        return getWebSocketException(message, null, errorCode, cause);
     }
 
     private static ErrorValue createErrorCause(String message, String errorIdName, BPackage packageName) {
@@ -523,7 +521,8 @@ public class WebSocketUtil {
             countDownLatch.await();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new WebSocketException(ERROR_MESSAGE + e.getMessage());
+            throw getWebSocketException(ERROR_MESSAGE + e.getMessage(), null,
+                    WebSocketConstants.ErrorCode.WsGenericError.errorCode(), null);
         }
     }
 
@@ -576,26 +575,24 @@ public class WebSocketUtil {
         }
     }
 
-    public static WebSocketException getWebSocketException(String msg, Throwable error, String errorCode,
+    public static WebSocketException getWebSocketException(String msg, Throwable throwable, String errorCode,
                                                            ErrorValue cause) {
         WebSocketException exception;
         String message = errorCode.substring(2) + ": " + msg;
-        if (!msg.isEmpty()) {
-            exception = new WebSocketException(message);
-        } else if (error != null) {
-            exception = new WebSocketException(error);
-        } else {
+        if (throwable != null) {
+            exception = new WebSocketException(throwable);
+        } else if (cause != null) {
             exception = new WebSocketException(message, cause);
+        } else {
+            exception = new WebSocketException(message);
         }
         BallerinaErrors.setTypeId(errorCode, WebSocketConstants.PROTOCOL_HTTP_PKG_ID, exception);
         return exception;
     }
 
     public static void setNotifyFailure(String msg, NonBlockingCallback callback) {
-        WebSocketException exception = new WebSocketException(msg);
-        BallerinaErrors.setTypeId(WebSocketConstants.ErrorCode.WsInvalidHandshakeError.toString(),
-                WebSocketConstants.PROTOCOL_HTTP_PKG_ID, exception);
-        callback.notifyFailure(exception);
+        callback.notifyFailure(getWebSocketException(msg, null,
+                WebSocketConstants.ErrorCode.WsInvalidHandshakeError.errorCode(), null));
     }
 
     private WebSocketUtil() {
