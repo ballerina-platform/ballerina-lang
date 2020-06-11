@@ -12967,6 +12967,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACE_TOKEN:// mapping-binding-pattern
             case ERROR_KEYWORD: // functional-binding-pattern
             case ELLIPSIS_TOKEN: // rest binding pattern
+            case OPEN_BRACKET_TOKEN: // list-binding-pattern
                 return parseListBindingPatternMember();
             case IDENTIFIER_TOKEN:
                 if (isTypedBindingPattern) {
