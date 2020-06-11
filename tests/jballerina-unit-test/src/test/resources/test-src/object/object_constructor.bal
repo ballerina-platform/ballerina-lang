@@ -2,7 +2,7 @@ int a = 0;
 
 type Person object {
 
-    function __init() {
+    function init() {
         a += 1;
     }
 };

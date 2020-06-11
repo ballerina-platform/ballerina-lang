@@ -23,7 +23,7 @@ public type ReadableCSVChannel object {
     # + byteChannel - The CharacterChannel, which will represent the content in the CSV file
     # + fs - Field separator, which will separate between the records in the CSV file
     # + nHeaders - Number of headers, which should be skipped prior to reading records
-    public function __init(ReadableCharacterChannel byteChannel, public Separator fs = ",", public int nHeaders = 0) {
+    public function init(ReadableCharacterChannel byteChannel, public Separator fs = ",", public int nHeaders = 0) {
         if (fs == TAB) {
             self.dc = new ReadableTextRecordChannel(byteChannel, fmt = "TDF");
         } else if (fs == COLON) {

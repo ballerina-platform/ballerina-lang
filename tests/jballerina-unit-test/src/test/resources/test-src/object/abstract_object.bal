@@ -23,7 +23,7 @@ public type Address abstract object {
 public type StudentAddress object {
     public string city;
 
-    public function __init(string city){
+    public function init(string city){
         self.city = city;
     }
 
@@ -36,7 +36,7 @@ public type Employee object {
     public string city;
     public Address address;
 
-    function __init(string city, Address address) {
+    function init(string city, Address address) {
         self.city = city;
         self.address = address;
     }

@@ -34,7 +34,7 @@ public type PoolConfiguration record {|
 type ConnectionManager object {
     private PoolConfiguration poolConfig = {};
 
-    public function __init() {
+    public function init() {
         self.initGlobalPool(self.poolConfig);
     }
 

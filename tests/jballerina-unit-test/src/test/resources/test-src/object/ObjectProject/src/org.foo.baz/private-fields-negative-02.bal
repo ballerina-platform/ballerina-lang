@@ -3,7 +3,7 @@ public type FooDepartment object {
     public string dptName = "";
     public FooPerson?[] employees;
 
-    public function __init (FooPerson?[] employees) {
+    public function init (FooPerson?[] employees) {
         self.employees = employees;
     }
 };
@@ -15,7 +15,7 @@ public type FooPerson object {
     public int age = 999;
     public FooFamily family = new;
 
-    public function __init (string name, map<any> adrs, int age) {
+    public function init (string name, map<any> adrs, int age) {
         self.age = age;
         self.name = name;
         self.adrs = adrs;
@@ -38,7 +38,7 @@ public type FooEmployee object {
             public string state;
             public string zipcode;
 
-            function __init (string city, string state, string zipcode) {
+            function init (string city, string state, string zipcode) {
                 self.city = city;
                 self.state = state;
                 self.zipcode = zipcode;
@@ -46,12 +46,12 @@ public type FooEmployee object {
         } address;
 
 
-    public function __init (string fname, string lname, int age, object {
+    public function init (string fname, string lname, int age, object {
             public string city = "";
             public string state = "";
             public string zipcode = "";
 
-            function __init (string city, string state, string zipcode) {}
+            function init (string city, string state, string zipcode) {}
         } address) {
         self.fname = fname;
         self.lname = lname;

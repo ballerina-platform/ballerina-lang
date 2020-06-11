@@ -33,13 +33,9 @@ public type WebSocketFailoverClient client object {
     # Initializes the   failover client, which provides failover capabilities to a WebSocket client endpoint.
     #
     # + config - The `WebSocketFailoverClientConfiguration` of the endpoint
-    public function __init(public WebSocketFailoverClientConfiguration config) {
+    public function init(public WebSocketFailoverClientConfiguration config) {
         self.url = config.targetUrls[0];
         self.config = config;
-        self.init();
-    }
-
-    public function init() {
         return externFailoverInit(self);
     }
 

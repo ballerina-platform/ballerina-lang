@@ -73,7 +73,7 @@ public type Cache object {
     # Called when a new `cache:Cache` object is created.
     #
     # + cacheConfig - Configurations for the `cache:Cache` object
-    public function __init(CacheConfig cacheConfig = {}) {
+    public function init(CacheConfig cacheConfig = {}) {
         self.capacity = cacheConfig.capacity;
         self.evictionPolicy = cacheConfig.evictionPolicy;
         self.evictionFactor = cacheConfig.evictionFactor;

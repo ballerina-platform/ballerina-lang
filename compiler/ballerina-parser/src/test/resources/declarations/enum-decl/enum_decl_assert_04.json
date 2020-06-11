@@ -124,19 +124,6 @@
                     {
                       "kind": "IDENTIFIER_TOKEN",
                       "value": "attributes"
-                    }
-                  ]
-                },
-                {
-                  "kind": "COMMA_TOKEN",
-                  "isMissing": true
-                },
-                {
-                  "kind": "ENUM_MEMBER",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "value"
                     },
                     {
                       "kind": "EQUAL_TOKEN"

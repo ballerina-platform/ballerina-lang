@@ -98,7 +98,7 @@ public type FooObj object {
     private (function(string[]) returns string) fp1;
     private (function(int[]) returns int) fp2;
 
-    function __init ((function(string[]) returns string) fp1, (function(int[]) returns int) fp2){
+    function init ((function(string[]) returns string) fp1, (function(int[]) returns int) fp2){
         self.fp1 = fp1;
         self.fp2 = fp2;
         string[] s = ["abc", "afg"];
@@ -148,7 +148,7 @@ function test9() returns string {
 public type O1 object {
     private (function(string[]) returns string) fpO1;
 
-    function __init ((function(string[]) returns string) fpO1) {
+    function init ((function(string[]) returns string) fpO1) {
         self.fpO1 = fpO1;
     }
 
@@ -161,7 +161,7 @@ public type O1 object {
 public type O2 object {
     private (function(string[]) returns string) fpO2;
 
-    function __init ((function(string[]) returns string) fpO2) {
+    function init ((function(string[]) returns string) fpO2) {
         self.fpO2 = fpO2;
     }
 
@@ -174,7 +174,7 @@ public type O2 object {
 public type O3 object {
     private (function(string[]) returns string) fpO3;
 
-    function __init ((function(string[]) returns string) fpO3) {
+    function init ((function(string[]) returns string) fpO3) {
         self.fpO3 = fpO3;
     }
 
@@ -187,7 +187,7 @@ public type O3 object {
 public type O4 object {
     private (function(string[]) returns string) fpO4;
 
-    function __init ((function(string[]) returns string) fpO4) {
+    function init ((function(string[]) returns string) fpO4) {
         self.fpO4 = fpO4;
     }
 
@@ -200,7 +200,7 @@ public type O4 object {
 public type O5 object {
     private (function(string[]) returns string) fpO5;
 
-    function __init ((function(string[]) returns string) fpO5) {
+    function init ((function(string[]) returns string) fpO5) {
         self.fpO5 = fpO5;
     }
 

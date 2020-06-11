@@ -123,32 +123,6 @@ function testLetExprInUnion() {
     assertTrue(x == 10, "x == 10");
 }
 
-function testLetExprInTransaction() {
-    int a = 10;
-    if (a == 10) {
-        int c = 8;
-        transaction with retries = 0 {
-                int b = let int y = 5 + c, int z = 5 + a in z + y + a + c + globalVar;
-                a = b;
-         }
-    }
-    assertTrue(a == 48, "a == 48");
-}
-
-function testLetExprInArrowFunction() {
-   int a = 10;
-   if (a == 10) {
-       int b = 11;
-       transaction with retries = 0 {
-           int c = a + b;
-           function (int, int) returns int ar = (x, y) => let int m = 5 + x, int n = 5 + y
-                                                    in x + y + m + n + a + b + c + globalVar;
-           a = ar(1, 1);
-       }
-   }
-   assertTrue(a == 58, "a == 58");
-}
-
 function testLetExprInJSON() {
     json j = {fname:"Jhon", lname:"Doe", age:let int x = 4 in 2 * x * globalVar};
     assertTrue(j.age == 16, "j.age == 16");

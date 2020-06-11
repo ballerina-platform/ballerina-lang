@@ -227,12 +227,6 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         this.blockPositionStack.push(transactionNode.transactionBody.pos);
         this.acceptNode(transactionNode.transactionBody, symbolEnv);
         this.blockPositionStack.pop();
-
-        if (transactionNode.onRetryBody != null) {
-            this.blockPositionStack.push(transactionNode.onRetryBody.pos);
-            this.acceptNode(transactionNode.onRetryBody, symbolEnv);
-            this.blockPositionStack.pop();
-        }
     }
 
     @Override

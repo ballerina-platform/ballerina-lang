@@ -70,47 +70,6 @@
                   "value": "7"
                 }
               ]
-            },
-            {
-              "kind": "REQUIRED_PARAM",
-              "children": [
-                {
-                  "kind": "COMMA_TOKEN"
-                },
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "INT_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "b"
-                }
-              ]
-            },
-            {
-              "kind": "REST_PARAM",
-              "children": [
-                {
-                  "kind": "COMMA_TOKEN"
-                },
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "STRING_KEYWORD"
-                },
-                {
-                  "kind": "ELLIPSIS_TOKEN"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "d"
-                }
-              ]
             }
           ]
         },

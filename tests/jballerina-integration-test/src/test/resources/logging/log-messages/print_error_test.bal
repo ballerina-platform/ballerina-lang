@@ -33,7 +33,7 @@ public function main() {
 
 public type Fruit object {
     string name;
-    public function __init(string name) {
+    public function init(string name) {
         self.name = name;
     }
     function getName() returns string {

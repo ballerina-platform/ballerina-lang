@@ -82,7 +82,7 @@ type ObjReferenceToAbstractObject object {
         return self.defaultVisibilityFloatField;
     }
 
-    function __init(string argOne, int argTwo, float argThree) {
+    function init(string argOne, int argTwo, float argThree) {
         self.publicStringField = argOne;
         self.privateIntField = argTwo;
         self.defaultVisibilityFloatField = argThree;

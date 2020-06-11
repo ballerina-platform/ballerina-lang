@@ -293,7 +293,8 @@
                           ]
                         },
                         {
-                          "kind": "CLOSE_BRACKET_TOKEN"
+                          "kind": "CLOSE_BRACKET_TOKEN",
+                          "isMissing": true
                         }
                       ]
                     },
@@ -529,7 +530,8 @@
                           ]
                         },
                         {
-                          "kind": "CLOSE_BRACKET_TOKEN"
+                          "kind": "CLOSE_BRACKET_TOKEN",
+                          "isMissing": true
                         }
                       ]
                     },
@@ -539,51 +541,6 @@
                         {
                           "kind": "IDENTIFIER_TOKEN",
                           "value": "h"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "LOCAL_VAR_DECL",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "TYPED_BINDING_PATTERN",
-                  "children": [
-                    {
-                      "kind": "TUPLE_TYPE_DESC",
-                      "children": [
-                        {
-                          "kind": "OPEN_BRACKET_TOKEN"
-                        },
-                        {
-                          "kind": "LIST",
-                          "children": [
-                            {
-                              "kind": "STRING_KEYWORD"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "CLOSE_BRACKET_TOKEN"
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "CAPTURE_BINDING_PATTERN",
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "i"
                         }
                       ]
                     }
@@ -629,15 +586,14 @@
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "isMissing": true
+                          "value": "i"
                         }
                       ]
                     }
                   ]
                 },
                 {
-                  "kind": "SEMICOLON_TOKEN",
-                  "isMissing": true
+                  "kind": "SEMICOLON_TOKEN"
                 }
               ]
             },
@@ -652,7 +608,31 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "INT_KEYWORD"
+                      "kind": "TUPLE_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACKET_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "STRING_KEYWORD"
+                            },
+                            {
+                              "kind": "COMMA_TOKEN",
+                              "isMissing": true
+                            },
+                            {
+                              "kind": "INT_KEYWORD"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACKET_TOKEN",
+                          "isMissing": true
+                        }
+                      ]
                     },
                     {
                       "kind": "CAPTURE_BINDING_PATTERN",

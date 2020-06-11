@@ -15,7 +15,7 @@
         },
         "end": {
           "line": 46,
-          "character": 26
+          "character": 24
         }
       },
       "uri": "src/ballerina_http_1.0.0/client_endpoint.bal"

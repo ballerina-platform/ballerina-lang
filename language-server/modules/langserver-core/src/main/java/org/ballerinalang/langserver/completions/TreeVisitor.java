@@ -89,7 +89,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -241,7 +240,7 @@ public class TreeVisitor extends LSNodeVisitor {
             // within the function
             funcNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, symbolEnv));
         }
-        // TODO: Find a better approach along with the new parser implementation
+// TODO: Find a better approach along with the new parser implementation
 //        else if (funcNode.flagSet.contains(Flag.WORKER) && CompletionVisitorUtil
 //                .isWithinWorkerReturnContext(this.symbolEnv, this.lsContext, this, funcNode)) {
 //            return;
@@ -250,7 +249,7 @@ public class TreeVisitor extends LSNodeVisitor {
         if (terminateVisitor || cpr.isCursorBeforeNode(functionPos, this, this.lsContext, funcNode, funcNode.symbol)) {
             return;
         }
-        
+
         // Visit the function parameter annotation attachments
         List<BLangNode> functionParamsOrdered = CompletionVisitorUtil.getFunctionParamsOrdered(funcNode);
         functionParamsOrdered.forEach(param -> this.acceptNode(param, symbolEnv));
@@ -474,7 +473,7 @@ public class TreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangInvocation invocationNode) {
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
-        
+
         if (cpr.isCursorBeforeNode(invocationNode.getPosition(), this, this.lsContext, invocationNode,
                 invocationNode.symbol)) {
             return;
@@ -526,7 +525,7 @@ public class TreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangWhile whileNode) {
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
-        if (CompletionVisitorUtil.isWithinConditionContext(this.symbolEnv, this.lsContext, this, whileNode) || 
+        if (CompletionVisitorUtil.isWithinConditionContext(this.symbolEnv, this.lsContext, this, whileNode) ||
                 cpr.isCursorBeforeNode(whileNode.getPosition(), this, this.lsContext, whileNode, null)) {
             return;
         }
@@ -591,28 +590,6 @@ public class TreeVisitor extends LSNodeVisitor {
         this.blockOwnerStack.pop();
         this.isCurrentNodeTransactionStack.pop();
         this.transactionCount--;
-
-        if (transactionNode.onRetryBody != null) {
-            this.blockOwnerStack.push(transactionNode.onRetryBody);
-            this.acceptNode(transactionNode.onRetryBody, transactionEnv);
-            this.blockOwnerStack.pop();
-        }
-        if (transactionNode.committedBody != null) {
-            this.blockOwnerStack.push(transactionNode.committedBody);
-            this.acceptNode(transactionNode.committedBody, transactionEnv);
-            this.blockOwnerStack.pop();
-        }
-        if (transactionNode.abortedBody != null) {
-            this.blockOwnerStack.push(transactionNode.abortedBody);
-            this.acceptNode(transactionNode.abortedBody, transactionEnv);
-            this.blockOwnerStack.pop();
-        }
-    }
-
-    @Override
-    public void visit(BLangAbort abortNode) {
-        CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
-                .isCursorBeforeNode(abortNode.getPosition(), this, this.lsContext, abortNode, null);
     }
 
     @Override
@@ -878,7 +855,7 @@ public class TreeVisitor extends LSNodeVisitor {
         int eLine = pos.eLine;
         int sCol = pos.sCol;
         int eCol = pos.eCol;
-        
+
         if ((sLine < cLine && eLine > cLine) || (sLine == cLine && eLine == cLine && cCol >= sCol && cCol <= eCol)) {
             throw new CompletionContextNotSupportedException("Completion within Literals are not Supported");
         }
@@ -916,7 +893,7 @@ public class TreeVisitor extends LSNodeVisitor {
 
     /**
      * Resolve all visible symbols.
-     * 
+     *
      * @param symbolEnv symbol environment
      * @return all visible symbols for current scope
      */
@@ -926,7 +903,7 @@ public class TreeVisitor extends LSNodeVisitor {
 
     /**
      * Populate the symbols.
-     * 
+     *
      * @param symbolEntries     symbol entries
      * @param symbolEnv         Symbol environment
      */
@@ -1017,7 +994,7 @@ public class TreeVisitor extends LSNodeVisitor {
     private void populateSymbolEnvNode(BLangNode node) {
         lsContext.put(CompletionKeys.SCOPE_NODE_KEY, node);
     }
-    
+
     private void visitMatchPatternClause(BLangNode patternNode, BLangBlockStmt body) {
         if (!CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(patternNode.getPosition(), this, this.lsContext, patternNode, null)) {
