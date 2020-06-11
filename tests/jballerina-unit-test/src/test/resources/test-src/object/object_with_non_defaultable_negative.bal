@@ -9,7 +9,7 @@ public type Person object {
     public int age = 10;
     string month = "february";
 
-    function __init (int age) {
+    function init (int age) {
         self.age = age;
     }
 };

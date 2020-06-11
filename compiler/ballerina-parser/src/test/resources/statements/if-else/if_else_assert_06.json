@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -37,15 +38,18 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "IF_ELSE_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "IF_KEYWORD"
@@ -67,6 +71,7 @@
                 },
                 {
                   "kind": "BLOCK_STATEMENT",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "OPEN_BRACE_TOKEN"
@@ -77,7 +82,11 @@
                     },
                     {
                       "kind": "CLOSE_BRACE_TOKEN",
-                      "isMissing": true
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+                      ]
                     }
                   ]
                 },

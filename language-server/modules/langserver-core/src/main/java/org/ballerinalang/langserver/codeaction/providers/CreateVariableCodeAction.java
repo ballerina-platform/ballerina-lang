@@ -69,7 +69,6 @@ import org.wso2.ballerinalang.util.Flags;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -153,7 +152,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
             if (refAtCursor.getbLangNode() instanceof BLangInvocation) {
                 hasDefaultInitFunction = symbolAtCursor instanceof BObjectTypeSymbol;
                 hasCustomInitFunction = symbolAtCursor instanceof BInvokableSymbol &&
-                        symbolAtCursor.name.value.endsWith("__init");
+                        symbolAtCursor.name.value.endsWith("init");
                 isAsync = ((BLangInvocation) refAtCursor.getbLangNode()).isAsync();
             }
             boolean isInitInvocation = hasDefaultInitFunction || hasCustomInitFunction;
@@ -229,7 +228,9 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
             }
             Position insertPos = new Position(position.getLine(), position.getCharacter());
             String edit = type + " " + name + " = ";
-            List<TextEdit> edits = Collections.singletonList(new TextEdit(new Range(insertPos, insertPos), edit));
+            List<TextEdit> edits = new ArrayList<>();
+            edits.add(new TextEdit(new Range(insertPos, insertPos), edit));
+            edits.addAll(importEdits);
             actions.add(createQuickFixCodeAction(commandTitle, edits, uri));
         }
         return actions;

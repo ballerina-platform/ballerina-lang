@@ -1152,7 +1152,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         if (this.env.logErrors && symbol == symTable.notFoundSymbol) {
-            if (!missingNodesHelper.isMissingNode(pkgAlias) && !missingNodesHelper.isMissingNode(typeName)) {
+            if (!missingNodesHelper.isMissingNode(pkgAlias) && !missingNodesHelper.isMissingNode(typeName) &&
+                    !symbolEnter.isUnknownTypeRef(userDefinedTypeNode)) {
                 dlog.error(userDefinedTypeNode.pos, diagCode, typeName);
             }
             resultType = symTable.semanticError;
@@ -1204,6 +1205,11 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (param.flagSet.contains(Flag.PUBLIC)) {
                 symbol.flags |= Flags.PUBLIC;
             }
+
+            if (param.flagSet.contains(Flag.TRANSACTIONAL)) {
+                symbol.flags |= Flags.TRANSACTIONAL;
+            }
+
             if (param.expr != null) {
                 symbol.flags |= Flags.OPTIONAL;
                 symbol.defaultableParam = true;

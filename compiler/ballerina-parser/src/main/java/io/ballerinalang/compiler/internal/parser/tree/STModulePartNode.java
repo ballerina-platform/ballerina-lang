@@ -70,7 +70,35 @@ public class STModulePartNode extends STNode {
                 diagnostics);
     }
 
+    public STModulePartNode modify(
+            STNode imports,
+            STNode members,
+            STNode eofToken) {
+        if (checkForReferenceEquality(
+                imports,
+                members,
+                eofToken)) {
+            return this;
+        }
+
+        return new STModulePartNode(
+                imports,
+                members,
+                eofToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ModulePartNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

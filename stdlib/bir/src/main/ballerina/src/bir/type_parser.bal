@@ -67,7 +67,7 @@ public type TypeParser object {
     int cpI;
     byte[]?[] unparsedTypes;
     
-    public function __init(ConstPool cp, byte[]?[] unparsedTypes, int cpI) {
+    public function init(ConstPool cp, byte[]?[] unparsedTypes, int cpI) {
         var unparsedBytes = unparsedTypes[cpI];
         if (unparsedBytes is byte[]){
             self.reader = {buf: unparsedBytes};

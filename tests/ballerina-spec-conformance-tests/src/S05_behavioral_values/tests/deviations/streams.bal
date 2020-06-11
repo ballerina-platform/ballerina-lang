@@ -33,7 +33,7 @@ function testStreamConstraintBroken() {
 public type FooObject object {
     public string fooFieldOne;
 
-    public function __init(string fooFieldOne) {
+    public function init(string fooFieldOne) {
         self.fooFieldOne = fooFieldOne;
     }
 

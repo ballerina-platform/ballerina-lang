@@ -1,5 +1,6 @@
 {
   "kind": "IMPORT_DECLARATION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "IMPORT_KEYWORD"
@@ -15,10 +16,15 @@
     },
     {
       "kind": "IMPORT_VERSION",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "VERSION_KEYWORD",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_VERSION_KEYWORD"
+          ]
         },
         {
           "kind": "LIST",

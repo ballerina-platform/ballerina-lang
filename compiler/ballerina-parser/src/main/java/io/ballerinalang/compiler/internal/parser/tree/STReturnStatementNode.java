@@ -70,7 +70,35 @@ public class STReturnStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STReturnStatementNode modify(
+            STNode returnKeyword,
+            STNode expression,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                returnKeyword,
+                expression,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STReturnStatementNode(
+                returnKeyword,
+                expression,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReturnStatementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

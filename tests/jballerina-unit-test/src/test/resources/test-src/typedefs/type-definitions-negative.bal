@@ -1,5 +1,5 @@
 type G object {
-    function __init() {
+    function init() {
 
     }
 };

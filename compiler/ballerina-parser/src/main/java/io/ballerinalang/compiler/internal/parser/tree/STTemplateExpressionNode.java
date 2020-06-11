@@ -81,7 +81,40 @@ public class STTemplateExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STTemplateExpressionNode modify(
+            SyntaxKind kind,
+            STNode type,
+            STNode startBacktick,
+            STNode content,
+            STNode endBacktick) {
+        if (checkForReferenceEquality(
+                type,
+                startBacktick,
+                content,
+                endBacktick)) {
+            return this;
+        }
+
+        return new STTemplateExpressionNode(
+                kind,
+                type,
+                startBacktick,
+                content,
+                endBacktick,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TemplateExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

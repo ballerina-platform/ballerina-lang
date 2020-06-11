@@ -81,7 +81,7 @@ public type MockClient client object {
     public http:Client httpClient;
     public http:CookieStore? cookieStore = ();
 
-    public function __init(string url, http:ClientConfiguration? config = ()) {
+    public function init(string url, http:ClientConfiguration? config = ()) {
         http:Client simpleClient = new(url);
         self.url = url;
         self.config = config ?: {};

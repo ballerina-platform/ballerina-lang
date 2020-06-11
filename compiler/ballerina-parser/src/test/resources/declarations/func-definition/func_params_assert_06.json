@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -19,12 +20,14 @@
     },
     {
       "kind": "FUNCTION_SIGNATURE",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_PAREN_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "REQUIRED_PARAM",
@@ -44,6 +47,7 @@
             },
             {
               "kind": "DEFAULTABLE_PARAM",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "COMMA_TOKEN"
@@ -64,6 +68,7 @@
                 },
                 {
                   "kind": "BINARY_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_INTEGER_LITERAL",
@@ -71,7 +76,11 @@
                     },
                     {
                       "kind": "PLUS_TOKEN",
-                      "isMissing": true
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_PLUS_TOKEN"
+                      ]
                     },
                     {
                       "kind": "DECIMAL_INTEGER_LITERAL",
@@ -102,21 +111,8 @@
                   "kind": "EQUAL_TOKEN"
                 },
                 {
-                  "kind": "BINARY_EXPRESSION",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a"
-                    },
-                    {
-                      "kind": "PLUS_TOKEN",
-                      "isMissing": true
-                    },
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "b"
-                    }
-                  ]
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
                 }
               ]
             }

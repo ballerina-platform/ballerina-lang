@@ -1,5 +1,6 @@
 {
   "kind": "SERVICE_DECLARATION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -12,7 +13,11 @@
     },
     {
       "kind": "SERVICE_KEYWORD",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_SERVICE_KEYWORD"
+      ]
     },
     {
       "kind": "IDENTIFIER_TOKEN",

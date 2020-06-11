@@ -77,7 +77,38 @@ public class STKeySpecifierNode extends STNode {
                 diagnostics);
     }
 
+    public STKeySpecifierNode modify(
+            STNode keyKeyword,
+            STNode openParenToken,
+            STNode fieldNames,
+            STNode closeParenToken) {
+        if (checkForReferenceEquality(
+                keyKeyword,
+                openParenToken,
+                fieldNames,
+                closeParenToken)) {
+            return this;
+        }
+
+        return new STKeySpecifierNode(
+                keyKeyword,
+                openParenToken,
+                fieldNames,
+                closeParenToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new KeySpecifierNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

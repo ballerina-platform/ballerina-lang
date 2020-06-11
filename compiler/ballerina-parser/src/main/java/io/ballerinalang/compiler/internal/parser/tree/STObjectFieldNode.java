@@ -105,7 +105,50 @@ public class STObjectFieldNode extends STNode {
                 diagnostics);
     }
 
+    public STObjectFieldNode modify(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode readonlyKeyword,
+            STNode typeName,
+            STNode fieldName,
+            STNode equalsToken,
+            STNode expression,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                metadata,
+                visibilityQualifier,
+                readonlyKeyword,
+                typeName,
+                fieldName,
+                equalsToken,
+                expression,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STObjectFieldNode(
+                metadata,
+                visibilityQualifier,
+                readonlyKeyword,
+                typeName,
+                fieldName,
+                equalsToken,
+                expression,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ObjectFieldNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

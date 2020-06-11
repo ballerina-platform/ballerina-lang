@@ -70,7 +70,35 @@ public class STErrorTypeParamsNode extends STNode {
                 diagnostics);
     }
 
+    public STErrorTypeParamsNode modify(
+            STNode ltToken,
+            STNode parameter,
+            STNode gtToken) {
+        if (checkForReferenceEquality(
+                ltToken,
+                parameter,
+                gtToken)) {
+            return this;
+        }
+
+        return new STErrorTypeParamsNode(
+                ltToken,
+                parameter,
+                gtToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ErrorTypeParamsNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

@@ -84,7 +84,41 @@ public class STTableConstructorExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STTableConstructorExpressionNode modify(
+            STNode tableKeyword,
+            STNode keySpecifier,
+            STNode openBracket,
+            STNode mappingConstructors,
+            STNode closeBracket) {
+        if (checkForReferenceEquality(
+                tableKeyword,
+                keySpecifier,
+                openBracket,
+                mappingConstructors,
+                closeBracket)) {
+            return this;
+        }
+
+        return new STTableConstructorExpressionNode(
+                tableKeyword,
+                keySpecifier,
+                openBracket,
+                mappingConstructors,
+                closeBracket,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TableConstructorExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

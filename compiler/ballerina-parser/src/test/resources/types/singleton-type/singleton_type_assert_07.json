@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_VAR_DECL",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -7,19 +8,26 @@
     },
     {
       "kind": "TYPED_BINDING_PATTERN",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "SINGLETON_TYPE_DESC",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "UNARY_EXPRESSION",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "PLUS_TOKEN"
                 },
                 {
                   "kind": "DECIMAL_INTEGER_LITERAL",
-                  "isMissing": true
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_DECIMAL_INTEGER_LITERAL"
+                  ]
                 }
               ]
             }

@@ -19,7 +19,7 @@ import ballerina/test;
 public type BazObjectOne object {
     public int bazOneFieldOne;
 
-    public function __init(int bazOneFieldOne) {
+    public function init(int bazOneFieldOne) {
         self.bazOneFieldOne = bazOneFieldOne;
     }
 
@@ -33,7 +33,7 @@ public type BazObjectTwo object {
     public BazObjectOne? bazTwoFieldTwo = ();
     public BazObjectTwo? bazTwoFieldThree = ();
 
-    public function __init(BazObjectOne bazTwoFieldOne) {
+    public function init(BazObjectOne bazTwoFieldOne) {
         self.bazTwoFieldOne = bazTwoFieldOne;
     }
 

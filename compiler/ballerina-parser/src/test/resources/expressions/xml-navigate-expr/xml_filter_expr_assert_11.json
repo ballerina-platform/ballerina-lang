@@ -1,42 +1,53 @@
 {
-    "kind": "XML_FILTER_EXPRESSION",
-    "children": [
+  "kind": "XML_FILTER_EXPRESSION",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a"
+    },
+    {
+      "kind": "XML_NAME_PATTERN_CHAIN",
+      "hasDiagnostics": true,
+      "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
+          "kind": "DOT_LT_TOKEN"
         },
         {
-            "kind": "XML_NAME_PATTERN_CHAIN",
-            "children": [
-                {
-                    "kind": "DOT_LT_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                        {
-                            "kind": "ASTERISK_TOKEN"
-                        },
-                        {
-                            "kind": "PIPE_TOKEN",
-                            "isMissing": true
-                        },
-                        {
-                            "kind": "ASTERISK_TOKEN"
-                        },
-                        {
-                            "kind": "PIPE_TOKEN",
-                            "isMissing": true
-                        },
-                        {
-                            "kind": "ASTERISK_TOKEN"
-                        }
-                    ]
-                },
-                {
-                    "kind": "GT_TOKEN"
-                }
-            ]
+          "kind": "LIST",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "ASTERISK_TOKEN"
+            },
+            {
+              "kind": "PIPE_TOKEN",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_PIPE_TOKEN"
+              ]
+            },
+            {
+              "kind": "ASTERISK_TOKEN"
+            },
+            {
+              "kind": "PIPE_TOKEN",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_PIPE_TOKEN"
+              ]
+            },
+            {
+              "kind": "ASTERISK_TOKEN"
+            }
+          ]
+        },
+        {
+          "kind": "GT_TOKEN"
         }
-    ]
+      ]
+    }
+  ]
 }
