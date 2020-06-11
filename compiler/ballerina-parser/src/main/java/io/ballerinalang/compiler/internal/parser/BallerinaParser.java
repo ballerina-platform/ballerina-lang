@@ -14643,7 +14643,7 @@ public class BallerinaParser extends AbstractParser {
                     case BITWISE_AND_TOKEN:
                         lhsTypeDesc = getTypeDescFromExpr(binaryExpr.lhsExpr);
                         rhsTypeDesc = getTypeDescFromExpr(binaryExpr.rhsExpr);
-                        return STNodeFactory.createUnionTypeDescriptorNode(lhsTypeDesc, binaryExpr.operator,
+                        return STNodeFactory.createIntersectionTypeDescriptorNode(lhsTypeDesc, binaryExpr.operator,
                                 rhsTypeDesc);
                     default:
                         break;
