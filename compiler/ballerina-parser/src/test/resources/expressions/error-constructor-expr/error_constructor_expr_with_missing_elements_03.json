@@ -1,12 +1,17 @@
 {
   "kind": "FUNCTION_CALL",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "ERROR_KEYWORD"
     },
     {
       "kind": "OPEN_PAREN_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_OPEN_PAREN_TOKEN"
+      ]
     },
     {
       "kind": "LIST",

@@ -1,5 +1,6 @@
 {
   "kind": "SERVICE_DECLARATION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -22,6 +23,7 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "EXPRESSION_LIST_ITEM",
@@ -34,10 +36,15 @@
         },
         {
           "kind": "EXPRESSION_LIST_ITEM",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "COMMA_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_COMMA_TOKEN"
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",
@@ -47,10 +54,15 @@
         },
         {
           "kind": "EXPRESSION_LIST_ITEM",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "COMMA_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_COMMA_TOKEN"
+              ]
             },
             {
               "kind": "BINARY_EXPRESSION",

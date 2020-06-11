@@ -1,8 +1,10 @@
 {
   "kind": "QUERY_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "QUERY_PIPELINE",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "FROM_CLAUSE",
@@ -38,13 +40,19 @@
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "LET_CLAUSE",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LET_KEYWORD",
-                  "isMissing": true
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_LET_KEYWORD"
+                  ]
                 },
                 {
                   "kind": "LIST",

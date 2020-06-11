@@ -1,5 +1,6 @@
 {
   "kind": "XML_FILTER_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "IDENTIFIER_TOKEN",
@@ -7,6 +8,7 @@
     },
     {
       "kind": "XML_NAME_PATTERN_CHAIN",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "DOT_LT_TOKEN"
@@ -34,7 +36,11 @@
         },
         {
           "kind": "GT_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_GT_TOKEN"
+          ]
         }
       ]
     }

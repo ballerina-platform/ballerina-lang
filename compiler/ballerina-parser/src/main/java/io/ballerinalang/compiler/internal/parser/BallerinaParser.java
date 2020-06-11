@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
+import io.ballerinalang.compiler.internal.diagnostics.DiagnosticCode;
 import io.ballerinalang.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Action;
 import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Solution;
@@ -732,7 +733,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek(lookahead + 1);
         switch (nextToken.kind) {
             case EQUAL_TOKEN: // Scenario: foo = . Even though this is not valid, consider this as a var-decl and
-                              // continue;
+                // continue;
             case OPEN_BRACKET_TOKEN: // Scenario foo[] (Array type descriptor with custom type)
             case QUESTION_MARK_TOKEN: // Scenario foo? (Optional type descriptor with custom type)
             case PIPE_TOKEN: // Scenario foo | (Union type descriptor with custom type)
@@ -1692,26 +1693,13 @@ public class BallerinaParser extends AbstractParser {
         paramsList.add(firstParam);
 
         // Parse follow-up parameters.
+        boolean paramOrderErrorPresent = false;
         token = peek();
         while (!isEndOfParametersList(token.kind)) {
-            switch (prevParamKind) {
-                case REST_PARAM:
-                    // This is an erroneous scenario, where there are more parameters after
-                    // the rest parameter. Log an error, and continue the remainder of the
-                    // parameters by removing the order restriction.
-
-                    // TODO: mark the node as erroneous
-                    this.errorHandler.reportInvalidNode(token, "cannot have more parameters after the rest-parameter");
-                    startContext(ParserRuleContext.REQUIRED_PARAM);
-                    break;
-                case DEFAULTABLE_PARAM:
-                    startContext(ParserRuleContext.DEFAULTABLE_PARAM);
-                    break;
-                case REQUIRED_PARAM:
-                default:
-                    startContext(ParserRuleContext.REQUIRED_PARAM);
-                    break;
-
+            if (prevParamKind == SyntaxKind.DEFAULTABLE_PARAM) {
+                startContext(ParserRuleContext.DEFAULTABLE_PARAM);
+            } else {
+                startContext(ParserRuleContext.REQUIRED_PARAM);
             }
 
             STNode paramEnd = parseParameterRhs(token.kind);
@@ -1722,12 +1710,59 @@ public class BallerinaParser extends AbstractParser {
 
             // context is ended inside parseParameter() method
             STNode param = parseParameter(paramEnd, prevParamKind, isParamNameOptional);
+            if (paramOrderErrorPresent) {
+                updateParamListWithInvalidNode(paramsList, param, null);
+            } else {
+                DiagnosticCode paramOrderError = validateParamOrder(param, prevParamKind);
+                if (paramOrderError == null) {
+                    paramsList.add(param);
+                } else {
+                    paramOrderErrorPresent = true;
+                    updateParamListWithInvalidNode(paramsList, param, paramOrderError);
+                }
+            }
+
             prevParamKind = param.kind;
-            paramsList.add(param);
             token = peek();
         }
 
         return STNodeFactory.createNodeList(paramsList);
+    }
+
+    /**
+     * Return the appropriate {@code DiagnosticCode} if there are parameter order issues.
+     *
+     * @param param         the new parameter
+     * @param prevParamKind the SyntaxKind of the previously added parameter
+     */
+    private DiagnosticCode validateParamOrder(STNode param, SyntaxKind prevParamKind) {
+        if (prevParamKind == SyntaxKind.REST_PARAM) {
+            return DiagnosticErrorCode.ERROR_PARAMETER_AFTER_THE_REST_PARAMETER;
+        } else if (prevParamKind == SyntaxKind.DEFAULTABLE_PARAM &&
+                param.kind == SyntaxKind.REQUIRED_PARAM) {
+            return DiagnosticErrorCode.ERROR_REQUIRED_PARAMETER_AFTER_THE_DEFAULTABLE_PARAMETER;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Clones the last parameter in list with the invalid node as minutiae and update the list.
+     *
+     * @param paramList      function parameter list
+     * @param invalidParam   the param to be attached to the last param in list as minutiae
+     * @param diagnosticCode diagnostic code related to the invalid node
+     */
+    private void updateParamListWithInvalidNode(ArrayList<STNode> paramList,
+                                                STNode invalidParam,
+                                                DiagnosticCode diagnosticCode) {
+        int lastIndex = paramList.size() - 1;
+        STNode prevParamNode = paramList.remove(lastIndex);
+        STNode newParamNode = this.errorHandler.cloneWithTrailingInvalidNodeMinutiae(prevParamNode, invalidParam);
+        if (diagnosticCode != null) {
+            newParamNode = this.errorHandler.addDiagnostics(newParamNode, diagnosticCode);
+        }
+        paramList.add(newParamNode);
     }
 
     private STNode parseParameterRhs(SyntaxKind tokenKind) {
@@ -1965,15 +2000,6 @@ public class BallerinaParser extends AbstractParser {
                                      STNode qualifier, STNode type, STNode paramName) {
         // Required parameters
         if (isEndOfParameter(tokenKind)) {
-            if (prevParamKind == SyntaxKind.DEFAULTABLE_PARAM) {
-                // This is an erroneous scenario, where a required parameters comes after
-                // a defaulatble parameter. Log an error, and continue.
-
-                // TODO: mark the node as erroneous
-                this.errorHandler.reportInvalidNode(peek(),
-                        "cannot have a required parameter after a defaultable parameter");
-            }
-
             return STNodeFactory.createRequiredParameterNode(leadingComma, annots, qualifier, type, paramName);
         } else if (tokenKind == SyntaxKind.EQUAL_TOKEN) {
             // If we were processing required params so far and found a defualtable
@@ -8223,9 +8249,6 @@ public class BallerinaParser extends AbstractParser {
             }
         }
 
-        if (workers.isEmpty()) {
-            this.errorHandler.reportInvalidNode(null, "Fork Statement must contain atleast one named-worker");
-        }
         return STNodeFactory.createNodeList(workers);
     }
 
@@ -8242,6 +8265,9 @@ public class BallerinaParser extends AbstractParser {
         STNode namedWorkerDeclarations = parseMultipleNamedWorkerDeclarations();
         STNode closeBrace = parseCloseBrace();
         endContext();
+
+        openBrace = cloneWithDiagnosticIfListEmpty(namedWorkerDeclarations,
+                openBrace, DiagnosticErrorCode.ERROR_MISSING_NAMED_WORKER_DECLARATION);
         return STNodeFactory.createForkStatementNode(forkKeyword, openBrace, namedWorkerDeclarations, closeBrace);
     }
 
@@ -11279,7 +11305,6 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseByteArrayLiteral(SyntaxKind kind) {
         STNode type;
-
         if (kind == SyntaxKind.BASE16_KEYWORD) {
             type = parseBase16Keyword();
         } else {
@@ -11288,8 +11313,55 @@ public class BallerinaParser extends AbstractParser {
 
         STNode startingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
         STNode content = parseByteArrayContent(kind);
+        return parseByteArrayLiteral(kind, type, startingBackTick, content);
+    }
+
+    /**
+     * Parse byte array literal.
+     *
+     * @param baseKind         indicates the SyntaxKind base16 or base64
+     * @param typeKeyword      keyword token, possible values are `base16` and `base64`
+     * @param startingBackTick starting backtick token
+     * @param byteArrayContent byte array literal content to be validated
+     * @return parsed byte array literal node
+     */
+    private STNode parseByteArrayLiteral(SyntaxKind baseKind,
+                                         STNode typeKeyword,
+                                         STNode startingBackTick,
+                                         STNode byteArrayContent) {
+        STNode content = STNodeFactory.createEmptyNode();
+        STNode newStartingBackTick = startingBackTick;
+
+        STNodeList items = (STNodeList) byteArrayContent;
+        if (items.size() == 1) {
+            content = items.get(0);
+            if (baseKind == SyntaxKind.BASE16_KEYWORD &&
+                    !BallerinaLexer.isValidBase16LiteralContent(content.toString())) {
+                newStartingBackTick = errorHandler.cloneWithTrailingInvalidNodeMinutiae(startingBackTick, content,
+                        DiagnosticErrorCode.ERROR_INVALID_BASE16_CONTENT_IN_BYTE_ARRAY_LITERAL);
+            } else if (baseKind == SyntaxKind.BASE64_KEYWORD &&
+                    !BallerinaLexer.isValidBase64LiteralContent(content.toString())) {
+                newStartingBackTick = errorHandler.cloneWithTrailingInvalidNodeMinutiae(startingBackTick, content,
+                        DiagnosticErrorCode.ERROR_INVALID_BASE64_CONTENT_IN_BYTE_ARRAY_LITERAL);
+            } else if (content.kind != SyntaxKind.TEMPLATE_STRING) {
+                newStartingBackTick = errorHandler.cloneWithTrailingInvalidNodeMinutiae(startingBackTick, content,
+                        DiagnosticErrorCode.ERROR_INVALID_CONTENT_IN_BYTE_ARRAY_LITERAL);
+            }
+        } else if (items.size() > 1) {
+            // In this iteration, I am marking all the items as invalid
+            STNode clonedStartingBackTick = startingBackTick;
+            for (int index = 0; index < items.size(); index++) {
+                STNode item = items.get(index);
+                clonedStartingBackTick = errorHandler.cloneWithTrailingInvalidNodeMinutiae(
+                        clonedStartingBackTick, item);
+            }
+            newStartingBackTick = errorHandler.addDiagnostics(clonedStartingBackTick,
+                    DiagnosticErrorCode.ERROR_INVALID_CONTENT_IN_BYTE_ARRAY_LITERAL);
+        }
+
         STNode endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_END);
-        return STNodeFactory.createByteArrayLiteralNode(type, startingBackTick, content, endingBackTick);
+        return STNodeFactory.createByteArrayLiteralNode(typeKeyword, newStartingBackTick,
+                content, endingBackTick);
     }
 
     /**
@@ -11330,30 +11402,16 @@ public class BallerinaParser extends AbstractParser {
      * @return parsed node
      */
     private STNode parseByteArrayContent(SyntaxKind kind) {
-        STNode content = STNodeFactory.createEmptyNode();
         STToken nextToken = peek();
 
         List<STNode> items = new ArrayList<>();
         while (!isEndOfBacktickContent(nextToken.kind)) {
-            content = parseTemplateItem();
+            STNode content = parseTemplateItem();
             items.add(content);
             nextToken = peek();
         }
 
-        if (items.size() > 1) {
-            this.errorHandler.reportInvalidNode(null, "invalid content within backticks");
-        } else if (items.size() == 1 && content.kind != SyntaxKind.TEMPLATE_STRING) {
-            this.errorHandler.reportInvalidNode(null, "invalid content within backticks");
-        } else if (items.size() == 1) {
-            if (kind == SyntaxKind.BASE16_KEYWORD && !BallerinaLexer.isValidBase16LiteralContent(content.toString())) {
-                this.errorHandler.reportInvalidNode(null, "invalid content within backticks");
-            } else if (kind == SyntaxKind.BASE64_KEYWORD &&
-                    !BallerinaLexer.isValidBase64LiteralContent(content.toString())) {
-                this.errorHandler.reportInvalidNode(null, "invalid content within backticks");
-            }
-        }
-
-        return content;
+        return STNodeFactory.createNodeList(items);
     }
 
     /**

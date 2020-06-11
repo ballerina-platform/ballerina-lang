@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_PART",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -7,9 +8,11 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "LISTENER_DECLARATION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -32,11 +35,19 @@
             },
             {
               "kind": "EQUAL_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_EQUAL_TOKEN"
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_IDENTIFIER"
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN"
@@ -45,6 +56,7 @@
         },
         {
           "kind": "CONST_DECLARATION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -67,11 +79,19 @@
             },
             {
               "kind": "EQUAL_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_EQUAL_TOKEN"
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_IDENTIFIER"
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN"

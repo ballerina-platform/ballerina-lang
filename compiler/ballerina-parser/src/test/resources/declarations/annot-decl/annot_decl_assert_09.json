@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_PART",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -7,9 +8,11 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "ANNOTATION_DECLARATION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -22,7 +25,11 @@
             },
             {
               "kind": "ANNOTATION_KEYWORD",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_ANNOTATION_KEYWORD"
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",
@@ -53,12 +60,17 @@
             },
             {
               "kind": "SEMICOLON_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_SEMICOLON_TOKEN"
+              ]
             }
           ]
         },
         {
           "kind": "ANNOTATION_DECLARATION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -85,6 +97,7 @@
             },
             {
               "kind": "LIST",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "ANNOTATION_ATTACH_POINT",
@@ -110,7 +123,11 @@
                 },
                 {
                   "kind": "COMMA_TOKEN",
-                  "isMissing": true
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_COMMA_TOKEN"
+                  ]
                 },
                 {
                   "kind": "ANNOTATION_ATTACH_POINT",
@@ -130,12 +147,17 @@
             },
             {
               "kind": "SEMICOLON_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_SEMICOLON_TOKEN"
+              ]
             }
           ]
         },
         {
           "kind": "ANNOTATION_DECLARATION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -175,7 +197,11 @@
             },
             {
               "kind": "SEMICOLON_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_SEMICOLON_TOKEN"
+              ]
             }
           ]
         },

@@ -1,5 +1,6 @@
 {
   "kind": "TABLE_CONSTRUCTOR",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "TABLE_KEYWORD"
@@ -9,6 +10,7 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "MAPPING_CONSTRUCTOR",
@@ -44,7 +46,11 @@
         },
         {
           "kind": "COMMA_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_COMMA_TOKEN"
+          ]
         },
         {
           "kind": "MAPPING_CONSTRUCTOR",
@@ -80,7 +86,11 @@
         },
         {
           "kind": "COMMA_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_COMMA_TOKEN"
+          ]
         },
         {
           "kind": "MAPPING_CONSTRUCTOR",

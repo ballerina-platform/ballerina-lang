@@ -1,11 +1,14 @@
 {
   "kind": "BINARY_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "BINARY_EXPRESSION",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "BINARY_EXPRESSION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "BINARY_EXPRESSION",
@@ -25,7 +28,11 @@
             },
             {
               "kind": "PLUS_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_PLUS_TOKEN"
+              ]
             },
             {
               "kind": "FUNCTION_CALL",
@@ -50,7 +57,11 @@
         },
         {
           "kind": "PLUS_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_PLUS_TOKEN"
+          ]
         },
         {
           "kind": "METHOD_CALL",

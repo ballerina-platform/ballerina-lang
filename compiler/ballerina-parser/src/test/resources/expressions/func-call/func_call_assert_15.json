@@ -1,5 +1,6 @@
 {
   "kind": "BINARY_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "FUNCTION_CALL",
@@ -32,7 +33,11 @@
     },
     {
       "kind": "PLUS_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_PLUS_TOKEN"
+      ]
     },
     {
       "kind": "BRACED_EXPRESSION",

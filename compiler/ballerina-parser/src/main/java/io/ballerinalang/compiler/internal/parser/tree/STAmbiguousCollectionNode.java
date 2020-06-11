@@ -21,6 +21,7 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -34,11 +35,16 @@ public class STAmbiguousCollectionNode extends STNode {
     public final STNode collectionEndToken;
 
     public STAmbiguousCollectionNode(SyntaxKind kind, STNode collectionStartToken, List<STNode> members,
-            STNode collectionEndToken) {
+                                     STNode collectionEndToken) {
         super(kind);
         this.collectionStartToken = collectionStartToken;
         this.members = members;
         this.collectionEndToken = collectionEndToken;
+    }
+
+    @Override
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        throw new UnsupportedOperationException();
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
