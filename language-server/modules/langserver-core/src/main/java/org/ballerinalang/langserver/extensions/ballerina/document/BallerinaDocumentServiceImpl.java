@@ -312,7 +312,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             TextDocument doc = TextDocuments.from(documentManager.getFileContent(compilationPath));
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator();
             SyntaxTree syntaxTree = SyntaxTree.from(doc, compilationPath.toString());
-            reply.setSyntaxTree(mapGenerator.transform(syntaxTree.modulePart()));
+            reply.setSyntaxTree(mapGenerator.transform(syntaxTree.rootNode()));
             reply.setParseSuccess(true);
         } catch (Throwable e) {
             reply.setParseSuccess(false);
@@ -338,7 +338,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         try {
             LSContext astContext = modifyTree(request.getAstModifications(), fileUri, compilationPath);
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator();
-            reply.setSyntaxTree(mapGenerator.transform(astContext.get(UPDATED_SYNTAX_TREE).modulePart()));
+            reply.setSyntaxTree(mapGenerator.transform(astContext.get(UPDATED_SYNTAX_TREE).rootNode()));
             reply.setParseSuccess(true);
         } catch (Throwable e) {
             reply.setParseSuccess(false);

@@ -67,7 +67,7 @@ abstract class AbstractSyntaxTreeAPITest {
 
     protected ModulePartNode getModulePartNode(String sourceFileName) {
         SyntaxTree syntaxTree = parseFile(sourceFileName);
-        return syntaxTree.modulePart();
+        return syntaxTree.rootNode();
     }
 
     protected void testTree(Node node, Path jsonFilePath) {

@@ -38,7 +38,7 @@ public class NodeLocationTest extends AbstractSyntaxTreeAPITest {
     public void testLocationOfModulePart() {
         String sourceFileName = "node_location_test_01.bal";
         SyntaxTree syntaxTree = parseFile(sourceFileName);
-        ModulePartNode modulePartNode = syntaxTree.modulePart();
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
 
         LinePosition expectedStartPos = LinePosition.from(0, 0);
         LinePosition expectedEndPos = LinePosition.from(10, 1);
@@ -50,7 +50,8 @@ public class NodeLocationTest extends AbstractSyntaxTreeAPITest {
     public void testLocationOfSingleImportNode() {
         String sourceFileName = "node_location_test_02.bal";
         SyntaxTree syntaxTree = parseFile(sourceFileName);
-        ImportDeclarationNode importDeclNode = syntaxTree.modulePart().imports().get(0);
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
+        ImportDeclarationNode importDeclNode = modulePartNode.imports().get(0);
 
         LinePosition expectedStartPos = LinePosition.from(0, 0);
         LinePosition expectedEndPos = LinePosition.from(0, 20);
@@ -62,7 +63,7 @@ public class NodeLocationTest extends AbstractSyntaxTreeAPITest {
     public void testLocationOfMultipleImportNodes() {
         String sourceFileName = "node_location_test_03.bal";
         SyntaxTree syntaxTree = parseFile(sourceFileName);
-        ModulePartNode modulePartNode = syntaxTree.modulePart();
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
         ImportDeclarationNode importDeclarationNode = modulePartNode.imports().get(3);
 
         LinePosition expectedStartPos = LinePosition.from(3, 0);
@@ -75,7 +76,7 @@ public class NodeLocationTest extends AbstractSyntaxTreeAPITest {
     public void testLocationOfFunctionDefNode() {
         String sourceFileName = "node_location_test_04.bal";
         SyntaxTree syntaxTree = parseFile(sourceFileName);
-        ModulePartNode modulePartNode = syntaxTree.modulePart();
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
         FunctionDefinitionNode functionDefNode = (FunctionDefinitionNode) modulePartNode.members().get(0);
 
         LinePosition expectedStartPos = LinePosition.from(5, 0);
@@ -88,7 +89,7 @@ public class NodeLocationTest extends AbstractSyntaxTreeAPITest {
     public void testConvertingLinePositionToOffset() {
         SyntaxTree syntaxTree = parseFile("node_location_test_04.bal");
         TextDocument textDocument = syntaxTree.textDocument();
-        ModulePartNode modulePartNode = syntaxTree.modulePart();
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
         FunctionDefinitionNode functionDefNode = (FunctionDefinitionNode) modulePartNode.members().get(0);
 
         LinePosition startLinePos = LinePosition.from(5, 0);
@@ -104,7 +105,7 @@ public class NodeLocationTest extends AbstractSyntaxTreeAPITest {
     public void testConvertingOffsetToLinePosition() {
         SyntaxTree syntaxTree = parseFile("node_location_test_04.bal");
         TextDocument textDocument = syntaxTree.textDocument();
-        ModulePartNode modulePartNode = syntaxTree.modulePart();
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
         FunctionDefinitionNode functionDefNode = (FunctionDefinitionNode) modulePartNode.members().get(0);
 
         int startOffset = 87;
