@@ -213,12 +213,7 @@ public class BallerinaLexer extends AbstractLexer {
                 }
                 break;
             case LexerTerminals.GT:
-                if (peek() == LexerTerminals.EQUAL) {
-                    reader.advance();
-                    token = getSyntaxToken(SyntaxKind.GT_EQUAL_TOKEN);
-                } else {
-                    token = getSyntaxToken(SyntaxKind.GT_TOKEN);
-                }
+                token = processTokenStartWithGt();
                 break;
             case LexerTerminals.EXCLAMATION_MARK:
                 token = processExclamationMarkOperator();
@@ -1480,6 +1475,34 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         return getIdentifierToken(getLexeme());
+    }
+
+    private STToken processTokenStartWithGt() {
+        if (peek() == LexerTerminals.EQUAL) {
+            reader.advance();
+            return getSyntaxToken(SyntaxKind.GT_EQUAL_TOKEN);
+        }
+
+        if (reader.peek() != LexerTerminals.GT) {
+            return getSyntaxToken(SyntaxKind.GT_TOKEN);
+        }
+
+        char nextChar = reader.peek(1);
+        switch (nextChar) {
+            case LexerTerminals.GT:
+                if (reader.peek(2) == LexerTerminals.EQUAL) {
+                    // ">>>="
+                    reader.advance(2);
+                    return getSyntaxToken(SyntaxKind.TRIPPLE_GT_TOKEN);
+                }
+                return getSyntaxToken(SyntaxKind.GT_TOKEN);
+            case LexerTerminals.EQUAL:
+                // ">>="
+                reader.advance(1);
+                return getSyntaxToken(SyntaxKind.DOUBLE_GT_TOKEN);
+            default:
+                return getSyntaxToken(SyntaxKind.GT_TOKEN);
+        }
     }
 
     /*

@@ -4561,8 +4561,20 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseFieldAccessOrMethodCall(STNode lhsExpr) {
         STNode dotToken = parseDotToken();
-        STNode fieldOrMethodName = parseFieldAccessIdentifier();
+        STToken token = peek();
+        if (token.kind == SyntaxKind.MAP_KEYWORD) {
+            STToken mapKeyword = consume();
+            STNode methodName = STNodeFactory.createIdentifierToken(mapKeyword.text(), mapKeyword.leadingMinutiae(),
+                    mapKeyword.trailingMinutiae(), mapKeyword.diagnostics());
+            methodName = STNodeFactory.createSimpleNameReferenceNode(methodName);
+            STNode openParen = parseOpenParenthesis(ParserRuleContext.ARG_LIST_START);
+            STNode args = parseArgsList();
+            STNode closeParen = parseCloseParenthesis();
+            return STNodeFactory.createMethodCallExpressionNode(lhsExpr, dotToken, methodName, openParen, args,
+                    closeParen);
+        }
 
+        STNode fieldOrMethodName = parseFieldAccessIdentifier();
         if (fieldOrMethodName.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             return STNodeFactory.createFieldAccessExpressionNode(lhsExpr, dotToken, fieldOrMethodName);
         }
@@ -6234,6 +6246,9 @@ public class BallerinaParser extends AbstractParser {
             case BITWISE_AND_TOKEN:
             case BITWISE_XOR_TOKEN:
             case PIPE_TOKEN:
+            case DOUBLE_LT_TOKEN:
+            case DOUBLE_GT_TOKEN:
+            case TRIPPLE_GT_TOKEN:
                 return getNextNextToken(tokenKind).kind == SyntaxKind.EQUAL_TOKEN;
             default:
                 return false;
@@ -9643,7 +9658,7 @@ public class BallerinaParser extends AbstractParser {
                 queryConstructType = STNodeFactory.createEmptyNode();
                 return parseQueryExprRhs(queryConstructType, isRhsExpr);
             case STREAM_KEYWORD:
-                queryConstructType = parseStreamKeyword();
+                queryConstructType = parseQueryConstructType(parseStreamKeyword(), null);
                 return parseQueryExprRhs(queryConstructType, isRhsExpr);
             case TABLE_KEYWORD:
                 STNode tableKeyword = parseTableKeyword();
@@ -9727,12 +9742,12 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse query construct type.
      * <p>
-     * <code>query-construct-type := table key-specifier</code>
+     * <code>query-construct-type := table key-specifier | stream</code>
      *
      * @return Parsed node
      */
-    private STNode parseQueryConstructType(STNode tableKeyword, STNode keySpecifier) {
-        return STNodeFactory.createQueryConstructTypeNode(tableKeyword, keySpecifier);
+    private STNode parseQueryConstructType(STNode keyword, STNode keySpecifier) {
+        return STNodeFactory.createQueryConstructTypeNode(keyword, keySpecifier);
     }
 
     /**
@@ -10106,6 +10121,7 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createSingletonTypeDescriptorNode(simpleContExpr);
     }
 
+    // TODO: Fix this properly
     private STNode parseSignedIntOrFloat() {
         STNode operator = parseUnaryOperator();
         STNode literal;
@@ -10114,10 +10130,11 @@ public class BallerinaParser extends AbstractParser {
             case HEX_INTEGER_LITERAL:
             case DECIMAL_FLOATING_POINT_LITERAL:
             case HEX_FLOATING_POINT_LITERAL:
-                literal = consume();
+                literal = parseBasicLiteral();
                 break;
             default: // decimal integer literal
                 literal = parseDecimalIntLiteral(ParserRuleContext.DECIMAL_INTEGER_LITERAL);
+                literal = STNodeFactory.createBasicLiteralNode(literal.kind, literal);
         }
         return STNodeFactory.createUnaryExpressionNode(operator, literal);
     }
@@ -10473,11 +10490,11 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseSignedRightShiftToken() {
-        STNode openGTToken = parseGTToken();
+        STToken openGTToken = consume();
         validateRightShiftOperatorWS(openGTToken);
-
-        STNode endLGToken = parseGTToken();
-        return STNodeFactory.createDoubleGTTokenNode(openGTToken, endLGToken);
+        STToken endLGToken = consume();
+        return STNodeFactory.createToken(SyntaxKind.DOUBLE_GT_TOKEN, openGTToken.leadingMinutiae(),
+                endLGToken.trailingMinutiae());
     }
 
     /**
@@ -10486,14 +10503,13 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseUnsignedRightShiftToken() {
-        STNode openGTToken = parseGTToken();
+        STNode openGTToken = consume();
         validateRightShiftOperatorWS(openGTToken);
-
-        STNode middleGTToken = parseGTToken();
+        STNode middleGTToken = consume();
         validateRightShiftOperatorWS(middleGTToken);
-
-        STNode endLGToken = parseGTToken();
-        return STNodeFactory.createTrippleGTTokenNode(openGTToken, middleGTToken, endLGToken);
+        STNode endLGToken = consume();
+        return STNodeFactory.createToken(SyntaxKind.TRIPPLE_GT_TOKEN, openGTToken.leadingMinutiae(),
+                endLGToken.trailingMinutiae());
     }
 
     /**
@@ -12187,7 +12203,7 @@ public class BallerinaParser extends AbstractParser {
 
     private boolean isExpression(SyntaxKind kind) {
         return kind.compareTo(SyntaxKind.BINARY_EXPRESSION) >= 0 &&
-                kind.compareTo(SyntaxKind.SERVICE_CONSTRUCTOR_EXPRESSION) <= 0;
+                kind.compareTo(SyntaxKind.XML_ATOMIC_NAME_PATTERN) <= 0;
     }
 
     /**
@@ -12941,7 +12957,7 @@ public class BallerinaParser extends AbstractParser {
         STNode keyExpr = STNodeFactory.createNodeList(member);
         STNode memberAccessExpr =
                 STNodeFactory.createIndexedExpressionNode(typeNameOrExpr, openBracket, keyExpr, closeBracket);
-        return parseExpressionRhs(DEFAULT_OP_PRECEDENCE, memberAccessExpr, true, false);
+        return parseExpressionRhs(DEFAULT_OP_PRECEDENCE, memberAccessExpr, false, false);
     }
 
     private boolean isBracketedListEnd(SyntaxKind nextTokenKind) {
@@ -12980,6 +12996,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACE_TOKEN:// mapping-binding-pattern
             case ERROR_KEYWORD: // functional-binding-pattern
             case ELLIPSIS_TOKEN: // rest binding pattern
+            case OPEN_BRACKET_TOKEN: // list-binding-pattern
                 return parseListBindingPatternMember();
             case IDENTIFIER_TOKEN:
                 if (isTypedBindingPattern) {

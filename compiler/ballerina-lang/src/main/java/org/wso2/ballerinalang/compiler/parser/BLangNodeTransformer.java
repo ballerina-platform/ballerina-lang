@@ -1537,16 +1537,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             accessWithPrefixNode.nsPrefix = createIdentifier(qualifiedFieldName.modulePrefix());
             accessWithPrefixNode.field = createIdentifier(qualifiedFieldName.identifier());
             bLFieldBasedAccess = accessWithPrefixNode;
+            bLFieldBasedAccess.fieldKind = FieldKind.WITH_NS;
         } else {
             bLFieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
             bLFieldBasedAccess.field =
                     createIdentifier(((SimpleNameReferenceNode) fieldName).name());
+            bLFieldBasedAccess.fieldKind = FieldKind.SINGLE;
         }
         bLFieldBasedAccess.pos = getPosition(fieldAccessExprNode);
         bLFieldBasedAccess.field.pos = getPosition(fieldAccessExprNode);
         trimLeft(bLFieldBasedAccess.field.pos, getPosition(fieldAccessExprNode.dotToken()));
         bLFieldBasedAccess.expr = createExpression(fieldAccessExprNode.expression());
-        bLFieldBasedAccess.fieldKind = FieldKind.SINGLE;
         bLFieldBasedAccess.optionalFieldAccess = false;
         return bLFieldBasedAccess;
     }
@@ -1555,12 +1556,25 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
         BLangFieldBasedAccess bLFieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         Node fieldName = optionalFieldAccessExpressionNode.fieldName();
+
+        if (fieldName.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            QualifiedNameReferenceNode qualifiedFieldName = (QualifiedNameReferenceNode) fieldName;
+            BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess accessWithPrefixNode =
+                    (BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) TreeBuilder
+                            .createFieldBasedAccessWithPrefixNode();
+            accessWithPrefixNode.nsPrefix = createIdentifier(qualifiedFieldName.modulePrefix());
+            accessWithPrefixNode.field = createIdentifier(qualifiedFieldName.identifier());
+            bLFieldBasedAccess = accessWithPrefixNode;
+            bLFieldBasedAccess.fieldKind = FieldKind.WITH_NS;
+        } else {
+            bLFieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
+            bLFieldBasedAccess.field = createIdentifier(((SimpleNameReferenceNode) fieldName).name());
+            bLFieldBasedAccess.fieldKind = FieldKind.SINGLE;
+        }
+
         bLFieldBasedAccess.pos = getPosition(optionalFieldAccessExpressionNode);
-        bLFieldBasedAccess.field =
-                createIdentifier(((SimpleNameReferenceNode) fieldName).name());
         bLFieldBasedAccess.field.pos = getPosition(optionalFieldAccessExpressionNode);
         bLFieldBasedAccess.expr = createExpression(optionalFieldAccessExpressionNode.expression());
-        bLFieldBasedAccess.fieldKind = FieldKind.SINGLE;
         bLFieldBasedAccess.optionalFieldAccess = true;
         return bLFieldBasedAccess;
     }
@@ -2416,7 +2430,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         for (Node value : xmlAttributeValue.value()) {
-            quotedString.textFragments.add((BLangExpression) value.apply(this));
+            quotedString.textFragments.add(createExpression(value));
         }
 
         return quotedString;
@@ -2661,20 +2675,21 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangSelectClause selectClause = (BLangSelectClause) queryExprNode.selectClause().apply(this);
         queryExpr.queryClauseList.add(selectClause);
 
+        boolean isTable = false;
+        boolean isStream = false;
+
         QueryConstructTypeNode queryConstructTypeNode = queryExprNode.queryConstructType();
         if (queryConstructTypeNode != null) {
-            KeySpecifierNode keySpecifierNode = queryConstructTypeNode.keySpecifier();
-
-            if (keySpecifierNode != null) {
-                for (IdentifierToken fieldNameNode : keySpecifierNode.fieldNames()) {
-                    BLangIdentifier fieldName = createIdentifier(getPosition(fieldNameNode), fieldNameNode);
-                    queryExpr.fieldNameIdentifierList.add(fieldName);
+            isTable = queryConstructTypeNode.keyword().kind() == SyntaxKind.TABLE_KEYWORD;
+            isStream = queryConstructTypeNode.keyword().kind() == SyntaxKind.STREAM_KEYWORD;
+            if (queryConstructTypeNode.keySpecifier().isPresent()) {
+                for (IdentifierToken fieldNameNode : queryConstructTypeNode.keySpecifier().get().fieldNames()) {
+                    queryExpr.fieldNameIdentifierList.add(createIdentifier(getPosition(fieldNameNode), fieldNameNode));
                 }
             }
-
-            // TODO: Set queryExpr.isStream field once issue #23742 is fixed
         }
-
+        queryExpr.isStream = isStream;
+        queryExpr.isTable = isTable;
         return queryExpr;
     }
 
@@ -3128,6 +3143,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private BLangLiteral createSimpleLiteral(Node literal) {
+        if (literal.kind() == SyntaxKind.UNARY_EXPRESSION) {
+            UnaryExpressionNode unaryExpr = (UnaryExpressionNode) literal;
+            return createSimpleLiteral(unaryExpr.expression(), unaryExpr.unaryOperator().kind());
+        }
+
+        return createSimpleLiteral(literal, SyntaxKind.NONE);
+    }
+
+    private BLangLiteral createSimpleLiteral(Node literal, SyntaxKind sign) {
         BLangLiteral bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         SyntaxKind type = literal.kind();
         int typeTag = -1;
@@ -3141,6 +3165,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             textValue = ((Token) literal).text();
         } else {
             textValue = "";
+        }
+
+        if (sign == SyntaxKind.PLUS_TOKEN) {
+            textValue = "+" + textValue;
+        } else if (sign == SyntaxKind.MINUS_TOKEN) {
+            textValue = "-" + textValue;
         }
 
         //TODO: Verify all types, only string type tested
@@ -3218,7 +3248,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             } else {
                 bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
             }
-        } 
+        }
 
         bLiteral.pos = getPosition(literal);
         bLiteral.type = symTable.getTypeFromTag(typeTag);

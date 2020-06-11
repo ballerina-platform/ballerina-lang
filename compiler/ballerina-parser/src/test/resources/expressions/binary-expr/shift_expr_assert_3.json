@@ -13,21 +13,10 @@
     },
     {
       "kind": "TRIPPLE_GT_TOKEN",
-      "children": [
+      "trailingMinutiae": [
         {
-          "kind": "GT_TOKEN"
-        },
-        {
-          "kind": "GT_TOKEN"
-        },
-        {
-          "kind": "GT_TOKEN",
-          "trailingMinutiae": [
-            {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
-            }
-          ]
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
         }
       ]
     },

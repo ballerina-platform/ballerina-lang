@@ -2,11 +2,16 @@
   "kind": "QUERY_EXPRESSION",
   "children": [
     {
-      "kind": "STREAM_KEYWORD",
-      "trailingMinutiae": [
+      "kind": "QUERY_CONSTRUCT_TYPE",
+      "children": [
         {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "STREAM_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
