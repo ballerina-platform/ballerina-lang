@@ -1,14 +1,17 @@
 {
   "kind": "LET_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LET_KEYWORD"
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "LET_VAR_DECL",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "LIST",
@@ -36,10 +39,15 @@
             },
             {
               "kind": "ANNOT_ACCESS",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "isMissing": true
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_IDENTIFIER"
+                  ]
                 },
                 {
                   "kind": "ANNOT_CHAINING_TOKEN"

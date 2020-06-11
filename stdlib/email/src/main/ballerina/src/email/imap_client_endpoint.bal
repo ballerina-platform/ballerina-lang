@@ -26,7 +26,7 @@ public type ImapClient client object {
     # + password - Password of the IMAP Client
     # + clientConfig - Configurations for the IMAP Client
     # + return - An `email:Error` if failed while creating the client or else `()`
-    public function __init(@untainted string host, @untainted string username, @untainted string password,
+    public function init(@untainted string host, @untainted string username, @untainted string password,
             ImapConfig clientConfig = {}) returns Error? {
         return initImapClientEndpoint(self, host, username, password, clientConfig);
     }

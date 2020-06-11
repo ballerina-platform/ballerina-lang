@@ -1,12 +1,18 @@
 {
   "kind": "QUERY_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "QUERY_CONSTRUCT_TYPE",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "TABLE_KEYWORD",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_TABLE_KEYWORD"
+          ]
         },
         {
           "kind": "KEY_SPECIFIER",

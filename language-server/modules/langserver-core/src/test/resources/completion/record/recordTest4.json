@@ -288,6 +288,20 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "createNestedFromFunction()(_StreamFunction)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n  \n  \n**Returns** `_StreamFunction`   \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "createNestedFromFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "getStreamFromPipeline()(stream<(any|error),error?><(any|error)>)",
       "kind": "Function",
       "detail": "Function",

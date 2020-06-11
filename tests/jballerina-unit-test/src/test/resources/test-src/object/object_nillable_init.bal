@@ -12,7 +12,7 @@ type Employee object {
     public Person? p5 = ();
     public Person? p6 = ();
 
-    function __init () {
+    function init () {
         self.p5 = new;
         self.p6 = new();
     }

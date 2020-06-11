@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -34,15 +35,18 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
@@ -53,6 +57,7 @@
                 },
                 {
                   "kind": "EXPLICIT_NEW_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "NEW_KEYWORD"
@@ -98,7 +103,7 @@
                               ]
                             },
                             {
-                              "kind": "FUNCTION_DEFINITION",
+                              "kind": "OBJECT_METHOD_DEFINITION",
                               "children": [
                                 {
                                   "kind": "METADATA",
@@ -114,7 +119,7 @@
                                 },
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
-                                  "value": "__init"
+                                  "value": "init"
                                 },
                                 {
                                   "kind": "FUNCTION_SIGNATURE",
@@ -206,6 +211,7 @@
                     },
                     {
                       "kind": "PARENTHESIZED_ARG_LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "OPEN_PAREN_TOKEN"
@@ -226,7 +232,11 @@
                         },
                         {
                           "kind": "CLOSE_PAREN_TOKEN",
-                          "isMissing": true
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+                          ]
                         }
                       ]
                     }

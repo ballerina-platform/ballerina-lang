@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_VAR_DECL",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -12,6 +13,7 @@
     },
     {
       "kind": "TYPED_BINDING_PATTERN",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "ARRAY_TYPE_DESC",
@@ -30,6 +32,7 @@
         },
         {
           "kind": "LIST_BINDING_PATTERN",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "OPEN_BRACKET_TOKEN"
@@ -50,7 +53,11 @@
             },
             {
               "kind": "CLOSE_BRACKET_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
+              ]
             }
           ]
         }

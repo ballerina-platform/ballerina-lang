@@ -43,7 +43,7 @@ type ObjectWithInvalidFillingReadOnUninitializedField object {
 
     map<int[]> s;
 
-    function __init() {
+    function init() {
         self.s["one"][0] = 1;
     }
 };

@@ -50,7 +50,7 @@ type RemoteParticipant object {
     private string transactionId;
     private RemoteProtocol[] participantProtocols;
 
-    function __init(string participantId, string transactionId, RemoteProtocol[] participantProtocols) {
+    function init(string participantId, string transactionId, RemoteProtocol[] participantProtocols) {
         self.participantId = participantId;
         self.transactionId = transactionId;
         self.participantProtocols = participantProtocols;
@@ -152,7 +152,7 @@ type LocalParticipant object {
     private TwoPhaseCommitTransaction participatedTxn;
     private LocalProtocol[] participantProtocols;
 
-    function __init(string participantId, TwoPhaseCommitTransaction participatedTxn, LocalProtocol[]
+    function init(string participantId, TwoPhaseCommitTransaction participatedTxn, LocalProtocol[]
         participantProtocols) {
         self.participantId = participantId;
         self.participatedTxn = participatedTxn;

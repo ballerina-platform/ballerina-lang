@@ -37,7 +37,7 @@ public type ABCClient client object {
 public type Client object {
     public ABCClient abcClient = new;
 
-    public function init(ClientEndpointConfiguration config) {
+    public function _init_(ClientEndpointConfiguration config) {
         self.abcClient = new;
     }
 

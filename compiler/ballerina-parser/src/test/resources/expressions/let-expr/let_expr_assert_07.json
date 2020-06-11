@@ -1,11 +1,13 @@
 {
   "kind": "LET_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LET_KEYWORD"
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "LET_VAR_DECL",
@@ -42,7 +44,11 @@
         },
         {
           "kind": "COMMA_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_COMMA_TOKEN"
+          ]
         },
         {
           "kind": "LET_VAR_DECL",
@@ -79,7 +85,11 @@
         },
         {
           "kind": "COMMA_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_COMMA_TOKEN"
+          ]
         },
         {
           "kind": "LET_VAR_DECL",

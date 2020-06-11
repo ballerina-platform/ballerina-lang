@@ -1,5 +1,6 @@
 {
   "kind": "TYPE_CAST_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LT_TOKEN"
@@ -47,11 +48,19 @@
     },
     {
       "kind": "GT_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_GT_TOKEN"
+      ]
     },
     {
       "kind": "IDENTIFIER_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_IDENTIFIER"
+      ]
     }
   ]
 }

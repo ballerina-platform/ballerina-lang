@@ -17,7 +17,7 @@
 type Foo1 client object {
     any val;
 
-    function __init(any val) {
+    function init(any val) {
         self.val = val;
     }
 
@@ -81,7 +81,7 @@ type PersonObj object {
     string name;
     int age;
 
-    function __init(string name, int age) {
+    function init(string name, int age) {
         self.name = name;
         self.age = age;
     }

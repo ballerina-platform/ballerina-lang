@@ -1,5 +1,6 @@
 {
   "kind": "TYPE_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -19,16 +20,22 @@
     },
     {
       "kind": "SINGLETON_TYPE_DESC",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "UNARY_EXPRESSION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "PLUS_TOKEN"
             },
             {
               "kind": "DECIMAL_INTEGER_LITERAL",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_DECIMAL_INTEGER_LITERAL"
+              ]
             }
           ]
         }

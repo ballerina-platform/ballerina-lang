@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_PART",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -7,9 +8,11 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "ANNOTATION_DECLARATION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -32,16 +35,22 @@
             },
             {
               "kind": "LIST",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "ANNOTATION_ATTACH_POINT",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "SOURCE_KEYWORD"
                     },
                     {
                       "kind": "TYPE_KEYWORD",
-                      "isMissing": true
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_TYPE_KEYWORD"
+                      ]
                     }
                   ]
                 },
@@ -50,7 +59,11 @@
                 },
                 {
                   "kind": "TYPE_KEYWORD",
-                  "isMissing": true
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_TYPE_KEYWORD"
+                  ]
                 }
               ]
             },

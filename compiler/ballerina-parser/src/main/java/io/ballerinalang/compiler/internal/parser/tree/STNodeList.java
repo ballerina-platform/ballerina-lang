@@ -132,6 +132,11 @@ public final class STNodeList extends STNode {
     }
 
     @Override
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public NonTerminalNode createFacade(int position, NonTerminalNode parent) {
         return new ExternalTreeNodeList(this, position, parent);
     }

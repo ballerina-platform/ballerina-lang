@@ -19,7 +19,7 @@ public type Student object {
     public string school = "";
     public int age = 0;
 
-    public function __init(string name, string school, int age) {
+    public function init(string name, string school, int age) {
         self.name = name;
         self.age = age;
         self.school = school;
@@ -45,5 +45,31 @@ public type ModuleLevelSubtypableObj2 object {
 
     function updateAge(int age) {
         self.age = age;
+    }
+};
+
+public type ClientObjectWithoutRemoteMethod client object {
+    public string name;
+    public string id = "";
+
+    public function init(string name) {
+        self.name = name;
+    }
+    public function send(string message) returns error? {
+    }
+    public function receive(string message) {
+    }
+};
+
+public type NonClientObject object {
+    public string name;
+    public string id = "";
+
+    public function init(string name) {
+        self.name = name;
+    }
+    public function send(string message) returns error? {
+    }
+    public function receive(string message) {
     }
 };
