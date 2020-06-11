@@ -110,7 +110,7 @@ public class AnnotationUtils {
     /**
      * Returns strand name of given {@link FPValue}.
      *
-     * @param fpValue function pointer to be invoked
+     * @param fpValue     function pointer to be invoked
      * @param defaultName default strand name
      * @return annotated strand name
      */

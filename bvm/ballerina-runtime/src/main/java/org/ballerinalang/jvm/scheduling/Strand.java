@@ -316,10 +316,21 @@ public class Strand {
         return id;
     }
 
+    /**
+     * Gets the strand name. This will be optional. Strand name can be either name given in strand annotation or async
+     * call or function pointer variable name.
+     *
+     * @return Optional strand name.
+     */
     public Optional<String> getName() {
         return Optional.ofNullable(name);
     }
 
+    /**
+     * Gets @{@link StrandMetadata}.
+     *
+     * @return metadata of the strand.
+     */
     public StrandMetadata getMetadata() {
         return metadata;
     }

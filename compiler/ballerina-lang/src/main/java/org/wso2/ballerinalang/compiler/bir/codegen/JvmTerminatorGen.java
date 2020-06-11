@@ -1173,6 +1173,7 @@ public class JvmTerminatorGen {
     }
 
     private void loadFpReturnType(BIROperand lhsOp) {
+
         BType futureType = lhsOp.variableDcl.type;
         BType returnType = symbolTable.anyType;
         if (futureType.tag == TypeTags.FUTURE) {

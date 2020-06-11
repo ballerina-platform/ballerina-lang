@@ -37,7 +37,6 @@ import javax.transaction.xa.Xid;
 import static javax.transaction.xa.XAResource.TMNOFLAGS;
 import static javax.transaction.xa.XAResource.TMSUCCESS;
 
-
 /**
  * {@code TransactionResourceManager} registry for transaction contexts.
  *

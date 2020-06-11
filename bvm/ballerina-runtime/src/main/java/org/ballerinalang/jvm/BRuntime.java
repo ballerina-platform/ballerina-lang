@@ -81,10 +81,10 @@ public class BRuntime {
      * Invoke Function Pointer asynchronously. This will schedule the function and block the strand.
      *
      * @param func                 Function Pointer to be invoked.
-     * @param strandName Name for newly creating strand which is used to execute the function pointer. This is
-     *                   optional and can be null.
-     * @param metadata   Meta data of new strand.
-     * @param args  Ballerina function arguments.
+     * @param strandName           Name for newly creating strand which is used to execute the function pointer.
+     *                             This is optional and can be null.
+     * @param metadata             Meta data of new strand.
+     * @param args                 Ballerina function arguments.
      * @param resultHandleFunction Function used to process the result received after execution of function.
      * @return Future Value
      */
@@ -107,12 +107,12 @@ public class BRuntime {
     /**
      * Invoke Function Pointer asynchronously. This will schedule the function and block the strand.
      *
-     * @param func     Function Pointer to be invoked.
+     * @param func       Function Pointer to be invoked.
      * @param strandName Name for newly creating strand which is used to execute the function pointer. This is
      *                   optional and can be null.
      * @param metadata   Meta data of new strand.
-     * @param args     Ballerina function arguments.
-     * @param callback Asynchronous call back.
+     * @param args       Ballerina function arguments.
+     * @param callback   Asynchronous call back.
      * @return Future value
      */
     public FutureValue invokeFunctionPointerAsync(FPValue<?, ?> func, String strandName, StrandMetadata metadata,
@@ -128,14 +128,14 @@ public class BRuntime {
      * item of the collection.
      *
      * @param func                 Function Pointer to be invoked.
-     * @param strandName Name for newly creating strand which is used to execute the function pointer. This is
-     *                   optional and can be null.
-     * @param metadata   Meta data of new strand.
-     * @param noOfIterations Number of iterations need to call the function pointer.
-     * @param argsSupplier Supplier provides dynamic arguments to function pointer execution in each iteration.
+     * @param strandName           Name for newly creating strand which is used to execute the function pointer. This is
+     *                             optional and can be null.
+     * @param metadata             Meta data of new strand.
+     * @param noOfIterations       Number of iterations need to call the function pointer.
+     * @param argsSupplier         Supplier provides dynamic arguments to function pointer execution in each iteration.
      * @param futureResultConsumer Consumer used to process the future value received after execution of function.
      *                             Future value result will have the return object of the function pointer.
-     * @param returnValueSupplier Suppiler used to set the final return value for the parent function invocation.
+     * @param returnValueSupplier  Suppler used to set the final return value for the parent function invocation.
      */
     public void invokeFunctionPointerAsyncIteratively(FPValue<?, ?> func, String strandName,
                                                       StrandMetadata metadata, int noOfIterations,
@@ -154,7 +154,8 @@ public class BRuntime {
 
     /**
      * Invoke Object method asynchronously. This will schedule the function and block the strand.
-     *  @param object     Object Value.
+     *
+     * @param object     Object Value.
      * @param methodName Name of the method.
      * @param strandName Name for newly creating strand which is used to execute the function pointer. This is
      *                   optional and can be null.
@@ -170,7 +171,8 @@ public class BRuntime {
 
     /**
      * Invoke Object method asynchronously. This will schedule the function and block the strand.
-     *  @param object     Object Value.
+     *
+     * @param object     Object Value.
      * @param methodName Name of the method.
      * @param strandName Name for newly creating strand which is used to execute the function pointer. This is
      *                   optional and can be null.

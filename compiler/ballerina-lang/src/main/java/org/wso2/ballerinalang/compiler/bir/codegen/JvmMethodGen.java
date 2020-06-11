@@ -1311,14 +1311,15 @@ public class JvmMethodGen {
 
     static void generateStrandMetadata(MethodVisitor mv, String moduleClass,
                                        BIRPackage module, AsyncDataCollector asyncDataCollector) {
+
         asyncDataCollector.getStrandMetadata().forEach((varName, metaData) -> {
             genStrandMetadataField(mv, moduleClass, module, varName, metaData);
         });
     }
 
-
     static void genStrandMetadataField(MethodVisitor mv, String moduleClass, BIRPackage module,
                                                String varName, ScheduleFunctionInfo metaData) {
+
         mv.visitTypeInsn(NEW, STRAND_METADATA);
         mv.visitInsn(DUP);
         mv.visitLdcInsn(module.org.value);

@@ -153,8 +153,7 @@ public class WebSocketResourceDispatcher {
         try {
             WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
             WebSocketService wsService = connectionInfo.getService();
-            AttachedFunction onTextMessageResource = wsService.getResourceByName(
-                    RESOURCE_NAME_ON_TEXT);
+            AttachedFunction onTextMessageResource = wsService.getResourceByName(RESOURCE_NAME_ON_TEXT);
             if (onTextMessageResource == null) {
                 webSocketConnection.readNextFrame();
                 return;
@@ -189,9 +188,8 @@ public class WebSocketResourceDispatcher {
                     if (aggregate != null) {
                         bValues[2] = aggregate;
                         bValues[3] = true;
-                        executeResource(wsService, new WebSocketResourceCallback(
-                                connectionInfo, RESOURCE_NAME_ON_TEXT), bValues, connectionInfo,
-                                        RESOURCE_NAME_ON_TEXT, METADATA_ON_TEXT);
+                        executeResource(wsService, new WebSocketResourceCallback(connectionInfo, RESOURCE_NAME_ON_TEXT),
+                                        bValues, connectionInfo, RESOURCE_NAME_ON_TEXT, METADATA_ON_TEXT);
                     }
                     stringAggregator.resetAggregateString();
                 } else {

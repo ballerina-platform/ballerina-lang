@@ -57,11 +57,12 @@ public class Executor {
     /**
      * This method will execute Ballerina resource in non-blocking manner. It will use Ballerina worker-pool for the
      * execution and will return the connector thread immediately.
+     *
      * @param scheduler    available scheduler.
      * @param service      to be executed.
      * @param resourceName to be executed.
-     * @param strandName name for newly creating strand which is used to execute the function pointer.
-     * @param metaData   meta data of new strand.
+     * @param strandName   name for newly creating strand which is used to execute the function pointer.
+     * @param metaData     meta data of new strand.
      * @param callback     to be executed when execution completes.
      * @param properties   to be passed to context.
      * @param args         required for the resource.
@@ -85,12 +86,12 @@ public class Executor {
     /**
      * Execution API to execute just a function.
      *
-     * @param strand   current strand
-     * @param service  to be executed
-     * @param resource to be executed
+     * @param strand     current strand
+     * @param service    to be executed
+     * @param resource   to be executed
      * @param strandName name for newly creating strand which is used to execute the function pointer.
      * @param metaData   meta data of new strand.
-     * @param args     to be passed to invokable unit
+     * @param args       to be passed to invokable unit
      * @return results
      */
     public static Object executeFunction(Strand strand, ObjectValue service, AttachedFunction resource,
@@ -109,8 +110,8 @@ public class Executor {
      * This method will invoke Ballerina function in blocking manner.
      *
      * @param scheduler   current scheduler
-     * @param strandName name for newly creating strand which is used to execute the function pointer.
-     * @param metaData   meta data of new strand.
+     * @param strandName  name for newly creating strand which is used to execute the function pointer.
+     * @param metaData    meta data of new strand.
      * @param classLoader normal classLoader
      * @param orgName     org which the package belongs to
      * @param packageName package which the class belongs to

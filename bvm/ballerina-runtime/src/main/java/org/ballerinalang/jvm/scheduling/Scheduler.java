@@ -151,15 +151,15 @@ public class Scheduler {
     /**
      * Add a task to the runnable list, which will eventually be executed by the Scheduler.
      *
-     * @param params     - parameters to be passed to the function
-     * @param function   - function to be executed
-     * @param parent     - parent strand that makes the request to schedule another
-     * @param callback   - to notify any listener when ever the execution of the given function is finished
-     * @param properties - request properties which requires for co-relation
-     * @param returnType - return type of the scheduled function
-     * @param strandName - name for new strand
-     * @param metadata   - meta data of new strand
-     * @return - Reference to the scheduled task
+     * @param params     parameters to be passed to the function
+     * @param function   function to be executed
+     * @param parent     parent strand that makes the request to schedule another
+     * @param callback   to notify any listener when ever the execution of the given function is finished
+     * @param properties request properties which requires for co-relation
+     * @param returnType return type of the scheduled function
+     * @param strandName name for new strand
+     * @param metadata   meta data of new strand
+     * @return Reference to the scheduled task
      */
     public FutureValue schedule(Object[] params, Function function, Strand parent, CallableUnitCallback callback,
                                 Map<String, Object> properties, BType returnType, String strandName,
@@ -171,13 +171,13 @@ public class Scheduler {
     /**
      * Add a task to the runnable list, which will eventually be executed by the Scheduler.
      *
-     * @param params   - parameters to be passed to the function
-     * @param function - function to be executed
-     * @param parent   - parent strand that makes the request to schedule another
-     * @param callback - to notify any listener when ever the execution of the given function is finished
-     * @param strandName - name for new strand
-     * @param metadata - meta data of new strand
-     * @return - Reference to the scheduled task
+     * @param params     parameters to be passed to the function
+     * @param function   function to be executed
+     * @param parent     parent strand that makes the request to schedule another
+     * @param callback   to notify any listener when ever the execution of the given function is finished
+     * @param strandName name for new strand
+     * @param metadata   meta data of new strand
+     * @return Reference to the scheduled task
      */
     public FutureValue schedule(Object[] params, Function function, Strand parent, CallableUnitCallback callback,
                                 String strandName, StrandMetadata metadata) {
@@ -200,13 +200,13 @@ public class Scheduler {
     /**
      * Add a void returning task to the runnable list, which will eventually be executed by the Scheduler.
      *
-     * @param params   - parameters to be passed to the function
-     * @param consumer - consumer to be executed
-     * @param parent   - parent strand that makes the request to schedule another
-     * @param callback - to notify any listener when ever the execution of the given function is finished
-     * @param strandName - name for new strand
-     * @param metadata - meta data of new strand
-     * @return - Reference to the scheduled task
+     * @param params     parameters to be passed to the function
+     * @param consumer   consumer to be executed
+     * @param parent     parent strand that makes the request to schedule another
+     * @param callback   to notify any listener when ever the execution of the given function is finished
+     * @param strandName name for new strand
+     * @param metadata   meta data of new strand
+     * @return Reference to the scheduled task
      */
     @Deprecated
     public FutureValue schedule(Object[] params, Consumer consumer, Strand parent, CallableUnitCallback callback,

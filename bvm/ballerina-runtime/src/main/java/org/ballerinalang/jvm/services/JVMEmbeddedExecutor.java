@@ -80,15 +80,15 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             return Optional.of(e);
         }
     }
-    
+
     /**
      * Executes the __start_ function of the module.
      *
-     * @param moduleName The name of the module.
+     * @param moduleName    The name of the module.
      * @param moduleVersion Version of the module.
-     * @param scheduler  The scheduler.
-     * @param strandName name for newly creating strand which is used to execute the function pointer.
-     * @param metaData   meta data of new strand.
+     * @param scheduler     The scheduler.
+     * @param strandName    name for newly creating strand which is used to execute the function pointer.
+     * @param metaData      meta data of new strand.
      * @throws RuntimeException When an error occurs invoking or within the function.
      */
     private void runStartOnSchedule(String moduleName, String moduleVersion, Scheduler scheduler, String strandName,
@@ -130,16 +130,16 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             throw new RuntimeException("Error while invoking main function: " + moduleName, e);
         }
     }
-    
+
     /**
      * Executes the <module_name>.main function of a module.
      *
-     * @param moduleName The name of the module.
+     * @param moduleName    The name of the module.
      * @param moduleVersion Version of the module.
-     * @param scheduler  The scheduler which executes the function.
-     * @param strandName name for newly creating strand which is used to execute the function pointer.
-     * @param metaData   meta data of new strand.
-     * @param stringArgs The string arguments for the function.
+     * @param scheduler     The scheduler which executes the function.
+     * @param strandName    name for newly creating strand which is used to execute the function pointer.
+     * @param metaData      meta data of new strand.
+     * @param stringArgs    The string arguments for the function.
      * @throws RuntimeException When an error occurs invoking or within the function.
      */
     private static void runMainOnSchedule(String moduleName, String moduleVersion, Scheduler scheduler,
@@ -189,15 +189,15 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             throw new RuntimeException("Error while invoking main function: " + moduleName, e);
         }
     }
-    
+
     /**
      * Executes the __init_ function of the module.
      *
-     * @param moduleName The name of the module.
+     * @param moduleName    The name of the module.
      * @param moduleVersion Version of the module.
-     * @param scheduler  The scheduler which executes the function.
-     * @param strandName name for newly creating strand which is used to execute the function pointer.
-     * @param metaData   meta data of new strand.
+     * @param scheduler     The scheduler which executes the function.
+     * @param strandName    name for newly creating strand which is used to execute the function pointer.
+     * @param metaData      meta data of new strand.
      * @throws RuntimeException When an error occurs invoking or within the function.
      */
     private static void runInitOnSchedule(String moduleName, String moduleVersion, Scheduler scheduler,
