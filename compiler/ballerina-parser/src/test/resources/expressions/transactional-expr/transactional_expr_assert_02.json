@@ -128,31 +128,8 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "TRANSACTIONAL_EXPRESSION",
-                      "children": [
-                        {
-                          "kind": "TRANSACTIONAL_KEYWORD"
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "PIPE_TOKEN"
-                    },
-                    {
                       "kind": "BINARY_EXPRESSION",
-                      "hasDiagnostics": true,
                       "children": [
-                        {
-                          "kind": "TRUE_KEYWORD"
-                        },
-                        {
-                          "kind": "PLUS_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_PLUS_TOKEN"
-                          ]
-                        },
                         {
                           "kind": "TRANSACTIONAL_EXPRESSION",
                           "children": [
@@ -160,6 +137,28 @@
                               "kind": "TRANSACTIONAL_KEYWORD"
                             }
                           ]
+                        },
+                        {
+                          "kind": "PIPE_TOKEN"
+                        },
+                        {
+                          "kind": "TRUE_KEYWORD"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "PLUS_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_PLUS_TOKEN"
+                      ]
+                    },
+                    {
+                      "kind": "TRANSACTIONAL_EXPRESSION",
+                      "children": [
+                        {
+                          "kind": "TRANSACTIONAL_KEYWORD"
                         }
                       ]
                     }

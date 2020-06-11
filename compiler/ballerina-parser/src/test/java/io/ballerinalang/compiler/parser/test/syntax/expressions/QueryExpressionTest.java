@@ -74,7 +74,7 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
         test("table from int a in b select c", "query-expr/query_expr_assert_12.json");
     }
 
-    @Test
+    @Test(enabled = false) // no longer valid, since "key" is not a keyword
     public void testQueryWithMissingTableKeyword() {
         test("key() from int a in b select c", "query-expr/query_expr_assert_13.json");
     }
@@ -145,7 +145,7 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
         test("table key() foo from int a in b select g", "query-expr/query_expr_assert_31.json");
     }
 
-    @Test
+    @Test(enabled = false) // no longer valid, since "key" is not a keyword
     public void testQueryWithTwoKeySpecifiersWithExtraTokenInBetween() {
         test("table key(a) foo key(b) []", "query-expr/query_expr_assert_32.json");
     }

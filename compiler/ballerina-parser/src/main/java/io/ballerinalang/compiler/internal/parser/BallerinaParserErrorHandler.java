@@ -876,6 +876,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case SLASH_ASTERISK_TOKEN:
                     hasMatch = nextToken.kind == SyntaxKind.SLASH_ASTERISK_TOKEN;
                     break;
+                case KEY_KEYWORD:
+                    hasMatch = BallerinaParser.isKeyKeyword(nextToken);
+                    break;
 
                 // start a context, so that we know where to fall back, and continue
                 // having the qualified-identifier as the next rule.

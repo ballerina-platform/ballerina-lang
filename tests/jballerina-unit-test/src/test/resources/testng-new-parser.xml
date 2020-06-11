@@ -50,13 +50,13 @@
 <!--            <package name="org.ballerinalang.test.jvm.*"/>-->
            <package name="org.ballerinalang.test.types.integer"/>
            <package name="org.ballerinalang.test.types.floattype"/>
-<!--            <package name="org.ballerinalang.test.main.function.*"/>-->
+           <package name="org.ballerinalang.test.main.function.*"/>
 <!--            <package name="org.ballerinalang.test.types.decimaltype.*"/>-->
             <package name="org.ballerinalang.test.types.any.*"/>
 <!--            <package name="org.ballerinalang.test.error.*"/>-->
 <!--            <package name="org.ballerinalang.test.types.finaltypes.*"/>-->
 <!--            <package name="org.ballerinalang.test.types.finite.*"/>-->
-<!--            <package name="org.ballerinalang.test.types.map.*"/>-->
+           <package name="org.ballerinalang.test.types.map.*"/>
            <package name="org.ballerinalang.test.types.string.*"/>
 <!--            <package name="org.ballerinalang.test.types.stream.*"/>-->
 <!--            <package name="org.ballerinalang.test.types.table.*"/>-->
@@ -92,11 +92,11 @@
 <!--            <package name="org.ballerinalang.test.expressions.conversion.*"/>-->
             <package name="org.ballerinalang.test.expressions.unaryoperations.*"/>
 <!--            <package name="org.ballerinalang.test.expressions.access.*"/>-->
-<!--            <package name="org.ballerinalang.test.expressions.binaryoperations.*"/>-->
-<!--            <package name="org.ballerinalang.test.expressions.checkedexpr.*"/>-->
+           <package name="org.ballerinalang.test.expressions.binaryoperations.*"/>
+           <package name="org.ballerinalang.test.expressions.checkedexpr.*"/>
 <!--            <package name="org.ballerinalang.test.expressions.checkpanicexpr.*"/>-->
-<!--            <package name="org.ballerinalang.test.expressions.elvis.*"/>-->
-<!--            <package name="org.ballerinalang.test.expressions.ternary.*"/>-->
+           <package name="org.ballerinalang.test.expressions.elvis.*"/>
+           <package name="org.ballerinalang.test.expressions.ternary.*"/>
             <package name="org.ballerinalang.test.expressions.typeof.*"/>
 <!--            <package name="org.ballerinalang.test.expressions.stamp.*"/>-->
 <!--            <package name="org.ballerinalang.test.expressions.lambda.*"/>-->
@@ -131,11 +131,6 @@
 
         <classes>
             <class name="org.ballerinalang.test.balo.constant.SimpleConstantBaloNegativeTests"></class>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.DivisionOperationTest"></class>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.GreaterLessThanOperationTest"></class>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.ModOperationTest"></class>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.MultiplyOperationTest"></class>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.SubtractOperationTest"></class>
             <class name="org.ballerinalang.test.expressions.builtinoperations.BuiltinOperationsTest"></class>
             <class name="org.ballerinalang.test.expressions.invocations.StringFunctionInvocationExprTest"></class>
             <class name="org.ballerinalang.test.expressions.invocations.PackageInitInvocationTest"></class>

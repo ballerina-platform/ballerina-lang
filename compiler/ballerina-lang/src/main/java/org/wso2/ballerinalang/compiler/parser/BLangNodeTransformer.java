@@ -34,6 +34,7 @@ import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.CompoundAssignmentStatementNode;
+import io.ballerinalang.compiler.syntax.tree.ComputedNameFieldNode;
 import io.ballerinalang.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ContinueStatementNode;
@@ -231,6 +232,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -260,6 +262,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
@@ -1415,6 +1418,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                         (BLangRecordSpreadOperatorField) TreeBuilder.createRecordSpreadOperatorField();
                 bLRecordSpreadOpField.expr = createExpression(spreadFieldNode.valueExpr());
                 bLiteralNode.fields.add(bLRecordSpreadOpField);
+            } else if (field.kind() == SyntaxKind.COMPUTED_NAME_FIELD) {
+                ComputedNameFieldNode computedNameField = (ComputedNameFieldNode) field;
+                BLangRecordKeyValueField bLRecordKeyValueField =
+                        (BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
+                bLRecordKeyValueField.valueExpr = createExpression(computedNameField.valueExpr());
+                bLRecordKeyValueField.key =
+                        new BLangRecordLiteral.BLangRecordKey(createExpression(computedNameField.fieldNameExpr()));
+                bLRecordKeyValueField.key.computedKey = true;
+                bLiteralNode.fields.add(bLRecordKeyValueField);
             } else {
                 SpecificFieldNode specificField = (SpecificFieldNode) field;
                 io.ballerinalang.compiler.syntax.tree.ExpressionNode valueExpr = specificField.valueExpr();
@@ -1493,6 +1505,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(BinaryExpressionNode binaryExprNode) {
+        if (binaryExprNode.operator().kind() == SyntaxKind.ELVIS_TOKEN) {
+            BLangElvisExpr elvisExpr = (BLangElvisExpr) TreeBuilder.createElvisExpressionNode();
+            elvisExpr.pos = getPosition(binaryExprNode);
+            elvisExpr.lhsExpr = createExpression(binaryExprNode.lhsExpr());
+            elvisExpr.rhsExpr = createExpression(binaryExprNode.rhsExpr());
+            return elvisExpr;
+        }
+
         BLangBinaryExpr bLBinaryExpr = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
         bLBinaryExpr.pos = getPosition(binaryExprNode);
         bLBinaryExpr.lhsExpr = createExpression(binaryExprNode.lhsExpr());
@@ -2950,6 +2970,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             return group;
         } else if (expression.kind() == SyntaxKind.EXPRESSION_LIST_ITEM) {
             return createExpression(((ExpressionListItemNode) expression).expression());
+        } else if (isSimpleType(expression.kind())) {
+            BLangTypedescExpr typeAccessExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
+            typeAccessExpr.pos = getPosition(expression);
+            typeAccessExpr.typeNode = createTypeNode(expression);
+            return typeAccessExpr;
         } else {
             return (BLangExpression) expression.apply(this);
         }
@@ -3155,7 +3180,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             } else {
                 bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
             }
-        }
+        } 
 
         bLiteral.pos = getPosition(literal);
         bLiteral.type = symTable.getTypeFromTag(typeTag);
@@ -3554,6 +3579,32 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             case FALSE_KEYWORD:
             case NIL_LITERAL:
             case NULL_KEYWORD:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    static boolean isSimpleType(SyntaxKind nodeKind) {
+        switch (nodeKind) {
+            case INT_TYPE_DESC:
+            case FLOAT_TYPE_DESC:
+            case DECIMAL_TYPE_DESC:
+            case BOOLEAN_TYPE_DESC:
+            case STRING_TYPE_DESC:
+            case BYTE_TYPE_DESC:
+            case XML_TYPE_DESC:
+            case JSON_TYPE_DESC:
+            case HANDLE_TYPE_DESC:
+            case ANY_TYPE_DESC:
+            case ANYDATA_TYPE_DESC:
+            case NEVER_TYPE_DESC:
+            case SERVICE_TYPE_DESC:
+            case VAR_TYPE_DESC:
+            case ERROR_TYPE_DESC:
+            case STREAM_TYPE_DESC:
+            case READONLY_TYPE_DESC:
+            case DISTINCT_TYPE_DESC:
                 return true;
             default:
                 return false;
