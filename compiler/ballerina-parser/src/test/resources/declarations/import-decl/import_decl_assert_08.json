@@ -2,7 +2,13 @@
   "kind": "IMPORT_DECLARATION",
   "children": [
     {
-      "kind": "IMPORT_KEYWORD"
+      "kind": "IMPORT_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "IMPORT_ORG_NAME",
@@ -35,7 +41,13 @@
         },
         {
           "kind": "IDENTIFIER_TOKEN",
-          "value": "baz"
+          "value": "baz",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -43,7 +55,13 @@
       "kind": "IMPORT_VERSION",
       "children": [
         {
-          "kind": "VERSION_KEYWORD"
+          "kind": "VERSION_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "LIST",
@@ -72,7 +90,13 @@
                 },
                 {
                   "kind": "DECIMAL_INTEGER_LITERAL",
-                  "value": "0"
+                  "value": "0",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             }
@@ -84,7 +108,13 @@
       "kind": "IMPORT_PREFIX",
       "children": [
         {
-          "kind": "AS_KEYWORD"
+          "kind": "AS_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "IDENTIFIER_TOKEN",

@@ -14,7 +14,13 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "ELLIPSIS_TOKEN"
+              "kind": "ELLIPSIS_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",
