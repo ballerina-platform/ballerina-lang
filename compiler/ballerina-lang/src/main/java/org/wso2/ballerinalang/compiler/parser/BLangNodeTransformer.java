@@ -107,6 +107,7 @@ import io.ballerinalang.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.QueryActionNode;
 import io.ballerinalang.compiler.syntax.tree.QueryConstructTypeNode;
 import io.ballerinalang.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ReceiveActionNode;
@@ -221,6 +222,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
@@ -246,6 +248,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDo
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
@@ -1276,6 +1279,20 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLAnnotationAttachment.setPackageAlias(nameReference.pkgAlias);
         bLAnnotationAttachment.pos = getPosition(annotation);
         return bLAnnotationAttachment;
+    }
+
+    @Override
+    public BLangNode transform(QueryActionNode queryActionNode) {
+        BLangQueryAction bLQueryAction = (BLangQueryAction) TreeBuilder.createQueryActionNode();
+        BLangDoClause doClause = (BLangDoClause) TreeBuilder.createDoClauseNode();
+        doClause.body = (BLangBlockStmt) queryActionNode.blockStatement().apply(this);
+        expandLeft(doClause.body.pos, getPosition(queryActionNode.doKeyword()));
+        doClause.pos = doClause.body.pos;
+        bLQueryAction.queryClauseList.add(queryActionNode.queryPipeline().fromClause().apply(this));
+        bLQueryAction.queryClauseList.addAll(applyAll(queryActionNode.queryPipeline().intermediateClauses()));
+        bLQueryAction.queryClauseList.add(doClause);
+        bLQueryAction.pos = getPosition(queryActionNode);
+        return bLQueryAction;
     }
 
     @Override
@@ -2825,6 +2842,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                                                                    boolean isDeclaredWithVar) {
         BLangSimpleVariable simpleVariable = new SimpleVarBuilder()
                 .with(captureBindingPatternNode.variableName().text())
+                .isFinal()
                 .build();
         simpleVariable.isDeclaredWithVar = isDeclaredWithVar;
         if (typeDesc != null) {
