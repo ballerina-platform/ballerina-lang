@@ -27,14 +27,14 @@ import java.util.Map;
  *
  * @since 1.3.0
  */
-public class AsyncInvocationData {
+public class AsyncDataCollector {
 
     private Map<String, BIRInstruction> lambdas;
     private Map<String, ScheduleFunctionInfo> strandMetaDataMap;
     private int lambdaIndex = 0;
     private String enclosingClass;
 
-    public AsyncInvocationData(String enclosingClass) {
+    public AsyncDataCollector(String enclosingClass) {
 
         this.enclosingClass = enclosingClass;
         lambdas = new HashMap<>();

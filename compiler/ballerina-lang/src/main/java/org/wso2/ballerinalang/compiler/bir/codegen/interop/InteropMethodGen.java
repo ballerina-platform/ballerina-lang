@@ -27,9 +27,9 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncInvocationData;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -124,7 +124,7 @@ public class InteropMethodGen {
                                          JvmMethodGen jvmMethodGen,
                                          String moduleClassName,
                                          String serviceName,
-                                         AsyncInvocationData lambdaGenMetadata) {
+                                         AsyncDataCollector lambdaGenMetadata) {
 
         String currentPackageName = getPackageName(birModule.org.value, birModule.name.value, birModule.version.value);
 

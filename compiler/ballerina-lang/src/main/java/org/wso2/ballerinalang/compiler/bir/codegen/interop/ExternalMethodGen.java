@@ -21,7 +21,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.ClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncInvocationData;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -68,7 +68,7 @@ public class ExternalMethodGen {
                                                   JvmPackageGen jvmPackageGen,
                                                   String moduleClassName,
                                                   String serviceName,
-                                                  AsyncInvocationData lambdaGenMetadata) {
+                                                  AsyncDataCollector lambdaGenMetadata) {
 
         ExternalFunctionWrapper extFuncWrapper = getExternalFunctionWrapper(birModule, birFunc, attachedType,
                 jvmPackageGen);

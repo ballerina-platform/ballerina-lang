@@ -23,8 +23,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncInvocationData;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
@@ -325,7 +325,7 @@ class JvmTypeGen {
 
     static void generateValueCreatorMethods(ClassWriter cw, List<BIRTypeDefinition> typeDefs,
                                             BIRNode.BIRPackage moduleId, String typeOwnerClass,
-                                            SymbolTable symbolTable, AsyncInvocationData asyncInvocationData) {
+                                            SymbolTable symbolTable, AsyncDataCollector asyncDataCollector) {
 
         List<BIRTypeDefinition> recordTypeDefs = new ArrayList<>();
         List<BIRTypeDefinition> objectTypeDefs = new ArrayList<>();
@@ -351,14 +351,14 @@ class JvmTypeGen {
             }
         }
 
-        generateRecordValueCreateMethod(cw, recordTypeDefs, moduleId, typeOwnerClass, asyncInvocationData);
+        generateRecordValueCreateMethod(cw, recordTypeDefs, moduleId, typeOwnerClass, asyncDataCollector);
         generateObjectValueCreateMethod(cw, objectTypeDefs, moduleId, typeOwnerClass, symbolTable,
-                                        asyncInvocationData);
+                                        asyncDataCollector);
     }
 
     private static void generateRecordValueCreateMethod(ClassWriter cw, List<BIRTypeDefinition> recordTypeDefs,
                                                         BIRNode.BIRPackage moduleId, String typeOwnerClass,
-                                                        AsyncInvocationData asyncInvocationData) {
+                                                        AsyncDataCollector asyncDataCollector) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, CREATE_RECORD_VALUE,
                 String.format("(L%s;)L%s;", STRING_VALUE, MAP_VALUE),
                 String.format("(L%s;)L%s<L%s;L%s;>;", STRING_VALUE, MAP_VALUE, STRING_VALUE, OBJECT), null);
@@ -394,7 +394,7 @@ class JvmTypeGen {
             mv.visitInsn(DUP);
             mv.visitInsn(ACONST_NULL);
             String metaDataVarName = getStrandMetadataVarName(typeDef.name.value);
-            asyncInvocationData
+            asyncDataCollector
                     .getStrandMetadata().putIfAbsent(metaDataVarName, new ScheduleFunctionInfo(CREATE_RECORD_VALUE));
             mv.visitFieldInsn(GETSTATIC, typeOwnerClass, metaDataVarName, String.format("L%s;", STRAND_METADATA));
             mv.visitInsn(ACONST_NULL);
@@ -417,7 +417,8 @@ class JvmTypeGen {
 
     private static void generateObjectValueCreateMethod(ClassWriter cw, List<BIRTypeDefinition> objectTypeDefs,
                                                         BIRNode.BIRPackage moduleId, String typeOwnerClass,
-                                                        SymbolTable symbolTable, AsyncInvocationData asyncInvocationData) {
+                                                        SymbolTable symbolTable,
+                                                        AsyncDataCollector asyncDataCollector) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, CREATE_OBJECT_VALUE,
                 String.format("(L%s;L%s;L%s;L%s;[L%s;)L%s;", STRING_VALUE, SCHEDULER, STRAND, MAP, OBJECT,
@@ -494,7 +495,7 @@ class JvmTypeGen {
             mv.visitInsn(DUP);
             mv.visitInsn(ACONST_NULL);
             String metaDataVarName = getStrandMetadataVarName(CREATE_OBJECT_VALUE);
-            asyncInvocationData
+            asyncDataCollector
                     .getStrandMetadata().putIfAbsent(metaDataVarName, new ScheduleFunctionInfo(CREATE_OBJECT_VALUE));
             mv.visitFieldInsn(GETSTATIC, typeOwnerClass, metaDataVarName, String.format("L%s;", STRAND_METADATA));
             mv.visitVarInsn(ALOAD, schedulerIndex);

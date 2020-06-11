@@ -23,11 +23,11 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.FunctionParamComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncInvocationData;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInstruction;
@@ -795,7 +795,7 @@ public class JvmMethodGen {
 
     private static void scheduleStopMethod(MethodVisitor mv, String initClass, String stopFuncName,
                                            int schedulerIndex, int futureIndex, String moduleClass,
-                                           AsyncInvocationData asyncInvocationData) {
+                                           AsyncDataCollector asyncDataCollector) {
 
         String lambdaFuncName = "$lambda$" + stopFuncName;
         // Create a schedular. A new schedular is used here, to make the stop function to not to
@@ -815,7 +815,7 @@ public class JvmMethodGen {
         // no parent strand
         mv.visitInsn(ACONST_NULL);
         loadType(mv, new BNilType());
-        submitToScheduler(mv, initClass, "stop", asyncInvocationData);
+        submitToScheduler(mv, initClass, "stop", asyncDataCollector);
         mv.visitVarInsn(ASTORE, futureIndex);
 
         mv.visitVarInsn(ALOAD, futureIndex);
@@ -1310,8 +1310,8 @@ public class JvmMethodGen {
     }
 
     static void generateStrandMetadata(MethodVisitor mv, String moduleClass,
-                                       BIRPackage module, AsyncInvocationData asyncInvocationData) {
-        asyncInvocationData.getStrandMetadata().forEach((varName, metaData) -> {
+                                       BIRPackage module, AsyncDataCollector asyncDataCollector) {
+        asyncDataCollector.getStrandMetadata().forEach((varName, metaData) -> {
             genStrandMetadataField(mv, moduleClass, module, varName, metaData);
         });
     }
@@ -1336,8 +1336,8 @@ public class JvmMethodGen {
         mv.visitFieldInsn(PUTSTATIC, moduleClass, varName, String.format("L%s;", STRAND_METADATA));
     }
 
-    static void visitStrandMetadataField(ClassWriter cw, AsyncInvocationData asyncInvocationData) {
-        asyncInvocationData.getStrandMetadata().keySet().forEach(varName -> {
+    static void visitStrandMetadataField(ClassWriter cw, AsyncDataCollector asyncDataCollector) {
+        asyncDataCollector.getStrandMetadata().keySet().forEach(varName -> {
             visitStrandMetadataField(cw, varName);
         });
 
@@ -1493,14 +1493,15 @@ public class JvmMethodGen {
     }
 
     void generateMethod(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule, BType attachedType,
-                        boolean isService, String moduleClassName, String serviceName, AsyncInvocationData asyncInvocationData) {
+                        boolean isService, String moduleClassName, String serviceName,
+                        AsyncDataCollector asyncDataCollector) {
 
         if (isExternFunc(birFunc)) {
             genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType, this, jvmPackageGen,
-                                       moduleClassName, serviceName, asyncInvocationData);
+                                       moduleClassName, serviceName, asyncDataCollector);
         } else {
             genJMethodForBFunc(birFunc, cw, birModule, isService, moduleClassName, serviceName, attachedType,
-                               asyncInvocationData);
+                               asyncDataCollector);
         }
     }
 
@@ -1511,7 +1512,7 @@ public class JvmMethodGen {
                                    String moduleClassName,
                                    String serviceName,
                                    BType attachedType,
-                                   AsyncInvocationData asyncInvocationData) {
+                                   AsyncDataCollector asyncDataCollector) {
 
         String currentPackageName = getPackageName(module.org.value, module.name.value, module.version.value);
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
@@ -1659,8 +1660,8 @@ public class JvmMethodGen {
         mv.visitLookupSwitchInsn(yieldLable, toIntArray(states), lables.toArray(new Label[0]));
 
         generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex,
-                            stateVarIndex, localVarOffset, false, module, attachedType, isObserved, isService, moduleClassName,
-                            serviceName, asyncInvocationData);
+                            stateVarIndex, localVarOffset, false, module, attachedType, isObserved, isService,
+                            moduleClassName, serviceName, asyncDataCollector);
 
         String frameName = getFrameClassName(currentPackageName, funcName, attachedType);
         mv.visitLabel(resumeLable);
@@ -1809,7 +1810,7 @@ public class JvmMethodGen {
                                     BIRFunction func, int returnVarRefIndex, int stateVarIndex,
                                     int localVarOffset, boolean isArg, BIRPackage module, BType attachedType,
                                     boolean isObserved, boolean isService, String moduleClassName, String serviceName,
-                                    AsyncInvocationData asyncInvocationData) {
+                                    AsyncDataCollector asyncDataCollector) {
 
         int j = 0;
         String funcName = cleanupFunctionName(func.name.value);
@@ -1955,7 +1956,7 @@ public class JvmMethodGen {
                             instGen.generateXMLAttrLoadIns((FieldAccess) inst);
                             break;
                         case FP_LOAD:
-                            instGen.generateFPLoadIns((FPLoad) inst, asyncInvocationData);
+                            instGen.generateFPLoadIns((FPLoad) inst, asyncDataCollector);
                             break;
                         case STRING_LOAD:
                             instGen.generateStringLoadIns((FieldAccess) inst);
@@ -2009,7 +2010,7 @@ public class JvmMethodGen {
                             module.version.value, MODULE_INIT_CLASS_NAME), MODULE_STARTED, "Z");
                 }
                 termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset, returnVarRefIndex,
-                                      attachedType, isObserved, asyncInvocationData);
+                                      attachedType, isObserved, asyncDataCollector);
             }
 
             errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen);
@@ -2287,7 +2288,7 @@ public class JvmMethodGen {
     }
 
     void generateMainMethod(BIRFunction userMainFunc, ClassWriter cw, BIRPackage pkg,
-                            String initClass, boolean serviceEPAvailable, AsyncInvocationData asyncInvocationData) {
+                            String initClass, boolean serviceEPAvailable, AsyncDataCollector asyncDataCollector) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
         mv.visitCode();
@@ -2340,7 +2341,7 @@ public class JvmMethodGen {
             BType anyType = symbolTable.anyType;
             loadType(mv, anyType);
             // submit to scheduler
-            submitToScheduler(mv, initClass, "<init>", asyncInvocationData);
+            submitToScheduler(mv, initClass, "<init>", asyncDataCollector);
             mv.visitInsn(DUP);
             mv.visitInsn(DUP);
             mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", String.format("L%s;", STRAND));
@@ -2375,7 +2376,7 @@ public class JvmMethodGen {
             //submit to the scheduler
             BType anyType = symbolTable.anyType;
             loadType(mv, anyType);
-            submitToScheduler(mv, initClass, "main", asyncInvocationData);
+            submitToScheduler(mv, initClass, "main", asyncDataCollector);
             mv.visitInsn(DUP);
 
             mv.visitInsn(DUP);
@@ -2402,7 +2403,7 @@ public class JvmMethodGen {
 
         if (hasInitFunction(pkg)) {
             scheduleStartMethod(mv, initClass, serviceEPAvailable, indexMap, schedulerVarIndex,
-                                asyncInvocationData);
+                                asyncDataCollector);
         }
 
         // stop all listeners
@@ -2425,7 +2426,7 @@ public class JvmMethodGen {
 
     private void scheduleStartMethod(MethodVisitor mv, String initClass, boolean serviceEPAvailable,
                                      BIRVarToJVMIndexMap indexMap, int schedulerVarIndex,
-                                     AsyncInvocationData asyncInvocationData) {
+                                     AsyncDataCollector asyncDataCollector) {
 
         mv.visitVarInsn(ALOAD, schedulerVarIndex);
         // schedule the start method
@@ -2441,7 +2442,7 @@ public class JvmMethodGen {
         mv.visitInsn(ACONST_NULL);
         BType anyType = symbolTable.anyType;
         loadType(mv, anyType);
-        submitToScheduler(mv, initClass, "start", asyncInvocationData);
+        submitToScheduler(mv, initClass, "start", asyncDataCollector);
 
         mv.visitInsn(DUP);
         mv.visitInsn(DUP);
@@ -2824,7 +2825,7 @@ public class JvmMethodGen {
     }
 
     void generateExecutionStopMethod(ClassWriter cw, String initClass, BIRPackage module, List<PackageID> imprtMods,
-                                     AsyncInvocationData asyncInvocationData) {
+                                     AsyncDataCollector asyncDataCollector) {
 
         String orgName = module.org.value;
         String moduleName = module.name.value;
@@ -2857,7 +2858,7 @@ public class JvmMethodGen {
         String fullFuncName = calculateModuleSpecialFuncName(currentModId, STOP_FUNCTION_SUFFIX);
 
         scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), schedulerIndex, futureIndex,
-                           moduleInitClass, asyncInvocationData);
+                           moduleInitClass, asyncDataCollector);
         int i = imprtMods.size() - 1;
         while (i >= 0) {
             PackageID id = imprtMods.get(i);
@@ -2866,7 +2867,7 @@ public class JvmMethodGen {
             moduleInitClass = getModuleLevelClassName(id.orgName.value, id.name.value, id.version.value,
                     MODULE_INIT_CLASS_NAME);
             scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), schedulerIndex,
-                               futureIndex, moduleInitClass, asyncInvocationData);
+                               futureIndex, moduleInitClass, asyncDataCollector);
         }
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
@@ -2874,9 +2875,9 @@ public class JvmMethodGen {
     }
 
     private static void submitToScheduler(MethodVisitor mv, String moduleClassName,
-                                          String workerName, AsyncInvocationData asyncInvocationData) {
+                                          String workerName, AsyncDataCollector asyncDataCollector) {
         String metaDataVarName = getStrandMetadataVarName("main");
-        asyncInvocationData.getStrandMetadata().putIfAbsent(metaDataVarName, new ScheduleFunctionInfo("main"));
+        asyncDataCollector.getStrandMetadata().putIfAbsent(metaDataVarName, new ScheduleFunctionInfo("main"));
         mv.visitLdcInsn(workerName);
         mv.visitFieldInsn(GETSTATIC, moduleClassName, metaDataVarName, String.format("L%s;", STRAND_METADATA));
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
