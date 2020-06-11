@@ -142,6 +142,17 @@ public abstract class Node {
         return internalNode.toString();
     }
 
+    /**
+     * Converts the syntax tree into source code and returns it as a string.
+     *
+     * @return source code as a string
+     */
+    public String toSourceCode() {
+        StringBuilder stringBuilder = new StringBuilder();
+        internalNode.toSourceCode(stringBuilder);
+        return stringBuilder.toString();
+    }
+
     private SyntaxTree populateSyntaxTree() {
         if (syntaxTree != null) {
             return syntaxTree;

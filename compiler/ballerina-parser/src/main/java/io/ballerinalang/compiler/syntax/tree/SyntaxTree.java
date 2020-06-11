@@ -99,6 +99,15 @@ public class SyntaxTree {
         return rootNode.toString();
     }
 
+    /**
+     * Converts the syntax tree into source code and returns it as a string.
+     *
+     * @return source code as a string
+     */
+    public String toSourceCode() {
+        return rootNode.toSourceCode();
+    }
+
     private <T extends NonTerminalNode> T cloneWithMe(T node) {
         T clonedNode = node.internalNode().createUnlinkedFacade();
         clonedNode.setSyntaxTree(this);
