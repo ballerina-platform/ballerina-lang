@@ -34,7 +34,7 @@ public type HttpServiceConfig record {|
     Chunking chunking = CHUNKING_AUTO;
     CorsConfig cors = {};
     Versioning versioning = {};
-    ServiceAuth auth?;
+    ServiceAuth & readonly auth?;
 |};
 
 # Configurations for CORS support.
@@ -114,8 +114,8 @@ public type HttpResourceConfig record {|
     string[] produces = [];
     CorsConfig cors = {};
     boolean transactionInfectable = true;
-    WebSocketUpgradeConfig? webSocketUpgrade = ();
-    ResourceAuth auth?;
+    (WebSocketUpgradeConfig & readonly)? webSocketUpgrade = ();
+    ResourceAuth & readonly auth?;
 |};
 
 # Resource configuration to upgrade from HTTP to WebSocket.

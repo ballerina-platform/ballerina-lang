@@ -217,7 +217,7 @@ function getServiceAuthConfig(FilterContext context) returns ServiceAuth? {
     any annData = reflect:getServiceAnnotations(context.getService(), SERVICE_ANN_NAME, ANN_MODULE);
     if (!(annData is ())) {
         HttpServiceConfig serviceConfig = <HttpServiceConfig> annData;
-        return serviceConfig?.auth;
+        return <ServiceAuth?>serviceConfig?.auth;
     }
 }
 
@@ -230,7 +230,7 @@ function getResourceAuthConfig(FilterContext context) returns ResourceAuth? {
                                                  ANN_MODULE);
     if (!(annData is ())) {
         HttpResourceConfig resourceConfig = <HttpResourceConfig> annData;
-        return resourceConfig?.auth;
+        return <ResourceAuth?>resourceConfig?.auth;
     }
 }
 
