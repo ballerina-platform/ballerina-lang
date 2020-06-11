@@ -374,7 +374,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (isLambda) {
             return;
         }
-        transactionalFuncCheckStack.push(funcNode.flagSet.contains(Flag.TRANSACTIONAL));
 
         validateParams(funcNode);
 
@@ -401,7 +400,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.workerActionSystemStack.peek().endWorkerActionStateMachine();
         } finally {
             this.finalizeCurrentWorkerActionSystem();
-            transactionalFuncCheckStack.pop();
         }
         funcNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
@@ -420,6 +418,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.returnWithintransactionCheckStack.push(true);
         this.doneWithintransactionCheckStack.push(true);
         this.returnTypes.push(new LinkedHashSet<>());
+        this.transactionalFuncCheckStack.push(funcNode.flagSet.contains(Flag.TRANSACTIONAL));
         this.resetFunction();
         if (Symbols.isNative(funcNode.symbol)) {
             return;
@@ -444,6 +443,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.returnTypes.pop();
         this.returnWithintransactionCheckStack.pop();
         this.doneWithintransactionCheckStack.pop();
+        this.transactionalFuncCheckStack.pop();
     }
 
     private boolean isPublicInvokableNode(BLangInvokableNode invNode) {
@@ -453,7 +453,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBlockFunctionBody body) {
-        if (!transactionalFuncCheckStack.empty()) {
+        boolean prevWithinTxScope = withinTransactionScope;
+        if (!transactionalFuncCheckStack.empty() && !withinTransactionScope) {
             withinTransactionScope = transactionalFuncCheckStack.peek();
         }
         final SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(body, env);
@@ -461,6 +462,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeNode(e, blockEnv);
         }
         this.resetLastStatement();
+        if (!transactionalFuncCheckStack.empty() && transactionalFuncCheckStack.peek()) {
+            withinTransactionScope = prevWithinTxScope;
+        }
     }
 
     @Override
