@@ -153,9 +153,7 @@ service testService on new http:Listener(9103, { httpVersion: "2.0" }) {
             if (returnValue is string) {
                 value = returnValue;
             } else {
-                error err = returnValue;
-                string? errMsg = <string>err.detail()?.message;
-                value = errMsg is string ? errMsg : "Error in parsing text payload";
+                value = returnValue.message();
             }
         } else  {
             value = <string>clientResponse.message();
