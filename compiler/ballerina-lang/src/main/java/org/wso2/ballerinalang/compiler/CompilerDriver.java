@@ -151,6 +151,7 @@ public class CompilerDriver {
             symbolTable.langIntModuleSymbol = pkgLoader.loadPackageSymbol(INT, null, null);
             symbolTable.langMapModuleSymbol = pkgLoader.loadPackageSymbol(MAP, null, null);
             symbolTable.langObjectModuleSymbol = pkgLoader.loadPackageSymbol(OBJECT, null, null);
+            symResolver.loadRawTemplateType();
             symbolTable.langStreamModuleSymbol = pkgLoader.loadPackageSymbol(STREAM, null, null);
             symbolTable.langTableModuleSymbol = pkgLoader.loadPackageSymbol(TABLE, null, null);
             symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
