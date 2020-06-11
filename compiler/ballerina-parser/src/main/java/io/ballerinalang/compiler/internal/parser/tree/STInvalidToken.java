@@ -53,4 +53,11 @@ public class STInvalidToken extends STToken {
     public STToken modifyWith(STNode leadingMinutiae, STNode trailingMinutiae) {
         return new STInvalidToken(this.tokenText, leadingMinutiae, trailingMinutiae, this.diagnostics);
     }
+
+    @Override
+    public void toSourceCode(StringBuilder builder) {
+        leadingMinutiae.toSourceCode(builder);
+        builder.append(tokenText);
+        trailingMinutiae.toSourceCode(builder);
+    }
 }
