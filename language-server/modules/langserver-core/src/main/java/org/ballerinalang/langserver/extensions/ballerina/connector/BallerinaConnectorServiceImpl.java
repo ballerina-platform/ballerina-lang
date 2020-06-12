@@ -18,17 +18,45 @@
 
 package org.ballerinalang.langserver.extensions.ballerina.connector;
 
+import com.google.gson.JsonElement;
 import com.moandjiezana.toml.Toml;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.compiler.CompilerOptionName;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.LSGlobalContext;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
+import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
+import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
+import org.ballerinalang.langserver.exception.LSStdlibCacheException;
+import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
+import org.ballerinalang.langserver.util.definition.LSStdLibCacheUtil;
+import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.Position;
+import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
+import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
+import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
 
 /**
@@ -39,9 +67,12 @@ import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
 public class BallerinaConnectorServiceImpl implements BallerinaConnectorService {
 
     public static final String DEFAULT_CONNECTOR_FILE_KEY = "DEFAULT_CONNECTOR_FILE";
+    private static final Path STD_LIB_SOURCE_ROOT = Paths.get(CommonUtil.BALLERINA_HOME).resolve("lib").resolve("repo");
     private String connectorConfig;
+    private LSGlobalContext lsContext;
 
-    public BallerinaConnectorServiceImpl(LSGlobalContext lsGlobalContext) {
+    public BallerinaConnectorServiceImpl(LSGlobalContext lsContext) {
+        this.lsContext = lsContext;
         connectorConfig = System.getenv(DEFAULT_CONNECTOR_FILE_KEY);
         if (connectorConfig == null) {
             connectorConfig = System.getProperty(DEFAULT_CONNECTOR_FILE_KEY);
@@ -60,6 +91,67 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         return CompletableFuture.supplyAsync(BallerinaConnectorsResponse::new);
     }
 
+    @Override
+    public CompletableFuture<BallerinaConnectorResponse> connector(BallerinaConnectorRequest request) {
+        String cacheableKey = getCacheableKey(request.getOrg(), request.getModule(), request.getVersion());
+        LSConnectorCache connectorCache = LSConnectorCache.getInstance(lsContext);
+
+        JsonElement ast = connectorCache.getConnectorConfig(request.getOrg(), request.getModule(),
+                request.getVersion(), request.getName());
+
+        if (ast == null) {
+            Path baloPath = STD_LIB_SOURCE_ROOT.resolve(request.getOrg()).resolve(request.getModule()).
+                    resolve(request.getVersion().isEmpty() ?
+                            ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : request.getVersion()).
+                    resolve(request.getModule() + ProjectDirConstants.BLANG_COMPILED_PKG_EXT);
+            Path destinationRoot = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(cacheableKey).
+                    resolve(ProjectDirConstants.SOURCE_DIR_NAME);
+            try {
+                LSStdLibCacheUtil.extract(baloPath, destinationRoot, request.getModule(), cacheableKey);
+                String projectDir = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(cacheableKey).toString();
+                CompilerContext compilerContext = createNewCompilerContext(projectDir);
+                Compiler compiler = LSStdLibCacheUtil.getCompiler(compilerContext);
+                BLangPackage bLangPackage = compiler.compile(cacheableKey);
+
+                ConnectorNodeVisitor visitor = new ConnectorNodeVisitor(request.getName());
+                bLangPackage.accept(visitor);
+                List<BLangTypeDefinition> connectorNode = visitor.getConnectors();
+
+                VisibleEndpointVisitor visibleEndpointVisitor = new VisibleEndpointVisitor(compilerContext);
+                visibleEndpointVisitor.visit(bLangPackage);
+
+                connectorNode.forEach(connector -> {
+                    JsonElement jsonAST = null;
+                    try {
+                        jsonAST = TextDocumentFormatUtil.generateJSON(connector, new HashMap<>(),
+                                visibleEndpointVisitor.getVisibleEPsByNode());
+                    } catch (JSONGenerationException e) {
+                        String msg = "Operation 'ballerinaConnector/connector' loading " + cacheableKey + ":" +
+                                connector.getName().getValue() + " failed!";
+                        logError(msg, e, null, (Position) null);
+                    }
+                    connectorCache.addConnectorConfig(request.getOrg(), request.getModule(),
+                            request.getVersion(), connector.getName().getValue(), jsonAST);
+                });
+                ast = connectorCache.getConnectorConfig(request.getOrg(), request.getModule(),
+                        request.getVersion(), request.getName());
+            } catch (UnsupportedEncodingException | LSStdlibCacheException e) {
+                String msg = "Operation 'ballerinaConnector/connector' for " + cacheableKey + ":" +
+                        request.getName() + " failed!";
+                logError(msg, e, null, (Position) null);
+            }
+        }
+        BallerinaConnectorResponse response = new BallerinaConnectorResponse(request.getOrg(), request.getModule(),
+                request.getVersion(), request.getName(), ast);
+        return CompletableFuture.supplyAsync(() -> response);
+    }
+
+
+    private String getCacheableKey(String orgName, String moduleName, String version) {
+        return orgName + "_" + moduleName + "_" +
+                (version.isEmpty() ? ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : version);
+    }
+
     private BallerinaConnectorsResponse getConnectorConfig() throws IOException {
         try (InputStream inputStream = new FileInputStream(new File(connectorConfig));) {
             Toml toml;
@@ -70,5 +162,18 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
             }
             return toml.to(BallerinaConnectorsResponse.class);
         }
+    }
+
+    private CompilerContext createNewCompilerContext(String projectDir) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, projectDir);
+        options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
+        options.put(PRESERVE_WHITESPACE, Boolean.toString(false));
+        options.put(OFFLINE, Boolean.toString(true));
+        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(true));
+        context.put(SourceDirectory.class, new FileSystemProjectDirectory(Paths.get(projectDir)));
+        context.put(DiagnosticListener.class, new CollectDiagnosticListener());
+        return context;
     }
 }

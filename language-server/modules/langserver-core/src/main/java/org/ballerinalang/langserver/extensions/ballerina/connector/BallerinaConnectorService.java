@@ -32,4 +32,7 @@ import java.util.concurrent.CompletableFuture;
 public interface BallerinaConnectorService {
     @JsonRequest
     CompletableFuture<BallerinaConnectorsResponse> connectors();
+
+    @JsonRequest
+    CompletableFuture<BallerinaConnectorResponse> connector(BallerinaConnectorRequest request);
 }

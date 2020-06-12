@@ -18,6 +18,8 @@ package org.ballerinalang.langserver.extensions;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorRequest;
+import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorResponse;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorsResponse;
 import org.ballerinalang.langserver.extensions.ballerina.document.ASTModification;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaASTModifyRequest;
@@ -41,6 +43,7 @@ public class LSExtensionTestUtil {
     private static final String SYNTAX_TREE_MODIFY = "ballerinaDocument/syntaxTreeModify";
     private static final String AST_MODIFY = "ballerinaDocument/astModify";
     private static final String GET_CONNECTORS = "ballerinaConnector/connectors";
+    private static final String GET_CONNECTOR = "ballerinaConnector/connector";
     private static final Gson GSON = new Gson();
     private static final JsonParser parser = new JsonParser();
 
@@ -113,6 +116,13 @@ public class LSExtensionTestUtil {
     public static BallerinaConnectorsResponse getConnectors(Endpoint serviceEndpoint) {
         CompletableFuture result = serviceEndpoint.request(GET_CONNECTORS, null);
         return GSON.fromJson(getResult(result), BallerinaConnectorsResponse.class);
+    }
+
+    public static BallerinaConnectorResponse getConnector(String org, String module, String version, String name,
+                                                          Endpoint serviceEndpoint) {
+        BallerinaConnectorRequest ballerinaConnectorRequest = new BallerinaConnectorRequest(org, module, version, name);
+        CompletableFuture result = serviceEndpoint.request(GET_CONNECTOR, ballerinaConnectorRequest);
+        return GSON.fromJson(getResult(result), BallerinaConnectorResponse.class);
     }
 
 }

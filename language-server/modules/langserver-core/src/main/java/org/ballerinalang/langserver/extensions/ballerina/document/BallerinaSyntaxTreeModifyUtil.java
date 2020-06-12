@@ -30,6 +30,9 @@ import java.util.Map;
  */
 public class BallerinaSyntaxTreeModifyUtil {
 
+    private BallerinaSyntaxTreeModifyUtil() {
+    }
+
     private static final Map<String, String> typeMapping = new HashMap<String, String>() {{
         put("DELETE", "");
         put("IMPORT", "import $TYPE;\n");
