@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.jvm.transactions;
 
 import org.ballerinalang.jvm.StringUtils;
@@ -34,13 +34,13 @@ public class TransactionConstants {
     //Co-ordinator functions
     public static final String COORDINATOR_ABORT_TRANSACTION = "abortTransaction";
 
-    public static final String TRANSACTION_MODULE_NAME = "transactions";
+    public static final String TRANSACTION_PACKAGE_NAME = "ballerina.transactions";
     public static final String TRANSACTION_PACKAGE_VERSION = "0.5.0";
     public static final String TRANSACTION_PACKAGE_PATH =
-            "ballerina" + ORG_NAME_SEPARATOR + TRANSACTION_MODULE_NAME + VERSION_SEPARATOR + TRANSACTION_PACKAGE_VERSION;
+            "ballerina" + ORG_NAME_SEPARATOR + "transactions" + VERSION_SEPARATOR + TRANSACTION_PACKAGE_VERSION;
 
-    public static final BPackage TRANSACTION_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, TRANSACTION_MODULE_NAME,
-                                                                       TRANSACTION_PACKAGE_VERSION);
+    public static final BPackage TRANSACTION_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "transactions",
+            TRANSACTION_PACKAGE_VERSION);
     public static final String TRANSACTION_BLOCK_CLASS_NAME = "transaction_block";
     public static final String COORDINATOR_PACKAGE = TRANSACTION_PACKAGE_PATH;
 
