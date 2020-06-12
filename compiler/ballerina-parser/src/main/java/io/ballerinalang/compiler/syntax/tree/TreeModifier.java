@@ -2624,7 +2624,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token startBacktick =
                 modifyToken(byteArrayLiteralNode.startBacktick());
         Token content =
-                modifyToken(byteArrayLiteralNode.content());
+                modifyToken(byteArrayLiteralNode.content().orElse(null));
         Token endBacktick =
                 modifyToken(byteArrayLiteralNode.endBacktick());
         return byteArrayLiteralNode.modify(
