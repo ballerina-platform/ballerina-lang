@@ -132,5 +132,6 @@ type Temp1 abstract object {
 
 function testTypeChecking() {
     Temp1 rt1 = `Foo${8}Bar${"asdf"}${23.45}`;
-    Temp1 rt2 = `Foo${8}Bar${"asdf"}`;
+    Temp1 rt2 = `${8}`;
+    Temp1 rt3 = `Foo${8}Bar${"asdf"}`;
 }

@@ -45,7 +45,7 @@ function testLiteralWithNoStrings() {
 
     ob:RawTemplate rt = `${hello}${n}${world}`;
 
-    assert(<string[]>[], rt.strings);
+    assert(<string[]>["", "", "", ""], rt.strings);
     assert("Hello", <string>rt.insertions[0]);
     assert(10, <int>rt.insertions[1]);
     assert("World", <string>rt.insertions[2]);
@@ -70,7 +70,7 @@ function testComplexExpressions() {
     int y = 20;
 
     ob:RawTemplate rt1 = `x + y = ${x + y}`;
-    assert(<string[]>["x + y = "], rt1.strings);
+    assert(<string[]>["x + y = ", ""], rt1.strings);
     assert(30, <int>rt1.insertions[0]);
 
     var fn = function () returns string { return "Pubudu"; };
@@ -82,7 +82,7 @@ function testComplexExpressions() {
     Person p = new("John Doe", 20);
 
     ob:RawTemplate rt3 = `${p} is a person`;
-    assert(<string[]>[" is a person"], rt3.strings);
+    assert(<string[]>["", " is a person"], rt3.strings);
     assert("name: John Doe, age: 20", rt3.insertions[0].toString());
 }
 
@@ -96,7 +96,7 @@ function testSubtyping1() {
     int y = 20;
 
     Template1 t = `${x} + ${y} = ${x + y}`;
-    assert(<string[]>[" + ", " = "], t.strings);
+    assert(<string[]>["", " + ", " = ", ""], t.strings);
     assert(<int[]>[10, 20, 30], t.insertions);
 }
 
@@ -111,7 +111,7 @@ function testSubtyping2() {
     float f = 12.34;
 
     Template2 t = `Using tuples: ${x}, ${s}, ${f}`;
-    assert("Using tuples:  ,  , ", t.strings.toString());
+    assert(<string[]>["Using tuples: ", ", ", ", ", ""], t.strings);
     assert(x, t.insertions[0]);
     assert(s, t.insertions[1]);
     assert(f, t.insertions[2]);
@@ -121,7 +121,7 @@ function testSubtyping2() {
         public [int, string, anydata...] insertions;
     } temp2 = `Using tuples 2: ${x}, ${s}, ${f}`;
 
-    assert("Using tuples 2:  ,  , ", temp2.strings.toString());
+    assert(<string[]>["Using tuples 2: ", ", ", ", ", ""], temp2.strings);
     assert(x, temp2.insertions[0]);
     assert(s, temp2.insertions[1]);
     assert(f, temp2.insertions[2]);
@@ -131,7 +131,7 @@ function testSubtyping2() {
         public [anydata...] insertions;
     } temp3 = `Using tuples 3: ${x}, ${s}, ${f}`;
 
-    assert("Using tuples 3:  ,  , ", temp3.strings.toString());
+    assert(<string[]>["Using tuples 3: ", ", ", ", ", ""], temp3.strings);
     assert(x, temp2.insertions[0]);
     assert(s, temp3.insertions[1]);
     assert(f, temp3.insertions[2]);

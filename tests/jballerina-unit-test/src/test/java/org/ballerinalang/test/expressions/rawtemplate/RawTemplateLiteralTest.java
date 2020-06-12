@@ -77,9 +77,11 @@ public class RawTemplateLiteralTest {
                 "without methods", 125, 13);
         validateError(errors, indx++, "invalid raw template: expected 2 insertion(s), but found 3 insertion(s)",
                       134, 17);
-        validateError(errors, indx++, "invalid raw template: expected 3 string(s), but found 2 string(s)", 134, 17);
+        validateError(errors, indx++, "invalid raw template: expected 3 string(s), but found 4 string(s)", 134, 17);
+        validateError(errors, indx++, "invalid raw template: expected 2 insertion(s), but found 1 insertion(s)",
+                      135, 17);
         validateError(errors, indx++, "invalid raw template: expected 3 string(s), but found 2 string(s)", 135, 17);
-        validateError(errors, indx++, "incompatible types: expected 'float', found 'string'", 135, 30);
+        validateError(errors, indx++, "incompatible types: expected 'float', found 'string'", 136, 30);
 
         assertEquals(errors.getErrorCount(), indx);
     }
