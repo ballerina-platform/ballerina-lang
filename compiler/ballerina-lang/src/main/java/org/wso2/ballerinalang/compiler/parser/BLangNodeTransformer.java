@@ -266,9 +266,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordSpreadOperatorField;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
@@ -309,6 +311,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
@@ -1916,15 +1919,46 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(MappingBindingPatternNode mappingBindingPatternNode) {
-        // TODO: create record-var-ref
-        return transformSyntaxNode(mappingBindingPatternNode);
+        BLangRecordVarRef recordVarRef = (BLangRecordVarRef) TreeBuilder.createRecordVariableReferenceNode();
+        recordVarRef.pos = getPosition(mappingBindingPatternNode);
+
+        List<BLangRecordVarRefKeyValue> expressions = new ArrayList<>();
+        for (FieldBindingPatternNode expr : mappingBindingPatternNode.fieldBindingPatterns()) {
+            expressions.add(createRecordVarKeyValue(expr));
+        }
+        recordVarRef.recordRefFields = expressions;
+
+        Optional<RestBindingPatternNode> restBindingPattern = mappingBindingPatternNode.restBindingPattern();
+        if (restBindingPattern.isPresent()) {
+            recordVarRef.restParam = createExpression(restBindingPattern.get());
+        }
+
+        return recordVarRef;
+    }
+
+    private BLangRecordVarRefKeyValue createRecordVarKeyValue(FieldBindingPatternNode expr) {
+        BLangRecordVarRefKeyValue keyValue = new BLangRecordVarRefKeyValue();
+        if (expr instanceof FieldBindingPatternFullNode) {
+            FieldBindingPatternFullNode fullNode = (FieldBindingPatternFullNode) expr;
+            keyValue.variableName = createIdentifier(fullNode.variableName().name());
+            keyValue.variableReference = createExpression(fullNode.bindingPattern());
+        } else {
+            FieldBindingPatternVarnameNode varnameNode = (FieldBindingPatternVarnameNode) expr;
+            keyValue.variableName = createIdentifier(varnameNode.variableName().name());
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+            varRef.pos = getPosition(varnameNode.variableName());
+            varRef.variableName = createIdentifier(varnameNode.variableName().name());
+            keyValue.variableReference = varRef;
+        }
+
+        return keyValue;
     }
 
     @Override
     public BLangNode transform(ListBindingPatternNode listBindingPatternNode) {
         BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) TreeBuilder.createTupleVariableReferenceNode();
         List<BLangExpression> expressions = new ArrayList<>();
-        for (Node expr : listBindingPatternNode.bindingPatterns()) {
+        for (BindingPatternNode expr : listBindingPatternNode.bindingPatterns()) {
             expressions.add(createExpression(expr));
         }
         tupleVarRef.expressions = expressions;
@@ -2022,9 +2056,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             case LIST_BINDING_PATTERN:
                 return createTupleDestructureStatement(assignmentStmtNode);
             case MAPPING_BINDING_PATTERN: // ignored for now
-                throw new RuntimeException("Node not supported: " + lhsKind);
-            // lhs = (MappingBindingPatternNode) lhs;
-            // return transformDestructingStatement(assignmentStmtNode);
+                return createRecordDestructureStatement(assignmentStmtNode);
             default:
                 break;
         }
@@ -2032,7 +2064,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangAssignment bLAssignment = (BLangAssignment) TreeBuilder.createAssignmentNode();
         BLangExpression lhsExpr = createExpression(assignmentStmtNode.varRef());
         validateLvexpr(lhsExpr, DiagnosticCode.INVALID_INVOCATION_LVALUE_ASSIGNMENT);
-        
+
         bLAssignment.setExpression(createExpression(assignmentStmtNode.expression()));
         bLAssignment.pos = getPosition(assignmentStmtNode);
         bLAssignment.varRef = lhsExpr;
@@ -2040,14 +2072,21 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     public BLangNode createTupleDestructureStatement(AssignmentStatementNode assignmentStmtNode) {
-        BLangTupleDestructure bLAssignmentDesc =
+        BLangTupleDestructure tupleDestructure =
                 (BLangTupleDestructure) TreeBuilder.createTupleDestructureStatementNode();
-        bLAssignmentDesc.varRef = (BLangTupleVarRef) createExpression(assignmentStmtNode.varRef());
-        bLAssignmentDesc.setExpression(createExpression(assignmentStmtNode.expression()));
-        return bLAssignmentDesc;
+        tupleDestructure.varRef = (BLangTupleVarRef) createExpression(assignmentStmtNode.varRef());
+        tupleDestructure.setExpression(createExpression(assignmentStmtNode.expression()));
+        return tupleDestructure;
     }
 
-    
+    public BLangNode createRecordDestructureStatement(AssignmentStatementNode assignmentStmtNode) {
+        BLangRecordDestructure recordDestructure =
+                (BLangRecordDestructure) TreeBuilder.createRecordDestructureStatementNode();
+        recordDestructure.varRef = (BLangRecordVarRef) createExpression(assignmentStmtNode.varRef());
+        recordDestructure.setExpression(createExpression(assignmentStmtNode.expression()));
+        return recordDestructure;
+    }
+
     @Override
     public BLangNode transform(CompoundAssignmentStatementNode compoundAssignmentStmtNode) {
         BLangCompoundAssignment bLCompAssignment = (BLangCompoundAssignment) TreeBuilder.createCompoundAssignmentNode();
