@@ -237,6 +237,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -312,6 +313,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangNode result;
     private NodeCloner nodeCloner;
     private SemanticAnalyzer semanticAnalyzer;
+    private ResolvedTypeBuilder typeBuilder;
 
     private BLangStatementLink currentLink;
     public Stack<BLangLockStmt> enclLocks = new Stack<>();
@@ -362,6 +364,7 @@ public class Desugar extends BLangNodeVisitor {
         this.serviceDesugar = ServiceDesugar.getInstance(context);
         this.nodeCloner = NodeCloner.getInstance(context);
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
+        this.typeBuilder = new ResolvedTypeBuilder();
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -3559,6 +3562,12 @@ public class Desugar extends BLangNodeVisitor {
         }
         invocation.expr = rewriteExpr(invocation.expr);
         result = invRef;
+
+        BInvokableSymbol invSym = (BInvokableSymbol) invocation.symbol;
+        if (Symbols.isFlagOn(invSym.retType.flags, Flags.PARAMETERIZED)) {
+            BType retType = typeBuilder.build(invSym.retType);
+            invocation.type = retType;
+        }
 
         if (invocation.expr == null) {
             fixTypeCastInTypeParamInvocation(invocation, invRef);
