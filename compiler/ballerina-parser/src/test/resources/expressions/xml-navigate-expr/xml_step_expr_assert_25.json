@@ -4,14 +4,26 @@
   "children": [
     {
       "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
+      "value": "a",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "XML_NAME_PATTERN_CHAIN",
       "hasDiagnostics": true,
       "children": [
         {
-          "kind": "DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN"
+          "kind": "DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "LIST",
@@ -19,7 +31,13 @@
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "b"
+              "value": "b",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "PIPE_TOKEN",
@@ -46,7 +64,13 @@
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "c"
+                  "value": "c",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             }

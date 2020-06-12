@@ -18,7 +18,13 @@
             },
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "key1"
+              "value": "key1",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "CLOSE_BRACKET_TOKEN",
