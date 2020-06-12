@@ -12360,7 +12360,7 @@ public class BallerinaParser extends AbstractParser {
             return parseComplexTypeDescriptor(typeOrExpr, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true);
         }
 
-        return typeOrExpr;
+        return parseTypeDescOrExprRhs(typeOrExpr);
     }
 
     private boolean isExpression(SyntaxKind kind) {
@@ -12456,6 +12456,7 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 typeDesc = getTypeDescFromExpr(typeOrExpr);
+                rhsTypeDescOrExpr= getTypeDescFromExpr(rhsTypeDescOrExpr);
                 return STNodeFactory.createUnionTypeDescriptorNode(typeDesc, pipe, rhsTypeDescOrExpr);
             case BITWISE_AND_TOKEN:
                 nextNextToken = peek(2);
@@ -12471,6 +12472,7 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 typeDesc = getTypeDescFromExpr(typeOrExpr);
+                rhsTypeDescOrExpr= getTypeDescFromExpr(rhsTypeDescOrExpr);
                 return STNodeFactory.createIntersectionTypeDescriptorNode(typeDesc, ampersand, rhsTypeDescOrExpr);
             case IDENTIFIER_TOKEN:
             case QUESTION_MARK_TOKEN:
@@ -12494,6 +12496,10 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
                 return parseTypedBindingPatternOrMemberAccess(typeOrExpr, false, true,
                         ParserRuleContext.AMBIGUOUS_STMT);
+            case ELLIPSIS_TOKEN:
+                STNode ellipsis = parseEllipsis();
+                typeOrExpr = getTypeDescFromExpr(typeOrExpr);
+                return STNodeFactory.createRestDescriptorNode(typeOrExpr, ellipsis);
             default:
                 // If its a binary operator then this can be a compound assignment statement
                 if (isCompoundBinaryOperator(nextTokenKind)) {
@@ -13637,6 +13643,8 @@ public class BallerinaParser extends AbstractParser {
                     return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
                 }
                 return parseExpression(false);
+            case OPEN_PAREN_TOKEN:
+                return parseTypeDescOrExpr();
             default:
                 if (isValidExpressionStart(nextTokenKind, 1)) {
                     return parseExpression(false);
@@ -14826,7 +14834,7 @@ public class BallerinaParser extends AbstractParser {
                     default:
                         break;
                 }
-                // fall through
+                return expression;
             case SIMPLE_NAME_REFERENCE:
             case QUALIFIED_NAME_REFERENCE:
             default:
@@ -14853,7 +14861,8 @@ public class BallerinaParser extends AbstractParser {
                 return createCaptureOrWildcardBP(varName);
             case QUALIFIED_NAME_REFERENCE:
                 STQualifiedNameReferenceNode qualifiedName = (STQualifiedNameReferenceNode) ambiguousNode;
-                return STNodeFactory.createFieldBindingPatternFullNode(qualifiedName.modulePrefix, qualifiedName.colon,
+                STNode fieldName = STNodeFactory.createSimpleNameReferenceNode(qualifiedName.modulePrefix);
+                return STNodeFactory.createFieldBindingPatternFullNode(fieldName, qualifiedName.colon,
                         getBindingPattern(qualifiedName.identifier));
             case BRACKETED_LIST:
             case LIST_BP_OR_LIST_CONSTRUCTOR:
@@ -14870,7 +14879,8 @@ public class BallerinaParser extends AbstractParser {
                         memberBindingPatterns, restBindingPattern, innerList.collectionEndToken);
             case SPECIFIC_FIELD:
                 STSpecificFieldNode field = (STSpecificFieldNode) ambiguousNode;
-                return STNodeFactory.createFieldBindingPatternFullNode(field.fieldName, field.colon,
+                fieldName = STNodeFactory.createSimpleNameReferenceNode(field.fieldName);
+                return STNodeFactory.createFieldBindingPatternFullNode(fieldName, field.colon,
                         getBindingPattern(field.valueExpr));
             default:
                 return ambiguousNode;
