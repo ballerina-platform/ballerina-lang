@@ -10520,7 +10520,8 @@ public class BallerinaParser extends AbstractParser {
     private void validateRightShiftOperatorWS(STNode node) {
         int diff = node.widthWithTrailingMinutiae() - node.width();
         if (diff > 0) {
-            this.errorHandler.reportMissingTokenError("no whitespaces allowed between >>");
+            SyntaxErrors.addDiagnostics(node,
+                    DiagnosticErrorCode.ERROR_NO_WHITESPACES_ALLOWED_BETWEEN_RIGHT_SHIFT_OP);
         }
     }
 
