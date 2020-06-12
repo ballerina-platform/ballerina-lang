@@ -91,6 +91,8 @@ import io.ballerinalang.compiler.syntax.tree.LockStatementNode;
 import io.ballerinalang.compiler.syntax.tree.MappingBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MappingFieldNode;
+import io.ballerinalang.compiler.syntax.tree.MatchClauseNode;
+import io.ballerinalang.compiler.syntax.tree.MatchStatementNode;
 import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
@@ -307,6 +309,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -2962,6 +2965,47 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 new BLangXMLNavigationAccess(getPosition(xmlStepExpressionNode), null, expr, filters,
                 XMLNavigationAccess.NavAccessType.fromInt(starCount), null);
         return xmlNavigationAccess;
+    }
+
+    @Override
+    public BLangNode transform(MatchStatementNode matchStatementNode) {
+        BLangMatch bLangMatch = (BLangMatch) TreeBuilder.createMatchStatement();
+        bLangMatch.expr = createExpression(matchStatementNode.condition());
+        for (Node matchClauseNode : matchStatementNode.matchClauses()) {
+            MatchClauseNode matchClause = (MatchClauseNode) matchClauseNode;
+            BLangMatch.BLangMatchStaticBindingPatternClause patternClause =
+                    (BLangMatch.BLangMatchStaticBindingPatternClause)
+                            TreeBuilder.createMatchStatementStaticBindingPattern();
+            bLangMatch.patternClauses.add(patternClause);
+
+            if (matchClause.matchPatterns().size() == 1) {
+                patternClause.literal = createLiteralOrReference(matchClause.matchPatterns().get(0));
+            } else { // spec says atleast one match pattern so this else will mean more than one
+                BLangBinaryExpr expr = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
+                expr.lhsExpr = createLiteralOrReference(matchClause.matchPatterns().get(0));
+                for (int i = 1; i < matchClause.matchPatterns().size(); i++) {
+                    if (expr.rhsExpr != null) {
+                        BLangBinaryExpr tempExpr = ((BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode());
+                        tempExpr.lhsExpr = expr;
+                        expr = tempExpr;
+                    }
+                    expr.opKind = OperatorKind.BITWISE_OR;
+                    expr.rhsExpr = createLiteralOrReference(matchClause.matchPatterns().get(i));
+                }
+                patternClause.literal = expr;
+            }
+
+            patternClause.body = (BLangBlockStmt) transform(((MatchClauseNode) matchClause).blockStatement());
+        }
+
+        return bLangMatch;
+    }
+
+    public BLangExpression createLiteralOrReference(Node node) {
+        if (node.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            return createExpression(node);
+        }
+        return createSimpleLiteral(node);
     }
 
     private BLangXMLElementFilter createXMLElementFilter(Node node) {
