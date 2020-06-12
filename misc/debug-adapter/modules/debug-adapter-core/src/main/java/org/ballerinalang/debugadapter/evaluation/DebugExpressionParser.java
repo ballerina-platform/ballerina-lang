@@ -20,6 +20,7 @@ import io.ballerinalang.compiler.diagnostics.DiagnosticSeverity;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
@@ -71,8 +72,8 @@ class DebugExpressionParser {
         // Extracts expression node from the parsed syntax-tree.
         try {
             Optional<ExpressionNode> expressionNode = ((ReturnStatementNode) (((FunctionBodyBlockNode)
-                    ((FunctionDefinitionNode) syntaxTree.modulePart().members().get(0)).functionBody()).statements()
-                    .get(0))).expression();
+                    ((FunctionDefinitionNode) ((ModulePartNode) syntaxTree.rootNode()).members().get(0)).functionBody())
+                    .statements().get(0))).expression();
             if (!expressionNode.isPresent()) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.INVALID.getString(), expression));
             }
