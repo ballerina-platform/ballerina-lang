@@ -23,7 +23,7 @@ import ballerina/java;{{/if}}
     # The init function of the Ballerina object mapping `{{#replace className "." "/"}}{{/replace}}` Java class.
     #
     # + obj - The `handle` value containing the Java reference of the object.
-    {{accessModifier}}function __init(handle obj) {
+    {{accessModifier}}function init(handle obj) {
         self.jObj = obj;
     }
 
