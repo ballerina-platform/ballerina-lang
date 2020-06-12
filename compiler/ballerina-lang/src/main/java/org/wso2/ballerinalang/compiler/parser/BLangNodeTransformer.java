@@ -3434,7 +3434,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 literal.insertions.add((BLangExpression) member.apply(this));
 
                 if (prevNodeWasInterpolation) {
-                    //
                     literal.strings.add(createStringLiteral("", getPosition(member)));
                 }
 

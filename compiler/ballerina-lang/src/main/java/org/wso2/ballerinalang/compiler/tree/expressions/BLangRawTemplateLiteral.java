@@ -33,12 +33,12 @@ import java.util.List;
  */
 public class BLangRawTemplateLiteral extends BLangExpression implements RawTemplateLiteralNode {
 
-    public List<BLangExpression> insertions;
     public List<BLangLiteral> strings;
+    public List<BLangExpression> insertions;
 
     public BLangRawTemplateLiteral() {
-        insertions = new ArrayList<>();
         strings = new ArrayList<>();
+        insertions = new ArrayList<>();
     }
 
     @Override
@@ -53,7 +53,7 @@ public class BLangRawTemplateLiteral extends BLangExpression implements RawTempl
 
     @Override
     public String toString() {
-        return "BLangRawTemplateLiteral: " + insertions + " " + strings;
+        return "BLangRawTemplateLiteral: " + strings + " " + insertions;
     }
 
     @Override

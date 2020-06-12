@@ -14,8 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// TODO: Add docs
+# Represents the shape expected from all raw templates.
 public type RawTemplate abstract object {
-   public string[] strings;
-   public (any|error)[] insertions;
+
+    # The string literal parts of the raw template.
+    public string[] strings;
+
+    # The expressions given within the interpolations of the raw template.
+    public (any|error)[] insertions;
 };

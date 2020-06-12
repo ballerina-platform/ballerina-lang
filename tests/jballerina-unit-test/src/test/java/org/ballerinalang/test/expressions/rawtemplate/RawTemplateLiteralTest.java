@@ -59,11 +59,12 @@ public class RawTemplateLiteralTest {
                 "1 insertion(s)", 51, 19);
         validateError(errors, indx++, "incompatible types: expected 'anydata', found 'Template'", 56, 46);
         validateError(errors, indx++, "incompatible types: expected '(Foo|Bar)', found 'string'", 70, 16);
-        validateError(errors, indx++, "invalid raw template assignment: 'Template1' expected to be abstract", 82, 19);
+        validateError(errors, indx++, "invalid raw template assignment: 'Template1' should be an abstract object",
+                      82, 19);
         validateError(errors, indx++, "invalid raw template assignment: 'object { public string[] strings; public " +
-                "[anydata...] insertions; string name; }' expected to be abstract", 94, 15);
+                "[anydata...] insertions; string name; }' should be an abstract object", 94, 15);
         validateError(errors, indx++, "invalid raw template assignment: 'object { public string[] strings; public " +
-                "int[] insertions; int name; }' expected to have only the 'strings' and 'insertions' fields", 102, 13);
+                "int[] insertions; int name; }' should only have the 'strings' and 'insertions' fields", 102, 13);
         validateError(errors, indx++, "incompatible types: expected 'ballerina/lang.object:1.0.0:" +
                 "RawTemplate', found 'object { }'", 105, 13);
         validateError(errors, indx++, "incompatible types: expected 'ballerina/lang.object:1.0.0:" +
@@ -73,7 +74,7 @@ public class RawTemplateLiteralTest {
         validateError(errors, indx++, "incompatible types: expected 'ballerina/lang.object:1.0.0:" +
                 "RawTemplate', found 'object { public int[] insertions; int foo; }'", 118, 13);
         validateError(errors, indx++, "invalid raw template assignment: 'object { public string[] strings; public " +
-                "int[] insertions; function shouldNotBeHere () returns (); }' expected to be a type " +
+                "int[] insertions; function shouldNotBeHere () returns (); }' should be a type " +
                 "without methods", 125, 13);
         validateError(errors, indx++, "invalid raw template: expected 2 insertion(s), but found 3 insertion(s)",
                       134, 17);
