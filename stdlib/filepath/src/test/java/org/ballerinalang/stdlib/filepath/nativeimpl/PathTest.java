@@ -116,7 +116,7 @@ public class PathTest {
         if (IS_WINDOWS) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/filepath}InvalidPathError");
+            assertTrue(error.getMessage().contains("Invalid path"));
         } else {
             BString absPath = (BString) returns[0];
             log.info("{ballerina/filepath}:absolute(). Return value: " + absPath.stringValue());
