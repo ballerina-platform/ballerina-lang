@@ -106,7 +106,7 @@ function testLocalTransactionUpdateWithGeneratedKeys(string jdbcURL, string user
         check commit;
     }
     returnVal = transInfo.retryNumber;
-    //check whether update action is performed
+    //Check whether the update action is performed.
     int count = check getCount(dbClient, "615");
     check dbClient.close();
     return [returnVal, count];
@@ -125,7 +125,7 @@ function testLocalTransactionRollbackWithGeneratedKeys(string jdbcURL, string us
         check commit;
     }
     returnVal = transInfo.retryNumber;
-    //check whether update action is performed
+    //Check whether the update action is performed.
     int count = check getCount(dbClient, "615");
     check dbClient.close();
     return [returnVal, count];
@@ -155,7 +155,7 @@ function testTransactionAbort(string jdbcURL, string user, string password) retu
         }
     }
     int returnVal = transInfo.retryNumber;
-    //check whether update action is performed
+    //Check whether the update action is performed.
     int count = check getCount(dbClient, "220");
     check dbClient.close();
     return [returnVal, abortVal, count];
@@ -171,7 +171,7 @@ function testTransactionErrorPanic(string jdbcURL, string user, string password)
     if (ret is error) {
         catchValue = -1;
     }
-    //check whether update action is performed
+    //Check whether the update action is performed.
     int count = check getCount(dbClient, "260");
     check dbClient.close();
     return [testTransactionErrorPanicRetVal, catchValue, count];
@@ -212,7 +212,7 @@ function testTransactionErrorPanicAndTrap(string jdbcURL, string user, string pa
         check commit;
     }
     int returnVal = transInfo.retryNumber;
-    //check whether update action is performed
+    //Check whether the update action is performed.
     int count = check getCount(dbClient, "250");
     check dbClient.close();
     return [returnVal, catchValue, count];
@@ -250,7 +250,7 @@ function testTwoTransactions(string jdbcURL, string user, string password) retur
      }
      int returnVal2 = transInfo2.retryNumber;
 
-     //check whether update action is performed
+     //Check whether the update action is performed.
      int count = check getCount(dbClient, "400");
      check dbClient.close();
      return [returnVal1, returnVal2, count];
@@ -265,7 +265,7 @@ function testTransactionWithoutHandlers(string jdbcURL, string user, string pass
                             "values ('James', 'Clerk', 350, 5000.75, 'USA')");
         check commit;
     }
-    //check whether update action is performed
+    //Check whether the update action is performed.
     int count = check getCount(dbClient, "350");
     check dbClient.close();
     return [count];

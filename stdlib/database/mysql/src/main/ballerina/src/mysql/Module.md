@@ -1,14 +1,14 @@
 ## Module overview
 
-This module provides the functionality required to access and manipulate data stored in MySQL database.  
+This module provides the functionality required to access and manipulate data stored in a MySQL database.  
 
-**Prerequisite:** Please add the MySQL driver jar as a native library dependency in your Ballerina project. 
-This module uses database properties from MySQL version 8.0.x onwards. Therefore, it is recommended to use a 
-MySQL driver version greater than 8.0.x. Then, once you build the project with `ballerina build`
-command, you should be able to run the resultant jar with, the `java -jar` command.
+**Prerequisite:** Add the MySQL driver JAR as a native library dependency in your Ballerina project. 
+This module uses database properties from the MySQL version 8.0.x onwards. Therefore, it is recommended to use a 
+MySQL driver version greater than 8.0.x. Then, once you build the project by executing the `ballerina build`
+command, you should be able to run the resultant JAR by executing the `java -jar` command.
 
-e.g. Ballerina.toml content.
-Please change the path to the JDBC driver appropriately.
+E.g., The `Ballerina.toml` content.
+Change the path to the JDBC driver appropriately.
 
 ```toml
 [project]
@@ -26,8 +26,8 @@ target = "java8"
     modules = ["samplemodule"]
 ``` 
 
-Or, if you're trying to run a single bal file, you can copy the JDBC driver into `${BALLERINA_HOME}/bre/lib` and 
-run the bal file with `ballerina run` command.
+Else, if you're trying to run a single BAL file, you can copy the JDBC driver into the `${BALLERINA_HOME}/bre/lib` directory and 
+run the BAL file by executing the `ballerina run` command.
 
 ### Client
 To access a database, you must first create a 
@@ -37,20 +37,20 @@ The examples for creating a MySQL client can be found below.
 #### Creating a client
 This example shows different ways of creating the `mysql:Client`. 
 
-The client can be created with empty constructor, and hence the client will be initialized with default properties. 
-The first example with `dbClient1` demonstrates this.
+The client can be created with an empty constructor and hence, the client will be initialized with the default properties. 
+The first example with the `dbClient1` demonstrates this.
 
-The `dbClient2` receives host, user and password. Since the properties are passed in the same order as it is defined 
-in the `jdbc:Client` you can pass it without named params.
+The `dbClient2` receives the host, username, and password. Since the properties are passed in the same order as it is defined 
+in the `jdbc:Client`, you can pass it without named params.
 
 The `dbClient3` uses the named params to pass the attributes since it is skipping some params in the constructor. 
 Further [mysql:Options](https://ballerina.io/learn/api-docs/ballerina/api-docs/mysql/records/Options.html) 
 is passed to configure the SSL and connection timeout in the MySQL client. 
 
-Similarly `dbClient4` uses the named params, and it provides a unshared connection pool in the type of 
+Similarly, the `dbClient4` uses the named params and it provides an unshared connection pool in the type of 
 [sql:ConnectionPool](https://ballerina.io/learn/api-docs/ballerina/api-docs/sql/records/ConnectionPool.html) 
-to be used within the client. Please refer [SQL Module](https://ballerina.io/learn/api-docs/ballerina/sql/index.html) 
-to get more details about connection pooling.
+to be used within the client. 
+For more details about connection pooling, see the [SQL Module](https://ballerina.io/learn/api-docs/ballerina/sql/index.html).
 
 ```ballerina
 mysql:Client dbClient1 = new ();
@@ -68,15 +68,14 @@ mysql:Client dbClient3 = new (user = "rootUser", password = "rootPass",
 mysql:Client dbClient3 = new (user = "rootUser", password = "rootPass",
                               connectionPool = {maxOpenConnections: 5});
 ```
-You can find more details about each property in 
+You can find more details about each property in the
 [mysql:Client](https://ballerina.io/learn/api-docs/ballerina/api-docs/mysql/clients/Client.html) constructor. 
 
 The [mysql:Client](https://ballerina.io/learn/api-docs/ballerina/api-docs/mysql/clients/Client.html) references 
-[sql:Client](https://ballerina.io/learn/api-docs/ballerina/api-docs/sql/clients/Client.html) and hence all operations 
-defined by the `sql:Client` will be supported by `mysql:Client` as well. 
+[sql:Client](https://ballerina.io/learn/api-docs/ballerina/api-docs/sql/clients/Client.html) and all the operations 
+defined by the `sql:Client` will be supported by the `mysql:Client` as well. 
 
-Please refer [SQL Module](https://ballerina.io/learn/api-docs/ballerina/sql/index.html) for more information on 
-all operations supported by `mysql:Client` which includes below. 
+For more information on all the operations supported by the `mysql:Client`, which include the below, see the [SQL Module](https://ballerina.io/learn/api-docs/ballerina/sql/index.html).
 
 1. Connection Pooling
 2. Querying data
