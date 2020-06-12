@@ -14,7 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/sql;
+import ballerina/transactions;
+import ballerina/io;
 import ballerina/java.jdbc;
 
 type ResultCount record {
@@ -22,59 +23,89 @@ type ResultCount record {
 };
 
 function testLocalTransaction(string jdbcURL, string user, string password) returns @tainted [int, int, boolean, boolean]|error? {
-    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    int retryVal = 0;
+   jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+    int retryVal = -1;
     boolean committedBlockExecuted = false;
-    boolean abortedBlockExecuted = false;
-    transaction {
-        sql:ExecutionResult|sql:Error? res = dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+    transactions:Info transInfo;
+    retry(1) transaction {
+        var res = dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
                                 "values ('James', 'Clerk', 200, 5000.75, 'USA')");
         res = dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
                                 "values ('James', 'Clerk', 200, 5000.75, 'USA')");
-    } onretry {
-        retryVal = -1;
-    } committed {
-        committedBlockExecuted = true;
-    } aborted {
-        abortedBlockExecuted = true;
+        transInfo = transactions:info();
+        var commitResult = commit;
+        if(commitResult is ()){
+            committedBlockExecuted = true;
+        }
     }
+    retryVal = transInfo.retryNumber;
     //check whether update action is performed
     int count = check getCount(dbClient, "200");
     check dbClient.close();
-    return [retryVal, count, committedBlockExecuted, abortedBlockExecuted];
+    return [retryVal, count, committedBlockExecuted];
 }
 
-function testTransactionRollback(string jdbcURL, string user, string password) returns @tainted [int, int, boolean]|error?{
-    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    int returnVal = 0;
+function testTransactionRollbackWithCheck(string jdbcURL, string user, string password) returns @tainted [int, int, boolean]|error?{
+   jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+    int retryVal = -1;
     boolean stmtAfterFailureExecuted = false;
-
-    transaction {
-        var e1 = dbClient->execute("Insert into Customers (firstName,lastName,registrationID," +
+    transactions:Info transInfo;
+    retry(1) transaction {
+        transInfo = transactions:info();
+        var e1 = check dbClient->execute("Insert into Customers (firstName,lastName,registrationID," +
                 "creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')");
-        var e2 =  dbClient->execute("Insert into Customers2 (firstName,lastName,registrationID," +
-                "creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')");
-        stmtAfterFailureExecuted = true;
-    } onretry {
-        returnVal = -1;
+        var e2 = check dbClient->execute("Insert into Customers2 (firstName,lastName,registrationID," +
+                    "creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')");
+        stmtAfterFailureExecuted  = true;
+        check commit;
     }
-    //check whether update action is performed
+    retryVal = transInfo.retryNumber;
     int count = check getCount(dbClient, "210");
     check dbClient.close();
-    return [returnVal, count, stmtAfterFailureExecuted];
+    return [retryVal, count, stmtAfterFailureExecuted];
+}
+
+function testTransactionRollbackWithRollback(string jdbcURL, string user, string password) returns @tainted [int, int, boolean]|error?{
+   jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+    int retryVal = -1;
+    boolean stmtAfterFailureExecuted = false;
+    transactions:Info transInfo;
+    retry(1) transaction {
+        transInfo = transactions:info();
+        var e1 = dbClient->execute("Insert into Customers (firstName,lastName,registrationID," +
+                "creditLimit,country) values ('James', 'Clerk', 211, 5000.75, 'USA')");
+        if (e1 is error){
+            rollback;
+        } else {
+            var e2 = dbClient->execute("Insert into Customers2 (firstName,lastName,registrationID," +
+                        "creditLimit,country) values ('James', 'Clerk', 211, 5000.75, 'USA')");
+            if (e2 is error){
+                rollback;
+                stmtAfterFailureExecuted  = true;
+            } else {
+                check commit;
+            }
+        }
+    }
+    retryVal = transInfo.retryNumber;
+    int count = check getCount(dbClient, "211");
+    check dbClient.close();
+    return [retryVal, count, stmtAfterFailureExecuted];
 }
 
 function testLocalTransactionUpdateWithGeneratedKeys(string jdbcURL, string user, string password) returns @tainted [int, int]|error?{
-    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+   jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     int returnVal = 0;
-    transaction {
-        var e1 = dbClient->execute("Insert into Customers " +
+    transactions:Info transInfo;
+    retry (1) transaction {
+        transInfo = transactions:info();
+        var e1 = check dbClient->execute("Insert into Customers " +
          "(firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')");
-        var e2 =  dbClient->execute("Insert into Customers " +
+        var e2 =  check dbClient->execute("Insert into Customers " +
         "(firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')");
-    } onretry {
-        returnVal = -1;
+        check commit;
     }
+    returnVal = transInfo.retryNumber;
     //check whether update action is performed
     int count = check getCount(dbClient, "615");
     check dbClient.close();
@@ -82,16 +113,18 @@ function testLocalTransactionUpdateWithGeneratedKeys(string jdbcURL, string user
 }
 
 function testLocalTransactionRollbackWithGeneratedKeys(string jdbcURL, string user, string password) returns @tainted [int, int]|error?{
-    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+   jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     int returnVal = 0;
-    transaction {
-        var e1 = dbClient->execute("Insert into Customers " +
+    transactions:Info transInfo;
+    retry(1) transaction {
+        transInfo = transactions:info();
+        var e1 = check dbClient->execute("Insert into Customers " +
          "(firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')");
-        var e2 =  dbClient->execute("Insert into Customers2 " +
+        var e2 =  check dbClient->execute("Insert into Customers2 " +
         "(firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')");
-    } onretry {
-        returnVal = -1;
+        check commit;
     }
+    returnVal = transInfo.retryNumber;
     //check whether update action is performed
     int count = check getCount(dbClient, "615");
     check dbClient.close();
@@ -99,24 +132,29 @@ function testLocalTransactionRollbackWithGeneratedKeys(string jdbcURL, string us
 }
 
 function testTransactionAbort(string jdbcURL, string user, string password) returns @tainted [int, int, int]|error?{
-    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    int returnVal = 0;
+   jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+    transactions:Info transInfo;
+
     int abortVal = 0;
-    transaction {
+    var abortFunc = function(transactions:Info? info, error? cause, boolean willTry) {
+        abortVal = -1;
+    };
+
+    retry(1) transaction {
+        transInfo = transactions:info();
+        transactions:onRollback(abortFunc);
         var e1 = dbClient->execute("Insert into Customers " +
          "(firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 220, 5000.75, 'USA')");
         var e2 =  dbClient->execute("Insert into Customers " +
         "(firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 220, 5000.75, 'USA')");
         int i = 0;
         if (i == 0) {
-            abort;
+            rollback;
+        } else {
+            check commit;
         }
-        returnVal = 0;
-    } onretry {
-        returnVal = -1;
-    } aborted {
-        abortVal = -1;
     }
+    int returnVal = transInfo.retryNumber;
     //check whether update action is performed
     int count = check getCount(dbClient, "220");
     check dbClient.close();
@@ -125,10 +163,11 @@ function testTransactionAbort(string jdbcURL, string user, string password) retu
 
 int testTransactionErrorPanicRetVal = 0;
 function testTransactionErrorPanic(string jdbcURL, string user, string password) returns @tainted [int, int, int]|error? {
-    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+   jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     int returnVal = 0;
     int catchValue = 0;
     var ret = trap testTransactionErrorPanicHelper(dbClient);
+    io:println(ret);
     if (ret is error) {
         catchValue = -1;
     }
@@ -140,34 +179,39 @@ function testTransactionErrorPanic(string jdbcURL, string user, string password)
 
 function testTransactionErrorPanicHelper(jdbc:Client dbClient) {
     int returnVal = 0;
-    transaction {
+    transactions:Info transInfo;
+    retry(1) transaction {
+        transInfo = transactions:info();
         var e1 = dbClient->execute("Insert into Customers (firstName,lastName," +
                               "registrationID,creditLimit,country) values ('James', 'Clerk', 260, 5000.75, 'USA')");
         int i = 0;
         if (i == 0) {
             error e = error("error");
             panic e;
+        } else {
+            var r = commit;
         }
-    } onretry {
-        testTransactionErrorPanicRetVal = -1;
     }
+    io:println("exec");
+    testTransactionErrorPanicRetVal = transInfo.retryNumber;
 }
 
 function testTransactionErrorPanicAndTrap(string jdbcURL, string user, string password) returns @tainted [int, int, int]|error? {
-    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+   jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
 
-    int returnVal = 0;
     int catchValue = 0;
-    transaction {
+    transactions:Info transInfo;
+    retry (1) transaction {
+        transInfo = transactions:info();
         var e1 = dbClient->execute("Insert into Customers (firstName,lastName,registrationID," +
                  "creditLimit,country) values ('James', 'Clerk', 250, 5000.75, 'USA')");
         var ret = trap testTransactionErrorPanicAndTrapHelper(0);
         if (ret is error) {
             catchValue = -1;
         }
-    } onretry {
-        returnVal = -1;
+        check commit;
     }
+    int returnVal = transInfo.retryNumber;
     //check whether update action is performed
     int count = check getCount(dbClient, "250");
     check dbClient.close();
@@ -184,38 +228,42 @@ function testTransactionErrorPanicAndTrapHelper(int i) {
 function testTwoTransactions(string jdbcURL, string user, string password) returns @tainted [int, int, int]|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
 
-    int returnVal1 = 1;
-    int returnVal2 = 1;
-    transaction {
-        var e1 = dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
-                            "values ('James', 'Clerk', 400, 5000.75, 'USA')");
-        var e2 = dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
-                            "values ('James', 'Clerk', 400, 5000.75, 'USA')");
-    } onretry {
-        returnVal1 = 0;
-    }
+     transactions:Info transInfo1;
+     transactions:Info transInfo2;
+     retry (1) transaction {
+         transInfo1 = transactions:info();
+         var e1 = check dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                             "values ('James', 'Clerk', 400, 5000.75, 'USA')");
+         var e2 = check dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                             "values ('James', 'Clerk', 400, 5000.75, 'USA')");
+         check commit;
+     }
+     int returnVal1 = transInfo1.retryNumber;
 
-    transaction {
-        var e1 = dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
-                            "values ('James', 'Clerk', 400, 5000.75, 'USA')");
-        var e2 = dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
-                            "values ('James', 'Clerk', 400, 5000.75, 'USA')");
-    } onretry {
-        returnVal2 = 0;
-    }
-    //check whether update action is performed
-    int count = check getCount(dbClient, "400");
-    check dbClient.close();
-    return [returnVal1, returnVal2, count];
-}
+     retry(1) transaction {
+         transInfo2 = transactions:info();
+         var e1 = dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                             "values ('James', 'Clerk', 400, 5000.75, 'USA')");
+         var e2 = dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                             "values ('James', 'Clerk', 400, 5000.75, 'USA')");
+         check commit;
+     }
+     int returnVal2 = transInfo2.retryNumber;
+
+     //check whether update action is performed
+     int count = check getCount(dbClient, "400");
+     check dbClient.close();
+     return [returnVal1, returnVal2, count];
+ }
 
 function testTransactionWithoutHandlers(string jdbcURL, string user, string password) returns @tainted [int]|error? {
-    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+   jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     transaction {
-        var e1 = dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+        var e1 = check dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
                             "values ('James', 'Clerk', 350, 5000.75, 'USA')");
-        var e2 = dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+        var e2 = check dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
                             "values ('James', 'Clerk', 350, 5000.75, 'USA')");
+        check commit;
     }
     //check whether update action is performed
     int count = check getCount(dbClient, "350");
@@ -224,7 +272,7 @@ function testTransactionWithoutHandlers(string jdbcURL, string user, string pass
 }
 
 function testLocalTransactionFailed(string jdbcURL, string user, string password) returns @tainted [string, int]|error? {
-    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+   jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
 
     string a = "beforetx";
 
@@ -240,24 +288,30 @@ function testLocalTransactionFailed(string jdbcURL, string user, string password
     return [a, count];
 }
 
-function testLocalTransactionFailedHelper(string status, jdbc:Client dbClient) returns string {
+function testLocalTransactionFailedHelper(string status,jdbc:Client dbClient) returns string|error {
     string a = status;
-    transaction with retries = 4 {
+    transactions:Info transInfo;
+    int i = 0;
+
+    var onRollbackFunc = function(transactions:Info? info, error? cause, boolean willTry) {
+                a = a + " trxAborted";
+    };
+
+    retry(2) transaction {
         a = a + " inTrx";
-        var e1 = dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+        transInfo = transactions:info();
+        transactions:onRollback(onRollbackFunc);
+        var e1 = check dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
                         "values ('James', 'Clerk', 111, 5000.75, 'USA')");
-        var e2 = dbClient->execute("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country) " +
+        var e2 = check dbClient->execute("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country) " +
                         "values ('Anne', 'Clerk', 111, 5000.75, 'USA')");
-    } onretry {
-        a = a + " onRetry";
-    } aborted {
-        a = a + " trxAborted";
+        check commit;
     }
     return a;
 }
 
 function testLocalTransactionSuccessWithFailed(string jdbcURL, string user, string password) returns @tainted [string, int]|error? {
-    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+   jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
 
     string a = "beforetx";
     string | error ret = trap testLocalTransactionSuccessWithFailedHelper(a, dbClient);
@@ -272,24 +326,22 @@ function testLocalTransactionSuccessWithFailed(string jdbcURL, string user, stri
     return [a, count];
 }
 
-function testLocalTransactionSuccessWithFailedHelper(string status, jdbc:Client dbClient) returns string {
+function testLocalTransactionSuccessWithFailedHelper(string status,jdbc:Client dbClient) returns string|error {
     int i = 0;
     string a = status;
-    transaction with retries = 4 {
+    retry (3) transaction {
+        i = i + 1;
         a = a + " inTrx";
-        var e1 = dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)" +
+        var e1 = check dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)" +
                                     " values ('James', 'Clerk', 222, 5000.75, 'USA')");
-        if (i == 2) {
-            var e2 = dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+        if (i == 3) {
+            var e2 = check dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
                                         "values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
         } else {
-            var e3 = dbClient->execute("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country) " +
+            var e3 = check dbClient->execute("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country) " +
                                         "values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
         }
-    } onretry {
-        a = a + " onRetry";
-        i = i + 1;
-    } committed {
+        check commit;
         a = a + " committed";
     }
     return a;
