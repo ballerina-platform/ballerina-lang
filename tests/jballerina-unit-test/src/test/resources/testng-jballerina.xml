@@ -28,6 +28,7 @@
                 <exclude name="brokenOnJBallerina"/>
                 <exclude name="brokenOnSpecDeviation"/>
                 <exclude name="brokenOnErrorChange"/>
+                <exclude name="disableOnOldParser"/>
             </run>
         </groups>
         <packages>

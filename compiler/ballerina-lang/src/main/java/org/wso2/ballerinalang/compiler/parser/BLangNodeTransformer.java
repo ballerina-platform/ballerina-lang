@@ -708,7 +708,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(DistinctTypeDescriptorNode distinctTypeDesc) {
-        return createTypeNode(distinctTypeDesc.typeDescriptor());
+        BLangType typeNode = createTypeNode(distinctTypeDesc.typeDescriptor());
+        typeNode.flagSet.add(Flag.DISTINCT);
+        return typeNode;
     }
 
     @Override

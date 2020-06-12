@@ -32,7 +32,6 @@ import java.util.Set;
 public class BLangUserDefinedType extends BLangType implements UserDefinedTypeNode {
     public BLangIdentifier pkgAlias;
     public BLangIdentifier typeName;
-    public Set<Flag> flagSet;
 
     public BLangUserDefinedType() {
         this.flagSet = new HashSet<>();
@@ -41,7 +40,6 @@ public class BLangUserDefinedType extends BLangType implements UserDefinedTypeNo
     public BLangUserDefinedType(BLangIdentifier pkgAlias, BLangIdentifier typeName) {
         this.pkgAlias = pkgAlias;
         this.typeName = typeName;
-        this.flagSet = new HashSet<>();
     }
 
     @Override
