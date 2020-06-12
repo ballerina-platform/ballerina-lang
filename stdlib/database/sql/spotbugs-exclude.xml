@@ -24,4 +24,8 @@
         <class name="org.ballerinalang.sql.utils.QueryUtils"/>
         <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING"/>
     </Match>
+    <Match>
+        <class name="org.ballerinalang.sql.utils.ExecuteUtils"/>
+        <Bug pattern="NP_GUARANTEED_DEREF_ON_EXCEPTION_PATH"/>
+    </Match>
 </FindBugsFilter>

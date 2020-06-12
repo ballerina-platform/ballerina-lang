@@ -31,49 +31,49 @@ import java.util.Collections;
  * @since 2.0.0
  */
 public class STQueryConstructTypeNode extends STNode {
-    public final STNode tableKeyword;
+    public final STNode keyword;
     public final STNode keySpecifier;
 
     STQueryConstructTypeNode(
-            STNode tableKeyword,
+            STNode keyword,
             STNode keySpecifier) {
         this(
-                tableKeyword,
+                keyword,
                 keySpecifier,
                 Collections.emptyList());
     }
 
     STQueryConstructTypeNode(
-            STNode tableKeyword,
+            STNode keyword,
             STNode keySpecifier,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.QUERY_CONSTRUCT_TYPE, diagnostics);
-        this.tableKeyword = tableKeyword;
+        this.keyword = keyword;
         this.keySpecifier = keySpecifier;
 
         addChildren(
-                tableKeyword,
+                keyword,
                 keySpecifier);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STQueryConstructTypeNode(
-                this.tableKeyword,
+                this.keyword,
                 this.keySpecifier,
                 diagnostics);
     }
 
     public STQueryConstructTypeNode modify(
-            STNode tableKeyword,
+            STNode keyword,
             STNode keySpecifier) {
         if (checkForReferenceEquality(
-                tableKeyword,
+                keyword,
                 keySpecifier)) {
             return this;
         }
 
         return new STQueryConstructTypeNode(
-                tableKeyword,
+                keyword,
                 keySpecifier,
                 diagnostics);
     }

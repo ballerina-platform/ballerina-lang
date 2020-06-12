@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.985.0
  */
+@Test(groups = { "brokenOnNewParser" })
 public class WaitActionsNegativeTest {
 
     private CompileResult resultNegative;

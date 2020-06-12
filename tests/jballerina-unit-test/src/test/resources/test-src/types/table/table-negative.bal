@@ -125,3 +125,8 @@ function testInferMemberType() {
    var arr = table [{ id: 13 , name: "Sanjiva", address: "Weerawarana" },
                             { id: "Hello" , name: "James" , address: "Clark" }];
 }
+
+function testVarTypeTableInfering() {
+    var customerTable = table [];
+    customerTable.put({id: 3, name: "Pope", age: 19, address: {no: 12, road: "Sea street"}});
+}

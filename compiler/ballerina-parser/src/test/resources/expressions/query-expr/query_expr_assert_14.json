@@ -1,66 +1,9 @@
 {
-  "kind": "QUERY_EXPRESSION",
-  "hasDiagnostics": true,
-  "children": [
+  "kind": "INT_KEYWORD",
+  "trailingMinutiae": [
     {
-      "kind": "QUERY_PIPELINE",
-      "hasDiagnostics": true,
-      "children": [
-        {
-          "kind": "FROM_CLAUSE",
-          "hasDiagnostics": true,
-          "children": [
-            {
-              "kind": "FROM_KEYWORD",
-              "isMissing": true,
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_FROM_KEYWORD"
-              ]
-            },
-            {
-              "kind": "TYPED_BINDING_PATTERN",
-              "children": [
-                {
-                  "kind": "INT_KEYWORD"
-                },
-                {
-                  "kind": "CAPTURE_BINDING_PATTERN",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "IN_KEYWORD"
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "b"
-            }
-          ]
-        },
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
-      "kind": "SELECT_CLAUSE",
-      "children": [
-        {
-          "kind": "SELECT_KEYWORD"
-        },
-        {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "c"
-        }
-      ]
+      "kind": "WHITESPACE_MINUTIAE",
+      "value": " "
     }
   ]
 }

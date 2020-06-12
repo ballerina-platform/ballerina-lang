@@ -4,7 +4,13 @@
   "children": [
     {
       "kind": "DECIMAL_INTEGER_LITERAL",
-      "value": "3"
+      "value": "3",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "IS_KEYWORD"
