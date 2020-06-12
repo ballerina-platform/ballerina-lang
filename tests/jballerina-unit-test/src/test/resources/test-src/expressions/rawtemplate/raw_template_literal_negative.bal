@@ -124,3 +124,14 @@ function testSubtyping6() {
         function shouldNotBeHere();
     } rt6 = `Hello World!`;
 }
+
+type Temp1 abstract object {
+    public [string, string, string] strings;
+    public [int, float] insertions;
+};
+
+function testTypeChecking() {
+    Temp1 rt1 = `Foo${8}Bar${"asdf"}${23.45}`;
+    Temp1 rt2 = `${8}`;
+    Temp1 rt3 = `Foo${8}Bar${"asdf"}`;
+}

@@ -315,8 +315,8 @@ public class Desugar extends BLangNodeVisitor {
     private BLangNode result;
     private NodeCloner nodeCloner;
     private SemanticAnalyzer semanticAnalyzer;
-    private ResolvedTypeBuilder typeBuilder;
     private BLangAnonymousModelHelper anonModelHelper;
+    private ResolvedTypeBuilder typeBuilder;
 
     private BLangStatementLink currentLink;
     public Stack<BLangLockStmt> enclLocks = new Stack<>();
@@ -367,8 +367,8 @@ public class Desugar extends BLangNodeVisitor {
         this.serviceDesugar = ServiceDesugar.getInstance(context);
         this.nodeCloner = NodeCloner.getInstance(context);
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
-        this.typeBuilder = new ResolvedTypeBuilder();
         this.anonModelHelper = BLangAnonymousModelHelper.getInstance(context);
+        this.typeBuilder = new ResolvedTypeBuilder();
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -2393,7 +2393,7 @@ public class Desugar extends BLangNodeVisitor {
         retryBody.stmts.addAll(retryNode.retryBody.stmts);
         BVarSymbol retryFuncVarSymbol = new BVarSymbol(0, names.fromString("$retryFunc$"),
                 env.scope.owner.pkgID, retryFunc.type, retryFunc.function.symbol);
-        BLangSimpleVariable retryLambdaVariable = ASTBuilderUtil.createVariable(pos, "retryFunc",
+        BLangSimpleVariable retryLambdaVariable = ASTBuilderUtil.createVariable(pos, "$retryFunc$",
                 retryFunc.type, retryFunc, retryFuncVarSymbol);
         BLangSimpleVariableDef retryLambdaVariableDef = ASTBuilderUtil.createVariableDef(pos,
                 retryLambdaVariable);
@@ -3005,11 +3005,6 @@ public class Desugar extends BLangNodeVisitor {
         rollbackExprStmt.pos = rollbackNode.pos;
         rollbackExprStmt.expr = checkedExpr;
         result = rewrite(rollbackExprStmt, env);
-    }
-
-    String getTransactionBlockId() {
-        return env.enclPkg.packageID.orgName + "$" + env.enclPkg.packageID.name + "$"
-                + transactionIndex++;
     }
 
     BLangLambdaFunction createLambdaFunction(DiagnosticPos pos, String functionNamePrefix,
@@ -4334,7 +4329,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     /**
-     * This method desugars a raw template literal object class for the provided raw template object type as follows:
+     * This method desugars a raw template literal object class for the provided raw template object type as follows.
      * A literal defined as 'object:RawTemplate rt = `Hello ${name}!`;
      * is desugared to,
      *      type $anonType$0 object {

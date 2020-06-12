@@ -2046,5 +2046,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 methodSignature,
                 functionBody);
     }
+
+    public static STNode createDistinctTypeDescriptorNode(
+            STNode distinctKeyword,
+            STNode typeDescriptor) {
+
+        return new STDistinctTypeDescriptorNode(
+                distinctKeyword,
+                typeDescriptor);
+    }
 }
 

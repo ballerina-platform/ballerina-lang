@@ -724,6 +724,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(objectMethodDefinitionNode);
     }
 
+    public T transform(DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
+        return transformSyntaxNode(distinctTypeDescriptorNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

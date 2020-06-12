@@ -541,10 +541,12 @@ public enum DiagnosticCode {
     INVALID_PARAM_TYPE_FOR_RETURN_TYPE("invalid.param.type.for.return.type"),
     INVALID_TYPEDESC_PARAM("invalid.typedesc.param"),
 
-    INVALID_RAW_TEMPLATE_LITERAL("invalid.raw.template.literal"),
+    INVALID_NUM_STRINGS("invalid.num.of.strings"),
+    INVALID_NUM_INSERTIONS("invalid.num.of.insertions"),
     INVALID_RAW_TEMPLATE_ASSIGNMENT("invalid.raw.template.assignment"),
     INVALID_NUM_FIELDS("invalid.number.of.fields"),
-    METHODS_NOT_ALLOWED("methods.not.allowed");
+    METHODS_NOT_ALLOWED("methods.not.allowed"),
+    ;
     private String value;
 
     DiagnosticCode(String value) {
