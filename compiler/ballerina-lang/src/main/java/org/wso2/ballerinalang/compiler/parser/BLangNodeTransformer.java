@@ -135,6 +135,7 @@ import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SelectClauseNode;
 import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerinalang.compiler.syntax.tree.ServiceBodyNode;
+import io.ballerinalang.compiler.syntax.tree.ServiceConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SingletonTypeDescriptorNode;
@@ -357,6 +358,7 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.ballerinalang.model.elements.Flag.SERVICE;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
@@ -735,7 +737,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
 
             if (qualifier.kind() == SyntaxKind.SERVICE_KEYWORD) {
-                objectTypeNode.flagSet.add(Flag.SERVICE);
+                objectTypeNode.flagSet.add(SERVICE);
             }
         }
 
@@ -796,19 +798,21 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return createService(serviceDeclrNode, serviceDeclrNode.serviceName(), false);
     }
 
-    private BLangNode createService(ServiceDeclarationNode serviceDeclrNode, IdentifierToken serviceNameNode,
+    private BLangNode createService(Node serviceNode, IdentifierToken serviceNameNode,
                                     boolean isAnonServiceValue) {
         // Any Service can be represented in two major components.
         //  1) A anonymous type node (Object)
         //  2) Variable assignment with "serviceName".
         //      This is a global variable if the service is defined in module level.
         //      Otherwise (isAnonServiceValue = true) it is a local variable definition, which is written by user.
+        ServiceDeclarationNode serviceDeclrNode = null;
+        ServiceConstructorExpressionNode serviceConstructorNode;
         BLangService bLService = (BLangService) TreeBuilder.createServiceNode();
         //TODO handle service.expression
         // TODO: Look for generify this into sepearte method for type as well
         bLService.isAnonymousServiceValue = isAnonServiceValue;
 
-        DiagnosticPos pos = getPosition(serviceDeclrNode);
+        DiagnosticPos pos = getPosition(serviceNode);
         String serviceName;
         DiagnosticPos identifierPos;
         if (isAnonServiceValue) {
@@ -829,6 +833,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         serviceVar.pos = identifierPos;
         bLService.setName(serviceVar);
         if (!isAnonServiceValue) {
+            serviceDeclrNode = (ServiceDeclarationNode) serviceNode;
             for (Node expr : serviceDeclrNode.expressions()) {
                 bLService.attachedExprs.add(createExpression(expr));
             }
@@ -844,9 +849,20 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangIdentifier serviceTypeID = createIdentifier(identifierPos, serviceTypeName);
         serviceTypeID.pos = pos;
         bLTypeDef.setName(serviceTypeID);
-        bLTypeDef.flagSet.add(Flag.SERVICE);
-        bLTypeDef.typeNode = createTypeNode(serviceDeclrNode.serviceBody());
+        bLTypeDef.flagSet.add(SERVICE);
+
+        if (!isAnonServiceValue) {
+            bLTypeDef.typeNode = createTypeNode(serviceDeclrNode.serviceBody());
+            bLService.markdownDocumentationAttachment =
+                    createMarkdownDocumentationAttachment(serviceDeclrNode.metadata().documentationString());
+        } else {
+            serviceConstructorNode = (ServiceConstructorExpressionNode) serviceNode;
+            bLTypeDef.typeNode = createTypeNode(serviceConstructorNode.serviceBody());
+            bLService.annAttachments = applyAll(serviceConstructorNode.annotations());
+        }
+
         bLTypeDef.pos = pos;
+        addToTop(bLTypeDef);
         bLService.serviceTypeDefinition = bLTypeDef;
 
         // 2) Create service constructor.
@@ -856,8 +872,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         serviceConstNode.pos = pos;
 
         // Crate Global variable for service.
-        bLService.markdownDocumentationAttachment =
-                createMarkdownDocumentationAttachment(serviceDeclrNode.metadata().documentationString());
         bLService.pos = pos;
         if (!isAnonServiceValue) {
             BLangSimpleVariable var = (BLangSimpleVariable) createBasicVarNodeWithoutType(identifierPos,
@@ -865,7 +879,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     serviceName, identifierPos,
                     serviceConstNode);
             var.flagSet.add(Flag.FINAL);
-            var.flagSet.add(Flag.SERVICE);
+            var.flagSet.add(SERVICE);
 
             BLangUserDefinedType bLUserDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
             bLUserDefinedType.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
@@ -874,17 +888,19 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
             var.typeNode = bLUserDefinedType;
             bLService.variableNode = var;
-            addToTop(bLTypeDef);
             return var;
         } else {
-            return bLTypeDef;
+            BLangServiceConstructorExpr serviceConstructorExpr =
+                    (BLangServiceConstructorExpr) TreeBuilder.createServiceConstructorNode();
+            serviceConstructorExpr.serviceNode = bLService;
+            return serviceConstructorExpr;
         }
     }
 
     @Override
     public BLangNode transform(ServiceBodyNode serviceBodyNode) {
         BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
-        objectTypeNode.flagSet.add(Flag.SERVICE);
+        objectTypeNode.flagSet.add(SERVICE);
         for (Node resourceNode : serviceBodyNode.resources()) {
             BLangNode bLangNode = resourceNode.apply(this);
             if (bLangNode.getKind() == NodeKind.FUNCTION) {
@@ -1895,6 +1911,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
         letVar.definitionNode = varDefNode;
         return letVar;
+    }
+
+    @Override
+    public BLangNode transform(ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
+        return createService(serviceConstructorExpressionNode, null, true);
     }
 
     @Override
