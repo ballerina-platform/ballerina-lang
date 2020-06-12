@@ -180,7 +180,7 @@ type Engineer object {
     public string firstName;
     public string lastName;
 
-    function __init(int age, string firstName, string lastName) {
+    function init(int age, string firstName, string lastName) {
         self.age = age;
         self.firstName = firstName;
         self.lastName = lastName;
@@ -197,7 +197,7 @@ type Manager object {
     string firstName;
     string lastName;
 
-    function __init(int age, string firstName, string lastName) {
+    function init(int age, string firstName, string lastName) {
         self.age = age;
         self.firstName = firstName;
         self.lastName = lastName;

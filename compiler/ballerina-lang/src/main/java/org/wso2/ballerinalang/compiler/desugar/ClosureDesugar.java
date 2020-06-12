@@ -1123,14 +1123,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                 varRefExpr.varSymbol.name.value);
         BLangIndexBasedAccess accessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(varRefExpr.pos, varRefExpr.type,
                 mapSymbol, indexExpr);
-        // If its in the LHS of an assignment.
-        if (varRefExpr.lhsVar) {
-            // x = 1 ==> $innerMap$1["x"] = <any> 1
-            result = rewriteExpr(accessExpr);
-            return;
-        }
-        // int z = x + 1 ==> int z = <int>$innerMap$1["x"] + 1;
-        result = rewriteExpr(desugar.addConversionExprIfRequired(accessExpr, varRefExpr.type));
+        result = rewriteExpr(accessExpr);
     }
 
     @Override
