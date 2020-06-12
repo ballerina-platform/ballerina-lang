@@ -14,7 +14,13 @@
           "value": "foo"
         },
         {
-          "kind": "COMMA_TOKEN"
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "ANNOT_ACCESS",
@@ -29,7 +35,13 @@
               ]
             },
             {
-              "kind": "ANNOT_CHAINING_TOKEN"
+              "kind": "ANNOT_CHAINING_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",

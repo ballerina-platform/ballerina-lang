@@ -11,7 +11,13 @@
       ]
     },
     {
-      "kind": "FUNCTION_KEYWORD"
+      "kind": "FUNCTION_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "IDENTIFIER_TOKEN",
@@ -40,16 +46,34 @@
                       "kind": "OPEN_PAREN_TOKEN"
                     },
                     {
-                      "kind": "CLOSE_PAREN_TOKEN"
+                      "kind": "CLOSE_PAREN_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "a"
+                  "value": "a",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
-                  "kind": "EQUAL_TOKEN"
+                  "kind": "EQUAL_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
                   "kind": "NIL_LITERAL",
@@ -75,14 +99,26 @@
       "kind": "FUNCTION_BODY_BLOCK",
       "children": [
         {
-          "kind": "OPEN_BRACE_TOKEN"
+          "kind": "OPEN_BRACE_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "LIST",
           "children": []
         },
         {
-          "kind": "CLOSE_BRACE_TOKEN"
+          "kind": "CLOSE_BRACE_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "value": "\n"
+            }
+          ]
         }
       ]
     }

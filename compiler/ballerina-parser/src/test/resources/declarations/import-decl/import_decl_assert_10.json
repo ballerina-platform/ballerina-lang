@@ -3,7 +3,13 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "IMPORT_KEYWORD"
+      "kind": "IMPORT_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        }
+      ]
     },
     {
       "kind": "LIST",

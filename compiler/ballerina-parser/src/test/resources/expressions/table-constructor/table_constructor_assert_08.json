@@ -3,7 +3,13 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "TABLE_KEYWORD"
+      "kind": "TABLE_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "OPEN_BRACKET_TOKEN"

@@ -30,7 +30,13 @@
                   "value": "Myrecord"
                 },
                 {
-                  "kind": "GT_TOKEN"
+                  "kind": "GT_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },
@@ -60,7 +66,13 @@
                   ]
                 },
                 {
-                  "kind": "CLOSE_PAREN_TOKEN"
+                  "kind": "CLOSE_PAREN_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             }

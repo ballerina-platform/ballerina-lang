@@ -3,10 +3,22 @@
   "children": [
     {
       "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
+      "value": "a",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
-      "kind": "QUESTION_MARK_TOKEN"
+      "kind": "QUESTION_MARK_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "BRACED_EXPRESSION",
@@ -19,22 +31,46 @@
           "value": "b"
         },
         {
-          "kind": "CLOSE_PAREN_TOKEN"
+          "kind": "CLOSE_PAREN_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
     {
-      "kind": "COLON_TOKEN"
+      "kind": "COLON_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "CONDITIONAL_EXPRESSION",
       "children": [
         {
           "kind": "IDENTIFIER_TOKEN",
-          "value": "c"
+          "value": "c",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
-          "kind": "QUESTION_MARK_TOKEN"
+          "kind": "QUESTION_MARK_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "BRACED_EXPRESSION",
@@ -47,12 +83,24 @@
               "value": "d"
             },
             {
-              "kind": "CLOSE_PAREN_TOKEN"
+              "kind": "CLOSE_PAREN_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
         },
         {
-          "kind": "COLON_TOKEN"
+          "kind": "COLON_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "IDENTIFIER_TOKEN",

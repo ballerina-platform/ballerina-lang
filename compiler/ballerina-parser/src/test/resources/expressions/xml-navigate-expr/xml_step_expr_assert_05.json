@@ -6,10 +6,22 @@
       "children": [
         {
           "kind": "IDENTIFIER_TOKEN",
-          "value": "a"
+          "value": "a",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
-          "kind": "SLASH_ASTERISK_TOKEN"
+          "kind": "SLASH_ASTERISK_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
