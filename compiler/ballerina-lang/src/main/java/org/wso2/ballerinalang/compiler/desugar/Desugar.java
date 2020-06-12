@@ -2375,7 +2375,7 @@ public class Desugar extends BLangNodeVisitor {
         retryBody.stmts.addAll(retryNode.retryBody.stmts);
         BVarSymbol retryFuncVarSymbol = new BVarSymbol(0, names.fromString("$retryFunc$"),
                 env.scope.owner.pkgID, retryFunc.type, retryFunc.function.symbol);
-        BLangSimpleVariable retryLambdaVariable = ASTBuilderUtil.createVariable(pos, "retryFunc",
+        BLangSimpleVariable retryLambdaVariable = ASTBuilderUtil.createVariable(pos, "$retryFunc$",
                 retryFunc.type, retryFunc, retryFuncVarSymbol);
         BLangSimpleVariableDef retryLambdaVariableDef = ASTBuilderUtil.createVariableDef(pos,
                 retryLambdaVariable);
@@ -2987,11 +2987,6 @@ public class Desugar extends BLangNodeVisitor {
         rollbackExprStmt.pos = rollbackNode.pos;
         rollbackExprStmt.expr = checkedExpr;
         result = rewrite(rollbackExprStmt, env);
-    }
-
-    String getTransactionBlockId() {
-        return env.enclPkg.packageID.orgName + "$" + env.enclPkg.packageID.name + "$"
-                + transactionIndex++;
     }
 
     BLangLambdaFunction createLambdaFunction(DiagnosticPos pos, String functionNamePrefix,
