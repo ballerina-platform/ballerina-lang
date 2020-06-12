@@ -6,18 +6,7 @@
       "value": "a"
     },
     {
-      "kind": "TRIPPLE_GT_TOKEN",
-      "children": [
-        {
-          "kind": "GT_TOKEN"
-        },
-        {
-          "kind": "GT_TOKEN"
-        },
-        {
-          "kind": "GT_TOKEN"
-        }
-      ]
+      "kind": "TRIPPLE_GT_TOKEN"
     },
     {
       "kind": "IDENTIFIER_TOKEN",
