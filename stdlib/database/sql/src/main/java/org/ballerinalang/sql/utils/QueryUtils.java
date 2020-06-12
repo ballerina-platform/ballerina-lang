@@ -28,12 +28,12 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.Flags;
+import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
+import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.datasource.SQLDatasource;
 import org.ballerinalang.sql.exception.ApplicationError;
@@ -60,7 +60,7 @@ import java.util.Set;
  */
 public class QueryUtils {
 
-    public static StreamValue nativeQuery(ObjectValue client, MapValue<BString, Object> paramSQLString,
+    public static StreamValue nativeQuery(ObjectValue client, Object paramSQLString,
                                           Object recordType) {
         Object dbClient = client.getNativeData(Constants.DATABASE_CLIENT);
         if (dbClient != null) {
@@ -70,10 +70,16 @@ public class QueryUtils {
             ResultSet resultSet = null;
             String sqlQuery = null;
             try {
-                sqlQuery = Utils.getSqlQuery(paramSQLString);
+                if (paramSQLString instanceof StringValue) {
+                    sqlQuery = ((StringValue) paramSQLString).getValue();
+                } else {
+                    sqlQuery = Utils.getSqlQuery((AbstractObjectValue) paramSQLString);
+                }
                 connection = sqlDatasource.getSQLConnection();
                 statement = connection.prepareStatement(sqlQuery);
-                Utils.setParams(connection, statement, paramSQLString);
+                if (paramSQLString instanceof AbstractObjectValue) {
+                    Utils.setParams(connection, statement, (AbstractObjectValue) paramSQLString);
+                }
                 resultSet = statement.executeQuery();
                 List<ColumnDefinition> columnDefinitions;
                 BStructureType streamConstraint;

@@ -39,8 +39,10 @@ import java.io.File;
 import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 
+import static org.ballerinalang.test.util.TestConstant.ENABLE_NEW_PARSER_FOR_TESTS;
+
 /**
- * This test class verifies the behaviour of the ParameterizedString passed into the testQuery operation.
+ * This test class verifies the behaviour of the ParameterizedQuery passed into the testQuery operation.
  *
  * @since 1.3.0
  */
@@ -56,6 +58,8 @@ public class ParamsQueryTest {
 
     @BeforeClass
     public void setup() {
+        System.setProperty(ENABLE_NEW_PARSER_FOR_TESTS, "true");
+
         result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir(SQLDBUtils.QUERY_DIR,
                 "simple-params-query-test.bal"));
     }

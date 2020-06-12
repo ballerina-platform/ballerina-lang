@@ -308,15 +308,14 @@ public type RowValue object {
    }
 };
 
-# Temporay solution util the language supports `Backtick string` natively as mentioned in
-# https://github.com/ballerina-platform/ballerina-spec/issues/442.
+# Represents Parameterised SQL query.
 #
-# + parts - The seperated parts of the sql query
+# + strings - The seperated parts of the sql query
 # + insertions - The values that should be filled in between the parts
-public type ParameterizedString record {|
-   string[] parts;
-   Value[] insertions;
-|};
+public type ParameterizedQuery abstract object {
+   public string[] strings;
+   public Value[] insertions;
+};
 
 # Constant indicating that the specific batch statement executed successfully
 # but that no count of the number of rows it affected is available.

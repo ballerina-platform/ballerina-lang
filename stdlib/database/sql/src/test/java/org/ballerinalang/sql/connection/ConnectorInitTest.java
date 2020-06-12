@@ -31,6 +31,8 @@ import org.testng.annotations.Test;
 
 import java.sql.SQLException;
 
+import static org.ballerinalang.test.util.TestConstant.ENABLE_NEW_PARSER_FOR_TESTS;
+
 /**
  * Test SQL sample client initialization.
  *
@@ -45,6 +47,9 @@ public class ConnectorInitTest {
 
     @BeforeClass
     public void setup() throws SQLException {
+
+        System.setProperty(ENABLE_NEW_PARSER_FOR_TESTS, "true");
+
         result = BCompileUtil.compile(SQLDBUtils.getMockModuleDir(), "connection");
         SQLDBUtils.initHsqlDatabase(DB_NAME, SQLDBUtils.getSQLResourceDir("connection",
                 "connector-init-test-data.sql"));
