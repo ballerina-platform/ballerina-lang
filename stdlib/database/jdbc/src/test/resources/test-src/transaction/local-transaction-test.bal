@@ -45,24 +45,28 @@ function testLocalTransaction(string jdbcURL, string user, string password) retu
     return [retryVal, count, committedBlockExecuted];
 }
 
+boolean stmtAfterFailureExecutedRWC = false;
+int retryValRWC = -1;
 function testTransactionRollbackWithCheck(string jdbcURL, string user, string password) returns @tainted [int, int, boolean]|error?{
-   jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    int retryVal = -1;
-    boolean stmtAfterFailureExecuted = false;
+    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+    var result = testTransactionRollbackWithCheckHelper(dbClient);
+    int count = check getCount(dbClient, "210");
+    check dbClient.close();
+    return [retryValRWC, count, stmtAfterFailureExecutedRWC];
+}
+
+function testTransactionRollbackWithCheckHelper(jdbc:Client dbClient) returns error?{
     transactions:Info transInfo;
     retry(1) transaction {
         transInfo = transactions:info();
+        retryValRWC = transInfo.retryNumber;
         var e1 = check dbClient->execute("Insert into Customers (firstName,lastName,registrationID," +
                 "creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')");
         var e2 = check dbClient->execute("Insert into Customers2 (firstName,lastName,registrationID," +
                     "creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')");
-        stmtAfterFailureExecuted  = true;
+        stmtAfterFailureExecutedRWC  = true;
         check commit;
     }
-    retryVal = transInfo.retryNumber;
-    int count = check getCount(dbClient, "210");
-    check dbClient.close();
-    return [retryVal, count, stmtAfterFailureExecuted];
 }
 
 function testTransactionRollbackWithRollback(string jdbcURL, string user, string password) returns @tainted [int, int, boolean]|error?{
@@ -112,23 +116,27 @@ function testLocalTransactionUpdateWithGeneratedKeys(string jdbcURL, string user
     return [returnVal, count];
 }
 
+int returnValRGK = 0;
 function testLocalTransactionRollbackWithGeneratedKeys(string jdbcURL, string user, string password) returns @tainted [int, int]|error?{
-   jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    int returnVal = 0;
+    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+    var result = testLocalTransactionRollbackWithGeneratedKeysHelper(dbClient);
+    //check whether update action is performed
+    int count = check getCount(dbClient, "615");
+    check dbClient.close();
+    return [returnValRGK, count];
+}
+
+function testLocalTransactionRollbackWithGeneratedKeysHelper(jdbc:Client dbClient) returns error? {
     transactions:Info transInfo;
     retry(1) transaction {
         transInfo = transactions:info();
+        returnValRGK = transInfo.retryNumber;
         var e1 = check dbClient->execute("Insert into Customers " +
          "(firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')");
-        var e2 =  check dbClient->execute("Insert into Customers2 " +
+        var e2 = check dbClient->execute("Insert into Customers2 " +
         "(firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')");
         check commit;
     }
-    returnVal = transInfo.retryNumber;
-    //Check whether the update action is performed.
-    int count = check getCount(dbClient, "615");
-    check dbClient.close();
-    return [returnVal, count];
 }
 
 function testTransactionAbort(string jdbcURL, string user, string password) returns @tainted [int, int, int]|error?{
