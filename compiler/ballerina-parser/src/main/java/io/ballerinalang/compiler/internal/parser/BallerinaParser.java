@@ -2865,6 +2865,7 @@ public class BallerinaParser extends AbstractParser {
             case RIGHT_ARROW_TOKEN:
                 return OperatorPrecedence.REMOTE_CALL_ACTION;
             case RIGHT_DOUBLE_ARROW_TOKEN:
+                return OperatorPrecedence.ANON_FUNC_OR_LET;
             case SYNC_SEND_TOKEN:
                 return OperatorPrecedence.ACTION;
             case DOUBLE_LT_TOKEN:
@@ -8920,7 +8921,7 @@ public class BallerinaParser extends AbstractParser {
 
         // allow-actions flag is always false, since there will not be any actions
         // within the let-expr, due to the precedence.
-        STNode expression = parseExpression(OperatorPrecedence.UNARY, isRhsExpr, false);
+        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
         return STNodeFactory.createLetExpressionNode(letKeyword, letVarDeclarations, inKeyword, expression);
     }
 
@@ -9408,7 +9409,10 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseExpressionFuncBody(boolean isAnon, boolean isRhsExpr) {
         STNode rightDoubleArrow = parseDoubleRightArrow();
-        STNode expression = parseExpression(OperatorPrecedence.ANON_FUNC_OR_LET, isRhsExpr, false);
+
+        // Give high priority to the body-expr. This is done by lowering the current
+        // precedence bewfore visiting the body.
+        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
 
         STNode semiColon;
         if (isAnon) {

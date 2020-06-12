@@ -94,6 +94,7 @@ import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MappingFieldNode;
 import io.ballerinalang.compiler.syntax.tree.MatchClauseNode;
 import io.ballerinalang.compiler.syntax.tree.MatchStatementNode;
+import io.ballerinalang.compiler.syntax.tree.MetadataNode;
 import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
@@ -850,7 +851,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
         }
 
-        bLService.annAttachments = applyAll(serviceDeclrNode.metadata().annotations());
+        if (isAnonServiceValue) {
+            bLService.annAttachments = applyAll(((ServiceConstructorExpressionNode) serviceNode).annotations());
+        } else {
+            bLService.annAttachments = applyAll(serviceDeclrNode.metadata().annotations());
+        }
 
         // We add all service nodes to top level, only for future reference.
         addToTop(bLService);
@@ -1914,9 +1919,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         for (LetVariableDeclarationNode letVarDecl : letExpressionNode.letVarDeclarations()) {
             letVars.add(createLetVariable(letVarDecl));
         }
-        if (!letVars.isEmpty()) {
-            letExpr.letVarDeclarations = letVars;
-        }
+
+        letExpr.letVarDeclarations = letVars;
         return letExpr;
     }
 
