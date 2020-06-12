@@ -28,7 +28,7 @@ public type Client abstract client object {
     #             column names of the query result set be used for the record attributes
     # + return - Stream of records in the type of `rowType`
     public remote function query(@untainted string|ParameterizedString sqlQuery, typedesc<record {}>? rowType = ())
-    returns @tainted stream <record {}, sql:Error>;
+    returns @tainted stream <record {}, Error>;
 
     # Executes the DDL or DML sql query provided by the user, and returns summary of the execution.
     #
@@ -48,7 +48,7 @@ public type Client abstract client object {
     #            if any error occured when executing the query. `BatchUpdateError` will include summary of the
     #            sql update query as `ExecutionResult[]` for commands executed successfully.
     public remote function batchExecute(ParameterizedString[] sqlQueries, boolean rollbackInFailure = false)
-    returns sql:ExecutionResult[]|sql:Error;
+    returns ExecutionResult[]|Error;
 
     # Close the SQL client.
     #
