@@ -10397,7 +10397,7 @@ public class BallerinaParser extends AbstractParser {
     private boolean isEndOfReceiveFields(SyntaxKind nextTokenKind) {
         switch (nextTokenKind) {
             case EOF_TOKEN:
-            case CLOSE_BRACKET_TOKEN:
+            case CLOSE_BRACE_TOKEN:
                 return true;
             default:
                 return false;
