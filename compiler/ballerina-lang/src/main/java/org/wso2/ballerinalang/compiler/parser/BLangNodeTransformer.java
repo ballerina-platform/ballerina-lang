@@ -261,6 +261,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordSpreadOperatorField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
@@ -1882,15 +1883,19 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         for (Node expr : listBindingPatternNode.bindingPatterns()) {
             expressions.add(createExpression(expr));
         }
-
         tupleVarRef.expressions = expressions;
+
+        Optional<RestBindingPatternNode> restBindingPattern = listBindingPatternNode.restBindingPattern();
+        if (restBindingPattern.isPresent()) {
+            tupleVarRef.restParam = createExpression(restBindingPattern.get());
+        }
+
         return tupleVarRef;
     }
 
     @Override
     public BLangNode transform(RestBindingPatternNode restBindingPatternNode) {
-        // TODO: create rest-var-ref
-        return transformSyntaxNode(restBindingPatternNode);
+        return createExpression(restBindingPatternNode.variableName());
     }
 
     @Override
@@ -1972,15 +1977,18 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         switch (lhsKind) {
             case LIST_BINDING_PATTERN:
                 return createTupleDestructureStatement(assignmentStmtNode);
-//            case MAPPING_BINDING_PATTERN: // ignored for now
-//                lhs = (MappingBindingPatternNode) lhs;
-//                return transformDestructingStatement(assignmentStmtNode);
+            case MAPPING_BINDING_PATTERN: // ignored for now
+                throw new RuntimeException("Node not supported: " + lhsKind);
+            // lhs = (MappingBindingPatternNode) lhs;
+            // return transformDestructingStatement(assignmentStmtNode);
             default:
                 break;
         }
+
         BLangAssignment bLAssignment = (BLangAssignment) TreeBuilder.createAssignmentNode();
         BLangExpression lhsExpr = createExpression(assignmentStmtNode.varRef());
         validateLvexpr(lhsExpr, DiagnosticCode.INVALID_INVOCATION_LVALUE_ASSIGNMENT);
+        
         bLAssignment.setExpression(createExpression(assignmentStmtNode.expression()));
         bLAssignment.pos = getPosition(assignmentStmtNode);
         bLAssignment.varRef = lhsExpr;
@@ -1996,36 +2004,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     
-//    public void addListBindingPattern(BLangTupleVarRef bLangTupleVarRef,
-//            ListBindingPatternNode listBindingPatternNode) {
-//        Optional restBindingPatternNode = listBindingPatternNode.restBindingPattern();
-//        if (restBindingPatternNode.isPresent()) {
-//            bLangTupleVarRef.restParam =
-//                    createExpression(((RestBindingPatternNode) restBindingPatternNode.get()).children().get(1));
-//        }
-//        for (Node expr : listBindingPatternNode.bindingPatterns()) {
-//            switch (expr.kind()) {
-//                case LIST_BINDING_PATTERN:
-//                    BLangTupleVarRef res = (BLangTupleVarRef) TreeBuilder.createTupleVariableReferenceNode();
-//                    addListBindingPattern(res, (ListBindingPatternNode) expr);
-//                    bLangTupleVarRef.expressions.add(res);
-//                    break;
-//                // mapping binding pattern
-//                case CAPTURE_BINDING_PATTERN:
-//                    bLangTupleVarRef.expressions
-//                            .add(createExpression(((CaptureBindingPatternNode) expr).children().get(0)));
-//                    break;
-//                case WILDCARD_BINDING_PATTERN:
-//                    bLangTupleVarRef.expressions
-//                            .add(createExpression(((WildcardBindingPatternNode) expr).children().get(0)));
-//                    break;
-//                default:
-//                    throw new RuntimeException(
-//                            "" + "Syntax kind is not supported in listbindingpattern: " + expr.kind());
-//            }
-//        }
-//    }
-
     @Override
     public BLangNode transform(CompoundAssignmentStatementNode compoundAssignmentStmtNode) {
         BLangCompoundAssignment bLCompAssignment = (BLangCompoundAssignment) TreeBuilder.createCompoundAssignmentNode();
@@ -2299,7 +2277,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(RestArgumentNode restArgumentNode) {
-        return restArgumentNode.expression().apply(this);
+        BLangRestArgsExpression varArgs = (BLangRestArgsExpression) TreeBuilder.createVarArgsNode();
+        varArgs.pos = getPosition(restArgumentNode);
+        varArgs.expr = createExpression(restArgumentNode.expression());
+        return varArgs;
     }
 
     @Override
