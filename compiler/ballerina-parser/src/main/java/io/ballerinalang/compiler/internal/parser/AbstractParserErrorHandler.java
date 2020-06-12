@@ -17,11 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
-import io.ballerinalang.compiler.internal.diagnostics.DiagnosticCode;
-import io.ballerinalang.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
-import io.ballerinalang.compiler.internal.parser.tree.STNodeDiagnostic;
-import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
@@ -43,7 +39,7 @@ public abstract class AbstractParserErrorHandler {
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
      */
-    protected int lookaheadLimit = 5;
+    protected static final int LOOKAHEAD_LIMIT = 5;
 
     public AbstractParserErrorHandler(AbstractTokenReader tokenReader) {
         this.tokenReader = tokenReader;
@@ -89,14 +85,18 @@ public abstract class AbstractParserErrorHandler {
         Result bestMatch = seekMatch(currentCtx);
         if (bestMatch.matches > 0) {
             Solution sol = bestMatch.solution;
-            applyFix(currentCtx, sol, args);
-            return sol;
-        } else {
-            // Fail safe. This means we can't find a path to recover.
-            removeInvalidToken();
-            Solution sol = new Solution(Action.REMOVE, currentCtx, nextToken.kind, nextToken.toString());
-            return sol;
+            if (sol != null) {
+                applyFix(currentCtx, sol, args);
+                return sol;
+            }
+
+            // else fall through
         }
+
+        // Fail safe. This means we can't find a path to recover.
+        removeInvalidToken();
+        Solution sol = new Solution(Action.REMOVE, currentCtx, nextToken.kind, nextToken.toString());
+        return sol;
     }
 
     /**
@@ -129,24 +129,17 @@ public abstract class AbstractParserErrorHandler {
 
     /**
      * Handle a missing token scenario.
-     * 
+     *
      * @param currentCtx Current context
      * @param fix Solution to recover from the missing token
      */
     private STNode handleMissingToken(ParserRuleContext currentCtx, Solution fix) {
-        // If the original issues was at a production where there are alternatives,
-        // then do not report any errors. Parser will try to re-parse the best-matching
-        // alternative again. Errors will be reported at the next try.
-        if (isProductionWithAlternatives(currentCtx)) {
-            return createMissingToken(fix.tokenKind);
-        } else {
-            return createMissingTokenWithDiagnostics(fix.tokenKind);
-        }
+        return SyntaxErrors.createMissingTokenWithDiagnostics(fix.tokenKind);
     }
 
     /**
      * Get a snapshot of the current context stack.
-     * 
+     *
      * @return Snapshot of the current context stack
      */
     private ArrayDeque<ParserRuleContext> getCtxStackSnapshot() {
@@ -163,7 +156,7 @@ public abstract class AbstractParserErrorHandler {
 
     /**
      * Start a fresh search for a way to recover with the next immediate token (peek(1), and the current context).
-     * 
+     *
      * @param currentCtx Current parser context
      * @return Recovery result
      */
@@ -175,7 +168,7 @@ public abstract class AbstractParserErrorHandler {
      * Search for a solution in a sub-tree/sub-path. This will take a snapshot of the current context stack
      * and will operate on top of it, so that the original state of the parser will not be disturbed. On return
      * the previous state of the parser contexts will be restored.
-     * 
+     *
      * @param currentCtx Current context
      * @param lookahead Position of the next token to consider, from the position of the original error.
      * @param currentDepth Amount of distance traveled so far.
@@ -215,125 +208,10 @@ public abstract class AbstractParserErrorHandler {
         this.errorListener.reportMissingTokenError(currentToken, diagnosticCode);
     }
 
-    public STToken createMissingToken(SyntaxKind expectedKind) {
-        return STNodeFactory.createMissingToken(expectedKind);
-    }
-
-    public STToken createMissingTokenWithDiagnostics(SyntaxKind expectedKind) {
-        return createMissingTokenWithDiagnostics(expectedKind, getErrorCode(expectedKind));
-    }
-
-    public STToken createMissingTokenWithDiagnostics(SyntaxKind expectedKind, DiagnosticCode diagnosticCode) {
-        STNodeDiagnostic diagnostic = new STNodeDiagnostic(diagnosticCode);
-        List<STNodeDiagnostic> diagnosticList = new ArrayList<>();
-        diagnosticList.add(diagnostic);
-        return STNodeFactory.createMissingToken(expectedKind, diagnosticList);
-    }
-
-    private DiagnosticCode getErrorCode(SyntaxKind expectedKind) {
-        switch (expectedKind) {
-            case SEMICOLON_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
-            case COLON_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_COLON_TOKEN;
-            case OPEN_PAREN_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_OPEN_PAREN_TOKEN;
-            case CLOSE_PAREN_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_PAREN_TOKEN;
-            case OPEN_BRACE_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_TOKEN;
-            case CLOSE_BRACE_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_TOKEN;
-            case OPEN_BRACKET_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACKET_TOKEN;
-            case CLOSE_BRACKET_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACKET_TOKEN;
-            case EQUAL_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_EQUAL_TOKEN;
-            case COMMA_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_COMMA_TOKEN;
-            case PLUS_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_PLUS_TOKEN;
-            case SLASH_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_SLASH_TOKEN;
-            case AT_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_AT_TOKEN;
-            case QUESTION_MARK_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_QUESTION_MARK_TOKEN;
-            case GT_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_GT_TOKEN;
-            case GT_EQUAL_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_GT_EQUAL_TOKEN;
-            case LT_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_LT_TOKEN;
-            case LT_EQUAL_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_LT_EQUAL_TOKEN;
-            case RIGHT_DOUBLE_ARROW_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_RIGHT_DOUBLE_ARROW_TOKEN;
-            case XML_COMMENT_END_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_XML_COMMENT_END_TOKEN;
-            case XML_PI_END_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_XML_PI_END_TOKEN;
-            case DOUBLE_QUOTE_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_DOUBLE_QUOTE_TOKEN;
-            case BACKTICK_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_BACKTICK_TOKEN;
-
-
-            case DEFAULT_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_DEFAULT_KEYWORD;
-            case TYPE_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_TYPE_KEYWORD;
-            case ON_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_ON_KEYWORD;
-            case ANNOTATION_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_ANNOTATION_KEYWORD;
-            case FUNCTION_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_FUNCTION_KEYWORD;
-            case SOURCE_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_SOURCE_KEYWORD;
-            case ENUM_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_ENUM_KEYWORD;
-            case FIELD_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_FIELD_KEYWORD;
-            case VERSION_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_VERSION_KEYWORD;
-            case OBJECT_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_OBJECT_KEYWORD;
-            case RECORD_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_RECORD_KEYWORD;
-            case SERVICE_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_SERVICE_KEYWORD;
-            case AS_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_AS_KEYWORD;
-            case LET_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_LET_KEYWORD;
-            case TABLE_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_TABLE_KEYWORD;
-            case KEY_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_KEY_KEYWORD;
-            case FROM_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_FROM_KEYWORD;
-            case IN_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_IN_KEYWORD;
-            case IF_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_IF_KEYWORD;
-
-            case IDENTIFIER_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
-            case DECIMAL_INTEGER_LITERAL:
-                return DiagnosticErrorCode.ERROR_MISSING_DECIMAL_INTEGER_LITERAL;
-            case TYPE_DESC:
-                return DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC;
-            default:
-                throw new UnsupportedOperationException("Unsupported SyntaxKind: " + expectedKind);
-        }
-    }
-
     protected ParserRuleContext getParentContext() {
         return this.ctxStack.peek();
     }
-    
+
     protected ParserRuleContext getGrandParentContext() {
         ParserRuleContext parent = this.ctxStack.pop();
         ParserRuleContext grandParent = this.ctxStack.peek();
@@ -343,7 +221,7 @@ public abstract class AbstractParserErrorHandler {
 
     /**
      * Search for matching token sequences within the given alternative paths, and find the most optimal solution.
-     * 
+     *
      * @param lookahead Position of the next token to consider, relative to the position of the original error
      * @param currentDepth Amount of distance traveled so far
      * @param currentMatches Matching tokens found so far
@@ -354,7 +232,7 @@ public abstract class AbstractParserErrorHandler {
     protected Result seekInAlternativesPaths(int lookahead, int currentDepth, int currentMatches,
                                              ParserRuleContext[] alternativeRules, boolean isEntryPoint) {
         @SuppressWarnings("unchecked")
-        List<Result>[] results = new List[lookaheadLimit];
+        List<Result>[] results = new List[LOOKAHEAD_LIMIT];
         int bestMatchIndex = 0;
 
         // Visit all the alternative rules and get their results. Arrange them in way
@@ -362,9 +240,13 @@ public abstract class AbstractParserErrorHandler {
         // done so that we can easily pick the best, without iterating through them.
         for (ParserRuleContext rule : alternativeRules) {
             Result result = seekMatchInSubTree(rule, lookahead, currentDepth, isEntryPoint);
+            if (result.matches >= LOOKAHEAD_LIMIT - 1) {
+                return getFinalResult(currentMatches, result);
+            }
+
             List<Result> similarResutls = results[result.matches];
             if (similarResutls == null) {
-                similarResutls = new ArrayList<>(lookaheadLimit);
+                similarResutls = new ArrayList<>(LOOKAHEAD_LIMIT);
                 results[result.matches] = similarResutls;
                 if (bestMatchIndex < result.matches) {
                     bestMatchIndex = result.matches;
@@ -415,7 +297,7 @@ public abstract class AbstractParserErrorHandler {
 
     /**
      * Combine a given result with the current results, and get the final result.
-     * 
+     *
      * @param currentMatches Matches found so far
      * @param bestMatch Result found in the sub-tree, that requires to be merged with the current results
      * @return Final result
@@ -427,7 +309,7 @@ public abstract class AbstractParserErrorHandler {
 
     /**
      * Fix the current error and continue. Returns the best path after fixing.
-     * 
+     *
      * @param currentCtx Current parser context
      * @param lookahead Position of the next token to consider, relative to the position of the original error
      * @param currentDepth Amount of distance traveled so far
@@ -462,7 +344,7 @@ public abstract class AbstractParserErrorHandler {
      * Delete a token and see how far the parser can proceed.
      * </li>
      * </ol>
-     * 
+     *
      * Then decides the best action to perform (whether to insert or remove a token), using the result
      * of the above two steps, based on the following criteria:
      * <ol>
@@ -477,7 +359,7 @@ public abstract class AbstractParserErrorHandler {
      * an input a user has given.
      * </li>
      * </ol>
-     * 
+     *
      * @param currentCtx Current parser context
      * @param lookahead Position of the next token to consider, relative to the position of the original error
      * @param currentDepth Amount of distance traveled so far
@@ -531,7 +413,7 @@ public abstract class AbstractParserErrorHandler {
      * Represents a solution/fix for a parser error. A {@link Solution} consists of the parser context where the error
      * was encountered, the enclosing parser context at the same point, the token with the error, and the {@link Action}
      * required to recover from the error.
-     * 
+     *
      * @since 1.2.0
      */
     public static class Solution {

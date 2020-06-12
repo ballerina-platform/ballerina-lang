@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_CALL",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "ERROR_KEYWORD"
@@ -23,7 +24,11 @@
     },
     {
       "kind": "CLOSE_PAREN_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+      ]
     }
   ]
 }

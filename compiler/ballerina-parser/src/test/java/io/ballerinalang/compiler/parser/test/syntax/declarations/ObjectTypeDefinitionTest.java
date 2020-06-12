@@ -26,8 +26,6 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
 
     // Valid syntax tests
 
-    // TODO: abstract object | client object test
-
     @Test
     public void testComplexObjectTypeDef() {
         test("object-type-def/object_type_def_source_01.bal", "object-type-def/object_type_def_assert_01.json");

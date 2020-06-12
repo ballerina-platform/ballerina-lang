@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,7 +37,17 @@ public class STPositionalArgumentNode extends STFunctionArgumentNode {
     STPositionalArgumentNode(
             STNode leadingComma,
             STNode expression) {
-        super(SyntaxKind.POSITIONAL_ARG);
+        this(
+                leadingComma,
+                expression,
+                Collections.emptyList());
+    }
+
+    STPositionalArgumentNode(
+            STNode leadingComma,
+            STNode expression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.POSITIONAL_ARG, diagnostics);
         this.leadingComma = leadingComma;
         this.expression = expression;
 
@@ -43,7 +56,39 @@ public class STPositionalArgumentNode extends STFunctionArgumentNode {
                 expression);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STPositionalArgumentNode(
+                this.leadingComma,
+                this.expression,
+                diagnostics);
+    }
+
+    public STPositionalArgumentNode modify(
+            STNode leadingComma,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                leadingComma,
+                expression)) {
+            return this;
+        }
+
+        return new STPositionalArgumentNode(
+                leadingComma,
+                expression,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new PositionalArgumentNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

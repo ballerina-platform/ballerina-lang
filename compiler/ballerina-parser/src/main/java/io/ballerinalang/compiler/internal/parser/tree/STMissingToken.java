@@ -41,6 +41,21 @@ public class STMissingToken extends STToken {
         super(kind, 0, new STNodeList(new ArrayList<>(0)), new STNodeList(new ArrayList<>(0)), diagnostics);
     }
 
+    STMissingToken(SyntaxKind kind,
+                   STNode leadingMinutiae,
+                   STNode trailingMinutiae,
+                   Collection<STNodeDiagnostic> diagnostics) {
+        super(kind, 0,  leadingMinutiae, trailingMinutiae, diagnostics);
+    }
+
+    public STToken modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STMissingToken(this.kind, diagnostics);
+    }
+
+    public STToken modifyWith(STNode leadingMinutiae, STNode trailingMinutiae) {
+        return new STMissingToken(this.kind, leadingMinutiae, trailingMinutiae, this.diagnostics);
+    }
+
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         switch (kind) {
@@ -52,8 +67,19 @@ public class STMissingToken extends STToken {
     }
 
     @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
+    }
+
+    @Override
     public String toString() {
         // TODO for testing purpose only
         return " MISSING[" + kind.stringValue() + "]";
+    }
+
+    @Override
+    public void toSourceCode(StringBuilder builder) {
+        leadingMinutiae.toSourceCode(builder);
+        trailingMinutiae.toSourceCode(builder);
     }
 }

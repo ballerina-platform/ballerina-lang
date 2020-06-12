@@ -44,7 +44,8 @@ public class TypeTags {
     public static final int ENDPOINT = ANY + 1;
     public static final int ARRAY = ENDPOINT + 1;
     public static final int UNION = ARRAY + 1;
-    public static final int PACKAGE = UNION + 1;
+    public static final int INTERSECTION = UNION + 1;
+    public static final int PACKAGE = INTERSECTION + 1;
     public static final int NONE = PACKAGE + 1;
     public static final int VOID = NONE + 1;
     public static final int XMLNS = VOID + 1;
@@ -74,6 +75,7 @@ public class TypeTags {
     public static final int XML_PI = XML_ELEMENT + 1;
     public static final int XML_COMMENT = XML_PI + 1;
     public static final int XML_TEXT = XML_COMMENT + 1;
+    public static final int NEVER = XML_TEXT + 1;
 
     public static final int NULL_SET = XML_TEXT + 1;
 

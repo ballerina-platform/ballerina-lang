@@ -19,7 +19,7 @@ type StringIterator object {
 
     private string m;
 
-    public function __init(string m) {
+    public function init(string m) {
         self.m = m;
     }
 

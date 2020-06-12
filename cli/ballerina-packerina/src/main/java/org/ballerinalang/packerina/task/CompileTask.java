@@ -43,7 +43,6 @@ public class CompileTask implements Task {
     @Override
     public void execute(BuildContext buildContext) {
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
-        
         Compiler compiler = Compiler.getInstance(context);
         compiler.setOutStream(buildContext.out());
         if (buildContext.getSourceType() == SourceType.SINGLE_BAL_FILE) {

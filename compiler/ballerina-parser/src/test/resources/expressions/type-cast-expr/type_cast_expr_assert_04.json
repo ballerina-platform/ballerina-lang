@@ -11,12 +11,22 @@
           "kind": "TYPE_CAST_PARAM",
           "children": [
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "INT_KEYWORD"
             }
           ]
         },
         {
-          "kind": "GT_TOKEN"
+          "kind": "GT_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "TYPE_CAST_EXPRESSION",
@@ -28,12 +38,22 @@
               "kind": "TYPE_CAST_PARAM",
               "children": [
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "DECIMAL_KEYWORD"
                 }
               ]
             },
             {
-              "kind": "GT_TOKEN"
+              "kind": "GT_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",

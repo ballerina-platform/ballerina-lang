@@ -1,20 +1,17 @@
 {
-  "kind": "TYPE_CAST_EXPRESSION",
+  "kind": "BINARY_EXPRESSION",
   "children": [
     {
-      "kind": "LT_TOKEN",
-      "isMissing": true
+      "kind": "INT_KEYWORD"
     },
     {
-      "kind": "TYPE_CAST_PARAM",
-      "children": [
+      "kind": "GT_TOKEN",
+      "trailingMinutiae": [
         {
-          "kind": "INT_KEYWORD"
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
         }
       ]
-    },
-    {
-      "kind": "GT_TOKEN"
     },
     {
       "kind": "IDENTIFIER_TOKEN",

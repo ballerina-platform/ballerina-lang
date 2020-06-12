@@ -26,7 +26,7 @@ public type WritableCharacterChannel object {
     # 
     # + bChannel - The `WritableByteChannel`, which would be used to write the characters
     # + charset - The character set, which would be used to encode the given bytes to characters
-    public function __init(WritableByteChannel bChannel, string charset) {
+    public function init(WritableByteChannel bChannel, string charset) {
         self.bChannel = bChannel;
         self.charset = charset;
         initWritableCharacterChannel(self, bChannel, charset);

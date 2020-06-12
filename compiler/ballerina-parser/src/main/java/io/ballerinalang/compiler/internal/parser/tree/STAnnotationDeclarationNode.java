@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -48,7 +51,31 @@ public class STAnnotationDeclarationNode extends STModuleMemberDeclarationNode {
             STNode onKeyword,
             STNode attachPoints,
             STNode semicolonToken) {
-        super(SyntaxKind.ANNOTATION_DECLARATION);
+        this(
+                metadata,
+                visibilityQualifier,
+                constKeyword,
+                annotationKeyword,
+                typeDescriptor,
+                annotationTag,
+                onKeyword,
+                attachPoints,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STAnnotationDeclarationNode(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode constKeyword,
+            STNode annotationKeyword,
+            STNode typeDescriptor,
+            STNode annotationTag,
+            STNode onKeyword,
+            STNode attachPoints,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.ANNOTATION_DECLARATION, diagnostics);
         this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
         this.constKeyword = constKeyword;
@@ -71,7 +98,67 @@ public class STAnnotationDeclarationNode extends STModuleMemberDeclarationNode {
                 semicolonToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STAnnotationDeclarationNode(
+                this.metadata,
+                this.visibilityQualifier,
+                this.constKeyword,
+                this.annotationKeyword,
+                this.typeDescriptor,
+                this.annotationTag,
+                this.onKeyword,
+                this.attachPoints,
+                this.semicolonToken,
+                diagnostics);
+    }
+
+    public STAnnotationDeclarationNode modify(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode constKeyword,
+            STNode annotationKeyword,
+            STNode typeDescriptor,
+            STNode annotationTag,
+            STNode onKeyword,
+            STNode attachPoints,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                metadata,
+                visibilityQualifier,
+                constKeyword,
+                annotationKeyword,
+                typeDescriptor,
+                annotationTag,
+                onKeyword,
+                attachPoints,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STAnnotationDeclarationNode(
+                metadata,
+                visibilityQualifier,
+                constKeyword,
+                annotationKeyword,
+                typeDescriptor,
+                annotationTag,
+                onKeyword,
+                attachPoints,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new AnnotationDeclarationNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

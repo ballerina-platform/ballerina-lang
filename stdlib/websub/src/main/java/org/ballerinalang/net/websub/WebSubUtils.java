@@ -71,7 +71,7 @@ public class WebSubUtils {
             if (dataSource != null) {
                 stringPayload = MimeUtil.getMessageAsString(dataSource);
             } else {
-                stringPayload = EntityBodyHandler.constructStringDataSource(entityObj);
+                stringPayload = EntityBodyHandler.constructStringDataSource(entityObj).getValue();
                 EntityBodyHandler.addMessageDataSource(entityObj, stringPayload);
                 // Set byte channel to null, once the message data source has been constructed
                 entityObj.addNativeData(ENTITY_BYTE_CHANNEL, null);

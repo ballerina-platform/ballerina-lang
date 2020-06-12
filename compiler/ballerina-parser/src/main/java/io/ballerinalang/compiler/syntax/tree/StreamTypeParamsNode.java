@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -40,12 +41,12 @@ public class StreamTypeParamsNode extends NonTerminalNode {
         return childInBucket(1);
     }
 
-    public Token commaToken() {
-        return childInBucket(2);
+    public Optional<Token> commaToken() {
+        return optionalChildInBucket(2);
     }
 
-    public Node rightTypeDescNode() {
-        return childInBucket(3);
+    public Optional<Node> rightTypeDescNode() {
+        return optionalChildInBucket(3);
     }
 
     public Token gtToken() {
@@ -116,8 +117,8 @@ public class StreamTypeParamsNode extends NonTerminalNode {
             this.oldNode = oldNode;
             this.ltToken = oldNode.ltToken();
             this.leftTypeDescNode = oldNode.leftTypeDescNode();
-            this.commaToken = oldNode.commaToken();
-            this.rightTypeDescNode = oldNode.rightTypeDescNode();
+            this.commaToken = oldNode.commaToken().orElse(null);
+            this.rightTypeDescNode = oldNode.rightTypeDescNode().orElse(null);
             this.gtToken = oldNode.gtToken();
         }
 

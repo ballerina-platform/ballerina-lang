@@ -33,7 +33,7 @@ public class BObjectType extends BCompoundVariable {
     private final ObjectReferenceImpl jvmValueRef;
 
     public BObjectType(Value value, Variable dapVariable) {
-         this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
+        this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
         dapVariable.setType(BVariableType.OBJECT.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
@@ -44,6 +44,7 @@ public class BObjectType extends BCompoundVariable {
         Value typeName = jvmValueRef.getValue(jvmValueRef.referenceType().fieldByName("typeName"));
         return typeName.toString();
     }
+
     @Override
     public void computeChildVariables() {
         this.setChildVariables(new HashMap<>());

@@ -204,7 +204,7 @@ public type OneofFieldServiceBlockingClient client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientConfiguration? config = ()) {
+    public function init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         self.grpcClient = new(url, config);
         checkpanic self.grpcClient.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
@@ -215,7 +215,7 @@ public type OneofFieldServiceBlockingClient client object {
         grpc:Headers resHeaders = new;
         anydata result = ();
         [result, resHeaders] = payload;
-        var value = typedesc<Response1>.constructFrom(result);
+        var value = result.cloneWithType(typedesc<Response1>);
         if (value is Response1) {
             return [value, resHeaders];
         } else {
@@ -229,7 +229,7 @@ public type OneofFieldServiceBlockingClient client object {
         grpc:Headers resHeaders = new;
         anydata result = ();
         [result, resHeaders] = payload;
-        var value = typedesc<ZZZ>.constructFrom(result);
+        var value = result.cloneWithType(typedesc<ZZZ>);
         if (value is ZZZ) {
             return [value, resHeaders];
         } else {
@@ -246,7 +246,7 @@ public type OneofFieldServiceClient client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientConfiguration? config = ()) {
+    public function init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         self.grpcClient = new(url, config);
         checkpanic self.grpcClient.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());

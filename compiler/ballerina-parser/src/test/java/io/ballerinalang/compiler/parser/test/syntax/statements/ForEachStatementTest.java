@@ -67,6 +67,18 @@ public class ForEachStatementTest extends AbstractStatementTest {
         testFile("forEach-stmt/forEach_stmt_source_13.bal",
         "forEach-stmt/forEach_stmt_assert_13.json");
     }
+
+    @Test
+    public void testComplexTypedBindingPatternForEachStmt() {
+        testFile("forEach-stmt/forEach_stmt_source_18.bal",
+                "forEach-stmt/forEach_stmt_assert_18.json");
+    }
+
+    @Test
+    public void testMappingBindingPatternForEachStmt() {
+        testFile("forEach-stmt/forEach_stmt_source_19.bal",
+                "forEach-stmt/forEach_stmt_assert_19.json");
+    }
     // Recovery tests
 
     @Test
@@ -127,5 +139,29 @@ public class ForEachStatementTest extends AbstractStatementTest {
     public void testListBindingPatternInvalidComponents2ForEachStmt() {
         testFile("forEach-stmt/forEach_stmt_source_17.bal",
                 "forEach-stmt/forEach_stmt_assert_17.json");
+    }
+
+    @Test
+    public void testMappingBindingPatternMissingCommaForEachStmt() {
+        testFile("forEach-stmt/forEach_stmt_source_20.bal",
+                "forEach-stmt/forEach_stmt_assert_20.json");
+    }
+
+    @Test
+    public void testMappingBindingPatternMissingComma2ForEachStmt() {
+        testFile("forEach-stmt/forEach_stmt_source_21.bal",
+                "forEach-stmt/forEach_stmt_assert_21.json");
+    }
+
+    @Test
+    public void testMappingBindingPatternInvalidTokenForEachStmt() {
+        testFile("forEach-stmt/forEach_stmt_source_22.bal",
+                "forEach-stmt/forEach_stmt_assert_22.json");
+    }
+
+    @Test
+    public void testMappingBindingPatternMissingCloseBraceForEachStmt() {
+        testFile("forEach-stmt/forEach_stmt_source_23.bal",
+                "forEach-stmt/forEach_stmt_assert_23.json");
     }
 }

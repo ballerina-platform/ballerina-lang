@@ -26,34 +26,30 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class ComputedNameFieldNode extends NonTerminalNode {
+public class ComputedNameFieldNode extends MappingFieldNode {
 
     public ComputedNameFieldNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token leadingComma() {
+    public Token openBracket() {
         return childInBucket(0);
     }
 
-    public Token openBracket() {
+    public ExpressionNode fieldNameExpr() {
         return childInBucket(1);
     }
 
-    public ExpressionNode fieldNameExpr() {
+    public Token closeBracket() {
         return childInBucket(2);
     }
 
-    public Token closeBracket() {
+    public Token colonToken() {
         return childInBucket(3);
     }
 
-    public Token colonToken() {
-        return childInBucket(4);
-    }
-
     public ExpressionNode valueExpr() {
-        return childInBucket(5);
+        return childInBucket(4);
     }
 
     @Override
@@ -69,7 +65,6 @@ public class ComputedNameFieldNode extends NonTerminalNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "leadingComma",
                 "openBracket",
                 "fieldNameExpr",
                 "closeBracket",
@@ -78,14 +73,12 @@ public class ComputedNameFieldNode extends NonTerminalNode {
     }
 
     public ComputedNameFieldNode modify(
-            Token leadingComma,
             Token openBracket,
             ExpressionNode fieldNameExpr,
             Token closeBracket,
             Token colonToken,
             ExpressionNode valueExpr) {
         if (checkForReferenceEquality(
-                leadingComma,
                 openBracket,
                 fieldNameExpr,
                 closeBracket,
@@ -95,7 +88,6 @@ public class ComputedNameFieldNode extends NonTerminalNode {
         }
 
         return NodeFactory.createComputedNameFieldNode(
-                leadingComma,
                 openBracket,
                 fieldNameExpr,
                 closeBracket,
@@ -114,7 +106,6 @@ public class ComputedNameFieldNode extends NonTerminalNode {
      */
     public static class ComputedNameFieldNodeModifier {
         private final ComputedNameFieldNode oldNode;
-        private Token leadingComma;
         private Token openBracket;
         private ExpressionNode fieldNameExpr;
         private Token closeBracket;
@@ -123,19 +114,11 @@ public class ComputedNameFieldNode extends NonTerminalNode {
 
         public ComputedNameFieldNodeModifier(ComputedNameFieldNode oldNode) {
             this.oldNode = oldNode;
-            this.leadingComma = oldNode.leadingComma();
             this.openBracket = oldNode.openBracket();
             this.fieldNameExpr = oldNode.fieldNameExpr();
             this.closeBracket = oldNode.closeBracket();
             this.colonToken = oldNode.colonToken();
             this.valueExpr = oldNode.valueExpr();
-        }
-
-        public ComputedNameFieldNodeModifier withLeadingComma(
-                Token leadingComma) {
-            Objects.requireNonNull(leadingComma, "leadingComma must not be null");
-            this.leadingComma = leadingComma;
-            return this;
         }
 
         public ComputedNameFieldNodeModifier withOpenBracket(
@@ -175,7 +158,6 @@ public class ComputedNameFieldNode extends NonTerminalNode {
 
         public ComputedNameFieldNode apply() {
             return oldNode.modify(
-                    leadingComma,
                     openBracket,
                     fieldNameExpr,
                     closeBracket,

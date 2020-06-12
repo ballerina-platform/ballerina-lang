@@ -39,7 +39,7 @@ function convertData(Content data) returns string | byte[] | error {
     } else if (data is json) {
         converted = data.toJsonString();
     } else {
-        json | error jsonConverted = typedesc<json>.constructFrom(data);
+        json | error jsonConverted = data.cloneWithType(typedesc<json>);
         if (jsonConverted is json) {
             converted = jsonConverted.toString();
         } else {

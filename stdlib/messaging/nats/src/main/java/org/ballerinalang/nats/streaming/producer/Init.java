@@ -19,6 +19,7 @@
 package org.ballerinalang.nats.streaming.producer;
 
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.connection.NatsStreamingConnection;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -31,11 +32,11 @@ import org.ballerinalang.nats.observability.NatsMetricsReporter;
 public class Init {
 
     public static void streamingProducerInit(ObjectValue streamingClientObject, ObjectValue connectionObject,
-                                             String clusterId, Object clientIdNillable, Object streamingConfig) {
+                                             BString clusterId, Object clientIdNillable, Object streamingConfig) {
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
         natsMetricsReporter.reportNewProducer();
-        NatsStreamingConnection.createConnection(streamingClientObject, connectionObject, clusterId, clientIdNillable,
-                                                 streamingConfig);
+        NatsStreamingConnection.createConnection(streamingClientObject, connectionObject, clusterId.getValue(),
+                                                 clientIdNillable, streamingConfig);
     }
 }

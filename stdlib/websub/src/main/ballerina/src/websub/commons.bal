@@ -601,7 +601,7 @@ public type Hub object {
     # Users of the `ballerina/websub` module must use the function `startHub()` to initialize a `websub:Hub`
     # object instead of directly calling the initializer method.
     @deprecated
-    public function __init(string subscriptionUrl, string publishUrl, http:Listener hubHttpListener) {
+    public function init(string subscriptionUrl, string publishUrl, http:Listener hubHttpListener) {
          self.subscriptionUrl = subscriptionUrl;
          self.publishUrl = publishUrl;
          self.hubHttpListener = hubHttpListener;
@@ -736,7 +736,7 @@ public function getAvailableTopics() returns string[] {
 # + topic - The topic for which details need to be retrieved
 # + return - An array of subscriber details
     public function getSubscribers(string topic) returns SubscriberDetails[] {
-        return externGetSubscribers(self, java:fromString(topic));
+        return externGetSubscribers(self, topic);
     }
 };
 
@@ -745,7 +745,7 @@ function externGetAvailableTopics(Hub hub) returns string[] = @java:Method {
     class: "org.ballerinalang.net.websub.nativeimpl.HubNativeOperationHandler"
 } external;
 
-function externGetSubscribers(Hub hub, handle topic) returns SubscriberDetails[] = @java:Method {
+function externGetSubscribers(Hub hub, string topic) returns SubscriberDetails[] = @java:Method {
     name: "getSubscribers",
     class: "org.ballerinalang.net.websub.nativeimpl.HubNativeOperationHandler"
 } external;

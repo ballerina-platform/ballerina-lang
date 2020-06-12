@@ -91,6 +91,10 @@ public abstract class Node {
         return internalNode.hasDiagnostics();
     }
 
+    public boolean isMissing() {
+        return internalNode.isMissing();
+    }
+
     public SyntaxTree syntaxTree() {
         return populateSyntaxTree();
     }
@@ -138,6 +142,17 @@ public abstract class Node {
         return internalNode.toString();
     }
 
+    /**
+     * Converts the syntax tree into source code and returns it as a string.
+     *
+     * @return source code as a string
+     */
+    public String toSourceCode() {
+        StringBuilder stringBuilder = new StringBuilder();
+        internalNode.toSourceCode(stringBuilder);
+        return stringBuilder.toString();
+    }
+
     private SyntaxTree populateSyntaxTree() {
         if (syntaxTree != null) {
             return syntaxTree;
@@ -145,9 +160,11 @@ public abstract class Node {
 
         Node parent = this.parent;
         if (parent == null) {
-            throw new IllegalStateException("SyntaxTree instance cannot be null");
+            // This is a detached node. Therefore we need to create a new SyntaxTree with this node being the root.
+            setSyntaxTree(SyntaxTree.from(this, false));
+        } else {
+            setSyntaxTree(parent.populateSyntaxTree());
         }
-        setSyntaxTree(parent.populateSyntaxTree());
         return syntaxTree;
     }
 

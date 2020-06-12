@@ -201,7 +201,7 @@ function testDynamicIndexAccessTypesWithRestParam(string arg) returns string {
 type Obj object {
     private int intField;
 
-    function __init() {
+    function init() {
         self.intField = 10;
     }
 

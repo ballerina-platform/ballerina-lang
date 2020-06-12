@@ -50,7 +50,8 @@ public class Map {
 
     public static TableValueImpl map(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func) {
         BType newConstraintType = ((BFunctionType) func.getType()).retType;
-        BTableType newTableType = new BTableType(newConstraintType, ((BTableType) tbl.getType()).getFieldNames());
+        BTableType tblType = (BTableType) tbl.getType();
+        BTableType newTableType = new BTableType(newConstraintType, tblType.getFieldNames(), tblType.isReadOnly());
 
         TableValueImpl newTable = new TableValueImpl(newTableType);
         int size = tbl.size();

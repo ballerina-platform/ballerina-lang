@@ -20,7 +20,7 @@ import ballerina/http;
 public type Caller client object {
     private http:Caller httpCaller;
 
-    function __init(http:Caller httpCaller) {
+    function init(http:Caller httpCaller) {
         self.httpCaller = httpCaller;
     }
 

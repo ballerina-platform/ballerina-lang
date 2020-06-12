@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.RestParameterNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -40,7 +43,23 @@ public class STRestParameterNode extends STParameterNode {
             STNode typeName,
             STNode ellipsisToken,
             STNode paramName) {
-        super(SyntaxKind.REST_PARAM);
+        this(
+                leadingComma,
+                annotations,
+                typeName,
+                ellipsisToken,
+                paramName,
+                Collections.emptyList());
+    }
+
+    STRestParameterNode(
+            STNode leadingComma,
+            STNode annotations,
+            STNode typeName,
+            STNode ellipsisToken,
+            STNode paramName,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.REST_PARAM, diagnostics);
         this.leadingComma = leadingComma;
         this.annotations = annotations;
         this.typeName = typeName;
@@ -55,7 +74,51 @@ public class STRestParameterNode extends STParameterNode {
                 paramName);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STRestParameterNode(
+                this.leadingComma,
+                this.annotations,
+                this.typeName,
+                this.ellipsisToken,
+                this.paramName,
+                diagnostics);
+    }
+
+    public STRestParameterNode modify(
+            STNode leadingComma,
+            STNode annotations,
+            STNode typeName,
+            STNode ellipsisToken,
+            STNode paramName) {
+        if (checkForReferenceEquality(
+                leadingComma,
+                annotations,
+                typeName,
+                ellipsisToken,
+                paramName)) {
+            return this;
+        }
+
+        return new STRestParameterNode(
+                leadingComma,
+                annotations,
+                typeName,
+                ellipsisToken,
+                paramName,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RestParameterNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

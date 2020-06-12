@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.XMLTextNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -32,14 +35,50 @@ public class STXMLTextNode extends STXMLItemNode {
 
     STXMLTextNode(
             STNode content) {
-        super(SyntaxKind.XML_TEXT);
+        this(
+                content,
+                Collections.emptyList());
+    }
+
+    STXMLTextNode(
+            STNode content,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.XML_TEXT, diagnostics);
         this.content = content;
 
         addChildren(
                 content);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STXMLTextNode(
+                this.content,
+                diagnostics);
+    }
+
+    public STXMLTextNode modify(
+            STNode content) {
+        if (checkForReferenceEquality(
+                content)) {
+            return this;
+        }
+
+        return new STXMLTextNode(
+                content,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLTextNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

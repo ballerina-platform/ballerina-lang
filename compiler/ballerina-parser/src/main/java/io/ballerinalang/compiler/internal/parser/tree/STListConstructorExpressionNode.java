@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STListConstructorExpressionNode extends STExpressionNode {
             STNode openBracket,
             STNode expressions,
             STNode closeBracket) {
-        super(SyntaxKind.LIST_CONSTRUCTOR);
+        this(
+                openBracket,
+                expressions,
+                closeBracket,
+                Collections.emptyList());
+    }
+
+    STListConstructorExpressionNode(
+            STNode openBracket,
+            STNode expressions,
+            STNode closeBracket,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.LIST_CONSTRUCTOR, diagnostics);
         this.openBracket = openBracket;
         this.expressions = expressions;
         this.closeBracket = closeBracket;
@@ -47,7 +62,43 @@ public class STListConstructorExpressionNode extends STExpressionNode {
                 closeBracket);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STListConstructorExpressionNode(
+                this.openBracket,
+                this.expressions,
+                this.closeBracket,
+                diagnostics);
+    }
+
+    public STListConstructorExpressionNode modify(
+            STNode openBracket,
+            STNode expressions,
+            STNode closeBracket) {
+        if (checkForReferenceEquality(
+                openBracket,
+                expressions,
+                closeBracket)) {
+            return this;
+        }
+
+        return new STListConstructorExpressionNode(
+                openBracket,
+                expressions,
+                closeBracket,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ListConstructorExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

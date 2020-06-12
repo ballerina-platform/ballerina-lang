@@ -78,7 +78,7 @@ functionDefinitionBody
     ;
 
 functionDefinition
-    :   (PUBLIC | PRIVATE)? REMOTE? FUNCTION anyIdentifierName functionSignature functionDefinitionBody
+    :   (PUBLIC | PRIVATE)? REMOTE? TRANSACTIONAL? FUNCTION anyIdentifierName functionSignature functionDefinitionBody
     ;
 
 anonymousFunctionExpr
@@ -120,7 +120,8 @@ typeReference
     ;
 
 objectFieldDefinition
-    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? TYPE_READONLY? typeName Identifier
+            (ASSIGN expression)? SEMICOLON
     ;
 
 fieldDefinition
@@ -263,6 +264,7 @@ simpleTypeName
     :   TYPE_ANY
     |   TYPE_ANYDATA
     |   TYPE_HANDLE
+    |   TYPE_NEVER
     |   TYPE_READONLY
     |   valueTypeName
     |   referenceTypeName
@@ -371,8 +373,9 @@ statement
     |   workerSendAsyncStatement
     |   expressionStmt
     |   transactionStatement
-    |   abortStatement
+    |   rollbackStatement
     |   retryStatement
+    |   retryTransactionStatement
     |   lockStatement
     |   namespaceDeclarationStatement
     |   blockStatement
@@ -767,51 +770,27 @@ expressionStmt
     ;
 
 transactionStatement
-    :   transactionClause onretryClause? committedAbortedClauses
+    :   TRANSACTION LEFT_BRACE statement* RIGHT_BRACE
     ;
 
-committedAbortedClauses
-    :   (committedClause? abortedClause?) | (abortedClause? committedClause?)
-    ;
-
-transactionClause
-    :   TRANSACTION (WITH transactionPropertyInitStatementList)? LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
-transactionPropertyInitStatement
-    :   retriesStatement
-    ;
-
-transactionPropertyInitStatementList
-    :   transactionPropertyInitStatement (COMMA transactionPropertyInitStatement)*
+rollbackStatement
+    :   ROLLBACK expression? SEMICOLON
     ;
 
 lockStatement
     :   LOCK LEFT_BRACE statement* RIGHT_BRACE
     ;
 
-onretryClause
-    :   ONRETRY LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
-committedClause
-    :   COMMITTED LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
-abortedClause
-    :   ABORTED LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
-abortStatement
-    :   ABORT SEMICOLON
+retrySpec
+    :   (LT typeName GT)?   (LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS)?
     ;
 
 retryStatement
-    :   RETRY SEMICOLON
+    :   RETRY retrySpec LEFT_BRACE statement* RIGHT_BRACE
     ;
 
-retriesStatement
-    :   RETRIES ASSIGN expression
+retryTransactionStatement
+    :   RETRY retrySpec transactionStatement
     ;
 
 namespaceDeclarationStatement
@@ -863,6 +842,8 @@ expression
     |   queryExpr                                                           # queryExpression
     |   queryAction                                                         # queryActionExpression
     |   letExpr                                                             # letExpression
+    |   transactionalExpr                                                   # transactionalExpression
+    |   commitAction                                                        # commitActionExpression
     ;
 
 constantExpression
@@ -906,8 +887,20 @@ shiftExpression
 
 shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
+transactionalExpr
+    :   TRANSACTIONAL
+    ;
+
+commitAction
+    :   COMMIT
+    ;
+
+limitClause
+    :   LIMIT expression
+    ;
+
 onConflictClause
-    :    ON CONFLICT expression
+    :   ON CONFLICT expression
     ;
 
 selectClause
@@ -947,11 +940,11 @@ queryConstructType
     ;
 
 queryExpr
-    :   queryConstructType? queryPipeline selectClause onConflictClause?
+    :   queryConstructType? queryPipeline selectClause onConflictClause? limitClause?
     ;
 
 queryAction
-    :   queryPipeline doClause
+    :   queryPipeline doClause limitClause?
     ;
 
 //reusable productions

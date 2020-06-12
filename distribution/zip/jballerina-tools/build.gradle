@@ -108,6 +108,7 @@ dependencies {
     dist project(':testerina:testerina-core')
     dist project(':ballerina-formatter')
     dist project(':ballerina-bindgen')
+    dist project(':maven-resolver')
     dist project(':language-server:language-server-compiler')
     dist project(':language-server:language-server-commons')
     dist project(':ballerina-packerina')
@@ -267,6 +268,13 @@ def copyStaticSpec = {
     path -> copySpec {
         from configurations.staticFiles
         into(path)
+    }
+}
+
+def copyTemplatesSpec = {
+    path -> copySpec {
+        from project(':docerina').file('src/main/resources/template/html')
+        into(path + 'lib/templates')
     }
 }
 
@@ -447,6 +455,7 @@ task createZip(type: Zip) {
     with copyDebugAdapterLauncher(basePath)
     with apiDocsSpec(basePath)
     with copyStaticSpec(basePath)
+    with copyTemplatesSpec(basePath)
     with copyResourceSpec(basePath)
 //    with copySrcBaloSpec(basePath)
     with copyKraalLib(basePath)
@@ -470,6 +479,7 @@ task updateBalHome(type: Copy) {
     with copyDebugAdapterLauncher(installDir)
     with apiDocsSpec(installDir)
     with copyStaticSpec(installDir)
+    with copyTemplatesSpec(installDir)
     with copyResourceSpec(installDir)
     with copyKraalLib(installDir)
     with copyJaCoCoAgent(installDir)
@@ -496,6 +506,7 @@ task createDistribution(type: Copy) {
     with copyDebugAdapterLauncher("")
     with apiDocsSpec("")
     with copyStaticSpec("")
+    with copyTemplatesSpec("")
     with copyResourceSpec("")
 //    with copySrcBaloSpec("")
     with copyKraalLib("")

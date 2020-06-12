@@ -17,7 +17,7 @@
 import ballerina/log;
 import ballerina/http;
 
-const string TWO_PHASE_COMMIT = "2pc";
+public const string TWO_PHASE_COMMIT = "2pc";
 const string PROTOCOL_COMPLETION = "completion";
 const string PROTOCOL_VOLATILE = "volatile";
 const string PROTOCOL_DURABLE = "durable";
@@ -104,7 +104,7 @@ service InitiatorService on coordinatorListener {
                     i = i + 1;
                 }
                 RegistrationResponse regRes = {transactionId:txnId, coordinatorProtocols:coordinatorProtocols};
-                var resPayload = typedesc<json>.constructFrom(regRes);
+                var resPayload = regRes.cloneWithType(typedesc<json>);
                 if (resPayload is json) {
                     http:Response res = new;
                     res.statusCode = http:STATUS_OK;

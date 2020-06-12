@@ -78,7 +78,7 @@ function testEqOfPublicStructs () returns string {
     eq:closedEmployee e = {age:14, name:"rat"};
     e.ssn = "234-56-7890:employee";
 
-    eq:closedPerson p = checkpanic eq:closedPerson.constructFrom(e);
+    eq:closedPerson p = checkpanic e.cloneWithType(eq:closedPerson);
 
     return p.ssn;
 }
@@ -173,7 +173,7 @@ function testRuntimeEqPublicStructsInSamePackage () returns string|error {
 
     userPA uA = uFoo;
 
-    var uB = <userPB>userPB.constructFrom(uA);
+    var uB = <userPB> uA.cloneWithType(userPB);
     return uB.name;
 }
 
@@ -193,7 +193,7 @@ function testRuntimeEqPublicStructs1 () returns string|error {
     userPA uA = uFoo;
 
     // This is a unsafe cast
-    var uB  = <req2:closedUserPB>req2:closedUserPB.constructFrom(uA);
+    var uB  = <req2:closedUserPB> uA.cloneWithType(req2:closedUserPB);
     return uB.name;
 }
 

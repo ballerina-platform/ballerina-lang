@@ -24,11 +24,17 @@
           ]
         },
         {
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
           "kind": "SPREAD_FIELD",
           "children": [
-            {
-              "kind": "COMMA_TOKEN"
-            },
             {
               "kind": "ELLIPSIS_TOKEN"
             },
@@ -39,11 +45,17 @@
           ]
         },
         {
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
           "kind": "SPECIFIC_FIELD",
           "children": [
-            {
-              "kind": "COMMA_TOKEN"
-            },
             {
               "kind": "STRING_LITERAL",
               "value": "name"
@@ -58,11 +70,17 @@
           ]
         },
         {
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
           "kind": "SPECIFIC_FIELD",
           "children": [
-            {
-              "kind": "COMMA_TOKEN"
-            },
             {
               "kind": "IDENTIFIER_TOKEN",
               "value": "address"
@@ -70,11 +88,17 @@
           ]
         },
         {
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
           "kind": "COMPUTED_NAME_FIELD",
           "children": [
-            {
-              "kind": "COMMA_TOKEN"
-            },
             {
               "kind": "OPEN_BRACKET_TOKEN"
             },
@@ -86,7 +110,13 @@
               "kind": "CLOSE_BRACKET_TOKEN"
             },
             {
-              "kind": "COLON_TOKEN"
+              "kind": "COLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "STRING_LITERAL",

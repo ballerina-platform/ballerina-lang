@@ -161,6 +161,10 @@ public final class XMLSequence extends XMLValue {
      */
     @Override
     public void setAttribute(String localName, String namespace, String prefix, String value) {
+        if (this.isFrozen()) {
+            ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
+        }
+
         if (isSingleton()) {
             children.get(0).setAttribute(localName, namespace, prefix, value);
         }
@@ -181,10 +185,8 @@ public final class XMLSequence extends XMLValue {
     @Override
     @Deprecated
     public void setAttributes(BMap<BString, ?> attributes) {
-        synchronized (this) {
-            if (this.type.isReadOnly()) {
-                ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
-            }
+        if (this.isFrozen()) {
+            ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
         }
 
         if (isSingleton()) {
@@ -265,10 +267,8 @@ public final class XMLSequence extends XMLValue {
      */
     @Override
     public void setChildren(BXML seq) {
-        synchronized (this) {
-            if (this.type.isReadOnly()) {
-                ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
-            }
+        if (this.isFrozen()) {
+            ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
         }
 
         if (children.size() != 1) {
@@ -494,11 +494,21 @@ public final class XMLSequence extends XMLValue {
     }
 
     @Override
+    protected void setAttributesOnInitialization(BMap<BString, ?> attributes) {
+        if (isSingleton()) {
+            ((XMLValue) children.get(0)).setAttributesOnInitialization(attributes);
+        }
+    }
+
+    @Override
+    protected void setAttributeOnInitialization(String localName, String namespace, String prefix, String value) {
+        ((XMLValue) children.get(0)).setAttributeOnInitialization(localName, namespace, prefix, value);
+    }
+
+    @Override
     public void removeAttribute(String qname) {
-        synchronized (this) {
-            if (this.type.isReadOnly()) {
-                ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
-            }
+        if (this.isFrozen()) {
+            ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
         }
 
         if (children.size() != 1) {
@@ -511,10 +521,8 @@ public final class XMLSequence extends XMLValue {
     @Override
     @Deprecated
     public void removeChildren(String qname) {
-        synchronized (this) {
-            if (this.type.isReadOnly()) {
-                ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
-            }
+        if (this.isFrozen()) {
+            ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
         }
 
         if (children.size() != 1) {
@@ -526,14 +534,14 @@ public final class XMLSequence extends XMLValue {
 
     @Override
     public void freezeDirect() {
-        this.type = ReadOnlyUtils.setImmutableType(this.type);
+        this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
         for (BXML elem : children) {
             elem.freezeDirect();
         }
     }
 
     @Override
-    public synchronized boolean isFrozen() {
+    public boolean isFrozen() {
         if (this.type.isReadOnly()) {
             return true;
         }

@@ -331,6 +331,9 @@ public class CodeActionTest {
 //                {"typeGuardCodeAction4.json", "typeGuard.bal"},
                 {"implementFuncObj.json", "implementFuncObj.bal"},
                 {"optimizeImports.json", "optimizeImports.bal"},
+                {"importPackage1.json", "importPackage1.bal"},
+                {"importPackage2.json", "importPackage2.bal"},
+                {"importPackage3.json", "importPackage3.bal"},
                 {"changeAbstractTypeObj1.json", "changeAbstractType.bal"},
                 {"changeAbstractTypeObj2.json", "changeAbstractType.bal"}
         };
@@ -354,7 +357,6 @@ public class CodeActionTest {
     public Object[][] codeActionWithDiagnosticDataProvider() {
         log.info("Test textDocument/codeAction with diagnostics");
         return new Object[][]{
-                {"undefinedPackageWithinFunction.json", "codeActionCommon.bal"},
                 {"undefinedFunctionCodeAction.json", "createUndefinedFunction.bal"},
                 {"undefinedFunctionCodeAction2.json", "createUndefinedFunction2.bal"},
                 {"packagePull1.json", "packagePull.bal"},

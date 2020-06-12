@@ -69,11 +69,17 @@ public function baz(string s, public float f = 2.0, boolean... b) {
 }
 
 public function bazTwo(int i, boolean... b) returns [int, boolean[]] {
-    return [i, checkpanic boolean[].constructFrom(b)];
+    return [i, checkpanic b.cloneWithType(boolean[])];
 }
 
 public function barTwo(int i, string s = "hello", string... t) returns [int, string, string[]] {
-    return [i, s, checkpanic string[].constructFrom(t)];
+    return [i, s, checkpanic t.cloneWithType(string[])];
+}
+
+
+// ------------------- Test function signature with 'never' return type ----------------
+public function sigma() returns never {
+    int age = 1;
 }
 
 // ------------------- Test function signature for attached functions ------------------
@@ -83,7 +89,7 @@ public type Employee object {
     public string name;
     public int salary;
 
-    public function __init (string name = "supun", int salary = 100) {
+    public function init (string name = "supun", int salary = 100) {
         self.name = name;
         self.salary = salary;
     }
@@ -121,10 +127,10 @@ public type Foo client object {
 
 public type FooTwo client object {
     public function baz(int i, boolean... b) returns [int, boolean[]] {
-        return [i, checkpanic boolean[].constructFrom(b)];
+        return [i, checkpanic b.cloneWithType(boolean[])];
     }
 
     public remote function bar(int i, string s = "hello", string... t) returns [int, string, string[]] {
-        return [i, s, checkpanic string[].constructFrom(t)];
+        return [i, s, checkpanic t.cloneWithType(string[])];
     }
 };

@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,7 +37,17 @@ public class STBreakStatementNode extends STStatementNode {
     STBreakStatementNode(
             STNode breakToken,
             STNode semicolonToken) {
-        super(SyntaxKind.BREAK_STATEMENT);
+        this(
+                breakToken,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STBreakStatementNode(
+            STNode breakToken,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.BREAK_STATEMENT, diagnostics);
         this.breakToken = breakToken;
         this.semicolonToken = semicolonToken;
 
@@ -43,7 +56,39 @@ public class STBreakStatementNode extends STStatementNode {
                 semicolonToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STBreakStatementNode(
+                this.breakToken,
+                this.semicolonToken,
+                diagnostics);
+    }
+
+    public STBreakStatementNode modify(
+            STNode breakToken,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                breakToken,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STBreakStatementNode(
+                breakToken,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BreakStatementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

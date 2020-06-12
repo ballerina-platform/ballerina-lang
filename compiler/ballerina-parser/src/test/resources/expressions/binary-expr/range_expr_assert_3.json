@@ -3,7 +3,13 @@
   "children": [
     {
       "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
+      "value": "a",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "DOUBLE_DOT_LT_TOKEN"
@@ -18,12 +24,22 @@
           "kind": "TYPE_CAST_PARAM",
           "children": [
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "INT_KEYWORD"
             }
           ]
         },
         {
-          "kind": "GT_TOKEN"
+          "kind": "GT_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "IDENTIFIER_TOKEN",

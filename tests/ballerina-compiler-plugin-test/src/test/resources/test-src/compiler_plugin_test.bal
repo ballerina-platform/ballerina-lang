@@ -80,7 +80,7 @@ public type ABC object {
 
     *'object:Listener;
 
-    public function __init() {
+    public function init() {
     }
 
     public function __start() returns error? {

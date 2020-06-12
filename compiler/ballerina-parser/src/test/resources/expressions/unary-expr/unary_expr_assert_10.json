@@ -1,18 +1,30 @@
 {
   "kind": "UNARY_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
-      "kind": "NEGATION_TOKEN"
+      "kind": "NEGATION_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "UNARY_EXPRESSION",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "PLUS_TOKEN"
         },
         {
           "kind": "IDENTIFIER_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
         }
       ]
     }

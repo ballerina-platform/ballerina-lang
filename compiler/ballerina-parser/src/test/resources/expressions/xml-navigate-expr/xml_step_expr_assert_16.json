@@ -1,0 +1,30 @@
+{
+  "kind": "XML_STEP_EXPRESSION",
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "XML_NAME_PATTERN_CHAIN",
+      "children": [
+        {
+          "kind": "SLASH_LT_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "GT_TOKEN"
+        }
+      ]
+    }
+  ]
+}

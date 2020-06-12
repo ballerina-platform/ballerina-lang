@@ -37,12 +37,13 @@ import org.testng.annotations.Test;
 public class TransactionLocalParticipantFunctionTest {
     CompileResult result;
 
-    @BeforeClass
+    //TODO Transaction
+    @BeforeClass (enabled = false)
     public void setup() {
         result = BCompileUtil.compile("test-src/functions/transaction-local-participant-function.bal");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testTransactionAnnotatedFunction() {
         Diagnostic[] diagnostics = result.getDiagnostics();
         Assert.assertTrue(diagnostics.length == 0, "Transaction annotation error");
@@ -57,7 +58,7 @@ public class TransactionLocalParticipantFunctionTest {
                 "commitFun committed-block after-trx");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testTransactionLocalParticipantFunctionInvocationErrorThenNoError() {
         BValue[] params = {new BBoolean(true), new BBoolean(false)};
         BValue[] ret = BRunUtil.invoke(result, "initiatorFunc", params);
@@ -67,7 +68,7 @@ public class TransactionLocalParticipantFunctionTest {
                 "in-trx-block in-participantFoo in-trx-lastline commitFun committed-block after-trx");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testTransactionLocalParticipantFunctionInvocationParticipantErrorError() {
         BValue[] params = {new BBoolean(true), new BBoolean(true)};
         BValue[] ret = BRunUtil.invoke(result, "initiatorFunc", params);
@@ -78,7 +79,7 @@ public class TransactionLocalParticipantFunctionTest {
                 "in-trx-lastline aborted-block after-trx");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testTransactionLocalNonParticipantStartTransaction() {
         BValue[] params = {};
         BValue[] ret = BRunUtil.invoke(result, "initiatorWithLocalNonParticipantError", params);
@@ -87,7 +88,7 @@ public class TransactionLocalParticipantFunctionTest {
                 "last-line committed");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testTransactionLocalNonParticipantCallsParticipant() {
         BValue[] params = {new BString("")};
         BValue[] ret = BRunUtil.invoke(result, "nonParticipantFunctionNesting", params);
@@ -96,7 +97,7 @@ public class TransactionLocalParticipantFunctionTest {
                 "in-trx-last-line committed | commitFun");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testTransactionLocalNonParticipantCallsParticipantNonParticipantObserveError() {
         BValue[] params = {new BString("failInNonParticipant")};
         BValue[] ret = BRunUtil.invoke(result, "nonParticipantFunctionNesting", params);
@@ -105,7 +106,7 @@ public class TransactionLocalParticipantFunctionTest {
                 "non-participants-callee-fail-and-trapped in-trx-last-line committed | commitFun");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testTransactionLocalNonParticipantCallsParticipantParticipantError() {
         BValue[] params = {new BString("participantFail")};
         BValue[] ret = BRunUtil.invoke(result, "nonParticipantFunctionNesting", params);
@@ -114,7 +115,7 @@ public class TransactionLocalParticipantFunctionTest {
                 "in-trx-last-line aborted |");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testTransactionTransactionOnlyInfectCallsInSameStrand() {
         BValue[] params = {};
         BValue[] ret = BRunUtil.invoke(result, "participantInNonStrand", params);

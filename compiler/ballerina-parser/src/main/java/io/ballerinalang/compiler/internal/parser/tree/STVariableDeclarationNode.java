@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -42,7 +45,25 @@ public class STVariableDeclarationNode extends STStatementNode {
             STNode equalsToken,
             STNode initializer,
             STNode semicolonToken) {
-        super(SyntaxKind.LOCAL_VAR_DECL);
+        this(
+                annotations,
+                finalKeyword,
+                typedBindingPattern,
+                equalsToken,
+                initializer,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STVariableDeclarationNode(
+            STNode annotations,
+            STNode finalKeyword,
+            STNode typedBindingPattern,
+            STNode equalsToken,
+            STNode initializer,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.LOCAL_VAR_DECL, diagnostics);
         this.annotations = annotations;
         this.finalKeyword = finalKeyword;
         this.typedBindingPattern = typedBindingPattern;
@@ -59,7 +80,55 @@ public class STVariableDeclarationNode extends STStatementNode {
                 semicolonToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STVariableDeclarationNode(
+                this.annotations,
+                this.finalKeyword,
+                this.typedBindingPattern,
+                this.equalsToken,
+                this.initializer,
+                this.semicolonToken,
+                diagnostics);
+    }
+
+    public STVariableDeclarationNode modify(
+            STNode annotations,
+            STNode finalKeyword,
+            STNode typedBindingPattern,
+            STNode equalsToken,
+            STNode initializer,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                annotations,
+                finalKeyword,
+                typedBindingPattern,
+                equalsToken,
+                initializer,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STVariableDeclarationNode(
+                annotations,
+                finalKeyword,
+                typedBindingPattern,
+                equalsToken,
+                initializer,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new VariableDeclarationNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

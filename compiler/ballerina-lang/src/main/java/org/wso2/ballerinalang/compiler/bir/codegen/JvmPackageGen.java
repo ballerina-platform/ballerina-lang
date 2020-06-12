@@ -25,8 +25,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodTooLargeException;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaMetadata;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
@@ -53,7 +53,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -92,6 +91,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACK
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_THREAD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
@@ -125,8 +126,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethod
  */
 public class JvmPackageGen {
 
-    private static final CompilerContext.Key<JvmPackageGen> JVM_PACKAGE_GEN_KEY = new CompilerContext.Key<>();
-
     public final SymbolTable symbolTable;
     public final PackageCache packageCache;
     private final JvmMethodGen jvmMethodGen;
@@ -136,31 +135,19 @@ public class JvmPackageGen {
     private Map<String, PackageID> dependentModules;
     private BLangDiagnosticLogHelper dlog;
 
-    private JvmPackageGen(CompilerContext compilerContext) {
-
-        compilerContext.put(JVM_PACKAGE_GEN_KEY, this);
+    JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLogHelper dlog) {
 
         birFunctionMap = new HashMap<>();
         globalVarClassMap = new HashMap<>();
         externClassMap = new HashMap<>();
         dependentModules = new LinkedHashMap<>();
-        symbolTable = SymbolTable.getInstance(compilerContext);
-        packageCache = PackageCache.getInstance(compilerContext);
-        dlog = BLangDiagnosticLogHelper.getInstance(compilerContext);
+        this.symbolTable = symbolTable;
+        this.packageCache = packageCache;
+        this.dlog = dlog;
         jvmMethodGen = new JvmMethodGen(this);
 
         JvmCastGen.symbolTable = symbolTable;
         JvmInstructionGen.anyType = symbolTable.anyType;
-    }
-
-    public static JvmPackageGen getInstance(CompilerContext compilerContext) {
-
-        JvmPackageGen jvmPackageGen = compilerContext.get(JVM_PACKAGE_GEN_KEY);
-        if (jvmPackageGen == null) {
-            jvmPackageGen = new JvmPackageGen(compilerContext);
-        }
-
-        return jvmPackageGen;
     }
 
     private static String getBvmAlias(String orgName, String moduleName) {
@@ -249,10 +236,26 @@ public class JvmPackageGen {
         mv.visitFieldInsn(PUTSTATIC, className, "LOCK_STORE", lockStoreClass);
 
         setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
+        setModuleStatusField(cw, mv, className);
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    private static void setModuleStatusField(ClassWriter cw, MethodVisitor mv, String initClass) {
+
+        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, MODULE_START_ATTEMPTED, "Z", null, null);
+        fv.visitEnd();
+
+        mv.visitInsn(ICONST_0);
+        mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_START_ATTEMPTED, "Z");
+
+        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, MODULE_STARTED, "Z", null, null);
+        fv.visitEnd();
+
+        mv.visitInsn(ICONST_0);
+        mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_STARTED, "Z");
     }
 
     private static void setServiceEPAvailableField(ClassWriter cw, MethodVisitor mv, boolean serviceEPAvailable,
@@ -375,9 +378,7 @@ public class JvmPackageGen {
         // implement run() method
         mv = cw.visitMethod(ACC_PUBLIC, "run", "()V", null, null);
         mv.visitCode();
-
         mv.visitMethodInsn(INVOKESTATIC, initClass, MODULE_STOP, "()V", false);
-
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -413,7 +414,7 @@ public class JvmPackageGen {
         throw new IllegalStateException("cannot find function: '" + funcName + "'");
     }
 
-    JarFile generate(BIRNode.BIRPackage module, InteropValidator interopValidator, boolean isEntry) {
+    CompiledJarFile generate(BIRNode.BIRPackage module, InteropValidator interopValidator, boolean isEntry) {
 
         String orgName = module.org.value;
         String moduleName = module.name.value;
@@ -429,7 +430,7 @@ public class JvmPackageGen {
                     importModule.name.value));
             generateDependencyList(pkgSymbol, interopValidator);
             if (dlog.getErrorCount() > 0) {
-                return new JarFile(Collections.emptyMap());
+                return new CompiledJarFile(Collections.emptyMap());
             }
         }
 
@@ -437,7 +438,7 @@ public class JvmPackageGen {
         Map<String, JavaClass> jvmClassMapping = generateClassNameMapping(module, pkgName, moduleInitClass,
                 interopValidator, isEntry);
         if (!isEntry || dlog.getErrorCount() > 0) {
-            return new JarFile(Collections.emptyMap());
+            return new CompiledJarFile(Collections.emptyMap());
         }
 
         // using a concurrent hash map to store class byte values, which are generated in parallel
@@ -472,7 +473,7 @@ public class JvmPackageGen {
         // clear class name mappings
         clearPackageGenInfo();
 
-        return new JarFile(moduleInitClass, jarEntries);
+        return new CompiledJarFile(moduleInitClass, jarEntries);
     }
 
     private void generateModuleClasses(BIRPackage module, Map<String, byte[]> jarEntries, String moduleInitClass,
@@ -648,7 +649,7 @@ public class JvmPackageGen {
 
                 BIRFunctionWrapper birFuncWrapperOrError;
                 try {
-                    if (isExternFunc(getFunction(birFunc))) {
+                    if (isExternFunc(getFunction(birFunc)) && isEntry) {
                         birFuncWrapperOrError = createExternalFunctionWrapper(interopValidator, birFunc, orgName,
                                 moduleName, version, birModuleClassName, this);
                     } else {

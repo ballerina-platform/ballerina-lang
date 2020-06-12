@@ -136,7 +136,8 @@ public enum DiagnosticCode {
     HEXADECIMAL_TOO_SMALL("hexadecimal.too.small"),
 
     //Transaction related error codes
-    ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("abort.cannot.be.outside.transaction.block"),
+    ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("rollback.cannot.be.outside.transaction.block"),
+    COMMIT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("commit.cannot.be.outside.transaction.block"),
     RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("retry.cannot.be.outside.transaction.block"),
     BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION("break.statement.cannot.be.used.to.exit.from.a.transaction"),
     CONTINUE_CANNOT_BE_USED_TO_EXIT_TRANSACTION("continue.statement.cannot.be.used.to.exit.from.a.transaction"),
@@ -144,12 +145,22 @@ public enum DiagnosticCode {
     RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION("return.statement.cannot.be.used.to.exit.from.a.transaction"),
     DONE_CANNOT_BE_USED_TO_EXIT_TRANSACTION("done.statement.cannot.be.used.to.exit.from.a.transaction"),
     INVALID_RETRY_COUNT("invalid.retry.count"),
+    INVALID_COMMIT_COUNT("invalid.commit.count"),
+    INVALID_ROLLBACK_COUNT("invalid.rollback.count"),
     INVALID_TRANSACTION_HANDLER_ARGS("invalid.transaction.handler.args"),
     INVALID_TRANSACTION_HANDLER_SIGNATURE("invalid.transaction.handler.signature"),
     LAMBDA_REQUIRED_FOR_TRANSACTION_HANDLER("lambda.required.for.transaction.handler"),
     TRANSACTION_CANNOT_BE_USED_WITHIN_HANDLER("transaction.cannot.be.used.within.handler"),
+    TRANSACTION_CANNOT_BE_USED_WITHIN_TRANSACTIONAL_SCOPE("transaction.cannot.be.used.within.transactional.scope"),
+    TRANSACTIONAL_FUNC_INVOKE_PROHIBITED("transactional.function.prohibited.outside.transactional.scope"),
     NESTED_TRANSACTIONS_ARE_INVALID("nested.transactions.are.invalid"),
     INVALID_FUNCTION_POINTER_ASSIGNMENT_FOR_HANDLER("invalid.function.pointer.assignment.for.handler"),
+    USAGE_OF_START_WITHIN_TRANSACTION_IS_PROHIBITED("usage.of.start.within.transaction.is.prohibited"),
+    ROLLBACK_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION("rollback.cannot.be.within.transactional.function"),
+    COMMIT_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION("commit.cannot.be.within.transactional.function"),
+    MAX_ONE_COMMIT_ROLLBACK_ALLOWED_WITHIN_A_BRANCH("max.one.commit.rollback.allowed.within.branch"),
+    COMMIT_NOT_ALLOWED("commit.not.allowed"),
+    ROLLBACK_NOT_ALLOWED("rollback.not.allowed"),
 
     // Service, endpoint related errors codes
     SERVICE_OBJECT_TYPE_REQUIRED("service.object.type.required"),
@@ -244,6 +255,7 @@ public enum DiagnosticCode {
     CANNOT_ASSIGN_VALUE_ENDPOINT("cannot.assign.value.to.endpoint"),
     CANNOT_UPDATE_READONLY_VALUE_OF_TYPE("cannot.update.readonly.value.of.type"),
     CANNOT_UPDATE_READONLY_RECORD_FIELD("cannot.update.readonly.record.field"),
+    CANNOT_UPDATE_READONLY_OBJECT_FIELD("cannot.update.readonly.object.field"),
     UNDERSCORE_NOT_ALLOWED("underscore.not.allowed"),
     OPERATION_DOES_NOT_SUPPORT_INDEXING("operation.does.not.support.indexing"),
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS("operation.does.not.support.field.access"),
@@ -355,6 +367,9 @@ public enum DiagnosticCode {
     USAGE_OF_DEPRECATED_CONSTRUCT("usage.of.deprecated.construct"),
     OPERATOR_NOT_SUPPORTED("operator.not.supported"),
     OPERATOR_NOT_ALLOWED_VARIABLE("operator.not.allowed.variable"),
+    NEVER_TYPE_NOT_ALLOWED_FOR_REQUIRED_FIELDS("never.type.not.allowed.for.required.fields"),
+    INVALID_NEVER_RETURN_TYPED_FUNCTION_INVOCATION("invalid.never.return.typed.function.invocation"),
+    NEVER_TYPED_VAR_DEF_NOT_ALLOWED("never.typed.var.def.not.allowed"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("iterable.not.supported.collection"),
@@ -426,6 +441,7 @@ public enum DiagnosticCode {
     KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT("key.specifier.field.value.must.be.constant"),
     KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT
             ("key.constraint.not.supported.for.table.with.map.constraint"),
+    CANNOT_INFER_MEMBER_TYPE_FOR_TABLE_DUE_AMBIGUITY("cannot.infer.member.type.for.table.due.ambiguity"),
     CANNOT_INFER_MEMBER_TYPE_FOR_TABLE("cannot.infer.member.type.for.table"),
 
 

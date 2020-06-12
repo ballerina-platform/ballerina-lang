@@ -59,7 +59,7 @@ public type HelloWorldBlockingClient client object {
 
     private grpc:Client grpcClient;
 
-    function __init(string url, grpc:ClientConfiguration? config = ()) {
+    function init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config = config);
         error? result = c.initStub("blocking", ROOT_DESCRIPTOR, getDescriptorMap());
@@ -96,7 +96,7 @@ public type HelloWorldClient client object {
 
     private grpc:Client grpcClient;
 
-    function __init(string url, grpc:ClientConfiguration? config = ()) {
+    function init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config = config);
         error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());

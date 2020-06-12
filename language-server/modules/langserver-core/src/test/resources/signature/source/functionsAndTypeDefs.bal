@@ -123,7 +123,7 @@ public type Stub client object {
     public Child obj = new Child();
 
     # Create a new Stub
-    public function __init(any arg) {
+    public function init(any arg) {
 
     }
 

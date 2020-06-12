@@ -7,7 +7,7 @@ type Foo object {
     public int status = 0;
     private float score;
     
-    public function __init() {
+    public function init() {
     }
 
     *B;
@@ -26,7 +26,7 @@ type Foo object {
         public int status = 0;
         private float score;
 
-        public function __init() {
+        public function init() {
         }
 
         *B;

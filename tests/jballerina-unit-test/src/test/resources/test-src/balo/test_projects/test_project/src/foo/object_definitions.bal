@@ -12,7 +12,7 @@ public type Human object {
     public int year = 50;
     public string month = "february";
 
-    public function __init (int year, int count, public string name = "sample value1", public string val1 = "default value") {
+    public function init (int year, int count, public string name = "sample value1", public string val1 = "default value") {
         self.year = year;
         self.name = name;
         self.age += count;
@@ -26,7 +26,7 @@ public type Planet object {
     public int year;
     public string month = "february";
 
-    public function __init (int count, int year = 50, public string name = "sample value1", public string val1 = "default value") {
+    public function init (int count, int year = 50, public string name = "sample value1", public string val1 = "default value") {
         self.year = year;
         self.name = name;
         self.age += count;
@@ -40,7 +40,7 @@ public type Company object {
     public int year = 50;
     public string month = "february";
 
-    public function __init (int year, int count, public string name = "sample value1", public string val1 = "default value") {
+    public function init (int year, int count, public string name = "sample value1", public string val1 = "default value") {
         self.year = year;
         self.name = name;
         self.age += count;
@@ -130,7 +130,7 @@ public type Car object {
     public int age = 10;
     public string name;
 
-    public function __init (public int a = 10, public string n = "sample result") {
+    public function init (public int a = 10, public string n = "sample result") {
         self.age = a;
         self.name = n;
     }
@@ -139,7 +139,7 @@ public type Car object {
 public type Girl object {
     public int age;
 
-    public function __init (int age) {
+    public function init (int age) {
         self.age = age;
     }
 };
@@ -148,7 +148,7 @@ public type Bus object {
     public int age;
     public string name;
 
-    public function __init (public int age = 6, public string key = "abc") {
+    public function init (public int age = 6, public string key = "abc") {
         self.age = age;
         self.name = "sample value";
     }
@@ -158,7 +158,7 @@ public type Tyre object {
     public int key = 0;
     public string value = "";
 
-    public function __init () {
+    public function init () {
 
     }
 };
@@ -203,7 +203,7 @@ public type Architect object {
     public int pp;
     public string name;
 
-    public function __init (int pp, string name) {
+    public function init (int pp, string name) {
         self.pp = pp;
         self.name = name;
     }
@@ -219,7 +219,7 @@ public type Country abstract object {
 public type House object {
     public int age;
 
-    public function __init (int age) {
+    public function init (int age) {
         self.age = age;
     }
 };
@@ -227,7 +227,7 @@ public type House object {
 public type Apartment object {
     public int age;
 
-    public function __init (int age, int addVal) {
+    public function init (int age, int addVal) {
         self.age = age;
         self.age += addVal;
     }
@@ -242,6 +242,6 @@ public type Desk object {
     public byte[] code1 = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
     public byte[] code2 = base16 `aaabcfccad afcd34 1a4bdf abcd8912df`;
 
-    public function __init () {
+    public function init () {
     }
 };
