@@ -1,12 +1,20 @@
 {
   "kind": "XML_FILTER_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
+      "value": "a",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "XML_NAME_PATTERN_CHAIN",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "DOT_LT_TOKEN"
@@ -21,7 +29,11 @@
         },
         {
           "kind": "GT_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_GT_TOKEN"
+          ]
         }
       ]
     }

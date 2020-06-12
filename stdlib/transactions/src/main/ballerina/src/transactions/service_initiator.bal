@@ -17,7 +17,7 @@
 import ballerina/log;
 import ballerina/http;
 
-const string TWO_PHASE_COMMIT = "2pc";
+public const string TWO_PHASE_COMMIT = "2pc";
 const string PROTOCOL_COMPLETION = "completion";
 const string PROTOCOL_VOLATILE = "volatile";
 const string PROTOCOL_DURABLE = "durable";

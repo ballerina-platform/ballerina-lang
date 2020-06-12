@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.parser.test.incremental;
 
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
+import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.TextDocument;
@@ -57,7 +58,8 @@ public class ModuleLevelDeclarationTest extends AbstractIncrementalParserTest {
         TextDocumentChange textDocumentChange = TextDocumentChange.from(edits);
         SyntaxTree newTree = SyntaxTree.from(oldTree, textDocumentChange);
 
-        FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) newTree.modulePart().members().get(0);
+        ModulePartNode modulePartNode = newTree.rootNode();
+        FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) modulePartNode.members().get(0);
         IdentifierToken funcName = functionDefinitionNode.functionName();
 
         Assert.assertEquals(funcName.text(), "main");

@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.parser.test.tree;
 
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
@@ -39,7 +40,8 @@ public class ChildNodeListTest extends AbstractSyntaxTreeAPITest {
     @Test
     public void testGetChildByIndex() {
         SyntaxTree syntaxTree = parseFile("child_node_list_test_01.bal");
-        FunctionDefinitionNode firstFunctionNode = (FunctionDefinitionNode) syntaxTree.modulePart().members().get(0);
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
+        FunctionDefinitionNode firstFunctionNode = (FunctionDefinitionNode) modulePartNode.members().get(0);
         int actualChildCount = firstFunctionNode.children().size();
         Assert.assertEquals(actualChildCount, 6);
         // Check signature child count
@@ -48,7 +50,7 @@ public class ChildNodeListTest extends AbstractSyntaxTreeAPITest {
         Assert.assertEquals(actualSignatureChildCount, 5);
 
         // The 'public' keyword and the return type desc is missing in the second function
-        FunctionDefinitionNode secondFunctionNode = (FunctionDefinitionNode) syntaxTree.modulePart().members().get(1);
+        FunctionDefinitionNode secondFunctionNode = (FunctionDefinitionNode) modulePartNode.members().get(1);
         actualChildCount = secondFunctionNode.children().size();
         Assert.assertEquals(actualChildCount, 5);
         // Check signature child count
@@ -65,8 +67,8 @@ public class ChildNodeListTest extends AbstractSyntaxTreeAPITest {
                 SyntaxKind.FUNCTION_BODY_BLOCK);
 
         SyntaxTree syntaxTree = parseFile("child_node_list_test_01.bal");
-        FunctionDefinitionNode firstFunctionNode = (FunctionDefinitionNode)
-                syntaxTree.modulePart().members().get(0);
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
+        FunctionDefinitionNode firstFunctionNode = (FunctionDefinitionNode) modulePartNode.members().get(0);
         List<SyntaxKind> actualKinds = new ArrayList<>(firstFunctionNode.children().size());
         for (Node child : firstFunctionNode.children()) {
             actualKinds.add(child.kind());

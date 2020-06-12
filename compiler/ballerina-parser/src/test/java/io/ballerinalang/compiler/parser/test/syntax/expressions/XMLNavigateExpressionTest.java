@@ -108,8 +108,8 @@ public class XMLNavigateExpressionTest extends AbstractExpressionsTest {
 
     @Test
     public void testXMLNavigateWithExtraTokenInAtomicNamePattern() {
-        test("a .< key * >", "xml-navigate-expr/xml_filter_expr_assert_15.json");
-        test("a /< * | key b:c >", "xml-navigate-expr/xml_step_expr_assert_24.json");
-        test("a /**/< b key :c >", "xml-navigate-expr/xml_step_expr_assert_25.json");
+        test("a .< public * >", "xml-navigate-expr/xml_filter_expr_assert_15.json");
+        test("a /< * | public b:c >", "xml-navigate-expr/xml_step_expr_assert_24.json");
+        test("a /**/< b public :c >", "xml-navigate-expr/xml_step_expr_assert_25.json");
     }
 }

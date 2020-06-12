@@ -1,29 +1,58 @@
 {
   "kind": "XML_STEP_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
+      "value": "a",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "XML_NAME_PATTERN_CHAIN",
+      "hasDiagnostics": true,
       "children": [
         {
-          "kind": "SLASH_LT_TOKEN"
+          "kind": "SLASH_LT_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "ASTERISK_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_ASTERISK_TOKEN"
+              ]
             },
             {
-              "kind": "PIPE_TOKEN"
+              "kind": "PIPE_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "ASTERISK_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_ASTERISK_TOKEN"
+              ]
             }
           ]
         },

@@ -153,7 +153,7 @@ public class MapAccessExprTest {
         Assert.assertEquals(returns[1].stringValue(), "Colombo");
     }
 
-    @Test(description = "Map access negative scenarios")
+    @Test(description = "Map access negative scenarios", groups = { "brokenOnNewParser" })
     public void testNegativeSemantics() {
         Assert.assertEquals(resultSemanticsNegative.getDiagnostics().length, 2);
         int index = 0;

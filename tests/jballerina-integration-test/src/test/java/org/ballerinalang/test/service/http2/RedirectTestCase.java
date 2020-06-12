@@ -52,7 +52,7 @@ public class RedirectTestCase extends Http2BaseTest {
     }
 
     @Test(description = "Original request and the final redirect request goes to two different domains and the " +
-            "max redirect count gets equal to current redirect count.")
+            "max redirect count gets equal to current redirect count.", enabled = false)
     public void testCrossDomain() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
                 "service1/crossDomain"));

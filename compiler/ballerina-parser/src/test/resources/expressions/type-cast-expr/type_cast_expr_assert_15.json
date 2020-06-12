@@ -1,5 +1,6 @@
 {
   "kind": "TYPE_CAST_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LT_TOKEN"
@@ -31,7 +32,13 @@
                       "children": []
                     },
                     {
-                      "kind": "CLOSE_BRACE_TOKEN"
+                      "kind": "CLOSE_BRACE_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 }
@@ -41,17 +48,31 @@
         },
         {
           "kind": "IDENTIFIER_TOKEN",
-          "value": "b"
+          "value": "b",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
     {
       "kind": "GT_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_GT_TOKEN"
+      ]
     },
     {
       "kind": "IDENTIFIER_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_IDENTIFIER"
+      ]
     }
   ]
 }

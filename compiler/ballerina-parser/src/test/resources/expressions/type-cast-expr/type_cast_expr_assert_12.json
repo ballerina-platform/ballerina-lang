@@ -1,11 +1,19 @@
 {
   "kind": "TYPE_CAST_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
-      "kind": "LT_TOKEN"
+      "kind": "LT_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "TYPE_CAST_PARAM",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "LIST",
@@ -13,7 +21,11 @@
         },
         {
           "kind": "TYPE_DESC",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_TYPE_DESC"
+          ]
         }
       ]
     },
@@ -22,7 +34,11 @@
     },
     {
       "kind": "IDENTIFIER_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_IDENTIFIER"
+      ]
     }
   ]
 }

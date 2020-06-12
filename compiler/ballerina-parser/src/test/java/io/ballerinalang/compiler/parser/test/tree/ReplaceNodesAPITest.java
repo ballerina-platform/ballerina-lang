@@ -40,7 +40,7 @@ public class ReplaceNodesAPITest extends AbstractSyntaxTreeAPITest {
     @Test
     public void testReplaceAPIBasic() {
         SyntaxTree syntaxTree = parseFile("replace_node_test_01.bal");
-        ModulePartNode modulePartNode = syntaxTree.modulePart();
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
 
         // Get the 4th function definition and then get the first statement
         ReturnStatementNode returnStmtNode = (ReturnStatementNode) getStatementInFunction(modulePartNode, 3, 0);
@@ -63,7 +63,7 @@ public class ReplaceNodesAPITest extends AbstractSyntaxTreeAPITest {
     @Test
     public void testReplaceAPISyntaxTree() {
         SyntaxTree syntaxTree = parseFile("replace_node_test_01.bal");
-        ModulePartNode modulePartNode = syntaxTree.modulePart();
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
 
         // Get the 4th function definition and then get the first statement
         ReturnStatementNode returnStmt = (ReturnStatementNode) getStatementInFunction(modulePartNode, 1, 0);
@@ -84,7 +84,7 @@ public class ReplaceNodesAPITest extends AbstractSyntaxTreeAPITest {
         // Use the replace node method in the syntax tree to update the semicolon token
         SyntaxTree newSyntaxTree = syntaxTree.replaceNode(returnStmt, replacementReturnStmt);
         ReturnStatementNode newRetStmtInRoot = (ReturnStatementNode) getStatementInFunction(
-                newSyntaxTree.modulePart(), 1, 0);
+                newSyntaxTree.rootNode(), 1, 0);
 
         // Since we removed all minutiae nodes the minutiae width should be zero
         TextRange textRangeWithMinutiae = newRetStmtInRoot.textRangeWithMinutiae();
