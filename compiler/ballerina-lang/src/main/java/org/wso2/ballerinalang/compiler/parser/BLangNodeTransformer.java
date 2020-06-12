@@ -163,6 +163,8 @@ import io.ballerinalang.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.WaitActionNode;
+import io.ballerinalang.compiler.syntax.tree.WaitFieldNode;
+import io.ballerinalang.compiler.syntax.tree.WaitFieldsListNode;
 import io.ballerinalang.compiler.syntax.tree.WhereClauseNode;
 import io.ballerinalang.compiler.syntax.tree.WhileStatementNode;
 import io.ballerinalang.compiler.syntax.tree.WildcardBindingPatternNode;
@@ -274,6 +276,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr.BLangWaitKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
@@ -1107,13 +1111,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(FunctionBodyBlockNode functionBodyBlockNode) {
         BLangBlockFunctionBody bLFuncBody = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
         this.isInLocalContext = true;
-        List<BLangStatement> statements = generateBLangStatements(functionBodyBlockNode.statements());
-
+        List<BLangStatement> statements = new ArrayList<>();
         if (functionBodyBlockNode.namedWorkerDeclarator().isPresent()) {
             NamedWorkerDeclarator namedWorkerDeclarator = functionBodyBlockNode.namedWorkerDeclarator().get();
-            for (StatementNode statement : namedWorkerDeclarator.workerInitStatements()) {
-                statements.add((BLangStatement) statement.apply(this));
-            }
+            generateAndAddBLangStatements(namedWorkerDeclarator.workerInitStatements(), statements);
+
             for (NamedWorkerDeclarationNode workerDeclarationNode : namedWorkerDeclarator.namedWorkerDeclarations()) {
                 statements.add((BLangStatement) workerDeclarationNode.apply(this));
                 // Consume resultant additional statements
@@ -1122,6 +1124,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 }
             }
         }
+
+        generateAndAddBLangStatements(functionBodyBlockNode.statements(), statements);
 
         bLFuncBody.stmts = statements;
         bLFuncBody.pos = getPosition(functionBodyBlockNode);
@@ -1152,12 +1156,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangForkJoin forkJoin = (BLangForkJoin) TreeBuilder.createForkJoinNode();
         DiagnosticPos forkStmtPos = getPosition(forkStatementNode);
         forkJoin.pos = forkStmtPos;
-        String nextAnonymousForkKey = anonymousModelHelper.getNextAnonymousForkKey(forkStmtPos.src.pkgID);
-        for (BLangSimpleVariableDef worker : forkJoin.workers) {
-            BLangFunction function = ((BLangLambdaFunction) worker.var.expr).function;
-            function.flagSet.add(Flag.FORKED);
-            function.anonForkName = nextAnonymousForkKey;
-        }
         return forkJoin;
     }
 
@@ -1226,6 +1224,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         var.pos = pos;
         lamdaWrkr.setVariable(var);
         lamdaWrkr.isWorker = true;
+        if (namedWorkerDeclNode.parent().kind() == SyntaxKind.FORK_STATEMENT) {
+            lamdaWrkr.isInFork = true;
+            lamdaWrkr.var.flagSet.add(Flag.FORKED);
+        }
+
 //        if (!this.forkJoinNodesStack.empty()) {
 //            // TODO: Revisit the fork join worker declaration and decide whether move this to desugar.
 //            lamdaWrkr.isInFork = true;
@@ -1263,6 +1266,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         workerInvoc.pos = workerNamePos;
         workerInvoc.setVariable(invoc);
         workerInvoc.isWorker = true;
+        invoc.flagSet.add(Flag.WORKER);
         this.additionalStatements.push(workerInvoc);
 
         return lamdaWrkr;
@@ -2180,12 +2184,53 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(WaitActionNode waitActionNode) {
+        Node waitFutureExpr = waitActionNode.waitFutureExpr();
+        if (waitFutureExpr.kind() == SyntaxKind.WAIT_FIELDS_LIST) {
+            return getWaitForAllExpr((WaitFieldsListNode) waitFutureExpr);
+        }
+
         BLangWaitExpr waitExpr = TreeBuilder.createWaitExpressionNode();
         waitExpr.pos = getPosition(waitActionNode);
-        if (waitActionNode.waitFutureExpr().kind() != SyntaxKind.WAIT_FIELDS_LIST) {
-            waitExpr.exprList = Collections.singletonList(createExpression(waitActionNode.waitFutureExpr()));
-        }
+        waitExpr.exprList = Collections.singletonList(createExpression(waitFutureExpr));
         return waitExpr;
+    }
+
+    private BLangWaitForAllExpr getWaitForAllExpr(WaitFieldsListNode waitFields) {
+        BLangWaitForAllExpr bLangWaitForAll = TreeBuilder.createWaitForAllExpressionNode();
+
+        List<BLangWaitKeyValue> exprs = new ArrayList<>();
+        for (Node waitField : waitFields.waitFields()) {
+            exprs.add(getWaitForAllExpr(waitField));
+        }
+
+        bLangWaitForAll.keyValuePairs = exprs;
+        return bLangWaitForAll;
+    }
+
+    private BLangWaitKeyValue getWaitForAllExpr(Node waitFields) {
+        BLangWaitForAllExpr.BLangWaitKeyValue keyValue = TreeBuilder.createWaitKeyValueNode();
+        keyValue.pos = getPosition(waitFields);
+
+        if (waitFields.kind() == SyntaxKind.WAIT_FIELD) {
+            WaitFieldNode waitFieldNode = (WaitFieldNode) waitFields;
+            BLangIdentifier key = createIdentifier(waitFieldNode.fieldName().name());
+            key.setLiteral(false);
+            keyValue.key = key;
+            keyValue.valueExpr = createExpression(waitFieldNode.waitFutureExpr());
+            return keyValue;
+        }
+
+        SimpleNameReferenceNode varName = (SimpleNameReferenceNode) waitFields;
+        BLangIdentifier key = createIdentifier(varName.name());
+        key.setLiteral(false);
+        keyValue.key = key;
+
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        varRef.pos = getPosition(varName);
+        varRef.variableName = key;
+        varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        keyValue.keyExpr = varRef;
+        return keyValue;
     }
 
     @Override
@@ -2983,6 +3028,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private List<BLangStatement> generateBLangStatements(NodeList<StatementNode> statementNodes) {
         List<BLangStatement> statements = new ArrayList<>();
+        return generateAndAddBLangStatements(statementNodes, statements);
+    }
+
+    private List<BLangStatement> generateAndAddBLangStatements(NodeList<StatementNode> statementNodes,
+                                                               List<BLangStatement> statements) {
         for (StatementNode statement : statementNodes) {
             // TODO: Remove this check once statements are non null guaranteed
             if (statement != null) {
@@ -3075,13 +3125,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private void generateForkStatements(List<BLangStatement> statements, ForkStatementNode forkStatementNode) {
         BLangForkJoin forkJoin = (BLangForkJoin) forkStatementNode.apply(this);
-
+        String nextAnonymousForkKey = anonymousModelHelper.getNextAnonymousForkKey(forkJoin.pos.src.pkgID);
         for (NamedWorkerDeclarationNode workerDeclarationNode : forkStatementNode.namedWorkerDeclarations()) {
             BLangSimpleVariableDef workerDef = (BLangSimpleVariableDef) workerDeclarationNode.apply(this);
             workerDef.isWorker = true;
             workerDef.isInFork = true;
-            ((BLangLambdaFunction) workerDef.var.expr).function.addFlag(Flag.FORKED);
             workerDef.var.flagSet.add(Flag.FORKED);
+
+            BLangFunction function = ((BLangLambdaFunction) workerDef.var.expr).function;
+            function.addFlag(Flag.FORKED);
+            function.anonForkName = nextAnonymousForkKey;
+
             statements.add(workerDef);
             while (!this.additionalStatements.empty()) {
                 statements.add(additionalStatements.pop());

@@ -2360,7 +2360,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static WaitFieldNode createWaitFieldNode(
-            NameReferenceNode fieldName,
+            SimpleNameReferenceNode fieldName,
             Token colon,
             ExpressionNode waitFutureExpr) {
         Objects.requireNonNull(fieldName, "fieldName must not be null");

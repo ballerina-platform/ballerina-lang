@@ -3200,7 +3200,7 @@
             "attributes": [
                 {
                     "name": "fieldName",
-                    "type": "NameReferenceNode"
+                    "type": "SimpleNameReferenceNode"
                 },
                 {
                     "name": "colon",
