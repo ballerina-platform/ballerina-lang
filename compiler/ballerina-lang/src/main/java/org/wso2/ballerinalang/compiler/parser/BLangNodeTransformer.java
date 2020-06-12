@@ -2100,8 +2100,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private VariableDefinitionNode createBLangVarDef(DiagnosticPos pos, TypedBindingPatternNode typedBindingPattern,
-                                        Optional<io.ballerinalang.compiler.syntax.tree.ExpressionNode> initializer,
-                                        Optional<Token> finalKeyword) {
+                                                     Optional<io.ballerinalang.compiler.syntax.tree.ExpressionNode> initializer,
+                                                     Optional<Token> finalKeyword) {
         BindingPatternNode bindingPattern = typedBindingPattern.bindingPattern();
         BLangVariable variable = getBLangVariableNode(bindingPattern);
         switch (bindingPattern.kind()) {
@@ -2116,6 +2116,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 if (finalKeyword.isPresent()) {
                     variable.flagSet.add(Flag.FINAL);
                 }
+
+                TypeDescriptorNode typeDesc = typedBindingPattern.typeDescriptor();
+                variable.isDeclaredWithVar = typeDesc.kind() == SyntaxKind.VAR_TYPE_DESC;
+                if (!variable.isDeclaredWithVar) {
+                    variable.setTypeNode(createTypeNode(typeDesc));
+                }
+
                 return bLVarDef;
             case MAPPING_BINDING_PATTERN:
                 return createRecordVariableDef((MappingBindingPatternNode) typedBindingPattern.bindingPattern(),
@@ -2125,8 +2132,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                         (ListBindingPatternNode) typedBindingPattern.bindingPattern(), initializer,
                         finalKeyword.isPresent());
             default:
-                throw new RuntimeException("Syntax kind is not a valid binding pattern " +
-                        typedBindingPattern.bindingPattern().kind());
+                throw new RuntimeException(
+                        "Syntax kind is not a valid binding pattern " + typedBindingPattern.bindingPattern().kind());
         }
 
 //        BLangSimpleVariable simpleVar = new SimpleVarBuilder()
