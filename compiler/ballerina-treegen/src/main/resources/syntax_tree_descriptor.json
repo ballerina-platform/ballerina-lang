@@ -3693,6 +3693,21 @@
                     "type": "FunctionBodyNode"
                 }
             ]
+        },
+        {
+            "name": "DistinctTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "DISTINCT_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "distinctKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeDescriptor",
+                    "type": "TypeDescriptorNode"
+                }
+            ]
         }
     ]
 }

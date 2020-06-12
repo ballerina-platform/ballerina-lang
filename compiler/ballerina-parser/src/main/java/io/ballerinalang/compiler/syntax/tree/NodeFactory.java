@@ -2732,5 +2732,17 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 functionBody.internalNode());
         return stObjectMethodDefinitionNode.createUnlinkedFacade();
     }
+
+    public static DistinctTypeDescriptorNode createDistinctTypeDescriptorNode(
+            Token distinctKeyword,
+            TypeDescriptorNode typeDescriptor) {
+        Objects.requireNonNull(distinctKeyword, "distinctKeyword must not be null");
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+
+        STNode stDistinctTypeDescriptorNode = STNodeFactory.createDistinctTypeDescriptorNode(
+                distinctKeyword.internalNode(),
+                typeDescriptor.internalNode());
+        return stDistinctTypeDescriptorNode.createUnlinkedFacade();
+    }
 }
 

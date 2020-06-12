@@ -2277,6 +2277,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseFunctionTypeDesc();
             case OPEN_BRACKET_TOKEN:
                 return parseTupleTypeDesc();
+            case DISTINCT_KEYWORD:
+                return parseDistinctTypeDesc(context);
             default:
                 if (isSingletonTypeDescStart(tokenKind, true)) {
                     return parseSingletonTypeDesc();
@@ -2296,6 +2298,32 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 return parseTypeDescriptorInternal(solution.tokenKind, context);
+        }
+    }
+
+    /**
+     * Parse distinct type descriptor.
+     * <p>
+     * <code>
+     * distinct-type-descriptor := distinct type-descriptor
+     * </code>
+     * 
+     * @param context Context in which the type desc is used.
+     * @return Distinct type descriptor
+     */
+    private STNode parseDistinctTypeDesc(ParserRuleContext context) {
+        STNode distinctKeyword = parseDistinctKeyword();
+        STNode typeDesc = parseTypeDescriptor(context);
+        return STNodeFactory.createDistinctTypeDescriptorNode(distinctKeyword, typeDesc);
+    }
+
+    private STNode parseDistinctKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.DISTINCT_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.DISTINCT_KEYWORD);
+            return sol.recoveredNode;
         }
     }
 
@@ -4013,13 +4041,13 @@ public class BallerinaParser extends AbstractParser {
                 if (nextNextToken.kind == SyntaxKind.BACKTICK_TOKEN) {
                     return parseXMLTemplateExpression();
                 }
-                break;
+                return parseSimpleTypeDescriptor();
             case STRING_KEYWORD:
                 nextNextToken = getNextNextToken(kind);
                 if (nextNextToken.kind == SyntaxKind.BACKTICK_TOKEN) {
                     return parseStringTemplateExpression();
                 }
-                break;
+                return parseSimpleTypeDescriptor();
             case FUNCTION_KEYWORD:
                 return parseExplicitFunctionExpression(annots, isRhsExpr);
             case AT_TOKEN:
@@ -4126,7 +4154,7 @@ public class BallerinaParser extends AbstractParser {
             case SERVICE_KEYWORD:
                 return true;
             default:
-                return false;
+                return isSimpleType(tokenKind);
         }
     }
 
@@ -8204,6 +8232,7 @@ public class BallerinaParser extends AbstractParser {
             case TABLE_KEYWORD: // table type
             case FUNCTION_KEYWORD:
             case OPEN_BRACKET_TOKEN:
+            case DISTINCT_KEYWORD:
                 return true;
             default:
                 if (isSingletonTypeDescStart(nodeKind, true)) {
@@ -11374,11 +11403,11 @@ public class BallerinaParser extends AbstractParser {
         if (items.size() == 1) {
             STNode item = items.get(0);
             if (baseKind == SyntaxKind.BASE16_KEYWORD &&
-                    !BallerinaLexer.isValidBase16LiteralContent(item.toString())) {
+                    !isValidBase16LiteralContent(item.toString())) {
                 newStartingBackTick = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(startingBackTick, item,
                         DiagnosticErrorCode.ERROR_INVALID_BASE16_CONTENT_IN_BYTE_ARRAY_LITERAL);
             } else if (baseKind == SyntaxKind.BASE64_KEYWORD &&
-                    !BallerinaLexer.isValidBase64LiteralContent(item.toString())) {
+                    !isValidBase64LiteralContent(item.toString())) {
                 newStartingBackTick = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(startingBackTick, item,
                         DiagnosticErrorCode.ERROR_INVALID_BASE64_CONTENT_IN_BYTE_ARRAY_LITERAL);
             } else if (item.kind != SyntaxKind.TEMPLATE_STRING) {
@@ -11451,6 +11480,143 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return STNodeFactory.createNodeList(items);
+    }
+
+    /**
+     * Validate base16 literal content.
+     * <p>
+     * <code>
+     * Base16Literal := base16 WS ` HexGroup* WS `
+     * <br/>
+     * HexGroup := WS HexDigit WS HexDigit
+     * <br/>
+     * WS := WhiteSpaceChar*
+     * <br/>
+     * WhiteSpaceChar := 0x9 | 0xA | 0xD | 0x20
+     * </code>
+     *
+     * @param content the string surrounded by the backticks
+     * @return <code>true</code>, if the string content is valid. <code>false</code> otherwise.
+     */
+    static boolean isValidBase16LiteralContent(String content) {
+        char[] charArray = content.toCharArray();
+        int hexDigitCount = 0;
+
+        for (char c : charArray) {
+            switch (c) {
+                case LexerTerminals.TAB:
+                case LexerTerminals.NEWLINE:
+                case LexerTerminals.CARRIAGE_RETURN:
+                case LexerTerminals.SPACE:
+                    break;
+                default:
+                    if (isHexDigit(c)) {
+                        hexDigitCount++;
+                    } else {
+                        return false;
+                    }
+                    break;
+            }
+        }
+        return hexDigitCount % 2 == 0;
+    }
+
+    /**
+     * Validate base64 literal content.
+     * <p>
+     * <code>
+     * Base64Literal := base64 WS ` Base64Group* [PaddedBase64Group] WS `
+     * <br/>
+     * Base64Group := WS Base64Char WS Base64Char WS Base64Char WS Base64Char
+     * <br/>
+     * PaddedBase64Group :=
+     *    WS Base64Char WS Base64Char WS Base64Char WS PaddingChar
+     *    | WS Base64Char WS Base64Char WS PaddingChar WS PaddingChar
+     * <br/>
+     * Base64Char := A .. Z | a .. z | 0 .. 9 | + | /
+     * <br/>
+     * PaddingChar := =
+     * <br/>
+     * WS := WhiteSpaceChar*
+     * <br/>
+     * WhiteSpaceChar := 0x9 | 0xA | 0xD | 0x20
+     * </code>
+     *
+     * @param content the string surrounded by the backticks
+     * @return <code>true</code>, if the string content is valid. <code>false</code> otherwise.
+     */
+    static boolean isValidBase64LiteralContent(String content) {
+        char[] charArray = content.toCharArray();
+        int base64CharCount = 0;
+        int paddingCharCount = 0;
+
+        for (char c : charArray) {
+            switch (c) {
+                case LexerTerminals.TAB:
+                case LexerTerminals.NEWLINE:
+                case LexerTerminals.CARRIAGE_RETURN:
+                case LexerTerminals.SPACE:
+                    break;
+                case LexerTerminals.EQUAL:
+                    paddingCharCount++;
+                    break;
+                default:
+                    if (isBase64Char(c)) {
+                        if (paddingCharCount == 0) {
+                            base64CharCount++;
+                        } else {
+                            return false;
+                        }
+                    } else {
+                        return false;
+                    }
+                    break;
+            }
+        }
+
+        if (paddingCharCount > 2) {
+            return false;
+        } else if (paddingCharCount == 0) {
+            return base64CharCount % 4 == 0;
+        } else {
+            return base64CharCount % 4 == 4 - paddingCharCount;
+        }
+    }
+
+    /**
+     * <p>
+     * Check whether a given char is a base64 char.
+     * </p>
+     * <code>Base64Char := A .. Z | a .. z | 0 .. 9 | + | /</code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character represents a base64 char. <code>false</code> otherwise.
+     */
+    static boolean isBase64Char(int c) {
+        if ('a' <= c && c <= 'z') {
+            return true;
+        }
+        if ('A' <= c && c <= 'Z') {
+            return true;
+        }
+        if (c == '+' || c == '/') {
+            return true;
+        }
+        return isDigit(c);
+    }
+
+    static boolean isHexDigit(int c) {
+        if ('a' <= c && c <= 'f') {
+            return true;
+        }
+        if ('A' <= c && c <= 'F') {
+            return true;
+        }
+        return isDigit(c);
+    }
+
+    static boolean isDigit(int c) {
+        return ('0' <= c && c <= '9');
     }
 
     /**

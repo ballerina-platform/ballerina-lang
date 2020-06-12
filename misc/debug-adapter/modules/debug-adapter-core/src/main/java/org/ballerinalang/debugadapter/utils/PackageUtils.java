@@ -30,6 +30,7 @@ import java.nio.file.Paths;
 public class PackageUtils {
 
     public static final String MANIFEST_FILE_NAME = "Ballerina.toml";
+
     /**
      * Find the project root by recursively up to the root.
      *
@@ -67,5 +68,9 @@ public class PackageUtils {
         }
         // Directly using file separator as a regex will fail on windows.
         return packagePath.split(File.separatorChar == '\\' ? "\\\\" : File.separator)[0];
+    }
+
+    public static boolean isBlank(String str) {
+        return str == null || str.isEmpty() || str.chars().allMatch(Character::isWhitespace);
     }
 }
