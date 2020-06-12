@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BUnionType;
+import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.IteratorValue;
@@ -79,103 +80,12 @@ public class Mock {
     }
 
     /**
-     * Registers the return value to the case provided.
-     *
-     * @param caseObj ballerina object that contains information about the case to register
-     * @return an optional error if a validation fails
-     */
-    public static ErrorValue thenReturn(ObjectValue caseObj) {
-        GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj.get(StringUtils.fromString("prepareObj"));
-        ObjectValue mockObj = genericMock.getMockObj();
-        String functionName = caseObj.getStringValue(StringUtils.fromString("functionName")).toString();
-
-        if (!"".equals(functionName)) { // register return value for member function
-            ArrayValue args = caseObj.getArrayValue(StringUtils.fromString("args"));
-            Object returnVal = caseObj.get(StringUtils.fromString("returnVal"));
-            if (!validateReturnType(functionName, returnVal, genericMock.getType().getAttachedFunctions())) {
-                String detail = "invalid return value found.";
-                return BallerinaErrors
-                        .createError(StringUtils.fromString(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR),
-                                StringUtils.fromString(detail));
-            }
-            MockRegistry.getInstance().registerCase(mockObj, functionName, args, returnVal);
-        } else { // register return value for member field
-            String fieldName = caseObj.getStringValue(StringUtils.fromString("fieldName")).toString();
-            Object returnVal = caseObj.get(StringUtils.fromString("returnVal"));
-
-            if (!validateReturnType(returnVal,
-                    genericMock.getType().getFields().get(fieldName).getFieldType())) {
-                String detail = "invalid return value found.";
-                return BallerinaErrors
-                        .createError(StringUtils.fromString(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR),
-                                StringUtils.fromString(detail));
-            }
-            MockRegistry.getInstance().registerCase(mockObj, fieldName, null, returnVal);
-        }
-        return null;
-    }
-
-    private static boolean validateReturnType(Object returnVal, BType fieldType) {
-        return TypeChecker.checkIsType(returnVal, fieldType);
-    }
-
-    /**
-     * Registers a sequence of return values to the case provided.
-     *
-     * @param caseObj ballerina object that contains information about the case to register
-     * @return an optional error if a validation fails
-     */
-    public static ErrorValue thenReturnSequence(ObjectValue caseObj) {
-        GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj.get(StringUtils.fromString("prepareObj"));
-        ObjectValue mockObj = genericMock.getMockObj();
-        String functionName = caseObj.getStringValue(StringUtils.fromString("functionName")).toString();
-        ArrayValue returnVals = caseObj.getArrayValue(StringUtils.fromString("returnValSeq"));
-
-        for (int i = 0; i < returnVals.getValues().length; i++) {
-            if (returnVals.getValues()[i] == null) {
-                break;
-            }
-            if (!validateReturnType(functionName, returnVals.getValues()[i],
-                    genericMock.getType().getAttachedFunctions())) {
-                String detail = "return value provided at position '" + i
-                        + "' does not match the return type of function " + functionName + "()";
-                return BallerinaErrors
-                        .createError(StringUtils.fromString(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR),
-                                StringUtils.fromString(detail));
-            }
-            MockRegistry.getInstance().registerCase(mockObj, functionName, null, returnVals.getValues()[i], i + 1);
-        }
-        return null;
-    }
-
-    private static boolean validateReturnType(
-            String functionName, Object returnVal, AttachedFunction[] attachedFunctions) {
-
-        for (AttachedFunction attachedFunction : attachedFunctions) {
-            if (attachedFunction.getName().equals(functionName)) {
-                if (attachedFunction.type.getReturnParameterType() instanceof BUnionType) {
-                    List<BType> memberTypes =
-                            ((BUnionType) attachedFunction.type.getReturnParameterType()).getMemberTypes();
-                    for (BType memberType : memberTypes) {
-                        if (TypeChecker.checkIsType(returnVal, memberType)) {
-                            return true;
-                        }
-                    }
-                } else {
-                    return TypeChecker.checkIsType(returnVal, attachedFunction.type.getReturnParameterType());
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
      * Validates the object provided to register mock cases.
      *
      * @param caseObj ballerina object that contains information about the case to register
      * @return an optional error if a validation fails
      */
-    public static ErrorValue validatePrepareObj(ObjectValue caseObj) {
+    public static ErrorValue validatePreparedObj(ObjectValue caseObj) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj;
         ObjectValue mockObj = genericMock.getMockObj();
         String objectType = mockObj.getType().getName();
@@ -191,13 +101,13 @@ public class Mock {
     /**
      * Validates the member function name provided to register mock cases.
      *
-     * @param caseObj ballerina object that contains information about the case to register
+     * @param functionName function name provided
+     * @param preparedObj ballerina object that contains information about the case to register
      * @return an optional error if a validation fails
      */
-    public static ErrorValue validateFunctionName(ObjectValue caseObj) {
-        GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj.getObjectValue(
-                StringUtils.fromString("prepareObj"));
-        String functionName = caseObj.getStringValue(StringUtils.fromString("functionName")).toString();
+
+    public static ErrorValue validateFunctionName(String functionName, ObjectValue preparedObj) {
+        GenericMockObjectValue genericMock = (GenericMockObjectValue) preparedObj;
         if (!validateFunctionName(functionName, genericMock.getType().getAttachedFunctions())) {
             String detail = "invalid function name '" + functionName + " ' provided";
             return BallerinaErrors.createError(StringUtils.fromString(MockConstants.FUNCTION_NOT_FOUND_ERROR),
@@ -209,13 +119,12 @@ public class Mock {
     /**
      * Validates the member field name provided to register mock cases.
      *
-     * @param caseObj ballerina object that contains information about the case to register
+     * @param fieldName field name provided
+     * @param preparedObj ballerina object that contains information about the case to register
      * @return an optional error if a validation fails
      */
-    public static ErrorValue validateFieldName(ObjectValue caseObj) {
-        GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj.getObjectValue(StringUtils.fromString(
-                "prepareObj"));
-        String fieldName = caseObj.getStringValue(StringUtils.fromString("fieldName")).toString();
+    public static ErrorValue validateFieldName(String fieldName, ObjectValue preparedObj) {
+        GenericMockObjectValue genericMock = (GenericMockObjectValue) preparedObj;
         if (!validateFieldName(fieldName, genericMock.getType().getFields())) {
             String detail = "invalid field name '" + fieldName + "' provided";
             return BallerinaErrors
@@ -233,37 +142,20 @@ public class Mock {
      */
     public static ErrorValue validateArguments(ObjectValue caseObj) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj.getObjectValue(
-                StringUtils.fromString("prepareObj"));
+                StringUtils.fromString("preparedObj"));
         String functionName = caseObj.getStringValue(StringUtils.fromString("functionName")).toString();
         ArrayValue argsList = caseObj.getArrayValue(StringUtils.fromString("args"));
 
         for (AttachedFunction attachedFunction : genericMock.getType().getAttachedFunctions()) {
             if (attachedFunction.getName().equals(functionName)) {
-                // validate the number of args provided is allowed in the function
 
+                // validate the number of arguments provided
                 if (argsList.size() > attachedFunction.type.getParameterType().length) {
                     String detail = "too many argument provided to mock the function " + functionName + "()";
                     return BallerinaErrors.createError(
                             StringUtils.fromString(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR),
                             StringUtils.fromString(detail));
                 }
-//                int nilableArgCount = 0;
-//                for (BType argType : attachedFunction.type.getParameterType()) {
-//                    if (argType.isNilable()) {
-//                        ++nilableArgCount;
-//                    }
-//                }
-//                int minArgCount = attachedFunction.type.getParameterType().length - nilableArgCount;
-//                int maxArgCount = attachedFunction.type.getParameterType().length;
-//                if (argsList.size() < minArgCount) {
-//                    String detail = "not enough arguments provided to mock the function " + functionName + "()";
-//                    return BallerinaErrors.createError(
-//                            StringUtils.fromString(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR), detail);
-//                } else if (argsList.size() > maxArgCount) {
-//                    String detail = "too many argument provided to mock the function " + functionName + "()";
-//                    return BallerinaErrors.createError(
-//                            StringUtils.fromString(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR), detail);
-//                }
 
                 // validate if each argument is compatible with the type given in the function signature
                 int i = 0;
@@ -302,6 +194,91 @@ public class Mock {
         return null;
     }
 
+    /**
+     * Registers the return value to the case provided.
+     *
+     * @param caseObj ballerina object that contains information about the case to register
+     * @return an optional error if a validation fails
+     */
+    public static ErrorValue thenReturn(ObjectValue caseObj) {
+        GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj
+                .get(StringUtils.fromString("preparedObj"));
+        ObjectValue mockObj = genericMock.getMockObj();
+        Object returnVal = caseObj.get(StringUtils.fromString("returnVal"));
+        String functionName;
+        try {
+            functionName = caseObj.getStringValue(StringUtils.fromString("functionName")).toString();
+        } catch (BLangRuntimeException e) {
+            if (!e.getMessage().contains("No such field or method: functionName")) {
+                throw e;
+            }
+            functionName = null;
+        }
+        if (functionName != null) {
+            // register return value for member function
+            ArrayValue args = caseObj.getArrayValue(StringUtils.fromString("args"));
+            if (!validateReturnValue(functionName, returnVal, genericMock.getType().getAttachedFunctions())) {
+                String detail =
+                        "return value provided does not match the return type of function " + functionName + "()";
+                return BallerinaErrors
+                        .createError(StringUtils.fromString(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR),
+                                StringUtils.fromString(detail));
+            }
+            MockRegistry.getInstance().registerCase(mockObj, functionName, args, returnVal);
+        } else {
+
+            // register return value for member field
+            String fieldName = caseObj.getStringValue(StringUtils.fromString("fieldName")).toString();
+
+            if (!validateFieldValue(returnVal,
+                    genericMock.getType().getFields().get(fieldName).getFieldType())) {
+                String detail = "return value provided does not match the type of '" + fieldName + "'";
+                return BallerinaErrors
+                        .createError(StringUtils.fromString(MockConstants.INVALID_MEMBER_FIELD_ERROR),
+                                StringUtils.fromString(detail));
+            }
+            MockRegistry.getInstance().registerCase(mockObj, fieldName, null, returnVal);
+        }
+        return null;
+    }
+
+    /**
+     * Registers a sequence of return values to the case provided.
+     *
+     * @param caseObj ballerina object that contains information about the case to register
+     * @return an optional error if a validation fails
+     */
+    public static ErrorValue thenReturnSequence(ObjectValue caseObj) {
+        GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj
+                .get(StringUtils.fromString("preparedObj"));
+        ObjectValue mockObj = genericMock.getMockObj();
+        String functionName = caseObj.getStringValue(StringUtils.fromString("functionName")).toString();
+        ArrayValue returnVals = caseObj.getArrayValue(StringUtils.fromString("returnValSeq"));
+
+        for (int i = 0; i < returnVals.getValues().length; i++) {
+            if (returnVals.getValues()[i] == null) {
+                break;
+            }
+            if (!validateReturnValue(functionName, returnVals.getValues()[i],
+                    genericMock.getType().getAttachedFunctions())) {
+                String details = "return value provided at position '" + i
+                        + "' does not match the return type of function " + functionName + "()";
+                return BallerinaErrors
+                        .createError(StringUtils.fromString(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR),
+                                StringUtils.fromString(details));
+            }
+            MockRegistry.getInstance().registerCase(mockObj, functionName, null, returnVals.getValues()[i], i + 1);
+        }
+        return null;
+    }
+
+    /**
+     * Validates the function name provided when a default mock object is used.
+     *
+     * @param functionName function name
+     * @param attachedFunctions functions available in the mocked type
+     * @return whether the function name is valid
+     */
     private static boolean validateFunctionName(String functionName, AttachedFunction[] attachedFunctions) {
         for (AttachedFunction attachedFunction : attachedFunctions) {
             if (attachedFunction.getName().equals(functionName)) {
@@ -311,6 +288,69 @@ public class Mock {
         return false;
     }
 
+    /**
+     * Validates the field name provided when a default mock object is used.
+     *
+     * @param fieldName field name provided
+     * @param fieldMap fields available in the mocked type
+     * @return whether the field name is valid
+     */
+    private static boolean validateFieldName(String fieldName, Map<String, BField> fieldMap) {
+        for (Map.Entry<String, BField> field : fieldMap.entrySet()) {
+            if (field.getKey().equals(fieldName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Validates the function return value provided when a default mock object is used.
+     *
+     * @param functionName function to validate against
+     * @param returnVal return value provided
+     * @param attachedFunctions functions available in the mocked type
+     * @return whether the return value is valid
+     */
+    private static boolean validateReturnValue(
+            String functionName, Object returnVal, AttachedFunction[] attachedFunctions) {
+
+        for (AttachedFunction attachedFunction : attachedFunctions) {
+            if (attachedFunction.getName().equals(functionName)) {
+                if (attachedFunction.type.getReturnParameterType() instanceof BUnionType) {
+                    List<BType> memberTypes =
+                            ((BUnionType) attachedFunction.type.getReturnParameterType()).getMemberTypes();
+                    for (BType memberType : memberTypes) {
+                        if (TypeChecker.checkIsType(returnVal, memberType)) {
+                            return true;
+                        }
+                    }
+                } else {
+                    return TypeChecker.checkIsType(returnVal, attachedFunction.type.getReturnParameterType());
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Validates the field return value provided when a default mock object is used.
+     *
+     * @param returnVal  return value provided
+     * @param fieldType type of the field
+     * @return whether the return value is valid
+     */
+    private static boolean validateFieldValue(Object returnVal, BType fieldType) {
+        return TypeChecker.checkIsType(returnVal, fieldType);
+    }
+
+    /**
+     * Validates the signature of the function provided when a user-defined mock object is used.
+     *
+     * @param func function defined in mock object
+     * @param attachedFunctions functions available in the mocked type
+     * @return whether the function signature is valid
+     */
     private static ErrorValue validateFunctionSignatures(AttachedFunction func, AttachedFunction[] attachedFunctions) {
         String functionName = func.getName();
         BType[] paramTypes = func.getParameterType();
@@ -379,6 +419,13 @@ public class Mock {
                 StringUtils.fromString(MockConstants.FUNCTION_NOT_FOUND_ERROR), StringUtils.fromString(detail));
     }
 
+    /**
+     * Validates the field provided when a user-defined mock object is used.
+     *
+     * @param mockField field defined in mock object
+     * @param fieldMap fields available in the mocked type
+     * @return whether the field declaration is valid
+     */
     private static ErrorValue validateField(Map.Entry<String, BField> mockField, Map<String, BField> fieldMap) {
         for (Map.Entry<String, BField> field : fieldMap.entrySet()) {
             if (field.getKey().equals(mockField.getKey())) {
@@ -396,14 +443,5 @@ public class Mock {
         String detail = "invalid field '" + mockField.getKey() + "' provided";
         return BallerinaErrors.createError(
                 StringUtils.fromString(MockConstants.INVALID_MEMBER_FIELD_ERROR), StringUtils.fromString(detail));
-    }
-
-    private static boolean validateFieldName(String mockField, Map<String, BField> fieldMap) {
-        for (Map.Entry<String, BField> field : fieldMap.entrySet()) {
-            if (field.getKey().equals(mockField)) {
-                return true;
-            }
-        }
-        return false;
     }
 }
