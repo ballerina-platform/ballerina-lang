@@ -262,9 +262,9 @@ public class BIRGen extends BLangNodeVisitor {
                 this.birOptimizer.optimizePackage(testBirPkg);
                 testPkg.symbol.bir = testBirPkg;
                 Map<String, String> mockFunctionMap = astPkg.getTestablePkg().getMockFunctionNamesMap();
-                if (!mockFunctionMap.isEmpty()) {
-                    replaceMockedFunctions(testBirPkg, mockFunctionMap);
-                }
+//                if (!mockFunctionMap.isEmpty()) {
+//                    replaceMockedFunctions(testBirPkg, mockFunctionMap);
+//                }
             });
         }
 

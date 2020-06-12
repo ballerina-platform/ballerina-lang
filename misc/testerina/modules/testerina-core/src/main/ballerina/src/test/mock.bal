@@ -207,6 +207,42 @@ public  type Case object {
     }
 };
 
+
+public function when(MockFunction mockFunctionObj) returns FunctionCase {
+    FunctionCase mockCase = new FunctionCase(mockFunctionObj);
+    return mockCase;
+}
+
+public type MockFunction object {
+    string mockFunction = "";
+    string caseId = "";
+};
+
+
+public type FunctionCase object {
+    string mockFunction = "";
+    MockFunction mockFunctionObj;
+    anydata|error argList = [];
+    any|error returnVal = ();
+
+    public function init(MockFunction mockFunctionObj) {
+        self.mockFunctionObj = mockFunctionObj;
+    }
+
+    // Sets the Mock Function to be called
+    public function call(string mockFunction) {
+        self.mockFunction = mockFunction;
+        callExt(self);
+    }
+
+    // Sets the return value
+    public function setReturn(any|error retVal) {
+        self.returnVal = retVal;  // Have a check if mockFunctionObj exists
+        setReturnExt(self);
+    }
+
+};
+
 // Interop functions
 
 # Inter-op to create the mock object
@@ -263,3 +299,18 @@ function validateFieldNameExt(object{} case) returns Error? = @java:Method {
     name: "validateFieldName",
     class: "org.ballerinalang.testerina.natives.test.Mock"
 } external;
+
+function callExt(object {} case) = @java:Method {
+    name: "call",
+    class: "org.ballerinalang.testerina.natives.test.FunctionMock"
+} external;
+
+function setReturnExt(object{} case) = @java:Method {
+    name : "setReturn",
+    class : "org.ballerinalang.testerina.natives.test.FunctionMock"
+} external;
+
+//public function mockHandler(MockFunction mockFunction) returns any|() = @java:Method {
+//    name : "mockHandler",
+//    class : "org.ballerinalang.testerina.natives.test.FunctionMock"
+//} external;
