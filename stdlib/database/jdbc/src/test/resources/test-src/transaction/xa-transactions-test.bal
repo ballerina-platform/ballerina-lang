@@ -27,9 +27,10 @@ function testXATransactionSuccess(string jdbcURL1, string jdbcURL2, string user,
     jdbc:Client dbClient2 = check new (url = jdbcURL2, user = user, password = password, connectionPool = {maxOpenConnections: 1});
 
     transaction {
-        var e1 = dbClient1->execute("insert into Customers (customerId, name, creditLimit, country) " +
+        var e1 = check dbClient1->execute("insert into Customers (customerId, name, creditLimit, country) " +
                                 "values (1, 'Anne', 1000, 'UK')");
-        var e2 = dbClient2->execute("insert into Salary (id, value ) values (1, 1000)");
+        var e2 = check dbClient2->execute("insert into Salary (id, value ) values (1, 1000)");
+        check commit;
     }
 
     int count1 = check getCustomerCount(dbClient1, "1");
@@ -45,9 +46,10 @@ function testXATransactionSuccessWithDataSource(string jdbcURL1, string jdbcURL2
     jdbc:Client dbClient2 = check new (url = jdbcURL2, user = user, password = password, options = {datasourceName: xaDatasourceName});
     
     transaction {
-        var e1 = dbClient1->execute("insert into Customers (customerId, name, creditLimit, country) " +
+        var e1 = check dbClient1->execute("insert into Customers (customerId, name, creditLimit, country) " +
                                 "values (10, 'Anne', 1000, 'UK')");
-        var e2 = dbClient2->execute("insert into Salary (id, value ) values (10, 1000)");
+        var e2 = check dbClient2->execute("insert into Salary (id, value ) values (10, 1000)");
+        check commit;
     }
 
     int count1 = check getCustomerCount(dbClient1, "10");

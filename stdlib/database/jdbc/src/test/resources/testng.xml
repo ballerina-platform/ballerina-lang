@@ -31,7 +31,7 @@ under the License.
             <class name="org.ballerinalang.jdbc.execute.ExecuteTest"/>
             <class name="org.ballerinalang.jdbc.execute.ParamsExecuteTest"/>
             <class name="org.ballerinalang.jdbc.transaction.LocalTransactionsTest"/>
-<!--            <class name="org.ballerinalang.jdbc.transaction.XATransactionsTest"/>-->
+            <class name="org.ballerinalang.jdbc.transaction.XATransactionsTest"/>
         </classes>
     </test>
 </suite>
