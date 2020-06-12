@@ -4334,7 +4334,7 @@ public class Desugar extends BLangNodeVisitor {
         BObjectType classObjType = (BObjectType) objClassDef.type;
 
         BVarSymbol insertionsSym = classObjType.fields.get("insertions").symbol;
-        BLangListConstructorExpr insertionsList = ASTBuilderUtil.createEmptyArrayLiteral(pos, insertionsSym.type);
+        BLangListConstructorExpr insertionsList = ASTBuilderUtil.createListConstructorExpr(pos, insertionsSym.type);
         insertionsList.exprs.addAll(rawTemplateLiteral.insertions);
         insertionsList.expectedType = insertionsSym.type;
 
@@ -4389,7 +4389,7 @@ public class Desugar extends BLangNodeVisitor {
         // Create a list constructor expr for the strings field. This gets assigned to the corresponding field in the
         // object since this needs to be initialized in the generated init method.
         BType stringsType = objectClassType.fields.get("strings").symbol.type;
-        BLangListConstructorExpr stringsList = ASTBuilderUtil.createEmptyArrayLiteral(pos, stringsType);
+        BLangListConstructorExpr stringsList = ASTBuilderUtil.createListConstructorExpr(pos, stringsType);
         stringsList.exprs.addAll(strings);
         stringsList.expectedType = stringsType;
         objectClassNode.fields.get(0).expr = stringsList;
