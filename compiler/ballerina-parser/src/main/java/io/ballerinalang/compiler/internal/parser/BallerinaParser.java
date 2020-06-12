@@ -10573,9 +10573,10 @@ public class BallerinaParser extends AbstractParser {
 
         // Return an empty list
         if (isEndOfWaitFutureExprList(nextToken.kind)) {
-            this.errorHandler.reportMissingTokenError("missing wait field");
             endContext();
             STNode waitFutureExprs = STNodeFactory.createEmptyNodeList();
+            waitKeyword = cloneWithDiagnosticIfListEmpty(waitFutureExprs, waitKeyword,
+                    DiagnosticErrorCode.ERROR_MISSING_WAIT_FUTURE_EXPRESSION);
             return STNodeFactory.createWaitActionNode(waitKeyword, waitFutureExprs);
         }
 
@@ -10667,6 +10668,8 @@ public class BallerinaParser extends AbstractParser {
         STNode closeBrace = parseCloseBrace();
         endContext();
 
+        openBrace = cloneWithDiagnosticIfListEmpty(waitFields, openBrace,
+                DiagnosticErrorCode.ERROR_MISSING_WAIT_FIELD_IN_WAIT_ACTION);
         STNode waitFieldsNode = STNodeFactory.createWaitFieldsListNode(openBrace, waitFields, closeBrace);
         return STNodeFactory.createWaitActionNode(waitKeyword, waitFieldsNode);
     }
@@ -10676,8 +10679,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
 
         // Return an empty list
-        if (isEndOfReceiveFields(nextToken.kind)) {
-            this.errorHandler.reportMissingTokenError("missing wait field");
+        if (isEndOfWaitFields(nextToken.kind)) {
             return STNodeFactory.createEmptyNodeList();
         }
 
@@ -10688,7 +10690,7 @@ public class BallerinaParser extends AbstractParser {
         // Parse the remaining receive fields
         nextToken = peek();
         STNode waitFieldEnd;
-        while (!isEndOfReceiveFields(nextToken.kind)) {
+        while (!isEndOfWaitFields(nextToken.kind)) {
             waitFieldEnd = parseWaitFieldEnd(nextToken.kind);
             if (waitFieldEnd == null) {
                 break;
@@ -10701,6 +10703,16 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return STNodeFactory.createNodeList(waitFields);
+    }
+
+    private boolean isEndOfWaitFields(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case EOF_TOKEN:
+            case CLOSE_BRACE_TOKEN:
+                return true;
+            default:
+                return false;
+        }
     }
 
     private STNode parseWaitFieldEnd() {
