@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
@@ -151,6 +152,7 @@ public class JvmTerminatorGen {
     private JvmInstructionGen jvmInstructionGen;
     private PackageCache packageCache;
     private SymbolTable symbolTable;
+    private ResolvedTypeBuilder typeBuilder;
 
     public JvmTerminatorGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, LabelGenerator labelGen,
                             JvmErrorGen errorGen, BIRNode.BIRPackage module, JvmInstructionGen jvmInstructionGen,
@@ -165,6 +167,7 @@ public class JvmTerminatorGen {
         this.jvmInstructionGen = jvmInstructionGen;
         this.symbolTable = jvmPackageGen.symbolTable;
         this.currentPackageName = getPackageName(module.org.value, module.name.value, module.version.value);
+        this.typeBuilder = new ResolvedTypeBuilder();
     }
 
     private static void genYieldCheckForLock(MethodVisitor mv, LabelGenerator labelGen, String funcName,
@@ -672,11 +675,11 @@ public class JvmTerminatorGen {
             jvmClass = getModuleLevelClassName(orgName, moduleName, version,
                                                cleanupPathSeperators(cleanupBalExt(balFileName)));
             //TODO: add receiver:  BType attachedType = type.r != null ? receiver.type : null;
-            methodDesc = getMethodDesc(params, type.retType, null, false);
+            BType retType = typeBuilder.build(type.retType);
+            methodDesc = getMethodDesc(params, retType, null, false);
         }
         this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanMethodName, methodDesc, false);
     }
-
 
     private void genVirtualCall(BIRTerminator.Call callIns, String orgName, String moduleName, int localVarOffset) {
         // load self
@@ -707,7 +710,6 @@ public class JvmTerminatorGen {
             // i + 1 is used since we skip the first argument (self)
             BIROperand arg = callIns.args.get(i + 1);
             boolean userProvidedArg = this.visitArg(arg);
-
 
             // Add the to the rest params array
             JvmInstructionGen.addBoxInsn(this.mv, arg.variableDcl.type);
@@ -1138,7 +1140,7 @@ public class JvmTerminatorGen {
         if (isObserved) {
             emitStopObservationInvocation(this.mv, localVarOffset);
         }
-        BType bType = func.type.retType;
+        BType bType = typeBuilder.build(func.type.retType);
         if (bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
             this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             this.mv.visitInsn(ARETURN);

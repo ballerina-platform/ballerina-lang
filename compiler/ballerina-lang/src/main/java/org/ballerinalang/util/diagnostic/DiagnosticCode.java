@@ -536,7 +536,10 @@ public enum DiagnosticCode {
     INVALID_WAIT_MAPPING_CONSTRUCTORS("invalid.wait.future.expr.mapping.constructors"),
     INVALID_WAIT_ACTIONS("invalid.wait.future.expr.actions"),
     INVALID_SEND_EXPR("invalid.send.expr"),
-    ;
+
+    INVALID_USE_OF_TYPEDESC_PARAM("invalid.use.of.typedesc.param"),
+    INVALID_PARAM_TYPE_FOR_RETURN_TYPE("invalid.param.type.for.return.type"),
+    INVALID_TYPEDESC_PARAM("invalid.typedesc.param");
     private String value;
 
     DiagnosticCode(String value) {
