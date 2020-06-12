@@ -164,7 +164,7 @@ public class LocalTransactionsTest {
         Assert.assertTrue(returnVal[0] instanceof BValueArray);
         BValueArray bArray = (BValueArray) returnVal[0];
         Assert.assertEquals(((BString) bArray.getBValue(0)).stringValue(),
-                "beforetx inTrx onRetry inTrx onRetry inTrx onRetry inTrx trxAborted afterTrx");
+                "beforetx inTrx trxAborted inTrx trxAborted inTrx trxAborted afterTrx");
         Assert.assertEquals(((BInteger) bArray.getBValue(1)).intValue(), 0);
     }
 

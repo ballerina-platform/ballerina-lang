@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-//import ballerina/transactions;
+import ballerina/transactions;
 //import ballerina/io;
 import mockclient;
 
@@ -294,12 +294,10 @@ function testLocalTransactionFailedHelper(string status, mockclient:Client dbCli
     int i = 0;
 
     var onRollbackFunc = function(transactions:Info? info, error? cause, boolean willTry) {
-                i = i + 1;
-                io:println("**** aborted ****", i);
                 a = a + " trxAborted";
-            };
+    };
 
-    retry(1) transaction {
+    retry(2) transaction {
         a = a + " inTrx";
         transInfo = transactions:info();
         transactions:onRollback(onRollbackFunc);
@@ -349,14 +347,14 @@ function testLocalTransactionFailedHelper(string status, mockclient:Client dbCli
 //    return a;
 //}
 //
-//function getCount(mockclient:Client dbClient, string id) returns @tainted int|error{
-//    stream<ResultCount, error> streamData = <stream<ResultCount, error>> dbClient->query("Select COUNT(*) as " +
-//        "countval from Customers where registrationID = "+ id, ResultCount);
-//        record {|ResultCount value;|}? data = check streamData.next();
-//        check streamData.close();
-//        ResultCount? value = data?.value;
-//        if(value is ResultCount){
-//           return value.COUNTVAL;
-//        }
-//        return 0;
-//}
+function getCount(mockclient:Client dbClient, string id) returns @tainted int|error{
+    stream<ResultCount, error> streamData = <stream<ResultCount, error>> dbClient->query("Select COUNT(*) as " +
+        "countval from Customers where registrationID = "+ id, ResultCount);
+        record {|ResultCount value;|}? data = check streamData.next();
+        check streamData.close();
+        ResultCount? value = data?.value;
+        if(value is ResultCount){
+           return value.COUNTVAL;
+        }
+        return 0;
+}
