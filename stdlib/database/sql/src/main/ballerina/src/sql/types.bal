@@ -22,7 +22,7 @@ import ballerina/time;
 #
 # + value - Value of parameter passed into the SQL statement
 public type TypedValue abstract object {
-    public anydata|object{}|record{} value;
+    anydata|object{}? value;
 };
 
 # Possible type of parameters that can be passed into the SQL query.
@@ -31,7 +31,7 @@ public type Value string|int|boolean|float|decimal|byte[]|xml|TypedValue?;
 # Represents Varchar SQL field.
 #
 public type VarcharValue object {
-   *TypedValue;
+   string? value;
 
    public function init(string? value = ()) {
        self.value = value;
@@ -41,7 +41,7 @@ public type VarcharValue object {
 # Represents NVarchar SQL field.
 #
 public type NVarcharValue object {
-   *TypedValue;
+   string? value;
 
    public function init(string? value = ()) {
       self.value = value;
@@ -51,7 +51,7 @@ public type NVarcharValue object {
 # Represents Char SQL field.
 #
 public type CharValue object {
-   *TypedValue;
+   string? value;
 
    public function init(string? value = ()) {
        self.value = value;
@@ -61,7 +61,7 @@ public type CharValue object {
 # Represents NChar SQL field.
 #
 public type NCharValue object {
-   *TypedValue;
+   string? value;
 
    public function init(string? value = ()) {
        self.value = value;
@@ -71,7 +71,7 @@ public type NCharValue object {
 # Represents Text SQL field.
 #
 public type TextValue object {
-   *TypedValue;
+   io:ReadableCharacterChannel|string? value;
 
    public function init(io:ReadableCharacterChannel|string? value = ()) {
        self.value = value;
@@ -81,7 +81,7 @@ public type TextValue object {
 # Represents Clob SQL field.
 #
 public type ClobValue object {
-   *TypedValue;
+   io:ReadableCharacterChannel|string? value;
 
    public function init(io:ReadableCharacterChannel|string? value = ()) {
        self.value = value;
@@ -91,7 +91,7 @@ public type ClobValue object {
 # Represents NClob SQL field.
 #
 public type NClobValue object {
-   *TypedValue;
+   io:ReadableCharacterChannel|string? value;
 
    public function init(io:ReadableCharacterChannel|string? value = ()) {
        self.value = value;
@@ -101,7 +101,7 @@ public type NClobValue object {
 # Represents SmallInt SQL field.
 #
 public type SmallIntValue object {
-   *TypedValue;
+   int? value;
 
    public function init(int? value = ()) {
        self.value = value;
@@ -111,7 +111,7 @@ public type SmallIntValue object {
 # Represents Integer SQL field.
 #
 public type IntegerValue object {
-   *TypedValue;
+   int? value;
 
    public function init(int? value = ()) {
        self.value = value;
@@ -121,7 +121,7 @@ public type IntegerValue object {
 # Represents BigInt SQL field.
 #
 public type BigIntValue object {
-   *TypedValue;
+   int? value;
 
    public function init(int? value = ()) {
        self.value = value;
@@ -131,7 +131,7 @@ public type BigIntValue object {
 # Represents Numeric SQL field.
 #
 public type NumericValue object {
-   *TypedValue;
+   int|float|decimal? value;
 
    public function init(int|float|decimal? value = ()) {
        self.value = value;
@@ -141,7 +141,7 @@ public type NumericValue object {
 # Represents Decimal SQL field.
 #
 public type DecimalValue object {
-   *TypedValue;
+   int|decimal? value;
 
    public function init(int|decimal? value = ()) {
        self.value = value;
@@ -151,7 +151,7 @@ public type DecimalValue object {
 # Represents Real SQL field.
 #
 public type RealValue object {
-   *TypedValue;
+   int|float|decimal? value;
 
    public function init(int|float|decimal? value = ()) {
        self.value = value;
@@ -161,7 +161,7 @@ public type RealValue object {
 # Represents Float SQL field.
 #
 public type FloatValue object {
-   *TypedValue;
+   int|float? value;
 
    public function init(int|float? value = ()) {
        self.value = value;
@@ -171,7 +171,7 @@ public type FloatValue object {
 # Represents Double SQL field.
 #
 public type DoubleValue object {
-   *TypedValue;
+   int|float|decimal? value;
 
    public function init(int|float|decimal? value = ()) {
        self.value = value;
@@ -181,7 +181,7 @@ public type DoubleValue object {
 # Represents Bit SQL field.
 #
 public type BitValue object {
-   *TypedValue;
+   boolean|int? value;
 
    public function init(boolean|int? value = ()) {
        self.value = value;
@@ -191,7 +191,7 @@ public type BitValue object {
 # Represents Boolean SQL field.
 #
 public type BooleanValue object {
-   *TypedValue;
+   boolean? value;
 
    public function init(boolean? value = ()) {
        self.value = value;
@@ -201,7 +201,7 @@ public type BooleanValue object {
 # Represents Binary SQL field.
 #
 public type BinaryValue object {
-   *TypedValue;
+   byte[]|io:ReadableByteChannel? value;
 
    public function init(byte[]|io:ReadableByteChannel? value = ()) {
        self.value = value;
@@ -211,7 +211,7 @@ public type BinaryValue object {
 # Represents VarBinary SQL field.
 #
 public type VarBinaryValue object {
-   *TypedValue;
+   byte[]|io:ReadableByteChannel? value;
 
    public function init(byte[]|io:ReadableByteChannel? value = ()) {
        self.value = value;
@@ -221,7 +221,7 @@ public type VarBinaryValue object {
 # Represents Blob SQL field.
 #
 public type BlobValue object {
-   *TypedValue;
+   byte[]|io:ReadableByteChannel? value;
 
    public function init(byte[]|io:ReadableByteChannel? value = ()) {
        self.value = value;
@@ -231,7 +231,7 @@ public type BlobValue object {
 # Represents Date SQL field.
 #
 public type DateValue object {
-   *TypedValue;
+   string|int|time:Time? value;
 
    public function init(string|int|time:Time? value = ()) {
        self.value = value;
@@ -241,7 +241,7 @@ public type DateValue object {
 # Represents Time SQL field.
 #
 public type TimeValue object {
-   *TypedValue;
+   string|int|time:Time? value;
 
    public function init(string|int|time:Time? value = ()) {
        self.value = value;
@@ -251,7 +251,7 @@ public type TimeValue object {
 # Represents DateTime SQL field.
 #
 public type DateTimeValue object {
-   *TypedValue;
+   string|int|time:Time? value;
 
    public function init(string|int|time:Time? value = ()) {
        self.value = value;
@@ -261,7 +261,7 @@ public type DateTimeValue object {
 # Represents Timestamp SQL field.
 #
 public type TimestampValue object {
-   *TypedValue;
+   string|int|time:Time? value;
 
    public function init(string|int|time:Time? value = ()) {
        self.value = value;
@@ -271,7 +271,7 @@ public type TimestampValue object {
 # Represents ArrayValue SQL field.
 #
 public type ArrayValue object {
-   *TypedValue;
+   string[]|int[]|boolean[]|float[]|decimal[]|byte[][]? value;
 
    public function init(string[]|int[]|boolean[]|float[]|decimal[]|byte[][]? value = ()) {
        self.value = value;
@@ -281,7 +281,7 @@ public type ArrayValue object {
 # Represents Ref SQL field.
 #
 public type RefValue object {
-   *TypedValue;
+   record{}? value;
 
    public function init(record{}? value = ()) {
        self.value = value;
@@ -291,7 +291,7 @@ public type RefValue object {
 # Represents Struct SQL field.
 #
 public type StructValue object {
-   *TypedValue;
+   record{}? value;
 
    public function init(record{}? value = ()) {
        self.value = value;
@@ -301,7 +301,7 @@ public type StructValue object {
 # Represents Row SQL field.
 #
 public type RowValue object {
-   *TypedValue;
+   byte[]? value;
 
    public function init(byte[]? value = ()) {
        self.value = value;

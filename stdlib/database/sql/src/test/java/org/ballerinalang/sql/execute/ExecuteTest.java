@@ -44,7 +44,7 @@ import java.util.LinkedHashMap;
  */
 public class ExecuteTest {
     private CompileResult result;
-    private static final String DB_NAME = "TEST_SQL_EXCUTE_QUERY";
+    private static final String DB_NAME = "TEST_SQL_EXECUTE_QUERY";
     private static final String URL = SQLDBUtils.URL_PREFIX + DB_NAME;
     private BValue[] args = {new BString(URL), new BString(SQLDBUtils.DB_USER), new BString(SQLDBUtils.DB_PASSWORD)};
 
