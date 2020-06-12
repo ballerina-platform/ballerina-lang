@@ -77,6 +77,10 @@ public abstract class STAbstractNodeFactory {
         return new STMissingToken(kind, diagnostics);
     }
 
+    public static STToken createInvalidToken(String tokenText) {
+        return new STInvalidToken(tokenText);
+    }
+
     public static STToken createToken(SyntaxKind kind, STNode leadingTrivia, STNode trailingTrivia) {
         return new STToken(kind, leadingTrivia, trailingTrivia);
     }

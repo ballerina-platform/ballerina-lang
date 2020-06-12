@@ -1974,12 +1974,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public QueryConstructTypeNode transform(
             QueryConstructTypeNode queryConstructTypeNode) {
-        Token tableKeyword =
-                modifyToken(queryConstructTypeNode.tableKeyword());
+        Token keyword =
+                modifyToken(queryConstructTypeNode.keyword());
         KeySpecifierNode keySpecifier =
-                modifyNode(queryConstructTypeNode.keySpecifier());
+                modifyNode(queryConstructTypeNode.keySpecifier().orElse(null));
         return queryConstructTypeNode.modify(
-                tableKeyword,
+                keyword,
                 keySpecifier);
     }
 
@@ -2397,7 +2397,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public WaitFieldNode transform(
             WaitFieldNode waitFieldNode) {
-        NameReferenceNode fieldName =
+        SimpleNameReferenceNode fieldName =
                 modifyNode(waitFieldNode.fieldName());
         Token colon =
                 modifyToken(waitFieldNode.colon());
@@ -2706,8 +2706,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(matchStatementNode.condition());
         Token openBrace =
                 modifyToken(matchStatementNode.openBrace());
-        SeparatedNodeList<MatchClauseNode> matchClauses =
-                modifySeparatedNodeList(matchStatementNode.matchClauses());
+        NodeList<MatchClauseNode> matchClauses =
+                modifyNodeList(matchStatementNode.matchClauses());
         Token closeBrace =
                 modifyToken(matchStatementNode.closeBrace());
         return matchStatementNode.modify(
@@ -2773,6 +2773,18 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 methodName,
                 methodSignature,
                 functionBody);
+    }
+
+    @Override
+    public DistinctTypeDescriptorNode transform(
+            DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
+        Token distinctKeyword =
+                modifyToken(distinctTypeDescriptorNode.distinctKeyword());
+        TypeDescriptorNode typeDescriptor =
+                modifyNode(distinctTypeDescriptorNode.typeDescriptor());
+        return distinctTypeDescriptorNode.modify(
+                distinctKeyword,
+                typeDescriptor);
     }
 
     // Tokens

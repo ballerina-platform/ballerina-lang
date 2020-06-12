@@ -32,6 +32,7 @@ under the License.
             <class name="org.ballerinalang.jdbc.execute.ParamsExecuteTest"/>
             <class name="org.ballerinalang.jdbc.transaction.LocalTransactionsTest"/>
             <class name="org.ballerinalang.jdbc.transaction.XATransactionsTest"/>
+            <class name="org.ballerinalang.jdbc.batchexecute.BatchExecuteTest"/>
         </classes>
     </test>
 </suite>

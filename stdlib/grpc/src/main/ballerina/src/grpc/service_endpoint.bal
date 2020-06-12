@@ -94,6 +94,41 @@ public type Listener object {
     }
 };
 
+# The stream iterator object that is used to iterate through the stream messages.
+#
+type StreamIterator object {
+    private boolean isClosed = false;
+
+    public function next() returns record {|anydata value;|}|error? {
+        if (self.isClosed) {
+            return StreamClosedError(message = "Stream is closed. Therefore, "
+                           + "no operations are allowed further on the stream.");
+        }
+        anydata|handle|error? result = nextResult(self);
+        if (result is anydata) {
+            if (result is ()) {
+                self.isClosed = true;
+                return prepareError(EOS_REASON, "End of stream reached", result);
+            }
+            return {value: result};
+        } else if (result is handle) {
+            return {value: java:toString(result)};
+        } else {
+            return result;
+        }
+    }
+
+    public function close() returns error? {
+        if (!self.isClosed) {
+            self.isClosed = true;
+            return closeStream(self);
+        } else {
+            return StreamClosedError(message = "Stream is closed. Therefore, "
+                                       + "no operations are allowed further on the stream.");
+        }
+    }
+};
+
 function externInitEndpoint(Listener listenerObject) returns error? =
 @java:Method {
     class: "org.ballerinalang.net.grpc.nativeimpl.serviceendpoint.FunctionUtils"
@@ -110,6 +145,16 @@ function externStart(Listener listenerObject) returns error? =
 } external;
 
 function externStop(Listener listenerObject) returns error? =
+@java:Method {
+    class: "org.ballerinalang.net.grpc.nativeimpl.serviceendpoint.FunctionUtils"
+} external;
+
+function nextResult(StreamIterator iterator) returns anydata|handle|error? =
+@java:Method {
+    class: "org.ballerinalang.net.grpc.nativeimpl.serviceendpoint.FunctionUtils"
+} external;
+
+function closeStream(StreamIterator iterator) returns error? =
 @java:Method {
     class: "org.ballerinalang.net.grpc.nativeimpl.serviceendpoint.FunctionUtils"
 } external;

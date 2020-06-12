@@ -203,4 +203,8 @@ public class Symbols {
     public static boolean isFunctionDeclaration(BSymbol sym) {
         return (sym.flags & Flags.INTERFACE) == Flags.INTERFACE;
     }
+
+    public static boolean isTagOn(BSymbol symbol, int symTag) {
+        return (symbol.tag & symTag) == symTag;
+    }
 }

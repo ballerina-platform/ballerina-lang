@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
+import io.ballerinalang.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
@@ -42,25 +43,32 @@ public class BallerinaLexer extends AbstractLexer {
      * @return Next lexical token.
      */
     public STToken nextToken() {
+        STToken token;
         switch (this.mode) {
             case TEMPLATE:
                 this.leadingTriviaList = new ArrayList<>(0);
-                return readTemplateToken();
+                token = readTemplateToken();
+                break;
             case INTERPOLATION:
                 processLeadingTrivia();
-                return readTokenInInterpolation();
+                token = readTokenInInterpolation();
+                break;
             case INTERPOLATION_BRACED_CONTENT:
                 processLeadingTrivia();
-                return readTokenInBracedContentInInterpolation();
+                token = readTokenInBracedContentInInterpolation();
+                break;
             case DEFAULT:
             case IMPORT:
             default:
                 processLeadingTrivia();
-                return readToken();
+                token = readToken();
         }
+
+        // Can we improve this logic by creating the token with diagnostics then and there?
+        return cloneWithDiagnostics(token);
     }
 
-    public STToken nextTokenInternal() {
+    private STToken nextTokenInternal() {
         switch (this.mode) {
             case TEMPLATE:
                 return readTemplateToken();
@@ -194,12 +202,7 @@ public class BallerinaLexer extends AbstractLexer {
                 }
                 break;
             case LexerTerminals.GT:
-                if (peek() == LexerTerminals.EQUAL) {
-                    reader.advance();
-                    token = getSyntaxToken(SyntaxKind.GT_EQUAL_TOKEN);
-                } else {
-                    token = getSyntaxToken(SyntaxKind.GT_TOKEN);
-                }
+                token = processTokenStartWithGt();
                 break;
             case LexerTerminals.EXCLAMATION_MARK:
                 token = processExclamationMarkOperator();
@@ -577,7 +580,7 @@ public class BallerinaLexer extends AbstractLexer {
 
                     // Integer part of the float cannot have a leading zero
                     if (startChar == '0' && len > 1) {
-                        reportLexerError("extra leading zero");
+                        reportLexerError(DiagnosticErrorCode.ERROR_LEADING_ZEROS_IN_NUMERIC_LITERALS);
                     }
 
                     // Code would not reach here if the floating point starts with a dot
@@ -596,7 +599,7 @@ public class BallerinaLexer extends AbstractLexer {
 
         // Integer cannot have a leading zero
         if (startChar == '0' && len > 1) {
-            reportLexerError("extra leading zero");
+            reportLexerError(DiagnosticErrorCode.ERROR_LEADING_ZEROS_IN_NUMERIC_LITERALS);
         }
 
         return getLiteral(SyntaxKind.DECIMAL_INTEGER_LITERAL);
@@ -688,7 +691,7 @@ public class BallerinaLexer extends AbstractLexer {
 
         // Make sure at least one digit is present after the indicator
         if (!isDigit(nextChar)) {
-            reportLexerError("missing digit after exponent indicator");
+            reportLexerError(DiagnosticErrorCode.ERROR_MISSING_DIGIT_AFTER_EXPONENT_INDICATOR);
         }
 
         while (isDigit(nextChar)) {
@@ -759,7 +762,7 @@ public class BallerinaLexer extends AbstractLexer {
 
         // Make sure at least one hex-digit present if processing started from a dot
         if (peek() == LexerTerminals.DOT && !isHexDigit(reader.peek(1))) {
-            reportLexerError("missing hex-digit after dot");
+            reportLexerError(DiagnosticErrorCode.ERROR_MISSING_HEX_DIGIT_AFTER_DOT);
         }
 
         int nextChar;
@@ -985,8 +988,6 @@ public class BallerinaLexer extends AbstractLexer {
     /**
      * Process and returns an invalid token. Consumes the input until {@link #isEndOfInvalidToken()}
      * is reached.
-     *
-     * @return The invalid token.
      */
     private void processInvalidToken() {
         while (!isEndOfInvalidToken()) {
@@ -994,9 +995,9 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         String tokenText = getLexeme();
-        reportLexerError("invalid token '" + tokenText + "'");
-        STNode trivia = STNodeFactory.createMinutiae(SyntaxKind.INVALID, tokenText);
-        this.leadingTriviaList.add(trivia);
+        STNode invalidToken = STNodeFactory.createInvalidToken(tokenText);
+        STNode invalidNodeMinutiae = STNodeFactory.createInvalidNodeMinutiae(invalidToken);
+        this.leadingTriviaList.add(invalidNodeMinutiae);
     }
 
     /**
@@ -1168,7 +1169,7 @@ public class BallerinaLexer extends AbstractLexer {
             switch (nextChar) {
                 case LexerTerminals.NEWLINE:
                 case LexerTerminals.CARRIAGE_RETURN:
-                    reportLexerError("missing double-quote");
+                    reportLexerError(DiagnosticErrorCode.ERROR_MISSING_DOUBLE_QUOTE);
                     break;
                 case LexerTerminals.DOUBLE_QUOTE:
                     this.reader.advance();
@@ -1186,12 +1187,12 @@ public class BallerinaLexer extends AbstractLexer {
                             if (this.reader.peek(2) == LexerTerminals.OPEN_BRACE) {
                                 processStringNumericEscape();
                             } else {
-                                reportLexerError("invalid string numeric escape sequence");
+                                reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
                                 this.reader.advance(2);
                             }
                             continue;
                         default:
-                            reportLexerError("invalid escape sequence");
+                            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE);
                             this.reader.advance();
                             continue;
                     }
@@ -1216,7 +1217,7 @@ public class BallerinaLexer extends AbstractLexer {
 
         // Process code-point
         if (!isHexDigit(peek())) {
-            reportLexerError("invalid string numeric escape sequence");
+            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
             return;
         }
 
@@ -1227,15 +1228,11 @@ public class BallerinaLexer extends AbstractLexer {
 
         // Process close brace
         if (peek() != LexerTerminals.CLOSE_BRACE) {
-            reportLexerError("invalid string numeric escape sequence");
+            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
             return;
         }
 
         this.reader.advance();
-    }
-
-    private void reportLexerError(String message) {
-        this.errorListener.reportInvalidNodeError(null, message);
     }
 
     /**
@@ -1461,6 +1458,34 @@ public class BallerinaLexer extends AbstractLexer {
         return getIdentifierToken(getLexeme());
     }
 
+    private STToken processTokenStartWithGt() {
+        if (peek() == LexerTerminals.EQUAL) {
+            reader.advance();
+            return getSyntaxToken(SyntaxKind.GT_EQUAL_TOKEN);
+        }
+
+        if (reader.peek() != LexerTerminals.GT) {
+            return getSyntaxToken(SyntaxKind.GT_TOKEN);
+        }
+
+        char nextChar = reader.peek(1);
+        switch (nextChar) {
+            case LexerTerminals.GT:
+                if (reader.peek(2) == LexerTerminals.EQUAL) {
+                    // ">>>="
+                    reader.advance(2);
+                    return getSyntaxToken(SyntaxKind.TRIPPLE_GT_TOKEN);
+                }
+                return getSyntaxToken(SyntaxKind.GT_TOKEN);
+            case LexerTerminals.EQUAL:
+                // ">>="
+                reader.advance(1);
+                return getSyntaxToken(SyntaxKind.DOUBLE_GT_TOKEN);
+            default:
+                return getSyntaxToken(SyntaxKind.GT_TOKEN);
+        }
+    }
+
     /*
      * ------------------------------------------------------------------------------------------------------------
      * INTERPOLATION Mode
@@ -1523,128 +1548,5 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         return readToken();
-    }
-
-    /**
-     * <p>
-     * Check whether a given char is a base64 char.
-     * </p>
-     * <code>Base64Char := A .. Z | a .. z | 0 .. 9 | + | /</code>
-     *
-     * @param c character to check
-     * @return <code>true</code>, if the character represents a base64 char. <code>false</code> otherwise.
-     */
-    static boolean isBase64Char(int c) {
-        if ('a' <= c && c <= 'z') {
-            return true;
-        }
-        if ('A' <= c && c <= 'Z') {
-            return true;
-        }
-        if (c == '+' || c == '/') {
-            return true;
-        }
-        return isDigit(c);
-    }
-
-    /**
-     * Validate base16 literal content.
-     * <p>
-     * <code>
-     * Base16Literal := base16 WS ` HexGroup* WS `
-     * <br/>
-     * HexGroup := WS HexDigit WS HexDigit
-     * <br/>
-     * WS := WhiteSpaceChar*
-     * <br/>
-     * WhiteSpaceChar := 0x9 | 0xA | 0xD | 0x20
-     * </code>
-     *
-     * @param content the string surrounded by the backticks
-     * @return <code>true</code>, if the string content is valid. <code>false</code> otherwise.
-     */
-    static boolean isValidBase16LiteralContent(String content) {
-        char[] charArray = content.toCharArray();
-        int hexDigitCount = 0;
-
-        for (char c : charArray) {
-            switch (c) {
-                case LexerTerminals.TAB:
-                case LexerTerminals.NEWLINE:
-                case LexerTerminals.CARRIAGE_RETURN:
-                case LexerTerminals.SPACE:
-                    break;
-                default:
-                    if (isHexDigit(c)) {
-                        hexDigitCount++;
-                    } else {
-                        return false;
-                    }
-                    break;
-            }
-        }
-        return hexDigitCount % 2 == 0;
-    }
-
-    /**
-     * Validate base64 literal content.
-     * <p>
-     * <code>
-     * Base64Literal := base64 WS ` Base64Group* [PaddedBase64Group] WS `
-     * <br/>
-     * Base64Group := WS Base64Char WS Base64Char WS Base64Char WS Base64Char
-     * <br/>
-     * PaddedBase64Group :=
-     *    WS Base64Char WS Base64Char WS Base64Char WS PaddingChar
-     *    | WS Base64Char WS Base64Char WS PaddingChar WS PaddingChar
-     * <br/>
-     * Base64Char := A .. Z | a .. z | 0 .. 9 | + | /
-     * <br/>
-     * PaddingChar := =
-     * <br/>
-     * WS := WhiteSpaceChar*
-     * <br/>
-     * WhiteSpaceChar := 0x9 | 0xA | 0xD | 0x20
-     * </code>
-     *
-     * @param content the string surrounded by the backticks
-     * @return <code>true</code>, if the string content is valid. <code>false</code> otherwise.
-     */
-    static boolean isValidBase64LiteralContent(String content) {
-        char[] charArray = content.toCharArray();
-        int base64CharCount = 0;
-        int paddingCharCount = 0;
-
-        for (char c : charArray) {
-            switch (c) {
-                case LexerTerminals.TAB:
-                case LexerTerminals.NEWLINE:
-                case LexerTerminals.CARRIAGE_RETURN:
-                case LexerTerminals.SPACE:
-                    break;
-                case LexerTerminals.EQUAL:
-                    paddingCharCount++;
-                    break;
-                default:
-                    if (isBase64Char(c)) {
-                        if (paddingCharCount == 0) {
-                            base64CharCount++;
-                        } else {
-                            return false;
-                        }
-                    } else {
-                        return false;
-                    }
-                    break;
-            }
-        }
-
-        if (paddingCharCount > 2) {
-            return false;
-        } else if (paddingCharCount == 0) {
-            return base64CharCount % 4 == 0;
-        } else {
-            return base64CharCount % 4 == 4 - paddingCharCount;
-        }
     }
 }

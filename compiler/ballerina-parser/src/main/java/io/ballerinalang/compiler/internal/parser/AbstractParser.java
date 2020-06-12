@@ -115,7 +115,7 @@ public abstract class AbstractParser {
      */
     protected STNode cloneWithDiagnosticIfListEmpty(STNode nodeList, STNode target, DiagnosticCode diagnosticCode) {
         if (isNodeListEmpty(nodeList)) {
-            return errorHandler.addDiagnostics(target, diagnosticCode);
+            return SyntaxErrors.addDiagnostics(target, diagnosticCode);
         }
         return target;
     }
