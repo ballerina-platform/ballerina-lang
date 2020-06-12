@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
+import io.ballerinalang.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
@@ -206,10 +207,6 @@ public class XMLLexer extends AbstractLexer {
         return reader.getMarkedChars();
     }
 
-    private void reportLexerError(String message) {
-        this.errorListener.reportInvalidNodeError(null, message);
-    }
-
     /*
      * ------------------------------------------------------------------------------------------------------------
      * INTERPOLATION Mode
@@ -306,12 +303,12 @@ public class XMLLexer extends AbstractLexer {
     private STToken getXMLSyntaxToken(SyntaxKind kind, boolean allowLeadingWS, boolean allowTrailingWS) {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
         if (!allowLeadingWS && leadingTrivia.bucketCount() != 0) {
-            reportLexerError("invalid whitespace before: " + kind.stringValue());
+            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_WHITESPACE_BEFORE, kind.stringValue());
         }
 
         STNode trailingTrivia = processTrailingXMLTrivia();
         if (!allowTrailingWS && trailingTrivia.bucketCount() != 0) {
-            reportLexerError("invalid whitespace after: " + kind.stringValue());
+            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_WHITESPACE_AFTER, kind.stringValue());
         }
         return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }
@@ -502,7 +499,7 @@ public class XMLLexer extends AbstractLexer {
 
         String text = getLexeme();
         if (!isValid) {
-            reportLexerError("invalid xml name: " + text);
+            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_XML_NAME, text);
         }
 
         return getXMLNameToken(text, allowLeadingWS);
@@ -511,7 +508,7 @@ public class XMLLexer extends AbstractLexer {
     private STToken getXMLNameToken(String tokenText, boolean allowLeadingWS) {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
         if (!allowLeadingWS && leadingTrivia.bucketCount() != 0) {
-            reportLexerError("invalid whitespace before: " + tokenText);
+            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_WHITESPACE_BEFORE, tokenText);
         }
 
         String lexeme = getLexeme();
@@ -636,7 +633,8 @@ public class XMLLexer extends AbstractLexer {
                     continue;
                 case LexerTerminals.LT:
                     reader.advance();
-                    this.reportLexerError("'<' is not allowed in XML attribute value");
+                    this.reportLexerError(DiagnosticErrorCode.ERROR_INVALID_CHARACTER_IN_XML_ATTRIBUTE_VALUE,
+                            LexerTerminals.LT);
                     continue;
                 case LexerTerminals.DOLLAR:
                     if (reader.peek(1) == LexerTerminals.OPEN_BRACE) {
@@ -681,7 +679,7 @@ public class XMLLexer extends AbstractLexer {
         int nextChar = peek();
         switch (nextChar) {
             case LexerTerminals.SEMICOLON:
-                reportLexerError("missing entity reference name");
+                reportLexerError(DiagnosticErrorCode.ERROR_MISSING_ENTITY_REFERENCE_NAME);
                 reader.advance();
                 return;
             case LexerTerminals.HASH:
@@ -697,7 +695,7 @@ public class XMLLexer extends AbstractLexer {
         if (peek() == LexerTerminals.SEMICOLON) {
             reader.advance();
         } else {
-            reportLexerError("missing ; in reference");
+            reportLexerError(DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_IN_XML_REFERENCE);
         }
     }
 
@@ -745,7 +743,7 @@ public class XMLLexer extends AbstractLexer {
 
         // Process the name component
         if (!XMLValidator.isNCNameStart(peek())) {
-            reportLexerError("invalid entity reference name start");
+            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ENTITY_REFERENCE_NAME_START);
         } else {
             reader.advance();
         }
@@ -849,7 +847,7 @@ public class XMLLexer extends AbstractLexer {
 
                     // Double-hyphen is not allowed. So log an error, but continue.
                     reader.advance(1);
-                    reportLexerError("double-hypen is not allowed within xml comment");
+                    reportLexerError(DiagnosticErrorCode.ERROR_DOUBLE_HYPHEN_NOT_ALLOWED_WITHIN_XML_COMMENT);
                 }
                 break;
             case LexerTerminals.DOLLAR:
@@ -879,7 +877,7 @@ public class XMLLexer extends AbstractLexer {
 
                         // otherwise, double-hyphen is not allowed
                         reader.advance(2);
-                        reportLexerError("double-hypen is not allowed within xml comment");
+                        reportLexerError(DiagnosticErrorCode.ERROR_DOUBLE_HYPHEN_NOT_ALLOWED_WITHIN_XML_COMMENT);
                     } else {
                         reader.advance();
                     }

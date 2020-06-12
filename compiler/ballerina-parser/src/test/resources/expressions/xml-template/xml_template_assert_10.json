@@ -147,9 +147,14 @@
                                 },
                                 {
                                   "kind": "XML_SIMPLE_NAME",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "ERROR_INVALID_WHITESPACE_BEFORE"
+                                      ],
                                       "value": "z",
                                       "leadingMinutiae": [
                                         {

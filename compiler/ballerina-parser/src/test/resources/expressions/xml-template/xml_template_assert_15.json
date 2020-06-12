@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -46,6 +47,7 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN",
@@ -58,9 +60,11 @@
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -112,6 +116,7 @@
                 },
                 {
                   "kind": "XML_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "XML_KEYWORD",
@@ -127,9 +132,11 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "XML_ELEMENT",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "XML_ELEMENT_START_TAG",
@@ -157,9 +164,15 @@
                             },
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "XML_TEXT_CONTENT",
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_SEMICOLON_IN_XML_REFERENCE",
+                                    "ERROR_MISSING_SEMICOLON_IN_XML_REFERENCE"
+                                  ],
                                   "value": " hello \u0026#56; world! \u0026#5a6; \u0026#x5a6\""
                                 }
                               ]

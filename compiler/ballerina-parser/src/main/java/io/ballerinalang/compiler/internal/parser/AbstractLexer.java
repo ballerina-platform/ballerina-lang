@@ -39,7 +39,6 @@ public abstract class AbstractLexer {
     protected CharReader reader;
     protected ParserMode mode;
     protected ArrayDeque<ParserMode> modeStack = new ArrayDeque<>();
-    protected final BallerinaParserErrorListener errorListener = new BallerinaParserErrorListener();
 
     public AbstractLexer(CharReader charReader, ParserMode initialParserMode) {
         this.reader = charReader;
