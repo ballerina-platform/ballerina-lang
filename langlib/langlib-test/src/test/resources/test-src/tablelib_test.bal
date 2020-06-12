@@ -34,6 +34,25 @@ type Employee record {|
   string department;
 |};
 
+type Engineer record {
+   readonly string name;
+   int age;
+   boolean intern;
+};
+
+type Intern record {|
+    readonly string name;
+    int age;
+    boolean intern;
+    int salary;
+|};
+
+type Student record {|
+     readonly string name;
+     int age;
+     int studentId;
+|};
+
 type PersonalTable table<Person> key(name);
 
 type EmployeeTable table<Employee> key(name);
@@ -41,6 +60,12 @@ type EmployeeTable table<Employee> key(name);
 type CustomerTable table<Customer> key(id);
 
 type CustomerKeyLessTable table<Customer>;
+
+type PersonTable table<Person>;
+
+type EngineerTable table<Engineer>;
+
+type InternTable table<Intern>;
 
 PersonalTable tab = table key(name)[
   { name: "Chiran", age: 33 },
@@ -317,6 +342,56 @@ function testAddExistingMember() returns any[]|error {
     return custTbl.toArray();
 }
 
+function testAddInconsistentData() {
+    EngineerTable engineerTbl = table key(name) [
+      { name: "Lisa", age: 22, intern: true },
+      { name: "Jonas", age: 21, intern: false }
+    ];
+    PersonTable personTbl = engineerTbl;
+    Person person1 = { name: "John", age: 23 };
+    personTbl.add(person1);
+}
+
+function testAddInconsistentData2() {
+    EngineerTable engineerTbl = table key(name) [
+      { name: "Lisa", age: 22, intern: true },
+      { name: "Jonas", age: 21, intern: false }
+    ];
+    PersonTable personTbl = engineerTbl;
+    Student student1 = { name: "John", age: 20, studentId: 1 };
+    personTbl.add(student1);
+}
+
+function testAddValidData() returns boolean {
+    boolean testPassed = true;
+    EngineerTable engineerTbl = table key(name) [
+      { name: "Lisa", age: 22, intern: true },
+      { name: "Jonas", age: 21, intern: false }
+    ];
+    PersonTable personTbl = engineerTbl;
+    Engineer engineer1 = { name: "John", age: 23, intern: true };
+    personTbl.add(engineer1);
+    Person[] tableToList = personTbl.toArray();
+    testPassed = testPassed && tableToList.length() == 3;
+    testPassed = testPassed && tableToList[2] == engineer1;
+    return testPassed;
+}
+
+function testAddValidData2() returns boolean {
+    boolean testPassed = true;
+    EngineerTable engineerTbl = table key(name) [
+      { name: "Lisa", age: 22, intern: true },
+      { name: "Jonas", age: 21, intern: false }
+    ];
+    PersonTable personTbl = engineerTbl;
+    Intern intern1 = { name: "John", age: 23, intern: true, salary: 100 };
+    personTbl.add(intern1);
+    Person[] tableToList = personTbl.toArray();
+    testPassed = testPassed && tableToList.length() == 3;
+    testPassed = testPassed && tableToList[2] == intern1;
+    return testPassed;
+}
+
 function testPutData() returns boolean {
     boolean testPassed = true;
     CustomerTable custTbl = table key(id) [
@@ -335,15 +410,55 @@ function testPutData() returns boolean {
     return testPassed;
 }
 
-//function testPutInconsistentData() returns any[]|error {
-//    CustomerTable custTbl = table key(id) [
-//      { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
-//      { id: 5, firstName: "Gimantha", lastName: "Bandara" }
-//    ];
-//    var person = { name: "Chiran", age: 33 };
-//    custTbl.put(person);
-//    return custTbl.toArray();
-//}
+function testPutInconsistentData() {
+    EngineerTable engineerTbl = table key(name) [
+      { name: "Lisa", age: 22, intern: true },
+      { name: "Jonas", age: 21, intern: false }
+    ];
+    PersonTable personTbl = engineerTbl;
+    Person person1 = { name: "John", age: 23 };
+    personTbl.put(person1);
+}
+
+function testPutInconsistentData2() {
+    EngineerTable engineerTbl = table key(name) [
+      { name: "Lisa", age: 22, intern: true },
+      { name: "Jonas", age: 21, intern: false }
+    ];
+    PersonTable personTbl = engineerTbl;
+    Student student1 = { name: "John", age: 20, studentId: 1 };
+    personTbl.put(student1);
+}
+
+function testPutValidData() returns boolean {
+    boolean testPassed = true;
+    EngineerTable engineerTbl = table key(name) [
+      { name: "Lisa", age: 22, intern: true },
+      { name: "Jonas", age: 21, intern: false }
+    ];
+    PersonTable personTbl = engineerTbl;
+    Engineer engineer1 = { name: "John", age: 23, intern: true };
+    personTbl.put(engineer1);
+    Person[] tableToList = personTbl.toArray();
+    testPassed = testPassed && tableToList.length() == 3;
+    testPassed = testPassed && tableToList[2] == engineer1;
+    return testPassed;
+}
+
+function testPutValidData2() returns boolean {
+    boolean testPassed = true;
+    EngineerTable engineerTbl = table key(name) [
+      { name: "Lisa", age: 22, intern: true },
+      { name: "Jonas", age: 21, intern: false }
+    ];
+    PersonTable personTbl = engineerTbl;
+    Intern intern1 = { name: "John", age: 23, intern: true, salary: 100 };
+    personTbl.put(intern1);
+    Person[] tableToList = personTbl.toArray();
+    testPassed = testPassed && tableToList.length() == 3;
+    testPassed = testPassed && tableToList[2] == intern1;
+    return testPassed;
+}
 
 function testPutWithKeyLessTbl() returns boolean {
     boolean testPassed = true;
@@ -423,4 +538,74 @@ function testRemoveThenIterate() returns boolean {
         ar.push(v);
     }
     return ar.length() == 2 && ar[0].name == "John" && ar[1].name == "Jim";
+}
+
+function testAddInconsistentDataToKeylessTbl() {
+    EngineerTable engineerTbl = table key(name) [
+      { name: "Lisa", age: 22, intern: true },
+      { name: "Jonas", age: 21, intern: false }
+    ];
+    PersonTable personTbl = engineerTbl;
+    Person person1 = { name: "John", age: 23 };
+    personTbl.add(person1);
+}
+
+function testAddInconsistentDataToKeylessTbl2() {
+    EngineerTable engineerTbl = table key(name) [
+      { name: "Lisa", age: 22, intern: true },
+      { name: "Jonas", age: 21, intern: false }
+    ];
+    PersonTable personTbl = engineerTbl;
+    Student student1 = { name: "John", age: 20, studentId: 1 };
+    personTbl.add(student1);
+}
+
+function testPutInconsistentDataToKeylessTbl() {
+    EngineerTable engineerTbl = table key(name) [
+      { name: "Lisa", age: 22, intern: true },
+      { name: "Jonas", age: 21, intern: false }
+    ];
+    PersonTable personTbl = engineerTbl;
+    Person person1 = { name: "John", age: 23 };
+    personTbl.put(person1);
+}
+
+function testPutInconsistentDataToKeylessTbl2() {
+    EngineerTable engineerTbl = table key(name) [
+      { name: "Lisa", age: 22, intern: true },
+      { name: "Jonas", age: 21, intern: false }
+    ];
+    PersonTable personTbl = engineerTbl;
+    Student student1 = { name: "John", age: 20, studentId: 1 };
+    personTbl.put(student1);
+}
+
+function testAddValidDataToKeylessTbl() returns boolean {
+    boolean testPassed = true;
+    EngineerTable engineerTbl = table key(name) [
+      { name: "Lisa", age: 22, intern: true },
+      { name: "Jonas", age: 21, intern: false }
+    ];
+    PersonTable personTbl = engineerTbl;
+    Engineer engineer1 = { name: "John", age: 23, intern: true };
+    personTbl.add(engineer1);
+    Person[] tableToList = personTbl.toArray();
+    testPassed = testPassed && tableToList.length() == 3;
+    testPassed = testPassed && tableToList[2] == engineer1;
+    return testPassed;
+}
+
+function testPutValidDataToKeylessTbl() returns boolean {
+    boolean testPassed = true;
+    EngineerTable engineerTbl = table key(name) [
+      { name: "Lisa", age: 22, intern: true },
+      { name: "Jonas", age: 21, intern: false }
+    ];
+    PersonTable personTbl = engineerTbl;
+    Intern intern1 = { name: "John", age: 23, intern: true, salary: 100 };
+    personTbl.add(intern1);
+    Person[] tableToList = personTbl.toArray();
+    testPassed = testPassed && tableToList.length() == 3;
+    testPassed = testPassed && tableToList[2] == intern1;
+    return testPassed;
 }

@@ -32,6 +32,8 @@ type PersonalTable table<Person> key(name);
 
 type EmployeeTable table<Employee> key(name);
 
+type EmployeeKeylessTable table<Employee>;
+
 PersonalTable tab = table key(name)[
   { name: "Chiran", age: 33 },
   { name: "Mohan", age: 37 },
@@ -126,4 +128,40 @@ function removeIfHasKey() returns boolean {
     Person? removedPerson1 = tbl.removeIfHasKey("AAA");
     Person? removedPerson2 = tbl.removeIfHasKey("Chiran");
     return removedPerson1 == () && removedPerson2?.name == "Chiran";
+}
+
+function testPutWithIncompatibleTypes()  {
+    EmployeeTable employeeTbl = table key(name) [
+       { name: "Lisa", department: "HR" },
+       { name: "Jonas", department: "Marketing" }
+    ];
+    var person = { name: "Chiran", age: 33 };
+    employeeTbl.put(person);
+}
+
+function testAddWithIncompatibleTypes()  {
+    EmployeeTable employeeTbl = table key(name) [
+       { name: "Lisa", department: "HR" },
+       { name: "Jonas", department: "Marketing" }
+    ];
+    var person = { name: "Chiran", age: 33 };
+    employeeTbl.add(person);
+}
+
+function testPutIncompatibleTypesWithKeyLessTbl()  {
+    EmployeeKeylessTable employeeTbl = table [
+       { name: "Lisa", department: "HR" },
+       { name: "Jonas", department: "Marketing" }
+    ];
+    var person = { name: "Chiran", age: 33 };
+    employeeTbl.put(person);
+}
+
+function testAddIncompatibleTypesWithKeyLessTbl()  {
+    EmployeeKeylessTable employeeTbl = table [
+       { name: "Lisa", department: "HR" },
+       { name: "Jonas", department: "Marketing" }
+    ];
+    var person = { name: "Chiran", age: 33 };
+    employeeTbl.add(person);
 }

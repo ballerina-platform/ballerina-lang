@@ -51,6 +51,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_KEY_NOT_FOUND_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_INCONSISTENT_WITH_TABLE_TYPE_ERROR;
 
 /**
  * The runtime representation of table.
@@ -382,6 +383,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public V putData(V data) {
+            checkInherentTypeViolation((MapValue) data, type);
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(data, data);
             UUID uuid = UUID.randomUUID();
             entries.put((long) uuid.hashCode(), entry);
@@ -417,6 +419,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         public void addData(V data) {
             MapValue dataMap = (MapValue) data;
+            checkInherentTypeViolation(dataMap, type);
             K key = this.keyWrapper.wrapKey(dataMap);
 
             if (containsKey((K) key)) {
@@ -460,6 +463,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         public V putData(V data) {
             MapValue dataMap = (MapValue) data;
+            checkInherentTypeViolation(dataMap, type);
             K key = this.keyWrapper.wrapKey(dataMap);
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>(key, data);
             Long hash = TableUtils.hash(key, null);
@@ -535,6 +539,14 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             keyToIndexMap.put(hash, noOfAddedEntries);
             indexToKeyMap.put(noOfAddedEntries, hash);
             noOfAddedEntries++;
+        }
+    }
+
+    // This method checks for inherent table type violation
+    private void checkInherentTypeViolation(MapValue dataMap, BTableType type) {
+        if (!TypeChecker.checkIsType(dataMap.getType(), type.getConstrainedType())) {
+            throw BallerinaErrors.createError(VALUE_INCONSISTENT_WITH_TABLE_TYPE_ERROR,
+                    "value inconsistent with inherent table type '" + type + "'");
         }
     }
 

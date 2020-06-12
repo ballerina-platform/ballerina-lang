@@ -156,28 +156,36 @@ public class LangLibTableTest {
 
     @Test
     public void testCompilerNegativeCases() {
-        assertEquals(negativeResult.getErrorCount(), 9);
+        assertEquals(negativeResult.getErrorCount(), 13);
         int index = 0;
         validateError(negativeResult, index++, "incompatible types: expected 'table<Employee> " +
-                "key(name)', found 'table<Person> key<string>'", 66, 36);
+                "key(name)', found 'table<Person> key<string>'", 68, 36);
         validateError(negativeResult, index++, "incompatible types: expected 'Employee', " +
-                "found 'Person'", 66, 47);
+                "found 'Person'", 68, 47);
         validateError(negativeResult, index++, "incompatible types: expected " +
                         "'object { public function next () returns (record {| Employee value; |}?); }', found " +
                         "'object { public function next () returns (record {| Person value; |}?); }'",
-                75, 92);
+                77, 92);
         validateError(negativeResult, index++, "incompatible types: expected 'table<(any|error)> " +
-                "key<int>', found 'table<Person> key(name)'", 82, 12);
+                "key<int>', found 'table<Person> key(name)'", 84, 12);
         validateError(negativeResult, index++, "incompatible types: expected 'table<(any|error)> " +
-                "key<anydata>', found 'table<Person>'", 94, 12);
+                "key<anydata>', found 'table<Person>'", 96, 12);
         validateError(negativeResult, index++, "incompatible types: expected 'table<(any|error)> " +
-                "key<anydata>', found 'table<Person>'", 105, 21);
+                "key<anydata>', found 'table<Person>'", 107, 21);
         validateError(negativeResult, index++, "incompatible types: expected 'table<(any|error)> " +
-                "key<anydata>', found 'table<Person>'", 117, 28);
+                "key<anydata>', found 'table<Person>'", 119, 28);
         validateError(negativeResult, index++, "incompatible types: expected 'table<(any|error)> " +
-                "key<anydata>', found 'table<Person>'", 126, 30);
+                "key<anydata>', found 'table<Person>'", 128, 30);
         validateError(negativeResult, index++, "incompatible types: expected 'table<(any|error)> " +
-                "key<anydata>', found 'table<Person>'", 127, 30);
+                "key<anydata>', found 'table<Person>'", 129, 30);
+        validateError(negativeResult, index++, "incompatible types: expected 'Employee', " +
+                "found 'record {| string name; int age; |}'", 139, 21);
+        validateError(negativeResult, index++, "incompatible types: expected 'Employee', " +
+                "found 'record {| string name; int age; |}'", 148, 21);
+        validateError(negativeResult, index++, "incompatible types: expected 'Employee', " +
+                "found 'record {| string name; int age; |}'", 157, 21);
+        validateError(negativeResult, index, "incompatible types: expected 'Employee', " +
+                "found 'record {| string name; int age; |}'", 166, 21);
     }
 
     @Test
@@ -194,18 +202,66 @@ public class LangLibTableTest {
         Assert.fail();
     }
 
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}ValueInconsistentError " +
+                    "message=value inconsistent with inherent table type 'table<Engineer> key\\(name\\)'.*")
+    public void testAddInconsistentData() {
+        BRunUtil.invoke(compileResult, "testAddInconsistentData");
+        Assert.fail();
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}ValueInconsistentError " +
+                    "message=value inconsistent with inherent table type 'table<Engineer> key\\(name\\)'.*")
+    public void testAddInconsistentData2() {
+        BRunUtil.invoke(compileResult, "testAddInconsistentData2");
+        Assert.fail();
+    }
+
+    @Test
+    public void testAddValidData() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAddValidData");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testAddValidData2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAddValidData2");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
     @Test
     public void testPutData() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testPutData");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    //todo @Chiran as per spec if the member being put is inconsistent, it should panic.
-    // Here, it throws type check error
-    @Test(enabled = false)
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}ValueInconsistentError " +
+                    "message=value inconsistent with inherent table type 'table<Engineer> key\\(name\\)'.*")
     public void testPutInconsistentData() {
         BRunUtil.invoke(compileResult, "testPutInconsistentData");
         Assert.fail();
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}ValueInconsistentError " +
+                    "message=value inconsistent with inherent table type 'table<Engineer> key\\(name\\)'.*")
+    public void testPutInconsistentData2() {
+        BRunUtil.invoke(compileResult, "testPutInconsistentData2");
+        Assert.fail();
+    }
+
+    @Test
+    public void testPutValidData() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPutValidData");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testPutValidData2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPutValidData2");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test
@@ -270,5 +326,49 @@ public class LangLibTableTest {
                     "mutated after the iterator was created.*")
     public void testRemoveAllReturnedRecordsFromIteratorKeylessTbl() {
         BRunUtil.invoke(compileResult, "testRemoveAllReturnedRecordsFromIteratorKeylessTbl");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}ValueInconsistentError " +
+                    "message=value inconsistent with inherent table type 'table<Engineer> key\\(name\\)'.*")
+    public void testAddInconsistentDataToKeylessTbl() {
+        BRunUtil.invoke(compileResult, "testAddInconsistentDataToKeylessTbl");
+        Assert.fail();
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}ValueInconsistentError " +
+                    "message=value inconsistent with inherent table type 'table<Engineer> key\\(name\\)'.*")
+    public void testAddInconsistentDataToKeylessTbl2() {
+        BRunUtil.invoke(compileResult, "testAddInconsistentDataToKeylessTbl2");
+        Assert.fail();
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}ValueInconsistentError " +
+                    "message=value inconsistent with inherent table type 'table<Engineer> key\\(name\\)'.*")
+    public void testPutInconsistentDataToKeylessTbl() {
+        BRunUtil.invoke(compileResult, "testPutInconsistentDataToKeylessTbl");
+        Assert.fail();
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}ValueInconsistentError " +
+                    "message=value inconsistent with inherent table type 'table<Engineer> key\\(name\\)'.*")
+    public void testPutInconsistentDataToKeylessTbl2() {
+        BRunUtil.invoke(compileResult, "testPutInconsistentDataToKeylessTbl2");
+        Assert.fail();
+    }
+
+    @Test
+    public void testAddValidDataToKeylessTbl() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAddValidDataToKeylessTbl");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testPutValidDataToKeylessTbl() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPutValidDataToKeylessTbl");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 }
