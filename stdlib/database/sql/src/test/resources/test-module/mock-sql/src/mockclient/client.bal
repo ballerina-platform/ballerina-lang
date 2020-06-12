@@ -21,13 +21,6 @@ public type Client client object {
         return createSqlClient(self, sqlParams, sql:getGlobalConnectionPool());
     }
 
-    # Queries the database with the query provided by the user, and returns the result as stream.
-    #
-    # + sqlQuery - The query which needs to be executed as `string` or `ParameterizedQuery` when the SQL query has
-    #              params to be passed in
-    # + rowType - The `typedesc` of the record that should be returned as a result. If this is not provided the default
-    #             column names of the query result set be used for the record attributes
-    # + return - Stream of records in the type of `rowType`
     public remote function query(@untainted string|sql:ParameterizedQuery sqlQuery, typedesc<record {}>? rowType = ())
     returns @tainted stream<record{}, sql:Error> {
         if (self.clientActive) {
@@ -38,12 +31,6 @@ public type Client client object {
         }
     }
 
-    # Executes the DDL or DML sql query provided by the user, and returns summary of the execution.
-    #
-    # + sqlQuery - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `string` or `ParameterizedQuery`
-    #              when the query has params to be passed in
-    # + return - Summary of the sql update query as `ExecutionResult` or returns `Error`
-    #           if any error occured when executing the query
     public remote function execute(@untainted string|sql:ParameterizedQuery sqlQuery) returns sql:ExecutionResult|sql:Error? {
         if (self.clientActive) {
             return nativeExecute(self, sqlQuery);
@@ -53,15 +40,6 @@ public type Client client object {
         }
     }
 
-    # Executes a batch of parameterised DDL or DML sql query provided by the user,
-    # and returns the summary of the execution.
-    #
-    # + sqlQueries - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `ParameterizedQuery` with an array
-    #                of values passed in.
-    # + rollbackInFailure - Whether to rollback the statments executed in case one of the statements in the batch fails
-    # + return - Summary of the sql update query as `ExecutionResult[]` or returns `BatchUpdateError`.
-    #            if any error occured when executing the query. `BatchUpdateError` will include summary of the
-    #            sql update query as `ExecutionResult[]` for commands executed successfully.
     public remote function batchExecute(sql:ParameterizedQuery[] sqlQueries, boolean rollbackInFailure = false)
                                                                                 returns sql:ExecutionResult[]|sql:Error? {
         if (sqlQueries.length() == 0) {
@@ -75,9 +53,6 @@ public type Client client object {
         }
     }
 
-    # Close the SQL client.
-    #
-    # + return - Possible error during closing the client
     public function close() returns sql:Error? {
         self.clientActive = false;
         return close(self);

@@ -24,7 +24,7 @@ function insertIntoDataTable(string url, string user, string password) returns s
     ];
     sql:ParameterizedQuery[] sqlQueries =
         from var row in data
-        select `INSERT INTO DataTable (int_type, long_type, float_type) VALUES(row.intVal, row.longVal, row.floatVal)`;
+        select `INSERT INTO DataTable (int_type, long_type, float_type) VALUES (${row.intVal}, ${row.longVal}, ${row.floatVal})`;
     return batchExecuteQueryMockClient(url, user, password, sqlQueries);
 }
 
@@ -43,7 +43,7 @@ function insertIntoDataTableFailure(string url, string user, string password) re
     ];
     sql:ParameterizedQuery[] sqlQueries =
         from var row in data
-        select `INSERT INTO DataTable (int_type, long_type, float_type) VALUES(row.intVal, row.longVal, row.floatVal)`;
+        select `INSERT INTO DataTable (int_type, long_type, float_type) VALUES (${row.intVal}, ${row.longVal}, ${row.floatVal})`;
     return batchExecuteQueryMockClient(url, user, password, sqlQueries);
 }
 

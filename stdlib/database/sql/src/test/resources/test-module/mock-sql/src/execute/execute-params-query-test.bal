@@ -109,7 +109,7 @@ function deleteDataTable3(string url, string user, string password) returns sql:
 
     sql:ParameterizedQuery sqlQuery =
             `DELETE FROM DataTable where row_id=${rowId} AND int_type=${intType} AND long_type=${longType}
-              AND float_type=${floatType} AND double_type=${doubleType} AND boolean_type=${boolType}
+              AND double_type=${doubleType} AND boolean_type=${boolType}
               AND string_type=${stringType} AND decimal_type=${decimalType}`;
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
@@ -265,7 +265,7 @@ function insertIntoDateTimeTable3(string url, string user, string password) retu
 }
 
 function insertIntoDateTimeTable4(string url, string user, string password) returns sql:ExecutionResult|error? {
-    int rowId = 4;
+    int rowId = 5;
     var nilType = ();
 
     sql:ParameterizedQuery sqlQuery =
@@ -312,7 +312,7 @@ function insertIntoArrayTable2(string url, string user, string password) returns
     sql:ArrayValue paraString = new ();
     sql:ArrayValue paraBool = new ();
     sql:ArrayValue paraBlob = new ();
-    int rowId = 5;
+    int rowId = 6;
 
     sql:ParameterizedQuery sqlQuery =
         `INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array, decimal_array, boolean_array,

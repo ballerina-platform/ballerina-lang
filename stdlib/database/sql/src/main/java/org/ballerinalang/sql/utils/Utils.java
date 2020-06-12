@@ -112,9 +112,8 @@ class Utils {
         }
     }
 
-    static String getSqlQuery(AbstractObjectValue paramString) throws ApplicationError {
+    static String getSqlQuery(AbstractObjectValue paramString) {
         ArrayValue stringsArray = paramString.getArrayValue(Constants.ParameterizedQueryFields.STRINGS);
-        ArrayValue insertionsArray = paramString.getArrayValue(Constants.ParameterizedQueryFields.INSERTIONS);
         StringBuilder sqlQuery = new StringBuilder();
         for (int i = 0; i < stringsArray.size(); i++) {
             if (i > 0) {

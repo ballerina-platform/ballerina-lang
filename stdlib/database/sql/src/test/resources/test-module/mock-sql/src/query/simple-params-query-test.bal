@@ -423,7 +423,7 @@ function queryTimestampTimeRecordWithTimeZone2Param(string url, string user, str
 returns @tainted record {}|error? {
     time:Time date = check time:parse("2008-08-08 20:08:08+0800", "yyyy-MM-dd HH:mm:ssZ");
     sql:TimestampValue typeVal = new (date);
-    sql:ParameterizedQuery sqlQuery = `SELECT * from DateTimeTypes WHERE time_type2 = ${typeVal}`;
+    sql:ParameterizedQuery sqlQuery = `SELECT * from DateTimeTypes WHERE timestamp_type2 = ${typeVal}`;
     return queryMockClient(url, user, password, sqlQuery);
 }
 
