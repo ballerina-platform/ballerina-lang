@@ -59,8 +59,8 @@ public class ConnectionInitTest {
         BValue[] returnVal = BRunUtil.invoke(result, "testConnectionWithNoFields");
         Assert.assertTrue(returnVal[0] instanceof BError);
         BError error = (BError) returnVal[0];
-        Assert.assertTrue(error.getMessage().contains("error in sql connector configuration: Failed to " +
-                "initialize pool: Access denied for user"));
+        Assert.assertTrue(error.getMessage().contains(
+                "error in sql connector configuration: Failed to initialize pool: Access denied for user"));
     }
 
     @Test
