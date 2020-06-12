@@ -55,6 +55,7 @@ function testImmutableTypes() {
     testImmutableAny();
     testImmutableUnion();
     testDefaultValuesOfFields();
+    testUnionReadOnlyFields();
 }
 
 function testSimpleInitializationForSelectivelyImmutableTypes() {
@@ -882,6 +883,49 @@ function testDefaultValuesOfFields() {
     assertTrue(cr2.obj is IdentifierObj);
     IdentifierObj obj = <IdentifierObj> cr2.obj;
     assertEquality("object", obj.getId());
+}
+
+public type ConfigArray record {|
+    string identifier;
+    (Array & readonly)? config = ();
+    Array? keys = ();
+|};
+
+public type Array record {|
+    int count;
+    readonly string[] values;
+|};
+
+function testUnionReadOnlyFields() {
+    ConfigArray cArr = {
+        identifier: "MyConfig",
+        config: {
+            count: 2,
+            values: ["foo", "bar"]
+        },
+        keys: {
+            count: 1,
+            values: ["baz"]
+        }
+    };
+
+    record {
+        string identifier;
+        Array? config;
+        Array? keys;
+    } rec = cArr;
+
+    assertTrue(rec.config is readonly);
+    assertTrue(rec.config is Array & readonly);
+    assertEquality(<Array> {count: 2, values: ["foo", "bar"]}, rec.config);
+
+    assertFalse(rec.keys is readonly);
+    assertTrue(rec.keys is Array);
+    assertFalse(rec.keys is Array & readonly);
+    assertEquality(<Array> {count: 1, values: ["baz"]}, rec.keys);
+
+    Array arr = <Array> rec.keys;
+    assertTrue(arr.values.isReadOnly());
 }
 
 type AssertionError error<ASSERTION_ERROR_REASON>;
