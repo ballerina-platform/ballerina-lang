@@ -10490,11 +10490,16 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseSignedRightShiftToken() {
-        STToken openGTToken = consume();
-        validateRightShiftOperatorWS(openGTToken);
+        STNode openGTToken = consume();
         STToken endLGToken = consume();
-        return STNodeFactory.createToken(SyntaxKind.DOUBLE_GT_TOKEN, openGTToken.leadingMinutiae(),
-                endLGToken.trailingMinutiae());
+        STNode doubleGTToken = STNodeFactory.createToken(SyntaxKind.DOUBLE_GT_TOKEN,
+                openGTToken.leadingMinutiae(), endLGToken.trailingMinutiae());
+
+        if (!validateRightShiftOperatorWS(openGTToken)) {
+            doubleGTToken = SyntaxErrors.addDiagnostics(doubleGTToken,
+                    DiagnosticErrorCode.ERROR_NO_WHITESPACES_ALLOWED_IN_RIGHT_SHIFT_OP);
+        }
+        return doubleGTToken;
     }
 
     /**
@@ -10504,25 +10509,31 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseUnsignedRightShiftToken() {
         STNode openGTToken = consume();
-        validateRightShiftOperatorWS(openGTToken);
         STNode middleGTToken = consume();
-        validateRightShiftOperatorWS(middleGTToken);
         STNode endLGToken = consume();
-        return STNodeFactory.createToken(SyntaxKind.TRIPPLE_GT_TOKEN, openGTToken.leadingMinutiae(),
-                endLGToken.trailingMinutiae());
+        STNode unsignedRightShiftToken = STNodeFactory.createToken(SyntaxKind.TRIPPLE_GT_TOKEN,
+                openGTToken.leadingMinutiae(), endLGToken.trailingMinutiae());
+
+        boolean validOpenGTToken = validateRightShiftOperatorWS(openGTToken);
+        boolean validMiddleGTToken = validateRightShiftOperatorWS(middleGTToken);
+        if (validOpenGTToken && validMiddleGTToken) {
+            return unsignedRightShiftToken;
+        }
+
+        unsignedRightShiftToken = SyntaxErrors.addDiagnostics(unsignedRightShiftToken,
+                DiagnosticErrorCode.ERROR_NO_WHITESPACES_ALLOWED_IN_UNSIGNED_RIGHT_SHIFT_OP);
+        return unsignedRightShiftToken;
     }
 
     /**
      * Validate the whitespace between '>' tokens of right shift operators.
      *
      * @param node Preceding node
+     * @return the validated node
      */
-    private void validateRightShiftOperatorWS(STNode node) {
+    private boolean validateRightShiftOperatorWS(STNode node) {
         int diff = node.widthWithTrailingMinutiae() - node.width();
-        if (diff > 0) {
-            SyntaxErrors.addDiagnostics(node,
-                    DiagnosticErrorCode.ERROR_NO_WHITESPACES_ALLOWED_BETWEEN_RIGHT_SHIFT_OP);
-        }
+        return diff == 0;
     }
 
     /**
