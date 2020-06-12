@@ -447,8 +447,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
     private void createErrorReturn(DiagnosticPos pos, BlockNode blockStmt, BLangSimpleVarRef resultRef) {
         BLangIf returnError = ASTBuilderUtil.createIfStmt(pos, blockStmt);
-        BLangTypeTestExpr errorCheck = desugar.createTypeCheckExpr(pos, resultRef, desugar.getErrorTypeNode());
-        returnError.expr = errorCheck;
+        returnError.expr = desugar.createTypeCheckExpr(pos, resultRef, desugar.getErrorTypeNode());
         returnError.body = ASTBuilderUtil.createBlockStmt(pos);
         BLangReturn bLangReturn = ASTBuilderUtil.createReturnStmt(pos,
                 desugar.addConversionExprIfRequired(resultRef, symTable.errorType));
