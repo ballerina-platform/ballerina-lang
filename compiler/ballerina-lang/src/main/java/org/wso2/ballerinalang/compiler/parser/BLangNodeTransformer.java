@@ -2129,8 +2129,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private VariableDefinitionNode createBLangVarDef(DiagnosticPos pos, TypedBindingPatternNode typedBindingPattern,
-                                                     Optional<io.ballerinalang.compiler.syntax.tree.ExpressionNode> initializer,
-                                                     Optional<Token> finalKeyword) {
+            Optional<io.ballerinalang.compiler.syntax.tree.ExpressionNode> initializer, Optional<Token> finalKeyword) {
         BindingPatternNode bindingPattern = typedBindingPattern.bindingPattern();
         BLangVariable variable = getBLangVariableNode(bindingPattern);
         switch (bindingPattern.kind()) {
