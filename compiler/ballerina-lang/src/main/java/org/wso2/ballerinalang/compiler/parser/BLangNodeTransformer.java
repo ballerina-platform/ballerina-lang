@@ -3095,7 +3095,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 FieldBindingPatternFullNode fullNode = (FieldBindingPatternFullNode) node;
                 recordKeyValue.key = createIdentifier(fullNode.variableName().name());
                 recordKeyValue.valueBindingPattern = getBLangVariableNode(fullNode.bindingPattern());
-                fieldBindingPatternsList.add(recordKeyValue);
             } else {
                 FieldBindingPatternVarnameNode varnameNode = (FieldBindingPatternVarnameNode) node;
                 recordKeyValue.key = createIdentifier(varnameNode.variableName().name());
@@ -3106,6 +3105,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 value.setName(name);
                 recordKeyValue.valueBindingPattern = value;
             }
+
+            fieldBindingPatternsList.add(recordKeyValue);
         }
 
         return fieldBindingPatternsList;

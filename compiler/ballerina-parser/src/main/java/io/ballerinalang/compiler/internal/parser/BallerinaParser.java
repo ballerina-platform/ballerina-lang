@@ -2218,10 +2218,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseComplexTypeDescriptor(parseArrayTypeDescriptor(typeDesc), context, isTypedBindingPattern);
             // If next token after a type descriptor is <code>[</code> then it is an array type descriptor
             case PIPE_TOKEN:
-                return parseUnionTypeDescriptor(typeDesc, context);
+                return parseUnionTypeDescriptor(typeDesc, context, isTypedBindingPattern);
             // If next token after a type descriptor is <code> & </code> then it is an array type descriptor
             case BITWISE_AND_TOKEN:
-                return parseIntersectionTypeDescriptor(typeDesc, context);
+                return parseIntersectionTypeDescriptor(typeDesc, context, isTypedBindingPattern);
             default:
                 return typeDesc;
         }
@@ -8193,9 +8193,9 @@ public class BallerinaParser extends AbstractParser {
      * @param context Current context.
      * @return parsed union type desc node
      */
-    private STNode parseUnionTypeDescriptor(STNode leftTypeDesc, ParserRuleContext context) {
+    private STNode parseUnionTypeDescriptor(STNode leftTypeDesc, ParserRuleContext context, boolean isTypedBindingPattern) {
         STNode pipeToken = parsePipeToken();
-        STNode rightTypeDesc = parseTypeDescriptor(context);
+        STNode rightTypeDesc = parseTypeDescriptor(context, isTypedBindingPattern);
 
         return STNodeFactory.createUnionTypeDescriptorNode(leftTypeDesc, pipeToken, rightTypeDesc);
     }
@@ -10123,10 +10123,11 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseIntersectionTypeDescriptor(STNode leftTypeDesc, ParserRuleContext context) {
+    private STNode parseIntersectionTypeDescriptor(STNode leftTypeDesc, ParserRuleContext context,
+            boolean isTypedBindingPattern) {
         // we come here only after seeing & token hence consume.
         STNode bitwiseAndToken = consume();
-        STNode rightTypeDesc = parseTypeDescriptor(context);
+        STNode rightTypeDesc = parseTypeDescriptor(context, isTypedBindingPattern);
         return STNodeFactory.createIntersectionTypeDescriptorNode(leftTypeDesc, bitwiseAndToken, rightTypeDesc);
     }
 
@@ -12353,7 +12354,7 @@ public class BallerinaParser extends AbstractParser {
                     return parseActionOrExpressionInLhs(nextToken.kind, null);
                 }
 
-                return parseTypeDescriptor(ParserRuleContext.VAR_DECL_STMT);
+                return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
         }
 
         if (isDefiniteTypeDesc(typeOrExpr.kind)) {
