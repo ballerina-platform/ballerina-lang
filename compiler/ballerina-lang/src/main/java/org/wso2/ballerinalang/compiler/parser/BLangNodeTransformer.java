@@ -3422,12 +3422,31 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangRawTemplateLiteral literal = (BLangRawTemplateLiteral) TreeBuilder.createRawTemplateLiteralNode();
         literal.pos = pos;
 
+        boolean prevNodeWasInterpolation = false;
+        Node firstMember = members.isEmpty() ? null : members.get(0); // will be empty for empty raw template
+
+        if (firstMember != null && firstMember.kind() == SyntaxKind.INTERPOLATION) {
+            literal.strings.add(createStringLiteral("", getPosition(firstMember)));
+        }
+
         for (Node member : members) {
             if (member.kind() == SyntaxKind.INTERPOLATION) {
                 literal.insertions.add((BLangExpression) member.apply(this));
+
+                if (prevNodeWasInterpolation) {
+                    //
+                    literal.strings.add(createStringLiteral("", getPosition(member)));
+                }
+
+                prevNodeWasInterpolation = true;
             } else {
                 literal.strings.add((BLangLiteral) member.apply(this));
+                prevNodeWasInterpolation = false;
             }
+        }
+
+        if (prevNodeWasInterpolation) {
+            literal.strings.add(createStringLiteral("", getPosition(members.get(members.size() - 1))));
         }
 
         return literal;
@@ -3648,6 +3667,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLiteral.value = value;
         bLiteral.originalValue = originalValue;
         return bLiteral;
+    }
+
+    private BLangLiteral createStringLiteral(String value, DiagnosticPos pos) {
+        BLangLiteral strLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        strLiteral.value = strLiteral.originalValue = value;
+        strLiteral.type = symTable.stringType;
+        strLiteral.pos = pos;
+        return strLiteral;
     }
 
     private BLangType createTypeNode(Node type) {
