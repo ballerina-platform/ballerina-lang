@@ -7100,12 +7100,16 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode getArrayLength(STNodeList exprs) {
-        if (exprs.isEmpty()) {
-            return STNodeFactory.createEmptyNode();
+    private STNode parseArrayTypeDescriptorNode(STIndexedExpressionNode indexedExpr) {
+        STNode memberTypeDesc = getTypeDescFromExpr(indexedExpr.containerExpression);
+        STNodeList lengthExprs = (STNodeList) indexedExpr.keyExpression;
+        if (lengthExprs.isEmpty()) {
+            return STNodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, indexedExpr.openBracket,
+                    STNodeFactory.createEmptyNode(), indexedExpr.closeBracket);
         }
 
-        STNode lengthExpr = exprs.get(0);
+        // Validate the array length expression
+        STNode lengthExpr = lengthExprs.get(0);
         switch (lengthExpr.kind) {
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
@@ -7114,10 +7118,14 @@ public class BallerinaParser extends AbstractParser {
             case QUALIFIED_NAME_REFERENCE:
                 break;
             default:
-                this.errorHandler.reportInvalidNode(null, "invalid array length");
-                break;
+                STNode newOpenBracketWithDiagnostics = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(
+                        indexedExpr.openBracket, lengthExpr, DiagnosticErrorCode.ERROR_INVALID_ARRAY_LENGTH);
+                indexedExpr = indexedExpr.replace(indexedExpr.openBracket, newOpenBracketWithDiagnostics);
+                lengthExpr = STNodeFactory.createEmptyNode();
         }
-        return lengthExpr;
+
+        return STNodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, indexedExpr.openBracket,
+                lengthExpr, indexedExpr.closeBracket);
     }
 
     private STNode getExpressionAsStatement(STNode expression) {
@@ -14808,11 +14816,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode getTypeDescFromExpr(STNode expression) {
         switch (expression.kind) {
             case INDEXED_EXPRESSION:
-                STIndexedExpressionNode indexedExpr = (STIndexedExpressionNode) expression;
-                STNode memberTypeDesc = getTypeDescFromExpr(indexedExpr.containerExpression);
-                STNode arrayLength = getArrayLength((STNodeList) indexedExpr.keyExpression);
-                return STNodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, indexedExpr.openBracket, arrayLength,
-                        indexedExpr.closeBracket);
+                return parseArrayTypeDescriptorNode((STIndexedExpressionNode) expression);
             case BASIC_LITERAL:
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
