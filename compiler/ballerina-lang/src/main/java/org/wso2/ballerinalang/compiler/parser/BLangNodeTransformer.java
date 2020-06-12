@@ -2287,6 +2287,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangExpression expression = createExpression(startActionNode.expression());
         BLangInvocation.BLangActionInvocation invocation = (BLangInvocation.BLangActionInvocation) expression;
         invocation.async = true;
+        invocation.pos = getPosition(startActionNode);
         invocation.annAttachments = applyAll(startActionNode.annotations());
 
         return expression;
@@ -2658,6 +2659,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         bLangActionInvocation.expr = createExpression(remoteMethodCallActionNode.expression());
         bLangActionInvocation.argExprs = applyAll(remoteMethodCallActionNode.arguments());
+        bLangActionInvocation.pos = getPosition(remoteMethodCallActionNode);
 
         BLangNameReference nameReference = createBLangNameReference(remoteMethodCallActionNode.methodName().name());
         bLangActionInvocation.name = (BLangIdentifier) nameReference.name;
