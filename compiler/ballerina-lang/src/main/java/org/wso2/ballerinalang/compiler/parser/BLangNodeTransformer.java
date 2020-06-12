@@ -47,6 +47,7 @@ import io.ballerinalang.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ErrorTypeParamsNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.ExpressionFunctionBodyNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionListItemNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ExternalFunctionBodyNode;
@@ -154,6 +155,7 @@ import io.ballerinalang.compiler.syntax.tree.TransactionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.TrapExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeCastExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.TypeCastParamNode;
 import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeParameterNode;
@@ -891,6 +893,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         objectTypeNode.isAnonymous = false;
         objectTypeNode.pos = getPosition(serviceBodyNode);
         return objectTypeNode;
+    }
+
+    @Override
+    public BLangNode transform(ExpressionFunctionBodyNode expressionFunctionBodyNode) {
+        BLangExprFunctionBody bLExprFunctionBody = (BLangExprFunctionBody) TreeBuilder.createExprFunctionBodyNode();
+        bLExprFunctionBody.expr = createExpression(expressionFunctionBodyNode.expression());
+        return bLExprFunctionBody;
     }
 
     @Override
@@ -1737,11 +1746,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangTypeConversionExpr typeConversionNode = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         // TODO : Attach annotations if available
         typeConversionNode.pos = getPosition(typeCastExpressionNode);
-        if (typeCastExpressionNode.typeCastParam() != null) {
-            typeConversionNode.typeNode = createTypeNode(typeCastExpressionNode.typeCastParam().type());
+        TypeCastParamNode typeCastParamNode = typeCastExpressionNode.typeCastParam();
+        if (typeCastParamNode != null && typeCastParamNode.type() != null) {
+            typeConversionNode.typeNode = createTypeNode(typeCastParamNode.type());
         }
         typeConversionNode.expr = createExpression(typeCastExpressionNode.expression());
-        typeConversionNode.annAttachments = applyAll(typeCastExpressionNode.typeCastParam().annotations());
+        typeConversionNode.annAttachments = applyAll(typeCastParamNode.annotations());
         return typeConversionNode;
     }
 
