@@ -1967,6 +1967,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
             varRef.pos = getPosition(varnameNode.variableName());
             varRef.variableName = createIdentifier(varnameNode.variableName().name());
+            varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
             keyValue.variableReference = varRef;
         }
 

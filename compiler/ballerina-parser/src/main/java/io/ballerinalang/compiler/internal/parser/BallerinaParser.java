@@ -14587,6 +14587,7 @@ public class BallerinaParser extends AbstractParser {
                 return SyntaxKind.LIST_BINDING_PATTERN;
             case SIMPLE_NAME_REFERENCE: // member is a simple type-ref/var-ref
             case LIST_BP_OR_LIST_CONSTRUCTOR: // member is again ambiguous
+            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 return SyntaxKind.LIST_BP_OR_LIST_CONSTRUCTOR;
             default:
                 return SyntaxKind.LIST_CONSTRUCTOR;
@@ -14909,13 +14910,25 @@ public class BallerinaParser extends AbstractParser {
                         restBindingPattern, innerList.collectionEndToken);
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 innerList = (STAmbiguousCollectionNode) ambiguousNode;
-                memberBindingPatterns = STNodeFactory.createNodeList(getBindingPatternsList(innerList.members));
+                List<STNode> bindingPatterns = new ArrayList<STNode>();
                 restBindingPattern = STNodeFactory.createEmptyNode();
+                for (int i = 0; i < innerList.members.size(); i++) {
+                    STNode bp = getBindingPattern(innerList.members.get(i));
+                    if (bp.kind == SyntaxKind.REST_BINDING_PATTERN) {
+                        restBindingPattern = bp;
+                        break;
+                    }
+                    bindingPatterns.add(bp);
+                }
+                memberBindingPatterns = STNodeFactory.createNodeList(bindingPatterns);
                 return STNodeFactory.createMappingBindingPatternNode(innerList.collectionStartToken,
                         memberBindingPatterns, restBindingPattern, innerList.collectionEndToken);
             case SPECIFIC_FIELD:
                 STSpecificFieldNode field = (STSpecificFieldNode) ambiguousNode;
                 fieldName = STNodeFactory.createSimpleNameReferenceNode(field.fieldName);
+                if (field.valueExpr == null) {
+                    return STNodeFactory.createFieldBindingPatternVarnameNode(fieldName);
+                }
                 return STNodeFactory.createFieldBindingPatternFullNode(fieldName, field.colon,
                         getBindingPattern(field.valueExpr));
             default:
