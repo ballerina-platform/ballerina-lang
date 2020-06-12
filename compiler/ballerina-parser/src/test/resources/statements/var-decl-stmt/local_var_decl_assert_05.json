@@ -11,7 +11,13 @@
       "children": [
         {
           "kind": "IDENTIFIER_TOKEN",
-          "value": "Foo"
+          "value": "Foo",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "CAPTURE_BINDING_PATTERN",

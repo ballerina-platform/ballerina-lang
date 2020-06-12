@@ -11,7 +11,13 @@
       ]
     },
     {
-      "kind": "IS_KEYWORD"
+      "kind": "IS_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "INT_KEYWORD"

@@ -66,10 +66,10 @@ public class AbstractIncrementalParserTest {
 
     public static Node[] populateNewNodes(SyntaxTree oldTree, SyntaxTree newTree) {
         Set<STNode> oldNodeSet = new HashSet<>();
-        populateNodes(oldTree.modulePart(), oldNodeSet);
+        populateNodes(oldTree.rootNode(), oldNodeSet);
 
         List<Node> newNodeList = new ArrayList<>();
-        populateNewNodes(oldNodeSet, newTree.modulePart(), newNodeList);
+        populateNewNodes(oldNodeSet, newTree.rootNode(), newNodeList);
         return newNodeList.toArray(new Node[0]);
     }
 

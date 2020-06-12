@@ -45,7 +45,7 @@ public class ChildNodeEntryTest extends AbstractSyntaxTreeAPITest {
         Map<String, Object> expectedChildEntryMap = loadChildEntryMap("child_node_entry_test_01.json");
         SyntaxTree syntaxTree = parseFile("child_node_entry_test_01.bal");
         MapGen mapGen = new MapGen();
-        Map<String, Object> actualChildEntryMap = mapGen.transformSyntaxNode(syntaxTree.modulePart());
+        Map<String, Object> actualChildEntryMap = mapGen.transformSyntaxNode(syntaxTree.rootNode());
         Assert.assertEqualsDeep(actualChildEntryMap, expectedChildEntryMap);
     }
 

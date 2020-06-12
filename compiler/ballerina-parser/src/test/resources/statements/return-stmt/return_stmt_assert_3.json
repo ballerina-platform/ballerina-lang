@@ -2,7 +2,13 @@
   "kind": "RETURN_STATEMENT",
   "children": [
     {
-      "kind": "RETURN_KEYWORD"
+      "kind": "RETURN_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "BINARY_EXPRESSION",

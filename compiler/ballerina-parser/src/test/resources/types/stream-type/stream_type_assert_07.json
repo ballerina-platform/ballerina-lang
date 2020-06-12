@@ -30,7 +30,13 @@
                   "kind": "LT_TOKEN"
                 },
                 {
-                  "kind": "STRING_KEYWORD"
+                  "kind": "STRING_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
                   "kind": "GT_TOKEN",

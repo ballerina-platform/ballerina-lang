@@ -11,7 +11,13 @@
       "children": [
         {
           "kind": "IDENTIFIER_TOKEN",
-          "value": "a"
+          "value": "a",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "COMMA_TOKEN",
@@ -23,7 +29,13 @@
         },
         {
           "kind": "IDENTIFIER_TOKEN",
-          "value": "b"
+          "value": "b",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "COMMA_TOKEN",

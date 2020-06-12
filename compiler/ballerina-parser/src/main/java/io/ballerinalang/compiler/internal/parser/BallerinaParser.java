@@ -1522,7 +1522,7 @@ public class BallerinaParser extends AbstractParser {
         // Treat as function definition.
 
         // We reach this method only if the func-name is not present.
-        STNode name = errorHandler.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+        STNode name = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
                 DiagnosticErrorCode.ERROR_MISSING_FUNCTION_NAME);
 
         // Function definition cannot have missing param-names. So validate it.
@@ -1809,9 +1809,9 @@ public class BallerinaParser extends AbstractParser {
                                                 DiagnosticCode diagnosticCode) {
         int lastIndex = paramList.size() - 1;
         STNode prevParamNode = paramList.remove(lastIndex);
-        STNode newParamNode = this.errorHandler.cloneWithTrailingInvalidNodeMinutiae(prevParamNode, invalidParam);
+        STNode newParamNode = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevParamNode, invalidParam);
         if (diagnosticCode != null) {
-            newParamNode = this.errorHandler.addDiagnostics(newParamNode, diagnosticCode);
+            newParamNode = SyntaxErrors.addDiagnostics(newParamNode, diagnosticCode);
         }
         paramList.add(newParamNode);
     }
@@ -3625,7 +3625,7 @@ public class BallerinaParser extends AbstractParser {
             case WAIT_KEYWORD:
             case FROM_KEYWORD:
             case COMMIT_KEYWORD:
-                return parseExpressionStament(tokenKind, getAnnotations(annots));
+                return parseExpressionStatement(tokenKind, getAnnotations(annots));
             case XMLNS_KEYWORD:
                 return parseXMLNamespaceDeclaration(false);
             case TRANSACTION_KEYWORD:
@@ -7011,7 +7011,7 @@ public class BallerinaParser extends AbstractParser {
      * @param nextTokenKind Next token kind
      * @return Statement node
      */
-    private STNode parseExpressionStament(SyntaxKind nextTokenKind, STNode annots) {
+    private STNode parseExpressionStatement(SyntaxKind nextTokenKind, STNode annots) {
         startContext(ParserRuleContext.EXPRESSION_STATEMENT);
         STNode expression = parseActionOrExpressionInLhs(nextTokenKind, annots);
         return getExpressionAsStatement(expression);
@@ -7119,7 +7119,11 @@ public class BallerinaParser extends AbstractParser {
 
                 STNode semicolon = parseSemicolon();
                 endContext();
-                return STNodeFactory.createExpressionStatementNode(SyntaxKind.INVALID, expression, semicolon);
+                STNode exprStmt = STNodeFactory.createExpressionStatementNode(
+                        SyntaxKind.INVALID_EXPRESSION_STATEMENT, expression, semicolon);
+                exprStmt = SyntaxErrors.addDiagnostics(exprStmt,
+                        DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_STATEMENT);
+                return exprStmt;
         }
     }
 
@@ -7638,7 +7642,7 @@ public class BallerinaParser extends AbstractParser {
             // Parse attach point. Null represents the end of attach-points.
             attachPoint = parseAnnotationAttachPoint();
             if (attachPoint == null) {
-                attachPoint = errorHandler.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                attachPoint = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
                         DiagnosticErrorCode.ERROR_MISSING_ANNOTATION_ATTACH_POINT);
                 attachPoints.add(attachPoint);
                 break;
@@ -9790,17 +9794,17 @@ public class BallerinaParser extends AbstractParser {
         }
 
         if (selectClause == null) {
-            STNode selectKeyword = errorHandler.createMissingToken(SyntaxKind.SELECT_KEYWORD);
-            STNode expr = errorHandler.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            STNode selectKeyword = SyntaxErrors.createMissingToken(SyntaxKind.SELECT_KEYWORD);
+            STNode expr = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
             selectClause = STNodeFactory.createSelectClauseNode(selectKeyword, expr);
 
             // Now we need to attach the diagnostic to the last intermediate clause.
             // If there are no intermediate clauses, then attach to the from clause.
             if (clauses.isEmpty()) {
-                fromClause = errorHandler.addDiagnostics(fromClause, DiagnosticErrorCode.ERROR_MISSING_SELECT_CLAUSE);
+                fromClause = SyntaxErrors.addDiagnostics(fromClause, DiagnosticErrorCode.ERROR_MISSING_SELECT_CLAUSE);
             } else {
                 int lastIndex = clauses.size() - 1;
-                STNode intClauseWithDiagnostic = errorHandler.addDiagnostics(clauses.get(lastIndex),
+                STNode intClauseWithDiagnostic = SyntaxErrors.addDiagnostics(clauses.get(lastIndex),
                         DiagnosticErrorCode.ERROR_MISSING_SELECT_CLAUSE);
                 clauses.set(lastIndex, intClauseWithDiagnostic);
             }
@@ -11368,28 +11372,30 @@ public class BallerinaParser extends AbstractParser {
 
         STNodeList items = (STNodeList) byteArrayContent;
         if (items.size() == 1) {
-            content = items.get(0);
+            STNode item = items.get(0);
             if (baseKind == SyntaxKind.BASE16_KEYWORD &&
-                    !BallerinaLexer.isValidBase16LiteralContent(content.toString())) {
-                newStartingBackTick = errorHandler.cloneWithTrailingInvalidNodeMinutiae(startingBackTick, content,
+                    !BallerinaLexer.isValidBase16LiteralContent(item.toString())) {
+                newStartingBackTick = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(startingBackTick, item,
                         DiagnosticErrorCode.ERROR_INVALID_BASE16_CONTENT_IN_BYTE_ARRAY_LITERAL);
             } else if (baseKind == SyntaxKind.BASE64_KEYWORD &&
-                    !BallerinaLexer.isValidBase64LiteralContent(content.toString())) {
-                newStartingBackTick = errorHandler.cloneWithTrailingInvalidNodeMinutiae(startingBackTick, content,
+                    !BallerinaLexer.isValidBase64LiteralContent(item.toString())) {
+                newStartingBackTick = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(startingBackTick, item,
                         DiagnosticErrorCode.ERROR_INVALID_BASE64_CONTENT_IN_BYTE_ARRAY_LITERAL);
-            } else if (content.kind != SyntaxKind.TEMPLATE_STRING) {
-                newStartingBackTick = errorHandler.cloneWithTrailingInvalidNodeMinutiae(startingBackTick, content,
+            } else if (item.kind != SyntaxKind.TEMPLATE_STRING) {
+                newStartingBackTick = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(startingBackTick, item,
                         DiagnosticErrorCode.ERROR_INVALID_CONTENT_IN_BYTE_ARRAY_LITERAL);
+            } else {
+                content = item;
             }
         } else if (items.size() > 1) {
             // In this iteration, I am marking all the items as invalid
             STNode clonedStartingBackTick = startingBackTick;
             for (int index = 0; index < items.size(); index++) {
                 STNode item = items.get(index);
-                clonedStartingBackTick =
-                        errorHandler.cloneWithTrailingInvalidNodeMinutiae(clonedStartingBackTick, item);
+                clonedStartingBackTick = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(
+                        clonedStartingBackTick, item);
             }
-            newStartingBackTick = errorHandler.addDiagnostics(clonedStartingBackTick,
+            newStartingBackTick = SyntaxErrors.addDiagnostics(clonedStartingBackTick,
                     DiagnosticErrorCode.ERROR_INVALID_CONTENT_IN_BYTE_ARRAY_LITERAL);
         }
 
