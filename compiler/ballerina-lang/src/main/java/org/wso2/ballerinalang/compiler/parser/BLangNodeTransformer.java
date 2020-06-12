@@ -1850,7 +1850,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
         BLangArrowFunction arrowFunction = (BLangArrowFunction) TreeBuilder.createArrowFunctionNode();
         arrowFunction.pos = getPosition(implicitAnonymousFunctionExpressionNode);
-        arrowFunction.functionName = TreeBuilder.createIdentifierNode();
+        arrowFunction.functionName = createIdentifier(arrowFunction.pos,
+                anonymousModelHelper.getNextAnonymousFunctionKey(diagnosticSource.pkgID));
         // TODO initialize other attributes
         // arrowFunction.funcType;
         // arrowFunction.function;
