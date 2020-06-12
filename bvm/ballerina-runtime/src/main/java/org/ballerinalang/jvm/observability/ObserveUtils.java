@@ -128,8 +128,11 @@ public class ObserveUtils {
      * Stop observation of an observer context.
      */
     public static void stopObservation() {
+        if (!enabled) {
+            return;
+        }
         Strand strand = Scheduler.getStrand();
-        if (!enabled || strand.observerContext == null) {
+        if (strand.observerContext == null) {
             return;
         }
         ObserverContext observerContext = strand.observerContext;
@@ -154,8 +157,11 @@ public class ObserveUtils {
      * @param errorValue the error value to be attached to the observer context
      */
     public static void reportError(ErrorValue errorValue) {
+        if (!enabled) {
+            return;
+        }
         Strand strand = Scheduler.getStrand();
-        if (!enabled || strand.observerContext == null) {
+        if (strand.observerContext == null) {
             return;
         }
         ObserverContext observerContext = strand.observerContext;
