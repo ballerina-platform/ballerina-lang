@@ -713,6 +713,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(objectMethodDefinitionNode);
     }
 
+    public T transform(STDistinctTypeDescriptorNode distinctTypeDescriptorNode) {
+        return transformSyntaxNode(distinctTypeDescriptorNode);
+    }
+
     // Tokens
 
     public T transform(STToken token) {

@@ -13,5 +13,5 @@ public function foo() {
     var l;
     never m;
     readonly n;
-    distinct o;
+    distinct T o;
 }

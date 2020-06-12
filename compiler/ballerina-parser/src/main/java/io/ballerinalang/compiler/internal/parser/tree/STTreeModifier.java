@@ -2201,6 +2201,16 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 functionBody);
     }
 
+    @Override
+    public STDistinctTypeDescriptorNode transform(
+            STDistinctTypeDescriptorNode distinctTypeDescriptorNode) {
+        STNode distinctKeyword = modifyNode(distinctTypeDescriptorNode.distinctKeyword);
+        STNode typeDescriptor = modifyNode(distinctTypeDescriptorNode.typeDescriptor);
+        return distinctTypeDescriptorNode.modify(
+                distinctKeyword,
+                typeDescriptor);
+    }
+
     // Tokens
 
     public STToken transform(STToken token) {

@@ -2277,6 +2277,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseFunctionTypeDesc();
             case OPEN_BRACKET_TOKEN:
                 return parseTupleTypeDesc();
+            case DISTINCT_KEYWORD:
+                return parseDistinctTypeDesc(context);
             default:
                 if (isSingletonTypeDescStart(tokenKind, true)) {
                     return parseSingletonTypeDesc();
@@ -2296,6 +2298,32 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 return parseTypeDescriptorInternal(solution.tokenKind, context);
+        }
+    }
+
+    /**
+     * Parse distinct type descriptor.
+     * <p>
+     * <code>
+     * distinct-type-descriptor := distinct type-descriptor
+     * </code>
+     * 
+     * @param context Context in which the type desc is used.
+     * @return Distinct type descriptor
+     */
+    private STNode parseDistinctTypeDesc(ParserRuleContext context) {
+        STNode distinctKeyword = parseDistinctKeyword();
+        STNode typeDesc = parseTypeDescriptor(context);
+        return STNodeFactory.createDistinctTypeDescriptorNode(distinctKeyword, typeDesc);
+    }
+
+    private STNode parseDistinctKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.DISTINCT_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.DISTINCT_KEYWORD);
+            return sol.recoveredNode;
         }
     }
 
@@ -8204,6 +8232,7 @@ public class BallerinaParser extends AbstractParser {
             case TABLE_KEYWORD: // table type
             case FUNCTION_KEYWORD:
             case OPEN_BRACKET_TOKEN:
+            case DISTINCT_KEYWORD:
                 return true;
             default:
                 if (isSingletonTypeDescStart(nodeKind, true)) {

@@ -39,6 +39,7 @@ import io.ballerinalang.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ContinueStatementNode;
 import io.ballerinalang.compiler.syntax.tree.DefaultableParameterNode;
+import io.ballerinalang.compiler.syntax.tree.DistinctTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.DocumentationStringNode;
 import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
 import io.ballerinalang.compiler.syntax.tree.EnumDeclarationNode;
@@ -702,6 +703,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ErrorTypeParamsNode errorTypeParamsNode) {
         return createTypeNode(errorTypeParamsNode.parameter());
+    }
+
+    @Override
+    public BLangNode transform(DistinctTypeDescriptorNode distinctTypeDesc) {
+        return createTypeNode(distinctTypeDesc.typeDescriptor());
     }
 
     @Override
