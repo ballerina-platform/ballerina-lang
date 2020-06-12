@@ -201,13 +201,6 @@ public abstract class AbstractParserErrorHandler {
         this.errorListener.reportInvalidNodeError(startingToken, message);
     }
 
-    public void reportMissingTokenError(String diagnosticCode) {
-        // TODO Following way of getting the token is suboptimal
-        // TODO Try this code and see; function (int s) return error? {}
-        STToken currentToken = this.tokenReader.head();
-        this.errorListener.reportMissingTokenError(currentToken, diagnosticCode);
-    }
-
     protected ParserRuleContext getParentContext() {
         return this.ctxStack.peek();
     }
