@@ -128,7 +128,7 @@ public class Parser {
         }
 
         BLangNodeTransformer bLangNodeTransformer = new BLangNodeTransformer(this.context, diagnosticSource);
-        compilationUnit = (BLangCompilationUnit) bLangNodeTransformer.accept(tree.modulePart()).get(0);
+        compilationUnit = (BLangCompilationUnit) bLangNodeTransformer.accept(tree.rootNode()).get(0);
         parserCache.put(packageID, entryName, hash, length, compilationUnit);
         // Node cloner will run for valid ASTs.
         // This will verify, any modification done to the AST will get handled properly.

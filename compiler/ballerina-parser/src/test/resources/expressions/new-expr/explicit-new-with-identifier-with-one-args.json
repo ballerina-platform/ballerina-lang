@@ -2,7 +2,13 @@
   "kind": "EXPLICIT_NEW_EXPRESSION",
   "children": [
     {
-      "kind": "NEW_KEYWORD"
+      "kind": "NEW_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "IDENTIFIER_TOKEN",

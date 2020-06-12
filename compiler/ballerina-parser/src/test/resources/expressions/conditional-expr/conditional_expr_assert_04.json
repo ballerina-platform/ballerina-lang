@@ -2,41 +2,23 @@
   "kind": "CONDITIONAL_EXPRESSION",
   "children": [
     {
-      "kind": "CONDITIONAL_EXPRESSION",
-      "children": [
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a",
+      "trailingMinutiae": [
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "a"
-        },
-        {
-          "kind": "QUESTION_MARK_TOKEN"
-        },
-        {
-          "kind": "BRACED_EXPRESSION",
-          "children": [
-            {
-              "kind": "OPEN_PAREN_TOKEN"
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "b"
-            },
-            {
-              "kind": "CLOSE_PAREN_TOKEN"
-            }
-          ]
-        },
-        {
-          "kind": "COLON_TOKEN"
-        },
-        {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "c"
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
         }
       ]
     },
     {
-      "kind": "QUESTION_MARK_TOKEN"
+      "kind": "QUESTION_MARK_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "BRACED_EXPRESSION",
@@ -46,19 +28,85 @@
         },
         {
           "kind": "IDENTIFIER_TOKEN",
-          "value": "d"
+          "value": "b"
         },
         {
-          "kind": "CLOSE_PAREN_TOKEN"
+          "kind": "CLOSE_PAREN_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
     {
-      "kind": "COLON_TOKEN"
+      "kind": "COLON_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "e"
+      "kind": "CONDITIONAL_EXPRESSION",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "c",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "QUESTION_MARK_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "BRACED_EXPRESSION",
+          "children": [
+            {
+              "kind": "OPEN_PAREN_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "d"
+            },
+            {
+              "kind": "CLOSE_PAREN_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "COLON_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "e"
+        }
+      ]
     }
   ]
 }

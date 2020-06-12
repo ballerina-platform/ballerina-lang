@@ -47,7 +47,7 @@ public class NodeListAPITest extends AbstractSyntaxTreeAPITest {
 
     @Test(description = "Tests the NodeList.get(int index) method")
     public void testGetByIndexMethod() {
-        ModulePartNode modulePartNode = parseFile("node_list_test_01.bal").modulePart();
+        ModulePartNode modulePartNode = parseFile("node_list_test_01.bal").rootNode();
         NodeList<ModuleMemberDeclarationNode> members = modulePartNode.members();
         ModuleMemberDeclarationNode member1 = members.get(1);
 
@@ -68,7 +68,7 @@ public class NodeListAPITest extends AbstractSyntaxTreeAPITest {
 
     @Test(description = "Tests the NodeList.add(int index, T node) method")
     public void testAddWithIndexMethod() {
-        ModulePartNode modulePartNode = parseFile("node_list_test_01.bal").modulePart();
+        ModulePartNode modulePartNode = parseFile("node_list_test_01.bal").rootNode();
         NodeList<ModuleMemberDeclarationNode> members = modulePartNode.members();
         FunctionDefinitionNode funcDefNode = (FunctionDefinitionNode) members.get(0);
         FunctionBodyBlockNode funcBody = (FunctionBodyBlockNode) funcDefNode.functionBody();
@@ -95,7 +95,7 @@ public class NodeListAPITest extends AbstractSyntaxTreeAPITest {
 
     @Test(description = "Tests the NodeList.add(T node) method")
     public void testAddMethod() {
-        ModulePartNode modulePartNode = parseFile("node_list_test_01.bal").modulePart();
+        ModulePartNode modulePartNode = parseFile("node_list_test_01.bal").rootNode();
         NodeList<ModuleMemberDeclarationNode> members = modulePartNode.members();
         FunctionDefinitionNode funcDefNode = (FunctionDefinitionNode) members.get(0);
         FunctionBodyBlockNode funcBody = (FunctionBodyBlockNode) funcDefNode.functionBody();

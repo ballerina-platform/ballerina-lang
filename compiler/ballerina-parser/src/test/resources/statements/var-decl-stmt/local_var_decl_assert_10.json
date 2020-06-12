@@ -20,7 +20,13 @@
             },
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "Person"
+              "value": "Person",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
         },
