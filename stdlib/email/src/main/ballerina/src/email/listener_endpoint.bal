@@ -105,6 +105,10 @@ public type Listener object {
             self.appointment = new(config);
         } else {
             task:TimerConfiguration config = {intervalInMillis: self.config.pollingInterval, initialDelayInMillis: 100};
+            var noOfPolls = self.config?.noOfPolls;
+            if (noOfPolls is int) {
+                config.noOfRecurrences = noOfPolls;
+            }
             self.appointment = new (config);
         }
         var appointment = self.appointment;
@@ -156,6 +160,7 @@ service appointmentService = service {
 # + protocol - Email server access protocol, "IMAP" or "POP"
 # + protocolConfig - POP3 or IMAP4 protocol configuration
 # + pollingInterval - Periodic time interval to check new update
+# + noOfPolls - Upper bound of number of polls
 # + cronExpression - Cron expression to check new update
 public type ListenerConfig record {|
     string host;
@@ -164,6 +169,7 @@ public type ListenerConfig record {|
     string protocol = "IMAP";
     PopConfig|ImapConfig? protocolConfig = ();
     int pollingInterval = 60000;
+    int noOfPolls?;
     string? cronExpression = ();
 |};
 

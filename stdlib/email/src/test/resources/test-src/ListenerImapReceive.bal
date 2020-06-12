@@ -27,7 +27,8 @@ listener email:Listener emailServer = new ({
     password: "abcdef123",
     protocol: "IMAP",
     protocolConfig: imapConfig,
-    pollingInterval: 2000
+    pollingInterval: 2000,
+    noOfPolls: 60
 });
 
 boolean onMessageInvoked = false;
