@@ -709,13 +709,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(DistinctTypeDescriptorNode distinctTypeDesc) {
         BLangType typeNode = createTypeNode(distinctTypeDesc.typeDescriptor());
-        if (typeNode.getKind() == NodeKind.ERROR_TYPE) {
-            BLangErrorType errorType = (BLangErrorType) typeNode;
-            errorType.flagSet.add(Flag.DISTINCT);
-        } else if (typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
-            BLangUserDefinedType userDefinedType = (BLangUserDefinedType) typeNode;
-            userDefinedType.flagSet.add(Flag.DISTINCT);
-        }
+        typeNode.flagSet.add(Flag.DISTINCT);
         return typeNode;
     }
 

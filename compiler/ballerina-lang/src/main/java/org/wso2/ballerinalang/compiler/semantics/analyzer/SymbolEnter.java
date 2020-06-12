@@ -776,6 +776,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 definedType = distinctType;
             } else if (definedType.getKind() == TypeKind.UNION) {
                 validateUnionForDistinctType((BUnionType) definedType, typeDefinition.pos);
+            } else {
+                dlog.error(typeDefinition.pos, DiagnosticCode.DISTINCT_TYPING_ONLY_SUPPORT_OBJECTS_AND_ERRORS);
             }
         }
 
@@ -859,13 +861,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private boolean isDistinctFlagPresent(BLangTypeDefinition typeDefinition) {
-        boolean distinctFlagPresent = false;
-        if (typeDefinition.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
-            distinctFlagPresent = ((BLangUserDefinedType) typeDefinition.typeNode).flagSet.contains(Flag.DISTINCT);
-        } else if (typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE) {
-            distinctFlagPresent = ((BLangErrorType) typeDefinition.typeNode).flagSet.contains(Flag.DISTINCT);
-        }
-        return distinctFlagPresent;
+        return typeDefinition.typeNode.flagSet.contains(Flag.DISTINCT);
     }
 
     private void handleLangLibTypes(BLangTypeDefinition typeDefinition) {
