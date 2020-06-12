@@ -315,6 +315,7 @@ public class Desugar extends BLangNodeVisitor {
     private SemanticAnalyzer semanticAnalyzer;
     private ResolvedTypeBuilder typeBuilder;
     private boolean withinRetryBlock = false;
+    private MockDesugar mockDesugar;
 
     private BLangStatementLink currentLink;
     public Stack<BLangLockStmt> enclLocks = new Stack<>();
@@ -365,6 +366,7 @@ public class Desugar extends BLangNodeVisitor {
         this.serviceDesugar = ServiceDesugar.getInstance(context);
         this.nodeCloner = NodeCloner.getInstance(context);
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
+        this.mockDesugar = MockDesugar.getInstance(context);
         this.typeBuilder = new ResolvedTypeBuilder();
     }
 
@@ -618,6 +620,11 @@ public class Desugar extends BLangNodeVisitor {
         createPackageInitFunctions(pkgNode, env);
         // Adding object functions to package level.
         addAttachedFunctionsToPackageLevel(pkgNode, env);
+
+        if (!pkgNode.testablePkgs.isEmpty() && pkgNode.testablePkgs.get(0).getMockFunctionNamesMap() != null ) {
+            System.out.println("[Desugar] Creating Mock Desugar");
+            //mockDesugar.generateMockFunctions(pkgNode);
+        }
 
         pkgNode.constants.stream()
                 .filter(constant -> constant.expr.getKind() == NodeKind.LITERAL ||
