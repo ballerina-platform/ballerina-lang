@@ -10957,6 +10957,8 @@ public class BallerinaParser extends AbstractParser {
         STNode closeBraceToken = parseCloseBrace();
 
         endContext();
+        openBraceToken = cloneWithDiagnosticIfListEmpty(enumMemberList, openBraceToken,
+                DiagnosticErrorCode.ERROR_MISSING_ENUM_MEMBER);
         return STNodeFactory.createEnumDeclarationNode(metadata, qualifier, enumKeywordToken, identifier,
                 openBraceToken, enumMemberList, closeBraceToken);
     }
@@ -10990,7 +10992,6 @@ public class BallerinaParser extends AbstractParser {
 
         // Report an empty enum member list
         if (nextToken.kind == SyntaxKind.CLOSE_BRACE_TOKEN) {
-            this.errorHandler.reportMissingTokenError("enum member list cannot be empty");
             return STNodeFactory.createEmptyNodeList();
         }
 
