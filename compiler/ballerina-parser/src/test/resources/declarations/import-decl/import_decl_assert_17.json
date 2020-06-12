@@ -2,7 +2,13 @@
   "kind": "IMPORT_DECLARATION",
   "children": [
     {
-      "kind": "IMPORT_KEYWORD"
+      "kind": "IMPORT_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "LIST",

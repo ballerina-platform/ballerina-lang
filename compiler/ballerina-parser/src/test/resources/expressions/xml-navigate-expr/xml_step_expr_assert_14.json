@@ -12,7 +12,13 @@
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "a"
+                  "value": "a",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
                   "kind": "XML_NAME_PATTERN_CHAIN",
@@ -42,7 +48,13 @@
                       ]
                     },
                     {
-                      "kind": "GT_TOKEN"
+                      "kind": "GT_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 }
@@ -73,7 +85,13 @@
               ]
             },
             {
-              "kind": "CLOSE_BRACKET_TOKEN"
+              "kind": "CLOSE_BRACKET_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
         },
@@ -90,7 +108,13 @@
           ]
         },
         {
-          "kind": "CLOSE_BRACKET_TOKEN"
+          "kind": "CLOSE_BRACKET_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },

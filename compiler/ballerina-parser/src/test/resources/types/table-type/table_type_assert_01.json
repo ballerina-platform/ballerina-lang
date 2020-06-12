@@ -11,10 +11,22 @@
       ]
     },
     {
-      "kind": "PUBLIC_KEYWORD"
+      "kind": "PUBLIC_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
-      "kind": "FUNCTION_KEYWORD"
+      "kind": "FUNCTION_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "IDENTIFIER_TOKEN",
@@ -39,7 +51,13 @@
       "kind": "FUNCTION_BODY_BLOCK",
       "children": [
         {
-          "kind": "OPEN_BRACE_TOKEN"
+          "kind": "OPEN_BRACE_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "value": "\n"
+            }
+          ]
         },
         {
           "kind": "LIST",
@@ -58,7 +76,13 @@
                       "kind": "TABLE_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "TABLE_KEYWORD"
+                          "kind": "TABLE_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ]
                         },
                         {
                           "kind": "TYPE_PARAMETER",
@@ -71,7 +95,13 @@
                               "value": "Myrecord"
                             },
                             {
-                              "kind": "GT_TOKEN"
+                              "kind": "GT_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         }
@@ -89,7 +119,13 @@
                   ]
                 },
                 {
-                  "kind": "SEMICOLON_TOKEN"
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
                 }
               ]
             },
@@ -107,7 +143,13 @@
                       "kind": "TABLE_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "TABLE_KEYWORD"
+                          "kind": "TABLE_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ]
                         },
                         {
                           "kind": "TYPE_PARAMETER",
@@ -119,7 +161,13 @@
                               "kind": "INT_KEYWORD"
                             },
                             {
-                              "kind": "GT_TOKEN"
+                              "kind": "GT_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         }
@@ -137,7 +185,13 @@
                   ]
                 },
                 {
-                  "kind": "SEMICOLON_TOKEN"
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
                 }
               ]
             },
@@ -155,7 +209,13 @@
                       "kind": "TABLE_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "TABLE_KEYWORD"
+                          "kind": "TABLE_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ]
                         },
                         {
                           "kind": "TYPE_PARAMETER",
@@ -168,7 +228,13 @@
                               "value": "Myrecord"
                             },
                             {
-                              "kind": "GT_TOKEN"
+                              "kind": "GT_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -186,7 +252,13 @@
                               "children": []
                             },
                             {
-                              "kind": "CLOSE_PAREN_TOKEN"
+                              "kind": "CLOSE_PAREN_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         }
@@ -204,7 +276,13 @@
                   ]
                 },
                 {
-                  "kind": "SEMICOLON_TOKEN"
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
                 }
               ]
             },
@@ -222,7 +300,13 @@
                       "kind": "TABLE_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "TABLE_KEYWORD"
+                          "kind": "TABLE_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ]
                         },
                         {
                           "kind": "TYPE_PARAMETER",
@@ -235,7 +319,13 @@
                               "value": "Myrecord"
                             },
                             {
-                              "kind": "GT_TOKEN"
+                              "kind": "GT_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -258,7 +348,13 @@
                               ]
                             },
                             {
-                              "kind": "CLOSE_PAREN_TOKEN"
+                              "kind": "CLOSE_PAREN_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         }
@@ -276,7 +372,13 @@
                   ]
                 },
                 {
-                  "kind": "SEMICOLON_TOKEN"
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
                 }
               ]
             },
@@ -294,7 +396,13 @@
                       "kind": "TABLE_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "TABLE_KEYWORD"
+                          "kind": "TABLE_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ]
                         },
                         {
                           "kind": "TYPE_PARAMETER",
@@ -307,7 +415,13 @@
                               "value": "Myrecord"
                             },
                             {
-                              "kind": "GT_TOKEN"
+                              "kind": "GT_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -337,76 +451,11 @@
                               ]
                             },
                             {
-                              "kind": "CLOSE_PAREN_TOKEN"
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "CAPTURE_BINDING_PATTERN",
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "a"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "LOCAL_VAR_DECL",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "TYPED_BINDING_PATTERN",
-                  "children": [
-                    {
-                      "kind": "TABLE_TYPE_DESC",
-                      "children": [
-                        {
-                          "kind": "TABLE_KEYWORD"
-                        },
-                        {
-                          "kind": "TYPE_PARAMETER",
-                          "children": [
-                            {
-                              "kind": "LT_TOKEN"
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "Myrecord"
-                            },
-                            {
-                              "kind": "GT_TOKEN"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "KEY_TYPE_CONSTRAINT",
-                          "children": [
-                            {
-                              "kind": "KEY_KEYWORD"
-                            },
-                            {
-                              "kind": "TYPE_PARAMETER",
-                              "children": [
+                              "kind": "CLOSE_PAREN_TOKEN",
+                              "trailingMinutiae": [
                                 {
-                                  "kind": "LT_TOKEN"
-                                },
-                                {
-                                  "kind": "INT_KEYWORD"
-                                },
-                                {
-                                  "kind": "GT_TOKEN"
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
                                 }
                               ]
                             }
@@ -426,7 +475,13 @@
                   ]
                 },
                 {
-                  "kind": "SEMICOLON_TOKEN"
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
                 }
               ]
             },
@@ -444,7 +499,13 @@
                       "kind": "TABLE_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "TABLE_KEYWORD"
+                          "kind": "TABLE_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ]
                         },
                         {
                           "kind": "TYPE_PARAMETER",
@@ -457,7 +518,108 @@
                               "value": "Myrecord"
                             },
                             {
-                              "kind": "GT_TOKEN"
+                              "kind": "GT_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "KEY_TYPE_CONSTRAINT",
+                          "children": [
+                            {
+                              "kind": "KEY_KEYWORD"
+                            },
+                            {
+                              "kind": "TYPE_PARAMETER",
+                              "children": [
+                                {
+                                  "kind": "LT_TOKEN"
+                                },
+                                {
+                                  "kind": "INT_KEYWORD"
+                                },
+                                {
+                                  "kind": "GT_TOKEN",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "TABLE_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "TABLE_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "TYPE_PARAMETER",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "Myrecord"
+                            },
+                            {
+                              "kind": "GT_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -478,7 +640,13 @@
                                   "value": "MyId"
                                 },
                                 {
-                                  "kind": "GT_TOKEN"
+                                  "kind": "GT_TOKEN",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -498,14 +666,26 @@
                   ]
                 },
                 {
-                  "kind": "SEMICOLON_TOKEN"
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
                 }
               ]
             }
           ]
         },
         {
-          "kind": "CLOSE_BRACE_TOKEN"
+          "kind": "CLOSE_BRACE_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "value": "\n"
+            }
+          ]
         }
       ]
     }

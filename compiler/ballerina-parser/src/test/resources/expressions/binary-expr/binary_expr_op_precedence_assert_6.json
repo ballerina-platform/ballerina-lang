@@ -3,110 +3,242 @@
   "children": [
     {
       "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
+      "value": "a",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
-      "kind": "LOGICAL_OR_TOKEN"
+      "kind": "LOGICAL_OR_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "BINARY_EXPRESSION",
       "children": [
         {
           "kind": "IDENTIFIER_TOKEN",
-          "value": "b"
+          "value": "b",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
-          "kind": "LOGICAL_AND_TOKEN"
+          "kind": "LOGICAL_AND_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "BINARY_EXPRESSION",
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "c"
+              "value": "c",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
-              "kind": "PIPE_TOKEN"
+              "kind": "PIPE_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "BINARY_EXPRESSION",
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "d"
+                  "value": "d",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
-                  "kind": "BITWISE_XOR_TOKEN"
+                  "kind": "BITWISE_XOR_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
                   "kind": "BINARY_EXPRESSION",
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
-                      "value": "e"
+                      "value": "e",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     },
                     {
-                      "kind": "BITWISE_AND_TOKEN"
+                      "kind": "BITWISE_AND_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     },
                     {
                       "kind": "BINARY_EXPRESSION",
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "f"
+                          "value": "f",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         },
                         {
-                          "kind": "NOT_DOUBLE_EQUAL_TOKEN"
+                          "kind": "NOT_DOUBLE_EQUAL_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         },
                         {
                           "kind": "BINARY_EXPRESSION",
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "g"
+                              "value": "g",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
-                              "kind": "GT_EQUAL_TOKEN"
+                              "kind": "GT_EQUAL_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "BINARY_EXPRESSION",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
-                                  "value": "h"
+                                  "value": "h",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 },
                                 {
-                                  "kind": "ELLIPSIS_TOKEN"
+                                  "kind": "ELLIPSIS_TOKEN",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "BINARY_EXPRESSION",
                                   "children": [
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
-                                      "value": "m"
+                                      "value": "m",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     },
                                     {
-                                      "kind": "DOUBLE_GT_TOKEN"
+                                      "kind": "DOUBLE_GT_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "BINARY_EXPRESSION",
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "value": "n"
+                                          "value": "n",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         },
                                         {
-                                          "kind": "PLUS_TOKEN"
+                                          "kind": "PLUS_TOKEN",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "BINARY_EXPRESSION",
                                           "children": [
                                             {
                                               "kind": "IDENTIFIER_TOKEN",
-                                              "value": "i"
+                                              "value": "i",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
                                             },
                                             {
-                                              "kind": "SLASH_TOKEN"
+                                              "kind": "SLASH_TOKEN",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
                                             },
                                             {
                                               "kind": "IDENTIFIER_TOKEN",
