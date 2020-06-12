@@ -1974,12 +1974,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public QueryConstructTypeNode transform(
             QueryConstructTypeNode queryConstructTypeNode) {
-        Token tableKeyword =
-                modifyToken(queryConstructTypeNode.tableKeyword());
+        Token keyword =
+                modifyToken(queryConstructTypeNode.keyword());
         KeySpecifierNode keySpecifier =
-                modifyNode(queryConstructTypeNode.keySpecifier());
+                modifyNode(queryConstructTypeNode.keySpecifier().orElse(null));
         return queryConstructTypeNode.modify(
-                tableKeyword,
+                keyword,
                 keySpecifier);
     }
 

@@ -50,7 +50,7 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
 
     @Test
     public void testFuncDefWithExtraFuncName2() {
-        test("func-definition/func_def_source_18.bal", "func-definition/func_def_assert_01.json");
+        test("func-definition/func_def_source_18.bal", "func-definition/func_def_assert_18.json");
     }
 
     @Test
@@ -120,6 +120,6 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
 
     @Test
     public void testFuncDefWithExtraIncomleteTokenAtEnd() {
-        testFile("func-definition/func_def_source_19.bal", "func-definition/func_def_assert_18.json");
+        testFile("func-definition/func_def_source_19.bal", "func-definition/func_def_assert_19.json");
     }
 }

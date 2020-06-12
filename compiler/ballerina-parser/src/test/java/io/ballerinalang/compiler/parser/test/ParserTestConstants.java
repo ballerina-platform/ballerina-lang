@@ -30,6 +30,7 @@ public class ParserTestConstants {
     public static final String DIAGNOSTICS_FIELD = "diagnostics";
 
     public static final String VALUE_FIELD = "value";
+    public static final String INVALID_NODE_FIELD = "invalidNode";
 
     public static final String IS_MISSING_FIELD = "isMissing";
     public static final String HAS_DIAGNOSTICS = "hasDiagnostics";
