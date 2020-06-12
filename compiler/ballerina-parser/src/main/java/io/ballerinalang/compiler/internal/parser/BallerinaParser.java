@@ -10357,6 +10357,9 @@ public class BallerinaParser extends AbstractParser {
         STNode receiveFields = parseReceiveFields();
         STNode closeBrace = parseCloseBrace();
         endContext();
+
+        openBrace = cloneWithDiagnosticIfListEmpty(receiveFields, openBrace,
+                DiagnosticErrorCode.ERROR_MISSING_RECEIVE_FIELD_IN_RECEIVE_ACTION);
         return STNodeFactory.createReceiveFieldsNode(openBrace, receiveFields, closeBrace);
     }
 
@@ -10366,8 +10369,7 @@ public class BallerinaParser extends AbstractParser {
 
         // Return an empty list
         if (isEndOfReceiveFields(nextToken.kind)) {
-            this.errorHandler.reportMissingTokenError("missing receive field");
-            return STNodeFactory.createNodeList(new ArrayList<>());
+            return STNodeFactory.createEmptyNodeList();
         }
 
         // Parse first receive field, that has no leading comma
