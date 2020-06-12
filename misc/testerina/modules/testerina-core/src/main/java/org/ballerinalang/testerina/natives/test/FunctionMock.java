@@ -32,17 +32,14 @@ public class FunctionMock {
 
     }
 
-    public Object mockHandler(ObjectValue mockObj) {
+    public static Object mockHandler(ObjectValue mockObj) {
         // Extract case Id info
         String caseId = mockObj.getStringValue(StringUtils.fromString("caseId")).toString();
         MockRegistry.getInstance().getReturnValue(caseId);
 
         // function type
-
-
         Strand strand = Scheduler.getStrand();
-
-        ClassLoader classLoader = this.getClass().getClassLoader();
+        ClassLoader classLoader = FunctionMock.class.getClassLoader(); //mockHandler cannot be static
         String orgName = "wso2";
         String packageName = "ballerina/test";
         String version = "0.0.0";
@@ -50,9 +47,12 @@ public class FunctionMock {
         String methodName = ""; // Set the method name here
         Object paramValues = "10";
 
-        Object returnvalue = Executor.executeFunction(strand.scheduler, classLoader, orgName, packageName, version, className, methodName, paramValues);
+        Object returnvalue = "Mock Handler hit";
+
+                //Executor.executeFunction(strand.scheduler, classLoader, orgName, packageName, version, className, methodName, paramValues);
 
         return returnvalue;
+
         // Get the actual case and see if...
 
         // If a return value exists in the case, then just return that value instead
