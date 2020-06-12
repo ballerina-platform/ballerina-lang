@@ -122,10 +122,6 @@ class Utils {
             }
             sqlQuery.append(stringsArray.get(i).toString());
         }
-        if (stringsArray.size() == insertionsArray.size()) {
-            // Special case for `Hi ${name}` where template ends with an insertion
-            sqlQuery.append(" ? ");
-        }
         return sqlQuery.toString();
     }
 
