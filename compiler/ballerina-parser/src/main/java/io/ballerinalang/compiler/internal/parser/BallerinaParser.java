@@ -11513,6 +11513,9 @@ public class BallerinaParser extends AbstractParser {
         STNode xmlNamePattern = parseXMLNamePattern();
         STNode gtToken = parseGTToken();
         endContext();
+
+        startToken = cloneWithDiagnosticIfListEmpty(xmlNamePattern, startToken,
+                DiagnosticErrorCode.ERROR_MISSING_XML_ATOMIC_NAME_PATTERN);
         return STNodeFactory.createXMLNamePatternChainingNode(startToken, xmlNamePattern, gtToken);
     }
 
@@ -11544,7 +11547,6 @@ public class BallerinaParser extends AbstractParser {
 
         // Return an empty list
         if (isEndOfXMLNamePattern(nextToken.kind)) {
-            this.errorHandler.reportMissingTokenError("missing xml atomic name pattern");
             return STNodeFactory.createNodeList(xmlAtomicNamePatternList);
         }
 
