@@ -314,6 +314,7 @@ public class Desugar extends BLangNodeVisitor {
     private NodeCloner nodeCloner;
     private SemanticAnalyzer semanticAnalyzer;
     private ResolvedTypeBuilder typeBuilder;
+    private boolean withinRetryBlock = false;
 
     private BLangStatementLink currentLink;
     public Stack<BLangLockStmt> enclLocks = new Stack<>();
@@ -2373,6 +2374,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangLambdaFunction retryFunc = createLambdaFunction(pos, "$retryFunc$",
                 Collections.emptyList(), retryLambdaReturnType, retryBody);
         retryBody.stmts.addAll(retryNode.retryBody.stmts);
+        retryFunc.function = resolveReturnTypeCast(retryFunc.function, env);
         BVarSymbol retryFuncVarSymbol = new BVarSymbol(0, names.fromString("$retryFunc$"),
                 env.scope.owner.pkgID, retryFunc.type, retryFunc.function.symbol);
         BLangSimpleVariable retryLambdaVariable = ASTBuilderUtil.createVariable(pos, "$retryFunc$",
@@ -2431,6 +2433,14 @@ public class Desugar extends BLangNodeVisitor {
         //  }
         //  returns <TypeCast>$result$;
         result = rewrite(retryBlockStmt, env);
+    }
+
+    protected BLangFunction resolveReturnTypeCast(BLangFunction function, SymbolEnv env) {
+        boolean prevWithinRetryBlock = this.withinRetryBlock;
+        this.withinRetryBlock = true;
+        BLangFunction rewrittenFunc = rewrite(function, env);
+        this.withinRetryBlock = prevWithinRetryBlock;
+        return rewrittenFunc;
     }
 
     protected BLangWhile createRetryWhileLoop(DiagnosticPos retryBlockPos, BLangSimpleVariableDef retryManagerVarDef,
@@ -2504,11 +2514,16 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRetryTransaction retryTransaction) {
         BLangStatementExpression retryTransactionStmtExpr = transactionDesugar.desugar(retryTransaction, env);
-        BLangExpressionStmt transactionExprStmt  = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
-        transactionExprStmt.pos = retryTransaction.pos;
-        transactionExprStmt.expr = retryTransactionStmtExpr;
-        transactionExprStmt.type = symTable.nilType;
-        result = rewrite(transactionExprStmt, env);
+        if (!retryTransaction.transactionReturns) {
+            BLangExpressionStmt transactionExprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
+            transactionExprStmt.pos = retryTransaction.pos;
+            transactionExprStmt.expr = retryTransactionStmtExpr;
+            transactionExprStmt.type = symTable.nilType;
+            result = rewrite(transactionExprStmt, env);
+        } else {
+            BLangReturn bLangReturn = ASTBuilderUtil.createReturnStmt(retryTransaction.pos, retryTransactionStmtExpr);
+            result = rewrite(bLangReturn, env);
+        }
     }
 
     @Override
@@ -2526,7 +2541,11 @@ public class Desugar extends BLangNodeVisitor {
         // If the return node do not have an expression, we add `done` statement instead of a return statement. This is
         // to distinguish between returning nil value specifically and not returning any value.
         if (returnNode.expr != null) {
-            returnNode.expr = rewriteExpr(returnNode.expr);
+            if (this.withinRetryBlock) {
+                returnNode.expr = rewriteExpr(addConversionExprIfRequired(returnNode.expr, symTable.anyOrErrorType));
+            } else {
+                returnNode.expr = rewriteExpr(returnNode.expr);
+            }
         }
         result = returnNode;
     }
