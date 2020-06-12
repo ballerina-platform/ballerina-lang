@@ -74,6 +74,7 @@ import io.ballerinalang.compiler.syntax.tree.ImportSubVersionNode;
 import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
 import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.InterpolationNode;
+import io.ballerinalang.compiler.syntax.tree.IntersectionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.KeySpecifierNode;
 import io.ballerinalang.compiler.syntax.tree.KeyTypeConstraintNode;
 import io.ballerinalang.compiler.syntax.tree.LetClauseNode;
@@ -308,6 +309,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -2735,6 +2737,28 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         selectClause.pos = getPosition(selectClauseNode);
         selectClause.expression = createExpression(selectClauseNode.expression());
         return selectClause;
+    }
+
+    @Override
+    public BLangNode transform(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
+        BLangType lhsType = (BLangType) intersectionTypeDescriptorNode.leftTypeDesc().apply(this);
+        BLangType rhsType = (BLangType) intersectionTypeDescriptorNode.rightTypeDesc().apply(this);
+
+        BLangIntersectionTypeNode intersectionType;
+        if (rhsType.getKind() == NodeKind.INTERSECTION_TYPE_NODE) {
+            intersectionType = (BLangIntersectionTypeNode) rhsType;
+            intersectionType.constituentTypeNodes.add(0, lhsType);
+        } else if (lhsType.getKind() == NodeKind.INTERSECTION_TYPE_NODE) {
+            intersectionType = (BLangIntersectionTypeNode) lhsType;
+            intersectionType.constituentTypeNodes.add(rhsType);
+        } else {
+            intersectionType = (BLangIntersectionTypeNode) TreeBuilder.createIntersectionTypeNode();
+            intersectionType.constituentTypeNodes.add(lhsType);
+            intersectionType.constituentTypeNodes.add(rhsType);
+        }
+
+        intersectionType.pos = getPosition(intersectionTypeDescriptorNode);
+        return intersectionType;
     }
 
     @Override
