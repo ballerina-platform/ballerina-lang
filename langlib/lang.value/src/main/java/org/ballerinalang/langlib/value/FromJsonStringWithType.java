@@ -28,9 +28,6 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import java.io.Reader;
-import java.io.StringReader;
-
 import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
 
 /**
@@ -61,9 +58,8 @@ public class FromJsonStringWithType {
         if (str.equals("null")) {
             return null;
         }
-        Reader reader = new StringReader(str);
         try {
-            Object jsonFromString = JSONParser.parse(reader);
+            Object jsonFromString = JSONParser.parse(str);
             return FromJsonWithType.fromJsonWithType(strand, jsonFromString, t);
         } catch (BallerinaException e) {
             return BallerinaErrors.createError("{ballerina}FromJsonStringWithTypeError", e.getMessage());
