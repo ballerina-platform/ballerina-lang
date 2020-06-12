@@ -137,8 +137,13 @@ public class BallerinaSchema implements BallerinaOpenApiObject<BallerinaSchema, 
 
     private String getPropertyType(Schema prop) {
         String type;
-
-        switch (prop.getType()) {
+        String check;
+        if ((prop instanceof ComposedSchema) && (prop.getType() == null)) {
+            check = "json";
+        } else {
+            check = prop.getType();
+        }
+        switch (check) {
             case "integer":
                 type = "int";
                 break;
@@ -156,12 +161,15 @@ public class BallerinaSchema implements BallerinaOpenApiObject<BallerinaSchema, 
                 } else {
                     type = escapeIdentifier(getReferenceType(ref));
                 }
-    
+
                 // define type with ballerina array syntax
                 type += "[]";
                 break;
             case "object":
                 type = "anydata";
+                break;
+            case "json":
+                type = "json";
                 break;
             default:
                 type = prop.getType();

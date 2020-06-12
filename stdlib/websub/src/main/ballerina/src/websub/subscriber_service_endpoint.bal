@@ -39,8 +39,20 @@ public type Listener object {
     #
     # + port - The port number of the remote service
     # + config - The configurations related to the `websub:Listener`
-    public function __init(int port, SubscriberListenerConfiguration? config = ()) {
-        self.init(port, config);
+    public function init(int port, SubscriberListenerConfiguration? config = ()) {
+        self.config = config;
+        http:ListenerConfiguration? serviceConfig = ();
+        if (config is SubscriberListenerConfiguration) {
+            http:ListenerConfiguration httpServiceConfig = {
+                host: config.host,
+                secureSocket: config.httpServiceSecureSocket
+            };
+            serviceConfig = httpServiceConfig;
+        }
+        http:Listener httpEndpoint = new(port, serviceConfig);
+        self.serviceEndpoint = httpEndpoint;
+
+        externInitWebSubSubscriberServiceEndpoint(self);
     }
 
 # Binds a service to the `websub:Listener`.
@@ -99,25 +111,6 @@ public type Listener object {
 #
 # + return - () or else an `error` upon failure to stop the listener
     public function __immediateStop() returns error? {
-    }
-
-    # Gets called when the `websub:Listener` is being initialized during the module initialization.
-    #
-    # + sseEpConfig - The Subscriber Service configurations of the `websub:Listener`
-    function init(int port, SubscriberListenerConfiguration? sseEpConfig = ()) {
-        self.config = sseEpConfig;
-        http:ListenerConfiguration? serviceConfig = ();
-        if (sseEpConfig is SubscriberListenerConfiguration) {
-            http:ListenerConfiguration httpServiceConfig = {
-                host: sseEpConfig.host,
-                secureSocket: sseEpConfig.httpServiceSecureSocket
-            };
-            serviceConfig = httpServiceConfig;
-        }
-        http:Listener httpEndpoint = new(port, serviceConfig);
-        self.serviceEndpoint = httpEndpoint;
-
-        externInitWebSubSubscriberServiceEndpoint(self);
     }
 
     # Sends subscription requests to the specified/discovered hubs if specified to subscribe on startup.

@@ -2,15 +2,27 @@
   "kind": "BINARY_EXPRESSION",
   "children": [
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "x"
-    },
-    {
-      "kind": "PLUS_TOKEN"
-    },
-    {
       "kind": "BINARY_EXPRESSION",
       "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "x",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "PLUS_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
         {
           "kind": "METHOD_CALL",
           "children": [
@@ -67,18 +79,30 @@
               "children": []
             },
             {
-              "kind": "CLOSE_PAREN_TOKEN"
+              "kind": "CLOSE_PAREN_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
-        },
-        {
-          "kind": "PLUS_TOKEN"
-        },
-        {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "y"
         }
       ]
+    },
+    {
+      "kind": "PLUS_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "y"
     }
   ]
 }

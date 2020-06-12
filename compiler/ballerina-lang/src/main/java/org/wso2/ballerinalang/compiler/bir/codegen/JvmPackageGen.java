@@ -91,6 +91,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACK
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_THREAD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
@@ -234,10 +236,26 @@ public class JvmPackageGen {
         mv.visitFieldInsn(PUTSTATIC, className, "LOCK_STORE", lockStoreClass);
 
         setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
+        setModuleStatusField(cw, mv, className);
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    private static void setModuleStatusField(ClassWriter cw, MethodVisitor mv, String initClass) {
+
+        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, MODULE_START_ATTEMPTED, "Z", null, null);
+        fv.visitEnd();
+
+        mv.visitInsn(ICONST_0);
+        mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_START_ATTEMPTED, "Z");
+
+        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, MODULE_STARTED, "Z", null, null);
+        fv.visitEnd();
+
+        mv.visitInsn(ICONST_0);
+        mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_STARTED, "Z");
     }
 
     private static void setServiceEPAvailableField(ClassWriter cw, MethodVisitor mv, boolean serviceEPAvailable,
@@ -360,9 +378,7 @@ public class JvmPackageGen {
         // implement run() method
         mv = cw.visitMethod(ACC_PUBLIC, "run", "()V", null, null);
         mv.visitCode();
-
         mv.visitMethodInsn(INVOKESTATIC, initClass, MODULE_STOP, "()V", false);
-
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();

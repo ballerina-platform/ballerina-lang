@@ -30,7 +30,7 @@ public type SubscriptionClient client object {
     #
     # + url    - The URL at which the subscription should be changed
     # + config - The `http:ClientConfiguration` for the underlying client or `()`
-    public function __init(string url, http:ClientConfiguration? config = ()) {
+    public function init(string url, http:ClientConfiguration? config = ()) {
         self.url = url;
         self.httpClient = new (self.url, config);
         self.followRedirects = config?.followRedirects;

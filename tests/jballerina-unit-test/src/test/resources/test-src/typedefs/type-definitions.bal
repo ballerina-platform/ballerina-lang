@@ -138,12 +138,12 @@ function testXml() returns T12 {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-type FB "A" | object { string f; function __init(string f) { self.f = f; }};
+type FB "A" | object { string f; function init(string f) { self.f = f; }};
 
 type Foo object {
     string f;
 
-    function __init(string f) {
+    function init(string f) {
         self.f = f;
     }
 };

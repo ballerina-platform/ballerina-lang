@@ -35,7 +35,7 @@ public class TableNegativeTest {
     @Test
     public void testTableNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 20);
+        Assert.assertEquals(compileResult.getErrorCount(), 21);
         int index = 0;
 
         validateError(compileResult, index++, "unknown type 'CusTable'",
@@ -76,7 +76,9 @@ public class TableNegativeTest {
         validateError(compileResult, index++, "table with constraint of type map cannot have key " +
                 "specifier or key type constraint", 116, 21);
         validateError(compileResult, index++, "member access is not supported for keyless table 'tab'", 120, 26);
-        validateError(compileResult, index, "cannot infer the member type from table constructor. " +
+        validateError(compileResult, index++, "cannot infer the member type from table constructor. " +
                 "field 'id' type is ambiguous", 125, 14);
+        validateError(compileResult, index, "cannot infer the member type from table constructor; " +
+                "no values are provided in table constructor", 130, 25);
     }
 }

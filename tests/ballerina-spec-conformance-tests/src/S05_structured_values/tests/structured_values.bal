@@ -434,7 +434,7 @@ public type BarRecordThirteen record {|
 public type FooObjectThirteen object {
     public string fooFieldOne;
 
-    public function __init(string fooFieldOne) {
+    public function init(string fooFieldOne) {
         self.fooFieldOne = fooFieldOne;
     }
 
@@ -446,7 +446,7 @@ public type FooObjectThirteen object {
 public type BarObjectThirteen object {
     public int barFieldOne;
 
-    public function __init(int barFieldOne) {
+    public function init(int barFieldOne) {
         self.barFieldOne = barFieldOne;
     }
 

@@ -123,7 +123,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -1596,10 +1595,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangAbort abortNode) {
-    }
-
-    @Override
     public void visit(BLangRetry retryNode) {
     }
 
@@ -1695,18 +1690,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         transactionNode.transactionBody.accept(this);
-        if (transactionNode.abortedBody != null) {
-            transactionNode.abortedBody.accept(this);
-        }
-        if (transactionNode.committedBody != null) {
-            transactionNode.committedBody.accept(this);
-        }
-        if (transactionNode.onRetryBody != null) {
-            transactionNode.onRetryBody.accept(this);
-        }
-        if (transactionNode.retryCount != null) {
-            transactionNode.retryCount.accept(this);
-        }
     }
 
     @Override

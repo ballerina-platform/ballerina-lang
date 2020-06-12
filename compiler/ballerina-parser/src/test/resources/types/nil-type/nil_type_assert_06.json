@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_VAR_DECL",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -12,9 +13,11 @@
     },
     {
       "kind": "TYPED_BINDING_PATTERN",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "PARENTHESISED_TYPE_DESC",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "OPEN_PAREN_TOKEN"
@@ -26,13 +29,23 @@
                   "kind": "OPEN_PAREN_TOKEN"
                 },
                 {
-                  "kind": "CLOSE_PAREN_TOKEN"
+                  "kind": "CLOSE_PAREN_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },
             {
               "kind": "CLOSE_PAREN_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+              ]
             }
           ]
         },

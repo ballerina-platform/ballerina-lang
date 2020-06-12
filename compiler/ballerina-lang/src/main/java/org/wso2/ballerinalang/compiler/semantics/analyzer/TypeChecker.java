@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -73,6 +74,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -97,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
@@ -126,6 +129,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -735,6 +739,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
 
+            if (tableConstructorExpr.recordLiteralList.size() == 0) {
+                dlog.error(tableConstructorExpr.pos, DiagnosticCode.CANNOT_INFER_MEMBER_TYPE_FOR_TABLE);
+                resultType = symTable.semanticError;
+                return;
+            }
+
             BType inherentMemberType = inferTableMemberType(memTypes, tableConstructorExpr);
             BTableType tableType = new BTableType(TypeTags.TABLE, inherentMemberType, null);
             for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
@@ -881,7 +891,7 @@ public class TypeChecker extends BLangNodeVisitor {
             String fieldName = field.name.value;
 
             if (fieldNames.contains(fieldName)) {
-                dlog.error(tableConstructorExpr.pos, DiagnosticCode.CANNOT_INFER_MEMBER_TYPE_FOR_TABLE,
+                dlog.error(tableConstructorExpr.pos, DiagnosticCode.CANNOT_INFER_MEMBER_TYPE_FOR_TABLE_DUE_AMBIGUITY,
                         fieldName);
                 return symTable.semanticError;
             }
@@ -3188,6 +3198,15 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(binaryExpr, actualType, expType);
     }
 
+    public void visit(BLangTransactionalExpr transactionalExpr) {
+        resultType = types.checkType(transactionalExpr, symTable.booleanType, expType);
+    }
+
+    public void visit(BLangCommitExpr commitExpr) {
+        BType actualType = BUnionType.create(null, symTable.errorType, symTable.nilType);
+        resultType = types.checkType(commitExpr, actualType, expType);
+    }
+
     private BType getXMLConstituents(BType type) {
         BType constituent = null;
         if (type.tag == TypeTags.XML) {
@@ -3306,6 +3325,11 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangTypeConversionExpr conversionExpr) {
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
+
+        for (BLangAnnotationAttachment annAttachment : conversionExpr.annAttachments) {
+            annAttachment.attachPoints.add(AttachPoint.Point.TYPE);
+            semanticAnalyzer.analyzeNode(annAttachment, this.env);
+        }
 
         // Annotation such as <@untainted [T]>, where T is not provided,
         // it's merely a annotation on contextually expected type.
@@ -4128,7 +4152,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangNode node = env.node;
         SymbolEnv cEnv = env;
         while (node != null && node.getKind() != NodeKind.FUNCTION) {
-            if (node.getKind() == NodeKind.TRANSACTION) {
+            if (node.getKind() == NodeKind.TRANSACTION || node.getKind() == NodeKind.RETRY) {
                 SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
                 BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
                         SymTag.VARIABLE);
@@ -4447,7 +4471,7 @@ public class TypeChecker extends BLangNodeVisitor {
             iExpr.symbol = funcSymbol;
         }
 
-        // __init method can be called in a method-call-expr only when the expression
+        // init method can be called in a method-call-expr only when the expression
         // preceding the . is self
         if (iExpr.name.value.equals(Names.USER_DEFINED_INIT_SUFFIX.value) &&
                 !(iExpr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&

@@ -1,12 +1,23 @@
 {
   "kind": "ANNOT_ACCESS",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "IDENTIFIER_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_IDENTIFIER"
+      ]
     },
     {
-      "kind": "ANNOT_CHAINING_TOKEN"
+      "kind": "ANNOT_CHAINING_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "IDENTIFIER_TOKEN",

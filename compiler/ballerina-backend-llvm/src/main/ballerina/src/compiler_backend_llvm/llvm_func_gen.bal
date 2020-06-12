@@ -26,7 +26,7 @@ type FuncGenrator object {
     llvm:LLVMValueRef? varAllocBB = ();
     llvm:LLVMBuilderRef builder;
 
-    function __init(bir:Function func, llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef builder) {
+    function init(bir:Function func, llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef builder) {
         self.func = func;
         self.mod = mod;
         self.builder = builder;

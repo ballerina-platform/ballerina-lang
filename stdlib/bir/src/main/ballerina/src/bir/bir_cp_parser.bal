@@ -29,7 +29,7 @@ public type ConstPoolParser object {
     int i;
     byte[]?[] unparsedTypes = [];
     
-    public function __init(ChannelReader reader) {
+    public function init(ChannelReader reader) {
         self.reader = reader;
         self.i = 0;
     }

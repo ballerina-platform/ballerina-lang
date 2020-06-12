@@ -167,7 +167,7 @@ public type Consumer client object {
     # Creates a new Kafka `Consumer`.
     #
     # + config - Configurations related to consumer endpoint
-    public function __init (ConsumerConfiguration config) {
+    public function init (ConsumerConfiguration config) {
         self.consumerConfig = config;
         self.keyDeserializerType = config.keyDeserializerType;
         self.valueDeserializerType = config.valueDeserializerType;
@@ -205,8 +205,12 @@ public type Consumer client object {
                             "provide 'schemaRegistryUrl' configuration in 'kafka:ConsumerConfiguration'.");
             }
         }
+        checkpanic self->connect();
 
-        checkpanic self.init(config);
+        string[]? topics = config?.topics;
+        if (topics is string[]){
+            checkpanic self->subscribe(topics);
+        }
     }
 
     # Starts the registered services.
@@ -244,16 +248,6 @@ public type Consumer client object {
     # + s - The service to be detached
     # + return - An `kafka:ConsumerError` if an error is encountered while detaching a service or else nil
     public function __detach(service s) returns error? {
-    }
-
-    function init(ConsumerConfiguration config) returns ConsumerError? {
-        checkpanic self->connect();
-
-        string[]? topics = config?.topics;
-        if (topics is string[]){
-            checkpanic self->subscribe(topics);
-        }
-        return;
     }
 
     # Assigns consumer to a set of topic partitions.
