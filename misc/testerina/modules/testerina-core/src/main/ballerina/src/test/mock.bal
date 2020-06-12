@@ -69,7 +69,7 @@ public function mock(typedesc<object {}> T, object{} mockObj = new) returns obje
 # + mockObj - created mock object
 # + return - prepared object that expects a member functon/field to mock
 public function prepare(object {} mockObj) returns MockObj {
-    Error? result = validatePrepareObjExt(mockObj);
+    Error? result = validatePreparedObjExt(mockObj);
     if (result is Error) {
         panic result;
     }
@@ -79,78 +79,74 @@ public function prepare(object {} mockObj) returns MockObj {
 
 # Initial mock object created to expose functions to user to regster cases
 public type MockObj object {
-    object {} prepareObj;
-    string functionName = "";
+    object {} preparedObj;
     string fieldName = "";
 
     # Gets invoked during the mock object preparation.
     #
-    # + prepareObj - object to register cases
+    # + preparedObj - object to register cases
     # + return - mock object
-    public function __init(object{} prepareObj) {
-        self.prepareObj = prepareObj;
+    public function __init(object{} preparedObj) {
+        self.preparedObj = preparedObj;
     }
 
     # Accepts a member function to mock.
     #
     # + funcName - member funcion name
     # + return - mock case that expects the function behavior
-    public function when(string funcName) returns Case {
-        self.functionName = funcName;
-        Error? result = validateFunctionNameExt(self);
+    public function when(string funcName) returns CaseMemFunc {
+        Error? result = validateFunctionNameExt(java:fromString(funcName), self.preparedObj);
         if (result is Error) {
              panic result;
         }
-        Case mockObjCase = new Case(self.prepareObj);
-        mockObjCase.functionName = funcName;
-        return mockObjCase;
+        CaseMemFunc mockObjCaseMemFunc = new CaseMemFunc(self.preparedObj);
+        mockObjCaseMemFunc.functionName = funcName;
+        return mockObjCaseMemFunc;
     }
 
     # Accepts a member field to mock
     #
     # + fieldName - memeber field name
     # + return - mock case that expects the value to return
-    public function getMember(string fieldName) returns Case {
+    public function getMember(string fieldName) returns CaseMemVar {
         self.fieldName = fieldName;
-        Error? result = validateFieldNameExt(self);
+        Error? result = validateFieldNameExt(java:fromString(fieldName), self.preparedObj);
         if (result is Error) {
              panic result;
         }
-        Case mockObjCase = new Case(self.prepareObj);
-        mockObjCase.fieldName = fieldName;
-        return mockObjCase;
+        CaseMemVar mockObjCaseMemVar = new CaseMemVar(self.preparedObj);
+        mockObjCaseMemVar.fieldName = fieldName;
+        return mockObjCaseMemVar;
     }
 };
 
-# Represents a single case of a mock object
+# Represents a single case of a member function
 #
-# + prepareObj - created mock object
+# + preparedObj - created mock object
 # + functionName - member function name
 # + args - arguments list of the function
 # + returnVal - value to return
 # + returnValSeq - equence of values to return
-# + fieldName - field name
-public  type Case object {
-    object {} prepareObj;
+public  type CaseMemFunc object {
+    object {} preparedObj;
     string functionName = "";
     anydata|error args = [];
     any|error returnVal = ();
     any|error returnValSeq = [];
-    string fieldName = "";
 
     # Gets invoked during the mock case registration.
     #
-    # + prepareObj - object to register cases
+    # + preparedObj - object to register cases
     # + return - mock object
-    public function __init(object{} prepareObj) {
-        self.prepareObj = prepareObj;
+    public function __init(object{} preparedObj) {
+        self.preparedObj = preparedObj;
     }
 
     # Accepts the arguments list to pass to the member function.
     #
     # + args - arguments list
     # + return - mock case that expects the function behavior
-    public function withArguments(anydata|error... args) returns Case {
+    public function withArguments(anydata|error... args) returns CaseMemFunc {
         self.args = args;
         Error? result = validateArgumentsExt(self);
         if (result is Error) {
@@ -163,7 +159,7 @@ public  type Case object {
     #
     # + retVal - return value
     public function thenReturn(any|error retVal) {
-        if (self.functionName == "" && self.fieldName == "") {
+        if (self.functionName == "") {
              error err = error("function to mock is not specified.");
              panic err;
         }
@@ -178,7 +174,7 @@ public  type Case object {
     #
     # + retVals - return values
     public function thenReturnSequence(any|error... retVals) {
-        if (self.functionName == "" && self.fieldName == "") {
+        if (self.functionName == "") {
              error err = error("function to mock is not specified.");
              panic err;
         }
@@ -207,7 +203,40 @@ public  type Case object {
     }
 };
 
-// Interop functions
+# Represents a single case of a memeber variable
+#
+# + preparedObj - created mock object
+# + returnVal - value to return
+public  type CaseMemVar object {
+    object {} preparedObj;
+    any|error returnVal = ();
+    string fieldName = "";
+
+    # Gets invoked during the mock case registration
+    #
+    # + preparedObj - object to register cases
+    # + return - mock object
+    public function __init(object{} preparedObj) {
+        self.preparedObj = preparedObj;
+    }
+
+    # Sets the value to be returned when the function is called.
+    #
+    # + retVal - return value
+    public function thenReturn(any|error retVal) {
+        if (self.fieldName == "") {
+             error err = error("field name is not specified.");
+             panic err;
+        }
+        self.returnVal = retVal;
+        Error? thenReturnExtResult = thenReturnExt(self);
+        if (thenReturnExtResult is Error) {
+            panic thenReturnExtResult;
+        }
+    }
+};
+
+// Inter-op functions
 
 # Inter-op to create the mock object
 #
@@ -219,47 +248,31 @@ function mockExt(typedesc<object {}> T, object {} obj) returns object{}|Error = 
     class: "org.ballerinalang.testerina.natives.test.Mock"
 } external;
 
-# Inter-op to register the return value
-#
-# + case - case to register
-# + return - error if case registration failed
-function thenReturnExt(object{} case) returns Error? = @java:Method {
-    name: "thenReturn",
-    class: "org.ballerinalang.testerina.natives.test.Mock"
-} external;
-
-# Inter-op to register the sequence of return values;
-#
-# + case - case to register
-# + return - error if case registration failed
-function thenReturnSeqExt(object{} case) returns Error? = @java:Method {
-    name: "thenReturnSequence",
-    class: "org.ballerinalang.testerina.natives.test.Mock"
-} external;
-
 # Inter-op to validate the mock object.
 #
-# + prepareObj - mock object
+# + preparedObj - mock object
 # + return - Return Value Description
-function validatePrepareObjExt(object{} prepareObj) returns Error? = @java:Method {
-    name: "validatePrepareObj",
+function validatePreparedObjExt(object{} preparedObj) returns Error? = @java:Method {
+    name: "validatePreparedObj",
     class: "org.ballerinalang.testerina.natives.test.Mock"
 } external;
 
 # Inter-op to validate the provided function name
 #
-# + case - case to validate
+# + functionName - function name provided
+# + preparedObj - object to validate against
 # + return - error if function does not exist or in case of a signature mismatch
-function validateFunctionNameExt(object{} case) returns Error? = @java:Method {
+function validateFunctionNameExt(handle functionName, object{} preparedObj) returns Error? = @java:Method {
     name: "validateFunctionName",
     class: "org.ballerinalang.testerina.natives.test.Mock"
 } external;
 
 # Inter-op to validate the field name.
 #
-# + case - case to validate
+# + fieldName - field name provided
+# + preparedObj - obj to validate against
 # + return - error if field does not exist
-function validateFieldNameExt(object{} case) returns Error? = @java:Method {
+function validateFieldNameExt(handle fieldName, object{} preparedObj) returns Error? = @java:Method {
     name: "validateFieldName",
     class: "org.ballerinalang.testerina.natives.test.Mock"
 } external;
@@ -268,7 +281,25 @@ function validateFieldNameExt(object{} case) returns Error? = @java:Method {
 #
 # + case - case to validate
 # + return - error in case of an argument mismatch
-function validateArgumentsExt(object{} case) returns Error? = @java:Method {
+function validateArgumentsExt(CaseMemFunc case) returns Error? = @java:Method {
     name: "validateArguments",
+    class: "org.ballerinalang.testerina.natives.test.Mock"
+} external;
+
+# Inter-op to register the return value
+#
+# + case - case to register
+# + return - error if case registration failed
+function thenReturnExt(CaseMemFunc|CaseMemVar case) returns Error? = @java:Method {
+    name: "thenReturn",
+    class: "org.ballerinalang.testerina.natives.test.Mock"
+} external;
+
+# Inter-op to register the sequence of return values;
+#
+# + case - case to register
+# + return - error if case registration failed
+function thenReturnSeqExt(CaseMemFunc case) returns Error? = @java:Method {
+    name: "thenReturnSequence",
     class: "org.ballerinalang.testerina.natives.test.Mock"
 } external;
