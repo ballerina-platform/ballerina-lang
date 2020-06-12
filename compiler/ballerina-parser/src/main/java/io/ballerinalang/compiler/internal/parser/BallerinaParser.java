@@ -12668,7 +12668,10 @@ public class BallerinaParser extends AbstractParser {
         STNode ellipsis = parseEllipsis();
         STNode varName = parseVariableName();
         endContext();
-        return STNodeFactory.createRestBindingPatternNode(ellipsis, varName);
+
+        STSimpleNameReferenceNode simpleNameReferenceNode = (STSimpleNameReferenceNode) STNodeFactory
+                .createSimpleNameReferenceNode(varName);
+        return STNodeFactory.createRestBindingPatternNode(ellipsis, simpleNameReferenceNode);
     }
 
     /**
@@ -12832,14 +12835,16 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseFieldBindingPattern(STNode identifier) {
+        STNode simpleNameReference = STNodeFactory.createSimpleNameReferenceNode(identifier);
+
         if (peek().kind != SyntaxKind.COLON_TOKEN) {
-            return STNodeFactory.createFieldBindingPatternVarnameNode(identifier);
+            return STNodeFactory.createFieldBindingPatternVarnameNode(simpleNameReference);
         }
 
         STNode colon = parseColon();
         STNode bindingPattern = parseBindingPattern();
 
-        return STNodeFactory.createFieldBindingPatternFullNode(identifier, colon, bindingPattern);
+        return STNodeFactory.createFieldBindingPatternFullNode(simpleNameReference, colon, bindingPattern);
     }
 
     private boolean isEndOfMappingBindingPattern(SyntaxKind nextTokenKind) {
