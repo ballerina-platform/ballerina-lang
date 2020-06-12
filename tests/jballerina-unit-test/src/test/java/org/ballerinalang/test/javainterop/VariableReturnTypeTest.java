@@ -55,7 +55,7 @@ public class VariableReturnTypeTest {
         validateError(errors, indx++, "incompatible types: expected 'float', found '(int|float)'", 61, 15);
         validateError(errors, indx++, "unknown type 'td'", 64, 73);
         validateError(errors, indx++, "unknown type 'td'", 72, 54);
-        validateError(errors, indx++, "unknown type 'td'", 74, 90);
+        validateError(errors, indx++, "unknown type 'td'", 74, 88);
         validateError(errors, indx++, "invalid error reason type 'other', expected a subtype of 'string'", 86, 83);
         validateError(errors, indx++, "unknown type 'reason'", 86, 83);
         validateError(errors, indx++, "invalid error detail type 'detail', expected a subtype of 'record {| " +
