@@ -1139,12 +1139,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ForEachStatementNode forEachStatementNode) {
         BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
         foreach.pos = getPosition(forEachStatementNode);
-
         TypedBindingPatternNode typedBindingPatternNode = forEachStatementNode.typedBindingPattern();
-        boolean isDeclaredWithVar = typedBindingPatternNode.typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC;
-        VariableDefinitionNode variableDefinitionNode = createVarDefNode(typedBindingPatternNode, isDeclaredWithVar);
+        VariableDefinitionNode variableDefinitionNode = createBLangVarDef(getPosition(typedBindingPatternNode),
+                typedBindingPatternNode, Optional.empty(), Optional.empty());
         foreach.setVariableDefinitionNode(variableDefinitionNode);
-        foreach.isDeclaredWithVar = isDeclaredWithVar;
+        foreach.isDeclaredWithVar = typedBindingPatternNode.typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC;
 
         BLangBlockStmt foreachBlock = (BLangBlockStmt) forEachStatementNode.blockStatement().apply(this);
         foreachBlock.pos = getPosition(forEachStatementNode.blockStatement());
@@ -1864,25 +1863,43 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     public BLangLetVariable createLetVariable(LetVariableDeclarationNode letVarDecl) {
         BLangLetVariable letVar = TreeBuilder.createLetVariableNode();
-        boolean isDeclaredWithVar =
-                letVarDecl.typedBindingPattern().typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC;
-        VariableDefinitionNode varDefNode = createVarDefNode(letVarDecl.typedBindingPattern(), isDeclaredWithVar);
-        if (letVarDecl.expression() != null) {
-            varDefNode.getVariable().setInitialExpression(createExpression(letVarDecl.expression()));
-        }
+        VariableDefinitionNode varDefNode = createBLangVarDef(getPosition(letVarDecl), letVarDecl.typedBindingPattern(),
+                Optional.of(letVarDecl.expression()), Optional.empty());
         letVar.definitionNode = varDefNode;
         return letVar;
     }
 
     @Override
+    public BLangNode transform(MappingBindingPatternNode mappingBindingPatternNode) {
+        // TODO: create record-var-ref
+        return transformSyntaxNode(mappingBindingPatternNode);
+    }
+
+    @Override
+    public BLangNode transform(ListBindingPatternNode listBindingPatternNode) {
+        // TODO: create tuple-var-ref
+        return transformSyntaxNode(listBindingPatternNode);
+    }
+
+    @Override
+    public BLangNode transform(RestBindingPatternNode restBindingPatternNode) {
+        // TODO: create rest-var-ref
+        return transformSyntaxNode(restBindingPatternNode);
+    }
+
+    @Override
     public BLangNode transform(CaptureBindingPatternNode captureBindingPatternNode) {
-        Node parent = captureBindingPatternNode.parent();
-        if (parent.kind() == SyntaxKind.FIELD_BINDING_PATTERN || parent.kind() == SyntaxKind.LIST_BINDING_PATTERN) {
-            return addBindingPatternMemberVariable(getPosition(captureBindingPatternNode),
-                    captureBindingPatternNode.variableName().text(),
-                    getPosition(captureBindingPatternNode.variableName()));
-        }
-        return null;
+        return createExpression(captureBindingPatternNode.variableName());
+    }
+
+    @Override
+    public BLangNode transform(WildcardBindingPatternNode wildcardBindingPatternNode) {
+        BLangSimpleVarRef ignoreVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        BLangIdentifier ignore = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        ignore.value = Names.IGNORE.value;
+        ignoreVarRef.variableName = ignore;
+        ignore.pos = getPosition(wildcardBindingPatternNode);
+        return ignoreVarRef;
     }
 
     // -----------------------------------------------Statements--------------------------------------------------------
@@ -1964,87 +1981,51 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return bLAssignment;
     }
 
-    public BLangNode transformDestructingStatement(
-            AssignmentStatementNode assignmentStmtNode) {
+    public BLangNode transformDestructingStatement(AssignmentStatementNode assignmentStmtNode) {
         BLangTupleDestructure bLAssignmentDesc =
                 (BLangTupleDestructure) TreeBuilder.createTupleDestructureStatementNode();
-        bLAssignmentDesc.varRef = (BLangTupleVarRef)
-                TreeBuilder.createTupleVariableReferenceNode();
-        addListBindingPattern(bLAssignmentDesc.varRef,
-                (ListBindingPatternNode) assignmentStmtNode.children().get(0));
+        bLAssignmentDesc.varRef = (BLangTupleVarRef) createExpression(assignmentStmtNode.varRef());
         bLAssignmentDesc.setExpression(createExpression(assignmentStmtNode.expression()));
         return bLAssignmentDesc;
     }
-
-
-    public void addListBindingPattern(BLangTupleVarRef bLangTupleVarRef,
-                                      ListBindingPatternNode listBindingPatternNode) {
-        Optional restBindingPatternNode =
-                listBindingPatternNode.restBindingPattern();
-        if (restBindingPatternNode.isPresent()) {
-            bLangTupleVarRef.restParam =
-                    createExpression(
-                            ((RestBindingPatternNode) restBindingPatternNode.get()).
-                                    children().get(1)
-                    );
-        }
-        for (Node expr : listBindingPatternNode.bindingPatterns()) {
-            switch (expr.kind()) {
-                case LIST_BINDING_PATTERN:
-                    BLangTupleVarRef res = (BLangTupleVarRef)
-                            TreeBuilder.createTupleVariableReferenceNode();
-                    addListBindingPattern(res, (ListBindingPatternNode) expr);
-                    bLangTupleVarRef.expressions.add(res);
-                    break;
-                // mapping binding pattern
-                case CAPTURE_BINDING_PATTERN:
-                    bLangTupleVarRef.expressions.add(
-                            createExpression(
-                                    ((CaptureBindingPatternNode) expr).children().get(0))
-                    );
-                    break;
-                case WILDCARD_BINDING_PATTERN:
-                    bLangTupleVarRef.expressions.add(
-                            createExpression(
-                                    ((WildcardBindingPatternNode) expr).children().get(0))
-                    );
-                    break;
-                default:
-                    throw new RuntimeException("" +
-                            "Syntax kind is not supported in listbindingpattern: " + expr.kind());
-            }
-
-        }
-    }
-
-    @Override
-    public BLangNode transform(MappingBindingPatternNode mappingBindingPatternNode) {
-        BLangRecordVariable recordVariable = (BLangRecordVariable) TreeBuilder.createRecordVariableNode();
-        recordVariable.pos = getPosition(mappingBindingPatternNode);
-        recordVariable.variableList = createVariableListForMappingBindingPattern(mappingBindingPatternNode);
-
-        if (mappingBindingPatternNode.restBindingPattern().isPresent()) {
-            recordVariable.restParam = (VariableNode) mappingBindingPatternNode.restBindingPattern().get().apply(this);
-        }
-
-        return recordVariable;
-    }
-
-    @Override
-    public BLangNode transform(RestBindingPatternNode restBindingPatternNode) {
-        return addBindingPatternMemberVariable(getPosition(restBindingPatternNode),
-                restBindingPatternNode.variableName().name().text(),
-                getPosition(restBindingPatternNode.variableName()));
-    }
+//
+//    public void addListBindingPattern(BLangTupleVarRef bLangTupleVarRef,
+//            ListBindingPatternNode listBindingPatternNode) {
+//        Optional restBindingPatternNode = listBindingPatternNode.restBindingPattern();
+//        if (restBindingPatternNode.isPresent()) {
+//            bLangTupleVarRef.restParam =
+//                    createExpression(((RestBindingPatternNode) restBindingPatternNode.get()).children().get(1));
+//        }
+//        for (Node expr : listBindingPatternNode.bindingPatterns()) {
+//            switch (expr.kind()) {
+//                case LIST_BINDING_PATTERN:
+//                    BLangTupleVarRef res = (BLangTupleVarRef) TreeBuilder.createTupleVariableReferenceNode();
+//                    addListBindingPattern(res, (ListBindingPatternNode) expr);
+//                    bLangTupleVarRef.expressions.add(res);
+//                    break;
+//                // mapping binding pattern
+//                case CAPTURE_BINDING_PATTERN:
+//                    bLangTupleVarRef.expressions
+//                            .add(createExpression(((CaptureBindingPatternNode) expr).children().get(0)));
+//                    break;
+//                case WILDCARD_BINDING_PATTERN:
+//                    bLangTupleVarRef.expressions
+//                            .add(createExpression(((WildcardBindingPatternNode) expr).children().get(0)));
+//                    break;
+//                default:
+//                    throw new RuntimeException(
+//                            "" + "Syntax kind is not supported in listbindingpattern: " + expr.kind());
+//            }
+//        }
+//    }
 
     @Override
     public BLangNode transform(CompoundAssignmentStatementNode compoundAssignmentStmtNode) {
         BLangCompoundAssignment bLCompAssignment = (BLangCompoundAssignment) TreeBuilder.createCompoundAssignmentNode();
         bLCompAssignment.setExpression(createExpression(compoundAssignmentStmtNode.rhsExpression()));
 
-        bLCompAssignment.setVariable(
-                (BLangVariableReference) createExpression(compoundAssignmentStmtNode.lhsExpression())
-        );
+        bLCompAssignment
+                .setVariable((BLangVariableReference) createExpression(compoundAssignmentStmtNode.lhsExpression()));
         bLCompAssignment.pos = getPosition(compoundAssignmentStmtNode);
         bLCompAssignment.opKind = OperatorKind.valueFrom(compoundAssignmentStmtNode.binaryOperator().text());
         return bLCompAssignment;
@@ -2114,49 +2095,69 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(VariableDeclarationNode varDeclaration) {
-        return createSimpleVarDef(getPosition(varDeclaration), varDeclaration.typedBindingPattern(),
+        return (BLangNode) createBLangVarDef(getPosition(varDeclaration), varDeclaration.typedBindingPattern(),
                 varDeclaration.initializer(), varDeclaration.finalKeyword());
     }
 
-    private BLangNode createSimpleVarDef(DiagnosticPos pos, TypedBindingPatternNode typedBindingPattern,
-                                         Optional<io.ballerinalang.compiler.syntax.tree.ExpressionNode> initializer,
-                                         Optional<Token> finalKeyword) {
-        BLangSimpleVariableDef bLVarDef = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
-        bLVarDef.pos = pos;
-
-        String text = null;
-        switch (typedBindingPattern.bindingPattern().kind()) {
+    private VariableDefinitionNode createBLangVarDef(DiagnosticPos pos, TypedBindingPatternNode typedBindingPattern,
+                                        Optional<io.ballerinalang.compiler.syntax.tree.ExpressionNode> initializer,
+                                        Optional<Token> finalKeyword) {
+        BindingPatternNode bindingPattern = typedBindingPattern.bindingPattern();
+        BLangVariable variable = getBLangVariableNode(bindingPattern);
+        switch (bindingPattern.kind()) {
             case CAPTURE_BINDING_PATTERN:
-                CaptureBindingPatternNode captureBindingPattern =
-                        (CaptureBindingPatternNode) typedBindingPattern.bindingPattern();
-                pos = getPosition(captureBindingPattern.variableName());
-                text = captureBindingPattern.variableName().text();
-                break;
             case WILDCARD_BINDING_PATTERN:
-                WildcardBindingPatternNode wildcardBindingPatternNode =
-                        (WildcardBindingPatternNode) typedBindingPattern.bindingPattern();
-                pos = getPosition(wildcardBindingPatternNode.underscoreToken());
-                text = wildcardBindingPatternNode.underscoreToken().text();
-                break;
+                BLangSimpleVariableDef bLVarDef =
+                        (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
+                bLVarDef.pos = pos;
+                BLangExpression expr = initializer.isPresent() ? createExpression(initializer.get()) : null;
+                variable.setInitialExpression(expr);
+                bLVarDef.setVariable(variable);
+                if (finalKeyword.isPresent()) {
+                    variable.flagSet.add(Flag.FINAL);
+                }
+                return bLVarDef;
             case MAPPING_BINDING_PATTERN:
-                boolean isDeclaredWithVar = typedBindingPattern.typeDescriptor().kind() == SyntaxKind.VAR_KEYWORD;
                 return createRecordVariableDef((MappingBindingPatternNode) typedBindingPattern.bindingPattern(),
-                        initializer, typedBindingPattern.typeDescriptor(), finalKeyword.isPresent(), isDeclaredWithVar);
+                        initializer, typedBindingPattern.typeDescriptor(), finalKeyword.isPresent());
+            case LIST_BINDING_PATTERN:
+                return createTupleVariableDef(typedBindingPattern.typeDescriptor(),
+                        (ListBindingPatternNode) typedBindingPattern.bindingPattern(), initializer,
+                        finalKeyword.isPresent());
             default:
                 throw new RuntimeException("Syntax kind is not a valid binding pattern " +
                         typedBindingPattern.bindingPattern().kind());
         }
 
-        BLangSimpleVariable simpleVar = new SimpleVarBuilder()
-                .with(text, pos)
-                .setPos(bLVarDef.pos)
-                .setTypeByNode(typedBindingPattern.typeDescriptor())
-                .setExpressionByNode(initializer.orElse(null))
-                .setFinal(finalKeyword.isPresent())
-                .build();
+//        BLangSimpleVariable simpleVar = new SimpleVarBuilder()
+//                .with(text, pos)
+//                .setPos(bLVarDef.pos)
+//                .setTypeByNode(typedBindingPattern.typeDescriptor())
+//                .setExpressionByNode(initializer.orElse(null))
+//                .setFinal(finalKeyword.isPresent())
+//                .build();
+    }
 
-        bLVarDef.setVariable(simpleVar);
-        return bLVarDef;
+    private BLangTupleVariableDef createTupleVariableDef(TypeDescriptorNode typeDesc,
+            ListBindingPatternNode listBindingPattern,
+            Optional<io.ballerinalang.compiler.syntax.tree.ExpressionNode> initializer, boolean isFinal) {
+        BLangTupleVariable var = (BLangTupleVariable) TreeBuilder.createTupleVariableNode();
+        if (isFinal) {
+            markVariableAsFinal(var);
+        }
+
+        BLangTupleVariableDef varDefNode = (BLangTupleVariableDef) TreeBuilder.createTupleVariableDefinitionNode();
+        if (initializer.isPresent()) {
+            var.setInitialExpression(createExpression(initializer.get()));
+        }
+
+        varDefNode.pos = getPosition(listBindingPattern);
+        varDefNode.setVariable(var);
+        var.isDeclaredWithVar = typeDesc.kind() == SyntaxKind.VAR_KEYWORD;
+        if (!var.isDeclaredWithVar) {
+            var.setTypeNode(createTypeNode(typeDesc));
+        }
+        return varDefNode;
     }
 
     @Override
@@ -2785,24 +2786,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
-    public BLangNode transform(ListBindingPatternNode listBindingPatternNode) {
-        BLangTupleVariable tupleVariable = (BLangTupleVariable) TreeBuilder.createTupleVariableNode();
-        tupleVariable.pos = getPosition(listBindingPatternNode);
-
-        Optional<RestBindingPatternNode> restBindingPattern = listBindingPatternNode.restBindingPattern();
-        if (restBindingPattern.isPresent()) {
-            tupleVariable.restVariable = (BLangVariable) restBindingPattern.get().apply(this);
-        }
-
-        for (BindingPatternNode bindingPattern : listBindingPatternNode.bindingPatterns()) {
-            final BLangVariable member = (BLangVariable) bindingPattern.apply(this);
-            tupleVariable.memberVariables.add(member);
-        }
-
-        return tupleVariable;
-    }
-
-    @Override
     public BLangNode transform(LetClauseNode letClauseNode) {
         BLangLetClause bLLetClause = (BLangLetClause) TreeBuilder.createLetClauseNode();
         bLLetClause.pos = getPosition(letClauseNode);
@@ -2821,10 +2804,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangFromClause fromClause = (BLangFromClause) TreeBuilder.createFromClauseNode();
         fromClause.pos = getPosition(fromClauseNode);
         fromClause.collection = createExpression(fromClauseNode.expression());
-
         TypedBindingPatternNode bindingPatternNode = fromClauseNode.typedBindingPattern();
         boolean isDeclaredWithVar = bindingPatternNode.typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC;
-        fromClause.variableDefinitionNode = createVarDefNode(bindingPatternNode, isDeclaredWithVar);
+        fromClause.variableDefinitionNode = createBLangVarDef(getPosition(bindingPatternNode), bindingPatternNode,
+                Optional.empty(), Optional.empty());
         fromClause.isDeclaredWithVar = isDeclaredWithVar;
 
         return fromClause;
@@ -2967,41 +2950,33 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     // ------------------------------------------private methods--------------------------------------------------------
-    private List<BLangRecordVariable.BLangRecordVariableKeyValue> createVariableListForMappingBindingPattern(
-            MappingBindingPatternNode mappingBindingPatternNode) {
-        List<BLangRecordVariable.BLangRecordVariableKeyValue> fieldBindingPatternsList = new ArrayList<>();
+    private List<BLangRecordVariableKeyValue>
+            createVariableListForMappingBindingPattern(MappingBindingPatternNode mappingBindingPatternNode) {
+
+        List<BLangRecordVariableKeyValue> fieldBindingPatternsList = new ArrayList<>();
         for (FieldBindingPatternNode node : mappingBindingPatternNode.fieldBindingPatterns()) {
+            BLangRecordVariableKeyValue recordKeyValue = new BLangRecordVariableKeyValue();
             if (node instanceof FieldBindingPatternFullNode) {
                 FieldBindingPatternFullNode fullNode = (FieldBindingPatternFullNode) node;
-                SimpleNameReferenceNode variableName = fullNode.variableName();
-                fieldBindingPatternsList.add(addFieldBindingMemberVar(getPosition(fullNode), variableName.name().text(),
-                        getPosition(variableName), fullNode.bindingPattern()));
+                recordKeyValue.key = createIdentifier(fullNode.variableName().name());
+                recordKeyValue.valueBindingPattern = getBLangVariableNode(fullNode.bindingPattern());
+                fieldBindingPatternsList.add(recordKeyValue);
             } else {
                 FieldBindingPatternVarnameNode varnameNode = (FieldBindingPatternVarnameNode) node;
-                SimpleNameReferenceNode variableName = varnameNode.variableName();
-                fieldBindingPatternsList
-                        .add(addFieldBindingMemberVar(getPosition(varnameNode), variableName.name().text(),
-                                getPosition(variableName), null));
+                recordKeyValue.key = createIdentifier(varnameNode.variableName().name());
+                BLangSimpleVariable value = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+                value.pos = getPosition(varnameNode);
+                IdentifierNode name = createIdentifier(varnameNode.variableName().name());
+                ((BLangIdentifier) name).pos = value.pos;
+                value.setName(name);
+                recordKeyValue.valueBindingPattern = value;
             }
         }
 
         return fieldBindingPatternsList;
     }
 
-    private BLangRecordVariableKeyValue addFieldBindingMemberVar(DiagnosticPos pos,
-            String identifier, DiagnosticPos identifierPos, BindingPatternNode bindingPattern) {
-        BLangRecordVariableKeyValue recordKeyValue = new BLangRecordVariableKeyValue();
-        recordKeyValue.key = createIdentifier(identifierPos, identifier);
-        if (bindingPattern == null) {
-            recordKeyValue.valueBindingPattern = addBindingPatternMemberVariable(pos, identifier, identifierPos);
-        } else {
-            recordKeyValue.valueBindingPattern = (BLangVariable) bindingPattern.apply(this);
-        }
-        return recordKeyValue;
-    }
-
-    private BLangVariable addBindingPatternMemberVariable(DiagnosticPos pos, String identifier,
-            DiagnosticPos identifierPos) {
+    private BLangVariable createSimpleVariable(DiagnosticPos pos, String identifier, DiagnosticPos identifierPos) {
         BLangSimpleVariable memberVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         memberVar.pos = pos;
         IdentifierNode name = createIdentifier(identifierPos, identifier);
@@ -3010,20 +2985,18 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return memberVar;
     }
 
-    private BLangNode addRecordVariableDefStatment(VariableDeclarationNode varDeclaration) {
+    private VariableDefinitionNode addRecordVariableDefStatment(VariableDeclarationNode varDeclaration) {
         TypedBindingPatternNode bindingPattern = varDeclaration.typedBindingPattern();
         boolean isFinal = varDeclaration.finalKeyword().isPresent();
-        boolean isDeclaredWithVar = bindingPattern.typeDescriptor().kind() == SyntaxKind.VAR_KEYWORD;
-
         return createRecordVariableDef((MappingBindingPatternNode) bindingPattern.bindingPattern(),
-                varDeclaration.initializer(), bindingPattern.typeDescriptor(), isFinal, isDeclaredWithVar);
+                varDeclaration.initializer(), bindingPattern.typeDescriptor(), isFinal);
     }
 
-    private BLangNode createRecordVariableDef(MappingBindingPatternNode bindingPattern,
+    private VariableDefinitionNode createRecordVariableDef(MappingBindingPatternNode bindingPattern,
             Optional<io.ballerinalang.compiler.syntax.tree.ExpressionNode> initializer, TypeDescriptorNode type,
-            boolean isFinal, boolean isDeclaredWithVar) {
+            boolean isFinal) {
         BLangRecordVariableDef varDefNode = (BLangRecordVariableDef) TreeBuilder.createRecordVariableDefinitionNode();
-        BLangRecordVariable var = (BLangRecordVariable) bindingPattern.apply(this);
+        BLangRecordVariable var = (BLangRecordVariable) getBLangVariableNode(bindingPattern);
 
         if (isFinal) {
             markVariableAsFinal(var);
@@ -3035,12 +3008,61 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         varDefNode.pos = getPosition(bindingPattern);
         varDefNode.setVariable(var);
-        var.isDeclaredWithVar = isDeclaredWithVar;
-        if (!isDeclaredWithVar) {
+
+        var.isDeclaredWithVar = type.kind() == SyntaxKind.VAR_KEYWORD;
+        if (!var.isDeclaredWithVar) {
             var.setTypeNode(createTypeNode(type));
         }
 
         return varDefNode;
+    }
+
+    private BLangVariable getBLangVariableNode(BindingPatternNode bindingPattern) {
+        Token varName;
+        switch (bindingPattern.kind()) {
+            case MAPPING_BINDING_PATTERN:
+                MappingBindingPatternNode mappingBindingPatternNode = (MappingBindingPatternNode) bindingPattern;
+                BLangRecordVariable recordVariable = (BLangRecordVariable) TreeBuilder.createRecordVariableNode();
+                recordVariable.pos = getPosition(mappingBindingPatternNode);
+                recordVariable.variableList = createVariableListForMappingBindingPattern(mappingBindingPatternNode);
+                if (mappingBindingPatternNode.restBindingPattern().isPresent()) {
+                    recordVariable.restParam =
+                            getBLangVariableNode(mappingBindingPatternNode.restBindingPattern().get());
+                }
+
+                return recordVariable;
+            case LIST_BINDING_PATTERN:
+                ListBindingPatternNode listBindingPatternNode = (ListBindingPatternNode) bindingPattern;
+                BLangTupleVariable tupleVariable = (BLangTupleVariable) TreeBuilder.createTupleVariableNode();
+                tupleVariable.pos = getPosition(listBindingPatternNode);
+                Optional<RestBindingPatternNode> restBindingPattern = listBindingPatternNode.restBindingPattern();
+                if (restBindingPattern.isPresent()) {
+                    tupleVariable.restVariable = getBLangVariableNode(restBindingPattern.get());
+                }
+
+                for (BindingPatternNode memberBindingPattern : listBindingPatternNode.bindingPatterns()) {
+                    final BLangVariable member = getBLangVariableNode(memberBindingPattern);
+                    tupleVariable.memberVariables.add(member);
+                }
+
+                return tupleVariable;
+            case REST_BINDING_PATTERN:
+                RestBindingPatternNode restBindingPatternNode = (RestBindingPatternNode) bindingPattern;
+                varName = restBindingPatternNode.variableName().name();
+                break;
+            case WILDCARD_BINDING_PATTERN:
+                WildcardBindingPatternNode wildcardBindingPatternNode = (WildcardBindingPatternNode) bindingPattern;
+                varName = wildcardBindingPatternNode.underscoreToken();
+                break;
+            case CAPTURE_BINDING_PATTERN:
+            default:
+                CaptureBindingPatternNode captureBindingPatternNode = (CaptureBindingPatternNode) bindingPattern;
+                varName = captureBindingPatternNode.variableName();
+                break;
+        }
+
+        DiagnosticPos pos = getPosition(bindingPattern);
+        return createSimpleVariable(pos, varName.text(), getPosition(varName));
     }
 
     BLangValueType addValueType(DiagnosticPos pos, TypeKind typeKind) {
@@ -3082,28 +3104,28 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return version.toString();
     }
 
-    private VariableDefinitionNode createVarDefNode(TypedBindingPatternNode typedBindingPatternNode,
-                                                    boolean isDeclaredWithVar) {
-        SyntaxKind kind = typedBindingPatternNode.bindingPattern().kind();
-        switch (kind) {
-            case CAPTURE_BINDING_PATTERN:
-                CaptureBindingPatternNode captureBindingPatternNode =
-                        (CaptureBindingPatternNode) typedBindingPatternNode.bindingPattern();
-                BLangSimpleVariable variable = createVarFromCaptureBindingPattern(captureBindingPatternNode,
-                        typedBindingPatternNode.typeDescriptor(), isDeclaredWithVar);
-                return createSimpleVariableDef(variable, getPosition(typedBindingPatternNode));
-            case LIST_BINDING_PATTERN:
-                ListBindingPatternNode listBindingPatternNode =
-                        (ListBindingPatternNode) typedBindingPatternNode.bindingPattern();
-
-                BLangTupleVariable tupleVariable = createVarFromListBindingPattern(listBindingPatternNode,
-                        isDeclaredWithVar);
-                return createTupleVariableDef(tupleVariable, getPosition(listBindingPatternNode));
-            default:
-                throw new RuntimeException("Syntax kind is not supported: " +
-                        typedBindingPatternNode.bindingPattern().kind());
-        }
-    }
+//    private VariableDefinitionNode createVarDefNode(TypedBindingPatternNode typedBindingPatternNode,
+//                                                    boolean isDeclaredWithVar) {
+//        SyntaxKind kind = typedBindingPatternNode.bindingPattern().kind();
+//        switch (kind) {
+//            case CAPTURE_BINDING_PATTERN:
+//                CaptureBindingPatternNode captureBindingPatternNode =
+//                        (CaptureBindingPatternNode) typedBindingPatternNode.bindingPattern();
+//                BLangSimpleVariable variable = createVarFromCaptureBindingPattern(captureBindingPatternNode,
+//                        typedBindingPatternNode.typeDescriptor(), isDeclaredWithVar);
+//                return createSimpleVariableDef(variable, getPosition(typedBindingPatternNode));
+//            case LIST_BINDING_PATTERN:
+//                ListBindingPatternNode listBindingPatternNode =
+//                        (ListBindingPatternNode) typedBindingPatternNode.bindingPattern();
+//
+//                BLangTupleVariable tupleVariable = createVarFromListBindingPattern(listBindingPatternNode,
+//                        isDeclaredWithVar);
+//                return createTupleVariableDef(tupleVariable, getPosition(listBindingPatternNode));
+//            default:
+//                throw new RuntimeException("Syntax kind is not supported: " +
+//                        typedBindingPatternNode.bindingPattern().kind());
+//        }
+//    }
 
     private BLangSimpleVariable createVarFromCaptureBindingPattern(CaptureBindingPatternNode captureBindingPatternNode,
                                                                    TypeDescriptorNode typeDesc,
