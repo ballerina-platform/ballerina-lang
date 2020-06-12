@@ -134,6 +134,7 @@ import io.ballerinalang.compiler.syntax.tree.RestDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RestParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.RollbackStatementNode;
 import io.ballerinalang.compiler.syntax.tree.SelectClauseNode;
 import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerinalang.compiler.syntax.tree.ServiceBodyNode;
@@ -313,6 +314,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRollback;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -2147,6 +2149,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             expandLeft(bLBlockStmt.pos, getPosition(blockStatement.parent()));
         }
         return bLBlockStmt;
+    }
+
+    @Override
+    public BLangNode transform(RollbackStatementNode rollbackStatementNode) {
+        BLangRollback rollbackStmt = (BLangRollback) TreeBuilder.createRollbackNode();
+        rollbackStmt.pos = getPosition(rollbackStatementNode);
+        if (rollbackStatementNode.expression().isPresent()) {
+            rollbackStmt.expr = createExpression(rollbackStatementNode.expression().get());
+        }
+
+        return rollbackStmt;
     }
 
     @Override
