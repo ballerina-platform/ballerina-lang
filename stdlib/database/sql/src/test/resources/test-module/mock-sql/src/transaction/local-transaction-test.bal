@@ -271,92 +271,92 @@ type ResultCount record {
 //    return [count];
 //}
 //
-//function testLocalTransactionFailed(string jdbcURL, string user, string password) returns @tainted [string, int]|error? {
-//    mockclient:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-//
-//    string a = "beforetx";
-//
-//    var ret = trap testLocalTransactionFailedHelper(a, dbClient);
-//    if (ret is string) {
-//        a = ret;
-//    } else {
-//        a = a + " trapped";
-//    }
-//    a = a + " afterTrx";
-//    int count = check getCount(dbClient, "111");
-//    check dbClient.close();
-//    return [a, count];
-//}
-//
-//function testLocalTransactionFailedHelper(string status, mockclient:Client dbClient) returns string|error {
-//    string a = status;
-//    transactions:Info transInfo;
-//    int i = 0;
-//
-//    var onRollbackFunc = function(transactions:Info? info, error? cause, boolean willTry) {
-//                i = i + 1;
-//                io:println("**** aborted ****", i);
-//                a = a + " trxAborted";
-//            };
-//
-//    retry(1) transaction {
-//        a = a + " inTrx";
-//        transInfo = transactions:info();
-//        transactions:onRollback(onRollbackFunc);
-//        var e1 = check dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
-//                        "values ('James', 'Clerk', 111, 5000.75, 'USA')");
-//        var e2 = check dbClient->execute("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country) " +
-//                        "values ('Anne', 'Clerk', 111, 5000.75, 'USA')");
-//        check commit;
-//    }
-//    return a;
-//}
-//
-function testLocalTransactionSuccessWithFailed(string jdbcURL, string user, string password) returns @tainted [string, int]|error? {
+function testLocalTransactionFailed(string jdbcURL, string user, string password) returns @tainted [string, int]|error? {
     mockclient:Client dbClient = check new (url = jdbcURL, user = user, password = password);
 
     string a = "beforetx";
-    string | error ret = trap testLocalTransactionSuccessWithFailedHelper(a, dbClient);
+
+    var ret = trap testLocalTransactionFailedHelper(a, dbClient);
     if (ret is string) {
         a = ret;
     } else {
-        a = a + "trapped";
+        a = a + " trapped";
     }
     a = a + " afterTrx";
-    int count = check getCount(dbClient, "222");
+    int count = check getCount(dbClient, "111");
     check dbClient.close();
     return [a, count];
 }
 
-function testLocalTransactionSuccessWithFailedHelper(string status, mockclient:Client dbClient) returns string|error {
-    int i = 0;
+function testLocalTransactionFailedHelper(string status, mockclient:Client dbClient) returns string|error {
     string a = status;
-    retry (3) transaction {
-        i = i + 1;
+    transactions:Info transInfo;
+    int i = 0;
+
+    var onRollbackFunc = function(transactions:Info? info, error? cause, boolean willTry) {
+                i = i + 1;
+                io:println("**** aborted ****", i);
+                a = a + " trxAborted";
+            };
+
+    retry(1) transaction {
         a = a + " inTrx";
-        var e1 = check dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)" +
-                                    " values ('James', 'Clerk', 222, 5000.75, 'USA')");
-        if (i == 3) {
-            var e2 = check dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
-                                        "values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
-        } else {
-            var e3 = check dbClient->execute("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country) " +
-                                        "values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
-        }
+        transInfo = transactions:info();
+        transactions:onRollback(onRollbackFunc);
+        var e1 = check dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                        "values ('James', 'Clerk', 111, 5000.75, 'USA')");
+        var e2 = check dbClient->execute("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country) " +
+                        "values ('Anne', 'Clerk', 111, 5000.75, 'USA')");
         check commit;
-        a = a + " committed";
     }
     return a;
 }
-
-function getCount(mockclient:Client dbClient, string id) returns @tainted int|error{
-    stream<ResultCount, error> streamData = <stream<ResultCount, error>> dbClient->query("Select COUNT(*) as " +
-        "countval from Customers where registrationID = "+ id, ResultCount);
-        record {|ResultCount value;|}? data = check streamData.next();
-        check streamData.close();
-        ResultCount? value = data?.value;
-        if(value is ResultCount){
-           return value.COUNTVAL;
-        }
-        return 0;
-}
+//
+//function testLocalTransactionSuccessWithFailed(string jdbcURL, string user, string password) returns @tainted [string, int]|error? {
+//    mockclient:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+//
+//    string a = "beforetx";
+//    string | error ret = trap testLocalTransactionSuccessWithFailedHelper(a, dbClient);
+//    if (ret is string) {
+//        a = ret;
+//    } else {
+//        a = a + "trapped";
+//    }
+//    a = a + " afterTrx";
+//    int count = check getCount(dbClient, "222");
+//    check dbClient.close();
+//    return [a, count];
+//}
+//
+//function testLocalTransactionSuccessWithFailedHelper(string status, mockclient:Client dbClient) returns string|error {
+//    int i = 0;
+//    string a = status;
+//    retry (3) transaction {
+//        i = i + 1;
+//        a = a + " inTrx";
+//        var e1 = check dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)" +
+//                                    " values ('James', 'Clerk', 222, 5000.75, 'USA')");
+//        if (i == 3) {
+//            var e2 = check dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+//                                        "values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
+//        } else {
+//            var e3 = check dbClient->execute("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country) " +
+//                                        "values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
+//        }
+//        check commit;
+//        a = a + " committed";
+//    }
+//    return a;
+//}
+//
+//function getCount(mockclient:Client dbClient, string id) returns @tainted int|error{
+//    stream<ResultCount, error> streamData = <stream<ResultCount, error>> dbClient->query("Select COUNT(*) as " +
+//        "countval from Customers where registrationID = "+ id, ResultCount);
+//        record {|ResultCount value;|}? data = check streamData.next();
+//        check streamData.close();
+//        ResultCount? value = data?.value;
+//        if(value is ResultCount){
+//           return value.COUNTVAL;
+//        }
+//        return 0;
+//}

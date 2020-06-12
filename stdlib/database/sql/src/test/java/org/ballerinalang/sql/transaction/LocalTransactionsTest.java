@@ -156,27 +156,27 @@ public class LocalTransactionsTest {
 //        BValueArray bArray = (BValueArray) returnVal[0];
 //        Assert.assertEquals(((BInteger) bArray.getBValue(0)).intValue(), 2);
 //    }
-//
-//    @Test
-//    public void testLocalTransactionFailed() {
-//        BValue[] returnVal = BRunUtil.invokeFunction(result, "testLocalTransactionFailed", args);
-//        SQLDBUtils.assertNotError(returnVal[0]);
-//        Assert.assertTrue(returnVal[0] instanceof BValueArray);
-//        BValueArray bArray = (BValueArray) returnVal[0];
-//        Assert.assertEquals(((BString) bArray.getBValue(0)).stringValue(),
-//                "beforetx inTrx onRetry inTrx onRetry inTrx onRetry inTrx trxAborted afterTrx");
-//        Assert.assertEquals(((BInteger) bArray.getBValue(1)).intValue(), 0);
-//    }
-//
+
     @Test
-    public void testLocalTransactionSuccessWithFailed() {
-        BValue[] returnVal = BRunUtil.invokeFunction(result, "testLocalTransactionSuccessWithFailed", args);
+    public void testLocalTransactionFailed() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testLocalTransactionFailed", args);
         SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BValueArray);
         BValueArray bArray = (BValueArray) returnVal[0];
         Assert.assertEquals(((BString) bArray.getBValue(0)).stringValue(),
-                "beforetx inTrx inTrx inTrx committed afterTrx");
-        Assert.assertEquals(((BInteger) bArray.getBValue(1)).intValue(), 2);
+                "beforetx inTrx onRetry inTrx onRetry inTrx onRetry inTrx trxAborted afterTrx");
+        Assert.assertEquals(((BInteger) bArray.getBValue(1)).intValue(), 0);
     }
+
+//    @Test
+//    public void testLocalTransactionSuccessWithFailed() {
+//        BValue[] returnVal = BRunUtil.invokeFunction(result, "testLocalTransactionSuccessWithFailed", args);
+//        SQLDBUtils.assertNotError(returnVal[0]);
+//        Assert.assertTrue(returnVal[0] instanceof BValueArray);
+//        BValueArray bArray = (BValueArray) returnVal[0];
+//        Assert.assertEquals(((BString) bArray.getBValue(0)).stringValue(),
+//                "beforetx inTrx inTrx inTrx committed afterTrx");
+//        Assert.assertEquals(((BInteger) bArray.getBValue(1)).intValue(), 2);
+//    }
 
 }
