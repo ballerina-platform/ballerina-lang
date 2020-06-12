@@ -3609,7 +3609,7 @@
                 {
                     "name": "matchClauses",
                     "type": "MatchClauseNode",
-                    "occurrences": "MULTIPLE_SEPARATED"
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "closeBrace",
