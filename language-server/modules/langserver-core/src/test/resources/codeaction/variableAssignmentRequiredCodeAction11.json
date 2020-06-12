@@ -7,28 +7,28 @@
             {
                 "range": {
                     "start": {
-                        "line": 0,
-                        "character": 0
+                        "line": 4,
+                        "character": 4
                     },
                     "end": {
-                        "line": 0,
-                        "character": 0
+                        "line": 4,
+                        "character": 4
                     }
                 },
-                "newText": "import ballerina/lang.\u0027xml;\n"
+                "newText": "'xml:Element element = "
             },
             {
                 "range": {
                     "start": {
-                        "line": 4,
-                        "character": 4
+                        "line": 0,
+                        "character": 0
                     },
                     "end": {
-                        "line": 4,
-                        "character": 4
+                        "line": 0,
+                        "character": 0
                     }
                 },
-                "newText": "\u0027xml:Element element \u003d "
+                "newText": "import ballerina/lang.'xml;\n"
             }
         ]
     }

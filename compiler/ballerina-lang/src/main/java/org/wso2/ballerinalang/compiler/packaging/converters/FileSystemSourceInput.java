@@ -1,5 +1,7 @@
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
+import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import io.ballerinalang.compiler.text.TextDocuments;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.repository.CompilerInput;
 
@@ -20,6 +22,7 @@ public class FileSystemSourceInput implements CompilerInput {
 
     // Cached Value.
     private byte[] code = null;
+    private SyntaxTree tree = null;
     private String entryName = null;
 
     public FileSystemSourceInput(Path path) {
@@ -64,6 +67,15 @@ public class FileSystemSourceInput implements CompilerInput {
         } catch (IOException e) {
             throw new BLangCompilerException("Error reading source file " + path);
         }
+    }
+
+    @Override
+    public SyntaxTree getTree() {
+        if (this.tree != null) {
+            return this.tree;
+        }
+        this.tree = SyntaxTree.from(TextDocuments.from(new String(getCode())));
+        return this.tree;
     }
 
     public Path getPath() {
