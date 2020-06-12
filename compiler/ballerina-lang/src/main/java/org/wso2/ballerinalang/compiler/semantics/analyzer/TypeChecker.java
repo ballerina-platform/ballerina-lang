@@ -185,7 +185,6 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -3673,6 +3672,8 @@ public class TypeChecker extends BLangNodeVisitor {
         Map<Boolean, List<BType>> resultTypeMap = types.getAllTypes(targetType).stream()
                 .collect(Collectors.groupingBy(memberType -> (types.isAssignable(memberType, symTable.errorType) ||
                         (types.isAssignable(memberType, symTable.nilType)))));
+        final boolean containsXmlOrStr = types.getAllTypes(targetType).stream()
+                .anyMatch(t -> t.tag == TypeTags.STRING || t.tag == TypeTags.XML);
         for (BType type : resultTypeMap.get(false)) {
             BType selectType;
             switch (type.tag) {
@@ -3695,24 +3696,10 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        if (targetType.tag == TypeTags.UNION) {
-            if (((BUnionType) targetType).getMemberTypes().contains(symTable.xmlType)) {
-                targetType = ((BUnionType) targetType).getMemberTypes()
-                        .stream().filter(tType -> tType.tag == TypeTags.XML)
-                        .findFirst().orElse(symTable.xmlType);
-            } else if (((BUnionType) targetType).getMemberTypes().contains(symTable.stringType)) {
-                targetType = ((BUnionType) targetType).getMemberTypes()
-                        .stream().filter(tType -> tType.tag == TypeTags.STRING)
-                        .findFirst().orElse(symTable.stringType);
-            }
-        }
-
         if (assignableSelectTypes.size() == 1) {
             actualType = assignableSelectTypes.get(0);
-            if ((!queryExpr.isStream && !queryExpr.isTable)) {
-                if (targetType.tag != TypeTags.STRING && targetType.tag != TypeTags.XML) {
-                    actualType = new BArrayType(actualType);
-                }
+            if (!queryExpr.isStream && !queryExpr.isTable && !containsXmlOrStr) {
+                actualType = new BArrayType(actualType);
             }
         } else if (assignableSelectTypes.size() > 1) {
             dlog.error(selectExp.pos, DiagnosticCode.AMBIGUOUS_TYPES, assignableSelectTypes);
