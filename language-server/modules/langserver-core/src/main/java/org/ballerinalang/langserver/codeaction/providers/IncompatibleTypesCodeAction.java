@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
+import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.syntax.tree.Token;
@@ -172,8 +173,11 @@ public class IncompatibleTypesCodeAction extends AbstractCodeActionProvider {
     }
 
     private static boolean hasReturnKeyword(BLangType returnTypeNode, SyntaxTree tree) {
-        Token token = tree.modulePart().findToken(returnTypeNode.pos.sCol);
-        return token.kind() == SyntaxKind.RETURN_KEYWORD;
+        if (tree.rootNode().kind() == SyntaxKind.MODULE_PART) {
+            Token token = ((ModulePartNode) tree.rootNode()).findToken(returnTypeNode.pos.sCol);
+            return token.kind() == SyntaxKind.RETURN_KEYWORD;
+        }
+        return false;
     }
 
     private static BLangFunction getFunctionNode(int line, int column, LSDocumentIdentifier document,
