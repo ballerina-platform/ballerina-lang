@@ -3,14 +3,26 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "IMPORT_KEYWORD"
+      "kind": "IMPORT_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "LIST",
       "children": [
         {
           "kind": "IDENTIFIER_TOKEN",
-          "value": "a"
+          "value": "a",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },

@@ -20,6 +20,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.LinePosition;
 import io.ballerinalang.compiler.text.TextDocument;
@@ -312,7 +313,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             TextDocument doc = TextDocuments.from(documentManager.getFileContent(compilationPath));
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator();
             SyntaxTree syntaxTree = SyntaxTree.from(doc, compilationPath.toString());
-            reply.setSyntaxTree(mapGenerator.transform(syntaxTree.modulePart()));
+            ModulePartNode modulePartNode = syntaxTree.rootNode();
+            reply.setSyntaxTree(mapGenerator.transform(modulePartNode));
             reply.setParseSuccess(true);
         } catch (Throwable e) {
             reply.setParseSuccess(false);
@@ -338,7 +340,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         try {
             LSContext astContext = modifyTree(request.getAstModifications(), fileUri, compilationPath);
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator();
-            reply.setSyntaxTree(mapGenerator.transform(astContext.get(UPDATED_SYNTAX_TREE).modulePart()));
+            ModulePartNode modulePartNode = astContext.get(UPDATED_SYNTAX_TREE).rootNode();
+            reply.setSyntaxTree(mapGenerator.transform(modulePartNode));
             reply.setParseSuccess(true);
         } catch (Throwable e) {
             reply.setParseSuccess(false);

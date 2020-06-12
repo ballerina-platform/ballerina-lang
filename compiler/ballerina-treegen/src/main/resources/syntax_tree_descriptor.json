@@ -2644,12 +2644,13 @@
             "kind": "QUERY_CONSTRUCT_TYPE",
             "attributes": [
                 {
-                    "name": "tableKeyword",
+                    "name": "keyword",
                     "type": "Token"
                 },
                 {
                     "name": "keySpecifier",
-                    "type": "KeySpecifierNode"
+                    "type": "KeySpecifierNode",
+                    "isOptional": true
                 }
             ]
         },

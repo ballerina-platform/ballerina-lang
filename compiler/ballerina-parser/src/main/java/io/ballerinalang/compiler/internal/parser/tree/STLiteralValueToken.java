@@ -64,4 +64,11 @@ public class STLiteralValueToken extends STToken {
     public String toString() {
         return leadingMinutiae + text + trailingMinutiae;
     }
+
+    @Override
+    public void toSourceCode(StringBuilder builder) {
+        leadingMinutiae.toSourceCode(builder);
+        builder.append(text);
+        trailingMinutiae.toSourceCode(builder);
+    }
 }

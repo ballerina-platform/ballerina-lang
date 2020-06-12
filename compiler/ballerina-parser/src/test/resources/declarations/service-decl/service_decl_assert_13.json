@@ -24,17 +24,41 @@
               ]
             },
             {
-              "kind": "SERVICE_KEYWORD"
+              "kind": "SERVICE_KEYWORD",
+              "leadingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ],
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "someListner2"
+              "value": "someListner2",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "ON_KEYWORD",
               "hasDiagnostics": true,
               "diagnostics": [
                 "ERROR_MISSING_EXPRESSION"
+              ],
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
               ]
             },
             {
@@ -45,14 +69,26 @@
               "kind": "SERVICE_BODY",
               "children": [
                 {
-                  "kind": "OPEN_BRACE_TOKEN"
+                  "kind": "OPEN_BRACE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
                 },
                 {
                   "kind": "LIST",
                   "children": []
                 },
                 {
-                  "kind": "CLOSE_BRACE_TOKEN"
+                  "kind": "CLOSE_BRACE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
                 }
               ]
             }
@@ -72,17 +108,45 @@
               ]
             },
             {
-              "kind": "SERVICE_KEYWORD"
+              "kind": "SERVICE_KEYWORD",
+              "leadingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                },
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ],
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "someListner2"
+              "value": "someListner2",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "ON_KEYWORD",
               "hasDiagnostics": true,
               "diagnostics": [
                 "ERROR_MISSING_EXPRESSION"
+              ],
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
               ]
             },
             {
@@ -168,14 +232,26 @@
                           ]
                         },
                         {
-                          "kind": "COMMA_TOKEN"
+                          "kind": "COMMA_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         },
                         {
                           "kind": "CAPTURE_BINDING_PATTERN",
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "ppp"
+                              "value": "ppp",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "  "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -191,14 +267,26 @@
                           "kind": "MAPPING_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "OPEN_BRACE_TOKEN"
+                              "kind": "OPEN_BRACE_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": []
                             },
                             {
-                              "kind": "CLOSE_BRACE_TOKEN"
+                              "kind": "CLOSE_BRACE_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ]
                             }
                           ]
                         }

@@ -11,7 +11,13 @@
       ]
     },
     {
-      "kind": "OPTIONAL_CHAINING_TOKEN"
+      "kind": "OPTIONAL_CHAINING_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "IDENTIFIER_TOKEN",

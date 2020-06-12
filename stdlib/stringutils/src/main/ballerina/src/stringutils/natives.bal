@@ -232,8 +232,7 @@ function splitExternal(handle receiver, handle delimiter) returns handle = @java
 
 function hashCodeExternal(handle stringValue) returns int = @java:Method {
     name: "hashCode",
-    class: "java.lang.String",
-    paramTypes: ["java.lang.String"]
+    class: "java.lang.String"
 } external;
 
 function toBooleanExternal(handle stringValue) returns boolean = @java:Method {
