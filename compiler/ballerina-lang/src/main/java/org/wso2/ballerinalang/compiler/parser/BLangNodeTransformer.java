@@ -2939,7 +2939,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             } else { // spec says atleast one match pattern so this else will mean more than one
                 BLangBinaryExpr expr = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
                 expr.lhsExpr = createLiteralOrReference(matchClause.matchPatterns().get(0));
-                for (int i = 1 ; i < matchClause.matchPatterns().size() ; i++) {
+                for (int i = 1; i < matchClause.matchPatterns().size(); i++) {
                     if (expr.rhsExpr != null) {
                         BLangBinaryExpr tempExpr = ((BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode());
                         tempExpr.lhsExpr = expr;
