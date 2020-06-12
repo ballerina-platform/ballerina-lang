@@ -537,11 +537,14 @@ public enum DiagnosticCode {
     INVALID_WAIT_ACTIONS("invalid.wait.future.expr.actions"),
     INVALID_SEND_EXPR("invalid.send.expr"),
 
+    INVALID_USE_OF_TYPEDESC_PARAM("invalid.use.of.typedesc.param"),
+    INVALID_PARAM_TYPE_FOR_RETURN_TYPE("invalid.param.type.for.return.type"),
+    INVALID_TYPEDESC_PARAM("invalid.typedesc.param"),
+
     INVALID_RAW_TEMPLATE_LITERAL("invalid.raw.template.literal"),
     INVALID_RAW_TEMPLATE_ASSIGNMENT("invalid.raw.template.assignment"),
     INVALID_NUM_FIELDS("invalid.number.of.fields"),
-    METHODS_NOT_ALLOWED("methods.not.allowed"),
-    ;
+    METHODS_NOT_ALLOWED("methods.not.allowed");
     private String value;
 
     DiagnosticCode(String value) {
