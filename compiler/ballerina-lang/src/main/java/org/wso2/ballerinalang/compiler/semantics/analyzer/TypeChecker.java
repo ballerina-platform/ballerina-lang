@@ -3695,11 +3695,22 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
+        if (targetType.tag == TypeTags.UNION) {
+            if (((BUnionType) targetType).getMemberTypes().contains(symTable.xmlType)) {
+                targetType = ((BUnionType) targetType).getMemberTypes()
+                        .stream().filter(tType -> tType.tag == TypeTags.XML)
+                        .findFirst().orElse(symTable.xmlType);
+            } else if (((BUnionType) targetType).getMemberTypes().contains(symTable.stringType)) {
+                targetType = ((BUnionType) targetType).getMemberTypes()
+                        .stream().filter(tType -> tType.tag == TypeTags.STRING)
+                        .findFirst().orElse(symTable.stringType);
+            }
+        }
+
         if (assignableSelectTypes.size() == 1) {
             actualType = assignableSelectTypes.get(0);
             if ((!queryExpr.isStream && !queryExpr.isTable)) {
-                if (targetType.tag != TypeTags.STRING
-                        && targetType.tag != TypeTags.XML) {
+                if (targetType.tag != TypeTags.STRING && targetType.tag != TypeTags.XML) {
                     actualType = new BArrayType(actualType);
                 }
             }
