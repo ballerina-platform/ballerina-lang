@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.internal.parser;
 
 import io.ballerinalang.compiler.internal.diagnostics.DiagnosticCode;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 
 import java.util.ArrayDeque;
@@ -34,7 +35,7 @@ import java.util.List;
 public abstract class AbstractLexer {
 
     protected List<STNode> leadingTriviaList;
-    private Collection<DiagnosticCode> diagnostics = new ArrayList<>();
+    private Collection<STNodeDiagnostic> diagnostics = new ArrayList<>();
     protected CharReader reader;
     protected ParserMode mode;
     protected ArrayDeque<ParserMode> modeStack = new ArrayDeque<>();
@@ -80,19 +81,15 @@ public abstract class AbstractLexer {
         this.mode = this.modeStack.peek();
     }
 
-    protected void resetDiagnosticList() {
+    private void resetDiagnosticList() {
         this.diagnostics = new ArrayList<>();
     }
 
-    protected void addDiagnostic(DiagnosticCode diagnosticCode) {
-        diagnostics.add(diagnosticCode);
-    }
-
-    protected boolean noDiagnostics() {
+    private boolean noDiagnostics() {
         return diagnostics.isEmpty();
     }
 
-    protected Collection<DiagnosticCode> getDiagnostics() {
+    private Collection<STNodeDiagnostic> getDiagnostics() {
         return diagnostics;
     }
 
@@ -101,12 +98,12 @@ public abstract class AbstractLexer {
             return toClone;
         }
 
-        STToken cloned = SyntaxErrors.addDiagnostics(toClone, getDiagnostics());
+        STToken cloned = SyntaxErrors.addSyntaxDiagnostics(toClone, getDiagnostics());
         resetDiagnosticList();
         return cloned;
     }
 
-    protected void reportLexerError(DiagnosticCode diagnosticCode) {
-        addDiagnostic(diagnosticCode);
+    protected void reportLexerError(DiagnosticCode diagnosticCode, Object... args) {
+        diagnostics.add(new STNodeDiagnostic(diagnosticCode, args));
     }
 }

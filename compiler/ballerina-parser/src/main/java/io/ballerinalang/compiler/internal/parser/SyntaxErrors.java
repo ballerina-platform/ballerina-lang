@@ -42,7 +42,7 @@ public class SyntaxErrors {
         for (DiagnosticCode diagnosticCode : diagnosticCodes) {
             diagnosticsToAdd.add(new STNodeDiagnostic(diagnosticCode));
         }
-        return addDiagnosticsInternal(node, diagnosticsToAdd);
+        return addSyntaxDiagnostics(node, diagnosticsToAdd);
     }
 
     public static <T extends STNode> T addDiagnostics(T node, Collection<DiagnosticCode> diagnosticCodes) {
@@ -50,11 +50,10 @@ public class SyntaxErrors {
         for (DiagnosticCode diagnosticCode : diagnosticCodes) {
             diagnosticsToAdd.add(new STNodeDiagnostic(diagnosticCode));
         }
-        return addDiagnosticsInternal(node, diagnosticsToAdd);
+        return addSyntaxDiagnostics(node, diagnosticsToAdd);
     }
 
-    private static <T extends STNode> T addDiagnosticsInternal(T node,
-                                                               Collection<STNodeDiagnostic> diagnosticsToAdd) {
+    public static <T extends STNode> T addSyntaxDiagnostics(T node, Collection<STNodeDiagnostic> diagnosticsToAdd) {
         if (diagnosticsToAdd.isEmpty()) {
             return node;
         }
