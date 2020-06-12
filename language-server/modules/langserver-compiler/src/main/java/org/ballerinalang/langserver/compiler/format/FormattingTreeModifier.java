@@ -111,8 +111,6 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public FunctionDefinitionNode transform(FunctionDefinitionNode functionDefinitionNode) {
-//        int startCol = getPosition(getParent(functionDefinitionNode)).sCol + 4;
-
         Token visibilityQualifier = getToken(functionDefinitionNode.visibilityQualifier().orElse(null));
         Token functionKeyword = getToken(functionDefinitionNode.functionKeyword());
         Token functionName = getToken(functionDefinitionNode.functionName());
@@ -120,6 +118,12 @@ public class FormattingTreeModifier extends TreeModifier {
         FunctionSignatureNode functionSignatureNode = this.modifyNode(functionDefinitionNode.functionSignature());
         Token functionSignatureOpenPara = getToken(functionSignatureNode.openParenToken());
         Token functionSignatureClosePara = getToken(functionSignatureNode.closeParenToken());
+
+        if (visibilityQualifier != null) {
+            functionDefinitionNode = functionDefinitionNode.modify()
+                    .withVisibilityQualifier(formatToken(visibilityQualifier, 0, 0, 0, 0))
+                    .apply();
+        }
 
         functionDefinitionNode = functionDefinitionNode.modify()
                 .withFunctionKeyword(formatToken(functionKeyword, 1, 0, 0, 0))
@@ -130,12 +134,6 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
 
         FunctionBodyNode functionBodyNode = this.modifyNode(functionDefinitionNode.functionBody());
-
-        if (visibilityQualifier != null) {
-            functionDefinitionNode = functionDefinitionNode.modify()
-                    .withVisibilityQualifier(formatToken(visibilityQualifier, 0, 0, 0, 0))
-                    .apply();
-        }
         return functionDefinitionNode.modify()
                 .withFunctionBody(functionBodyNode)
                 .apply();
@@ -195,10 +193,11 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public BuiltinSimpleNameReferenceNode transform(BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
+        int startCol = getStartColumn(builtinSimpleNameReferenceNode);
         Token name = getToken(builtinSimpleNameReferenceNode.name());
 
         return builtinSimpleNameReferenceNode.modify()
-                .withName(formatToken(name, 0, 0, 0, 0))
+                .withName(formatToken(name, startCol, 0, 0, 0))
                 .apply();
     }
 
@@ -211,7 +210,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
         return functionBodyBlockNode.modify()
                 .withOpenBraceToken(formatToken(functionBodyOpenBrace, 1, 0, 0, 1))
-                .withCloseBraceToken(formatToken(functionBodyCloseBrace, 0, 0, 1, 0))
+                .withCloseBraceToken(formatToken(functionBodyCloseBrace, 0, 0, 0, 1))
                 .withStatements(statements)
                 .apply();
     }
@@ -244,12 +243,13 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public QualifiedNameReferenceNode transform(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
+        int startCol = getStartColumn(qualifiedNameReferenceNode);
         Token modulePrefix = getToken(qualifiedNameReferenceNode.modulePrefix());
         Token identifier = getToken(qualifiedNameReferenceNode.identifier());
         Token colon = getToken((Token) qualifiedNameReferenceNode.colon());
 
         return qualifiedNameReferenceNode.modify()
-                .withModulePrefix(formatToken(modulePrefix, 0, 0, 0, 0))
+                .withModulePrefix(formatToken(modulePrefix, startCol, 0, 0, 0))
                 .withIdentifier((IdentifierToken) formatToken(identifier, 0, 0, 0, 0))
                 .withColon(formatToken(colon, 0, 0, 0, 0))
                 .apply();
@@ -731,13 +731,12 @@ public class FormattingTreeModifier extends TreeModifier {
 
     private <T extends Node> Node getParent(T node) {
         if (node.kind() == SyntaxKind.FUNCTION_DEFINITION) {
-            if (node.parent().kind() == SyntaxKind.FUNCTION_BODY_BLOCK) {
-                return node.parent().parent();
-            } else {
-                return node.parent();
-            }
+            return node;
+        } else if (node.parent() != null){
+            return getParent(node.parent());
+        } else {
+            return null;
         }
-        return node;
     }
 
     private DiagnosticPos getPosition(Node node) {
@@ -748,6 +747,14 @@ public class FormattingTreeModifier extends TreeModifier {
         LinePosition startPos = lineRange.startLine();
         LinePosition endPos = lineRange.endLine();
         return new DiagnosticPos(null, startPos.line() + 1, endPos.line() + 1,
-                startPos.offset() + 1, endPos.offset() + 1);
+                startPos.offset(), endPos.offset());
+    }
+
+    private int getStartColumn(Node node) {
+        Node parent = getParent(node);
+        if (parent != null) {
+            return getPosition(parent).sCol + 4;
+        }
+        return 0;
     }
 }
