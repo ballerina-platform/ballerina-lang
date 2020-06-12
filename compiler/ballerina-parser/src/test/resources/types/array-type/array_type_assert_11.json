@@ -27,7 +27,13 @@
             },
             {
               "kind": "DECIMAL_INTEGER_LITERAL",
-              "value": "5"
+              "value": "5",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "CLOSE_BRACKET_TOKEN",

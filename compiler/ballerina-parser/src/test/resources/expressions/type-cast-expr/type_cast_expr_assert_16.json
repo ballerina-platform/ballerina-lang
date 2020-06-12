@@ -5,7 +5,13 @@
       "kind": "INT_KEYWORD"
     },
     {
-      "kind": "GT_TOKEN"
+      "kind": "GT_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "IDENTIFIER_TOKEN",

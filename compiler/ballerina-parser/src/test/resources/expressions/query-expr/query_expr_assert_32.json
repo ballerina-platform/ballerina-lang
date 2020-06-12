@@ -6,7 +6,13 @@
       "kind": "QUERY_CONSTRUCT_TYPE",
       "children": [
         {
-          "kind": "TABLE_KEYWORD"
+          "kind": "TABLE_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "KEY_SPECIFIER",
@@ -27,7 +33,13 @@
               ]
             },
             {
-              "kind": "CLOSE_PAREN_TOKEN"
+              "kind": "CLOSE_PAREN_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
         }
@@ -58,7 +70,13 @@
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "foo"
+                  "value": "foo",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
                   "kind": "CAPTURE_BINDING_PATTERN",
@@ -115,7 +133,13 @@
                       ]
                     },
                     {
-                      "kind": "CLOSE_PAREN_TOKEN"
+                      "kind": "CLOSE_PAREN_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },

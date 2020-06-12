@@ -2644,12 +2644,13 @@
             "kind": "QUERY_CONSTRUCT_TYPE",
             "attributes": [
                 {
-                    "name": "tableKeyword",
+                    "name": "keyword",
                     "type": "Token"
                 },
                 {
                     "name": "keySpecifier",
-                    "type": "KeySpecifierNode"
+                    "type": "KeySpecifierNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -3199,7 +3200,7 @@
             "attributes": [
                 {
                     "name": "fieldName",
-                    "type": "NameReferenceNode"
+                    "type": "SimpleNameReferenceNode"
                 },
                 {
                     "name": "colon",
@@ -3690,6 +3691,21 @@
                 {
                     "name": "functionBody",
                     "type": "FunctionBodyNode"
+                }
+            ]
+        },
+        {
+            "name": "DistinctTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "DISTINCT_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "distinctKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeDescriptor",
+                    "type": "TypeDescriptorNode"
                 }
             ]
         }

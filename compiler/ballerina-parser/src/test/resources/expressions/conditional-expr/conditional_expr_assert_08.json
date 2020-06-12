@@ -11,7 +11,13 @@
       ]
     },
     {
-      "kind": "ELVIS_TOKEN"
+      "kind": "ELVIS_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "IDENTIFIER_TOKEN",

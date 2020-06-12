@@ -22,6 +22,7 @@ import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.LineRange;
+import io.ballerinalang.compiler.text.TextDocuments;
 import org.testng.Assert;
 
 import java.nio.file.Path;
@@ -33,6 +34,10 @@ import java.nio.file.Paths;
  * @since 1.3.0
  */
 abstract class AbstractSyntaxTreeAPITest {
+
+    protected SyntaxTree parseString(String sourceCode) {
+        return SyntaxTree.from(TextDocuments.from(sourceCode));
+    }
 
     protected SyntaxTree parseFile(String sourceFileName) {
         return ParserTestUtils.parseFile(getPath(sourceFileName));
@@ -62,7 +67,7 @@ abstract class AbstractSyntaxTreeAPITest {
 
     protected ModulePartNode getModulePartNode(String sourceFileName) {
         SyntaxTree syntaxTree = parseFile(sourceFileName);
-        return syntaxTree.modulePart();
+        return syntaxTree.rootNode();
     }
 
     protected void testTree(Node node, Path jsonFilePath) {

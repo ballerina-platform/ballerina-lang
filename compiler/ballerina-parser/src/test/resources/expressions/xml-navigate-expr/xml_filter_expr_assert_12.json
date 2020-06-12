@@ -4,7 +4,13 @@
   "children": [
     {
       "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
+      "value": "a",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "XML_NAME_PATTERN_CHAIN",
@@ -19,7 +25,13 @@
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "b"
+              "value": "b",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "PIPE_TOKEN",
@@ -41,7 +53,13 @@
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "d"
+                  "value": "d",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },

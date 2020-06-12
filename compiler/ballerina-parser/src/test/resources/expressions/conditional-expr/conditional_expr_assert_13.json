@@ -3,7 +3,13 @@
   "children": [
     {
       "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
+      "value": "a",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": "  "
+        }
+      ]
     },
     {
       "kind": "OPEN_PAREN_TOKEN"
@@ -23,7 +29,13 @@
       ]
     },
     {
-      "kind": "CLOSE_PAREN_TOKEN"
+      "kind": "CLOSE_PAREN_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     }
   ]
 }
