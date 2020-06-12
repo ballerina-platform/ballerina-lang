@@ -69,15 +69,10 @@ public function isResourceSecured(FilterContext context) returns boolean {
     boolean serviceSecured = isServiceAuthEnabled(serviceLevelAuthAnn);
 
     if (resourceSecured is boolean) {
-        if (!resourceSecured) {
-            return false;
-        }
+        return resourceSecured;
     } else {
-        if (!serviceSecured) {
-            return false;
-        }
+        return serviceSecured;
     }
-    return true;
 }
 
 # Tries to retrieve the inbound authentication handlers based on their hierarchy
