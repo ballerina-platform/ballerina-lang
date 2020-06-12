@@ -740,6 +740,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
 
+            if (tableConstructorExpr.recordLiteralList.size() == 0) {
+                dlog.error(tableConstructorExpr.pos, DiagnosticCode.CANNOT_INFER_MEMBER_TYPE_FOR_TABLE);
+                resultType = symTable.semanticError;
+                return;
+            }
+
             BType inherentMemberType = inferTableMemberType(memTypes, tableConstructorExpr);
             BTableType tableType = new BTableType(TypeTags.TABLE, inherentMemberType, null);
             for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
@@ -886,7 +892,7 @@ public class TypeChecker extends BLangNodeVisitor {
             String fieldName = field.name.value;
 
             if (fieldNames.contains(fieldName)) {
-                dlog.error(tableConstructorExpr.pos, DiagnosticCode.CANNOT_INFER_MEMBER_TYPE_FOR_TABLE,
+                dlog.error(tableConstructorExpr.pos, DiagnosticCode.CANNOT_INFER_MEMBER_TYPE_FOR_TABLE_DUE_AMBIGUITY,
                         fieldName);
                 return symTable.semanticError;
             }

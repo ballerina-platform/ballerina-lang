@@ -49,7 +49,7 @@ public class DiagnosticsAPITest extends AbstractSyntaxTreeAPITest {
         // Some branches has this flag, but not all branches of three.
         // This method tests above mentioned points.
         SyntaxTree syntaxTree = parseFile("diagnostics_test_001.bal");
-        ModulePartNode modulePartNode = syntaxTree.modulePart();
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
 
         // Check the hasDiagnostics() method in the syntax tree
         Assert.assertTrue(syntaxTree.hasDiagnostics());
@@ -78,7 +78,7 @@ public class DiagnosticsAPITest extends AbstractSyntaxTreeAPITest {
     public void testGetDiagnosticsMethod() {
         // This bal file has two missing semicolon error.
         SyntaxTree syntaxTree = parseFile("diagnostics_test_001.bal");
-        ModulePartNode modulePartNode = syntaxTree.modulePart();
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
 
         List<Diagnostic> diagnosticList = new ArrayList<>();
         syntaxTree.diagnostics().forEach(diagnosticList::add);
