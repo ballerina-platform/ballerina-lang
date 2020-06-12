@@ -22,9 +22,12 @@ type XAResultCount record {
     int COUNTVAL;
 };
 
-function testXATransactionSuccess(string jdbcURL1, string jdbcURL2, string user, string password) returns @tainted [int, int]|error? {
-    jdbc:Client dbClient1 = check new (url = jdbcURL1, user = user, password = password, connectionPool = {maxOpenConnections: 1});
-    jdbc:Client dbClient2 = check new (url = jdbcURL2, user = user, password = password, connectionPool = {maxOpenConnections: 1});
+function testXATransactionSuccess(string jdbcURL1, string jdbcURL2, string user, string password)
+returns @tainted [int, int]|error? {
+    jdbc:Client dbClient1 = check new (url = jdbcURL1, user = user, password = password,
+    connectionPool = {maxOpenConnections: 1});
+    jdbc:Client dbClient2 = check new (url = jdbcURL2, user = user, password = password,
+    connectionPool = {maxOpenConnections: 1});
 
     transaction {
         var e1 = check dbClient1->execute("insert into Customers (customerId, name, creditLimit, country) " +
@@ -41,9 +44,12 @@ function testXATransactionSuccess(string jdbcURL1, string jdbcURL2, string user,
     return [count1, count2];
 }
 
-function testXATransactionSuccessWithDataSource(string jdbcURL1, string jdbcURL2, string user, string password) returns @tainted [int, int]|error? {
-    jdbc:Client dbClient1 = check new (url = jdbcURL1, user = user, password = password, options = {datasourceName: xaDatasourceName});
-    jdbc:Client dbClient2 = check new (url = jdbcURL2, user = user, password = password, options = {datasourceName: xaDatasourceName});
+function testXATransactionSuccessWithDataSource(string jdbcURL1, string jdbcURL2, string user, string password)
+returns @tainted [int, int]|error? {
+    jdbc:Client dbClient1 = check new (url = jdbcURL1, user = user, password = password,
+    options = {datasourceName: xaDatasourceName});
+    jdbc:Client dbClient2 = check new (url = jdbcURL2, user = user, password = password,
+    options = {datasourceName: xaDatasourceName});
     
     transaction {
         var e1 = check dbClient1->execute("insert into Customers (customerId, name, creditLimit, country) " +
@@ -67,7 +73,8 @@ function getCustomerCount(jdbc:Client dbClient, string id) returns @tainted int|
 }
 
 function getSalaryCount(jdbc:Client dbClient, string id) returns @tainted int|error{
-    stream<XAResultCount, error> streamData = <stream<XAResultCount, error>> dbClient->query("Select COUNT(*) as countval " +
+    stream<XAResultCount, error> streamData =
+    <stream<XAResultCount, error>> dbClient->query("Select COUNT(*) as countval " +
     "from Salary where id = "+ id, XAResultCount);
     return getResult(streamData);
 }
