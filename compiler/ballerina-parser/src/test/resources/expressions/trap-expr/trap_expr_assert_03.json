@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -37,15 +38,18 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN"
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -73,6 +77,7 @@
                 },
                 {
                   "kind": "BINARY_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DECIMAL_INTEGER_LITERAL",
@@ -83,13 +88,18 @@
                     },
                     {
                       "kind": "TRAP_EXPRESSION",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "TRAP_KEYWORD"
                         },
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "isMissing": true
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_IDENTIFIER"
+                          ]
                         }
                       ]
                     }

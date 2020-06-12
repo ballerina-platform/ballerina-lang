@@ -74,27 +74,27 @@
                       "kind": "BINARY_EXPRESSION",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "a"
-                        },
-                        {
-                          "kind": "PIPE_TOKEN"
-                        },
-                        {
                           "kind": "BINARY_EXPRESSION",
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "b"
+                              "value": "a"
                             },
                             {
                               "kind": "PIPE_TOKEN"
                             },
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "c"
+                              "value": "b"
                             }
                           ]
+                        },
+                        {
+                          "kind": "PIPE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "c"
                         }
                       ]
                     }
@@ -118,15 +118,15 @@
                       "kind": "BINARY_EXPRESSION",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "a"
-                        },
-                        {
-                          "kind": "PIPE_TOKEN"
-                        },
-                        {
                           "kind": "BINARY_EXPRESSION",
                           "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "a"
+                            },
+                            {
+                              "kind": "PIPE_TOKEN"
+                            },
                             {
                               "kind": "BINARY_EXPRESSION",
                               "children": [
@@ -142,28 +142,28 @@
                                   "value": "c"
                                 }
                               ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "PIPE_TOKEN"
+                        },
+                        {
+                          "kind": "FUNCTION_CALL",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "bar"
                             },
                             {
-                              "kind": "PIPE_TOKEN"
+                              "kind": "OPEN_PAREN_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
-                              "children": [
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "bar"
-                                },
-                                {
-                                  "kind": "OPEN_PAREN_TOKEN"
-                                },
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "CLOSE_PAREN_TOKEN"
-                                }
-                              ]
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
+                              "kind": "CLOSE_PAREN_TOKEN"
                             }
                           ]
                         }
@@ -223,27 +223,27 @@
                       "kind": "BINARY_EXPRESSION",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "a"
-                        },
-                        {
-                          "kind": "PIPE_TOKEN"
-                        },
-                        {
                           "kind": "BINARY_EXPRESSION",
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "b"
+                              "value": "a"
                             },
                             {
                               "kind": "PIPE_TOKEN"
                             },
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "c"
+                              "value": "b"
                             }
                           ]
+                        },
+                        {
+                          "kind": "PIPE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "c"
                         }
                       ]
                     }
@@ -274,15 +274,15 @@
                       "kind": "BINARY_EXPRESSION",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "a"
-                        },
-                        {
-                          "kind": "PIPE_TOKEN"
-                        },
-                        {
                           "kind": "BINARY_EXPRESSION",
                           "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "a"
+                            },
+                            {
+                              "kind": "PIPE_TOKEN"
+                            },
                             {
                               "kind": "BINARY_EXPRESSION",
                               "children": [
@@ -298,28 +298,28 @@
                                   "value": "c"
                                 }
                               ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "PIPE_TOKEN"
+                        },
+                        {
+                          "kind": "FUNCTION_CALL",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "bar"
                             },
                             {
-                              "kind": "PIPE_TOKEN"
+                              "kind": "OPEN_PAREN_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
-                              "children": [
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "bar"
-                                },
-                                {
-                                  "kind": "OPEN_PAREN_TOKEN"
-                                },
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "CLOSE_PAREN_TOKEN"
-                                }
-                              ]
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
+                              "kind": "CLOSE_PAREN_TOKEN"
                             }
                           ]
                         }

@@ -118,11 +118,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER };
 
     private static final ParserRuleContext[] TOP_LEVEL_NODE_WITHOUT_MODIFIER =
-            { ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE,
+            { ParserRuleContext.EOF , ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE,
                     ParserRuleContext.MODULE_TYPE_DEFINITION, ParserRuleContext.SERVICE_DECL,
                     ParserRuleContext.LISTENER_DECL, ParserRuleContext.CONSTANT_DECL, ParserRuleContext.ANNOTATION_DECL,
                     ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.XML_NAMESPACE_DECLARATION,
-                    ParserRuleContext.MODULE_ENUM_DECLARATION, ParserRuleContext.IMPORT_DECL, ParserRuleContext.EOF };
+                    ParserRuleContext.MODULE_ENUM_DECLARATION, ParserRuleContext.IMPORT_DECL};
 
     private static final ParserRuleContext[] TYPE_OR_VAR_NAME =
             { ParserRuleContext.VARIABLE_NAME, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN };
@@ -640,7 +640,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         boolean skipRule;
         int matchingRulesCount = 0;
 
-        while (currentDepth < lookaheadLimit) {
+        while (currentDepth < LOOKAHEAD_LIMIT) {
             hasMatch = true;
             skipRule = false;
             STToken nextToken = this.tokenReader.peek(lookahead);
@@ -875,6 +875,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     break;
                 case SLASH_ASTERISK_TOKEN:
                     hasMatch = nextToken.kind == SyntaxKind.SLASH_ASTERISK_TOKEN;
+                    break;
+                case KEY_KEYWORD:
+                    hasMatch = BallerinaParser.isKeyKeyword(nextToken);
                     break;
 
                 // start a context, so that we know where to fall back, and continue

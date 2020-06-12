@@ -626,3 +626,128 @@ function testInherentTypeViolationWithNilType() {
     ObjectWithAnyTypeVariables o2 = o1;
     o2.x = (); // panic
 }
+
+type NonClientObject object {
+    public string name;
+    public string id = "";
+
+    function init(string name) {
+        self.name = name;
+    }
+    public function send(string message) returns error? {
+    }
+    public function receive(string message) {
+    }
+};
+
+type ClientObjectWithoutRemoteMethod client object {
+    public string name;
+    public string id = "";
+
+    function init(string name) {
+        self.name = name;
+    }
+    public function send(string message) returns error? {
+    }
+    public function receive(string message) {
+    }
+};
+
+function testObjectAssignabilityBetweenNonClientAndClientObject() {
+    NonClientObject obj1 = new("NonClientObject");
+    ClientObjectWithoutRemoteMethod obj2 = new("ClientObjectWithoutRemoteMethod");
+
+    NonClientObject obj3 = obj2;
+    ClientObjectWithoutRemoteMethod obj4 = obj1;
+
+    assertEquality("NonClientObject", obj4.name);
+    assertEquality("ClientObjectWithoutRemoteMethod", obj3.name);
+}
+
+type Email client object {
+    public remote function send(string message) returns error? {
+    }
+};
+
+type FakeEmail object {
+    public function send(string message) returns error? {
+    }
+};
+
+type Message record {|
+    Email f;
+|};
+
+type Text record {|
+    FakeEmail f;
+|};
+
+function subtypingBetweenNonClientAndClientObject1() returns Email {
+    FakeEmail p = new();
+    any e = p;
+    Email email = <Email> e;
+    return email;
+}
+
+function subtypingBetweenNonClientAndClientObject2() returns any {
+    Message b = {f: new};
+    record {|
+        object {}...;
+    |} r = b;
+
+    r["f"] = new FakeEmail();
+    return r["f"];
+}
+
+function subtypingBetweenNonClientAndClientObject3() returns FakeEmail {
+    Email p = new();
+    any e = p;
+    FakeEmail email = <FakeEmail> e;
+    return email;
+}
+
+function subtypingBetweenNonClientAndClientObject4() returns any {
+    Text b = {f: new};
+    record {|
+        object {}...;
+    |} r = b;
+
+    r["f"] = new Email();
+    return r["f"];
+}
+
+function testSubtypingBetweenNonClientAndClientObject() {
+    Email|error err1 = trap subtypingBetweenNonClientAndClientObject1();
+    any|error err2 = trap subtypingBetweenNonClientAndClientObject2();
+    FakeEmail|error err3 = trap subtypingBetweenNonClientAndClientObject3();
+    any|error err4 = trap subtypingBetweenNonClientAndClientObject4();
+
+    error e1 = <error> err1;
+    error e2 = <error> err2;
+    error e3 = <error> err3;
+    error e4 = <error> err4;
+
+    assertEquality("incompatible types: 'ObjectEquivalencyTest:FakeEmail' cannot be cast to " +
+    "'ObjectEquivalencyTest:Email'", e1.detail()?.message);
+    assertEquality("invalid value for record field 'f': expected value of type 'ObjectEquivalencyTest:Email', " +
+    "found 'ObjectEquivalencyTest:FakeEmail'", e2.detail()?.message);
+    assertEquality("incompatible types: 'ObjectEquivalencyTest:Email' cannot be cast to " +
+    "'ObjectEquivalencyTest:FakeEmail'", e3.detail()?.message);
+    assertEquality("invalid value for record field 'f': expected value of type 'ObjectEquivalencyTest:FakeEmail', " +
+    "found 'ObjectEquivalencyTest:Email'", e4.detail()?.message);
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if (expected is anydata && actual is anydata && expected == actual) {
+        return;
+    }
+
+    if (expected === actual) {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                 message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

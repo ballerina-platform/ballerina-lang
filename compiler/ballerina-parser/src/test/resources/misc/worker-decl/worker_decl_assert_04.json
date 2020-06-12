@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_PART",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -7,9 +8,11 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "FUNCTION_DEFINITION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -44,12 +47,14 @@
             },
             {
               "kind": "FUNCTION_BODY_BLOCK",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "OPEN_BRACE_TOKEN"
                 },
                 {
                   "kind": "NAMED_WORKER_DECLARATOR",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "LIST",
@@ -57,9 +62,11 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "NAMED_WORKER_DECLARATION",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LIST",
@@ -74,6 +81,7 @@
                             },
                             {
                               "kind": "RETURN_TYPE_DESCRIPTOR",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "RETURNS_KEYWORD"
@@ -84,7 +92,11 @@
                                 },
                                 {
                                   "kind": "TYPE_DESC",
-                                  "isMissing": true
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_TYPE_DESC"
+                                  ]
                                 }
                               ]
                             },

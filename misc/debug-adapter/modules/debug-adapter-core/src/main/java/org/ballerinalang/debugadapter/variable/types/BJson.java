@@ -22,6 +22,7 @@ import com.sun.jdi.Value;
 import com.sun.tools.jdi.ObjectReferenceImpl;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.JVMValueType;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
@@ -38,7 +39,7 @@ public class BJson extends BCompoundVariable {
     private final ObjectReferenceImpl jvmValueRef;
 
     public BJson(Value value, Variable dapVariable) {
-         this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
+        this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
         dapVariable.setType(BVariableType.JSON.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
@@ -71,14 +72,30 @@ public class BJson extends BCompoundVariable {
                 if (jsonKeyField.isPresent() && jsonValueField.isPresent()) {
                     Value jsonKey = ((ObjectReferenceImpl) jsonMap).getValue(jsonKeyField.get());
                     Value jsonValue1 = ((ObjectReferenceImpl) jsonMap).getValue(jsonValueField.get());
-                    values.put(jsonKey.toString(), jsonValue1);
+                    values.put(getJsonKeyString(jsonKey), jsonValue1);
                 }
             });
             this.setChildVariables(values);
-        } catch (RuntimeException e) {
-            throw e;
         } catch (Exception ignored) {
             this.setChildVariables(new HashMap<>());
+        }
+    }
+
+    private String getJsonKeyString(Value key) {
+        ObjectReferenceImpl keyRef = key instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) key : null;
+        if (keyRef == null) {
+            return "unknown";
+        }
+        if (keyRef.referenceType().name().equals(JVMValueType.BMPSTRING.getString())
+                || keyRef.referenceType().name().equals(JVMValueType.NONBMPSTRING.getString())) {
+            Optional<Field> valueField = keyRef.referenceType().allFields().stream()
+                    .filter(field -> field.name().equals("value")).findAny();
+            if (valueField.isPresent()) {
+                return keyRef.getValue(valueField.get()).toString();
+            }
+            return "unknown";
+        } else {
+            return keyRef.toString();
         }
     }
 }
