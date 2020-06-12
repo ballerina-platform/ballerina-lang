@@ -2,7 +2,6 @@ name: CI Windows
 
 on: 
   pull_request:
-    types: [opened, reopened]
     branches:
       - master
       - next-release
