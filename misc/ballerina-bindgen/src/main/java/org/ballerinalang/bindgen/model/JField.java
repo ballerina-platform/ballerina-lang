@@ -100,4 +100,8 @@ public class JField {
     public boolean isSetter() {
         return isSetter;
     }
+
+    public String getFieldName() {
+        return fieldName;
+    }
 }
