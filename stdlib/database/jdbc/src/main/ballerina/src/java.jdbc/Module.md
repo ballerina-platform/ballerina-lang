@@ -3,12 +3,12 @@
 This module provides the functionality required to access and manipulate data stored in any type of relational database 
 that is accessible via Java Database Connectivity (JDBC). 
 
-**Prerequisite:** Please add the JDBC driver corresponding to the database you are trying to interact with, 
-as a native library dependency in your Ballerina project. Then, once you build the project with `ballerina build`
-command, you should be able to run the resultant jar with, the `java -jar` command.
+**Prerequisite:** Add the JDBC driver corresponding to the database you are trying to interact with
+as a native library dependency in your Ballerina project. Then, once you build the project with the `ballerina build`
+command, you should be able to run the resultant JAR by executing the `java -jar` command.
 
-e.g. Ballerina.toml content.
-Please change the path to the JDBC driver appropriately.
+E.g., The `Ballerina.toml` content.
+Change the path to the JDBC driver appropriately.
 
 ```toml
 [project]
@@ -26,8 +26,8 @@ target = "java8"
     modules = ["samplemodule"]
 ``` 
 
-Or, if you're trying to run a single bal file, you can copy the JDBC driver into `${BALLERINA_HOME}/bre/lib` and 
-run the bal file with `ballerina run` command.
+Else, if you're trying to run a single BAL file, you can copy the JDBC driver into the `${BALLERINA_HOME}/bre/lib` directory and 
+run the BAL file by executing the `ballerina run` command.
 
 ### Client
 To access a database, you must first create a 
@@ -35,24 +35,23 @@ To access a database, you must first create a
 The examples for creating a JDBC client can be found below.
 
 #### Creating a client
-This example shows different ways of creating the `jdbc:Client`. The client can be created by passing 
-JDBC URL which is an mandatory property, and all other fields are optional. 
+This example shows the different ways of creating the `jdbc:Client`. The client can be created by passing 
+the JDBC URL, which is a mandatory property and all other fields are optional. 
 
-The `dbClient1` receives only database URL, and the `dbClient2` receives user and password in addition to URL. 
-If the properties are passed in the same order as it is defined in the `jdbc:Client` you can pass it 
+The `dbClient1` receives only the database URL and the `dbClient2` receives the username and password in addition to the URL. 
+If the properties are passed in the same order as it is defined in the `jdbc:Client`, you can pass it 
 without named params.
 
-The `dbClient3` uses the named params to pass all the attributes, and provides `options` property in the type of 
+The `dbClient3` uses the named params to pass all the attributes and provides the `options` property in the type of 
 [jdbc:Options](https://ballerina.io/learn/api-docs/ballerina/api-docs/java.jdbc/records/Options.html) 
 and also uses the unshared connection pool in the type of 
 [sql:ConnectionPool](https://ballerina.io/learn/api-docs/ballerina/api-docs/sql/records/ConnectionPool.html). 
-Please refer [SQL Module](https://ballerina.io/learn/api-docs/ballerina/sql/index.html) to get more details 
-about connection pooling.
+For more information about connection pooling, see [SQL Module](https://ballerina.io/learn/api-docs/ballerina/sql/index.html).
 
 The `dbClient4` receives some custom properties within the 
-[jdbc:Options](https://ballerina.io/learn/api-docs/ballerina/api-docs/java.jdbc/records/Options.html), 
-and those properties will be used by the `datasourceName` defined. 
-As per the provided example, the datasource `org.h2.jdbcx.JdbcDataSource` will be configured with `loginTimeout` 
+[jdbc:Options](https://ballerina.io/learn/api-docs/ballerina/api-docs/java.jdbc/records/Options.html)
+and those properties will be used by the defined `datasourceName`. 
+As per the provided example, the `org.h2.jdbcx.JdbcDataSource` datasource  will be configured with a `loginTimeout` 
 of `2000` milli seconds.
 
 ```ballerina
@@ -74,15 +73,15 @@ jdbc:Client dbClient4 = new (url =  "jdbc:h2:~/path/to/database",
                              });                          
 ```
 
-You can find more details about each property in 
+You can find more details about each property in the
 [jdbc:Client](https://ballerina.io/learn/api-docs/ballerina/api-docs/java.jdbc/clients/Client.html) constructor. 
 
 The [jdbc:Client](https://ballerina.io/learn/api-docs/ballerina/api-docs/java.jdbc/clients/Client.html) references 
 [sql:Client](https://ballerina.io/learn/api-docs/ballerina/api-docs/sql/clients/Client.html) and 
-hence all operations defined by the `sql:Client` will be supported by `jdbc:Client` as well. 
+all the operations defined by the `sql:Client` will be supported by the `jdbc:Client` as well. 
 
-Please refer [SQL Module](https://ballerina.io/learn/api-docs/ballerina/sql/index.html) for more information on 
-all operations supported by `jdbc:Client` which includes below. 
+For more information on all the operations supported by the `jdbc:Client`, which include the below, see the
+[SQL Module](https://ballerina.io/learn/api-docs/ballerina/sql/index.html).
 
 1. Connection Pooling
 2. Querying data
