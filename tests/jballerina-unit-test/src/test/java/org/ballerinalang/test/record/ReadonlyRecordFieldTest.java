@@ -51,6 +51,9 @@ public class ReadonlyRecordFieldTest {
         validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 57, 5);
         validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 58, 5);
         validateError(result, index++, "cannot update 'readonly' record field 'name' in '(Student|Customer)'", 77, 5);
+        validateError(result, index++, "incompatible types: expected '(Foo & readonly)', found 'Bar'", 106, 25);
+        validateError(result, index++, "incompatible types: expected '(Foo & readonly)', found 'Baz'", 107, 25);
+        validateError(result, index++, "incompatible types: expected '(Foo & readonly)', found 'Qux'", 108, 25);
         assertEquals(result.getErrorCount(), index);
     }
 }
