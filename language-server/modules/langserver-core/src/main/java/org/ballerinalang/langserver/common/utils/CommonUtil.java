@@ -571,6 +571,23 @@ public class CommonUtil {
     }
 
     /**
+     * Get the completion Item for the error type.
+     * 
+     * @param context LS Operation context
+     * @return {@link LSCompletionItem} generated for error type
+     */
+    public static LSCompletionItem getErrorTypeCompletionItem(LSContext context) {
+        CompletionItem errorTypeCItem = new CompletionItem();
+        errorTypeCItem.setInsertText(ItemResolverConstants.ERROR);
+        errorTypeCItem.setLabel(ItemResolverConstants.ERROR);
+        errorTypeCItem.setDetail(ItemResolverConstants.ERROR);
+        errorTypeCItem.setInsertTextFormat(InsertTextFormat.Snippet);
+        errorTypeCItem.setKind(CompletionItemKind.Event);
+        
+        return new StaticCompletionItem(context, errorTypeCItem);
+    }
+
+    /**
      * Get the BType name as string.
      *
      * @param bType      BType to get the name
