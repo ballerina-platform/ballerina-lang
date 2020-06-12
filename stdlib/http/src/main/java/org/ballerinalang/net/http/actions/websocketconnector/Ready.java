@@ -21,7 +21,6 @@ package org.ballerinalang.net.http.actions.websocketconnector;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
-import org.ballerinalang.net.http.websocket.WebSocketException;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityConstants;
 import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityUtil;
@@ -47,7 +46,8 @@ public class Ready {
                 connectionInfo.getWebSocketEndpoint().getMapValue(WebSocketConstants.CLIENT_ENDPOINT_CONFIG).
                         put(WebSocketConstants.CLIENT_READY_ON_CONNECT, true);
             } else {
-                return new WebSocketException("Already started reading frames");
+                return WebSocketUtil.getWebSocketException("Already started reading frames", null,
+                        WebSocketConstants.ErrorCode.WsGenericError.errorCode(), null);
             }
         } catch (Exception e) {
             log.error("Error occurred when calling ready", e);

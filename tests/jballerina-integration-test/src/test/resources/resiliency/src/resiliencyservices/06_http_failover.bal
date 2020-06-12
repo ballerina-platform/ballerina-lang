@@ -55,10 +55,9 @@ service failoverDemoService05 on failoverEP05 {
                 log:printError("Error sending response", responseToCaller);
             }
         } else {
-            error err = backendRes;
             http:Response response = new;
             response.statusCode = 500;
-            response.setPayload(<string> err.detail()?.message);
+            response.setPayload(<@untainted> backendRes.message());
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
                 log:printError("Error sending response", responseToCaller);
