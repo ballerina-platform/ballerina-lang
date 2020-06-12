@@ -375,7 +375,7 @@ public class StubGeneratorTestCase {
         CompileResult compileResult = getProxyCompileResult("helloWorldGateway.proto",
                 "helloWorldGateway");
         assertEquals(compileResult.getDiagnostics().length, 0);
-        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 4,
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 2,
                 "Expected compilation units not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 8,
                 "Expected type definitions not found in compile results.");
@@ -394,7 +394,7 @@ public class StubGeneratorTestCase {
         CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithBody.proto",
                 "helloWorldGatewayWithBody");
         assertEquals(compileResult.getDiagnostics().length, 0);
-        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 4,
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 2,
                 "Expected compilation units not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 9,
                 "Expected type definitions not found in compile results.");
@@ -413,7 +413,7 @@ public class StubGeneratorTestCase {
         CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithPrimitiveInput.proto",
                 "helloWorldGatewayWithPrimitiveInput");
         assertEquals(compileResult.getDiagnostics().length, 0);
-        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 4,
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 2,
                 "Expected compilation units not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 4,
                 "Expected type definitions not found in compile results.");
@@ -432,7 +432,7 @@ public class StubGeneratorTestCase {
         CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithRepeatedField.proto",
                 "helloWorldGatewayWithRepeatedField");
         assertEquals(compileResult.getDiagnostics().length, 0);
-        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 4,
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 2,
                 "Expected compilation units not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 9,
                 "Expected type definitions not found in compile results.");
@@ -451,7 +451,7 @@ public class StubGeneratorTestCase {
         CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithoutPath.proto",
                 "helloWorldGatewayWithoutPath");
         assertEquals(compileResult.getDiagnostics().length, 0);
-        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 4,
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 2,
                 "Expected compilation units not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
                 "Expected type definitions not found in compile results.");

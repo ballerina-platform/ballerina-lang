@@ -39,6 +39,7 @@ import com.intellij.xdebugger.frame.XValueModifier;
 import com.intellij.xdebugger.frame.XValueNode;
 import com.intellij.xdebugger.frame.XValuePlace;
 import com.intellij.xdebugger.frame.presentation.XRegularValuePresentation;
+import com.intellij.xdebugger.frame.presentation.XStringValuePresentation;
 import com.intellij.xdebugger.frame.presentation.XValuePresentation;
 import io.ballerina.plugins.idea.debugger.BallerinaDebugProcess;
 import io.ballerina.plugins.idea.debugger.BallerinaValueType;
@@ -173,35 +174,30 @@ public class BallerinaEvaluationValue extends XNamedValue {
         String type = variable.getType() != null ? variable.getType() : "";
 
         if (type.equalsIgnoreCase(BallerinaValueType.STRING.getValue())) {
-            return new XValuePresentation() {
-                @Override
-                public void renderValue(@NotNull XValueTextRenderer renderer) {
-                    renderer.renderValue(value, BallerinaSyntaxHighlightingColors.STRING);
-                }
-            };
-        }
-
-        if (type.equalsIgnoreCase(BallerinaValueType.INT.getValue())
+            // Trims leading and trailing double quotes, if presents.
+            value = value.replaceAll("^\"+|\"+$", "");
+            return new XStringValuePresentation(value);
+        } else if (type.equalsIgnoreCase(BallerinaValueType.INT.getValue())
                 || type.equalsIgnoreCase(BallerinaValueType.FLOAT.getValue())
                 || type.equalsIgnoreCase(BallerinaValueType.DECIMAL.getValue())) {
-            return new XRegularValuePresentation(value, type) {
+            String finalValue = value;
+            return new XRegularValuePresentation(finalValue, type) {
                 @Override
                 public void renderValue(@NotNull XValueTextRenderer renderer) {
-                    renderer.renderValue(value, BallerinaSyntaxHighlightingColors.NUMBER);
+                    renderer.renderValue(finalValue, BallerinaSyntaxHighlightingColors.NUMBER);
                 }
             };
-        }
-
-        if (type.equalsIgnoreCase(BallerinaValueType.BOOLEAN.getValue())) {
+        } else if (type.equalsIgnoreCase(BallerinaValueType.BOOLEAN.getValue())) {
+            String finalValue1 = value;
             return new XValuePresentation() {
                 @Override
                 public void renderValue(@NotNull XValueTextRenderer renderer) {
-                    renderer.renderValue(value, BallerinaSyntaxHighlightingColors.KEYWORD);
+                    renderer.renderValue(finalValue1, BallerinaSyntaxHighlightingColors.KEYWORD);
                 }
             };
+        } else {
+            return new XRegularValuePresentation(value, type);
         }
-
-        return new XRegularValuePresentation(value, type);
     }
 
     @Nullable

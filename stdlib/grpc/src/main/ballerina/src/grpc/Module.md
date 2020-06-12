@@ -86,9 +86,6 @@ The code snippet given below contains a service that sends a sequence of respons
 ```ballerina
 // The gRPC service is attached to the listener.
 service HelloWorld on new grpc:Listener(9090) {
-   // Set the Streaming Annotation to ‘true’. It specifies that the resource is capable of
-   // sending multiple responses per request.
-   @grpc:ResourceConfig { streaming: true }
    resource function lotsOfReplies(grpc:Caller caller, string name) {
        string[] greets = ["Hi", "Welcome"];
        // Send multiple responses to the client.
@@ -143,27 +140,21 @@ The code snippet given below contains a service that receives a sequence of requ
 
 ```ballerina
 // The gRPC service is attached to the listener.
-@grpc:ServiceConfig {
-    name: "HelloWorld",
-    clientStreaming: true
-}
 service HelloWorld on new grpc:Listener(9090) {
-//This `resource` is triggered when a new caller connection is initialized.
-resource function onOpen(grpc:Caller caller) {
-}
 
-//This `resource` is triggered when the caller sends a request message to the service.
-resource function onMessage(grpc:Caller caller, string name) {
-}
-
-//This `resource` is triggered when the server receives an error message from the caller.
-resource function onError(grpc:Caller caller, error err) {
-}
-
-//This `resource` is triggered when the caller sends a notification to the server to indicate that it has finished sending messages.
-resource function onComplete(grpc:Caller caller) {
-    grpc:Error? err = caller->send("Ack");
-}
+    //This `resource` is triggered when a new caller connection is initialized.
+    resource function lotsOfGreetings(grpc:Caller caller, stream<string,error> clientStream) {
+        //Iterate through the client stream
+        error? e = clientStream.forEach(function(string name) {
+            // Handle the message sent from the stream here
+        });
+        //A grpc:EOS is returned once the client stream is completed
+        if (e is grpc:EOS) {
+            grpc:Error? err = caller->send("Ack");
+        } else if (e is error) {
+            // Handle the error sent by the client here
+        }
+    }
 }
 ```
 
@@ -216,29 +207,22 @@ rpc chat (stream ChatMessage)
 The code snippet given below includes a service that handles bidirectional streaming.
 
 ```ballerina
-// Set the ‘clientStreaming’ and ‘serverStreaming’ to true. It specifies that the service supports bidirectional streaming.
-@grpc:ServiceConfig {
-    name: "Chat",
-    clientStreaming: true,
-    serverStreaming: true
-}
+// The gRPC service is attached to the listener.
 service Chat on new grpc:Listener(9090) {
 
     //This `resource` is triggered when a new caller connection is initialized.
-    resource function onOpen(grpc:Caller caller) {
-    }
-
-    //This `resource` is triggered when the caller sends a request message to the `service`.
-    resource function onMessage(grpc:Caller caller, ChatMessage chatMsg) {
+    resource function chat(grpc:Caller caller, stream<ChatMessage, error> clientStream) {
+        //Iterate through the client stream
+        error? e = clientStream.forEach(function(ChatMessage chatMsg) {
+            // Handle the streamed messages sent from the client here
             grpc:Error? err = caller->send(string `${chatMsg.name}: ${chatMsg.message}`);
-    }
-
-    //This `resource` is triggered when the server receives an error message from the caller.
-    resource function onError(grpc:Caller caller, error err) {
-    }
-
-    //This `resource` is triggered when the caller sends a notification to the server to indicate that it has finished sending messages.
-    resource function onComplete(grpc:Caller caller) {
+        });
+        //A grpc:EOS is returned once the client has competed streaming
+        if (e is grpc:EOS) {
+            // Handle once the client has completed streaming
+        } else if (e is error) {
+            // Handle the error sent by the client here
+        }
     }
 }
 ```
