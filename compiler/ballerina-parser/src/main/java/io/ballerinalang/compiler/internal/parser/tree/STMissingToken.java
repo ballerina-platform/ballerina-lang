@@ -76,4 +76,10 @@ public class STMissingToken extends STToken {
         // TODO for testing purpose only
         return " MISSING[" + kind.stringValue() + "]";
     }
+
+    @Override
+    public void toSourceCode(StringBuilder builder) {
+        leadingMinutiae.toSourceCode(builder);
+        trailingMinutiae.toSourceCode(builder);
+    }
 }

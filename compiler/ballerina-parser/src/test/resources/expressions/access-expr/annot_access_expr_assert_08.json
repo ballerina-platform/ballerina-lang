@@ -15,10 +15,22 @@
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "foo"
+              "value": "foo",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
-              "kind": "COLON_TOKEN"
+              "kind": "COLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "ANNOT_ACCESS",
@@ -33,11 +45,23 @@
                   ]
                 },
                 {
-                  "kind": "ANNOT_CHAINING_TOKEN"
+                  "kind": "ANNOT_CHAINING_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "a"
+                  "value": "a",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             }

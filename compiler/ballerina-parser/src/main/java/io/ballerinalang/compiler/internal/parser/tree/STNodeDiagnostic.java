@@ -27,13 +27,19 @@ import io.ballerinalang.compiler.internal.diagnostics.IRDiagnostic;
  */
 public class STNodeDiagnostic extends IRDiagnostic {
     private DiagnosticCode diagnosticCode;
+    private Object[] args;
 
     // TODO we need to get arguments here.
-    public STNodeDiagnostic(DiagnosticCode diagnosticCode) {
+    public STNodeDiagnostic(DiagnosticCode diagnosticCode, Object... args) {
         this.diagnosticCode = diagnosticCode;
+        this.args = args;
     }
 
     public DiagnosticCode diagnosticCode() {
         return diagnosticCode;
+    }
+
+    public Object[] args() {
+        return args;
     }
 }

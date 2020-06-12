@@ -3,7 +3,13 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "IMPORT_KEYWORD"
+      "kind": "IMPORT_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "IMPORT_ORG_NAME",
@@ -11,7 +17,13 @@
       "children": [
         {
           "kind": "IDENTIFIER_TOKEN",
-          "value": "foo"
+          "value": "foo",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "SLASH_TOKEN",
