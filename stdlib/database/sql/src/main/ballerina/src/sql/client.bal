@@ -46,7 +46,7 @@ public type Client abstract client object {
     # + rollbackInFailure - Whether to rollback the statments executed in case one of the statements in the batch fails
     # + return - Summary of the sql update query as `ExecutionResult[]` or returns `BatchUpdateError`.
     #            if any error occured when executing the query. `BatchUpdateError` will include summary of the
-    #            sql update query as `ExecutionResult[]` for commands executed successfully.
+    #            sql update query as `executionResults` for commands executed successfully.
     public remote function batchExecute(ParameterizedString[] sqlQueries, boolean rollbackInFailure = false)
                                                                        returns ExecutionResult[]|Error?;
 

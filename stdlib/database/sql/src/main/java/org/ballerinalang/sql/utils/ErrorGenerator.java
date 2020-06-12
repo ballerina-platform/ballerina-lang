@@ -45,7 +45,7 @@ public class ErrorGenerator {
                                                      List<MapValue<BString, Object>> executionResults,
                                                      String messagePrefix) {
         String sqlErrorMessage =
-                exception.getMessage() != null ? exception.getMessage() : Constants.DATABASE_ERROR_MESSAGE;
+                exception.getMessage() != null ? exception.getMessage() : Constants.BATCH_EXECUTE_ERROR_MESSAGE;
         int vendorCode = exception.getErrorCode();
         String sqlState = exception.getSQLState();
         String errorMessage = messagePrefix + sqlErrorMessage + ".";
@@ -76,7 +76,7 @@ public class ErrorGenerator {
                   new BRecordType(Constants.EXECUTION_RESULT_RECORD, Constants.SQL_PACKAGE_ID, 0 , false, 0))));
 
         MapValue<BString, Object> sqlClientErrorDetailRecord = BallerinaValues.
-                createRecordValue(Constants.SQL_PACKAGE_ID, Constants.BATCH_EXECUTE_ERROR_DATA, valueMap);
+                createRecordValue(Constants.SQL_PACKAGE_ID, Constants.BATCH_EXECUTE_ERROR_DETAIL, valueMap);
         return BallerinaErrors.createDistinctError(Constants.BATCH_EXECUTE_ERROR, Constants.SQL_PACKAGE_ID,
                 message, sqlClientErrorDetailRecord);
     }
