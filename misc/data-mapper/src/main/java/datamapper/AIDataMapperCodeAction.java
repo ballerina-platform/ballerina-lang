@@ -15,6 +15,7 @@ package datamapper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -76,7 +77,6 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
     private static final String CUSTOM_URL = System.getenv(REMOTE_AI_SERVICE_URL_ENV);
     private static final String AI_SERVICE_URL = (CUSTOM_URL == null || CUSTOM_URL.length() == 0) ? REMOTE_URL :
             CUSTOM_URL;
-
 
     public static CodeAction getAIDataMapperCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
                                                     LSContext context) {
@@ -207,10 +207,9 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
         JsonArray schemas = new JsonArray();
         schemas.add(leftRecordJSON);
         schemas.add(rightRecordJSON);
-
         String schemasToSend = schemas.toString();
-        URL url = new URL(AI_SERVICE_URL);
 
+        URL url = new URL(AI_SERVICE_URL);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json; utf-8");
@@ -219,7 +218,8 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
         try (OutputStream outputStream = connection.getOutputStream()) {
             outputStream.write(schemasToSend.getBytes(StandardCharsets.UTF_8));
             try (InputStream in = new BufferedInputStream(connection.getInputStream())) {
-                return org.apache.commons.io.IOUtils.toString(in, StandardCharsets.UTF_8);
+                String returnedJSON = org.apache.commons.io.IOUtils.toString(in, StandardCharsets.UTF_8);
+                return ((JsonObject) new JsonParser().parse(returnedJSON)).get("answer").getAsString();
             }
         }
     }
