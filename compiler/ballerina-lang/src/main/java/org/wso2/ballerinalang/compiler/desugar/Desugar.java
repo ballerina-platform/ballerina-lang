@@ -2986,11 +2986,6 @@ public class Desugar extends BLangNodeVisitor {
         result = rewrite(rollbackExprStmt, env);
     }
 
-    String getTransactionBlockId() {
-        return env.enclPkg.packageID.orgName + "$" + env.enclPkg.packageID.name + "$"
-                + transactionIndex++;
-    }
-
     BLangLambdaFunction createLambdaFunction(DiagnosticPos pos, String functionNamePrefix,
                                                      List<BLangSimpleVariable> lambdaFunctionVariable,
                                                      TypeNode returnType, BLangFunctionBody lambdaBody) {
