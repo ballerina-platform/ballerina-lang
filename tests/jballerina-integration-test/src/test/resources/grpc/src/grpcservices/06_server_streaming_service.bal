@@ -26,7 +26,6 @@ listener grpc:Listener ep6 = new (9096);
 }
 service HelloWorld45 on ep6 {
 
-    @grpc:ResourceConfig {streaming:true}
     resource function lotsOfReplies(grpc:Caller caller, string name) {
         io:println("Server received hello from " + name);
         string[] greets = ["Hi", "Hey", "GM"];

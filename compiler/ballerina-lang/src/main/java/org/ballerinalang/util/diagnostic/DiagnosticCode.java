@@ -543,7 +543,10 @@ public enum DiagnosticCode {
     INVALID_SEND_EXPR("invalid.send.expr"),
 
     DISTINCT_TYPING_ONLY_SUPPORT_OBJECTS_AND_ERRORS("distinct.typing.only.support.objects.and.errors"),
-    ;
+
+    INVALID_USE_OF_TYPEDESC_PARAM("invalid.use.of.typedesc.param"),
+    INVALID_PARAM_TYPE_FOR_RETURN_TYPE("invalid.param.type.for.return.type"),
+    INVALID_TYPEDESC_PARAM("invalid.typedesc.param");
     private String value;
 
     DiagnosticCode(String value) {
