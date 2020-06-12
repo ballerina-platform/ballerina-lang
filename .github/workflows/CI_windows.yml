@@ -2,7 +2,6 @@ name: CI Windows
 
 on: 
   pull_request:
-    types: [opened, reopened]
     branches:
       - master
       - next-release
@@ -32,7 +31,7 @@ jobs:
         run: git submodule update --init
 
       - name: Cache Gradle packages
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}

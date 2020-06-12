@@ -67,4 +67,9 @@ public class BallerinaDebuggerEvaluator extends XDebuggerEvaluator {
                     , expression, e.getMessage()));
         }
     }
+
+    @Override
+    public boolean isCodeFragmentEvaluationSupported() {
+        return false;
+    }
 }

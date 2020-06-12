@@ -53,7 +53,8 @@ public class Flags {
     public static final int WORKER = LANG_LIB << 1;
     public static final int FORKED = WORKER << 1;
     public static final int TRANSACTIONAL = FORKED << 1;
-    public static final int DISTINCT = FORKED << 1;
+    public static final int PARAMETERIZED = TRANSACTIONAL << 1;
+    public static final int DISTINCT = PARAMETERIZED << 1;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
