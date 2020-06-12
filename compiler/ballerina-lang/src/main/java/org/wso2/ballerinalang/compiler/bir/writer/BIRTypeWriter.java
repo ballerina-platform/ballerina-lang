@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -210,6 +211,11 @@ public class BIRTypeWriter implements TypeVisitor {
     public void visit(BTypedescType typedescType) {
 
         writeTypeCpIndex(typedescType.constraint);
+    }
+
+    @Override
+    public void visit(BParameterizedType type) {
+        writeTypeCpIndex(type.paramValueType);
     }
 
     @Override

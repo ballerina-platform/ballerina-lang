@@ -776,6 +776,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 definedType = distinctType;
             } else if (definedType.getKind() == TypeKind.UNION) {
                 validateUnionForDistinctType((BUnionType) definedType, typeDefinition.pos);
+            } else {
+                dlog.error(typeDefinition.pos, DiagnosticCode.DISTINCT_TYPING_ONLY_SUPPORT_OBJECTS_AND_ERRORS);
             }
         }
 
@@ -859,13 +861,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private boolean isDistinctFlagPresent(BLangTypeDefinition typeDefinition) {
-        boolean distinctFlagPresent = false;
-        if (typeDefinition.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
-            distinctFlagPresent = ((BLangUserDefinedType) typeDefinition.typeNode).flagSet.contains(Flag.DISTINCT);
-        } else if (typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE) {
-            distinctFlagPresent = ((BLangErrorType) typeDefinition.typeNode).flagSet.contains(Flag.DISTINCT);
-        }
-        return distinctFlagPresent;
+        return typeDefinition.typeNode.flagSet.contains(Flag.DISTINCT);
     }
 
     private void handleLangLibTypes(BLangTypeDefinition typeDefinition) {
@@ -972,6 +968,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
+        funcNode.type = funcSymbol.type;
 
         if (isDeprecated(funcNode.annAttachments)) {
             funcSymbol.flags |= Flags.DEPRECATED;
@@ -1217,7 +1214,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
+        List<BType> fieldTypes = new ArrayList<>(recordType.fields.size());
+        for (BField field : recordType.fields.values()) {
+            BType type = field.type;
+            fieldTypes.add(type);
+        }
+
         if (recordTypeNode.restFieldType == null) {
+            symResolver.markParameterizedType(recordType, fieldTypes);
             if (recordTypeNode.sealed) {
                 recordType.restFieldType = symTable.noType;
                 return;
@@ -1227,6 +1231,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, env);
+        fieldTypes.add(recordType.restFieldType);
+        symResolver.markParameterizedType(recordType, fieldTypes);
     }
 
     private Collector<BField, ?, LinkedHashMap<String, BField>> getFieldCollector() {

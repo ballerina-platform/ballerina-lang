@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
 /**
  * Class to test functionality of type test expressions.
  */
-@Test(groups = "brokenOnNewParser")
 public class TypeTestExprTest {
 
     CompileResult result;

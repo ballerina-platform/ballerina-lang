@@ -57,7 +57,10 @@ public class GrpcConstants {
     public static final String RESPONSE_OBSERVER = "RESPONSE_OBSERVER";
     public static final String RESPONSE_MESSAGE_DEFINITION = "RESPONSE_DEFINITION";
     public static final BString CALLER_ID = StringUtils.fromString("instanceId");
-
+    public static final String MESSAGE_QUEUE = "messageQueue";
+    public static final String COMPLETED_MESSAGE = "completedMessage";
+    public static final String ERROR_MESSAGE = "errorMessage";
+    public static final String ITERATOR_OBJECT_NAME = "StreamIterator";
 
     // Service Descriptor Annotation
     public static final String DESCRIPTOR_MAP = "getDescriptorMap";
@@ -67,7 +70,7 @@ public class GrpcConstants {
     public static final String ANN_FIELD_DESCRIPTOR = "descriptor";
     public static final String ANN_FIELD_DESC_MAP = "descMap";
     public static final String ANN_SERVICE_DESCRIPTOR_FQN = PROTOCOL_STRUCT_PACKAGE_GRPC + ":" + ANN_SERVICE_DESCRIPTOR;
-    
+
     //client side endpoint constants
     public static final String CLIENT_ENDPOINT_TYPE = "Client";
     public static final String CLIENT_CONNECTOR = "ClientConnector";
@@ -125,7 +128,6 @@ public class GrpcConstants {
     public static final String WRAPPER_BYTES_MESSAGE = "BytesValue";
 
     // Server Streaming method resources.
-    public static final String ON_OPEN_RESOURCE = "onOpen";
     public static final String ON_COMPLETE_RESOURCE = "onComplete";
     public static final String ON_MESSAGE_RESOURCE = "onMessage";
     public static final String ON_ERROR_RESOURCE = "onError";

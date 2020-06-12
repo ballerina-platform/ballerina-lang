@@ -127,6 +127,10 @@
                   "kind": "SERVICE_CONSTRUCTOR_EXPRESSION",
                   "children": [
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "SERVICE_KEYWORD",
                       "leadingMinutiae": [
                         {

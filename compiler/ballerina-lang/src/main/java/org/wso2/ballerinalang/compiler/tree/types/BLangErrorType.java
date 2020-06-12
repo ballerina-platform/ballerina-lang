@@ -36,8 +36,6 @@ public class BLangErrorType extends BLangType implements ErrorTypeNode {
     public BLangType detailType;
     public boolean inferErrorType;
 
-    public Set<Flag> flagSet = EnumSet.noneOf(Flag.class);
-
     public BLangErrorType() {
     }
 
