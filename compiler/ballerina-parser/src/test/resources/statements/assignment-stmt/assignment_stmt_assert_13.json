@@ -6,27 +6,27 @@
       "kind": "BINARY_EXPRESSION",
       "children": [
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "a"
-        },
-        {
-          "kind": "PLUS_TOKEN"
-        },
-        {
           "kind": "BINARY_EXPRESSION",
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "b"
+              "value": "a"
             },
             {
               "kind": "PLUS_TOKEN"
             },
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "c"
+              "value": "b"
             }
           ]
+        },
+        {
+          "kind": "PLUS_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "c"
         }
       ]
     },

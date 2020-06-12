@@ -1,26 +1,8 @@
 {
-  "kind": "TYPE_CAST_EXPRESSION",
-  "hasDiagnostics": true,
+  "kind": "BINARY_EXPRESSION",
   "children": [
     {
-      "kind": "LT_TOKEN",
-      "isMissing": true,
-      "hasDiagnostics": true,
-      "diagnostics": [
-        "ERROR_MISSING_LT_TOKEN"
-      ]
-    },
-    {
-      "kind": "TYPE_CAST_PARAM",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        },
-        {
-          "kind": "INT_KEYWORD"
-        }
-      ]
+      "kind": "INT_KEYWORD"
     },
     {
       "kind": "GT_TOKEN"

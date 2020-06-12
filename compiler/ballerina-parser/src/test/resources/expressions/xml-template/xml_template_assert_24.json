@@ -341,24 +341,12 @@
                                                   "hasDiagnostics": true,
                                                   "children": [
                                                     {
-                                                      "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "b"
-                                                    },
-                                                    {
-                                                      "kind": "PLUS_TOKEN",
-                                                      "isMissing": true,
-                                                      "hasDiagnostics": true,
-                                                      "diagnostics": [
-                                                        "ERROR_MISSING_PLUS_TOKEN"
-                                                      ]
-                                                    },
-                                                    {
                                                       "kind": "BINARY_EXPRESSION",
                                                       "hasDiagnostics": true,
                                                       "children": [
                                                         {
-                                                          "kind": "STRING_LITERAL",
-                                                          "value": "b${v2}c\\}cc{d{}e}{f{\u0027 bar2\u003d\u0027aaa{${v1}}b\\${b"
+                                                          "kind": "IDENTIFIER_TOKEN",
+                                                          "value": "b"
                                                         },
                                                         {
                                                           "kind": "PLUS_TOKEN",
@@ -369,10 +357,22 @@
                                                           ]
                                                         },
                                                         {
-                                                          "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "b"
+                                                          "kind": "STRING_LITERAL",
+                                                          "value": "b${v2}c\\}cc{d{}e}{f{\u0027 bar2\u003d\u0027aaa{${v1}}b\\${b"
                                                         }
                                                       ]
+                                                    },
+                                                    {
+                                                      "kind": "PLUS_TOKEN",
+                                                      "isMissing": true,
+                                                      "hasDiagnostics": true,
+                                                      "diagnostics": [
+                                                        "ERROR_MISSING_PLUS_TOKEN"
+                                                      ]
+                                                    },
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "b"
                                                     }
                                                   ]
                                                 },

@@ -2,15 +2,15 @@
   "kind": "BINARY_EXPRESSION",
   "children": [
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "x"
-    },
-    {
-      "kind": "PLUS_TOKEN"
-    },
-    {
       "kind": "BINARY_EXPRESSION",
       "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "x"
+        },
+        {
+          "kind": "PLUS_TOKEN"
+        },
         {
           "kind": "XML_FILTER_EXPRESSION",
           "children": [
@@ -129,15 +129,15 @@
               ]
             }
           ]
-        },
-        {
-          "kind": "PLUS_TOKEN"
-        },
-        {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "y"
         }
       ]
+    },
+    {
+      "kind": "PLUS_TOKEN"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "y"
     }
   ]
 }
