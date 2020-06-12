@@ -1,5 +1,6 @@
 {
   "kind": "TYPE_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -19,6 +20,7 @@
     },
     {
       "kind": "RECORD_TYPE_DESC",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "RECORD_KEYWORD"
@@ -28,6 +30,7 @@
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "RECORD_FIELD",
@@ -86,6 +89,7 @@
             },
             {
               "kind": "RECORD_FIELD",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "METADATA",
@@ -105,12 +109,17 @@
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",
-                  "isMissing": true
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_SEMICOLON_TOKEN"
+                  ]
                 }
               ]
             },
             {
               "kind": "RECORD_FIELD",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "METADATA",
@@ -123,6 +132,7 @@
                 },
                 {
                   "kind": "RECORD_TYPE_DESC",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "RECORD_KEYWORD"
@@ -132,9 +142,11 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "RECORD_FIELD",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "METADATA",
@@ -154,12 +166,17 @@
                             },
                             {
                               "kind": "SEMICOLON_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_SEMICOLON_TOKEN"
+                              ]
                             }
                           ]
                         },
                         {
                           "kind": "RECORD_FIELD_WITH_DEFAULT_VALUE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "METADATA",
@@ -179,7 +196,11 @@
                             },
                             {
                               "kind": "EQUAL_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_EQUAL_TOKEN"
+                              ]
                             },
                             {
                               "kind": "DECIMAL_INTEGER_LITERAL",
@@ -192,6 +213,7 @@
                         },
                         {
                           "kind": "TYPE_REFERENCE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "ASTERISK_TOKEN"
@@ -202,7 +224,11 @@
                             },
                             {
                               "kind": "SEMICOLON_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_SEMICOLON_TOKEN"
+                              ]
                             }
                           ]
                         }

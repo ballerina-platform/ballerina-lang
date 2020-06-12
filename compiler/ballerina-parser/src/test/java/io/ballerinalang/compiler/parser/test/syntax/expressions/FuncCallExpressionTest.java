@@ -87,4 +87,11 @@ public class FuncCallExpressionTest extends AbstractExpressionsTest {
         test("foo( bar(5, a, age  baz() ...subjects), 5, a, age = 18, ...subjects)",
                 "func-call/func_call_assert_11.json");
     }
+
+    @Test
+    public void testInvalidFuncCallRecovery() {
+        test("foo(1)(2)", "func-call/func_call_assert_15.json");
+        test("foo(1)bar(", "func-call/func_call_assert_13.json");
+        test("\"hello world\"()", "func-call/func_call_assert_14.json");
+    }
 }

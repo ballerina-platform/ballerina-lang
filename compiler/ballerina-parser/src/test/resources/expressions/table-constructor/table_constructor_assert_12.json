@@ -1,5 +1,6 @@
 {
   "kind": "TABLE_CONSTRUCTOR",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "TABLE_KEYWORD"
@@ -24,7 +25,11 @@
     },
     {
       "kind": "OPEN_BRACKET_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_OPEN_BRACKET_TOKEN"
+      ]
     },
     {
       "kind": "LIST",

@@ -92,6 +92,7 @@ public enum SyntaxKind {
     ENUM_KEYWORD(238, "enum"),
     BASE16_KEYWORD(239, "base16"),
     BASE64_KEYWORD(240, "base64"),
+    MATCH_KEYWORD(241, "match"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -228,6 +229,7 @@ public enum SyntaxKind {
     ROLLBACK_STATEMENT(1219),
     RETRY_STATEMENT(1220),
     XML_NAMESPACE_DECLARATION(1221),
+    MATCH_STATEMENT(1222),
 
     // Expressions
     BINARY_EXPRESSION(1300),
@@ -387,6 +389,9 @@ public enum SyntaxKind {
     FIELD_BINDING_PATTERN(3065),
     MAPPING_BP_OR_MAPPING_CONSTRUCTOR(3066),
     WILDCARD_BINDING_PATTERN(3067),
+    MATCH_CLAUSE(3068),
+    MATCH_GUARD(3069),
+    OBJECT_METHOD_DEFINITION(3070),
 
     // XML
     XML_ELEMENT(4000),

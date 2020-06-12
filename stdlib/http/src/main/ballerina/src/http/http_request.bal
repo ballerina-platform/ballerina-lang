@@ -44,7 +44,7 @@ public type Request object {
     private boolean dirtyRequest;
     boolean noEntityBody;
 
-    public function __init() {
+    public function init() {
         self.dirtyRequest = false;
         self.noEntityBody = false;
         self.entity = self.createNewEntity();

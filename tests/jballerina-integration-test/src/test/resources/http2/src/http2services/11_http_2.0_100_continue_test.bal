@@ -38,7 +38,7 @@ service helloWorld on new http:Listener(9107, {httpVersion: "2.0"}) {
         var payload = request.getTextPayload();
         if (payload is string) {
             res.statusCode = 200;
-            res.setPayload(<@untaintedstring>payload);
+            res.setPayload(<@untainted string>payload);
             var result1 = caller->respond(res);
             handleError(result1);
         } else {

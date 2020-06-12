@@ -1026,7 +1026,8 @@
                 },
                 {
                     "name": "versionNumber",
-                    "type": "Node"
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
                 }
             ]
         },
@@ -2023,7 +2024,8 @@
                 },
                 {
                     "name": "streamTypeParamsNode",
-                    "type": "Node"
+                    "type": "Node",
+                    "isOptional": true
                 }
             ]
         },
@@ -2042,11 +2044,13 @@
                 },
                 {
                     "name": "commaToken",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "rightTypeDescNode",
-                    "type": "Node"
+                    "type": "Node",
+                    "isOptional": true
                 },
                 {
                     "name": "gtToken",
@@ -3222,7 +3226,7 @@
                 },
                 {
                     "name": "annotTagReference",
-                    "type": "Node"
+                    "type": "NameReferenceNode"
                 }
             ]
         },
@@ -3581,6 +3585,111 @@
                 {
                     "name": "typeRef",
                     "type": "NameReferenceNode"
+                }
+            ]
+        },
+        {
+            "name": "MatchStatementNode",
+            "base": "StatementNode",
+            "kind": "MATCH_STATEMENT",
+            "attributes": [
+                {
+                    "name": "matchKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "condition",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "openBrace",
+                    "type": "Token"
+                },
+                {
+                    "name": "matchClauses",
+                    "type": "MatchClauseNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeBrace",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "MatchClauseNode",
+            "base": "Node",
+            "kind": "MATCH_CLAUSE",
+            "attributes": [
+                {
+                    "name": "matchPatterns",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "matchGuard",
+                    "type": "MatchGuardNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "rightDoubleArrow",
+                    "type": "Token"
+                },
+                {
+                    "name": "blockStatement",
+                    "type": "BlockStatementNode"
+                }
+            ]
+        },
+        {
+            "name": "MatchGuardNode",
+            "base": "Node",
+            "kind": "MATCH_GUARD",
+            "attributes": [
+                {
+                    "name": "ifKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "ObjectMethodDefinitionNode",
+            "base": "Node",
+            "kind": "OBJECT_METHOD_DEFINITION",
+            "attributes": [
+                {
+                    "name": "metadata",
+                    "type": "MetadataNode"
+                },
+                {
+                    "name": "visibilityQualifier",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "remoteKeyword",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "functionKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "methodName",
+                    "type": "IdentifierToken"
+                },
+                {
+                    "name": "methodSignature",
+                    "type": "FunctionSignatureNode"
+                },
+                {
+                    "name": "functionBody",
+                    "type": "FunctionBodyNode"
                 }
             ]
         }

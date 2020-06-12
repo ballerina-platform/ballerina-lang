@@ -34,6 +34,10 @@ public enum Flag {
      */
     REMOTE,
     /**
+     * Indicates Flagged node is a transactional function.
+     */
+    TRANSACTIONAL,
+    /**
      * Indicates Flagged node is a native construct.
      */
     NATIVE,

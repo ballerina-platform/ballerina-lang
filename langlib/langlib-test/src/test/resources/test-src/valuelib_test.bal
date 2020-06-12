@@ -239,7 +239,7 @@ public type Student object {
     string name;
     string school;
 
-    public function __init(string name, string school) {
+    public function init(string name, string school) {
         self.name = name;
         self.school = school;
     }
@@ -254,7 +254,7 @@ public type Teacher object {
     string name;
     string school;
 
-    public function __init(string name, string school) {
+    public function init(string name, string school) {
         self.name = name;
         self.school = school;
     }

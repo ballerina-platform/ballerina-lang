@@ -122,7 +122,7 @@ public type InboundCustomAuthHandler object {
 
     public auth:InboundAuthProvider authProvider;
 
-    public function __init(auth:InboundAuthProvider authProvider) {
+    public function init(auth:InboundAuthProvider authProvider) {
         self.authProvider = authProvider;
     }
 
@@ -169,7 +169,7 @@ public type OutboundCustomAuthHandler object {
 
     public auth:OutboundAuthProvider authProvider;
 
-    public function __init(auth:OutboundAuthProvider authProvider) {
+    public function init(auth:OutboundAuthProvider authProvider) {
         self.authProvider = authProvider;
     }
 

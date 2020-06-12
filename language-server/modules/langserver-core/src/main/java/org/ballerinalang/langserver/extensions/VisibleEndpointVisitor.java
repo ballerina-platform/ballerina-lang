@@ -147,9 +147,6 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         this.acceptNode(transactionNode.transactionBody, this.symbolEnv);
-        this.acceptNode(transactionNode.onRetryBody, this.symbolEnv);
-        this.acceptNode(transactionNode.committedBody, this.symbolEnv);
-        this.acceptNode(transactionNode.abortedBody, this.symbolEnv);
     }
     
     private void acceptNode(BLangNode node, SymbolEnv env) {

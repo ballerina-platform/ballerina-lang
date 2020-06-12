@@ -26,7 +26,7 @@ public type Producer client object {
     # Creates a new `nats:Producer`.
     #
     # + connection - An established NATS connection
-    public function __init(Connection connection) {
+    public function init(Connection connection) {
         self.conn = connection;
         producerInit(connection);
     }

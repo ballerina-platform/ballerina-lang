@@ -54,7 +54,7 @@ public type RetryClient client object {
     # + config - HTTP ClientConfiguration to be used for HTTP client invocation
     # + retryInferredConfig - Derived set of configurations associated with retry
     # + httpClient - HTTP client for outbound HTTP requests
-    public function __init(string url, ClientConfiguration config, RetryInferredConfig retryInferredConfig,
+    public function init(string url, ClientConfiguration config, RetryInferredConfig retryInferredConfig,
                                         HttpClient httpClient) {
         self.url = url;
         self.config = config;

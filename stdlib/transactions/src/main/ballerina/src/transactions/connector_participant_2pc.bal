@@ -30,7 +30,7 @@ type Participant2pcClientEP client object {
     http:Client httpClient;
     Participant2pcClientConfig conf = {};
 
-    function __init(Participant2pcClientConfig c) {
+    function init(Participant2pcClientConfig c) {
         http:Client httpEP = new(c.participantURL, {
             timeoutInMillis: c.timeoutInMillis,
             retryConfig:{

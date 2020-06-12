@@ -63,7 +63,7 @@ function testSimpleValuesStoredInRecords() {
 public type BarObject object {
     public int barFieldOne;
 
-    public function __init(int barFieldOne) {
+    public function init(int barFieldOne) {
         self.barFieldOne = barFieldOne;
     }
 

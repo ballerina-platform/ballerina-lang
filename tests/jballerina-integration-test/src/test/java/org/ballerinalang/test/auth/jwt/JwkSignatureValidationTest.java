@@ -57,4 +57,23 @@ public class JwkSignatureValidationTest extends AuthBaseTest {
                 headers, jwtAuthServerInstance.getServerHome());
         assertOK(response);
     }
+
+    @Test(description = "Test authentication failure request by validating JWT (invalid-kid) signature with JWK")
+    public void testAuthenticationFailure() throws Exception {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
+        headers.put("Authorization", "Bearer ewogICJ4NXQiOiAiTlRBeFptTXhORE15WkRnM01UVTFaR00wTXpFek9ESmhaV0k0TkRObF" +
+                "pEVTFPR0ZrTmpGaU1RIiwKICAia2lkIjogImludmFsaWQta2lkIiwKICAiYWxnIjogIlJTMjU2Igp9.eyJzdWIiOiJhZG1pbkB" +
+                "jYXJib24uc3VwZXIiLCJhdWQiOiJ2RXd6YmNhc0pWUW0xalZZSFVIQ2poeFo0dFlhIiwibmJmIjoxNTg3NjIxODkwLCJhenAiO" +
+                "iJ2RXd6YmNhc0pWUW0xalZZSFVIQ2poeFo0dFlhIiwiaXNzIjoiaHR0cHM6XC9cL2xvY2FsaG9zdDo5NDQzXC9vYXV0aDJcL3R" +
+                "va2VuIiwiZXhwIjo0NzQxMjIxODkwLCJpYXQiOjE1ODc2MjE4OTAsImp0aSI6ImFiZWFlMjIyLWViNzctNDg2Mi05MTZkLTM0N" +
+                "jIyZDRlNGFmYyJ9.IoD0-39h7vEAoDdnKBRtWC6tpTyADsGyXomHbsCj_oR5B8lj7jVUG2TCKoMXD_S_BV3F3ep7zENOW8wu0M" +
+                "7F27yJsgas5-vJ7BO1IMLD82PReeb160CnJ2tUFrmdT1Gc7uNfXfXuJv7qwkgaWR0VvFCfsvl88UQXyXA0rEmNYT4p_jFjKovg" +
+                "PsPePl6Qf0uwO--xEhGEM4cUuBog2bgY54vaLg9iHnNb6ZZ_EZvjwIONZseBOiB5IXDzffUXnPfwUsGaygHqw71byV61VQhDLF" +
+                "Dsm7Jrqe3cpd8hThAUHhVkgsz3irwXPolOdlMheslOIMunVcnQLT6yvGlsrHxS0g");
+        HttpResponse response = HttpsClientRequest.doGet(
+                jwtAuthServerInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headers, jwtAuthServerInstance.getServerHome());
+        assertUnauthorized(response);
+    }
 }

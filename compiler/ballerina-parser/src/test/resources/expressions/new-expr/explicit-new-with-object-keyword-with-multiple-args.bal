@@ -4,7 +4,7 @@ function foo() {
         int y;
         string z;
 
-        function __init(int x, int y, string z) {
+        function init(int x, int y, string z) {
             self.x = x;
             self.y = y;
             self.z = z;

@@ -15,7 +15,7 @@ type ObjectName3 object {
     public ObjectName1? b;
     string h;
 
-    function __init() {
+    function init() {
         self.s = "";
     }
 
@@ -49,7 +49,7 @@ public type Client client object {
     #
     # + url - URL of the target service
     # + config - The configurations to be used when initializing the client
-    public function __init(string url) {
+    public function init(string url) {
         self.url = url;
     }
 

@@ -89,7 +89,7 @@ public type HttpCachingClient client object {
     # + url - The URL of the HTTP endpoint to connect to
     # + config - The configurations for the client endpoint associated with the caching client
     # + cacheConfig - The configurations for the HTTP cache to be used with the caching client
-    public function __init(string url, ClientConfiguration config, CacheConfig cacheConfig) {
+    public function init(string url, ClientConfiguration config, CacheConfig cacheConfig) {
         var httpSecureClient = createHttpSecureClient(url, config);
         if (httpSecureClient is HttpClient) {
             self.httpClient = httpSecureClient;

@@ -76,7 +76,7 @@ public type OutboundOAuth2Provider object {
     # Provides authentication based on the provided OAuth2 configuration.
     #
     # + oauth2ProviderConfig - Outbound OAuth2 provider configurations
-    public function __init(GrantTypeConfig? oauth2ProviderConfig = ()) {
+    public function init(GrantTypeConfig? oauth2ProviderConfig = ()) {
         self.oauth2ProviderConfig = oauth2ProviderConfig;
         self.oauth2CacheEntry = {
             accessToken: "",

@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 /**
  * Class to test functionality of type test expressions.
  */
+@Test(groups = "brokenOnNewParser")
 public class TypeTestExprTest {
 
     CompileResult result;
@@ -608,7 +609,7 @@ public class TypeTestExprTest {
         Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testError_1() {
         BValue[] returns = BRunUtil.invoke(result, "testError_1");
         Assert.assertEquals(returns.length, 4);

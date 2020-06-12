@@ -99,7 +99,7 @@ public class SignatureHelpUtil {
     private static final String COMMA = ",";
     private static final String SEMI_COLON = ";";
     private static final String EQUAL = "=";
-    private static final String INIT_SYMBOL = ".__init";
+    private static final String INIT_SYMBOL = ".init";
 
     private SignatureHelpUtil() {
     }

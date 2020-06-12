@@ -226,7 +226,7 @@ public class StringTest {
         ByteArrayUtils.assertJBytesWithBBytes(bytes, bByteArray.getBytes());
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testMultilineStringLiterals() {
         CompileResult multilineLiterals = BCompileUtil.compile("test-src/types/string/string_negative.bal");
         int indx = 0;

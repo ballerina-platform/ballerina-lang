@@ -56,7 +56,7 @@ public type _StreamPipeline object {
     _StreamFunction streamFunction;
     typedesc<Type> resType;
 
-    public function __init(
+    public function init(
             (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection,
             typedesc<Type> resType) {
         self.streamFunction = new _InitFunction(collection);
@@ -84,7 +84,7 @@ public type _StreamPipeline object {
             public _StreamPipeline pipeline;
             public typedesc<Type> outputType;
 
-            public function __init(_StreamPipeline pipeline, typedesc<Type> outputType) {
+            public function init(_StreamPipeline pipeline, typedesc<Type> outputType) {
                 self.pipeline = pipeline;
                 self.outputType = outputType;
             }
@@ -111,7 +111,7 @@ public type _InitFunction object {
     boolean resettable = true;
     (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection;
 
-    public function __init(
+    public function init(
             (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection) {
         self.prevFunc = ();
         self.itr = ();
@@ -172,7 +172,7 @@ public type _InputFunction object {
     #   frame {dept: deptList[x]}
     public function(_Frame _frame) returns _Frame|error? inputFunc;
 
-    public function __init(function(_Frame _frame) returns _Frame|error? inputFunc) {
+    public function init(function(_Frame _frame) returns _Frame|error? inputFunc) {
         self.inputFunc = inputFunc;
         self.prevFunc = ();
     }
@@ -196,6 +196,88 @@ public type _InputFunction object {
     }
 };
 
+type _NestedFromFunction object {
+    *_StreamFunction;
+    _Iterator? itr;
+
+    public function(_Frame frame) returns any|error? collectionFunc;
+    _Frame|error? currentFrame;
+
+    public function init(function(_Frame frame) returns any|error? collectionFunc) {
+        self.itr = ();
+        self.prevFunc = ();
+        self.currentFrame = ();
+        self.collectionFunc = collectionFunc;
+    }
+
+    # Desugared function to do;
+    # from var ... in listA from from var ... in listB
+    # from var ... in streamA join var ... in streamB
+    # + return - merged two frames { ...frameA, ...frameB }
+    public function process() returns _Frame|error? {
+        _StreamFunction pf = <_StreamFunction> self.prevFunc;
+        function(_Frame frame) returns any|error? collectionFunc = self.collectionFunc;
+        _Frame|error? cf = self.currentFrame;
+        _Iterator? itr = self.itr;
+        if (cf is ()) {
+            cf = pf.process();
+            self.currentFrame = cf;
+            if  (cf is _Frame) {
+                any|error? collection = collectionFunc(cf);
+                if (collection is any) {
+                    itr = self._getIterator(collection);
+                    self.itr = itr;
+                }
+            }
+        }
+        if (cf is _Frame && itr is _Iterator) {
+            record{|(any|error) value;|}|error? v = itr.next();
+            if (v is record{|(any|error) value;|}) {
+                _Frame _frame = {...cf, ...v};
+                return _frame;
+            } else if (v is error) {
+                return v;
+            } else {
+                // Move to next frame
+                self.currentFrame = ();
+                return self.process();
+            }
+        }
+        return cf;
+    }
+
+    public function reset() {
+        // Reset the state of currentFrame
+        self.itr = ();
+        self.currentFrame = ();
+        _StreamFunction? pf = self.prevFunc;
+        if (pf is _StreamFunction) {
+            pf.reset();
+        }
+    }
+
+    function _getIterator(any collection) returns _Iterator {
+        if (collection is (any|error)[]) {
+            return lang_array:iterator(collection);
+        } else if (collection is record{}) {
+            return lang_map:iterator(collection);
+        } else if (collection is map<any|error>) {
+            return lang_map:iterator(collection);
+        } else if (collection is string) {
+            return lang_string:iterator(collection);
+        } else if (collection is xml) {
+            return lang_xml:iterator(collection);
+        }  else if (collection is table<map<any|error>>) {
+            return lang_table:iterator(collection);
+        } else if (collection is _Iterable) {
+            return collection.__iterator();
+        } else if (collection is stream<any|error, error?>) {
+            return lang_stream:iterator(collection);
+        }
+        panic error("Unsuppored collection", message = "unsuppored collection type.");
+    }
+};
+
 public type _LetFunction object {
     *_StreamFunction;
 
@@ -204,7 +286,7 @@ public type _LetFunction object {
     #   frame { companyRecord: { name: "WSO2" }, ...prevFrame }
     public function(_Frame _frame) returns _Frame|error? letFunc;
 
-    public function __init(function(_Frame _frame) returns _Frame|error? letFunc) {
+    public function init(function(_Frame _frame) returns _Frame|error? letFunc) {
         self.letFunc = letFunc;
         self.prevFunc = ();
     }
@@ -234,7 +316,7 @@ public type _JoinFunction object {
     _StreamPipeline pipelineToJoin;
     _Frame|error? currentFrame;
 
-    public function __init(_StreamPipeline pipelineToJoin) {
+    public function init(_StreamPipeline pipelineToJoin) {
         self.pipelineToJoin = pipelineToJoin;
         self.prevFunc = ();
         self.currentFrame = ();
@@ -289,7 +371,7 @@ public type _FilterFunction object {
     # emit the next frame which satisfies the condition
     function(_Frame _frame) returns boolean filterFunc;
 
-    public function __init(function(_Frame _frame) returns boolean filterFunc) {
+    public function init(function(_Frame _frame) returns boolean filterFunc) {
         self.filterFunc = filterFunc;
         self.prevFunc = ();
     }
@@ -323,7 +405,7 @@ public type _SelectFunction object {
     # };
     public function(_Frame _frame) returns _Frame|error? selectFunc;
 
-    public function __init(function(_Frame _frame) returns _Frame|error? selectFunc) {
+    public function init(function(_Frame _frame) returns _Frame|error? selectFunc) {
         self.selectFunc = selectFunc;
         self.prevFunc = ();
     }
@@ -356,7 +438,7 @@ public type _DoFunction object {
     # };
     public function(_Frame _frame) doFunc;
 
-    public function __init(function(_Frame _frame) doFunc) {
+    public function init(function(_Frame _frame) doFunc) {
         self.doFunc = doFunc;
         self.prevFunc = ();
     }
@@ -390,7 +472,7 @@ public type _LimitFunction object {
     public int lmt;
     public int count = 0;
 
-    public function __init(int lmt) {
+    public function init(int lmt) {
         self.lmt = lmt;
         self.prevFunc = ();
         if (lmt < 0) {
