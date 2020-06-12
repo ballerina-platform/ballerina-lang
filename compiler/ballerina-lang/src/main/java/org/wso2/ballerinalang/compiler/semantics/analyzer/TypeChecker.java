@@ -4251,7 +4251,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (resultType == symTable.semanticError) {
                 return;
             }
-        } else {
+        } else if (errorType.detailType.tag == TypeTags.RECORD ){
             BRecordType targetErrorDetailRec = (BRecordType) errorType.detailType;
             BRecordType recordType = createErrorDetailRecordType(iExpr, targetErrorDetailRec);
             if (resultType == symTable.semanticError || targetErrorDetailRec == null) {
@@ -4263,6 +4263,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 resultType = symTable.semanticError;
                 return;
             }
+        } else {
+            resultType = symTable.semanticError;
         }
         setErrorDetailArgsToNamedArgsList(iExpr);
 
