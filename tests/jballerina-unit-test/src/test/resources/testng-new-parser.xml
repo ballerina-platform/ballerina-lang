@@ -114,7 +114,7 @@
 <!--            <package name="org.ballerinalang.test.record.*"/>-->
 <!--            <package name="org.ballerinalang.test.types.constant.*" />-->
 <!--            <package name="org.ballerinalang.test.types.bytetype.*"/>-->
-<!--            <package name="org.ballerinalang.test.types.handle.*"/>-->
+            <package name="org.ballerinalang.test.types.handle.*"/>
 <!--            <package name="org.ballerinalang.test.balo.*"/>-->
 <!--            <package name="org.ballerinalang.test.expressions.typecast.*"/>-->
 <!--            <package name="org.ballerinalang.test.expressions.literals.*"/>-->
@@ -175,7 +175,6 @@
             <class name="org.ballerinalang.test.types.var.VarIgnoreTest"></class>
             <class name="org.ballerinalang.test.documentation.MultilineDocsTest"></class>
             <class name="org.ballerinalang.test.documentation.ObjectFieldDefaultValueTest"></class>
-            <class name="org.ballerinalang.test.types.string.BStringAnnotationTest"></class>
             <!--<class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />-->
             <!--<class name="org.ballerinalang.test.lock.LocksInMainTest">-->
             <!--<methods>-->
