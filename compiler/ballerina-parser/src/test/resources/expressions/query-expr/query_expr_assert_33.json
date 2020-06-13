@@ -1,5 +1,6 @@
 {
   "kind": "QUERY_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "QUERY_PIPELINE",
@@ -74,6 +75,7 @@
     },
     {
       "kind": "SELECT_CLAUSE",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "SELECT_KEYWORD",
@@ -86,11 +88,36 @@
         },
         {
           "kind": "IDENTIFIER_TOKEN",
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MORE_CLAUSES_AFTER_SELECT_CLAUSE"
+          ],
           "value": "c",
           "trailingMinutiae": [
             {
               "kind": "WHITESPACE_MINUTIAE",
               "value": " "
+            },
+            {
+              "kind": "INVALID_NODE_MINUTIAE",
+              "invalidNode": {
+                "kind": "WHERE_CLAUSE",
+                "children": [
+                  {
+                    "kind": "WHERE_KEYWORD",
+                    "trailingMinutiae": [
+                      {
+                        "kind": "WHITESPACE_MINUTIAE",
+                        "value": " "
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "d"
+                  }
+                ]
+              }
             }
           ]
         }

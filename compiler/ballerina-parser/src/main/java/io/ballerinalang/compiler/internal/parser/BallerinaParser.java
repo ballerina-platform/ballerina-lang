@@ -9799,11 +9799,11 @@ public class BallerinaParser extends AbstractParser {
                 break;
             }
 
-            // If there are more clauses after select clause they are ignored
+            // If there are more clauses after select clause they are add as invalid nodes to the select clause
             if (selectClause != null) {
-                // TODO: In future we should store ignored nodes
-                this.errorHandler.reportInvalidNode(null, "extra clauses after select clause");
-                break;
+                selectClause = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(selectClause, intermediateClause,
+                        DiagnosticErrorCode.ERROR_MORE_CLAUSES_AFTER_SELECT_CLAUSE);
+                continue;
             }
 
             if (intermediateClause.kind == SyntaxKind.SELECT_CLAUSE) {
