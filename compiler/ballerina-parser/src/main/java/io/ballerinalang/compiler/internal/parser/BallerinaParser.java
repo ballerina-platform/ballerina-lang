@@ -4217,7 +4217,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
             case IDENTIFIER_TOKEN:
             case OBJECT_KEYWORD:
-                // TODO: Support `stream` keyword once introduced
+            case STREAM_KEYWORD:
                 return parseTypeDescriptorInNewExpr(newKeyword);
             default:
                 break;
