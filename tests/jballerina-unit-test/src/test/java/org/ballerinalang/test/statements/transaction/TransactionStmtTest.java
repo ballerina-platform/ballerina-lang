@@ -55,6 +55,11 @@ public class TransactionStmtTest {
         BRunUtil.invoke(programFile, "testPanic");
     }
 
+    @Test
+    public void testMultipleTrxBlocks() {
+        BRunUtil.invoke(programFile, "testMultipleTrxBlocks");
+    }
+
     @Test(description = "Test transaction statement with errors")
     public void testTransactionNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 21);
