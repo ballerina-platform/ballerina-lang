@@ -82,7 +82,7 @@
 
             <!-- has error type usages -->
             <!-- <package name="org.ballerinalang.test.statements.ifelse.*"/> -->
-            
+
             <package name="org.ballerinalang.test.statements.packageimport.*"/>
             <package name="org.ballerinalang.test.statements.returnstmt.*"/>
             <package name="org.ballerinalang.test.statements.vardeclr.*"/>
@@ -94,8 +94,11 @@
             <package name="org.ballerinalang.test.types.nullvalue.*"/>
             <package name="org.ballerinalang.test.types.service.*"/>
             <package name="org.ballerinalang.test.types.globalvar.*"/>
-<!--            <package name="org.ballerinalang.test.expressions.builtinoperations.*"/>-->
-<!--            <package name="org.ballerinalang.test.expressions.let.*"/>-->
+
+            <!-- has error type usages -->
+            <!-- <package name="org.ballerinalang.test.expressions.builtinoperations.*"/> -->
+            <!-- <package name="org.ballerinalang.test.expressions.let.*"/> -->
+
             <package name="org.ballerinalang.test.expressions.builtinfunctions.*"/>
 <!--            <package name="org.ballerinalang.test.expressions.conversion.*"/>-->
             <package name="org.ballerinalang.test.expressions.unaryoperations.*"/>
@@ -110,7 +113,7 @@
 <!--            <package name="org.ballerinalang.test.expressions.lambda.*"/>-->
 <!--            <package name="org.ballerinalang.test.expressions.invocations.*"/>-->
 <!--            <package name="org.ballerinalang.test.expressions.mappingconstructor.*"/>-->
-<!--            <package name="org.ballerinalang.test.expressions.listconstructor.*"/>-->
+            <package name="org.ballerinalang.test.expressions.listconstructor.*"/>
 <!--            <package name="org.ballerinalang.test.expressions.group.*"/>-->
             <package name="org.ballerinalang.test.object.*" />
 <!--            <package name="org.ballerinalang.test.documentation.*" />-->

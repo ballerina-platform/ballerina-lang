@@ -13340,8 +13340,7 @@ public class BallerinaParser extends AbstractParser {
             case ERROR_KEYWORD: // Functional binding pattern: T[a] error(..)
                 // T[a] is definitely a type-desc.
                 STNode typeDesc = getTypeDescFromExpr(typeDescOrExpr);
-                STNode arrayTypeDesc =
-                        STNodeFactory.createArrayTypeDescriptorNode(typeDesc, openBracket, member, closeBracket);
+                STNode arrayTypeDesc = createArrayTypeDesc(openBracket, member, closeBracket, typeDesc);
                 return parseTypedBindingPatternTypeRhs(arrayTypeDesc, context);
             case OPEN_BRACKET_TOKEN: // T[a][b]..
                 if (isTypedBindingPattern) {
@@ -13359,8 +13358,7 @@ public class BallerinaParser extends AbstractParser {
             case QUESTION_MARK_TOKEN:
                 // T[a]? --> Treat T[a] as array type
                 typeDesc = getTypeDescFromExpr(typeDescOrExpr);
-                arrayTypeDesc =
-                        STNodeFactory.createArrayTypeDescriptorNode(typeDesc, openBracket, member, closeBracket);
+                arrayTypeDesc = createArrayTypeDesc(openBracket, member, closeBracket, typeDesc);
                 typeDesc = parseComplexTypeDescriptor(arrayTypeDesc,
                         ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true);
                 return parseTypedBindingPatternTypeRhs(typeDesc, context);
@@ -13478,8 +13476,7 @@ public class BallerinaParser extends AbstractParser {
             // Treat T[a] as an array-type-desc. But we dont know what R is.
             // R could be R[b] or R[b, c]
             STNode lhsTypeDesc = getTypeDescFromExpr(typeDescOrExpr);
-            lhsTypeDesc = STNodeFactory.createArrayTypeDescriptorNode(lhsTypeDesc, openBracket, member, closeBracket);
-
+            lhsTypeDesc = createArrayTypeDesc(openBracket, member, closeBracket, lhsTypeDesc);
             STTypedBindingPatternNode rhsTypedBindingPattern = (STTypedBindingPatternNode) typedBindingPatternOrExpr;
             STNode newTypeDesc;
             if (pipeOrAndToken.kind == SyntaxKind.PIPE_TOKEN) {
@@ -13499,6 +13496,26 @@ public class BallerinaParser extends AbstractParser {
             return STNodeFactory.createBinaryExpressionNode(SyntaxKind.BINARY_EXPRESSION, lhsExpr, pipeOrAndToken,
                     typedBindingPatternOrExpr);
         }
+    }
+
+    private STNode createArrayTypeDesc(STNode openBracket, STNode member, STNode closeBracket, STNode lhsTypeDesc) {
+        if (lhsTypeDesc.kind == SyntaxKind.UNION_TYPE_DESC) {
+            STUnionTypeDescriptorNode unionTypeDesc = (STUnionTypeDescriptorNode) lhsTypeDesc;
+            STNode middleTypeDesc = STNodeFactory.createArrayTypeDescriptorNode(unionTypeDesc.rightTypeDesc,
+                    openBracket, member, closeBracket);
+            lhsTypeDesc = STNodeFactory.createUnionTypeDescriptorNode(unionTypeDesc.leftTypeDesc,
+                    unionTypeDesc.pipeToken, middleTypeDesc);
+        } else if (lhsTypeDesc.kind == SyntaxKind.INTERSECTION_TYPE_DESC) {
+            STIntersectionTypeDescriptorNode intersectionTypeDesc = (STIntersectionTypeDescriptorNode) lhsTypeDesc;
+            STNode middleTypeDesc = STNodeFactory.createArrayTypeDescriptorNode(intersectionTypeDesc.rightTypeDesc,
+                    openBracket, member, closeBracket);
+            lhsTypeDesc = STNodeFactory.createIntersectionTypeDescriptorNode(intersectionTypeDesc.leftTypeDesc,
+                    intersectionTypeDesc.bitwiseAndToken, middleTypeDesc);
+        } else {
+            lhsTypeDesc =
+                    STNodeFactory.createArrayTypeDescriptorNode(lhsTypeDesc, openBracket, member, closeBracket);
+        }
+        return lhsTypeDesc;
     }
 
     /**
