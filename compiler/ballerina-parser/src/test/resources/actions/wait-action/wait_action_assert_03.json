@@ -64,12 +64,18 @@
           "children": [
             {
               "kind": "ACTION_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "WAIT_ACTION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "WAIT_KEYWORD",
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_WAIT_FUTURE_EXPRESSION"
+                      ],
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -171,6 +177,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
@@ -203,9 +210,14 @@
                 },
                 {
                   "kind": "WAIT_ACTION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "WAIT_KEYWORD",
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_WAIT_FUTURE_EXPRESSION"
+                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
