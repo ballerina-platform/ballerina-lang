@@ -38,7 +38,11 @@ public type FunctionSignatureMismatchError error<FUNCTION_SIGNATURE_MISMATCH_ERR
 public const INVALID_MEMBER_FIELD_ERROR = "{ballerina/test}InvalidMemberFieldError";
 public type InvalidMemberFieldError error<INVALID_MEMBER_FIELD_ERROR, Detail>;
 
-public type Error InvalidObjError | FunctionNotFoundError | FunctionSignatureMismatchError | InvalidMemberFieldError;
+# Represents the reason for function mocking related errors.
+public const FUNCTION_CALL_ERROR = "{ballerina/test}FunctionCallError";
+public type FunctionCallError error<FUNCTION_CALL_ERROR, Detail>;
+
+public type Error InvalidObjError | FunctionNotFoundError | FunctionSignatureMismatchError | InvalidMemberFieldError | FunctionCallError;
 
 # The details of an error.
 #
@@ -208,40 +212,51 @@ public  type Case object {
 };
 
 
-public function when(MockFunction mockFunctionObj) returns FunctionCase {
-    FunctionCase mockCase = new FunctionCase(mockFunctionObj);
-    return mockCase;
+public function when(MockFunction mockFunc) returns CaseFunction {
+    CaseFunction case = new CaseFunction(mockFunc);
+    return case;
 }
 
-public type MockFunction object {
-    string mockFunction = "";
-    string caseId = "";
-};
+public type MockFunction object {};
 
-
-public type FunctionCase object {
-    string mockFunction = "";
-    MockFunction mockFunctionObj;
-    anydata|error argList = [];
+public type CaseFunction object {
+    MockFunction mockFuncObj;
     any|error returnVal = ();
+    anydata|error args = [];
 
-    public function init(MockFunction mockFunctionObj) {
-        self.mockFunctionObj = mockFunctionObj;
+    public function init(MockFunction mockFunc) {
+        self.mockFuncObj = mockFunc;
     }
 
-    // Sets the Mock Function to be called
-    public function call(string mockFunction) {
-        self.mockFunction = mockFunction;
-        callExt(self);
+    public function thenReturn(any|error retVal) {
+        self.returnVal = retVal;
+        Error? result = thenReturnFuncExt(self);
+        if (result is Error) {
+            panic result;
+        }
     }
 
-    // Sets the return value
-    public function setReturn(any|error retVal) {
-        self.returnVal = retVal;  // Have a check if mockFunctionObj exists
-        setReturnExt(self);
+    public function withArguments(anydata|error... args) returns CaseFunction {
+        self.args = args;
+        return self;
     }
 
+    public function doNothing() {
+        Error? result = thenReturnFuncExt(self);
+        if (result is Error) {
+            panic result;
+        }
+    }
+
+    public function call(string functionName) {
+        self.returnVal = "__CALL__" + functionName;
+        Error? result = thenReturnFuncExt(self);
+        if (result is Error) {
+            panic result;
+        }
+    }
 };
+
 
 // Interop functions
 
@@ -300,17 +315,13 @@ function validateFieldNameExt(object{} case) returns Error? = @java:Method {
     class: "org.ballerinalang.testerina.natives.test.Mock"
 } external;
 
-function callExt(object {} case) = @java:Method {
-    name: "call",
+function thenReturnFuncExt(CaseFunction case) returns Error? = @java:Method {
+    name: "thenReturn",
     class: "org.ballerinalang.testerina.natives.test.FunctionMock"
 } external;
 
-function setReturnExt(object{} case) = @java:Method {
-    name : "setReturn",
-    class : "org.ballerinalang.testerina.natives.test.FunctionMock"
+public function mockHandler(MockFunction mockFunction, anydata|error[] args) returns any|Error = @java:Method {
+    name: "mockHandler",
+    class: "org.ballerinalang.testerina.natives.test.FunctionMock"
 } external;
 
-//public function mockHandler(MockFunction mockFunction) returns any|() = @java:Method {
-//    name : "mockHandler",
-//    class : "org.ballerinalang.testerina.natives.test.FunctionMock"
-//} external;
