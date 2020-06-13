@@ -3813,6 +3813,17 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "CsvPersistentCookieHandler",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a default persistent cookie handler, which stores persistent cookies in a CSV file.\n"
+      },
+      "sortText": "190",
+      "insertText": "CsvPersistentCookieHandler",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "RequestMessage",
       "kind": "Enum",
       "detail": "Union",
@@ -3841,7 +3852,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nExtracts the Authorization header value from the request.\n  \n**Params**  \n- `http:Request` req: The `Request` instance  \n  \n**Returns** `string`   \n- Value of the Authorization header  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nExtracts the Authorization header value from the request.\n  \n**Params**  \n- `http:Request` req: The `Request` instance  \n  \n**Returns** `string`   \n- Value of the Authorization header  \n  \n"
         }
       },
       "sortText": "120",
@@ -3859,7 +3870,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nChecks whether the calling resource is secured by evaluating the authentication hierarchy.\n  \n**Params**  \n- `http:FilterContext` context: The `FilterContext` instance  \n  \n**Returns** `boolean`   \n- The status of calling resource is secured or not  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nChecks whether the calling resource is secured by evaluating the authentication hierarchy.\n  \n**Params**  \n- `http:FilterContext` context: The `FilterContext` instance  \n  \n**Returns** `boolean`   \n- The status of calling resource is secured or not  \n  \n"
         }
       },
       "sortText": "120",
@@ -3877,7 +3888,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of caching HTTP responses.\n  \n**Params**  \n- `string` url: The URL of the HTTP endpoint to connect  \n- `http:ClientConfiguration` config: The configurations for the client endpoint associated with the caching client  \n- `http:CacheConfig` cacheConfig: The configurations for the HTTP cache to be used with the caching client  \n  \n**Returns** `(http:HttpClient|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- An `http:HttpCachingClient` instance, which wraps the base `http:Client` with a caching layer   \n           or else an `http:ClientError`  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nCreates an HTTP client capable of caching HTTP responses.\n  \n**Params**  \n- `string` url: The URL of the HTTP endpoint to connect  \n- `http:ClientConfiguration` config: The configurations for the client endpoint associated with the caching client  \n- `http:CacheConfig` cacheConfig: The configurations for the HTTP cache to be used with the caching client  \n  \n**Returns** `(http:HttpClient|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- An `http:HttpCachingClient` instance, which wraps the base `http:Client` with a caching layer   \n           or else an `http:ClientError`  \n  \n"
         }
       },
       "sortText": "120",
@@ -3895,7 +3906,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n**Params**  \n- `string` headerValue: The header value  \n  \n**Returns** `([string,map\u003cany\u003e]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- A tuple containing the value and its parameter map or else an `http:ClientError` if the header parsing fails  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nParses the given header value to extract its value and parameter map.\n  \n**Params**  \n- `string` headerValue: The header value  \n  \n**Returns** `([string,map<any>]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- A tuple containing the value and its parameter map or else an `http:ClientError` if the header parsing fails  \n  \n"
         }
       },
       "sortText": "120",
@@ -3913,7 +3924,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head` function of the underlying\nHTTP remote function provider.  \n**Params**  \n- `string` path: Resource path  \n- `http:Request` outRequest: A Request struct  \n- `(FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|SUBMIT|NONE)` requestAction: `HttpOperation` related to the request  \n- `http:HttpClient` httpClient: HTTP client which uses to call the relevant functions  \n- `string` verb: HTTP verb used for submit method(Defaultable)  \n  \n**Returns** `(http:Response|http:HttpFuture|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The response for the request or an `http:ClientError` if failed to establish communication with the upstream server  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head` function of the underlying\nHTTP remote function provider.  \n**Params**  \n- `string` path: Resource path  \n- `http:Request` outRequest: A Request struct  \n- `(FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|SUBMIT|NONE)` requestAction: `HttpOperation` related to the request  \n- `http:HttpClient` httpClient: HTTP client which uses to call the relevant functions  \n- `string` verb: HTTP verb used for submit method(Defaultable)  \n  \n**Returns** `(http:Response|http:HttpFuture|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The response for the request or an `http:ClientError` if failed to establish communication with the upstream server  \n  \n"
         }
       },
       "sortText": "120",
@@ -3931,7 +3942,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of securing HTTP requests with authentication.\n  \n**Params**  \n- `string` url: Base URL  \n- `http:ClientConfiguration` config: Client endpoint configurations  \n  \n**Returns** `(http:HttpClient|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- Created secure HTTP client  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nCreates an HTTP client capable of securing HTTP requests with authentication.\n  \n**Params**  \n- `string` url: Base URL  \n- `http:ClientConfiguration` config: Client endpoint configurations  \n  \n**Returns** `(http:HttpClient|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- Created secure HTTP client  \n  \n"
         }
       },
       "sortText": "120",
