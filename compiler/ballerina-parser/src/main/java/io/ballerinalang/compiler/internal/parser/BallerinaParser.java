@@ -9665,7 +9665,6 @@ public class BallerinaParser extends AbstractParser {
             case CLOSE_PAREN_TOKEN:
             case EOF_TOKEN:
             case EQUAL_TOKEN:
-            case OPEN_BRACE_TOKEN:
             case SEMICOLON_TOKEN:
                 return true;
             default:
@@ -13217,7 +13216,7 @@ public class BallerinaParser extends AbstractParser {
             case ERROR_KEYWORD: // functional-binding-pattern
             case ELLIPSIS_TOKEN: // rest binding pattern
             case OPEN_BRACKET_TOKEN: // list-binding-pattern
-                return parseListBindingPatternMember();
+                return parseStatementStartBracketedListMember();
             case IDENTIFIER_TOKEN:
                 if (isTypedBindingPattern) {
                     STNode identifier = parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
