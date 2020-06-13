@@ -99,17 +99,15 @@ public type Client client object {
     #
     # + sqlQueries - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `ParameterizedString` with an array
     #                of values passed in.
-    # + rollbackInFailure - Whether to rollback the statments executed in case one of the statements in the batch fails
     # + return - Summary of the sql update query as `ExecutionResult[]` or returns `BatchUpdateError`.
     #            if any error occured when executing the query. `BatchUpdateError` will include summary of the
     #            sql update query as `ExecutionResult[]` for commands executed successfully.
-    public remote function batchExecute(sql:ParameterizedString[] sqlQueries, boolean rollbackInFailure = false)
-    returns sql:ExecutionResult[]|sql:Error {
+    public remote function batchExecute(sql:ParameterizedString[] sqlQueries) returns sql:ExecutionResult[]|sql:Error {
         if (sqlQueries.length() == 0) {
             return sql:ApplicationError(message = " Parameter 'sqlQueries' cannot be empty array");
         }
         if (self.clientActive) {
-            return nativeBatchExecute(self, sqlQueries, rollbackInFailure);
+            return nativeBatchExecute(self, sqlQueries);
         } else {
             return sql:ApplicationError(message = "JDBC Client is already closed,"
                 + " hence further operations are not allowed");
@@ -163,7 +161,7 @@ returns sql:ExecutionResult|sql:Error = @java:Method {
     class: "org.ballerinalang.sql.utils.ExecuteUtils"
 } external;
 
-function nativeBatchExecute(Client sqlClient, sql:ParameterizedString[] sqlQueries, boolean rollbackInFailure)
+function nativeBatchExecute(Client sqlClient, sql:ParameterizedString[] sqlQueries)
 returns sql:ExecutionResult[]|sql:Error = @java:Method {
     class: "org.ballerinalang.sql.utils.ExecuteUtils"
 } external;

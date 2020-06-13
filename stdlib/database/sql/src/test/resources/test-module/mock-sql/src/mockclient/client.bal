@@ -71,13 +71,12 @@ public type Client client object {
         }
     }
 
-    public remote function batchExecute(sql:ParameterizedString[] sqlQueries, boolean rollbackInFailure = false)
-                                                                                returns sql:ExecutionResult[]|sql:Error {
+    public remote function batchExecute(sql:ParameterizedString[] sqlQueries) returns sql:ExecutionResult[]|sql:Error {
         if (sqlQueries.length() == 0) {
             return sql:ApplicationError( message = " Parameter 'sqlQueries' cannot be empty array");
         }
         if (self.clientActive) {
-            return nativeBatchExecute(self, sqlQueries, rollbackInFailure);
+            return nativeBatchExecute(self, sqlQueries);
         } else {
             return sql:ApplicationError( message = "JDBC Client is already closed,"
                 + " hence further operations are not allowed");
@@ -118,7 +117,7 @@ returns sql:ExecutionResult|sql:Error = @java:Method {
     class: "org.ballerinalang.sql.utils.ExecuteUtils"
 } external;
 
-function nativeBatchExecute(Client sqlClient, sql:ParameterizedString[] sqlQueries, boolean rollbackInFailure)
+function nativeBatchExecute(Client sqlClient, sql:ParameterizedString[] sqlQueries)
 returns sql:ExecutionResult[]|sql:Error = @java:Method {
     class: "org.ballerinalang.sql.utils.ExecuteUtils"
 } external;
