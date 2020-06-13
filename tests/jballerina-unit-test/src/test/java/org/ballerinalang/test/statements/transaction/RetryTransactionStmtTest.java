@@ -20,6 +20,7 @@ package org.ballerinalang.test.statements.transaction;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -37,6 +38,12 @@ public class RetryTransactionStmtTest {
     }
 
     @Test
+    public void testRetry() {
+        BRunUtil.invoke(programFile, "testRetry");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: TransactionError.*")
     public void testPanic() {
         BRunUtil.invoke(programFile, "testPanic");
     }
