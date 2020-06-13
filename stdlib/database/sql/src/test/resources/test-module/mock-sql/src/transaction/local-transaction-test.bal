@@ -288,7 +288,7 @@ function testLocalTransactionFailed(string jdbcURL, string user, string password
     if (ret is string) {
         a = ret;
     } else {
-        a = a + " trapped";
+        a = ret.reason() + " trapped";
     }
     a = a + " afterTrx";
     int count = check getCount(dbClient, "111");
@@ -302,7 +302,7 @@ function testLocalTransactionFailedHelper(string status, mockclient:Client dbCli
     int i = 0;
 
     var onRollbackFunc = function(transactions:Info? info, error? cause, boolean willTry) {
-                a = a + " trxAborted";
+        a = a + " trxAborted";
     };
 
     retry(2) transaction {
@@ -311,11 +311,18 @@ function testLocalTransactionFailedHelper(string status, mockclient:Client dbCli
         transactions:onRollback(onRollbackFunc);
         var e1 = check dbClient->execute("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
                         "values ('James', 'Clerk', 111, 5000.75, 'USA')");
-        var e2 = check dbClient->execute("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country) " +
+        var e2 = dbClient->execute("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country) " +
                         "values ('Anne', 'Clerk', 111, 5000.75, 'USA')");
+        if(e2 is error){
+           check getError(a);
+        }
         check commit;
     }
     return a;
+}
+
+function getError(string message) returns error? {
+    return error(message);
 }
 
 function testLocalTransactionSuccessWithFailed(string jdbcURL, string user, string password) returns @tainted [string, int]|error? {
