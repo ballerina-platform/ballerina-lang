@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/email;
+import ballerina/runtime;
 
 email:PopConfig popConfig = {
      port: 3995,
@@ -27,8 +28,7 @@ listener email:Listener emailServer = new ({
     password: "abcdef123",
     protocol: "POP",
     protocolConfig: popConfig,
-    pollingInterval: 2000,
-    noOfPolls: 60
+    pollingInterval: 2000
 });
 
 boolean onMessageInvoked = false;
@@ -51,10 +51,20 @@ service emailObserver on emailServer {
 }
 
 function isOnMessageInvoked() returns boolean {
+    int i = 0;
+    while (!onMessageInvoked && i < 60) {
+         runtime:sleep(2000);
+         i += 1;
+    }
     return onMessageInvoked;
 }
 
 function isOnErrorInvoked() returns boolean {
+    int i = 0;
+    while (!onMessageInvoked && i < 60) {
+    	 runtime:sleep(2000);
+    	 i += 1;
+    }
     return onErrorInvoked;
 }
 
