@@ -10857,8 +10857,8 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseQueryAction(STNode queryPipeline, STNode selectClause) {
         if (selectClause != null) {
-            
-            this.errorHandler.reportInvalidNode(null, "cannot have a select clause in query action");
+            queryPipeline = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(queryPipeline, selectClause,
+                    DiagnosticErrorCode.ERROR_SELECT_CLAUSE_IN_QUERY_ACTION);
         }
 
         startContext(ParserRuleContext.DO_CLAUSE);
