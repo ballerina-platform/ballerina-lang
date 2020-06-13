@@ -58,7 +58,7 @@ function getError() returns error? {
 public function testFailedTransactionOutput() returns boolean {
     boolean testPassed = true;
     string|error result = transactionFailedHelper();
-    testPassed = (result is error) && ("Generic Error" == result.reason());
+    testPassed = (result is error) && ("Generic Error" == result.message());
     return testPassed;
 }
 
