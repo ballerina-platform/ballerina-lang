@@ -17,9 +17,9 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.DistinctTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.RestBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -30,56 +30,56 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STRestBindingPatternNode extends STBindingPatternNode {
-    public final STNode ellipsisToken;
-    public final STNode variableName;
+public class STDistinctTypeDescriptorNode extends STTypeDescriptorNode {
+    public final STNode distinctKeyword;
+    public final STNode typeDescriptor;
 
-    STRestBindingPatternNode(
-            STNode ellipsisToken,
-            STNode variableName) {
+    STDistinctTypeDescriptorNode(
+            STNode distinctKeyword,
+            STNode typeDescriptor) {
         this(
-                ellipsisToken,
-                variableName,
+                distinctKeyword,
+                typeDescriptor,
                 Collections.emptyList());
     }
 
-    STRestBindingPatternNode(
-            STNode ellipsisToken,
-            STNode variableName,
+    STDistinctTypeDescriptorNode(
+            STNode distinctKeyword,
+            STNode typeDescriptor,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.REST_BINDING_PATTERN, diagnostics);
-        this.ellipsisToken = ellipsisToken;
-        this.variableName = variableName;
+        super(SyntaxKind.DISTINCT_TYPE_DESC, diagnostics);
+        this.distinctKeyword = distinctKeyword;
+        this.typeDescriptor = typeDescriptor;
 
         addChildren(
-                ellipsisToken,
-                variableName);
+                distinctKeyword,
+                typeDescriptor);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STRestBindingPatternNode(
-                this.ellipsisToken,
-                this.variableName,
+        return new STDistinctTypeDescriptorNode(
+                this.distinctKeyword,
+                this.typeDescriptor,
                 diagnostics);
     }
 
-    public STRestBindingPatternNode modify(
-            STNode ellipsisToken,
-            STNode variableName) {
+    public STDistinctTypeDescriptorNode modify(
+            STNode distinctKeyword,
+            STNode typeDescriptor) {
         if (checkForReferenceEquality(
-                ellipsisToken,
-                variableName)) {
+                distinctKeyword,
+                typeDescriptor)) {
             return this;
         }
 
-        return new STRestBindingPatternNode(
-                ellipsisToken,
-                variableName,
+        return new STDistinctTypeDescriptorNode(
+                distinctKeyword,
+                typeDescriptor,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new RestBindingPatternNode(this, position, parent);
+        return new DistinctTypeDescriptorNode(this, position, parent);
     }
 
     @Override

@@ -2662,7 +2662,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token matchKeyword,
             ExpressionNode condition,
             Token openBrace,
-            SeparatedNodeList<MatchClauseNode> matchClauses,
+            NodeList<MatchClauseNode> matchClauses,
             Token closeBrace) {
         Objects.requireNonNull(matchKeyword, "matchKeyword must not be null");
         Objects.requireNonNull(condition, "condition must not be null");
@@ -2731,6 +2731,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 methodSignature.internalNode(),
                 functionBody.internalNode());
         return stObjectMethodDefinitionNode.createUnlinkedFacade();
+    }
+
+    public static DistinctTypeDescriptorNode createDistinctTypeDescriptorNode(
+            Token distinctKeyword,
+            TypeDescriptorNode typeDescriptor) {
+        Objects.requireNonNull(distinctKeyword, "distinctKeyword must not be null");
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+
+        STNode stDistinctTypeDescriptorNode = STNodeFactory.createDistinctTypeDescriptorNode(
+                distinctKeyword.internalNode(),
+                typeDescriptor.internalNode());
+        return stDistinctTypeDescriptorNode.createUnlinkedFacade();
     }
 }
 

@@ -91,6 +91,10 @@
                   "kind": "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
                   "children": [
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "FUNCTION_KEYWORD"
                     },
                     {
@@ -166,6 +170,10 @@
                             {
                               "kind": "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
                               "children": [
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
                                 {
                                   "kind": "FUNCTION_KEYWORD"
                                 },

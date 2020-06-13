@@ -3023,7 +3023,7 @@
         },
         {
             "name": "RestBindingPatternNode",
-            "base": "Node",
+            "base": "BindingPatternNode",
             "kind": "REST_BINDING_PATTERN",
             "attributes": [
                 {
@@ -3609,7 +3609,7 @@
                 {
                     "name": "matchClauses",
                     "type": "MatchClauseNode",
-                    "occurrences": "MULTIPLE_SEPARATED"
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "closeBrace",
@@ -3691,6 +3691,21 @@
                 {
                     "name": "functionBody",
                     "type": "FunctionBodyNode"
+                }
+            ]
+        },
+        {
+            "name": "DistinctTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "DISTINCT_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "distinctKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeDescriptor",
+                    "type": "TypeDescriptorNode"
                 }
             ]
         }
