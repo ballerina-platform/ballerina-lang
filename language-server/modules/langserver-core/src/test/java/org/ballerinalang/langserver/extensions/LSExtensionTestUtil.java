@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaASTRe
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeModifyRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeResponse;
+import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaTriggerModifyRequest;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 
@@ -41,6 +42,7 @@ public class LSExtensionTestUtil {
     private static final String GET_AST = "ballerinaDocument/ast";
     private static final String AST = "ballerinaDocument/syntaxTree";
     private static final String SYNTAX_TREE_MODIFY = "ballerinaDocument/syntaxTreeModify";
+    private static final String TRIGGER_MODIFY = "ballerinaDocument/triggerModify";
     private static final String AST_MODIFY = "ballerinaDocument/astModify";
     private static final String GET_CONNECTORS = "ballerinaConnector/connectors";
     private static final String GET_CONNECTOR = "ballerinaConnector/connector";
@@ -94,6 +96,23 @@ public class LSExtensionTestUtil {
         return GSON.fromJson(getResult(result), BallerinaASTResponse.class);
     }
 
+    /**
+     * Get the ballerinaDocument/ast modification response.
+     *
+     * @param filePath        Path of the Bal file
+     * @param type            trigger type
+     * @param config          trigger config
+     * @param serviceEndpoint Service Endpoint to Language Server
+     * @return {@link String}   Response as String
+     */
+    public static BallerinaASTResponse modifyTriggerAndGetBallerinaAST(String filePath,
+                                                                       String type, JsonObject config,
+                                                                       Endpoint serviceEndpoint) {
+        BallerinaTriggerModifyRequest request = new BallerinaTriggerModifyRequest(
+                TestUtil.getTextDocumentIdentifier(filePath), type, config);
+        CompletableFuture result = serviceEndpoint.request(TRIGGER_MODIFY, request);
+        return GSON.fromJson(getResult(result), BallerinaASTResponse.class);
+    }
 
     /**
      * Get the ballerinaDocument/ast response.

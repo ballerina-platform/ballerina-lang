@@ -263,12 +263,15 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        funcNode.getParameters().forEach(parm -> parm.accept(this));
         funcNode.getBody().accept(this);
     }
 
     @Override
     public void visit(BLangService serviceNode) {
-        // No implementation
+        serviceNode.getTypeDefinition().accept(this);
+        serviceNode.getResources().forEach(resource -> resource.accept(this));
+        serviceNode.getAttachedExprs().forEach(expr -> expr.accept(this));
     }
 
     @Override
@@ -290,7 +293,9 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
     public void visit(BLangSimpleVariable varNode) {
         addVariableNode(varNode);
         varNode.getTypeNode().accept(this);
-        varNode.getInitialExpression().accept(this);
+        if (varNode.getInitialExpression() != null) {
+            varNode.getInitialExpression().accept(this);
+        }
     }
 
     @Override
