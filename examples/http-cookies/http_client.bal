@@ -16,7 +16,7 @@ public function main() {
     // Initialize an HTTP request.
     http:Request request = new;
 
-    // Send a username and a password as a json payload to the backend.
+    // Send a username and a password as a JSON payload to the backend.
     json jsonPart = {
         name: "John",
         password: "p@ssw0rd"
@@ -34,10 +34,10 @@ public function main() {
         if (loginMessage is error) {
             log:printError("Login failed", loginMessage);
         } else {
-            // When the login is successful, do another request to the
-            // `/welcome` resource of the backend service. As we have enabled
-            // cookies in the HTTP client, it automatically handles cookies
-            // received with the login response, and sends the relevant cookies
+            // When the login is successful, make another request to the
+            // `/welcome` resource of the backend service. 
+            // As cookies are enabled in the HTTP client, it automatically handles cookies
+            // received with the login response and sends the relevant cookies
             // to the `welcome` service resource.
             var welcomeResp = httpClient->get("/welcome");
 

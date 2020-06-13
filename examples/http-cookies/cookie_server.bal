@@ -13,7 +13,7 @@ service cookieServer on serverEP {
         path: "/login"
     }
     resource function login(http:Caller caller, http:Request req) {
-        // Retrieve the json payload from the request as it
+        // Retrieve the JSON payload from the request as it
         // contains the login details of a user.
         json|error details = req.getJsonPayload();
 
@@ -27,7 +27,7 @@ service cookieServer on serverEP {
                 if (password == "p@ssw0rd") {
 
                     // Create a new cookie by setting `name` as the `username`
-                    // and `value` as the logged in user's name.
+                    // and `value` as the logged-in user's name.
                     http:Cookie cookie = new("username", name.toString());
 
                     // Set the cookies path as `/` to apply it to all the
@@ -68,11 +68,11 @@ service cookieServer on serverEP {
         if (usernameCookie.length() > 0) {
             string? user = usernameCookie[0].value;
             if (user is string) {
-            // Respond with the user name added to the welcome message.
+            // Respond with the username added to the welcome message.
             var result = caller->respond("Welcome back " + <@untainted> user);
 
             } else {
-                // If the user is `nil` send a login message.
+                // If the user is `nil`, send a login message.
                 var result = caller->respond("Please login");
             }
         } else {
