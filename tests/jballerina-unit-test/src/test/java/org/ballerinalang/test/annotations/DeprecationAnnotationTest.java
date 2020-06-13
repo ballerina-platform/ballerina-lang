@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
  *
  * @since 1.2.0
  */
+@Test(groups = { "brokenOnNewParser" })
 public class DeprecationAnnotationTest {
 
     @Test(description = "Test the deprecation annotation")

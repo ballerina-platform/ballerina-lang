@@ -31,6 +31,7 @@ import io.ballerinalang.compiler.syntax.tree.BlockStatementNode;
 import io.ballerinalang.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.BreakStatementNode;
 import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.ByteArrayLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.CommitActionNode;
@@ -1452,7 +1453,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(AnnotAccessExpressionNode annotAccessExpressionNode) {
         BLangAnnotAccessExpr annotAccessExpr = (BLangAnnotAccessExpr) TreeBuilder.createAnnotAccessExpressionNode();
-
         Node annotTagReference = annotAccessExpressionNode.annotTagReference();
         if (annotAccessExpressionNode.annotTagReference().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             SimpleNameReferenceNode annotName = (SimpleNameReferenceNode) annotTagReference;
@@ -1465,6 +1465,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             annotAccessExpr.annotationName = createIdentifier(qulifiedName.identifier());
         }
 
+        annotAccessExpr.pos = getPosition(annotAccessExpressionNode);
         annotAccessExpr.expr = createExpression(annotAccessExpressionNode.expression());
         return annotAccessExpr;
     }
@@ -2663,6 +2664,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
+    public BLangNode transform(ByteArrayLiteralNode byteArrayLiteralNode) {
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.pos = getPosition(byteArrayLiteralNode);
+        literal.type = symTable.getTypeFromTag(TypeTags.BYTE_ARRAY);
+        literal.type.tag = TypeTags.BYTE_ARRAY;
+        literal.value = getValueFromByteArrayNode(byteArrayLiteralNode);
+        literal.originalValue = String.valueOf(literal.value);
+        return literal;
+    }
+
+    @Override
     public BLangNode transform(XMLAttributeValue xmlAttributeValue) {
         BLangXMLQuotedString quotedString = (BLangXMLQuotedString) TreeBuilder.createXMLQuotedStringNode();
         quotedString.pos = getPosition(xmlAttributeValue);
@@ -3142,6 +3154,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     // ------------------------------------------private methods--------------------------------------------------------
+    private String getValueFromByteArrayNode(ByteArrayLiteralNode byteArrayLiteralNode) {
+        StringBuilder value = new StringBuilder();
+        value.append(byteArrayLiteralNode.type().text());
+        value.append(" ");
+        value.append("`");
+        if (byteArrayLiteralNode.content().isPresent()) {
+            value.append(byteArrayLiteralNode.content().get().text());
+        }
+        value.append("`");
+        return value.toString();
+    }
 
     private List<BLangRecordVariableKeyValue>
             createVariableListForMappingBindingPattern(MappingBindingPatternNode mappingBindingPatternNode) {
@@ -3584,6 +3607,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             } else {
                 bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
             }
+        } else if (type == SyntaxKind.BYTE_ARRAY_LITERAL) {
+            return (BLangLiteral) literal.apply(this);
         }
 
         bLiteral.pos = getPosition(literal);
