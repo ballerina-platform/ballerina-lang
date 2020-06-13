@@ -44,8 +44,6 @@ public function startTransaction(string transactionBlockId, Info? prevAttempt = 
         transactionId = txnContext.transactionId;
         setTransactionContext(txnContext, prevAttempt);
     }
-
-    log:printInfo("It is done");
     return transactionId;
 }
 
@@ -245,6 +243,7 @@ public function beginTransaction(string? transactionId, string transactionBlockI
     if (transactionId is string) {
         if (initiatedTransactions.hasKey(transactionId)) { // if participant & initiator are in the same process
             // we don't need to do a network call and can simply do a local function call
+
             return registerLocalParticipantWithInitiator(transactionId, transactionBlockId, registerAtUrl);
         } else {
             //TODO: set the proper protocol
@@ -255,6 +254,7 @@ public function beginTransaction(string? transactionId, string transactionBlockI
             return registerParticipantWithRemoteInitiator(transactionId, transactionBlockId, registerAtUrl, protocols);
         }
     } else {
+        log:printInfo("beginTransaction");
         return createTransactionContext(coordinationType, transactionBlockId);
     }
 }
