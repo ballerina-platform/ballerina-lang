@@ -852,7 +852,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
         }
 
-        bLService.annAttachments = applyAll(serviceDeclrNode.metadata().annotations());
+        if (isAnonServiceValue) {
+            bLService.annAttachments = applyAll(((ServiceConstructorExpressionNode) serviceNode).annotations());
+        } else {
+            bLService.annAttachments = applyAll(serviceDeclrNode.metadata().annotations());
+        }
 
         // We add all service nodes to top level, only for future reference.
         addToTop(bLService);
@@ -1864,7 +1868,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
         BLangArrowFunction arrowFunction = (BLangArrowFunction) TreeBuilder.createArrowFunctionNode();
         arrowFunction.pos = getPosition(implicitAnonymousFunctionExpressionNode);
-        arrowFunction.functionName = TreeBuilder.createIdentifierNode();
+        arrowFunction.functionName = createIdentifier(arrowFunction.pos,
+                anonymousModelHelper.getNextAnonymousFunctionKey(diagnosticSource.pkgID));
         // TODO initialize other attributes
         // arrowFunction.funcType;
         // arrowFunction.function;
@@ -1922,9 +1927,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         for (LetVariableDeclarationNode letVarDecl : letExpressionNode.letVarDeclarations()) {
             letVars.add(createLetVariable(letVarDecl));
         }
-        if (!letVars.isEmpty()) {
-            letExpr.letVarDeclarations = letVars;
-        }
+
+        letExpr.letVarDeclarations = letVars;
         return letExpr;
     }
 
@@ -1972,6 +1976,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
             varRef.pos = getPosition(varnameNode.variableName());
             varRef.variableName = createIdentifier(varnameNode.variableName().name());
+            varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
             keyValue.variableReference = varRef;
         }
 
@@ -3126,7 +3131,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 FieldBindingPatternFullNode fullNode = (FieldBindingPatternFullNode) node;
                 recordKeyValue.key = createIdentifier(fullNode.variableName().name());
                 recordKeyValue.valueBindingPattern = getBLangVariableNode(fullNode.bindingPattern());
-                fieldBindingPatternsList.add(recordKeyValue);
             } else {
                 FieldBindingPatternVarnameNode varnameNode = (FieldBindingPatternVarnameNode) node;
                 recordKeyValue.key = createIdentifier(varnameNode.variableName().name());
@@ -3137,6 +3141,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 value.setName(name);
                 recordKeyValue.valueBindingPattern = value;
             }
+
+            fieldBindingPatternsList.add(recordKeyValue);
         }
 
         return fieldBindingPatternsList;
