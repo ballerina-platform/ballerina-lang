@@ -802,6 +802,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                                                         objFieldNode.expression(),
                                                         false, false, objFieldNode.visibilityQualifier().orElse(null),
                                                         objFieldNode.metadata().annotations());
+        addRedonlyQualifier(objFieldNode.readonlyKeyword(), objFieldNode.typeName(), simpleVar);
         simpleVar.pos = getPosition(objFieldNode);
         return simpleVar;
     }
@@ -990,7 +991,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(RecordFieldNode recordFieldNode) {
         BLangSimpleVariable simpleVar = createSimpleVar(recordFieldNode.fieldName(), recordFieldNode.typeName(),
-                                                        recordFieldNode.metadata().annotations());
+                recordFieldNode.metadata().annotations());
         simpleVar.flagSet.add(Flag.PUBLIC);
         if (recordFieldNode.questionMarkToken().isPresent()) {
             simpleVar.flagSet.add(Flag.OPTIONAL);
@@ -998,9 +999,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             simpleVar.flagSet.add(Flag.REQUIRED);
         }
 
-        if (recordFieldNode.readonlyKeyword().isPresent()) {
-            simpleVar.flagSet.add(Flag.READONLY);
-        }
+        addRedonlyQualifier(recordFieldNode.readonlyKeyword(), recordFieldNode.typeName(), simpleVar);
 
         simpleVar.pos = getPosition(recordFieldNode);
         return simpleVar;
@@ -1009,13 +1008,36 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(RecordFieldWithDefaultValueNode recordFieldNode) {
         BLangSimpleVariable simpleVar = createSimpleVar(recordFieldNode.fieldName(), recordFieldNode.typeName(),
-                                                        recordFieldNode.metadata().annotations());
+                recordFieldNode.metadata().annotations());
         simpleVar.flagSet.add(Flag.PUBLIC);
         if (isPresent(recordFieldNode.expression())) {
             simpleVar.setInitialExpression(createExpression(recordFieldNode.expression()));
         }
+
+        addRedonlyQualifier(recordFieldNode.readonlyKeyword(), recordFieldNode.typeName(), simpleVar);
+
         simpleVar.pos = getPosition(recordFieldNode);
         return simpleVar;
+    }
+
+    private void addRedonlyQualifier(Optional<Token> readonlyKeyword, Node typeDesc, BLangSimpleVariable simpleVar) {
+        if (readonlyKeyword.isPresent()) {
+            BLangValueType readOnlyTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+            readOnlyTypeNode.pos = getPosition(readonlyKeyword.get());
+            readOnlyTypeNode.typeKind = TypeKind.READONLY;
+            if (simpleVar.typeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE) {
+                ((BLangIntersectionTypeNode) simpleVar.typeNode).constituentTypeNodes.add(readOnlyTypeNode);
+            } else {
+                BLangIntersectionTypeNode intersectionTypeNode =
+                        (BLangIntersectionTypeNode) TreeBuilder.createIntersectionTypeNode();
+                intersectionTypeNode.constituentTypeNodes.add(simpleVar.typeNode);
+                intersectionTypeNode.constituentTypeNodes.add(readOnlyTypeNode);
+                intersectionTypeNode.pos = getPosition(typeDesc);
+                simpleVar.typeNode = intersectionTypeNode;
+            }
+
+            simpleVar.flagSet.add(Flag.READONLY);
+        }
     }
 
     @Override
