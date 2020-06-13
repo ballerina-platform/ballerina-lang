@@ -18,11 +18,8 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.transactions.TransactionLocalContext;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -31,25 +28,20 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
 
 /**
- * Extern function transaction:info.
+ * Extern function transaction:uuid.
  *
  * @since 2.0.0-preview1
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.transaction", version = TRANSACTION_VERSION,
-        functionName = "info",
+        functionName = "uuid",
         args = {},
-        returnType = {@ReturnType(type = TypeKind.RECORD)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Info {
+public class UUID {
 
-    public static MapValue<BString, Object> info(Strand strand) {
-        if (IsTransactional.isTransactional(strand)) {
-            TransactionLocalContext context = strand.transactionLocalContext;
-            return (MapValue<BString, Object>) context.getInfoRecord();
-        }
-        throw BallerinaErrors.createError(StringUtils
-                .fromString("cannot call info() if the strand is not in transaction mode"));
+    public static BString uuid(Strand strand) {
+        return StringUtils.fromString(java.util.UUID.randomUUID().toString());
     }
 }

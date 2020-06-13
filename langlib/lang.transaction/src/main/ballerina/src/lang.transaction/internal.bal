@@ -228,7 +228,7 @@ type TwoPhaseCommitTransaction object {
     map<Participant> participants = {};
     UProtocol?[] coordinatorProtocols = [];
     //TODO: get the current time
-    int createdTime = 0;
+    int createdTime = timeNow();
     TransactionState state = TXN_STATE_ACTIVE;
     private boolean possibleMixedOutcome = false;
 
@@ -550,9 +550,7 @@ public function createTransactionContext(string coordinationType, string transac
         error err = error(msg);
         return err;
     } else {
-        //TODO: uuid
-        string uuid = "#$#1432423523532";
-        TwoPhaseCommitTransaction txn = new(uuid, transactionBlockId, coordinationType = coordinationType);
+        TwoPhaseCommitTransaction txn = new(uuid(), transactionBlockId, coordinationType = coordinationType);
         string txnId = txn.transactionId;
         txn.isInitiated = true;
         initiatedTransactions[txnId] = txn;
@@ -615,3 +613,7 @@ public function isTransactional() returns boolean = external;
 function getAvailablePort() returns int = external;
 
 function getHostAddress() returns string = external;
+
+function uuid() returns string = external;
+
+function timeNow() returns int = external;
