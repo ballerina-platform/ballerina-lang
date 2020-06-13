@@ -315,3 +315,33 @@ function testQueryExprForString2() returns string {
 
     return outputNameString;
 }
+
+function testQueryExprWithAmbigousTypeForXML() {
+    xml book1 = xml `<book>
+                           <name>Sherlock Holmes</name>
+                           <author>Sir Arthur Conan Doyle</author>
+                     </book>`;
+
+    xml book2 = xml `<book>
+                           <name>The Da Vinci Code</name>
+                           <author>Dan Brown</author>
+                    </book>`;
+
+    xml book = book1 + book2;
+
+    xml|xml[] books = from var x in book/<name>
+                select <xml> x;
+
+}
+
+function testQueryExprWithAmbigousTypeForString() {
+    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    Person p3 = {firstName: "John", lastName: "David", age: 33};
+
+    Person[] personList = [p1, p2, p3];
+
+    string|string[] outputNameString =
+                from var person in personList
+                select person.firstName;
+}
