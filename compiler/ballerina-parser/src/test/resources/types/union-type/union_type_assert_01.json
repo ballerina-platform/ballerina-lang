@@ -211,52 +211,52 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "UNION_TYPE_DESC",
+                      "kind": "ARRAY_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "PARAMETERIZED_TYPE_DESC",
+                          "kind": "UNION_TYPE_DESC",
                           "children": [
                             {
-                              "kind": "MAP_KEYWORD",
-                              "leadingMinutiae": [
+                              "kind": "PARAMETERIZED_TYPE_DESC",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "    "
+                                  "kind": "MAP_KEYWORD",
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": "    "
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "LT_TOKEN"
+                                },
+                                {
+                                  "kind": "STRING_KEYWORD"
+                                },
+                                {
+                                  "kind": "GT_TOKEN"
                                 }
                               ]
                             },
                             {
-                              "kind": "LT_TOKEN"
+                              "kind": "PIPE_TOKEN"
                             },
                             {
-                              "kind": "STRING_KEYWORD"
-                            },
-                            {
-                              "kind": "GT_TOKEN"
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "T"
                             }
                           ]
                         },
                         {
-                          "kind": "PIPE_TOKEN"
+                          "kind": "OPEN_BRACKET_TOKEN"
                         },
                         {
-                          "kind": "ARRAY_TYPE_DESC",
-                          "children": [
+                          "kind": "CLOSE_BRACKET_TOKEN",
+                          "trailingMinutiae": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "T"
-                            },
-                            {
-                              "kind": "OPEN_BRACKET_TOKEN"
-                            },
-                            {
-                              "kind": "CLOSE_BRACKET_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
                             }
                           ]
                         }

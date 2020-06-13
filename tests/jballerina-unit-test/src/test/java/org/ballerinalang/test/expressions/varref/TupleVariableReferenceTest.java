@@ -45,8 +45,6 @@ public class TupleVariableReferenceTest {
     public void setup() {
         result = BCompileUtil.compile("test-src/expressions/varref/tuple-variable-reference.bal");
         resultNegative = BCompileUtil.compile("test-src/expressions/varref/tuple-variable-reference-negative.bal");
-        resultSemanticsNegative = BCompileUtil.compile("test-src/expressions/varref/tuple-variable-reference" +
-                "-semantics-negative.bal");
     }
 
     @Test(description = "Test tuple var reference 1")
@@ -277,8 +275,10 @@ public class TupleVariableReferenceTest {
         Assert.assertEquals(refValueArray2.getRefValue(1).stringValue(), "FooUpdated");
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testTupleVariablesReferencesSemanticsNegative() {
+        resultSemanticsNegative = BCompileUtil.compile("test-src/expressions/varref/tuple-variable-reference" +
+                "-semantics-negative.bal");
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 44);
         int i = -1;
         String errorMsg1 = "incompatible types: expected ";
