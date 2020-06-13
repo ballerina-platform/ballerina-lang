@@ -21,13 +21,10 @@ import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
-import org.ballerinalang.net.grpc.exception.GrpcServerException;
-import org.ballerinalang.net.grpc.proto.definition.File;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
@@ -56,11 +53,8 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.PrintStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.ANN_FIELD_DESCRIPTOR;
@@ -72,7 +66,6 @@ import static org.ballerinalang.net.grpc.GrpcConstants.DESCRIPTOR_MAP;
 import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.ROOT_DESCRIPTOR;
-import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.bytesToHex;
 
 /**
  * This class validates annotations attached to Ballerina service and resource nodes.
@@ -106,64 +99,29 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
     @Override
     public void process(ServiceNode service, List<AnnotationAttachmentNode> annotations) {
-        try {
-            final BLangService serviceNode = (BLangService) service;
-
-            if (ServiceDefinitionValidator.validate(serviceNode, dlog)) {
-                Optional<BLangConstant> rootDescriptor = Optional.empty();
-                Optional<BLangFunction> descriptorMapFunc = Optional.empty();
-                BLangNode serviceParentNode = serviceNode.parent;
-                if (serviceParentNode instanceof BLangPackage) {
-                    BLangPackage packageNode = (BLangPackage) serviceParentNode;
-                    rootDescriptor = ((ArrayList) packageNode.constants).stream().filter(
-                            var -> ROOT_DESCRIPTOR.equals(((BLangConstant) var).getName().getValue())).findFirst();
-                    descriptorMapFunc = ((ArrayList) packageNode.functions).stream().filter(
-                            var -> DESCRIPTOR_MAP.equals(((BLangFunction) var).getName().getValue())).findFirst();
-                }
-
-                for (AnnotationAttachmentNode annonNodes : serviceNode.getAnnotationAttachments()) {
-                    if (ANN_SERVICE_DESCRIPTOR.equals(annonNodes.getAnnotationName().getValue())) {
-                        return;
-                    }
-                }
-                if (rootDescriptor.isPresent() && descriptorMapFunc.isPresent()) {
-                    addDescriptorAnnotation(serviceNode, (String) ((BLangLiteral) rootDescriptor.get().expr)
-                            .getValue());
-                } else {
-                    File fileDefinition = ServiceProtoUtils.generateProtoDefinition(serviceNode);
-                    addDescriptorAnnotation(serviceNode,
-                            bytesToHex(fileDefinition.getFileDescriptorProto().toByteArray()));
-                    FileDefinitionHolder.getInstance().addDefinition(serviceNode.getName().getValue(), fileDefinition);
+        final BLangService serviceNode = (BLangService) service;
+        if (ServiceDefinitionValidator.validate(serviceNode, dlog)) {
+            Optional<BLangConstant> rootDescriptor = Optional.empty();
+            Optional<BLangFunction> descriptorMapFunc = Optional.empty();
+            BLangNode serviceParentNode = serviceNode.parent;
+            if (serviceParentNode instanceof BLangPackage) {
+                BLangPackage packageNode = (BLangPackage) serviceParentNode;
+                rootDescriptor = ((ArrayList) packageNode.constants).stream().filter(
+                        var -> ROOT_DESCRIPTOR.equals(((BLangConstant) var).getName().getValue())).findFirst();
+                descriptorMapFunc = ((ArrayList) packageNode.functions).stream().filter(
+                        var -> DESCRIPTOR_MAP.equals(((BLangFunction) var).getName().getValue())).findFirst();
+            }
+            for (AnnotationAttachmentNode annonNodes : serviceNode.getAnnotationAttachments()) {
+                if (ANN_SERVICE_DESCRIPTOR.equals(annonNodes.getAnnotationName().getValue())) {
+                    return;
                 }
             }
-        } catch (GrpcServerException e) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, service.getPosition(), e.getMessage());
-        }
-    }
-
-    @Override
-    public void codeGenerated(PackageID packageID, Path binaryPath) {
-        Map<String, File> definitionMap = FileDefinitionHolder.getInstance().getDefinitionMap();
-        if (definitionMap.size() == 0) {
-            return;
-        }
-        if (binaryPath == null) {
-            error.print("Error while generating service proto file. Binary file path is null");
-            return;
-        }
-        Path filePath = binaryPath.toAbsolutePath();
-        Path parentDirPath = filePath.getParent();
-        if (parentDirPath == null) {
-            parentDirPath = filePath;
-        }
-        Path targetDirPath = Paths.get(parentDirPath.toString(), PROTOCOL_PACKAGE_GRPC);
-        for (Map.Entry<String, File> entry : definitionMap.entrySet()) {
-            try {
-                ServiceProtoUtils.writeServiceFiles(targetDirPath, entry.getKey(), entry.getValue());
-            } catch (GrpcServerException e) {
-                error.print(e.getMessage());
-            } finally {
-                FileDefinitionHolder.getInstance().removeDefinition(entry.getKey());
+            if (rootDescriptor.isPresent() && descriptorMapFunc.isPresent()) {
+                addDescriptorAnnotation(serviceNode, (String) ((BLangLiteral) rootDescriptor.get().expr)
+                        .getValue());
+            } else {
+                dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
+                        "Root descriptor and/or the descriptor map function is missing");
             }
         }
     }

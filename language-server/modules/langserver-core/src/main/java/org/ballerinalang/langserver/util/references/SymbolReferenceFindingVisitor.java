@@ -249,7 +249,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangFunction funcNode) {
         boolean isWorker = funcNode.flagSet.contains(Flag.WORKER);
         String funcName = isWorker ? funcNode.defaultWorkerName.value : funcNode.name.value;
-        if (funcName.equals(this.tokenName) || ("__init".equals(funcName) && "new".equals(this.tokenName))) {
+        if (funcName.equals(this.tokenName) || ("init".equals(funcName) && "new".equals(this.tokenName))) {
             /*
             If the go-to definition is triggered for the new keyword and there is an init function defined,
             then jump to the init function
@@ -347,11 +347,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        this.acceptNode(transactionNode.retryCount);
         this.acceptNode(transactionNode.transactionBody);
-        this.acceptNode(transactionNode.onRetryBody);
-        this.acceptNode(transactionNode.committedBody);
-        this.acceptNode(transactionNode.abortedBody);
     }
 
     @Override

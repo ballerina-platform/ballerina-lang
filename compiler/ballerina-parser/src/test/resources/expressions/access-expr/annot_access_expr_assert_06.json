@@ -1,19 +1,31 @@
 {
   "kind": "ANNOT_ACCESS",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
+      "value": "a",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "ANNOT_CHAINING_TOKEN"
     },
     {
       "kind": "QUALIFIED_NAME_REFERENCE",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "IDENTIFIER_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
         },
         {
           "kind": "COLON_TOKEN"

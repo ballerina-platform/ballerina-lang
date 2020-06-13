@@ -19,6 +19,7 @@
 
 package io.ballerina.transactions;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
@@ -36,6 +37,7 @@ import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
+import java.util.Map;
 
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.GLOBAL_TRANSACTION_ID;
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.TRANSACTION_URL;
@@ -48,19 +50,21 @@ import static org.ballerinalang.jvm.transactions.TransactionConstants.TRANSACTIO
  */
 public class Utils {
     private static final String STRUCT_TYPE_TRANSACTION_CONTEXT = "TransactionContext";
+    private static final String STRUCT_TYPE_TRANSACTION_INFO = "Info";
 
     public static void notifyResourceManagerOnAbort(BString transactionBlockId) {
         Strand strand = Scheduler.getStrand();
         org.ballerinalang.jvm.transactions.TransactionLocalContext transactionLocalContext =
                 strand.transactionLocalContext;
         org.ballerinalang.jvm.transactions.TransactionResourceManager.getInstance()
-                .notifyAbort(transactionLocalContext.getGlobalTransactionId(), transactionBlockId.getValue());
+                .notifyAbort(strand, transactionLocalContext.getGlobalTransactionId(), transactionBlockId.getValue(),
+                null);
     }
 
-    public static void rollbackTransaction(BString transactionBlockId) {
+    public static void rollbackTransaction(BString transactionBlockId, Object error) {
         Strand strand = Scheduler.getStrand();
         TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
-        transactionLocalContext.rollbackTransaction(transactionBlockId.getValue());
+        transactionLocalContext.rollbackTransaction(strand, transactionBlockId.getValue(), error);
     }
 
     public static void cleanupTransactionContext(BString transactionBlockId) {
@@ -142,16 +146,33 @@ public class Utils {
         return BallerinaValues.createRecord(trxContext, trxContextData);
     }
 
-    public static void setTransactionContext(MapValue txDataStruct) {
+    public static void setTransactionContext(MapValue txDataStruct, Object prevAttemptInfo) {
         Strand strand = Scheduler.getStrand();
         String globalTransactionId = txDataStruct.get(TransactionConstants.TRANSACTION_ID).toString();
         String transactionBlockId = txDataStruct.get(TransactionConstants.TRANSACTION_BLOCK_ID).toString();
         String url = txDataStruct.get(TransactionConstants.REGISTER_AT_URL).toString();
         String protocol = txDataStruct.get(TransactionConstants.CORDINATION_TYPE).toString();
+        long retryNmbr = getRetryNumber(prevAttemptInfo);
+        MapValue<BString, Object> trxContext = BallerinaValues.createRecordValue(TRANSACTION_PACKAGE_ID,
+                STRUCT_TYPE_TRANSACTION_INFO);
+        Object[] trxContextData = new Object[] {
+                globalTransactionId, retryNmbr, System.currentTimeMillis(), prevAttemptInfo
+        };
+        MapValue<BString, Object> infoRecord = BallerinaValues.createRecord(trxContext, trxContextData);
         TransactionLocalContext trxCtx = TransactionLocalContext
-                .createTransactionParticipantLocalCtx(globalTransactionId, url, protocol);
+                .createTransactionParticipantLocalCtx(globalTransactionId, url, protocol, infoRecord);
         trxCtx.beginTransactionBlock(transactionBlockId);
         strand.transactionLocalContext = trxCtx;
+    }
+
+    private static long getRetryNumber(Object prevAttemptInfo) {
+        if (prevAttemptInfo == null) {
+            return 0;
+        } else {
+            Map<BString, Object> infoRecord = (Map<BString, Object>) prevAttemptInfo;
+            Long retryNumber = (Long) infoRecord.get(StringUtils.fromString("retryNumber"));
+            return retryNumber + 1;
+        }
     }
 
     public static boolean isNestedTransaction() {
@@ -171,8 +192,9 @@ public class Utils {
     }
 
     public static boolean abortResourceManagers(BString transactionId, BString transactionBlockId) {
-        return TransactionResourceManager.getInstance().notifyAbort(transactionId.getValue(),
-                                                                    transactionBlockId.getValue());
+        Strand strand = Scheduler.getStrand();
+        return TransactionResourceManager.getInstance().notifyAbort(strand, transactionId.getValue(),
+                transactionBlockId.getValue(), null);
     }
 
     public static boolean commitResourceManagers(BString transactionId, BString transactionBlockId) {
@@ -188,6 +210,37 @@ public class Utils {
 
     public static long getAvailablePort() {
         return findFreePort();
+    }
+
+    public static void onCommit(FPValue fpValue) {
+        Strand strand = Scheduler.getStrand();
+        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+        TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
+        transactionResourceManager.registerCommittedFunction(transactionLocalContext.getGlobalTransactionId(),
+                fpValue);
+    }
+
+    public static void onRollback(FPValue fpValue) {
+        Strand strand = Scheduler.getStrand();
+        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+        TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
+        transactionResourceManager.registerAbortedFunction(transactionLocalContext.getGlobalTransactionId(),
+                fpValue);
+    }
+
+    public static boolean isTransactional() {
+        Strand strand = Scheduler.getStrand();
+        return strand.isInTransaction();
+    }
+
+    public static MapValue<BString, Object> info() {
+        Strand strand = Scheduler.getStrand();
+        if (isTransactional()) {
+            TransactionLocalContext context = strand.transactionLocalContext;
+            return (MapValue<BString, Object>) context.getInfoRecord();
+        }
+        throw BallerinaErrors.createError(StringUtils
+                .fromString("cannot call info() if the strand is not in transaction mode"));
     }
 
     private static int findFreePort() {

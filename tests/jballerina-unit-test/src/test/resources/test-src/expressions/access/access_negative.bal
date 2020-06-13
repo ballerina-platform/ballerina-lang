@@ -56,7 +56,7 @@ function testInvalidFieldOptionalFieldAndMemberAccessType() {
 public type Gamma object {
     Delta? delta;
 
-    public function __init(Delta? d) {
+    public function init(Delta? d) {
         self.delta = d;
     }
 };

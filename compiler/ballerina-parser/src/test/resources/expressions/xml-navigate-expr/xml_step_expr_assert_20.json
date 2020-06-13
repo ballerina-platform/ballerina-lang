@@ -1,42 +1,71 @@
 {
-    "kind": "XML_STEP_EXPRESSION",
-    "children": [
+  "kind": "XML_STEP_EXPRESSION",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a",
+      "trailingMinutiae": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "XML_NAME_PATTERN_CHAIN",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "SLASH_LT_TOKEN"
         },
         {
-            "kind": "XML_NAME_PATTERN_CHAIN",
-            "children": [
+          "kind": "LIST",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "ASTERISK_TOKEN",
+              "trailingMinutiae": [
                 {
-                    "kind": "SLASH_LT_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                        {
-                            "kind": "ASTERISK_TOKEN"
-                        },
-                        {
-                            "kind": "PIPE_TOKEN",
-                            "isMissing": true
-                        },
-                        {
-                            "kind": "ASTERISK_TOKEN"
-                        },
-                        {
-                            "kind": "PIPE_TOKEN",
-                            "isMissing": true
-                        },
-                        {
-                            "kind": "ASTERISK_TOKEN"
-                        }
-                    ]
-                },
-                {
-                    "kind": "GT_TOKEN"
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
                 }
-            ]
+              ]
+            },
+            {
+              "kind": "PIPE_TOKEN",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_PIPE_TOKEN"
+              ]
+            },
+            {
+              "kind": "ASTERISK_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "PIPE_TOKEN",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_PIPE_TOKEN"
+              ]
+            },
+            {
+              "kind": "ASTERISK_TOKEN"
+            }
+          ]
+        },
+        {
+          "kind": "GT_TOKEN"
         }
-    ]
+      ]
+    }
+  ]
 }

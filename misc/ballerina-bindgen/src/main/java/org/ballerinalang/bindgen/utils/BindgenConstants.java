@@ -77,7 +77,7 @@ public class BindgenConstants {
             "service", "resource", "function", "object", "record", "annotation", "parameter", "transformer",
             "worker", "listener", "remote", "xmlns", "returns", "version", "channel", "abstract", "client", "const",
             "typeof", "source", "on", "int", "byte", "float", "decimal", "boolean", "string", "error", "map", "json",
-            "xml", "table", "stream", "any", "typedesc", "type", "future", "anydata", "handle", "var", "new", "__init",
+            "xml", "table", "stream", "any", "typedesc", "type", "future", "anydata", "handle", "var", "new", "init",
             "if", "match", "else", "foreach", "while", "continue", "break", "fork", "join", "some", "all", "try",
             "catch", "finally", "throw", "panic", "trap", "return", "transaction", "abort", "retry", "onretry",
             "retries", "committed", "aborted", "with", "in", "lock", "untaint", "start", "but", "check", "checkpanic",

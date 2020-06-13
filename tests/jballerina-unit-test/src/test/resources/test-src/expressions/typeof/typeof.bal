@@ -29,7 +29,7 @@ type Obj0 object {
     string a;
     int b;
 
-    function __init(string a, int b) {
+    function init(string a, int b) {
         self.a = a;
         self.b = b;
     }

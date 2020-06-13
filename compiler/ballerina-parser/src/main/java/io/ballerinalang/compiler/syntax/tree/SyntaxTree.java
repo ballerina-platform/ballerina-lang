@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.diagnostics.Diagnostic;
 import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 import io.ballerinalang.compiler.internal.parser.ParserFactory;
+import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocumentChange;
 import io.ballerinalang.compiler.text.TextDocuments;
@@ -30,31 +31,37 @@ import io.ballerinalang.compiler.text.TextDocuments;
  * @since 2.0.0
  */
 public class SyntaxTree {
-    private final ModulePartNode rootNode;
+    private final Node rootNode;
     private final String filePath;
 
     private TextDocument textDocument;
 
-    SyntaxTree(ModulePartNode rootNode, TextDocument textDocument, String filePath) {
-        this.rootNode = cloneWithMe(rootNode);
+    SyntaxTree(Node rootNode, TextDocument textDocument, String filePath, boolean clone) {
+        this.rootNode = modifyWithMe(rootNode, clone);
         this.textDocument = textDocument;
         this.filePath = filePath;
     }
 
+    static SyntaxTree from(Node rootNode, boolean clone) {
+        return new SyntaxTree(rootNode, null, null, clone);
+    }
+
     public static SyntaxTree from(TextDocument textDocument) {
-        return from(textDocument, "");
+        return from(textDocument, null);
     }
 
     public static SyntaxTree from(TextDocument textDocument, String filePath) {
         BallerinaParser parser = ParserFactory.getParser(textDocument);
-        return new SyntaxTree(parser.parse().createUnlinkedFacade(), textDocument, filePath);
+        return new SyntaxTree(parser.parse().createUnlinkedFacade(),
+                textDocument, filePath, false);
     }
 
     public static SyntaxTree from(SyntaxTree oldTree, TextDocumentChange textDocumentChange) {
         // TODO Improve the logic behind the creation of the new document
         TextDocument newTextDocument = oldTree.textDocument().apply(textDocumentChange);
         BallerinaParser parser = ParserFactory.getParser(oldTree, newTextDocument, textDocumentChange);
-        return new SyntaxTree(parser.parse().createUnlinkedFacade(), newTextDocument, oldTree.filePath());
+        return new SyntaxTree(parser.parse().createUnlinkedFacade(),
+                newTextDocument, oldTree.filePath(), false);
     }
 
     public TextDocument textDocument() {
@@ -62,13 +69,17 @@ public class SyntaxTree {
             return textDocument;
         }
 
-        // TODO is toString() the best way to serialize the tree to a string.
-        textDocument = TextDocuments.from(rootNode.toString());
+        textDocument = TextDocuments.from(rootNode.toSourceCode());
         return textDocument;
     }
 
-    public ModulePartNode modulePart() {
-        return rootNode;
+    public boolean containsModulePart() {
+        return rootNode.kind() == SyntaxKind.MODULE_PART;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Node> T rootNode() {
+        return (T) rootNode;
     }
 
     public String filePath() {
@@ -77,13 +88,18 @@ public class SyntaxTree {
 
     // Syntax tree modification methods
 
-    public SyntaxTree updateWith(ModulePartNode rootNode) {
-        return new SyntaxTree(rootNode, null, filePath);
+    public SyntaxTree modifyWith(Node rootNode) {
+        return new SyntaxTree(rootNode, null, filePath, true);
     }
 
     public SyntaxTree replaceNode(Node target, Node replacement) {
-        ModulePartNode newRootNode = rootNode.replace(target, replacement);
-        return this.updateWith(newRootNode);
+        Node newRootNode;
+        if (SyntaxUtils.isToken(target)) {
+            newRootNode = replacement;
+        } else {
+            newRootNode = ((NonTerminalNode) rootNode).replace(target, replacement);
+        }
+        return this.modifyWith(newRootNode);
     }
 
     public Iterable<Diagnostic> diagnostics() {
@@ -99,8 +115,17 @@ public class SyntaxTree {
         return rootNode.toString();
     }
 
-    private <T extends NonTerminalNode> T cloneWithMe(T node) {
-        T clonedNode = node.internalNode().createUnlinkedFacade();
+    /**
+     * Converts the syntax tree into source code and returns it as a string.
+     *
+     * @return source code as a string
+     */
+    public String toSourceCode() {
+        return rootNode.toSourceCode();
+    }
+
+    private <T extends Node> T modifyWithMe(T node, boolean clone) {
+        T clonedNode = clone ? node.internalNode().createUnlinkedFacade() : node;
         clonedNode.setSyntaxTree(this);
         return clonedNode;
     }

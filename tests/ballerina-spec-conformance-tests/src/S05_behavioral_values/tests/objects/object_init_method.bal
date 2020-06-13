@@ -23,12 +23,12 @@ const EXPECTED_OBJECT_FIELD_TO_BE_INITIALIZED_FAILURE_MESSAGE = "expected object
 // 1. allocating storage for the object
 // 2. initializing each field with its implicit initial value, if there is one defined for the type of the field
 // 3. initializing the methods of the object using the type’s method definitions
-// 4. calling the object’s __init method, if there is one
+// 4. calling the object’s init method, if there is one
 type InitMethodInObject object {
     string stringField;
     float[] floatArrayField;
 
-    public function __init() {
+    public function init() {
         self.stringField = "string field";
         self.floatArrayField = [1.0, 5.0, 10.0];
     }

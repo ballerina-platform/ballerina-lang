@@ -232,7 +232,7 @@ public type CustomLoadBalancerRule object {
 
     public int index;
 
-    public function __init(int index) {
+    public function init(int index) {
         self.index = index;
     }
 

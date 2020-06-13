@@ -56,7 +56,29 @@ public class STSingletonTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STSingletonTypeDescriptorNode modify(
+            STNode simpleContExprNode) {
+        if (checkForReferenceEquality(
+                simpleContExprNode)) {
+            return this;
+        }
+
+        return new STSingletonTypeDescriptorNode(
+                simpleContExprNode,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new SingletonTypeDescriptorNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

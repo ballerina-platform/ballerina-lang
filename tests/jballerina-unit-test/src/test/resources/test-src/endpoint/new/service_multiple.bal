@@ -43,7 +43,7 @@ public type PQR object {
 
     *'object:Listener;
 
-    public function __init(string name){
+    public function init(string name){
     }
 
     public function __start() returns error? {

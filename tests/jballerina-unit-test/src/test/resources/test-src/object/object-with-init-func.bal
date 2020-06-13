@@ -21,7 +21,7 @@ type Person object {
     int year = 50;
     string month = "february";
 
-    function __init (int year, int count, string name = "sample value1", string val1 = "default value") {
+    function init (int year, int count, string name = "sample value1", string val1 = "default value") {
         self.year = year;
         self.name = name;
         self.age = self.age + count;

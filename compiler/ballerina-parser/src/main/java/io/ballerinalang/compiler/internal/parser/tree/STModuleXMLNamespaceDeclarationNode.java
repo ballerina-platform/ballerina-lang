@@ -84,7 +84,41 @@ public class STModuleXMLNamespaceDeclarationNode extends STModuleMemberDeclarati
                 diagnostics);
     }
 
+    public STModuleXMLNamespaceDeclarationNode modify(
+            STNode xmlnsKeyword,
+            STNode namespaceuri,
+            STNode asKeyword,
+            STNode namespacePrefix,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                xmlnsKeyword,
+                namespaceuri,
+                asKeyword,
+                namespacePrefix,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STModuleXMLNamespaceDeclarationNode(
+                xmlnsKeyword,
+                namespaceuri,
+                asKeyword,
+                namespacePrefix,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ModuleXMLNamespaceDeclarationNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

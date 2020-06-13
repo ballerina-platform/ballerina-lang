@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
  * @since 0.985.0
  */
 public class BDecimalValueNegativeTest {
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testDecimalValue() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/decimal/decimal_value_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 5);

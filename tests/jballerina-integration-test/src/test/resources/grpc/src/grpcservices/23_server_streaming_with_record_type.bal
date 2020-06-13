@@ -25,7 +25,6 @@ listener grpc:Listener helloWorldStreamingep = new (9113);
 }
 service helloWorldServerStreaming on helloWorldStreamingep {
 
-    @grpc:ResourceConfig { streaming: true }
     resource function lotsOfReplies(grpc:Caller caller, HelloRequest value) {
         log:printInfo("Server received hello from " + value.name);
         string[] greets = ["Hi", "Hey", "GM"];

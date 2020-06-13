@@ -18,8 +18,8 @@
 
 package org.ballerinalang.packerina.task;
 
+import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.packerina.NativeDependencyResolverImpl;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.model.ExecutableJar;
@@ -33,13 +33,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.ballerinalang.compiler.JarResolver.JAR_RESOLVER_KEY;
+
 /**
  * Copy native libraries to target/tmp.
  */
 public class CopyNativeLibTask implements Task {
     private boolean skipTests;
     private PackageCache packageCache;
-    private NativeDependencyResolverImpl nativeDependencyResolverImpl;
+    private JarResolver jarResolver;
 
     @Override
     public void execute(BuildContext buildContext) {
@@ -47,7 +49,7 @@ public class CopyNativeLibTask implements Task {
         packageCache = PackageCache.getInstance(context);
         skipTests = buildContext.skipTests();
 
-        nativeDependencyResolverImpl = buildContext.get(buildContext.get(BuildContextField.JAR_RESOLVER));
+        jarResolver = context.get(JAR_RESOLVER_KEY);
         copyImportedJarsForModules(buildContext, buildContext.getModules());
     }
 
@@ -80,8 +82,8 @@ public class CopyNativeLibTask implements Task {
     }
 
     private void copyPlatformLibsForModules(PackageID packageID, ExecutableJar executableJar) {
-        executableJar.moduleLibs.addAll(nativeDependencyResolverImpl.nativeDependencies(packageID));
-        executableJar.testLibs.addAll(nativeDependencyResolverImpl.nativeDependenciesForTests(packageID));
+        executableJar.moduleLibs.addAll(jarResolver.nativeDependencies(packageID));
+        executableJar.testLibs.addAll(jarResolver.nativeDependenciesForTests(packageID));
     }
 
     private void copyImportedLibs(List<BPackageSymbol> imports, Set<Path> moduleDependencySet,
@@ -95,7 +97,7 @@ public class CopyNativeLibTask implements Task {
                     jar = new ExecutableJar();
                     buildContext.moduleDependencyPathMap.put(pkgId, jar);
                 }
-                jar.moduleLibs.addAll(nativeDependencyResolverImpl.nativeDependencies(pkgId));
+                jar.moduleLibs.addAll(jarResolver.nativeDependencies(pkgId));
                 copyImportedLibs(importSymbol.imports, jar.moduleLibs, buildContext, alreadyImportedSet);
             }
             moduleDependencySet.addAll(jar.moduleLibs);

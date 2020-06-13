@@ -195,7 +195,7 @@ public class ElvisExpressionTest {
         Assert.assertEquals(((BInteger) results[1]).intValue(), 0);
     }
 
-    @Test(description = "Negative test cases.")
+    @Test(description = "Negative test cases.", groups = { "brokenOnNewParser" })
     public void testElvisOperatorNegative() {
         Assert.assertEquals(negativeResult.getErrorCount(), 3);
         //BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'int', found 'int|null'", 5, 14);

@@ -20,13 +20,25 @@
           ]
         },
         {
-          "kind": "COMMA_TOKEN"
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "SPREAD_FIELD",
           "children": [
             {
-              "kind": "ELLIPSIS_TOKEN"
+              "kind": "ELLIPSIS_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "BINARY_EXPRESSION",

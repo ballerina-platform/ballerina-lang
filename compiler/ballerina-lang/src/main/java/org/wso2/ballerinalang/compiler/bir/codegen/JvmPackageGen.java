@@ -53,8 +53,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.util.Flags;
@@ -91,6 +93,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACK
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_THREAD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
@@ -124,6 +128,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethod
  */
 public class JvmPackageGen {
 
+    private static final CompilerContext.Key<JvmPackageGen> JVM_PACKAGE_GEN_KEY = new CompilerContext.Key<>();
+    private static ResolvedTypeBuilder typeBuilder;
+
     public final SymbolTable symbolTable;
     public final PackageCache packageCache;
     private final JvmMethodGen jvmMethodGen;
@@ -143,6 +150,7 @@ public class JvmPackageGen {
         this.packageCache = packageCache;
         this.dlog = dlog;
         jvmMethodGen = new JvmMethodGen(this);
+        typeBuilder = new ResolvedTypeBuilder();
 
         JvmCastGen.symbolTable = symbolTable;
         JvmInstructionGen.anyType = symbolTable.anyType;
@@ -234,10 +242,26 @@ public class JvmPackageGen {
         mv.visitFieldInsn(PUTSTATIC, className, "LOCK_STORE", lockStoreClass);
 
         setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
+        setModuleStatusField(cw, mv, className);
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    private static void setModuleStatusField(ClassWriter cw, MethodVisitor mv, String initClass) {
+
+        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, MODULE_START_ATTEMPTED, "Z", null, null);
+        fv.visitEnd();
+
+        mv.visitInsn(ICONST_0);
+        mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_START_ATTEMPTED, "Z");
+
+        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, MODULE_STARTED, "Z", null, null);
+        fv.visitEnd();
+
+        mv.visitInsn(ICONST_0);
+        mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_STARTED, "Z");
     }
 
     private static void setServiceEPAvailableField(ClassWriter cw, MethodVisitor mv, boolean serviceEPAvailable,
@@ -329,10 +353,14 @@ public class JvmPackageGen {
         BInvokableType functionTypeDesc = currentFunc.type;
         BIRVariableDcl receiver = currentFunc.receiver;
         BType attachedType = receiver != null ? receiver.type : null;
-        String jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
-                attachedType, false);
-        String jvmMethodDescriptionBString = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
-                attachedType, false);
+
+        BType retType = functionTypeDesc.retType;
+        if (isExternFunc(currentFunc) && Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
+            retType = typeBuilder.build(retType);
+        }
+
+        String jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, retType, attachedType, false);
+        String jvmMethodDescriptionBString = getMethodDesc(functionTypeDesc.paramTypes, retType, attachedType, false);
 
         return new BIRFunctionWrapper(orgName, moduleName, version, currentFunc, moduleClass, jvmMethodDescription);
     }
@@ -360,9 +388,7 @@ public class JvmPackageGen {
         // implement run() method
         mv = cw.visitMethod(ACC_PUBLIC, "run", "()V", null, null);
         mv.visitCode();
-
         mv.visitMethodInsn(INVOKESTATIC, initClass, MODULE_STOP, "()V", false);
-
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();

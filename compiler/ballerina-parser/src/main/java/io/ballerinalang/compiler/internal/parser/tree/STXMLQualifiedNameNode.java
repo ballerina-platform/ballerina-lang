@@ -70,7 +70,35 @@ public class STXMLQualifiedNameNode extends STXMLNameNode {
                 diagnostics);
     }
 
+    public STXMLQualifiedNameNode modify(
+            STNode prefix,
+            STNode colon,
+            STNode name) {
+        if (checkForReferenceEquality(
+                prefix,
+                colon,
+                name)) {
+            return this;
+        }
+
+        return new STXMLQualifiedNameNode(
+                prefix,
+                colon,
+                name,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLQualifiedNameNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

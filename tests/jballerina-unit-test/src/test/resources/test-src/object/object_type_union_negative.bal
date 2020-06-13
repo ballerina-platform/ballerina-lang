@@ -16,28 +16,28 @@
 
 type Obj object {
     int val;
-    function __init(int i, int j = 0) {
+    function init(int i, int j = 0) {
         self.val = 0;
     }
 };
 
 type Obj2 object {
     int val;
-    function __init() {
+    function init() {
         self.val = 2;
     }
 };
 
 type Obj3 object {
     int val;
-    function __init(int j = 0) {
+    function init(int j = 0) {
         self.val = 3;
     }
 };
 
 type Obj4 object {
     int val;
-    function __init(int i, int... restP) {
+    function init(int i, int... restP) {
         self.val = 4;
     }
 };
@@ -75,7 +75,7 @@ type Foo object {
 type Bar object {
     PersonRec|EmployeeRec p;
 
-    function __init(PersonRec|EmployeeRec p) {
+    function init(PersonRec|EmployeeRec p) {
         self.p = p;
     }
 };
@@ -91,21 +91,21 @@ type EmployeeRec record {
 
 type InitObjOne object {
 
-    public function __init(int i, string f = "str") {
+    public function init(int i, string f = "str") {
 
     }
 };
 
 type InitObjTwo object {
 
-    public function __init(int i, boolean f = true) {
+    public function init(int i, boolean f = true) {
 
     }
 };
 
 type InitObjThree object {
 
-    public function __init(int i, string s, int j = 10, string... k) {
+    public function init(int i, string s, int j = 10, string... k) {
 
     }
 };

@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
@@ -71,6 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
@@ -98,7 +100,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -119,7 +120,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetryTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRollback;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -283,6 +286,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangFunction funcNode) {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+
+        // TODO: Shouldn't this be done in symbol enter?
         //set function param flag to final
         funcNode.symbol.params.forEach(param -> param.flags |= Flags.FUNCTION_FINAL);
 
@@ -311,6 +316,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         for (BLangSimpleVariable param : funcNode.requiredParams) {
             symbolEnter.defineExistingVarSymbolInEnv(param.symbol, funcNode.clonedEnv);
             this.analyzeDef(param, funcNode.clonedEnv);
+
+            if (param.expr != null) {
+                funcNode.symbol.paramDefaultValTypes.put(param.symbol.name.value, param.expr.type);
+                ((BInvokableTypeSymbol) funcNode.type.tsymbol).paramDefaultValTypes.put(param.symbol.name.value,
+                                                                                        param.expr.type);
+            }
         }
         if (funcNode.restParam != null) {
             symbolEnter.defineExistingVarSymbolInEnv(funcNode.restParam.symbol, funcNode.clonedEnv);
@@ -475,6 +486,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangRecordTypeNode recordTypeNode) {
         SymbolEnv recordEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
         recordTypeNode.fields.forEach(field -> analyzeDef(field, recordEnv));
+        validateOptionalNeverTypedField(recordTypeNode);
         validateDefaultable(recordTypeNode);
         recordTypeNode.analyzed = true;
     }
@@ -2185,7 +2197,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv stmtEnv = new SymbolEnv(exprStmtNode, this.env.scope);
         this.env.copyTo(stmtEnv);
         BType bType = typeChecker.checkExpr(exprStmtNode.expr, stmtEnv, symTable.noType);
-        if (bType != symTable.nilType && bType != symTable.semanticError) {
+        if (bType != symTable.nilType && bType != symTable.neverType && bType != symTable.semanticError) {
             dlog.error(exprStmtNode.pos, DiagnosticCode.ASSIGNMENT_REQUIRED);
         }
         validateWorkerAnnAttachments(exprStmtNode.expr);
@@ -2432,6 +2444,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    private void validateOptionalNeverTypedField(BLangRecordTypeNode recordTypeNode) {
+        // Never type is only allowed in an optional field in a record
+        for (BLangSimpleVariable field : recordTypeNode.fields) {
+            if (field.type.tag == TypeTags.NEVER && !field.flagSet.contains(Flag.OPTIONAL)) {
+                dlog.error(field.pos, DiagnosticCode.NEVER_TYPE_NOT_ALLOWED_FOR_REQUIRED_FIELDS, field.name.value);
+            }
+        }
+    }
+
     @Override
     public void visit(BLangResource resourceNode) {
     }
@@ -2456,32 +2477,43 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTransaction transactionNode) {
         SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, env);
         analyzeStmt(transactionNode.transactionBody, transactionEnv);
-        if (transactionNode.onRetryBody != null) {
-            analyzeStmt(transactionNode.onRetryBody, transactionEnv);
-        }
+    }
 
-        if (transactionNode.committedBody != null) {
-            analyzeStmt(transactionNode.committedBody, transactionEnv);
-        }
-
-        if (transactionNode.abortedBody != null) {
-            analyzeStmt(transactionNode.abortedBody, transactionEnv);
-        }
-
-        if (transactionNode.retryCount != null) {
-            typeChecker.checkExpr(transactionNode.retryCount, transactionEnv, symTable.intType);
-            checkRetryStmtValidity(transactionNode.retryCount);
+    @Override
+    public void visit(BLangRollback rollbackNode) {
+        if (rollbackNode.expr != null) {
+            BType expectedType = BUnionType.create(null, symTable.errorType, symTable.nilType);
+            this.typeChecker.checkExpr(rollbackNode.expr, this.env, expectedType);
         }
     }
 
     @Override
-    public void visit(BLangAbort abortNode) {
-        /* ignore */
+    public void visit(BLangRetryTransaction retryTransaction) {
+        if (retryTransaction.retrySpec != null) {
+            retryTransaction.retrySpec.accept(this);
+        }
+
+        retryTransaction.transaction.accept(this);
     }
 
     @Override
     public void visit(BLangRetry retryNode) {
-        /* ignore */
+        if (retryNode.retrySpec != null) {
+            retryNode.retrySpec.accept(this);
+        }
+
+        analyzeStmt(retryNode.retryBody, env);
+    }
+
+    @Override
+    public void visit(BLangRetrySpec retrySpec) {
+        if (retrySpec.retryManagerType != null) {
+            retrySpec.type = symResolver.resolveTypeNode(retrySpec.retryManagerType, env);
+        }
+
+        if (retrySpec.argExprs != null) {
+            retrySpec.argExprs.forEach(arg -> this.typeChecker.checkExpr(arg, env));
+        }
     }
 
     private boolean isJoinResultType(BLangSimpleVariable var) {
