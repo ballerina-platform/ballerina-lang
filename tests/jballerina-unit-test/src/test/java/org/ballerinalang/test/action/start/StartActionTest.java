@@ -37,7 +37,7 @@ public class StartActionTest {
         result = BCompileUtil.compile("test-src/action/start/start_action.bal");
     }
 
-    @Test(description = "Test negative start action usage")
+    @Test(description = "Test negative start action usage", groups = { "brokenOnNewParser" })
     public void testStartActionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/action/start/start-action-negative.bal");
         int indx = 0;

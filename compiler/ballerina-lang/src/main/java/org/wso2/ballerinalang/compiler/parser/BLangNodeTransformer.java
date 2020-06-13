@@ -261,6 +261,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
@@ -2388,11 +2389,22 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(StartActionNode startActionNode) {
         BLangExpression expression = createExpression(startActionNode.expression());
-        BLangInvocation.BLangActionInvocation invocation = (BLangInvocation.BLangActionInvocation) expression;
+
+        BLangInvocation invocation = (BLangInvocation) expression;
+        if (expression.getKind() == NodeKind.INVOCATION) {
+            BLangActionInvocation actionInvocation = (BLangActionInvocation) TreeBuilder.createActionInvocation();
+            actionInvocation.expr = invocation.expr;
+            actionInvocation.pkgAlias = invocation.pkgAlias;
+            actionInvocation.name = invocation.name;
+            actionInvocation.argExprs = invocation.argExprs;
+            actionInvocation.flagSet = invocation.flagSet;
+            actionInvocation.pos = invocation.pos;
+            invocation = actionInvocation;
+        }
+
         invocation.async = true;
         invocation.annAttachments = applyAll(startActionNode.annotations());
-
-        return expression;
+        return invocation;
     }
 
     @Override
@@ -2779,6 +2791,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangNameReference nameReference = createBLangNameReference(remoteMethodCallActionNode.methodName().name());
         bLangActionInvocation.name = (BLangIdentifier) nameReference.name;
         bLangActionInvocation.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+        bLangActionInvocation.pos = getPosition(remoteMethodCallActionNode);
         return bLangActionInvocation;
     }
 
