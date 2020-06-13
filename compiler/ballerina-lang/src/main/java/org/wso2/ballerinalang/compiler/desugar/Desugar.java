@@ -2387,8 +2387,7 @@ public class Desugar extends BLangNodeVisitor {
         //  };
 
         BLangBlockFunctionBody retryBody = ASTBuilderUtil.createBlockFunctionBody(pos);
-        BType retryReturnType = BUnionType.create(null, symTable.anyType, symTable.errorType);
-        BLangType retryLambdaReturnType = ASTBuilderUtil.createTypeNode(retryReturnType);
+        BLangType retryLambdaReturnType = ASTBuilderUtil.createTypeNode(symTable.anyOrErrorType);
         BLangLambdaFunction retryFunc = createLambdaFunction(pos, "$retryFunc$",
                 Collections.emptyList(), retryLambdaReturnType, retryBody);
         retryBody.stmts.addAll(retryNode.retryBody.stmts);
@@ -2406,18 +2405,18 @@ public class Desugar extends BLangNodeVisitor {
         // Add lambda function call
         //any|error $result$ = trap $retryFunc$();
         BLangInvocation retryLambdaInvocation = new BLangInvocation.BFunctionPointerInvocation(pos,
-                retryLambdaVarRef, retryLambdaVariable.symbol, retryReturnType);
+                retryLambdaVarRef, retryLambdaVariable.symbol, retryLambdaReturnType.type);
         retryLambdaInvocation.argExprs = new ArrayList<>();
         BLangTrapExpr retryFunctionTrapExpression = (BLangTrapExpr) TreeBuilder.createTrapExpressionNode();
-        retryFunctionTrapExpression.type = retryReturnType;
+        retryFunctionTrapExpression.type = retryLambdaReturnType.type;
         retryFunctionTrapExpression.expr = retryLambdaInvocation;
 
         retryFunc.capturedClosureEnv = env;
 
         BVarSymbol retryFunctionVarSymbol = new BVarSymbol(0, new Name("$result$"),
-                env.scope.owner.pkgID, retryReturnType, env.scope.owner);
+                env.scope.owner.pkgID, retryLambdaReturnType.type, env.scope.owner);
         BLangSimpleVariable retryFunctionVariable = ASTBuilderUtil.createVariable(pos, "$result$",
-                retryReturnType, retryFunctionTrapExpression, retryFunctionVarSymbol);
+                retryLambdaReturnType.type, retryFunctionTrapExpression, retryFunctionVarSymbol);
         BLangSimpleVariableDef retryFunctionVariableDef = ASTBuilderUtil.createVariableDef(pos,
                 retryFunctionVariable);
         retryBlockStmt.stmts.add(retryFunctionVariableDef);
@@ -2431,13 +2430,17 @@ public class Desugar extends BLangNodeVisitor {
                 retryFunctionVariableRef);
         retryBlockStmt.stmts.add(whileNode);
 
+        BLangStatementExpression retryTransactionStmtExpr;
         if (retryNode.retryBodyReturns) {
             //  returns <TypeCast>$result$;
             BLangInvokableNode encInvokable = env.enclInvokable;
-            BLangReturn returnNode = ASTBuilderUtil.createReturnStmt(pos,
+            retryTransactionStmtExpr = ASTBuilderUtil.createStatementExpression(retryBlockStmt,
                     addConversionExprIfRequired(retryFunctionVariableRef, encInvokable.returnTypeNode.type));
-            retryBlockStmt.stmts.add(returnNode);
+        } else {
+            retryTransactionStmtExpr = ASTBuilderUtil.createStatementExpression(retryBlockStmt,
+                    ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE));
         }
+        result = createExpressionStatement(pos, retryTransactionStmtExpr, retryNode.retryBodyReturns, env);
 
         //  at this point;
         //  RetryManager $retryManager$ = new();
@@ -2450,7 +2453,6 @@ public class Desugar extends BLangNodeVisitor {
         //       $result$ = trap $retryFunc$();
         //  }
         //  returns <TypeCast>$result$;
-        result = rewrite(retryBlockStmt, env);
     }
 
     protected BLangFunction resolveReturnTypeCast(BLangFunction function, SymbolEnv env) {
@@ -2532,15 +2534,22 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRetryTransaction retryTransaction) {
         BLangStatementExpression retryTransactionStmtExpr = transactionDesugar.desugar(retryTransaction, env);
-        if (!retryTransaction.transactionReturns) {
+        result = createExpressionStatement(retryTransaction.pos, retryTransactionStmtExpr,
+                retryTransaction.transactionReturns, env);
+    }
+
+    protected BLangNode createExpressionStatement(DiagnosticPos pos, BLangStatementExpression retryTransactionStmtExpr,
+                                                  boolean retryReturns, SymbolEnv env) {
+
+        if (retryReturns) {
+            BLangReturn bLangReturn = ASTBuilderUtil.createReturnStmt(pos, retryTransactionStmtExpr);
+            return rewrite(bLangReturn, env);
+        } else {
             BLangExpressionStmt transactionExprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
-            transactionExprStmt.pos = retryTransaction.pos;
+            transactionExprStmt.pos = pos;
             transactionExprStmt.expr = retryTransactionStmtExpr;
             transactionExprStmt.type = symTable.nilType;
-            result = rewrite(transactionExprStmt, env);
-        } else {
-            BLangReturn bLangReturn = ASTBuilderUtil.createReturnStmt(retryTransaction.pos, retryTransactionStmtExpr);
-            result = rewrite(bLangReturn, env);
+            return rewrite(transactionExprStmt, env);
         }
     }
 
