@@ -401,6 +401,15 @@ public class XMLLiteralTest {
                 "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\">hello</p:person>");
     }
 
+    @Test
+    public void xmlWithDefaultNamespace() {
+        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "xmlWithDefaultNamespace");
+        Assert.assertEquals(returns[0].stringValue(),
+                "<Add xmlns=\"http://atestorgthatdoesntexist.org/\">\n" +
+                        "                     <intA foo=\"bar\">12</intA>\n" +
+                        "                   </Add>");
+    }
+
     @Test (description = "Test sequence of brackets in content of XML")
     public void testBracketSequenceInXMLLiteral() {
         BValue[] returns = BRunUtil.invoke(result, "testBracketSequenceInXMLLiteral");

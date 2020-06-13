@@ -1,4 +1,4 @@
-xmlns "http://ballerina.com/b" as ns1; 
+xmlns "http://ballerina.com/b" as ns1;
 
 function testElementLiteralWithNamespaces() returns [xml, xml] {
     xmlns "http://ballerina.com/";
@@ -119,16 +119,16 @@ function testInnerScopeNamespaceDclr() returns [string, string, string] {
     string s1 = "";
     string s2 = "";
     string s3 = "";
-    
+
     if (true) {
         s1 = ns1:foo;
-        
+
         xmlns "http://sample.com/wso2/a3" as ns1;
         s2 = ns1:foo;
     }
-    
+
     s3 = ns1:foo;
-    
+
     return [s1, s2, s3];
 }
 
@@ -144,4 +144,13 @@ function testObjectLevelXML() returns xml {
 function getXML() returns xml {
     xml x = xml `<foo xmlns="http://wso2.com/">hello</foo>`;
     return x;
+}
+
+public function xmlWithDefaultNamespace() returns string {
+    xmlns "http://atestorgthatdoesntexist.org/";
+    xml body2 = xml `<Add>
+                     <intA foo="bar">12</intA>
+                   </Add>`;
+    string s2 = body2.toString();
+    return s2;
 }
