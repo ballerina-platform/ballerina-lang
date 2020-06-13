@@ -35,6 +35,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.990.4
  */
+@Test(groups = { "brokenOnNewParser" })
 public class ErrorVariableDefinitionTest {
     private CompileResult result;
 

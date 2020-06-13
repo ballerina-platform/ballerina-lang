@@ -2584,13 +2584,12 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token endBacktick) {
         Objects.requireNonNull(type, "type must not be null");
         Objects.requireNonNull(startBacktick, "startBacktick must not be null");
-        Objects.requireNonNull(content, "content must not be null");
         Objects.requireNonNull(endBacktick, "endBacktick must not be null");
 
         STNode stByteArrayLiteralNode = STNodeFactory.createByteArrayLiteralNode(
                 type.internalNode(),
                 startBacktick.internalNode(),
-                content.internalNode(),
+                getOptionalSTNode(content),
                 endBacktick.internalNode());
         return stByteArrayLiteralNode.createUnlinkedFacade();
     }
