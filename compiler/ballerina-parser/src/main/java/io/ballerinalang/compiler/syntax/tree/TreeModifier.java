@@ -2706,8 +2706,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(matchStatementNode.condition());
         Token openBrace =
                 modifyToken(matchStatementNode.openBrace());
-        SeparatedNodeList<MatchClauseNode> matchClauses =
-                modifySeparatedNodeList(matchStatementNode.matchClauses());
+        NodeList<MatchClauseNode> matchClauses =
+                modifyNodeList(matchStatementNode.matchClauses());
         Token closeBrace =
                 modifyToken(matchStatementNode.closeBrace());
         return matchStatementNode.modify(

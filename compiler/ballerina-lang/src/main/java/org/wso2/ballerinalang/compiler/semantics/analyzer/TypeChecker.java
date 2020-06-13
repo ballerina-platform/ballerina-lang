@@ -166,6 +166,7 @@ import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
+import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
@@ -222,6 +223,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private TypeParamAnalyzer typeParamAnalyzer;
     private BLangAnonymousModelHelper anonymousModelHelper;
     private SemanticAnalyzer semanticAnalyzer;
+    private ResolvedTypeBuilder typeBuilder;
     private boolean nonErrorLoggingCheck = false;
     private int letCount = 0;
     private SymbolEnv narrowedQueryEnv;
@@ -267,6 +269,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
+        this.typeBuilder = new ResolvedTypeBuilder();
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env) {
@@ -3697,6 +3700,8 @@ public class TypeChecker extends BLangNodeVisitor {
         Map<Boolean, List<BType>> resultTypeMap = types.getAllTypes(targetType).stream()
                 .collect(Collectors.groupingBy(memberType -> (types.isAssignable(memberType, symTable.errorType) ||
                         (types.isAssignable(memberType, symTable.nilType)))));
+        final boolean containsXmlOrStr = types.getAllTypes(targetType).stream()
+                .anyMatch(t -> t.tag == TypeTags.STRING || t.tag == TypeTags.XML);
         for (BType type : resultTypeMap.get(false)) {
             BType selectType;
             switch (type.tag) {
@@ -3721,11 +3726,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (assignableSelectTypes.size() == 1) {
             actualType = assignableSelectTypes.get(0);
-            if ((!queryExpr.isStream && !queryExpr.isTable)) {
-                if (targetType.tag != TypeTags.STRING
-                        && targetType.tag != TypeTags.XML) {
-                    actualType = new BArrayType(actualType);
-                }
+            if (!queryExpr.isStream && !queryExpr.isTable && !containsXmlOrStr) {
+                actualType = new BArrayType(actualType);
             }
         } else if (assignableSelectTypes.size() > 1) {
             dlog.error(selectExp.pos, DiagnosticCode.AMBIGUOUS_TYPES, assignableSelectTypes);
@@ -4787,6 +4789,10 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BType retType = typeParamAnalyzer.getReturnTypeParams(env, bInvokableType.getReturnType());
+        if (Symbols.isFlagOn(invokableSymbol.flags, Flags.NATIVE)
+                && Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
+            retType = typeBuilder.build(retType, iExpr);
+        }
 
         if (iExpr instanceof ActionNode && ((BLangInvocation.BLangActionInvocation) iExpr).async) {
             return this.generateFutureType(invokableSymbol, retType);

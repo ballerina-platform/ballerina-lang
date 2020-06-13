@@ -30,7 +30,6 @@ under the License.
             <class name="org.ballerinalang.net.grpc.CompressorCodecTest"/>
             <class name="org.ballerinalang.net.grpc.ProtoBuilderDefinitionTest"/>
             <class name="org.ballerinalang.net.grpc.ResourceReturnTypeTest"/>
-            <class name="org.ballerinalang.net.grpc.UnsupportedFieldTypesTest"/>
             <!--<class name="org.ballerinalang.net.grpc.ConnectionPoolTestCase"/>-->
         </classes>
     </test>

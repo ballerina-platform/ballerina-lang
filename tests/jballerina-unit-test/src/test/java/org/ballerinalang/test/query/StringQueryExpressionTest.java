@@ -78,4 +78,78 @@ public class StringQueryExpressionTest {
 
         Assert.assertEquals(returnValues[0].stringValue(), "Ferdinand 2 ");
     }
+
+    @Test(description = "Test simple query expression with string or error result")
+    public void testSimpleQueryExprForStringOrNilResult() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleQueryExprForStringOrNilResult");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(), "Alex Ranjan John ");
+    }
+
+    @Test(description = "Test query expression with where giving string or error result")
+    public void testQueryExprWithWhereForStringOrNilResult() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithWhereForStringOrNilResult");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(), "Ranjan John ");
+    }
+
+    @Test(description = "Test simple query expression with limit clause giving string or error result")
+    public void testQueryExprWithInnerJointForStringOrNilResult() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithInnerJointForStringOrNilResult");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(), "Alex 1 Ranjan 2 ");
+    }
+
+    @Test(description = "Test simple query expression with multiple from clauses giving string or error result")
+    public void testQueryExprWithMultipleFromForStringOrNilResult() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithMultipleFromForStringOrNilResult");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(), "Alex 1 Alex 2 Ranjan 1 Ranjan 2 ");
+    }
+
+    @Test(description = "Test simple query expression with stream giving string or error result")
+    public void testQueryExprWithStreamForStringOrNilResult() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithStreamForStringOrNilResult");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(), "Ferdinand 2 ");
+    }
+
+    @Test(description = "Test simple query expression with var for string result")
+    public void testQueryExprWithVarForStringResult() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithVarForStringResult");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(), "Ranjan ");
+    }
+
+    @Test(description = "Test simple query expression with var for string result")
+    public void testQueryExprWithListForStringResult() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithListForStringResult");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(), "Ranjan ");
+        Assert.assertEquals(returnValues[1].stringValue(), "John ");
+    }
+
+    @Test(description = "Test simple query expression with var for string result")
+    public void testQueryExprWithUnionTypeForStringResult() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithUnionTypeForStringResult");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(), "Ranjan John ");
+    }
+
+    @Test(description = "Test simple query expression with var for string result")
+    public void testQueryExprWithUnionTypeForStringResult2() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithUnionTypeForStringResult2");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(), "Ranjan ");
+        Assert.assertEquals(returnValues[1].stringValue(), "John ");
+    }
 }

@@ -44,8 +44,8 @@ public class MatchStatementNode extends StatementNode {
         return childInBucket(2);
     }
 
-    public SeparatedNodeList<MatchClauseNode> matchClauses() {
-        return new SeparatedNodeList<>(childInBucket(3));
+    public NodeList<MatchClauseNode> matchClauses() {
+        return new NodeList<>(childInBucket(3));
     }
 
     public Token closeBrace() {
@@ -76,7 +76,7 @@ public class MatchStatementNode extends StatementNode {
             Token matchKeyword,
             ExpressionNode condition,
             Token openBrace,
-            SeparatedNodeList<MatchClauseNode> matchClauses,
+            NodeList<MatchClauseNode> matchClauses,
             Token closeBrace) {
         if (checkForReferenceEquality(
                 matchKeyword,
@@ -109,7 +109,7 @@ public class MatchStatementNode extends StatementNode {
         private Token matchKeyword;
         private ExpressionNode condition;
         private Token openBrace;
-        private SeparatedNodeList<MatchClauseNode> matchClauses;
+        private NodeList<MatchClauseNode> matchClauses;
         private Token closeBrace;
 
         public MatchStatementNodeModifier(MatchStatementNode oldNode) {
@@ -143,7 +143,7 @@ public class MatchStatementNode extends StatementNode {
         }
 
         public MatchStatementNodeModifier withMatchClauses(
-                SeparatedNodeList<MatchClauseNode> matchClauses) {
+                NodeList<MatchClauseNode> matchClauses) {
             Objects.requireNonNull(matchClauses, "matchClauses must not be null");
             this.matchClauses = matchClauses;
             return this;
