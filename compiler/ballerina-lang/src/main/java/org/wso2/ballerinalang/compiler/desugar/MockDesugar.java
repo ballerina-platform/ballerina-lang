@@ -1,31 +1,27 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
-import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.symbols.Symbol;
-import org.ballerinalang.model.tree.NodeKind;
+
+import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -47,6 +43,7 @@ public class MockDesugar {
     private final Desugar desugar;
     private final SymbolEnter symbolEnter;
     private BLangPackage bLangPackage;
+    private BLangFunction originalFunction;
 
     private static final CompilerContext.Key<MockDesugar> MOCK_DESUGAR_KEY = new CompilerContext.Key<>();
 
@@ -82,21 +79,19 @@ public class MockDesugar {
         Set<String> mockFunctionSet = mockFunctionMap.keySet();
 
         for (String function: mockFunctionSet) {
-            System.out.println("[MockDesugar] (generateMockFunctions) Generating mock function for : " + function);
-            System.out.println("[MockDesugar] (generateMockFunctions) Adding generated mock functions to package node");
-            pkgNode.addFunction(generateMockFunction(function));
+            pkgNode.getTestablePkg().functions.add(generateMockFunction(function));
         }
 
         System.out.println("[MockDesugar] (generateMockFunctions) Added all generated functions to pkgNode fn list");
 
     }
 
-
     // Generates and returns a BLangFunction
     private BLangFunction generateMockFunction(String functionName) {
+        System.out.println("[MockDesugar] - (generateMockFunction) Generating for :" + functionName);
 
         // Get the orginal function from the pkgNode function list for reference
-        BLangFunction originalFunction = getOriginalFunction(functionName);
+        this.originalFunction = getOriginalFunction(functionName);
 
         // Set the function name to $MOCK_<functionName>
         functionName = "$MOCK_" + functionName;
@@ -105,22 +100,23 @@ public class MockDesugar {
         BLangFunction generatedMock = ASTBuilderUtil.createFunction(bLangPackage.pos, functionName);
 
         // Required Params
-        generatedMock.requiredParams = generateRequiredParams(originalFunction);
+        generatedMock.requiredParams = generateRequiredParams();
 
         // Return Type Node
-        generatedMock.returnTypeNode = generateReturnTypeNode(originalFunction);
+        generatedMock.returnTypeNode = generateReturnTypeNode();
 
         // Body
         generatedMock.body = generateBody();
 
         // Invokable Symbol
-        generatedMock.symbol = generateSymbol(functionName, originalFunction);
+        generatedMock.symbol = generateSymbol(functionName);
 
         // Type
-        generatedMock.type = generateType(originalFunction);
+        generatedMock.type = generateType();
 
-        // ws / cloned env
+        // ws / cloned env not included
 
+        System.out.println("[MockDesugar] - (generateMockFunction) Function generated");
         return generatedMock;
     }
 
@@ -131,203 +127,160 @@ public class MockDesugar {
         for (BLangFunction function : functionList) {
             if (function.getName().toString().equals(functionName)) {
                 return function;
-            } // No need for else since we wouldnt even reach this point if there wasnt a function. It has to work
+            }
         }
 
-        return null; // This shouldnt hit. If it does, something has gone very very wrong
+        return null;
     }
 
-    // Checks the orignal functions 'requiredParam' and copies it
-    // TODO : If this doesnt work, then simply expand the list and add the params individually
-    //  OR simply null the unwanted stuff and see if that works
-    //  OR .. just do it from scratch :/
-    private List<BLangSimpleVariable> generateRequiredParams(BLangFunction originalFunction) {
-        List<BLangSimpleVariable> requiredParams = null;
-
-        // Required params will be the same as the original function
-        // Extract the List from 'originalFunction'
-        requiredParams = originalFunction.requiredParams;
-
+    private List<BLangSimpleVariable> generateRequiredParams() {
+        List<BLangSimpleVariable> requiredParams = this.originalFunction.requiredParams;
         return requiredParams;
     }
 
-    private BLangType generateReturnTypeNode(BLangFunction originalFunction) {
-        BLangType returnTypeNode = null;
-
-        // Return Type Node will be the same as orginal function
-        // Extract returnTypeNode from 'originalFunction'
-
-        returnTypeNode = originalFunction.returnTypeNode;
-
+    private BLangType generateReturnTypeNode() {
+        BLangType returnTypeNode = this.originalFunction.returnTypeNode;
         return returnTypeNode;
     }
 
-
-    // Try copying a body from the template function and see if it calls it properly.
-    // This is the place where things go wrong
-    private BLangFunctionBody generateBody() {
-        BLangFunctionBody body = null;
-
-        // THIS IS NOT THE FINAL IMPLEMENTATION
-        // WRITTEN TO TEST IF THE BODY WILL ACTUALLY CALL THE MOCKHANDLER FUNCTION
-
-        body = ((BLangFunction)((java.util.ArrayList)((BLangTestablePackage)((java.util.ArrayList)((BLangPackage)((MockDesugar)this).bLangPackage).testablePkgs).get(0)).functions).get(0)).body;
-
-        return body;
-    }
-
-
-    // Invokable Symbol needs to be generated manually
-    private BInvokableSymbol generateSymbol(String functionName, BLangFunction originalFunction) {
-        BInvokableSymbol symbol = null;
-        BInvokableType bInvokableType = generateSymbolInvokableType(originalFunction);
-
-        symbol = new BInvokableSymbol(
+    private BInvokableSymbol generateSymbol(String functionName) {
+        BInvokableSymbol symbol = new BInvokableSymbol(
                 820,
                 0,
                 new Name(functionName),
                 bLangPackage.packageID,
-                bInvokableType,
+                generateSymbolInvokableType(),
                 bLangPackage.symbol
         );
-
 
         return symbol;
     }
 
-    private BInvokableType generateSymbolInvokableType(BLangFunction orginalFunction) {
-        BInvokableType bInvokableType = null;
-
-
-        bInvokableType = (BInvokableType) orginalFunction.symbol.type;
-        // Incase yuou have to generate the function
-//        List<BType> paramType;
-//        BType retType = symTable.intType;
-//        BTypeSymbol tsymbol;
-//
-//        bInvokableType = new BInvokableType(paramType, retType, tsymbol);
-
+    private BInvokableType generateSymbolInvokableType() {
+        BInvokableType bInvokableType = (BInvokableType) this.originalFunction.symbol.type;
         return bInvokableType;
     }
 
-
-    private BType generateType(BLangFunction originalFunction) {
-        BType type = null;
-
-        type = originalFunction.type;
-
+    private BType generateType() {
+        BType type = ((BInvokableType) this.originalFunction.type).retType;
         return type;
     }
 
+    // Try copying a body from the template function and see if it calls it properly.
+    // This is the place where things go wrong
+    private BLangFunctionBody generateBody() {
+        BLangFunctionBody body = ASTBuilderUtil.createBlockFunctionBody(bLangPackage.pos, generateStatements());
+        body.scope = bLangPackage.symbol.scope;
+        return body;
+    }
+
+    private List<BLangStatement> generateStatements() {
+        // List of statements
+        List<BLangStatement> statements = new ArrayList<>();
+
+        // BLangReturn Statement <retType> test:MockHandler(<MockFunctionObj>, [<args?>])
+        BLangReturn blangReturn =
+                ASTBuilderUtil.createReturnStmt(bLangPackage.pos, generateTypeConversionExpression());
+
+        statements.add(blangReturn);
+
+        return statements;
+    }
 
 
-//    // Creates the Invokable Symbol for the Mock function
-//    private BInvokableSymbol createMockInvokableSymbol(BLangPackage pkgNode) {
-//        // PARAM TYPES
-//        List<BType> paramTypes = new ArrayList<>();
-//
-//        // ballerina/test:0.0.0:MockFunction
-//        Symbol testPkg = pkgNode.symbol.scope.lookup(new Name("test")).symbol;
-//
-//        Symbol mockFunctionSymbol = ((BSymbol) testPkg).scope.lookup(new Name("MockFunction")).symbol;
-//        BType mockObjectType = ((BSymbol) mockFunctionSymbol).type;
-//        paramTypes.add(0, mockObjectType);
-//
-//        // anydata
-//        BType anydataType = symTable.anydataType;
-//        paramTypes.add(1, anydataType);
-//
-//
-//
-//        // TYPE SYMBOL
-//        BTypeSymbol typeSymbol = new BInvokableTypeSymbol(67108892, 0, pkgNode.packageID, symTable.anyType, pkgNode.symbol);
-//        List<BVarSymbol> params = new ArrayList<>();
-//
-//        // mockFunction
-//        BVarSymbol mockFunction = symbolEnter.createVarSymbol(64, ((BSymbol) mockFunctionSymbol).type, new Name("mockFunction"), symTable.pkgEnvMap.get(pkgNode.symbol));
-//        params.add(mockFunction);
-//        // args
-//        BVarSymbol args = symbolEnter.createVarSymbol(8256, ((BSymbol) mockFunctionSymbol).type, new Name("args"), symTable.pkgEnvMap.get(pkgNode.symbol));
-//        params.add(args);
-//        ((BInvokableTypeSymbol) typeSymbol).params = params;
-//
-//
-//        // Generate Invokable Symbol
-//        BInvokableSymbol bInvokableSymbol = new BInvokableSymbol(
-//                820,
-//                0,
-//                new Name("$$$MOCK_intAdd"),
-//                pkgNode.packageID,
-//                new BInvokableType(paramTypes, symTable.anyType, typeSymbol),
-//                pkgNode.symbol
-//        );
-//
-//        return bInvokableSymbol;
-//    }
-//
-//    // Creates the Body for the Mock function
-//    private BLangFunctionBody createMockBody(BLangPackage pkgNode) {
-//        Symbol testPkg = pkgNode.symbol.scope.lookup(new Name("test")).symbol;
-//        Symbol mockFunctionSymbol = ((BSymbol) testPkg).scope.lookup(new Name("MockFunction")).symbol;
-//
-//
-//        // List of statements
-//        List<BLangStatement> statements = new ArrayList<>();
-//
-//        // Invokable Symbol
-//        BInvokableSymbol invokableSymbol = createHandlerInvokableSymbol(pkgNode);
-//
-//        // BLangInvocation -> requiredArgs
-//        List<BLangSimpleVariable> requiredArgs = new ArrayList<>();
-//        BLangSimpleVariable bLangSimpleVariable = ASTBuilderUtil.createVariable(pkgNode.pos, "mockFunction", ((BSymbol) mockFunctionSymbol).type);
-//        requiredArgs.add(bLangSimpleVariable);
-//
-//        // BlangReturn -> BLangInvocation
-//        BLangInvocation invocation = ASTBuilderUtil.createInvocationExpr(pkgNode.pos, invokableSymbol, requiredArgs, symResolver);
-//
-//        // statements -> BlangReturn
-//        BLangReturn bLangReturn = ASTBuilderUtil.createReturnStmt(pkgNode.pos, invocation);
-//        statements.add(bLangReturn);
-//
-//        BLangFunctionBody mockBody = ASTBuilderUtil.createBlockFunctionBody(pkgNode.pos, statements);
-//        return mockBody;
-//    }
-//
-//
-//    private BInvokableSymbol createHandlerInvokableSymbol(BLangPackage pkgNode) {
-//
-//        // BInvokableSymbol -> paramType
-//        List<BType> paramTypes = new ArrayList<>();
-//        Symbol testPkg = pkgNode.symbol.scope.lookup(new Name("test")).symbol;
-//        Symbol mockFunctionSymbol = ((BSymbol) testPkg).scope.lookup(new Name("MockFunction")).symbol;
-//        BType mockObjectType = ((BSymbol) mockFunctionSymbol).type;
-//        paramTypes.add(0, mockObjectType);
-//
-//        // BInvokableSymbol -> retType
-//        BType retType = symTable.anyType;
-//
-//        // BInvokableSymbol -> Tsymbol
-//        BTypeSymbol typeSymbol = new BInvokableTypeSymbol(67108892, 3, pkgNode.packageID, symTable.anyType, pkgNode.symbol);
-//        List<BVarSymbol> params = new ArrayList<>();
-//
-//        // mockFunction
-//        BVarSymbol mockFunction = symbolEnter.createVarSymbol(64, ((BSymbol) mockFunctionSymbol).type, new Name("mockFunction"), symTable.pkgEnvMap.get(pkgNode.symbol));
-//        params.add(mockFunction);
-//
-//        ((BInvokableTypeSymbol) typeSymbol).params = params;
-//
-//
-//        BInvokableType bInvokableType = new BInvokableType(paramTypes, retType, typeSymbol);
-//
-//        BInvokableSymbol invokableSymbol = new BInvokableSymbol(
-//                820,
-//                3,
-//                new Name("mockHandler"),
-//                pkgNode.packageID,
-//                bInvokableType,
-//                pkgNode.symbol);
-//
-//        return invokableSymbol;
-//    }
+    private BLangTypeConversionExpr generateTypeConversionExpression() {
+        BLangExpression typeConversionExpr = null;
 
+        BLangInvocation bLangInvocation = generateBLangInvocation();
+        BType target = generateType(); // check this value
+
+        // typeConversionExpr = ASTBuilderUtil.generateConversionExpr(bLangInvocation, target, symResolver); //check this
+
+
+
+        BLangTypeConversionExpr typeConversionExpr1 = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
+        typeConversionExpr1.pos = bLangInvocation.pos;
+        typeConversionExpr1.expr = bLangInvocation;
+        typeConversionExpr1.type = target;
+        typeConversionExpr1.targetType = target;
+
+        return typeConversionExpr1;
+    }
+
+    // test:mockHandler(mock1, [a, b])
+    private BLangInvocation generateBLangInvocation() {
+
+        BInvokableSymbol invokableSymbol = getMockHandlerInvokableSymbol(); // Mock Handler
+        List<BLangExpression> requiredArgs = generateInvocationRequiredArgs(); // Passed arguments
+
+        BLangInvocation bLangInvocation =
+                ASTBuilderUtil.createInvocationExprForMethod(bLangPackage.pos, invokableSymbol, requiredArgs, symResolver);
+
+
+        // Additional statements
+        bLangInvocation.pkgAlias = (BLangIdentifier) createIdentifier("test"); //Should add missing pkg alias
+        bLangInvocation.argExprs = requiredArgs;
+        bLangInvocation.expectedType = bLangInvocation.type;
+
+        return bLangInvocation;
+    }
+
+    // Looks for MockHandler Invokable symbol in the test package
+    private BInvokableSymbol getMockHandlerInvokableSymbol() {
+        BSymbol testPkg = bLangPackage.getTestablePkg().symbol.scope.lookup(new Name("test")).symbol; //Is this supposed to be BSymbol or BPackage something
+        BInvokableSymbol mockHandlerSymbol = (BInvokableSymbol) testPkg.scope.lookup(new Name("mockHandler")).symbol;
+
+        return mockHandlerSymbol;
+    }
+
+    private List<BLangExpression> generateInvocationRequiredArgs() {
+        List<BLangExpression> requiredArgs = new ArrayList<>();
+
+        // Reference for the Mock Function object
+        BLangSimpleVarRef bLangSimpleVarRef = getMockFunctionReference();
+        requiredArgs.add(bLangSimpleVarRef);
+
+        // Reference for the arguments
+        BLangListConstructorExpr argumentArray = generateMockHandlerArgs();
+        requiredArgs.add(argumentArray);
+
+        return requiredArgs;
+    }
+
+    // Returns reference to mock function
+    private BLangSimpleVarRef getMockFunctionReference() {
+        String mockObjName = bLangPackage.getTestablePkg().getMockFunctionNamesMap().get(originalFunction.getName().toString());
+        BVarSymbol mockObjectSymbol = (BVarSymbol) bLangPackage.getTestablePkg().symbol.scope.lookup(new Name(mockObjName)).symbol;
+
+        BLangSimpleVarRef bLangSimpleVarRef = ASTBuilderUtil.createVariableRef(bLangPackage.pos, mockObjectSymbol);
+        return bLangSimpleVarRef;
+    }
+
+    // Looks at the arguments passed and compiles a list
+    private BLangListConstructorExpr generateMockHandlerArgs() {
+        BLangListConstructorExpr argsList =
+                ASTBuilderUtil.createEmptyArrayLiteral(bLangPackage.pos, symTable.arrayAnydataType);
+
+        // THIS IS A PROBLEM
+        // This cant be assigned to the BLangConstructorExpr
+        // But when you debug, it shows that its a simple var ref
+        // List of Simple var r
+        List<BLangSimpleVarRef> argVariables =
+                ASTBuilderUtil.createVariableRefList(bLangPackage.pos, originalFunction.requiredParams);
+
+        // I dont know if this is legal
+        for (BLangSimpleVarRef varRef : argVariables) {
+            argsList.exprs.add((BLangExpression) varRef);
+        }
+
+        return argsList;
+    }
+
+    private static IdentifierNode createIdentifier(String value) {
+        IdentifierNode node = TreeBuilder.createIdentifierNode();
+        if (value != null) {
+            node.setValue(value);
+        }
+        return node;
+    }
 }

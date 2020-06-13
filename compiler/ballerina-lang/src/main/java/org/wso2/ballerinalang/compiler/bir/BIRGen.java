@@ -319,7 +319,7 @@ public class BIRGen extends BLangNodeVisitor {
                     if (mockFunctionMap.containsKey(callTerminator.name.getValue())) {
                         // Replace the function call with the equivalent $MOCK_ substitiute
                         // TODO : Change MOCK_ to $MOCK_ when replacing with Desugar mock function.
-                        String desugarFunction = "MOCK_" + callTerminator.name.getValue();
+                        String desugarFunction = "$MOCK_" + callTerminator.name.getValue();
                         callTerminator.name = new Name(desugarFunction);
 
                         // TODO : Change this to package where the desugar mock function resides.
