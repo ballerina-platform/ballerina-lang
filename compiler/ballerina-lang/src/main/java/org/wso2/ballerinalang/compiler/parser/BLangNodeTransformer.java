@@ -1858,7 +1858,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     case XML_PI:
                     case XML_ELEMENT:
                     case XML_EMPTY_ELEMENT:
-                        return expressionNode.content().get(0).apply(this);
+                        return createExpression(expressionNode.content().get(0));
                     default:
                         return createXMLLiteral(expressionNode);
                 }
