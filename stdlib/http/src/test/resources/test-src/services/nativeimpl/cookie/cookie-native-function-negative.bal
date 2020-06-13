@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/file;
 import ballerina/http;
 import ballerina/io;
 
@@ -249,57 +250,56 @@ function testAddPersistentCookieWithoutPersistentStore() returns @tainted http:C
     return cookies;
 }
 
-//TODO Table remove - Fix
-//function testRemovePersistentCookieFromCookieStore_1() returns @tainted http:Cookie[] {
-//    http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
-//    cookie1.path = "/sample";
-//    cookie1.domain = "google.com";
-//    cookie1.expires = "2030-07-15 05:46:22";
-//    http:CsvPersistentCookieHandler myPersistentStore = new(filePath + "client-6.csv");
-//    http:Client cookieClientEndpoint = new("http://google.com", { cookieConfig: { enabled: true, persistentCookieHandler: myPersistentStore } } );
-//    http:CookieStore? cookieStore = cookieClientEndpoint.getCookieStore();
-//    var cookieConfigVal = cookieClientEndpoint.config.cookieConfig;
-//    http:Cookie[] cookies = [];
-//    if (cookieConfigVal is http:CookieConfig && cookieStore is http:CookieStore && cookie1.isValid() == true) {
-//        var result = cookieStore.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample");
-//        result = cookieStore.removeCookie("SID003", "google.com", "/sample");
-//        if (result is error) {
-//            io:println(result);
-//        }
-//        cookies = cookieStore.getAllCookies();
-//    }
-//    error? removeResults = file:remove(filePath, true);
-//    return cookies;
-//}
-//
-//function testRemovePersistentCookieFromCookieStore_2() returns @tainted http:Cookie[] {
-//    http:CsvPersistentCookieHandler myPersistentStore = new(filePath + "client-7.csv");
-//    http:Client cookieClientEndpoint = new("http://google.com", { cookieConfig: { enabled: true, persistentCookieHandler: myPersistentStore } } );
-//    http:CookieStore? cookieStore = cookieClientEndpoint.getCookieStore();
-//    var cookieConfigVal = cookieClientEndpoint.config.cookieConfig;
-//    http:Cookie[] cookies = [];
-//    if (cookieConfigVal is http:CookieConfig && cookieStore is http:CookieStore) {
-//        var result = cookieStore.removeCookie("SID003", "google.com", "/sample");
-//        if (result is error) {
-//            io:println(result);
-//        }
-//        cookies = cookieStore.getAllCookies();
-//    }
-//    return cookies;
-//}
-//
-//function testRemoveAllCookiesFromCookieStore() returns @tainted http:Cookie[] {
-//    http:CsvPersistentCookieHandler myPersistentStore = new(filePath + "client-8.csv");
-//    http:Client cookieClientEndpoint = new("http://google.com", { cookieConfig: { enabled: true, persistentCookieHandler: myPersistentStore } } );
-//    http:CookieStore? cookieStore = cookieClientEndpoint.getCookieStore();
-//    var cookieConfigVal = cookieClientEndpoint.config.cookieConfig;
-//    http:Cookie[] cookies = [];
-//    if (cookieConfigVal is http:CookieConfig && cookieStore is http:CookieStore) {
-//        var result = cookieStore.removeAllCookies();
-//        if (result is error) {
-//            io:println(result);
-//        }
-//        cookies = cookieStore.getAllCookies();
-//    }
-//    return cookies;
-//}
+function testRemovePersistentCookieFromCookieStore_1() returns @tainted http:Cookie[] {
+    http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
+    cookie1.path = "/sample";
+    cookie1.domain = "google.com";
+    cookie1.expires = "2030-07-15 05:46:22";
+    http:CsvPersistentCookieHandler myPersistentStore = new(filePath + "client-6.csv");
+    http:Client cookieClientEndpoint = new("http://google.com", { cookieConfig: { enabled: true, persistentCookieHandler: myPersistentStore } } );
+    http:CookieStore? cookieStore = cookieClientEndpoint.getCookieStore();
+    var cookieConfigVal = cookieClientEndpoint.config.cookieConfig;
+    http:Cookie[] cookies = [];
+    if (cookieConfigVal is http:CookieConfig && cookieStore is http:CookieStore && cookie1.isValid() == true) {
+        var result = cookieStore.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample");
+        result = cookieStore.removeCookie("SID003", "google.com", "/sample");
+        if (result is error) {
+            io:println(result);
+        }
+        cookies = cookieStore.getAllCookies();
+    }
+    error? removeResults = file:remove(filePath, true);
+    return cookies;
+}
+
+function testRemovePersistentCookieFromCookieStore_2() returns @tainted http:Cookie[] {
+    http:CsvPersistentCookieHandler myPersistentStore = new(filePath + "client-7.csv");
+    http:Client cookieClientEndpoint = new("http://google.com", { cookieConfig: { enabled: true, persistentCookieHandler: myPersistentStore } } );
+    http:CookieStore? cookieStore = cookieClientEndpoint.getCookieStore();
+    var cookieConfigVal = cookieClientEndpoint.config.cookieConfig;
+    http:Cookie[] cookies = [];
+    if (cookieConfigVal is http:CookieConfig && cookieStore is http:CookieStore) {
+        var result = cookieStore.removeCookie("SID003", "google.com", "/sample");
+        if (result is error) {
+            io:println(result);
+        }
+        cookies = cookieStore.getAllCookies();
+    }
+    return cookies;
+}
+
+function testRemoveAllCookiesFromCookieStore() returns @tainted http:Cookie[] {
+    http:CsvPersistentCookieHandler myPersistentStore = new(filePath + "client-8.csv");
+    http:Client cookieClientEndpoint = new("http://google.com", { cookieConfig: { enabled: true, persistentCookieHandler: myPersistentStore } } );
+    http:CookieStore? cookieStore = cookieClientEndpoint.getCookieStore();
+    var cookieConfigVal = cookieClientEndpoint.config.cookieConfig;
+    http:Cookie[] cookies = [];
+    if (cookieConfigVal is http:CookieConfig && cookieStore is http:CookieStore) {
+        var result = cookieStore.removeAllCookies();
+        if (result is error) {
+            io:println(result);
+        }
+        cookies = cookieStore.getAllCookies();
+    }
+    return cookies;
+}
