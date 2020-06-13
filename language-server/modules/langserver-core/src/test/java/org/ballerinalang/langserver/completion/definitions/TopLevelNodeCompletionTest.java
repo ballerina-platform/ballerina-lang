@@ -46,8 +46,8 @@ public class TopLevelNodeCompletionTest extends CompletionTest {
                 {"allTopLevelItemSkip.json", "toplevel"},
 //                {"topLevelNonEmptyFirstLine.json", "toplevel"},
 //                {"topLevelEmptyFirstLine.json", "toplevel"},
-                {"topLevelFirstLineWithPublicKeyword.json", "toplevel"},
-                {"topLevelFirstLineWithPublicDefStart.json", "toplevel"},
+//                {"topLevelFirstLineWithPublicKeyword.json", "toplevel"},
+//                {"topLevelFirstLineWithPublicDefStart.json", "toplevel"},
 //                {"mapTest1.json", "toplevel"},
                 {"recordTest1.json", "toplevel"},
                 {"recordTest2.json", "toplevel"},
@@ -69,7 +69,7 @@ public class TopLevelNodeCompletionTest extends CompletionTest {
 //                {"topLevelPackageContentAccess.json", "toplevel"},
                 {"constantDefinition1.json", "toplevel"},
 //                {"statementWithMissingSemiColon1.json", "toplevel"},
-                {"statementWithMissingSemiColon2.json", "toplevel"},
+//                {"statementWithMissingSemiColon2.json", "toplevel"},
                 {"statementWithMissingSemiColon3.json", "toplevel"},
 //                {"statementWithMissingSemiColon4.json", "toplevel"},
 //                {"topLevelTypeDesc1.json", "toplevel"},
@@ -80,7 +80,7 @@ public class TopLevelNodeCompletionTest extends CompletionTest {
                 {"completionWithinDocComments.json", "toplevel"},
                 {"exprFunctionBodyCompletion1.json", "toplevel"},
                 {"exprFunctionBodyCompletion2.json", "toplevel"},
-                {"exprFunctionBodyCompletion3.json", "toplevel"},
+//                {"exprFunctionBodyCompletion3.json", "toplevel"},
                 {"exprFunctionBodyCompletion5.json", "toplevel"},
         };
     }

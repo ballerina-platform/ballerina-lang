@@ -3854,6 +3854,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.EQUAL_TOKEN;
             case FUNC_BODY_OR_TYPE_DESC_RHS:
             case FUNC_BODY_BLOCK:
+            case FUNC_BODY:
                 return SyntaxKind.OPEN_BRACE_TOKEN;
             case FUNC_DEF:
             case FUNC_DEF_OR_FUNC_TYPE:

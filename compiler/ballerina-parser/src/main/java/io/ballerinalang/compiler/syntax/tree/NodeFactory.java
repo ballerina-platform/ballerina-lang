@@ -2662,7 +2662,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token matchKeyword,
             ExpressionNode condition,
             Token openBrace,
-            SeparatedNodeList<MatchClauseNode> matchClauses,
+            NodeList<MatchClauseNode> matchClauses,
             Token closeBrace) {
         Objects.requireNonNull(matchKeyword, "matchKeyword must not be null");
         Objects.requireNonNull(condition, "condition must not be null");

@@ -17,9 +17,12 @@
  */
 package org.ballerinalang.test.statements.transaction;
 
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -39,5 +42,11 @@ public class RetryTransactionStmtTest {
     @Test
     public void testPanic() {
         BRunUtil.invoke(programFile, "testPanic");
+    }
+
+    @Test
+    public void testFailedTransactionOutput() {
+        BValue[] values = BRunUtil.invoke(programFile, "testFailedTransactionOutput", new BValue[]{});
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 }
