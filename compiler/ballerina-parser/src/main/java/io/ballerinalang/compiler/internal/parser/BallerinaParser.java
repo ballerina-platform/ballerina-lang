@@ -4327,7 +4327,7 @@ public class BallerinaParser extends AbstractParser {
         if (!isValidExprRhsStart(tokenKind, lhsExpr.kind)) {
             STToken token = peek();
             Solution solution = recover(token, ParserRuleContext.EXPRESSION_RHS, currentPrecedenceLevel, lhsExpr,
-                    isRhsExpr, allowActions, isInMatchGuard);
+                    isRhsExpr, allowActions, isInMatchGuard, isInConditionalExpr);
 
             // If the current rule was recovered by removing a token,
             // then this entire rule is already parsed while recovering.
@@ -4439,7 +4439,8 @@ public class BallerinaParser extends AbstractParser {
         }
 
         // Then continue the operators with the same precedence level.
-        return parseExpressionRhs(currentPrecedenceLevel, newLhsExpr, isRhsExpr, allowActions, isInMatchGuard, isInConditionalExpr);
+        return parseExpressionRhs(currentPrecedenceLevel, newLhsExpr, isRhsExpr, allowActions, isInMatchGuard,
+                isInConditionalExpr);
     }
 
     private boolean isValidExprRhsStart(SyntaxKind tokenKind, SyntaxKind precedingNodeKind) {
@@ -12557,7 +12558,8 @@ public class BallerinaParser extends AbstractParser {
                 // If the next token is part of a valid expression, then still parse it
                 // as a statement that starts with an expression.
                 if (isValidExprRhsStart(nextTokenKind, typeOrExpr.kind)) {
-                    return parseExpressionRhs(nextTokenKind, DEFAULT_OP_PRECEDENCE, typeOrExpr, false, false, false, false);
+                    return parseExpressionRhs(nextTokenKind, DEFAULT_OP_PRECEDENCE, typeOrExpr, false, false, false,
+                            false);
                 }
 
                 STToken token = peek();
@@ -13436,8 +13438,7 @@ public class BallerinaParser extends AbstractParser {
         if (isEmpty(member)) {
             bindingPatterns = STNodeFactory.createEmptyNodeList();
         } else {
-            STNode varName = ((STSimpleNameReferenceNode) member).name;
-            STNode bindingPattern = createCaptureOrWildcardBP(varName);
+            STNode bindingPattern = getBindingPattern(member);
             bindingPatterns = STNodeFactory.createNodeList(bindingPattern);
         }
 
@@ -13565,6 +13566,7 @@ public class BallerinaParser extends AbstractParser {
             case HEX_INTEGER_LITERAL:
             case SIMPLE_NAME_REFERENCE: // member is a simple type-ref/var-ref
             case BRACKETED_LIST: // member is again ambiguous
+            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 return SyntaxKind.NONE;
             default:
                 return SyntaxKind.INDEXED_EXPRESSION;
@@ -14472,8 +14474,25 @@ public class BallerinaParser extends AbstractParser {
                 break;
         }
 
+        if (isBindingPattern(expr.kind)) {
+            return STNodeFactory.createFieldBindingPatternFullNode(key, colon, expr);
+        }
+
         STNode readonlyKeyword = STNodeFactory.createEmptyNode();
         return STNodeFactory.createSpecificFieldNode(readonlyKeyword, key, colon, expr);
+    }
+
+    private boolean isBindingPattern(SyntaxKind kind) {
+        switch (kind) {
+            case FIELD_BINDING_PATTERN:
+            case MAPPING_BINDING_PATTERN:
+            case CAPTURE_BINDING_PATTERN:
+            case LIST_BINDING_PATTERN:
+            case WILDCARD_BINDING_PATTERN:
+                return true;
+            default:
+                return false;
+        }
     }
 
     private SyntaxKind getTypeOfMappingBPOrMappingCons(STNode memberNode) {

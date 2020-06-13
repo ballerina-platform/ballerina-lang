@@ -1781,7 +1781,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(IndexedExpressionNode indexedExpressionNode) {
         BLangIndexBasedAccess indexBasedAccess = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         indexBasedAccess.pos = getPosition(indexedExpressionNode);
-        SeparatedNodeList<io.ballerinalang.compiler.syntax.tree.ExpressionNode> keys = indexedExpressionNode.keyExpression();
+        SeparatedNodeList<io.ballerinalang.compiler.syntax.tree.ExpressionNode> keys =
+                indexedExpressionNode.keyExpression();
         if (keys.size() == 1) {
             indexBasedAccess.indexExpr = createExpression(indexedExpressionNode.keyExpression().get(0));
         } else {
