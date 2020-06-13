@@ -27,6 +27,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-lang:map', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:string', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:error', configuration: 'baloImplementation')
     implementation 'org.slf4j:slf4j-api'
 }
 

@@ -1,4 +1,4 @@
-import ballerina/transactions;
+import ballerina/lang.'transaction as transactions;
 
 public type DefaultRetryManager object {
     private int count;

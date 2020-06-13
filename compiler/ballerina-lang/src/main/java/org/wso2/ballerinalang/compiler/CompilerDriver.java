@@ -201,11 +201,12 @@ public class CompilerDriver {
         }
 
         if (langLib.equals(TRANSACTION)) {
-            // Query module requires stream, array, map, string, table, xml & value modules. Hence loading them.
+            // Transaction module requires  array, map, string, value modules. Hence loading them.
             symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
             symbolTable.langMapModuleSymbol = pkgLoader.loadPackageSymbol(MAP, null, null);
             symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
             symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
+            symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
         }
 
 
