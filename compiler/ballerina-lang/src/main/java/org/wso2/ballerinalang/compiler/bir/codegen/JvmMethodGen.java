@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -67,6 +68,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
@@ -235,6 +237,7 @@ import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.FP_LOAD;
 public class JvmMethodGen {
 
     private static final FunctionParamComparator FUNCTION_PARAM_COMPARATOR = new FunctionParamComparator();
+    private static ResolvedTypeBuilder typeBuilder = new ResolvedTypeBuilder();
     private int nextId = -1;
     private int nextVarId = -1;
     private JvmPackageGen jvmPackageGen;
@@ -1104,6 +1107,7 @@ public class JvmMethodGen {
     }
 
     private static String generateReturnType(BType bType, boolean isExtern /* = false */) {
+        bType = typeBuilder.build(bType);
 
         if (bType == null || bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
             if (isExtern) {
@@ -1525,7 +1529,12 @@ public class JvmMethodGen {
         int ignoreStrandVarIndex = indexMap.getIndex(strandVar);
 
         // generate method desc
-        String desc = getMethodDesc(func.type.paramTypes, func.type.retType, null, false);
+        BType retType = func.type.retType;
+        if (isExternFunc(func) && Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
+            retType = typeBuilder.build(func.type.retType);
+        }
+
+        String desc = getMethodDesc(func.type.paramTypes, retType, null, false);
         int access = ACC_PUBLIC;
         int localVarOffset;
         if (attachedType != null) {
@@ -1598,8 +1607,7 @@ public class JvmMethodGen {
 
         BIRVariableDcl varDcl = getVariableDcl(localVars.get(0));
         returnVarRefIndex = indexMap.getIndex(varDcl);
-        BType returnType = func.type.retType;
-        genDefaultValue(mv, returnType, returnVarRefIndex);
+        genDefaultValue(mv, retType, returnVarRefIndex);
 
         BIRVariableDcl stateVar = new BIRVariableDcl(symbolTable.stringType, //should  be javaInt
                 new Name("state"), null, VarKind.TEMP);

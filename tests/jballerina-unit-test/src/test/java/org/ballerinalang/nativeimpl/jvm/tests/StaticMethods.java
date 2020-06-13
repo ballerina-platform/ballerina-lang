@@ -38,7 +38,9 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.api.BDecimal;
+import org.ballerinalang.jvm.values.api.BFuture;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BTypedesc;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 
 import java.io.IOException;
@@ -373,5 +375,21 @@ public class StaticMethods {
 
     public static int getIntFromJsonInt(int json) {
         return json;
+    }
+
+    public static BFuture getFuture(BTypedesc typeDesc, BFuture future) {
+        return future;
+    }
+
+    public static BTypedesc getTypeDesc(BTypedesc typeDesc, BFuture future) {
+        return typeDesc;
+    }
+
+    public static BFuture getFutureOnly(BFuture future) {
+        return future;
+    }
+
+    public static BTypedesc getTypeDescOnly(BTypedesc typeDesc) {
+        return typeDesc;
     }
 }

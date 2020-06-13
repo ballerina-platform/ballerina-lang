@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.repository;
 
+import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+
 /**
  * This represents a Ballerina package source entry.
  * 
@@ -37,5 +39,11 @@ public interface CompilerInput {
      * @return the source code binary encoded
      */
     byte[] getCode();
-    
+
+    /**
+     * Returns the syntax tree this source entry represents.
+     *
+     * @return syntax tree
+     */
+    SyntaxTree getTree();
 }

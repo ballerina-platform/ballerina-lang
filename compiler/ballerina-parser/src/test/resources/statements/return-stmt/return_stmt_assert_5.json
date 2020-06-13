@@ -3,7 +3,13 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "RETURN_KEYWORD"
+      "kind": "RETURN_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "DECIMAL_INTEGER_LITERAL",

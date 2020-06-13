@@ -88,7 +88,7 @@ function testDateTime() returns @tainted record{}|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     string insertQuery = string `Insert into DateTimeTypes (ROW_ID, DATE_TYPE, TIME_TYPE, TIMESTAMP_TYPE, DATETIME_TYPE)
      values (1,'2017-05-23','14:15:23','2017-01-25 16:33:55','2017-01-25 16:33:55')`;
-    sql:ExecuteResult? result = check dbClient->execute(insertQuery);
+    sql:ExecutionResult? result = check dbClient->execute(insertQuery);
     stream<record{}, error> queryResult = dbClient->query("SELECT DATE_TYPE, TIME_TYPE, TIMESTAMP_TYPE, DATETIME_TYPE"
        + " from DateTimeTypes where ROW_ID = 1", ResultDates);
     record{| record{} value; |}? data =  check queryResult.next();

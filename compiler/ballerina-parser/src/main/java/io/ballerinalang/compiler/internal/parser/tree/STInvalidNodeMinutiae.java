@@ -35,4 +35,9 @@ public class STInvalidNodeMinutiae extends STMinutiae {
     public STNode invalidNode() {
         return invalidNode;
     }
+
+    @Override
+    public void toSourceCode(StringBuilder builder) {
+        invalidNode.toSourceCode(builder);
+    }
 }

@@ -3853,6 +3853,24 @@
       }
     },
     {
+      "label": "isResourceSecured(http:FilterContext context)(boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nChecks whether the calling resource is secured by evaluating the authentication hierarchy.\n  \n**Params**  \n- `http:FilterContext` context: The `FilterContext` instance  \n  \n**Returns** `boolean`   \n- The status of calling resource is secured or not  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "isResourceSecured(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "createHttpCachingClient(string url, http:ClientConfiguration config, http:CacheConfig cacheConfig)((http:HttpClient|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError))",
       "kind": "Function",
       "detail": "Function",
@@ -3877,7 +3895,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n**Params**  \n- `string` headerValue: The header value  \n  \n**Returns** `([string,map\u003cany\u003e]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- A tuple containing the value and its parameter map or else an `http:ClientError` if the header parsing fails  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n**Params**  \n- `string` headerValue: The header value  \n  \n**Returns** `([string,map<any>]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- A tuple containing the value and its parameter map or else an `http:ClientError` if the header parsing fails  \n  \n"
         }
       },
       "sortText": "120",
