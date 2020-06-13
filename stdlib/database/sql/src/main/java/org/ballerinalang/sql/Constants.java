@@ -36,9 +36,9 @@ public final class Constants {
     public static final String DATABASE_CLIENT = "Client";
     public static final String CONNECTOR_ID_KEY = UUID.randomUUID().toString();
 
-    public static final String BATCH_EXECUTE_ERROR_DATA = "BatchExecuteErrorData";
+    public static final String BATCH_EXECUTE_ERROR_DETAIL = "BatchExecuteErrorDetail";
     public static final String BATCH_EXECUTE_ERROR = "BatchExecuteError";
-
+    public static final String BATCH_EXECUTE_ERROR_MESSAGE = "Error occurred when batch executing commands.";
     public static final String DATABASE_ERROR_DETAILS = "DatabaseErrorDetail";
     public static final String DATABASE_ERROR = "DatabaseError";
     public static final String APPLICATION_ERROR = "ApplicationError";
