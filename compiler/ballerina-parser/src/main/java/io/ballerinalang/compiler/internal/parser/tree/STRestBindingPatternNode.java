@@ -30,7 +30,7 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STRestBindingPatternNode extends STNode {
+public class STRestBindingPatternNode extends STBindingPatternNode {
     public final STNode ellipsisToken;
     public final STNode variableName;
 
