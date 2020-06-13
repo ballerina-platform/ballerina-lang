@@ -7522,7 +7522,7 @@ public class BallerinaParser extends AbstractParser {
                     annotTag);
         }
 
-        STNode annotTag = ((STSimpleNameReferenceNode)typeDescOrAnnotTag).name;
+        STNode annotTag = ((STSimpleNameReferenceNode) typeDescOrAnnotTag).name;
         return parseAnnotationDeclRhs(metadata, qualifier, constKeyword, annotationKeyword, annotTag);
     }
 
