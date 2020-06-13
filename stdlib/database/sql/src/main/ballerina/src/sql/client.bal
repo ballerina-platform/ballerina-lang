@@ -45,7 +45,7 @@ public type Client abstract client object {
     #                of values passed in.
     # + return - Summary of the sql update query as `ExecutionResult[]` or returns `BatchUpdateError`.
     #            if any error occured when executing the query. `BatchUpdateError` will include summary of the
-    #            sql update query as `executionResults` for commands executed successfully.
+    #            sql update query as `ExecutionResult[] executionResults` for commands executed successfully.
     public remote function batchExecute(ParameterizedString[] sqlQueries) returns ExecutionResult[]|Error?;
 
     # Close the SQL client.

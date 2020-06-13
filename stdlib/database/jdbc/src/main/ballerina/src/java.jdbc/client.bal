@@ -100,7 +100,7 @@ public type Client client object {
     #                of values passed in.
     # + return - Summary of the sql update query as `ExecutionResult[]` or returns `BatchUpdateError`.
     #            if any error occured when executing the query. `BatchUpdateError` will include summary of the
-    #            sql update query as `executionResults` for commands executed successfully.
+    #            sql update query as `ExecutionResult[] executionResults` for commands executed successfully.
     public remote function batchExecute(sql:ParameterizedString[] sqlQueries) returns sql:ExecutionResult[]|sql:Error? {
         if (sqlQueries.length() == 0) {
             return sql:ApplicationError(" Parameter 'sqlQueries' cannot be empty array");
