@@ -34,7 +34,7 @@ public type Message client object {
     #              `false` to acknowledge just the called on message
     # + return - A `rabbitmq:Error` if an I/O error is encountered or else `()`
     public remote function basicAck(boolean multiple = false) returns Error? {
-        var result = nativeBasicAck(self.amqpChannel, self.deliveryTag, multiple, self.autoAck, self.ackStatus);
+        var result = nativeBasicAck(self.amqpChannel, self.deliveryTag, multiple, self.autoAck, self.ackStatus, self);
         self.ackStatus = true;
         return result;
     }
@@ -51,7 +51,7 @@ public type Message client object {
     public remote function basicNack(boolean multiple = false, public boolean requeue = true)
                             returns Error? {
         var result = nativeBasicNack(self.amqpChannel, self.deliveryTag, self.autoAck, self.ackStatus,
-                                multiple, requeue);
+                                multiple, requeue, self);
         self.ackStatus = true;
         return result;
     }
@@ -147,7 +147,8 @@ public type Message client object {
     }
 };
 
-function nativeBasicAck(handle amqpChannel, int deliveryTag, boolean multiple, boolean ackMode, boolean ackStatus)
+function nativeBasicAck(handle amqpChannel, int deliveryTag, boolean multiple, boolean ackMode, boolean ackStatus,
+Message messageObj)
 returns Error? =
 @java:Method {
     name: "basicAck",
@@ -155,7 +156,7 @@ returns Error? =
 } external;
 
 function nativeBasicNack(handle amqpChannel, int deliveryTag, boolean ackMode, boolean ackStatus, boolean multiple,
-boolean requeue) returns Error? =
+boolean requeue, Message messageObj) returns Error? =
 @java:Method {
     name: "basicNack",
     class: "org.ballerinalang.messaging.rabbitmq.util.MessageUtils"
