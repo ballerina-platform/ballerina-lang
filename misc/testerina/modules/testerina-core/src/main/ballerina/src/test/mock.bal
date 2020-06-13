@@ -38,7 +38,11 @@ public type FunctionSignatureMismatchError distinct error<Detail>;
 public const INVALID_MEMBER_FIELD_ERROR = "InvalidMemberFieldError";
 public type InvalidMemberFieldError distinct error<Detail>;
 
-public type Error InvalidObjError | FunctionNotFoundError | FunctionSignatureMismatchError | InvalidMemberFieldError;
+# Represents the reason for function mocking related errors.
+public const FUNCTION_CALL_ERROR = "{ballerina/test}FunctionCallError";
+public type FunctionCallError error<FUNCTION_CALL_ERROR, Detail>;
+
+public type Error InvalidObjError | FunctionNotFoundError | FunctionSignatureMismatchError | InvalidMemberFieldError | FunctionCallError;
 
 # The details of an error.
 public type Detail record {};
@@ -231,6 +235,50 @@ public  type CaseMemVar object {
 };
 
 // Inter-op functions
+public function when(MockFunction mockFunc) returns CaseFunction {
+    CaseFunction case = new CaseFunction(mockFunc);
+    return case;
+}
+
+public type MockFunction object {};
+
+public type CaseFunction object {
+    MockFunction mockFuncObj;
+    any|error returnVal = ();
+    anydata|error args = [];
+
+    public function init(MockFunction mockFunc) {
+        self.mockFuncObj = mockFunc;
+    }
+
+    public function thenReturn(any|error retVal) {
+        self.returnVal = retVal;
+        Error? result = thenReturnFuncExt(self);
+        if (result is Error) {
+            panic result;
+        }
+    }
+
+    public function withArguments(anydata|error... args) returns CaseFunction {
+        self.args = args;
+        return self;
+    }
+
+    public function doNothing() {
+        Error? result = thenReturnFuncExt(self);
+        if (result is Error) {
+            panic result;
+        }
+    }
+
+    public function call(string functionName) {
+        self.returnVal = "__CALL__" + functionName;
+        Error? result = thenReturnFuncExt(self);
+        if (result is Error) {
+            panic result;
+        }
+    }
+};
 
 # Inter-op to create the mock object
 #
@@ -297,3 +345,14 @@ function thenReturnSeqExt(CaseMemFunc case) returns Error? = @java:Method {
     name: "thenReturnSequence",
     class: "org.ballerinalang.testerina.natives.test.Mock"
 } external;
+
+function thenReturnFuncExt(CaseFunction case) returns Error? = @java:Method {
+    name: "thenReturn",
+    class: "org.ballerinalang.testerina.natives.test.FunctionMock"
+} external;
+
+public function mockHandler(MockFunction mockFunction, anydata|error[] args) returns any|Error = @java:Method {
+    name: "mockHandler",
+    class: "org.ballerinalang.testerina.natives.test.FunctionMock"
+} external;
+
