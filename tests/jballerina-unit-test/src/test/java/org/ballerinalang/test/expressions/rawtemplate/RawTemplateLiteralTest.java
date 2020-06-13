@@ -120,7 +120,8 @@ public class RawTemplateLiteralTest {
                 {"testSubtyping3"},
                 {"testUsageWithQueryExpressions"},
                 {"testUsageWithQueryExpressions2"},
-                {"testUseWithVar"}
+                {"testUseWithVar"},
+                {"testUseWithAny"}
         };
     }
 }

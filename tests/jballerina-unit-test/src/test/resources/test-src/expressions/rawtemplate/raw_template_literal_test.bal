@@ -206,6 +206,14 @@ function testUseWithVar() {
     assert("typedesc $anonType$20 {\n\tstrings : string[],\n\tinsertions : (any|error)[]\n}", td.toString());
 }
 
+function testUseWithAny() {
+    string name = "Pubudu";
+    any rt = `Hello ${name}!`;
+    typedesc<any> td = typeof rt;
+
+    assert("typedesc $anonType$21 {\n\tstrings : string[],\n\tinsertions : (any|error)[]\n}", td.toString());
+}
+
 // Util functions
 
 function assert(anydata expected, anydata actual) {
