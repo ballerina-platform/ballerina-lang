@@ -65,7 +65,7 @@ public class RecordDocumentationTest {
         Assert.assertNotNull(dNode);
     }
 
-    @Test(description = "Test doc struct.")
+    @Test(description = "Test doc struct.", groups = { "brokenOnNewParser" })
     public void testDocStruct() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_doc_annotation.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
@@ -88,7 +88,7 @@ public class RecordDocumentationTest {
                 EMPTY_STRING), "struct `field c` documentation");
     }
 
-    @Test(description = "Test doc negative cases.")
+    @Test(description = "Test doc negative cases.", groups = { "brokenOnNewParser" })
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_documentation_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
