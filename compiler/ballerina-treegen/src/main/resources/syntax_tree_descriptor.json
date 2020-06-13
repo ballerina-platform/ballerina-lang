@@ -3023,7 +3023,7 @@
         },
         {
             "name": "RestBindingPatternNode",
-            "base": "Node",
+            "base": "BindingPatternNode",
             "kind": "REST_BINDING_PATTERN",
             "attributes": [
                 {

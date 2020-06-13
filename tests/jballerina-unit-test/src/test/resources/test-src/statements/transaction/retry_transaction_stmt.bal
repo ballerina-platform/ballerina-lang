@@ -39,6 +39,29 @@ function blowUp()  returns int {
     return 5;
 }
 
+function transactionFailedHelper() returns string|error {
+    string a = "";
+    retry(2) transaction {
+                 a = a + " inTrx";
+                 check getError();
+                 a = a + " afterErr";
+                 check commit;
+             }
+    a = a + " afterTx";
+    return a;
+}
+
+function getError() returns error? {
+    return error("Generic Error", message = "Failed");
+}
+
+public function testFailedTransactionOutput() returns boolean {
+    boolean testPassed = true;
+    string|error result = transactionFailedHelper();
+    testPassed = (result is error) && ("Generic Error" == result.reason());
+    return testPassed;
+}
+
 type AssertionError error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";

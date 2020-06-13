@@ -216,7 +216,7 @@ public class Utils {
         Strand strand = Scheduler.getStrand();
         TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
-        transactionResourceManager.registerCommittedFunction(transactionLocalContext.getCurrentTransactionBlockId(),
+        transactionResourceManager.registerCommittedFunction(transactionLocalContext.getGlobalTransactionId(),
                 fpValue);
     }
 
@@ -224,7 +224,7 @@ public class Utils {
         Strand strand = Scheduler.getStrand();
         TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
-        transactionResourceManager.registerAbortedFunction(transactionLocalContext.getCurrentTransactionBlockId(),
+        transactionResourceManager.registerAbortedFunction(transactionLocalContext.getGlobalTransactionId(),
                 fpValue);
     }
 
