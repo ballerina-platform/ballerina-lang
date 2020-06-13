@@ -53,7 +53,7 @@ public class BLangRawTemplateLiteral extends BLangExpression implements RawTempl
 
     @Override
     public String toString() {
-        return "BLangRawTemplateLiteral: " + strings + " " + insertions;
+        return "BLangRawTemplateLiteral: strings " + strings + ", insertions " + insertions;
     }
 
     @Override

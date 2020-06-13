@@ -45,14 +45,18 @@ public class RawTemplateLiteralTest {
                 "test-src/expressions/rawtemplate/raw_template_literal_negative.bal");
         int indx = 0;
 
-        validateError(errors, indx++, "incompatible types: expected 'ballerina/lang.object:1.0.0:RawTemplate'" +
-                ", found 'string'", 21, 18);
-        validateError(errors, indx++, "incompatible types: expected 'ballerina/lang.object:1.0.0:RawTemplate'" +
-                ", found 'anydata'", 22, 19);
-        validateError(errors, indx++, "incompatible types: expected 'ballerina/lang.object:1.0.0:RawTemplate', found " +
-                "'object { public string[] strings; public int insertions; }'", 32, 15);
-        validateError(errors, indx++, "incompatible types: expected 'ballerina/lang.object:1.0.0:RawTemplate', found " +
-                "'object { public string strings; public int[] insertions; }'", 37, 15);
+        // Attempts to assign raw templates to incompatible types
+        validateError(errors, indx++, "invalid literal for type 'string': raw templates can only be assigned " +
+                "to abstract subtypes of 'ballerina/lang.object:1.0.0:RawTemplate'", 21, 18);
+        validateError(errors, indx++, "invalid literal for type 'anydata': raw templates can only be assigned " +
+                "to abstract subtypes of 'ballerina/lang.object:1.0.0:RawTemplate'", 22, 19);
+        validateError(errors, indx++, "invalid literal for type 'object { public string[] strings; public int " +
+                "insertions; }': raw templates can only be assigned to abstract subtypes of " +
+                "'ballerina/lang.object:1.0.0:RawTemplate'", 32, 15);
+        validateError(errors, indx++, "invalid literal for type 'object { public string strings; public int[] " +
+                "insertions; }': raw templates can only be assigned to abstract subtypes of " +
+                "'ballerina/lang.object:1.0.0:RawTemplate'", 37, 15);
+
         validateError(errors, indx++, "invalid raw template: expected 2 insertion(s), but found " +
                 "3 insertion(s)", 50, 19);
         validateError(errors, indx++, "invalid raw template: expected 2 insertion(s), but found " +
@@ -65,14 +69,17 @@ public class RawTemplateLiteralTest {
                 "[anydata...] insertions; string name; }' should be an abstract object", 94, 15);
         validateError(errors, indx++, "invalid raw template assignment: 'object { public string[] strings; public " +
                 "int[] insertions; int name; }' should only have the 'strings' and 'insertions' fields", 102, 13);
-        validateError(errors, indx++, "incompatible types: expected 'ballerina/lang.object:1.0.0:" +
-                "RawTemplate', found 'object { }'", 105, 13);
-        validateError(errors, indx++, "incompatible types: expected 'ballerina/lang.object:1.0.0:" +
-                "RawTemplate', found 'object { public string[] strings; }'", 109, 13);
-        validateError(errors, indx++, "incompatible types: expected 'ballerina/lang.object:1.0.0:" +
-                "RawTemplate', found 'object { public int[] insertions; }'", 113, 13);
-        validateError(errors, indx++, "incompatible types: expected 'ballerina/lang.object:1.0.0:" +
-                "RawTemplate', found 'object { public int[] insertions; int foo; }'", 118, 13);
+
+        validateError(errors, indx++, "invalid literal for type 'object { }': raw templates can only be assigned " +
+                "to abstract subtypes of 'ballerina/lang.object:1.0.0:RawTemplate'", 105, 13);
+        validateError(errors, indx++, "invalid literal for type 'object { public string[] strings; }': raw templates " +
+                "can only be assigned to abstract subtypes of 'ballerina/lang.object:1.0.0:RawTemplate'", 109, 13);
+        validateError(errors, indx++, "invalid literal for type 'object { public int[] insertions; }': raw templates " +
+                "can only be assigned to abstract subtypes of 'ballerina/lang.object:1.0.0:RawTemplate'", 113, 13);
+        validateError(errors, indx++, "invalid literal for type 'object { public int[] insertions; int foo; }': raw " +
+                "templates can only be assigned to abstract subtypes of " +
+                "'ballerina/lang.object:1.0.0:RawTemplate'", 118, 13);
+
         validateError(errors, indx++, "invalid raw template assignment: 'object { public string[] strings; public " +
                 "int[] insertions; function shouldNotBeHere () returns (); }' should be a type " +
                 "without methods", 125, 13);

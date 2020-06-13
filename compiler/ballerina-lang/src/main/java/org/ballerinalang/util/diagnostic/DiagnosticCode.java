@@ -541,6 +541,7 @@ public enum DiagnosticCode {
     INVALID_PARAM_TYPE_FOR_RETURN_TYPE("invalid.param.type.for.return.type"),
     INVALID_TYPEDESC_PARAM("invalid.typedesc.param"),
 
+    INVALID_RAW_TEMPLATE_TYPE("invalid.raw.template.type"),
     INVALID_NUM_STRINGS("invalid.num.of.strings"),
     INVALID_NUM_INSERTIONS("invalid.num.of.insertions"),
     INVALID_RAW_TEMPLATE_ASSIGNMENT("invalid.raw.template.assignment"),

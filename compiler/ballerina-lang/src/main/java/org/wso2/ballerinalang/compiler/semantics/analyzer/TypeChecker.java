@@ -3656,11 +3656,12 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType determineRawTemplateLiteralType(BLangRawTemplateLiteral rawTemplateLiteral, BType expType) {
         // Contextually expected type is NoType when `var` is used.
         // Therefore consider the literal as of type RawTemplate
-        if (expType == symTable.noType) {
+        if (expType == symTable.noType || expType == symTable.anyType) {
             return symTable.rawTemplateType;
         }
 
-        BType type = types.checkType(rawTemplateLiteral, expType, symTable.rawTemplateType);
+        BType type = types.checkType(rawTemplateLiteral, expType, symTable.rawTemplateType,
+                                     DiagnosticCode.INVALID_RAW_TEMPLATE_TYPE);
 
         if (type == symTable.semanticError) {
             return type;
