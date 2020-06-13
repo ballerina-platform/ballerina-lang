@@ -135,3 +135,13 @@ function testTypeChecking() {
     Temp1 rt2 = `${8}`;
     Temp1 rt3 = `Foo${8}Bar${"asdf"}`;
 }
+
+public type Temp2 abstract object {
+    public string[2] strings;
+    public int[1] insertions;
+};
+
+function testFixedLengthArrays() {
+    Temp2 t = `Count:${1}${2}`;
+    t = `Count`;
+}

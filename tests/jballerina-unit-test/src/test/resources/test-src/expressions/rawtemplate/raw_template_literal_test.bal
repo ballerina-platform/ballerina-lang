@@ -203,7 +203,7 @@ function testUseWithVar() {
     var rt = `Hello ${name}!`;
     typedesc<any> td = typeof rt;
 
-    assert("typedesc $anonType$20 {\n\tstrings : string[],\n\tinsertions : (any|error)[]\n}", td.toString());
+    assert("typedesc $anonType$21 {\n\tstrings : string[],\n\tinsertions : (any|error)[]\n}", td.toString());
 }
 
 function testUseWithAny() {
@@ -211,7 +211,36 @@ function testUseWithAny() {
     any rt = `Hello ${name}!`;
     typedesc<any> td = typeof rt;
 
-    assert("typedesc $anonType$21 {\n\tstrings : string[],\n\tinsertions : (any|error)[]\n}", td.toString());
+    assert("typedesc $anonType$22 {\n\tstrings : string[],\n\tinsertions : (any|error)[]\n}", td.toString());
+}
+
+public type Template3 abstract object {
+    public string[2] strings;
+    public int[1] insertions;
+};
+
+function testFixedLengthArrayFields() {
+    Template3 t = `Count:${1}`;
+
+    assert(<string[]>["Count:", ""], t.strings);
+    assert(<int[]>[1], t.insertions);
+}
+
+function testIndirectAssignmentToConcreteType() {
+    Template1 rt = `Count: ${10}, ${20}`;
+
+    object {
+        public string[] strings = [];
+        public anydata[] insertions = [];
+    } rt2 = rt;
+
+    rt2.strings.push(", ");
+    rt2.insertions.push(30);
+
+    assert(<string[]>["Count: ", ", ", "", ", "], rt.strings);
+    assert(<int[]>[10, 20, 30], rt.insertions);
+
+    rt2.insertions.push(12.34);
 }
 
 // Util functions

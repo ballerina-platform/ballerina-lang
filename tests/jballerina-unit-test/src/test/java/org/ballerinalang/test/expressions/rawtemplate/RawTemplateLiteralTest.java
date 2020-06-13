@@ -20,6 +20,7 @@ package org.ballerinalang.test.expressions.rawtemplate;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -91,6 +92,14 @@ public class RawTemplateLiteralTest {
         validateError(errors, indx++, "invalid raw template: expected 3 string(s), but found 2 string(s)", 135, 17);
         validateError(errors, indx++, "incompatible types: expected 'float', found 'string'", 136, 30);
 
+        // Fixed length arrays
+        validateError(errors, indx++, "invalid raw template: expected 1 insertion(s), but found 2 insertion(s)", 145,
+                      15);
+        validateError(errors, indx++, "invalid raw template: expected 2 string(s), but found 3 string(s)", 145, 15);
+        validateError(errors, indx++, "invalid raw template: expected 1 insertion(s), but found 0 insertion(s)",
+                      146, 9);
+        validateError(errors, indx++, "invalid raw template: expected 2 string(s), but found 1 string(s)", 146, 9);
+
         assertEquals(errors.getErrorCount(), indx);
     }
 
@@ -100,6 +109,13 @@ public class RawTemplateLiteralTest {
                 "test-src/expressions/rawtemplate/raw_template_negative_code_analyzer.bal");
         validateError(errors, 0, "action invocation as an expression not allowed here", 22, 40);
         assertEquals(errors.getErrorCount(), 1);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp =
+                  ".*InherentTypeViolation message=incompatible types: expected 'int', found 'float'.*")
+    public void testIndirectAssignmentToConcreteType() {
+        BRunUtil.invoke(result, "testIndirectAssignmentToConcreteType");
     }
 
     @Test(dataProvider = "FunctionNames")
@@ -121,7 +137,8 @@ public class RawTemplateLiteralTest {
                 {"testUsageWithQueryExpressions"},
                 {"testUsageWithQueryExpressions2"},
                 {"testUseWithVar"},
-                {"testUseWithAny"}
+                {"testUseWithAny"},
+                {"testFixedLengthArrayFields"}
         };
     }
 }

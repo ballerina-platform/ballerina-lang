@@ -3696,14 +3696,19 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (listType.tag == TypeTags.ARRAY) {
             BArrayType arrayType = (BArrayType) listType;
+
+            if (arrayType.state == BArrayState.CLOSED_SEALED && (exprs.size() != arrayType.size)) {
+                dlog.error(pos, code, arrayType.size, exprs.size());
+                return false;
+            }
+
             for (BLangExpression expr : exprs) {
                 errored = (checkExpr(expr, env, arrayType.eType) == symTable.semanticError) || errored;
             }
-            // TODO: Consider fixed-length arrays
         } else if (listType.tag == TypeTags.TUPLE) {
             BTupleType tupleType = (BTupleType) listType;
-            int size = exprs.size();
-            int requiredItems = tupleType.tupleTypes.size();
+            final int size = exprs.size();
+            final int requiredItems = tupleType.tupleTypes.size();
 
             if (size < requiredItems || (size > requiredItems && tupleType.restType == null)) {
                 dlog.error(pos, code, requiredItems, size);
