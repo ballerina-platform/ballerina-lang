@@ -192,24 +192,12 @@ type Engineer object {
 
 };
 
-type Manager object {
-    int age;
-    string firstName;
-    string lastName;
-
-    function init(int age, string firstName, string lastName) {
-        self.age = age;
-        self.firstName = firstName;
-        self.lastName = lastName;
-    }
-};
-
 function testUnionTypeWithFunctionPointerAccess() {
     Engineer engineer = new Engineer(20, "John", "Doe");
     Employee employee = new Engineer(20, "Jane", "Doe");
 
-    Engineer|Manager person1 = engineer;
-    Employee|Manager person2 = employee;
+    Engineer|Employee person1 = engineer;
+    Engineer|Employee person2 = employee;
 
     person1.age = 25;
     person2.age = 25;
