@@ -22,7 +22,7 @@ type Foo1 client object {
     }
 
     remote function getName(string s = "") returns string {
-        return s == "" ? self.name : self.name + "->" + s;
+        return s == "" ? (self.name) : self.name + "->" + s;
     }
 };
 

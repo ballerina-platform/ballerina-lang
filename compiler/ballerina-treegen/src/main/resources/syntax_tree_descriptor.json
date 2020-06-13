@@ -3496,7 +3496,8 @@
                 },
                 {
                     "name": "content",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "endBacktick",
