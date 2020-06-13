@@ -27,7 +27,6 @@ import io.ballerinalang.compiler.internal.parser.tree.STArrayTypeDescriptorNode;
 import io.ballerinalang.compiler.internal.parser.tree.STAsyncSendActionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STBinaryExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STBracedExpressionNode;
-import io.ballerinalang.compiler.internal.parser.tree.STCheckExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STConditionalExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STDefaultableParameterNode;
 import io.ballerinalang.compiler.internal.parser.tree.STFieldAccessExpressionNode;
@@ -7149,10 +7148,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseActionStatement(expression);
             default:
                 // Everything else can not be written as a statement.
-                // TODO: Add proper error reporting
-                this.errorHandler.reportInvalidNode(null,
-                        "left hand side of an assignment must be a variable reference");
-
                 STNode semicolon = parseSemicolon();
                 endContext();
                 STNode exprStmt = STNodeFactory.createExpressionStatementNode(
@@ -7177,34 +7172,11 @@ public class BallerinaParser extends AbstractParser {
      * @return Call statement node
      */
     private STNode parseCallStatement(STNode expression) {
-        validateExprInCallStmt(expression);
+        // TODO Validate the expression.
+        //  This is not a must because this expression is validated in the semantic analyzer.
         STNode semicolon = parseSemicolon();
         endContext();
         return STNodeFactory.createExpressionStatementNode(SyntaxKind.CALL_STATEMENT, expression, semicolon);
-    }
-
-    private void validateExprInCallStmt(STNode expression) {
-        switch (expression.kind) {
-            case FUNCTION_CALL:
-            case METHOD_CALL:
-                break;
-            case CHECK_EXPRESSION:
-                validateExprInCallStmt(((STCheckExpressionNode) expression).expression);
-                break;
-            case REMOTE_METHOD_CALL_ACTION:
-                break;
-            case BRACED_EXPRESSION:
-                validateExprInCallStmt(((STBracedExpressionNode) expression).expression);
-                break;
-            default:
-                if (isMissingNode(expression)) {
-                    break;
-                }
-
-                this.errorHandler.reportInvalidNode(null, "expression followed by the checking keyword must be a " +
-                        "func-call, a method-call or a check-expr");
-                break;
-        }
     }
 
     /**
@@ -10885,6 +10857,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseQueryAction(STNode queryPipeline, STNode selectClause) {
         if (selectClause != null) {
+            
             this.errorHandler.reportInvalidNode(null, "cannot have a select clause in query action");
         }
 
