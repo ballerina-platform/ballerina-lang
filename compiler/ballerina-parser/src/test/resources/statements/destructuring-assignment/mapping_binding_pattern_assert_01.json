@@ -224,18 +224,17 @@
                     },
                     {
                       "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "REST_BINDING_PATTERN",
                       "children": [
                         {
-                          "kind": "REST_BINDING_PATTERN",
-                          "children": [
-                            {
-                              "kind": "ELLIPSIS_TOKEN"
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "b"
-                            }
-                          ]
+                          "kind": "ELLIPSIS_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "b"
                         }
                       ]
                     },
@@ -376,18 +375,18 @@
                                           "value": " "
                                         }
                                       ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "REST_BINDING_PATTERN",
+                                  "children": [
+                                    {
+                                      "kind": "ELLIPSIS_TOKEN"
                                     },
                                     {
-                                      "kind": "REST_BINDING_PATTERN",
-                                      "children": [
-                                        {
-                                          "kind": "ELLIPSIS_TOKEN"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "s"
-                                        }
-                                      ]
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "s"
                                     }
                                   ]
                                 },
@@ -406,18 +405,18 @@
                               "value": " "
                             }
                           ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "REST_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "ELLIPSIS_TOKEN"
                         },
                         {
-                          "kind": "REST_BINDING_PATTERN",
-                          "children": [
-                            {
-                              "kind": "ELLIPSIS_TOKEN"
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "c"
-                            }
-                          ]
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "c"
                         }
                       ]
                     },

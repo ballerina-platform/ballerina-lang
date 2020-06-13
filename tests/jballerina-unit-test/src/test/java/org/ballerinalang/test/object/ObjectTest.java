@@ -727,7 +727,7 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) result[1]).intValue(), 1);
     }
 
-    @Test(description = "Negative test for object union type inference")
+    @Test(description = "Negative test for object union type inference", groups = { "brokenOnNewParser" })
     public void testNegativeUnionTypeInit() {
         CompileResult resultNegative = BCompileUtil.compile("test-src/object/object_type_union_negative.bal");
         int i = 0;
