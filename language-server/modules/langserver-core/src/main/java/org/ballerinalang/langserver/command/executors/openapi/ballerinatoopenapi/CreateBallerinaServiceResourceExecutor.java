@@ -440,8 +440,9 @@ public class CreateBallerinaServiceResourceExecutor implements LSCommandExecutor
             //TODO handle constrained types
         } else if (node instanceof BLangErrorType) {
             //TODO Error type is handled as string variables. Need to discuss
-            final BLangErrorType fieldTypeNode = (BLangErrorType) node;
-            final BType bErrorType = fieldTypeNode.type;
+            // commenting out to avoid spotbug DLS_DEAD_LOCAL_STORE
+//            final BLangErrorType fieldTypeNode = (BLangErrorType) node;
+//            final BType bErrorType = fieldTypeNode.type;
         } else if (node instanceof BLangFiniteTypeNode) {
             //TODO handle finite types
         } else if (node instanceof BLangFunctionTypeNode) {
