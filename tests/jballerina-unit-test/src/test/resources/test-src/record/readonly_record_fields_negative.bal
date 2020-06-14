@@ -107,3 +107,54 @@ function testInvalidImmutableTypeAssignmentForNotAllReadOnlyFields() {
     Foo & readonly f2 = baz;
     Foo & readonly f3 = qux;
 }
+
+type Person record {|
+    readonly Particulars particulars;
+    int id;
+|};
+
+type Undergraduate record {|
+    readonly & Particulars particulars;
+    int id;
+|};
+
+type Graduate record {|
+    Particulars particulars;
+    int id;
+|};
+
+type Particulars record {|
+    string name;
+|};
+
+type OptionalId record {|
+    readonly map<int>|boolean id?;
+    map<int>|boolean...;
+|};
+
+function testSubTypingWithReadOnlyFieldsNegative() {
+    Undergraduate u = {
+        particulars: {
+            name: "Jo"
+        },
+        id: 1234
+    };
+    Person p1 = u;
+
+    Graduate g = {
+        particulars: {
+          name: "Amy"
+        },
+        id: 1121
+    };
+    Person p2 = g;
+
+    map<map<int>|boolean> mp = {
+        a: true,
+        b: {
+            x: 1,
+            y: 2
+        }
+    };
+    OptionalId opId = mp;
+}

@@ -33,7 +33,7 @@ import static org.testng.Assert.assertEquals;
  */
 public class ReadonlyObjectFieldTest {
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testReadonlyObjectFields() {
         CompileResult result = BCompileUtil.compile("test-src/object/readonly_object_fields.bal");
         BRunUtil.invoke(result, "testReadonlyObjectFields");
@@ -52,6 +52,9 @@ public class ReadonlyObjectFieldTest {
         validateError(result, index++, "incompatible types: expected '(Foo & readonly)', found 'Bar'", 115, 25);
         validateError(result, index++, "incompatible types: expected '(Foo & readonly)', found 'Baz'", 116, 25);
         validateError(result, index++, "incompatible types: expected '(Foo & readonly)', found 'Qux'", 117, 25);
+        validateError(result, index++, "incompatible types: expected 'Person', found 'Undergraduate'", 160, 17);
+        validateError(result, index++, "incompatible types: expected 'Person', found 'Graduate'", 163, 17);
+        validateError(result, index++, "incompatible types: expected 'Person', found 'AbstractPerson'", 166, 17);
         assertEquals(result.getErrorCount(), index);
     }
 }
