@@ -19,7 +19,7 @@ type MapIterator object {
 
     private map<Type> m;
 
-    public function __init(map<Type> m) {
+    public function init(map<Type> m) {
         self.m = m;
     }
 

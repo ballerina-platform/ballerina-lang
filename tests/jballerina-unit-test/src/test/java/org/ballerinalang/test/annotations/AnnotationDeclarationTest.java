@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
  */
 public class AnnotationDeclarationTest {
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testSourceOnlyAnnotDeclWithoutSource() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/annotations/source_only_annot_without_source_negative.bal");

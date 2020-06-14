@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import io.ballerinalang.compiler.text.TextDocuments;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.eclipse.lsp4j.CodeLens;
@@ -36,10 +38,12 @@ public class WorkspaceDocument {
     private String prunedContent;
     private boolean usePrunedSource;
     private LSDocumentIdentifier lsDocument;
+    private SyntaxTree tree;
 
     public WorkspaceDocument(Path path, String content, boolean isTempFile) {
         this.path = path;
         this.content = content;
+        setTree(SyntaxTree.from(TextDocuments.from(this.content)));
         this.codeLenses = new ArrayList<>();
         this.usePrunedSource = false;
         lsDocument = isTempFile ? null : new LSDocumentIdentifierImpl(path.toUri().toString());
@@ -79,11 +83,24 @@ public class WorkspaceDocument {
 
     public void setContent(String content) {
         this.content = content;
+        // TODO: Fix this, each time creates a new tree
+        setTree(SyntaxTree.from(TextDocuments.from(this.content)));
     }
 
     public void setPrunedContent(String prunedContent) {
         this.prunedContent = prunedContent;
         this.usePrunedSource = true;
+    }
+
+    public SyntaxTree getTree() {
+        if (this.usePrunedSource) {
+            return SyntaxTree.from(TextDocuments.from(this.prunedContent));
+        }
+        return this.tree;
+    }
+
+    public void setTree(SyntaxTree tree) {
+        this.tree = tree;
     }
 
     public void resetPrunedContent() {

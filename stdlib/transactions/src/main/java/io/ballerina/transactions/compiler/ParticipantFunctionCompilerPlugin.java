@@ -32,6 +32,7 @@ import java.util.List;
  * @since 0.990.0
  */
 @SupportedAnnotationPackages(value = {"ballerina/transactions"})
+@Deprecated
 public class ParticipantFunctionCompilerPlugin extends AbstractCompilerPlugin {
     private DiagnosticLog dlog = null;
 

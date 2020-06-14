@@ -3,6 +3,7 @@ lexer grammar BallerinaLexer;
 @members {
     boolean inStringTemplate = false;
     boolean inQueryExpression = false;
+    boolean inTransaction = false;
     boolean inTableType = false;
 }
 
@@ -61,7 +62,7 @@ TYPE_NEVER      : 'never' ;
 
 VAR         : 'var' ;
 NEW         : 'new' ;
-OBJECT_INIT : '__init' ;
+OBJECT_INIT : 'init' ;
 IF          : 'if' ;
 MATCH       : 'match' ;
 ELSE        : 'else' ;
@@ -81,13 +82,12 @@ THROW       : 'throw' ;
 PANIC       : 'panic' ;
 TRAP        : 'trap' ;
 RETURN      : 'return' ;
-TRANSACTION : 'transaction' ;
-ABORT       : 'abort' ;
+TRANSACTION : 'transaction' { inTransaction = true; } ;
 RETRY       : 'retry' ;
-ONRETRY     : 'onretry' ;
-RETRIES     : 'retries' ;
-COMMITTED   : 'committed' ;
 ABORTED     : 'aborted' ;
+COMMIT      : {inTransaction}? 'commit' ;
+ROLLBACK    : 'rollback' ;
+TRANSACTIONAL   : 'transactional' ;
 WITH        : 'with' ;
 IN          : 'in' ;
 LOCK        : 'lock' ;

@@ -165,7 +165,7 @@ service hello on echoEP {
     }
 
     resource function testFunctionCall(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(<@untained> self.nonRemoteFunctionCall());
+        checkpanic caller->respond(<@untainted> self.nonRemoteFunctionCall());
     }
 
     function nonRemoteFunctionCall() returns string {

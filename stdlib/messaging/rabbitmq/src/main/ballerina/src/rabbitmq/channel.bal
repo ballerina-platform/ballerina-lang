@@ -15,20 +15,22 @@
 // under the License.
 
 import ballerina/java;
+import ballerina/system;
 
 # The Ballerina interface to provide AMQP Channel related functionality.
 public type Channel client object {
 
-    handle amqpChannel;
+    handle amqpChannel = JAVA_NULL;
+    string connectorId = system:uuid();
 
     # Initializes a `rabbitmq:Channel` object with the given `rabbitmq:Connection` object or connection configuration.
     # Creates a `rabbitmq:Connection` object if only the connection configuration is given.
     #
     # + connectionOrConnectionConfig - A `rabbitmq:Connection` object or a connection configuration
-    public function __init(ConnectionConfiguration|Connection connectionOrConnectionConfig) {
+    public function init(ConnectionConfiguration|Connection connectionOrConnectionConfig) {
         Connection connection = (connectionOrConnectionConfig is Connection) ?
                                 connectionOrConnectionConfig : new Connection(connectionOrConnectionConfig);
-        self.amqpChannel = createChannel(connection.amqpConnection);
+        self.amqpChannel = createChannel(connection.amqpConnection, self);
     }
 
 # Declares a non-exclusive, auto-delete, or non-durable queue with the given configurations.
@@ -85,7 +87,7 @@ public type Channel client object {
 # + return - A `rabbitmq:Error` if an I/O error is encountered or else `()`
     public remote function basicPublish(@untainted MessageContent messageContent, string routingKey,
                         string exchangeName = "", public BasicProperties? properties = ()) returns Error? {
-        return nativeBasicPublish(messageContent, routingKey, exchangeName, properties, self.amqpChannel);
+        return nativeBasicPublish(messageContent, routingKey, exchangeName, properties, self.amqpChannel, self);
     }
 
 # Deletes the queue with the given name although it is in use or has messages in it.
@@ -181,7 +183,7 @@ public type Channel client object {
     }
 };
 
-function createChannel(handle connection) returns handle =
+function createChannel(handle connection, Channel channelObj) returns handle =
 @java:Method {
     class: "org.ballerinalang.messaging.rabbitmq.util.ChannelUtils"
 } external;
@@ -205,7 +207,7 @@ function nativeQueueBind(string queueName, string exchangeName, string bindingKe
 } external;
 
 function nativeBasicPublish(MessageContent messageContent, string routingKey, string exchangeName,
-BasicProperties? properties, handle amqpChannel) returns Error? =
+BasicProperties? properties, handle amqpChannel, Channel channelObj) returns Error? =
 @java:Method {
     name: "basicPublish",
     class: "org.ballerinalang.messaging.rabbitmq.util.ChannelUtils"

@@ -15,11 +15,15 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import com.google.gson.annotations.Expose;
+
 /**
  * Represent documentation for a Constant.
  */
 public class Constant extends Construct {
+    @Expose
     public Type type;
+    @Expose
     public String value;
 
     public Constant(String name, String description, boolean isDeprecated, Type type, String value) {

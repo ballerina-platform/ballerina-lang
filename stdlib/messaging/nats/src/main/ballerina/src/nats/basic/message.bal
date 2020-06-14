@@ -20,7 +20,7 @@ public type Message object {
     string? replyTo;
     string subject;
 
-    function __init(string subject, byte[] content, string? replyTo = ()) {
+    function init(string subject, byte[] content, string? replyTo = ()) {
         self.content = content;
         self.subject = subject;
         self.replyTo = replyTo;

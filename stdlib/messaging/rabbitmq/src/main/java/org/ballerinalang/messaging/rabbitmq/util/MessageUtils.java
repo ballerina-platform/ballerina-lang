@@ -23,7 +23,10 @@ import com.rabbitmq.client.Channel;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.messaging.rabbitmq.observability.RabbitMQMetricsUtil;
@@ -40,17 +43,21 @@ import java.nio.charset.StandardCharsets;
  * @since 1.1.0
  */
 public class MessageUtils {
-    public static Object basicAck(Channel channel, int deliveryTag, boolean ackMode,
-                                  boolean ackStatus, boolean multiple) {
+    public static Object basicAck(Channel channel, int deliveryTag, boolean multiple,
+                                  boolean ackMode, boolean ackStatus, ObjectValue messageObj) {
         if (ackStatus) {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.MULTIPLE_ACK_ERROR);
         } else if (ackMode) {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.ACK_MODE_ERROR);
         } else {
             try {
+                Strand strand = Scheduler.getStrand();
                 channel.basicAck(deliveryTag, multiple);
                 RabbitMQMetricsUtil.reportAcknowledgement(channel, RabbitMQObservabilityConstants.ACK);
                 RabbitMQTracingUtil.traceResourceInvocation(channel);
+                if (strand.isInTransaction()) {
+                    RabbitMQUtils.handleTransaction(messageObj, strand);
+                }
             } catch (IOException exception) {
                 RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_ACK);
                 return RabbitMQUtils.returnErrorValue(RabbitMQConstants.ACK_ERROR + exception.getMessage());
@@ -63,7 +70,7 @@ public class MessageUtils {
     }
 
     public static Object basicNack(Channel channel, int deliveryTag, boolean ackMode,
-                                   boolean ackStatus, boolean multiple, boolean requeue) {
+                                   boolean ackStatus, boolean multiple, boolean requeue, ObjectValue messageObj) {
         if (ackStatus) {
             RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_NACK);
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.MULTIPLE_ACK_ERROR);
@@ -72,9 +79,13 @@ public class MessageUtils {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.ACK_MODE_ERROR);
         } else {
             try {
+                Strand strand = Scheduler.getStrand();
                 channel.basicNack(deliveryTag, multiple, requeue);
                 RabbitMQMetricsUtil.reportAcknowledgement(channel, RabbitMQObservabilityConstants.NACK);
                 RabbitMQTracingUtil.traceResourceInvocation(channel);
+                if (strand.isInTransaction()) {
+                    RabbitMQUtils.handleTransaction(messageObj, strand);
+                }
             } catch (IOException exception) {
                 RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_NACK);
                 return RabbitMQUtils.returnErrorValue(RabbitMQConstants.NACK_ERROR

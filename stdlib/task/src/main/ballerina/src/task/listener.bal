@@ -29,7 +29,7 @@ public type Listener object {
     #
     # + configuration - The `task:TimerConfiguration` or `task:AppointmentConfiguration` record to define the
     #   `task:Listener` behavior
-    public function __init(TimerConfiguration|AppointmentConfiguration configuration) {
+    public function init(TimerConfiguration|AppointmentConfiguration configuration) {
         if (configuration is TimerConfiguration) {
             if (configuration["initialDelayInMillis"] == ()) {
                 configuration.initialDelayInMillis = configuration.intervalInMillis;

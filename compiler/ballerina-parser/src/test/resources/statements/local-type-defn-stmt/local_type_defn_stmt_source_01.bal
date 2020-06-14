@@ -8,7 +8,7 @@ public function foo() {
         public int status = 0;
         private float score;
         
-        public function __init() {
+        public function init() {
         }
 
         *B;
@@ -27,7 +27,7 @@ public function foo() {
             public int status = 0;
             private float score;
 
-            public function __init() {
+            public function init() {
             }
 
             *B;

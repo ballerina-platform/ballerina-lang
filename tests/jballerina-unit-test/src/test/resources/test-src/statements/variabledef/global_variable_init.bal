@@ -20,7 +20,7 @@ int a;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
-function __init() {
+function init() {
     i = 10;
     s = "Test string";
     int x = 2;

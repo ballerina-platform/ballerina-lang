@@ -31,7 +31,7 @@ public type WritableTextRecordChannel object {
     #         "DEFAULT" (the format specified by the CSVChannel), 
     #         "CSV" (Field separator would be "," and record separator would be a new line) or else
     #         "TDF" (Field separator will be a tab and record separator will be a new line). 
-    public function __init(WritableCharacterChannel characterChannel, public string fs = "", public string rs = "",
+    public function init(WritableCharacterChannel characterChannel, public string fs = "", public string rs = "",
                            public string fmt = "default") {
         self.characterChannel = characterChannel;
         self.fs = fs;

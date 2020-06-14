@@ -27,7 +27,7 @@ public type StreamingProducer client object {
     # + clientId - A unique identifier of the client
     # + clusterId - The unique identifier of the cluster configured in the NATS server
     # + streamingConfig - The configuration related to the NATS streaming connectivity
-    public function __init(Connection connection, public string? clientId = (), public string clusterId = "test-cluster",
+    public function init(Connection connection, public string? clientId = (), public string clusterId = "test-cluster",
     public StreamingConfig? streamingConfig = ()) {
         self.conn = connection;
         streamingProducerInit(self, connection, clusterId, clientId, streamingConfig);

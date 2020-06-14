@@ -21,7 +21,7 @@ public type ManagingDirector object {
     int shares = 2000;
     float salary;
 
-    public function __init(int age, string name) {
+    public function init(int age, string name) {
         self.age = age;
         self.name = name;
         self.salary = 1000.0;

@@ -23,7 +23,13 @@
               "kind": "PIPE_TOKEN"
             },
             {
-              "kind": "STRING_KEYWORD"
+              "kind": "STRING_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
         },

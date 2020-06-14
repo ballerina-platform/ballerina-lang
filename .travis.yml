@@ -122,10 +122,9 @@ cache:
 
 branches:
   only:
-    - master
     - packerina-dev
     - next-release
     - release-stage
-    - new-table-impl
+    - new-transaction-impl
     - stage
     - /^ballerina-\d*[.]\d*[.]x$/

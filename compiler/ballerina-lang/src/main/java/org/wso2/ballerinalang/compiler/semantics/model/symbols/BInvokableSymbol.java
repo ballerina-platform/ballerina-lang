@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,7 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     public BType retType;
     public Map<Integer, TaintRecord> taintTable;
     public List<BLangAnnotationAttachment> annAttachments;
+    public Map<String, BType> paramDefaultValTypes;
 
     // This field is only applicable for functions at the moment.
     public BVarSymbol receiverSymbol;
@@ -65,6 +67,7 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
         this.params = new ArrayList<>();
         this.annAttachments = new ArrayList<>();
         this.dependentGlobalVars = new HashSet<>();
+        this.paramDefaultValTypes = new HashMap<>();
     }
 
     @Override

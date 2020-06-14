@@ -31,11 +31,13 @@ public class MockTest extends BaseTestCase {
 
     private BMainInstance balClient;
     private String projectPath;
+    private String projectPath2;
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
         projectPath = mockProjectPath.toString();
+        projectPath2 = mockProjectPath2.toString();
     }
 
     @Test
@@ -47,4 +49,15 @@ public class MockTest extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
+    @Test
+    public void testObjectMocking() throws BallerinaTestException {
+        String msg1 = "7 passing";
+        String msg2 = "13 failing";
+        LogLeecher clientLeecher1 = new LogLeecher(msg1);
+        LogLeecher clientLeecher2 = new LogLeecher(msg2);
+        balClient.runMain("test", new String[]{"--all"}, null,
+                new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath2);
+        clientLeecher1.waitForText(20000);
+        clientLeecher2.waitForText(20000);
+    }
 }

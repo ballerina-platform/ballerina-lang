@@ -40,7 +40,8 @@ public class BAnydataType extends BType {
 
         if (!readonly) {
             BAnydataType immutableAnydataType = new BAnydataType(TypeConstants.READONLY_ANYDATA_TNAME, pkg, true);
-            this.immutableType = new BIntersectionType(new BType[]{ this, BTypes.typeReadonly }, immutableAnydataType,
+            this.immutableType = new BIntersectionType(pkg, new BType[]{ this, BTypes.typeReadonly },
+                                                       immutableAnydataType,
                                                        TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
                                                                         TypeFlags.PURETYPE), true);
         }

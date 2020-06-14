@@ -92,6 +92,7 @@ public enum SyntaxKind {
     ENUM_KEYWORD(238, "enum"),
     BASE16_KEYWORD(239, "base16"),
     BASE64_KEYWORD(240, "base64"),
+    MATCH_KEYWORD(241, "match"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -176,6 +177,8 @@ public enum SyntaxKind {
     SLASH_LT_TOKEN(586, "/<"),
     DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN(587, "/**/<"),
     SLASH_ASTERISK_TOKEN(588, "/*"),
+    DOUBLE_GT_TOKEN(589, ">>"),
+    TRIPPLE_GT_TOKEN(590, ">>>"),
 
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL(1001),
@@ -192,6 +195,9 @@ public enum SyntaxKind {
     COMMENT_MINUTIAE(1502),
     DOCUMENTATION_LINE(1503),
     INVALID_NODE_MINUTIAE(1504),
+
+    // Invalid nodes
+    INVALID_TOKEN(1600),
 
     // module-level declarations
     IMPORT_DECLARATION(2000),
@@ -228,6 +234,8 @@ public enum SyntaxKind {
     ROLLBACK_STATEMENT(1219),
     RETRY_STATEMENT(1220),
     XML_NAMESPACE_DECLARATION(1221),
+    MATCH_STATEMENT(1222),
+    INVALID_EXPRESSION_STATEMENT(1223),
 
     // Expressions
     BINARY_EXPRESSION(1300),
@@ -375,8 +383,6 @@ public enum SyntaxKind {
     LIST_BINDING_PATTERN(3054),
     RECEIVE_FIELDS(3055),
     REST_TYPE(3056),
-    DOUBLE_GT_TOKEN(3056, ">>"),
-    TRIPPLE_GT_TOKEN(3057, ">>>"),
     WAIT_FIELDS_LIST(3058),
     WAIT_FIELD(3059),
     ENUM_MEMBER(3060),
@@ -387,6 +393,9 @@ public enum SyntaxKind {
     FIELD_BINDING_PATTERN(3065),
     MAPPING_BP_OR_MAPPING_CONSTRUCTOR(3066),
     WILDCARD_BINDING_PATTERN(3067),
+    MATCH_CLAUSE(3068),
+    MATCH_GUARD(3069),
+    OBJECT_METHOD_DEFINITION(3070),
 
     // XML
     XML_ELEMENT(4000),

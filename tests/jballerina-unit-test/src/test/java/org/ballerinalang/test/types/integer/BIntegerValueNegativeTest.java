@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 /**
  * Test class for negative integer tests.
  */
+@Test(groups = { "brokenOnNewParser" })
 public class BIntegerValueNegativeTest {
 
     @Test

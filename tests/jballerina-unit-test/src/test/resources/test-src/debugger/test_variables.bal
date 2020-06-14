@@ -25,7 +25,7 @@ type Person object {
     public Person? parent = ();
     private string email = "default@abc.com";
 
-    function __init() {
+    function init() {
 
     }
 };
