@@ -45,9 +45,9 @@ public type Client abstract client object {
     #                of values passed in.
     # + return - Summary of the executed SQL queries as `ExecutionResult[]` which includes details such as
     #            `affectedRowCount` and `lastInsertId`. If one of the commands in the batch fails, this function
-    #            will return `BatchExecuteError`, however the JDBC driver may or maynot continue to process the
-    #            remaining commands in the batch after a failure. `BatchExecuteError.detail()?.executionReults` will
-    #            return the summary of the executed commands.
+    #            will return `BatchExecuteError`, however the JDBC driver may or may not continue to process the
+    #            remaining commands in the batch after a failure. The summary of the executed queries in case of error
+    #            can be accessed as `(<sql:BatchExecuteError> result).detail()?.executionResults`.
     public remote function batchExecute(ParameterizedString[] sqlQueries) returns ExecutionResult[]|Error;
 
     # Close the SQL client.
