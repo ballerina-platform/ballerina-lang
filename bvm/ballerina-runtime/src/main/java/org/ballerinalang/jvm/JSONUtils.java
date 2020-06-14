@@ -39,6 +39,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.jvm.values.api.BString;
 
 import java.math.BigDecimal;
@@ -532,21 +533,16 @@ public class JSONUtils {
         }
     }
 
-    //TODO Table remove - Fix
-//    /**
-//     * Convert {@link TableValue} to JSON.
-//     *
-//     * @param table {@link TableValue} to be converted to {@link StreamingJsonValue}
-//     * @return JSON representation of the provided table
-//     */
-//    public static Object toJSON(TableValue table) {
-//        TableJSONDataSource jsonDataSource = new TableJSONDataSource(table);
-//        if (table.isInMemoryTable()) {
-//            return jsonDataSource.build();
-//        }
-//
-//        return new StreamingJsonValue(jsonDataSource);
-//    }
+    /**
+     * Convert {@link TableValueImpl} to JSON.
+     *
+     * @param table {@link TableValueImpl} to be converted
+     * @return JSON representation of the provided table
+     */
+    public static Object toJSON(TableValueImpl table) {
+        TableJSONDataSource jsonDataSource = new TableJSONDataSource(table);
+        return jsonDataSource.build();
+    }
 
     public static ErrorValue createJsonConversionError(Throwable throwable, String prefix) {
         String detail = throwable.getMessage() != null ?
