@@ -837,7 +837,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             serviceName = this.anonymousModelHelper.getNextAnonymousServiceVarKey(diagnosticSource.pkgID);
             identifierPos = pos;
         } else {
-            if (serviceNameNode.isMissing()) {
+            if (serviceNameNode == null || serviceNameNode.isMissing()) {
                 serviceName = missingNodesHelper.getNextMissingNodeName(diagnosticSource.pkgID);
             } else {
                 serviceName = serviceNameNode.text();

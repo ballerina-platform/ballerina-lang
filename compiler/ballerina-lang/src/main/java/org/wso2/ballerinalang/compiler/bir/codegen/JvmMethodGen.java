@@ -1211,7 +1211,8 @@ public class JvmMethodGen {
      * @return cleaned name
      */
     static String cleanupTypeName(String name) {
-
+        name = name.replace("/", "_");
+        name = name.replace(".", "_");
         return name.replace("$", "_");
     }
 

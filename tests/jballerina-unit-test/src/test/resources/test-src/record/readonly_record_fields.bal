@@ -23,6 +23,7 @@ function testReadonlyRecordFields() {
     testInvalidUpdateOfPossiblyReadonlyFieldInUnion();
     testRecordWithStructuredReadonlyFields();
     testReadOnlyFieldWithDefaultValue();
+    testTypeReadOnlyFlagForAllReadOnlyFields();
 }
 
 type Student record {
@@ -205,6 +206,34 @@ function testReadOnlyFieldWithDefaultValue() {
     error err = <error> res;
     assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.reason());
     assertEquality("cannot update 'readonly' field 'id' in record of type 'Identifier'", err.detail()?.message);
+}
+
+type Foo record {|
+    string name;
+    int id;
+    float...;
+|};
+
+type Bar record {|
+    readonly string name;
+    readonly int id;
+|};
+
+function testTypeReadOnlyFlagForAllReadOnlyFields() {
+    Bar st = {
+        name: "Maryam",
+        id: 1234
+    };
+
+    Foo & readonly pr = st;
+    assertTrue(pr is Bar);
+    assertTrue(pr is Bar & readonly);
+    assertEquality("Maryam", pr.name);
+    assertEquality(1234, pr.id);
+
+    readonly rd = st;
+    assertTrue(rd is Bar);
+    assertTrue(rd is Bar & readonly);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

@@ -249,7 +249,8 @@ class InstructionEmitter {
             str += "[";
             str += emitVarRef(ins.keyOp);
             str += "]";
-        } else if (ins.kind == InstructionKind.MAP_STORE || ins.kind == InstructionKind.ARRAY_STORE) {
+        } else if (ins.kind == InstructionKind.MAP_STORE || ins.kind == InstructionKind.ARRAY_STORE ||
+                ins.kind == InstructionKind.OBJECT_STORE) {
             str += "[";
             str += emitVarRef(ins.keyOp);
             str += "]";
