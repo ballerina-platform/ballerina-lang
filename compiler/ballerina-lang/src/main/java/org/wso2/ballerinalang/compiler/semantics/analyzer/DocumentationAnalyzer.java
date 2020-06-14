@@ -96,6 +96,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     // Used to parse the content inside backticks for Ballerina Flavored Markdown.
     private BLangReferenceParserListener listener;
     private BallerinaParser parser;
+    
+    private boolean enableDocAnalysing = false;
 
     public static DocumentationAnalyzer getInstance(CompilerContext context) {
         DocumentationAnalyzer documentationAnalyzer = context.get(DOCUMENTATION_ANALYZER_KEY);
@@ -136,6 +138,9 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeNode(BLangNode node) {
+        if (!enableDocAnalysing) {
+            return;
+        }
         node.accept(this);
     }
 
