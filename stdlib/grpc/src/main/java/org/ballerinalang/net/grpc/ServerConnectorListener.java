@@ -256,7 +256,7 @@ public class ServerConnectorListener implements HttpConnectorListener {
             if (endOfStream) {
                 Status status;
                 Throwable error = httpContent.getDecoderResult().cause();
-                if(error != null) {
+                if (error != null) {
                     status = Status.fromCode(Status.Code.CANCELLED).withDescription(error.getMessage());
                     listener.closed(status);
                 } else {
