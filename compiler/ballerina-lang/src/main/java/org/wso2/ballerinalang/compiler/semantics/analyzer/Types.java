@@ -750,8 +750,16 @@ public class Types {
         }
 
         for (BField field : targetRecType.fields.values()) {
-            if (!(Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
-                    isAssignable(sourceMapType.constraint, field.type))) {
+            if (!Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL)) {
+                return false;
+            }
+
+            if (Symbols.isFlagOn(field.symbol.flags, Flags.READONLY) &&
+                    !Symbols.isFlagOn(sourceMapType.flags, Flags.READONLY)) {
+                return false;
+            }
+
+            if (!isAssignable(sourceMapType.constraint, field.type)) {
                 return false;
             }
         }
@@ -1185,8 +1193,11 @@ public class Types {
 
         for (BField lhsField : lhsType.fields.values()) {
             BField rhsField = rhsType.fields.get(lhsField.name.value);
-            if (rhsField == null || !isInSameVisibilityRegion(lhsField.symbol, rhsField.symbol)
-                    || !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
+            if (rhsField == null ||
+                    !isInSameVisibilityRegion(lhsField.symbol, rhsField.symbol) ||
+                    (Symbols.isFlagOn(lhsField.symbol.flags, Flags.READONLY) &&
+                             !Symbols.isFlagOn(rhsField.symbol.flags, Flags.READONLY)) ||
+                    !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
                 return false;
             }
         }
@@ -2046,7 +2057,9 @@ public class Types {
                 if (t.fields.containsKey(sourceField.name.value)) {
                     BField targetField = t.fields.get(sourceField.name.value);
                     if (isSameType(sourceField.type, targetField.type, this.unresolvedTypes) &&
-                            hasSameOptionalFlag(sourceField.symbol, targetField.symbol)) {
+                            hasSameOptionalFlag(sourceField.symbol, targetField.symbol) &&
+                            (!Symbols.isFlagOn(targetField.symbol.flags, Flags.READONLY) ||
+                                     Symbols.isFlagOn(sourceField.symbol.flags, Flags.READONLY))) {
                         continue;
                     }
                 }
@@ -2216,6 +2229,11 @@ public class Types {
 
             // There should be a corresponding RHS field
             if (rhsField == null) {
+                return false;
+            }
+
+            if (Symbols.isFlagOn(lhsField.symbol.flags, Flags.READONLY) &&
+                    !Symbols.isFlagOn(rhsField.symbol.flags, Flags.READONLY)) {
                 return false;
             }
 

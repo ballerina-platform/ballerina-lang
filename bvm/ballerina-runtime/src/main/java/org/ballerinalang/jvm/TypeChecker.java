@@ -939,6 +939,11 @@ public class TypeChecker {
                 return false;
             }
 
+            if (Flags.isFlagOn(targetField.flags, Flags.READONLY) &&
+                    !Flags.isFlagOn(sourceField.flags, Flags.READONLY)) {
+                return false;
+            }
+
             // If the target field is required, the source field should be required as well.
             if (!Flags.isFlagOn(targetField.flags, Flags.OPTIONAL)
                     && Flags.isFlagOn(sourceField.flags, Flags.OPTIONAL)) {
@@ -1125,9 +1130,11 @@ public class TypeChecker {
         for (BField lhsField : targetFields.values()) {
             BField rhsField = sourceFields.get(lhsField.name);
             if (rhsField == null ||
-                !isInSameVisibilityRegion(Optional.ofNullable(lhsField.type.getPackage()).map(BPackage::getName)
+                    !isInSameVisibilityRegion(Optional.ofNullable(lhsField.type.getPackage()).map(BPackage::getName)
                         .orElse(""), Optional.ofNullable(rhsField.type.getPackage()).map(BPackage::getName)
                         .orElse(""), lhsField.flags, rhsField.flags) ||
+                    (Flags.isFlagOn(lhsField.flags, Flags.READONLY) &&
+                             !Flags.isFlagOn(rhsField.flags, Flags.READONLY)) ||
                     !checkIsType(rhsField.type, lhsField.type, new ArrayList<>())) {
                 return false;
             }
