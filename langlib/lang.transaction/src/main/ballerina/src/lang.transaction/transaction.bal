@@ -14,9 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
+public type Info record {|
+   // unique identifier
+   byte[] xid;
+   // non-zero means this transaction was a retry of
+   // a previous one
+   int retryNumber;
+   // probably useful for timeouts and logs
+   int startTime;
+   // maybe useful
+   Info? prevAttempt;
+|};
+
 # This file contains default retry manager to be used with retry statement.
 
-@typeParam
 public type RetriableError error;
 //todo use distinct when grammer allowes
 //public type RetriableError distinct error;
@@ -25,7 +36,6 @@ public type RetryManager abstract object {
  public function shouldRetry(error? e) returns boolean;
 };
 
-@typeParam
 public type DefaultRetryManager object {
     private int count;
     public function init(int count = 3) {
@@ -40,3 +50,14 @@ public type DefaultRetryManager object {
         }
     }
 };
+
+public type CommitHandler function(Info info);
+public type RollbackHandler function(Info info, error? cause, boolean willRetry);
+
+
+public function onCommit(CommitHandler handler) = external;
+
+public function onRollback(RollbackHandler handler) = external;
+
+public function info() returns Info = external;
+

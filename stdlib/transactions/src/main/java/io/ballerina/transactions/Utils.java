@@ -47,7 +47,9 @@ import static org.ballerinalang.jvm.transactions.TransactionConstants.TRANSACTIO
  * Native function implementations of the transactions module.
  *
  * @since 1.1.0
+ * @deprecated use lang.transaction instead.
  */
+@Deprecated
 public class Utils {
     private static final String STRUCT_TYPE_TRANSACTION_CONTEXT = "TransactionContext";
     private static final String STRUCT_TYPE_TRANSACTION_INFO = "Info";

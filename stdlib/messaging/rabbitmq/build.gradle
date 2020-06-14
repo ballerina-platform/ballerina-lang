@@ -39,6 +39,7 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-time')
+    implementation project(':ballerina-system')
 
     interopImports project(':ballerina-time')
 
@@ -50,6 +51,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile 'org.testng:testng'
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
