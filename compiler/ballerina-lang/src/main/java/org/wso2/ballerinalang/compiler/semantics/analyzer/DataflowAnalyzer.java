@@ -1251,6 +1251,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
+        analyzeNode(retryNode.retryBody, env);
     }
 
     @Override
