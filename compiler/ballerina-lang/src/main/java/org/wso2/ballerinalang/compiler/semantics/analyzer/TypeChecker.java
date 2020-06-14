@@ -118,6 +118,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLa
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
@@ -193,6 +194,8 @@ import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
 
+import static org.ballerinalang.util.diagnostic.DiagnosticCode.INVALID_NUM_INSERTIONS;
+import static org.ballerinalang.util.diagnostic.DiagnosticCode.INVALID_NUM_STRINGS;
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
@@ -288,7 +291,7 @@ public class TypeChecker extends BLangNodeVisitor {
      * @param expType expected type
      * @return the actual types of the given list of expressions
      */
-    public List<BType> checkExprs(List<BLangExpression> exprs, SymbolEnv env, BType expType) {
+    public List<BType> checkExprs(List<? extends BLangExpression> exprs, SymbolEnv env, BType expType) {
         List<BType> resTypes = new ArrayList<>(exprs.size());
         for (BLangExpression expr : exprs) {
             resTypes.add(checkExpr(expr, env, expType));
@@ -3612,6 +3615,117 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
+        // First, ensure that the contextually expected type is compatible with the RawTemplate type.
+        // The RawTemplate type should have just two fields: strings and insertions. There shouldn't be any methods.
+        BType type = determineRawTemplateLiteralType(rawTemplateLiteral, expType);
+
+        if (type == symTable.semanticError) {
+            resultType = type;
+            return;
+        }
+
+        // Once we ensure the types are compatible, need to ensure that the types of the strings and insertions are
+        // compatible with the types of the strings and insertions fields.
+        BObjectType literalType = (BObjectType) type;
+        BType stringsType = literalType.fields.get("strings").type;
+
+        if (evaluateRawTemplateExprs(rawTemplateLiteral.strings, stringsType, INVALID_NUM_STRINGS,
+                                     rawTemplateLiteral.pos)) {
+            type = symTable.semanticError;
+        }
+
+        BType insertionsType = literalType.fields.get("insertions").type;
+
+        if (evaluateRawTemplateExprs(rawTemplateLiteral.insertions, insertionsType, INVALID_NUM_INSERTIONS,
+                                     rawTemplateLiteral.pos)) {
+            type = symTable.semanticError;
+        }
+
+        resultType = type;
+    }
+
+    private BType determineRawTemplateLiteralType(BLangRawTemplateLiteral rawTemplateLiteral, BType expType) {
+        // Contextually expected type is NoType when `var` is used.
+        // Therefore consider the literal as of type RawTemplate
+        if (expType == symTable.noType || expType == symTable.anyType) {
+            return symTable.rawTemplateType;
+        }
+
+        BType type = types.checkType(rawTemplateLiteral, expType, symTable.rawTemplateType,
+                                     DiagnosticCode.INVALID_RAW_TEMPLATE_TYPE);
+
+        if (type == symTable.semanticError) {
+            return type;
+        }
+
+        // Raw template literals can be directly assigned only to abstract object types
+        if (!Symbols.isFlagOn(type.tsymbol.flags, Flags.ABSTRACT)) {
+            dlog.error(rawTemplateLiteral.pos, DiagnosticCode.INVALID_RAW_TEMPLATE_ASSIGNMENT, type);
+            return symTable.semanticError;
+        }
+
+        // Ensure that only the two fields, strings and insertions, are there
+        BObjectType litObjType = (BObjectType) type;
+        BObjectTypeSymbol objTSymbol = (BObjectTypeSymbol) litObjType.tsymbol;
+
+        if (litObjType.fields.size() > 2) {
+            dlog.error(rawTemplateLiteral.pos, DiagnosticCode.INVALID_NUM_FIELDS, litObjType);
+            type = symTable.semanticError;
+        }
+
+        if (!objTSymbol.attachedFuncs.isEmpty()) {
+            dlog.error(rawTemplateLiteral.pos, DiagnosticCode.METHODS_NOT_ALLOWED, litObjType);
+            type = symTable.semanticError;
+        }
+
+        return type;
+    }
+
+    private boolean evaluateRawTemplateExprs(List<? extends BLangExpression> exprs, BType listType, DiagnosticCode code,
+                                             DiagnosticPos pos) {
+        boolean errored = false;
+
+        if (listType.tag == TypeTags.ARRAY) {
+            BArrayType arrayType = (BArrayType) listType;
+
+            if (arrayType.state == BArrayState.CLOSED_SEALED && (exprs.size() != arrayType.size)) {
+                dlog.error(pos, code, arrayType.size, exprs.size());
+                return false;
+            }
+
+            for (BLangExpression expr : exprs) {
+                errored = (checkExpr(expr, env, arrayType.eType) == symTable.semanticError) || errored;
+            }
+        } else if (listType.tag == TypeTags.TUPLE) {
+            BTupleType tupleType = (BTupleType) listType;
+            final int size = exprs.size();
+            final int requiredItems = tupleType.tupleTypes.size();
+
+            if (size < requiredItems || (size > requiredItems && tupleType.restType == null)) {
+                dlog.error(pos, code, requiredItems, size);
+                return false;
+            }
+
+            int i;
+            List<BType> memberTypes = tupleType.tupleTypes;
+            for (i = 0; i < requiredItems; i++) {
+                errored = (checkExpr(exprs.get(i), env, memberTypes.get(i)) == symTable.semanticError) || errored;
+            }
+
+            if (size > requiredItems) {
+                for (; i < size; i++) {
+                    errored = (checkExpr(exprs.get(i), env, tupleType.restType) == symTable.semanticError) || errored;
+                }
+            }
+        } else {
+            throw new IllegalStateException("Expected a list type, but found: " + listType);
+        }
+
+        return errored;
+    }
+
+    @Override
     public void visit(BLangIntRangeExpression intRangeExpression) {
         checkExpr(intRangeExpression.startExpr, env, symTable.intType);
         checkExpr(intRangeExpression.endExpr, env, symTable.intType);
@@ -5097,7 +5211,7 @@ public class TypeChecker extends BLangNodeVisitor {
         dlog.error(bLangXMLElementLiteral.pos, DiagnosticCode.XML_TAGS_MISMATCH);
     }
 
-    private void checkStringTemplateExprs(List<BLangExpression> exprs, boolean allowXml) {
+    private void checkStringTemplateExprs(List<? extends BLangExpression> exprs, boolean allowXml) {
         for (BLangExpression expr : exprs) {
             checkExpr(expr, env);
 

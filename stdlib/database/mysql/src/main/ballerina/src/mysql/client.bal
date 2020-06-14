@@ -15,8 +15,8 @@
 // under the License.
 
 import ballerina/crypto;
-import ballerina/sql;
 import ballerina/java;
+import ballerina/sql;
 
 # Represents a MySQL database client.
 public type Client client object {
@@ -58,12 +58,12 @@ public type Client client object {
     #             column names of the query result set be used for the record attributes
     # + return - Stream of records in the type of `rowType`
     public remote function query(@untainted string|sql:ParameterizedString sqlQuery, typedesc<record {}>? rowType = ())
-    returns @tainted stream<record{}, sql:Error> {
+    returns @tainted stream <record {}, sql:Error> {
         if (self.clientActive) {
             sql:ParameterizedString sqlParamString;
             if (sqlQuery is string) {
                 sqlParamString = {
-                    parts : [sqlQuery],
+                    parts: [sqlQuery],
                     insertions: []
                 };
             } else {
@@ -82,7 +82,7 @@ public type Client client object {
     #              when the query has params to be passed in
     # + return - Summary of the sql update query as `ExecutionResult` or returns `Error`
     #           if any error occured when executing the query
-    public remote function execute(@untainted string|sql:ParameterizedString sqlQuery) returns sql:ExecutionResult|sql:Error? {
+    public remote function execute(@untainted string|sql:ParameterizedString sqlQuery) returns sql:ExecutionResult|sql:Error {
         if (self.clientActive) {
             sql:ParameterizedString sqlParamString;
             if (sqlQuery is string) {
@@ -107,7 +107,7 @@ public type Client client object {
     # + return - Summary of the sql update query as `ExecutionResult[]` or returns `BatchUpdateError`.
     #            if any error occured when executing the query. `BatchUpdateError` will include summary of the
     #            sql update query as `executionResults` for commands executed successfully.
-    public remote function batchExecute(sql:ParameterizedString[] sqlQueries) returns sql:ExecutionResult[]|sql:Error? {
+    public remote function batchExecute(sql:ParameterizedString[] sqlQueries) returns sql:ExecutionResult[]|sql:Error {
         if (sqlQueries.length() == 0) {
             return sql:ApplicationError(" Parameter 'sqlQueries' cannot be empty array");
         }
@@ -187,17 +187,17 @@ function createClient(Client mysqlClient, ClientConfiguration clientConf,
 } external;
 
 function nativeQuery(Client sqlClient, sql:ParameterizedString sqlQuery, typedesc<record {}>? rowtype)
-returns stream<record{}, sql:Error> = @java:Method {
+returns stream <record {}, sql:Error> = @java:Method {
     class: "org.ballerinalang.sql.utils.QueryUtils"
 } external;
 
 function nativeExecute(Client sqlClient, sql:ParameterizedString sqlQuery)
-returns sql:ExecutionResult|sql:Error? = @java:Method {
+returns sql:ExecutionResult|sql:Error = @java:Method {
     class: "org.ballerinalang.sql.utils.ExecuteUtils"
 } external;
 
 function nativeBatchExecute(Client sqlClient, sql:ParameterizedString[] sqlQueries)
-returns sql:ExecutionResult[]|sql:Error? = @java:Method {
+returns sql:ExecutionResult[]|sql:Error = @java:Method {
     class: "org.ballerinalang.sql.utils.ExecuteUtils"
 } external;
 
