@@ -540,15 +540,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.env = env;
         for (Name alias : predeclaredModules.keySet()) {
             ScopeEntry entry = this.env.scope.lookup(alias);
-            if (predeclaredModules.get(alias) != null) {
-                if (entry == NOT_FOUND_ENTRY) {
-                    this.env.scope.define(alias, predeclaredModules.get(alias));
-                } else {
-                    while (entry.next != NOT_FOUND_ENTRY) {
-                        entry = entry.next;
-                    }
-                    entry.next = new ScopeEntry(predeclaredModules.get(alias), NOT_FOUND_ENTRY);
+            if (entry == NOT_FOUND_ENTRY) {
+                this.env.scope.define(alias, predeclaredModules.get(alias));
+            } else {
+                while (entry.next != NOT_FOUND_ENTRY) {
+                    entry = entry.next;
                 }
+                entry.next = new ScopeEntry(predeclaredModules.get(alias), NOT_FOUND_ENTRY);
             }
         }
         this.env = prevEnv;
