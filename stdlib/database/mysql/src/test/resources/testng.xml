@@ -25,13 +25,13 @@ under the License.
         <classes>
             <class name="org.ballerinalang.mysql.BaseTest"/>
             <class name="org.ballerinalang.mysql.init.ConnectionInitTest"/>
+            <class name="org.ballerinalang.mysql.pool.ConnectionPoolTest"/>
             <class name="org.ballerinalang.mysql.init.ConnectionInitSSLTest"/>
             <class name="org.ballerinalang.mysql.query.NumericTypesQueryTest"/>
             <class name="org.ballerinalang.mysql.query.ComplexTypesQueryTest"/>
             <class name="org.ballerinalang.mysql.query.ParamsQueryTest"/>
             <class name="org.ballerinalang.mysql.execute.ExecuteTest"/>
             <class name="org.ballerinalang.mysql.execute.ParamsExecuteTest"/>
-            <class name="org.ballerinalang.mysql.pool.ConnectionPoolTest"/>
         </classes>
     </test>
 </suite>
