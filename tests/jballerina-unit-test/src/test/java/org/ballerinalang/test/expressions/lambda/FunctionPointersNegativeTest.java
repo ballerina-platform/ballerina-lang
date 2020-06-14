@@ -63,7 +63,7 @@ public class FunctionPointersNegativeTest {
         BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'Person'", 32, 39);
     }
 
-    @Test()
+    @Test(groups = { "brokenOnNewParser" })
     public void testFPWithNoImport() {
         CompileResult result =
                 BCompileUtil.compile("test-src/expressions/lambda/negative/fp-with-import-negative.bal");

@@ -11754,10 +11754,13 @@ public class BallerinaParser extends AbstractParser {
         xmlAtomicNamePatternList.add(xmlAtomicNamePattern);
 
         // Parse the remaining xml atomic name patterns
-        STNode leadingPipe;
+        STNode separator;
         while (!isEndOfXMLNamePattern(peek().kind)) {
-            leadingPipe = parsePipeToken();
-            xmlAtomicNamePatternList.add(leadingPipe);
+            separator = parseXMLNamePatternSeparator();
+            if (separator == null) {
+                break;
+            }
+            xmlAtomicNamePatternList.add(separator);
 
             xmlAtomicNamePattern = parseXMLAtomicNamePattern();
             xmlAtomicNamePatternList.add(xmlAtomicNamePattern);
@@ -11776,6 +11779,23 @@ public class BallerinaParser extends AbstractParser {
             case COLON_TOKEN:
             default:
                 return false;
+        }
+    }
+
+    private STNode parseXMLNamePatternSeparator() {
+        STToken token = peek();
+        switch (token.kind) {
+            case PIPE_TOKEN:
+                return consume();
+            case GT_TOKEN:
+            case EOF_TOKEN:
+                return null;
+            default:
+                Solution sol = recover(token, ParserRuleContext.XML_NAME_PATTERN_RHS);
+                if (sol.tokenKind == SyntaxKind.GT_TOKEN) {
+                    return null;
+                }
+                return sol.recoveredNode;
         }
     }
 
