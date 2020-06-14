@@ -115,12 +115,6 @@ public function toString((any|error) v) returns string = external;
 
 // JSON conversion
 
-# Returns the string that represents `v` in JSON format.
-#
-# + v - anydata value
-# + return - string representation of json
-public function toJsonString(anydata v) returns string = external;
-
 # Converts a value of type `anydata` to `json`.
 # This does a deep copy of `v` converting values that do
 # not belong to json into values that do.
@@ -137,6 +131,13 @@ public function toJsonString(anydata v) returns string = external;
 # + return - representation of `v` as value of type json
 # This panics if `v` has cycles.
 public function toJson(anydata v) returns json = external;
+
+# Returns the string that represents `v` in JSON format.
+# `v` is first converted to `json` as if by the `toJson` function.
+#
+# + v - anydata value
+# + return - string representation of json
+public function toJsonString(anydata v) returns string = external;
 
 # Parses a string in JSON format and returns the the value that it represents.
 # All numbers in the JSON will be represented as float values.
