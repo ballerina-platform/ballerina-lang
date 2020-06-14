@@ -78,6 +78,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "lang.transaction",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "lang.'transaction;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "file",
       "kind": "Module",
       "detail": "Module",
