@@ -632,6 +632,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         if (bSymbol == symTable.notFoundSymbol) {
+            bSymbol = lookupLangLibMethodInModule(symTable.langTransactionModuleSymbol, name);
+        }
+
+        if (bSymbol == symTable.notFoundSymbol) {
             bSymbol = lookupLangLibMethodInModule(symTable.langQueryModuleSymbol, name);
         }
 

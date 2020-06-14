@@ -105,24 +105,11 @@ public class GenericMockObjectValue extends AbstractObjectValue {
         // These should be removed before constructing case ids
         args = removeUnnecessaryArgs(args);
 
-        // add case for function without args
+        // 1) add case for function without args
         caseId.append(mockObj.hashCode()).append("-").append(funcName);
         caseIdList.add(caseId.toString());
 
-        // add case for function with ANY specified for objects
-        for (Object arg : args) {
-            caseId.append("-");
-            if (arg instanceof AbstractObjectValue) {
-                caseId.append(MockRegistry.ANY);
-            } else {
-                caseId.append(arg);
-            }
-        }
-        caseIdList.add(caseId.toString());
-        caseId.setLength(0);
-        caseId.append(mockObj.hashCode()).append("-").append(funcName);
-
-        // add case for function with ANY specified for objects and records
+        // 2) add case for function with ANY specified for objects and records
         for (Object arg : args) {
             caseId.append("-");
             if (arg instanceof AbstractObjectValue || arg instanceof BRecordType) {
@@ -131,12 +118,26 @@ public class GenericMockObjectValue extends AbstractObjectValue {
                 caseId.append(arg);
             }
         }
+        caseIdList.add(caseId.toString());
+        caseId.setLength(0);
+        caseId.append(mockObj.hashCode()).append("-").append(funcName);
 
+        // 3) add case for function with ANY specified for objects
+        for (Object arg : args) {
+            caseId.append("-");
+            if (arg instanceof AbstractObjectValue) {
+                caseId.append(MockRegistry.ANY);
+            } else {
+                caseId.append(arg);
+            }
+        }
         // skip if entry exists in list
         if (!caseIdList.contains(caseId.toString())) {
             caseIdList.add(caseId.toString());
         }
         caseId.setLength(0);
+
+        // 4) add case for return sequence if available
         caseId.append(mockObj.hashCode()).append("-").append(funcName);
         if (MockRegistry.getInstance().hasHitCount(caseId.toString())) {
             int hittingCount = MockRegistry.getInstance().getMemberFuncHitsMap().get(caseId.toString());

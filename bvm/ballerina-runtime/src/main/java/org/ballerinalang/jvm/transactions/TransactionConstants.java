@@ -19,7 +19,6 @@ package org.ballerinalang.jvm.transactions;
 
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.values.api.BString;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
@@ -35,15 +34,12 @@ public class TransactionConstants {
     //Co-ordinator functions
     public static final String COORDINATOR_ABORT_TRANSACTION = "abortTransaction";
 
-    public static final String TRANSACTION_PACKAGE_NAME = "transactions";
+    public static final String TRANSACTION_PACKAGE_NAME = "ballerina.transactions";
+    public static final String TRANSACTION_PACKAGE_VERSION = "0.0.1";
+    public static final String TRANSACTION_PACKAGE_PATH =
+            "ballerina" + ORG_NAME_SEPARATOR + "transactions" + VERSION_SEPARATOR + TRANSACTION_PACKAGE_VERSION;
 
-    public static final String TRANSACTION_PACKAGE_FQN = BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX + "." +
-            TRANSACTION_PACKAGE_NAME;
-    public static final String TRANSACTION_PACKAGE_VERSION = "0.5.0";
-    public static final String TRANSACTION_PACKAGE_PATH = BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX +
-            ORG_NAME_SEPARATOR + TRANSACTION_PACKAGE_NAME + VERSION_SEPARATOR + TRANSACTION_PACKAGE_VERSION;
-
-    public static final BPackage TRANSACTION_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "transactions",
+    public static final BPackage TRANSACTION_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "lang.transaction",
                                                                        TRANSACTION_PACKAGE_VERSION);
     public static final String TRANSACTION_BLOCK_CLASS_NAME = "transaction_block";
     public static final String COORDINATOR_PACKAGE = TRANSACTION_PACKAGE_PATH;

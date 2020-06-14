@@ -284,6 +284,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -1780,8 +1781,21 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(IndexedExpressionNode indexedExpressionNode) {
         BLangIndexBasedAccess indexBasedAccess = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         indexBasedAccess.pos = getPosition(indexedExpressionNode);
-        // TODO : Add BLangTableMultiKeyExpr for indexExpr if it is available
-        indexBasedAccess.indexExpr = createExpression(indexedExpressionNode.keyExpression().get(0));
+        SeparatedNodeList<io.ballerinalang.compiler.syntax.tree.ExpressionNode> keys =
+                indexedExpressionNode.keyExpression();
+        if (keys.size() == 1) {
+            indexBasedAccess.indexExpr = createExpression(indexedExpressionNode.keyExpression().get(0));
+        } else {
+            BLangTableMultiKeyExpr multiKeyExpr =
+                    (BLangTableMultiKeyExpr) TreeBuilder.createTableMultiKeyExpressionNode();
+            multiKeyExpr.pos = getPosition(keys.get(0));
+            List<BLangExpression> multiKeyIndexExprs = new ArrayList<>();
+            for (io.ballerinalang.compiler.syntax.tree.ExpressionNode keyExpr : keys) {
+                multiKeyIndexExprs.add(createExpression(keyExpr));
+            }
+            multiKeyExpr.multiKeyIndexExprs = multiKeyIndexExprs;
+            indexBasedAccess.indexExpr = multiKeyExpr;
+        }
 
         Node containerExpr = indexedExpressionNode.containerExpression();
         BLangExpression expression = createExpression(containerExpr);
