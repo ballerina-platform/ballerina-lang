@@ -1557,6 +1557,18 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public TypedescTypeDescriptorNode transform(
+            TypedescTypeDescriptorNode typedescTypeDescriptorNode) {
+        Token typedescKeywordToken =
+                modifyToken(typedescTypeDescriptorNode.typedescKeywordToken());
+        TypeParameterNode typedescTypeParamsNode =
+                modifyNode(typedescTypeDescriptorNode.typedescTypeParamsNode().orElse(null));
+        return typedescTypeDescriptorNode.modify(
+                typedescKeywordToken,
+                typedescTypeParamsNode);
+    }
+
+    @Override
     public LetExpressionNode transform(
             LetExpressionNode letExpressionNode) {
         Token letKeyword =
