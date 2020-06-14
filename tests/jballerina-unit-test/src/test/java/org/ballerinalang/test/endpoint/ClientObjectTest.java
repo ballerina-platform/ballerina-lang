@@ -91,7 +91,7 @@ public class ClientObjectTest {
         Assert.assertEquals(result[0].stringValue(), "donedone");
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testRemoteBasicsNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/remote_basic_negative.bal");
         int errIdx = 0;
