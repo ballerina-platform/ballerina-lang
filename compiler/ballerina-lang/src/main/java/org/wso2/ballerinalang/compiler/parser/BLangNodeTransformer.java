@@ -274,6 +274,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordSpreadOperatorField;
@@ -284,6 +285,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -1780,8 +1782,21 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(IndexedExpressionNode indexedExpressionNode) {
         BLangIndexBasedAccess indexBasedAccess = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         indexBasedAccess.pos = getPosition(indexedExpressionNode);
-        // TODO : Add BLangTableMultiKeyExpr for indexExpr if it is available
-        indexBasedAccess.indexExpr = createExpression(indexedExpressionNode.keyExpression().get(0));
+        SeparatedNodeList<io.ballerinalang.compiler.syntax.tree.ExpressionNode> keys =
+                indexedExpressionNode.keyExpression();
+        if (keys.size() == 1) {
+            indexBasedAccess.indexExpr = createExpression(indexedExpressionNode.keyExpression().get(0));
+        } else {
+            BLangTableMultiKeyExpr multiKeyExpr =
+                    (BLangTableMultiKeyExpr) TreeBuilder.createTableMultiKeyExpressionNode();
+            multiKeyExpr.pos = getPosition(keys.get(0));
+            List<BLangExpression> multiKeyIndexExprs = new ArrayList<>();
+            for (io.ballerinalang.compiler.syntax.tree.ExpressionNode keyExpr : keys) {
+                multiKeyIndexExprs.add(createExpression(keyExpr));
+            }
+            multiKeyExpr.multiKeyIndexExprs = multiKeyIndexExprs;
+            indexBasedAccess.indexExpr = multiKeyExpr;
+        }
 
         Node containerExpr = indexedExpressionNode.containerExpression();
         BLangExpression expression = createExpression(containerExpr);
@@ -1841,6 +1856,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 return expressionNode.content().get(0).apply(this);
             case STRING_TEMPLATE_EXPRESSION:
                 return createStringTemplateLiteral(expressionNode.content(), getPosition(expressionNode));
+            case RAW_TEMPLATE_EXPRESSION:
+                return createRawTemplateLiteral(expressionNode.content(), getPosition(expressionNode));
             default:
                 throw new RuntimeException("Syntax kind is not supported: " + kind);
         }
@@ -3415,6 +3432,39 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return stringTemplateLiteral;
     }
 
+    private BLangRawTemplateLiteral createRawTemplateLiteral(NodeList<TemplateMemberNode> members, DiagnosticPos pos) {
+        BLangRawTemplateLiteral literal = (BLangRawTemplateLiteral) TreeBuilder.createRawTemplateLiteralNode();
+        literal.pos = pos;
+
+        boolean prevNodeWasInterpolation = false;
+        Node firstMember = members.isEmpty() ? null : members.get(0); // will be empty for empty raw template
+
+        if (firstMember != null && firstMember.kind() == SyntaxKind.INTERPOLATION) {
+            literal.strings.add(createStringLiteral("", getPosition(firstMember)));
+        }
+
+        for (Node member : members) {
+            if (member.kind() == SyntaxKind.INTERPOLATION) {
+                literal.insertions.add((BLangExpression) member.apply(this));
+
+                if (prevNodeWasInterpolation) {
+                    literal.strings.add(createStringLiteral("", getPosition(member)));
+                }
+
+                prevNodeWasInterpolation = true;
+            } else {
+                literal.strings.add((BLangLiteral) member.apply(this));
+                prevNodeWasInterpolation = false;
+            }
+        }
+
+        if (prevNodeWasInterpolation) {
+            literal.strings.add(createStringLiteral("", getPosition(members.get(members.size() - 1))));
+        }
+
+        return literal;
+    }
+
     private BLangSimpleVariable createSimpleVar(Optional<Token> name, Node type, NodeList<AnnotationNode> annotations) {
         if (name.isPresent()) {
             Token nameToken = name.get();
@@ -3630,6 +3680,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLiteral.value = value;
         bLiteral.originalValue = originalValue;
         return bLiteral;
+    }
+
+    private BLangLiteral createStringLiteral(String value, DiagnosticPos pos) {
+        BLangLiteral strLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        strLiteral.value = strLiteral.originalValue = value;
+        strLiteral.type = symTable.stringType;
+        strLiteral.pos = pos;
+        return strLiteral;
     }
 
     private BLangType createTypeNode(Node type) {

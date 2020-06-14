@@ -632,6 +632,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         if (bSymbol == symTable.notFoundSymbol) {
+            bSymbol = lookupLangLibMethodInModule(symTable.langTransactionModuleSymbol, name);
+        }
+
+        if (bSymbol == symTable.notFoundSymbol) {
             bSymbol = lookupLangLibMethodInModule(symTable.langQueryModuleSymbol, name);
         }
 
@@ -857,6 +861,19 @@ public class SymbolResolver extends BLangNodeVisitor {
             return;
         }
         throw new IllegalStateException("built-in Integer Range type not found ?");
+    }
+
+    public void loadRawTemplateType() {
+        ScopeEntry entry = symTable.langObjectModuleSymbol.scope.lookup(Names.RAW_TEMPLATE);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
+                entry = entry.next;
+                continue;
+            }
+            symTable.rawTemplateType = (BObjectType) entry.symbol.type;
+            return;
+        }
+        throw new IllegalStateException("'lang.object:RawTemplate' type not found");
     }
 
     // visit type nodes

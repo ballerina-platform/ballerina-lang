@@ -72,9 +72,10 @@ public class ListenerUtils {
                     e.getMessage());
         }
         if (isStarted()) {
+            ObjectValue channelObject = (ObjectValue) listenerObjectValue.get(RabbitMQConstants.CHANNEL_REFERENCE);
             services =
                     (ArrayList<ObjectValue>) listenerObjectValue.getNativeData(RabbitMQConstants.CONSUMER_SERVICES);
-            startReceivingMessages(service, channel, listenerObjectValue);
+            startReceivingMessages(service, channel, listenerObjectValue, channelObject);
         }
         services.add(service);
         return null;
@@ -113,7 +114,8 @@ public class ListenerUtils {
                                 + exception.getDetail());
                     }
                 }
-                MessageDispatcher messageDispatcher = new MessageDispatcher(service, channel, autoAck, runtime);
+                MessageDispatcher messageDispatcher =
+                        new MessageDispatcher(service, channel, autoAck, runtime, channelObject);
                 messageDispatcher.receiveMessages(listenerObjectValue);
                 RabbitMQMetricsUtil.reportSubscription(channel, service);
             }
@@ -201,8 +203,10 @@ public class ListenerUtils {
         return null;
     }
 
-    private static void startReceivingMessages(ObjectValue service, Channel channel, ObjectValue listener) {
-        MessageDispatcher messageDispatcher = new MessageDispatcher(service, channel, getAckMode(service), runtime);
+    private static void startReceivingMessages(ObjectValue service, Channel channel, ObjectValue listener,
+                                               ObjectValue channelObject) {
+        MessageDispatcher messageDispatcher =
+                new MessageDispatcher(service, channel, getAckMode(service), runtime, channelObject);
         messageDispatcher.receiveMessages(listener);
 
     }

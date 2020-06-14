@@ -75,6 +75,17 @@ public class TypeDefBuilderHelper {
         return createRecordTypeNode(fieldList, recordType, pos);
     }
 
+    public static BLangObjectTypeNode createObjectTypeNode(BObjectType objectType, DiagnosticPos pos) {
+        List<BLangSimpleVariable> fieldList = new ArrayList<>();
+        for (BField field : objectType.fields.values()) {
+            BVarSymbol symbol = field.symbol;
+            BLangSimpleVariable fieldVar = ASTBuilderUtil.createVariable(field.pos, symbol.name.value, field.type,
+                                                                         null, symbol);
+            fieldList.add(fieldVar);
+        }
+        return createObjectTypeNode(fieldList, objectType, pos);
+    }
+
     public static BLangRecordTypeNode createRecordTypeNode(List<BLangSimpleVariable> typeDefFields,
                                                            BRecordType recordType, DiagnosticPos pos) {
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) TreeBuilder.createRecordTypeNode();
@@ -97,14 +108,14 @@ public class TypeDefBuilderHelper {
         return objectTypeNode;
     }
 
-    public static BLangFunction createInitFunctionForRecordType(BLangStructureTypeNode structureTypeNode,
-                                                                SymbolEnv env, Names names, SymbolTable symTable) {
-        BLangFunction initFunction = createInitFunctionForStructureType(structureTypeNode, env,
+    public static BLangFunction createInitFunctionForRecordType(BLangRecordTypeNode recordTypeNode, SymbolEnv env,
+                                                                Names names, SymbolTable symTable) {
+        BLangFunction initFunction = createInitFunctionForStructureType(recordTypeNode, env,
                                                                         Names.INIT_FUNCTION_SUFFIX, names, symTable);
-        BStructureTypeSymbol structureSymbol = ((BStructureTypeSymbol) structureTypeNode.type.tsymbol);
+        BStructureTypeSymbol structureSymbol = ((BStructureTypeSymbol) recordTypeNode.type.tsymbol);
         structureSymbol.initializerFunc = new BAttachedFunction(initFunction.symbol.name, initFunction.symbol,
                                                              (BInvokableType) initFunction.type);
-        structureTypeNode.initFunction = initFunction;
+        recordTypeNode.initFunction = initFunction;
         structureSymbol.scope.define(structureSymbol.initializerFunc.symbol.name,
                                      structureSymbol.initializerFunc.symbol);
         return initFunction;
