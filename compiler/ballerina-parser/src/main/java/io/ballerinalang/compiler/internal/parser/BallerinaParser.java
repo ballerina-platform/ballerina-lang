@@ -537,7 +537,8 @@ public class BallerinaParser extends AbstractParser {
             case COMPOUND_BINARY_OPERATOR:
                 return parseCompoundBinaryOperator();
             case CONST_DECL_RHS:
-                return parseConstantDeclRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (STNode) args[3]);
+                return parseConstantOrListenerDeclRhs((STNode) args[0], (STNode) args[1], (STNode) args[2],
+                        (STNode) args[3], (boolean) args[3]);
             case CONST_KEYWORD:
                 return parseConstantKeyword();
             case UNARY_OPERATOR:
@@ -6536,7 +6537,10 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse listener declaration, given the qualifier.
-     *
+     * <p>
+     * <code>
+     * listener-decl := metadata [public] listener [type-descriptor] variable-name = expression ;
+     * </code>
      * @param metadata Metadata
      * @param qualifier Qualifier that precedes the listener declaration
      * @return Parsed node
@@ -6544,6 +6548,14 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseListenerDeclaration(STNode metadata, STNode qualifier) {
         startContext(ParserRuleContext.LISTENER_DECL);
         STNode listenerKeyword = parseListenerKeyword();
+
+        if (peek().kind == SyntaxKind.IDENTIFIER_TOKEN) {
+            STNode listenerDecl =
+                    parseConstantOrListenerDeclWithOptionalType(metadata, qualifier, listenerKeyword, true);
+            endContext();
+            return listenerDecl;
+        }
+
         STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER);
         STNode variableName = parseVariableName();
         STNode equalsToken = parseAssignOp();
@@ -6600,20 +6612,20 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseConstDeclFromType(SyntaxKind nextTokenKind, STNode metadata, STNode qualifier,
-                                          STNode constKeyword) {
+                                          STNode keyword) {
         switch (nextTokenKind) {
             case ANNOTATION_KEYWORD:
                 switchContext(ParserRuleContext.ANNOTATION_DECL);
-                return parseAnnotationDeclaration(metadata, qualifier, constKeyword);
+                return parseAnnotationDeclaration(metadata, qualifier, keyword);
             case IDENTIFIER_TOKEN:
-                return parseConstantDeclWithOptionalType(metadata, qualifier, constKeyword);
+                return parseConstantOrListenerDeclWithOptionalType(metadata, qualifier, keyword, false);
             default:
                 if (isTypeStartingToken(nextTokenKind)) {
                     break;
                 }
                 STToken token = peek();
                 Solution solution =
-                        recover(token, ParserRuleContext.CONST_DECL_TYPE, metadata, qualifier, constKeyword);
+                        recover(token, ParserRuleContext.CONST_DECL_TYPE, metadata, qualifier, keyword);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -6622,7 +6634,7 @@ public class BallerinaParser extends AbstractParser {
                     return solution.recoveredNode;
                 }
 
-                return parseConstDeclFromType(solution.tokenKind, metadata, qualifier, constKeyword);
+                return parseConstDeclFromType(solution.tokenKind, metadata, qualifier, keyword);
         }
 
         STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER);
@@ -6630,13 +6642,15 @@ public class BallerinaParser extends AbstractParser {
         STNode equalsToken = parseAssignOp();
         STNode initializer = parseExpression();
         STNode semicolonToken = parseSemicolon();
-        return STNodeFactory.createConstantDeclarationNode(metadata, qualifier, constKeyword, typeDesc, variableName,
+        return STNodeFactory.createConstantDeclarationNode(metadata, qualifier, keyword, typeDesc, variableName,
                 equalsToken, initializer, semicolonToken);
     }
 
-    private STNode parseConstantDeclWithOptionalType(STNode metadata, STNode qualifier, STNode constKeyword) {
+    private STNode parseConstantOrListenerDeclWithOptionalType(STNode metadata, STNode qualifier, STNode constKeyword,
+                                                               boolean isListener) {
         STNode varNameOrTypeName = parseStatementStartIdentifier();
-        STNode constDecl = parseConstantDeclRhs(metadata, qualifier, constKeyword, varNameOrTypeName);
+        STNode constDecl =
+                parseConstantOrListenerDeclRhs(metadata, qualifier, constKeyword, varNameOrTypeName, isListener);
         return constDecl;
     }
 
@@ -6650,13 +6664,14 @@ public class BallerinaParser extends AbstractParser {
      * @param typeOrVarName Identifier that follows the const-keywoord
      * @return Parsed node
      */
-    private STNode parseConstantDeclRhs(STNode metadata, STNode qualifier, STNode constKeyword, STNode typeOrVarName) {
+    private STNode parseConstantOrListenerDeclRhs(STNode metadata, STNode qualifier, STNode constKeyword,
+                                                  STNode typeOrVarName, boolean isListener) {
         STToken token = peek();
-        return parseConstantDeclRhs(token.kind, metadata, qualifier, constKeyword, typeOrVarName);
+        return parseConstantOrListenerDeclRhs(token.kind, metadata, qualifier, constKeyword, typeOrVarName, isListener);
     }
 
-    private STNode parseConstantDeclRhs(SyntaxKind nextTokenKind, STNode metadata, STNode qualifier,
-                                        STNode constKeyword, STNode typeOrVarName) {
+    private STNode parseConstantOrListenerDeclRhs(SyntaxKind nextTokenKind, STNode metadata, STNode qualifier,
+                                                  STNode keyword, STNode typeOrVarName, boolean isListener) {
         STNode type;
         STNode variableName;
         switch (nextTokenKind) {
@@ -6670,8 +6685,8 @@ public class BallerinaParser extends AbstractParser {
                 break;
             default:
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.CONST_DECL_RHS, metadata, qualifier, constKeyword,
-                        typeOrVarName);
+                Solution solution = recover(token, ParserRuleContext.CONST_DECL_RHS, metadata, qualifier, keyword,
+                        typeOrVarName, isListener);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -6680,13 +6695,20 @@ public class BallerinaParser extends AbstractParser {
                     return solution.recoveredNode;
                 }
 
-                return parseConstantDeclRhs(solution.tokenKind, metadata, qualifier, constKeyword, typeOrVarName);
+                return parseConstantOrListenerDeclRhs(solution.tokenKind, metadata, qualifier, keyword, typeOrVarName,
+                        isListener);
         }
 
         STNode equalsToken = parseAssignOp();
         STNode initializer = parseExpression();
         STNode semicolonToken = parseSemicolon();
-        return STNodeFactory.createConstantDeclarationNode(metadata, qualifier, constKeyword, type, variableName,
+
+        if (isListener) {
+            return STNodeFactory.createListenerDeclarationNode(metadata, qualifier, keyword, type, variableName,
+                    equalsToken, initializer, semicolonToken);
+        }
+
+        return STNodeFactory.createConstantDeclarationNode(metadata, qualifier, keyword, type, variableName,
                 equalsToken, initializer, semicolonToken);
     }
 
