@@ -12,6 +12,7 @@ function testRefTypes(){
     typedesc<json> b = json;
     typedesc<map<any>> c = map<any>;
     typedesc<table<Employee>> d = table<Employee>;
+    typedesc<table<Employee>> e = tableOfEmployee;
 
     [typedesc<any>, typedesc<any>, typedesc<any>, typedesc<any>] tupleValue = [a, b, c, d];
 
@@ -19,6 +20,7 @@ function testRefTypes(){
     assertEquality("typedesc json", b.toString());
     assertEquality("typedesc map", c.toString());
     assertEquality("typedesc table<Employee>", d.toString());
+    assertEquality("typedesc table<Employee>", e.toString());
 }
 
 function testObjectTypes() returns [typedesc<any>, typedesc<any>] {
@@ -41,6 +43,7 @@ type Person object {
     }
 };
 
+type tableOfEmployee table<Employee>;
 
 type Employee record {
     string name;

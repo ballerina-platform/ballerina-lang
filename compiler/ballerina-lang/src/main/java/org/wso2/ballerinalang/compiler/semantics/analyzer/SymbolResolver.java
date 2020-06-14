@@ -1022,6 +1022,11 @@ public class SymbolResolver extends BLangNodeVisitor {
     public void visit(BLangTableTypeNode tableTypeNode) {
         BType type = resolveTypeNode(tableTypeNode.type, env);
         BType constraintType = resolveTypeNode(tableTypeNode.constraint, env);
+        // If the constrained type is undefined, return noType as the type.
+        if (constraintType == symTable.noType) {
+            resultType = symTable.noType;
+            return;
+        }
 
         BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, null);
         BTypeSymbol typeSymbol = type.tsymbol;
