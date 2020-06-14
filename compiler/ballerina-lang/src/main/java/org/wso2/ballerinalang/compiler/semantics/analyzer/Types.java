@@ -754,8 +754,7 @@ public class Types {
                 return false;
             }
 
-            if (Symbols.isFlagOn(field.symbol.flags, Flags.READONLY) &&
-                    !Symbols.isFlagOn(sourceMapType.flags, Flags.READONLY)) {
+            if (hasIncompatibleReadOnlyFlags(field.symbol.flags, sourceMapType.flags)) {
                 return false;
             }
 
@@ -765,6 +764,10 @@ public class Types {
         }
 
         return isAssignable(sourceMapType.constraint, targetRecType.restFieldType);
+    }
+
+    private boolean hasIncompatibleReadOnlyFlags(int targetFlags, int sourceFlags) {
+        return Symbols.isFlagOn(targetFlags, Flags.READONLY) && !Symbols.isFlagOn(sourceFlags, Flags.READONLY);
     }
 
     private boolean isErrorTypeAssignable(BErrorType source, BErrorType target, Set<TypePair> unresolvedTypes) {
@@ -1195,8 +1198,7 @@ public class Types {
             BField rhsField = rhsType.fields.get(lhsField.name.value);
             if (rhsField == null ||
                     !isInSameVisibilityRegion(lhsField.symbol, rhsField.symbol) ||
-                    (Symbols.isFlagOn(lhsField.symbol.flags, Flags.READONLY) &&
-                             !Symbols.isFlagOn(rhsField.symbol.flags, Flags.READONLY)) ||
+                    hasIncompatibleReadOnlyFlags(lhsField.symbol.flags, rhsField.symbol.flags) ||
                     !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
                 return false;
             }
@@ -2232,8 +2234,7 @@ public class Types {
                 return false;
             }
 
-            if (Symbols.isFlagOn(lhsField.symbol.flags, Flags.READONLY) &&
-                    !Symbols.isFlagOn(rhsField.symbol.flags, Flags.READONLY)) {
+            if (hasIncompatibleReadOnlyFlags(lhsField.symbol.flags, rhsField.symbol.flags)) {
                 return false;
             }
 

@@ -939,8 +939,7 @@ public class TypeChecker {
                 return false;
             }
 
-            if (Flags.isFlagOn(targetField.flags, Flags.READONLY) &&
-                    !Flags.isFlagOn(sourceField.flags, Flags.READONLY)) {
+            if (hasIncompatibleReadOnlyFlags(targetField, sourceField)) {
                 return false;
             }
 
@@ -972,6 +971,10 @@ public class TypeChecker {
             }
         }
         return true;
+    }
+
+    private static boolean hasIncompatibleReadOnlyFlags(BField targetField, BField sourceField) {
+        return Flags.isFlagOn(targetField.flags, Flags.READONLY) && !Flags.isFlagOn(sourceField.flags, Flags.READONLY);
     }
 
     private static boolean checkIsArrayType(BType sourceType, BArrayType targetType, List<TypePair> unresolvedTypes) {
@@ -1133,8 +1136,7 @@ public class TypeChecker {
                     !isInSameVisibilityRegion(Optional.ofNullable(lhsField.type.getPackage()).map(BPackage::getName)
                         .orElse(""), Optional.ofNullable(rhsField.type.getPackage()).map(BPackage::getName)
                         .orElse(""), lhsField.flags, rhsField.flags) ||
-                    (Flags.isFlagOn(lhsField.flags, Flags.READONLY) &&
-                             !Flags.isFlagOn(rhsField.flags, Flags.READONLY)) ||
+                    hasIncompatibleReadOnlyFlags(lhsField, rhsField) ||
                     !checkIsType(rhsField.type, lhsField.type, new ArrayList<>())) {
                 return false;
             }
