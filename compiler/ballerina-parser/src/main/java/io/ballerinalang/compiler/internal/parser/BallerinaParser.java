@@ -202,10 +202,8 @@ public class BallerinaParser extends AbstractParser {
             case OBJECT_FIELD_RHS:
                 return parseObjectFieldRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (STNode) args[3],
                         (STNode) args[4]);
-            case OBJECT_TYPE_FIRST_QUALIFIER:
+            case OBJECT_TYPE_QUALIFIER:
                 return parseObjectTypeQualifiers();
-            case OBJECT_TYPE_SECOND_QUALIFIER:
-                return parseObjectTypeSecondQualifier((STNode) args[0]);
             case OBJECT_KEYWORD:
                 return parseObjectKeyword();
             case TYPE_NAME:
@@ -2256,6 +2254,14 @@ public class BallerinaParser extends AbstractParser {
             case RECORD_KEYWORD:
                 // Record type descriptor
                 return parseRecordTypeDescriptor();
+            case READONLY_KEYWORD:
+                STToken nextNextToken = getNextNextToken(tokenKind);
+                SyntaxKind nextNextTokenKind = nextNextToken.kind;
+                if (nextNextTokenKind != SyntaxKind.OBJECT_KEYWORD && nextNextTokenKind != SyntaxKind.ABSTRACT_KEYWORD
+                        && nextNextTokenKind != SyntaxKind.CLIENT_KEYWORD) {
+                    return parseSimpleTypeDescriptor();
+                }
+                // Else fall through
             case OBJECT_KEYWORD:
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
@@ -5050,10 +5056,14 @@ public class BallerinaParser extends AbstractParser {
                 STNode abstractKeyword = parseAbstractKeyword();
                 firstQualifier = abstractKeyword;
                 break;
+            case READONLY_KEYWORD:
+                STNode readonlyKeyword = parseReadonlyKeyword();
+                firstQualifier = readonlyKeyword;
+                break;
             case OBJECT_KEYWORD:
                 return STNodeFactory.createEmptyNodeList();
             default:
-                Solution solution = recover(peek(), ParserRuleContext.OBJECT_TYPE_FIRST_QUALIFIER);
+                Solution solution = recover(peek(), ParserRuleContext.OBJECT_TYPE_QUALIFIER);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -5066,45 +5076,43 @@ public class BallerinaParser extends AbstractParser {
         }
 
         // Parse the second qualifier if available.
-        STNode secondQualifier = parseObjectTypeSecondQualifier(firstQualifier);
+        STNode secondQualifier = parseObjectTypeNextQualifier(firstQualifier, firstQualifier);
 
         List<STNode> qualifiers = new ArrayList<>();
         qualifiers.add(firstQualifier);
+
         if (secondQualifier != null) {
             qualifiers.add(secondQualifier);
-        }
-        return STNodeFactory.createNodeList(qualifiers);
-    }
 
-    private STNode parseObjectTypeSecondQualifier(STNode firstQualifier) {
-        STToken nextToken = peek();
-        return parseObjectTypeSecondQualifier(nextToken.kind, firstQualifier);
-    }
-
-    private STNode parseObjectTypeSecondQualifier(SyntaxKind kind, STNode firstQualifier) {
-        if (firstQualifier.kind != kind) {
-            switch (kind) {
-                case CLIENT_KEYWORD:
-                    return parseClientKeyword();
-                case ABSTRACT_KEYWORD:
-                    return parseAbstractKeyword();
-                case OBJECT_KEYWORD:
-                    return null;
-                default:
-                    break;
+            // Parse the third qualifier if available.
+            STNode thirdQualifier = parseObjectTypeNextQualifier(firstQualifier, secondQualifier);
+            if (thirdQualifier != null) {
+                qualifiers.add(thirdQualifier);
             }
         }
 
-        Solution solution = recover(peek(), ParserRuleContext.OBJECT_TYPE_SECOND_QUALIFIER, firstQualifier);
+        return STNodeFactory.createNodeList(qualifiers);
+    }
 
-        // If the parser recovered by inserting a token, then try to re-parse the same
-        // rule with the inserted token. This is done to pick the correct branch
-        // to continue the parsing.
-        if (solution.action == Action.REMOVE) {
-            return solution.recoveredNode;
+    private STNode parseObjectTypeNextQualifier(STNode firstQualifier, STNode secondQualifier) {
+        SyntaxKind nextTokenKind = peek().kind;
+        if (firstQualifier.kind == nextTokenKind || secondQualifier.kind == nextTokenKind) {
+            // if the same qualifier occurs twice it is simply discarded
+            this.errorHandler.reportInvalidNode(null, "Cannot have the  same qualifier twice");
+            consume();
+            nextTokenKind = peek().kind;
         }
-
-        return parseObjectTypeSecondQualifier(solution.tokenKind, firstQualifier);
+        switch (nextTokenKind) {
+            case CLIENT_KEYWORD:
+                return parseClientKeyword();
+            case ABSTRACT_KEYWORD:
+                return parseAbstractKeyword();
+            case READONLY_KEYWORD:
+                return parseReadonlyKeyword();
+            case OBJECT_KEYWORD:
+            default:
+                return null;
+        }
     }
 
     /**
