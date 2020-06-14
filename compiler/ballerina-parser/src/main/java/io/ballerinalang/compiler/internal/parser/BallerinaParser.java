@@ -2377,7 +2377,8 @@ public class BallerinaParser extends AbstractParser {
             return STNodeFactory.createBuiltinSimpleNameReferenceNode(typeKind, token);
         } else {
             Solution sol = recover(peek(), ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR);
-            return sol.recoveredNode;
+            STNode recoveredNode = sol.recoveredNode;
+            return STNodeFactory.createBuiltinSimpleNameReferenceNode(recoveredNode.kind, recoveredNode);
         }
     }
 
