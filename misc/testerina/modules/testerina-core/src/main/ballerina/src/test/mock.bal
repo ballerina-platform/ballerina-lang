@@ -240,8 +240,14 @@ public function when(MockFunction mockFunc) returns CaseFunction {
     return case;
 }
 
+# Represents a MockFunction object
 public type MockFunction object {};
 
+# Represents a CaseFunction object
+#
+# + mockFuncObj - associated mockFunctionObj
+# + returnVal - return value
+# + args - function arguments
 public type CaseFunction object {
     MockFunction mockFuncObj;
     any|error returnVal = ();
@@ -346,11 +352,20 @@ function thenReturnSeqExt(CaseMemFunc case) returns Error? = @java:Method {
     class: "org.ballerinalang.testerina.natives.test.Mock"
 } external;
 
+# Inter-op to register return value
+#
+# + case - case to register
+# + return - error if case registration failed
 function thenReturnFuncExt(CaseFunction case) returns Error? = @java:Method {
     name: "thenReturn",
     class: "org.ballerinalang.testerina.natives.test.FunctionMock"
 } external;
 
+# Inter-op to call Mock Handler
+#
+# + mockFunction - mockFunction object
+# + args - function arguments
+# + return - function return value or error if case registration failed
 public function mockHandler(MockFunction mockFunction, anydata|error[] args) returns any|Error = @java:Method {
     name: "mockHandler",
     class: "org.ballerinalang.testerina.natives.test.FunctionMock"

@@ -641,7 +641,6 @@ public class Desugar extends BLangNodeVisitor {
         addAttachedFunctionsToPackageLevel(pkgNode, env);
 
         if (!pkgNode.testablePkgs.isEmpty() && pkgNode.getTestablePkg().getMockFunctionNamesMap() != null) {
-            System.out.println("[Desugar] Creating Mock Desugar");
             mockDesugar.generateMockFunctions(pkgNode);
         }
 
