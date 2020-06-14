@@ -77,3 +77,33 @@ function testInvalidUpdateOfReadonlyFieldInUnion() {
     sd.name = "May"; // invalid
     sd.id = 4567; // valid
 }
+
+type Foo record {|
+    int[] arr;
+    map<string> mp;
+|};
+
+type Bar record { // inclusive-type-desc
+    readonly int[] arr;
+    readonly map<string> mp;
+};
+
+type Baz record {| // not all readonly
+    readonly int[] arr;
+    map<string> mp;
+|};
+
+type Qux record {| // only readonly typed
+    readonly & int[] arr;
+    map<string> & readonly mp;
+|};
+
+function testInvalidImmutableTypeAssignmentForNotAllReadOnlyFields() {
+    Bar bar = {arr: [1, 2], mp: {a: "a"}};
+    Baz baz = {arr: [1, 2], mp: {a: "a"}};
+    Qux qux = {arr: [1, 2], mp: {a: "a"}};
+
+    Foo & readonly f1 = bar;
+    Foo & readonly f2 = baz;
+    Foo & readonly f3 = qux;
+}

@@ -40,8 +40,9 @@ public class BIntersectionType extends BType {
     private final boolean readonly;
     private BIntersectionType immutableType;
 
-    public BIntersectionType(BType[] constituentTypes, BType effectiveType, int typeFlags, boolean readonly) {
-        super(null, null, Object.class);
+    public BIntersectionType(BPackage pkg, BType[] constituentTypes, BType effectiveType, int typeFlags,
+                             boolean readonly) {
+        super(null, pkg, Object.class);
         this.constituentTypes = Arrays.asList(constituentTypes);
         this.effectiveType = effectiveType;
         this.typeFlags = typeFlags;
