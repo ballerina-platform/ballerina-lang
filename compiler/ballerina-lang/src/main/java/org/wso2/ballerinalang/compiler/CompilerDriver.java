@@ -209,8 +209,6 @@ public class CompilerDriver {
             symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
         }
 
-
-
         symResolver.reloadIntRangeType();
 
         // Now load each module.
