@@ -25,6 +25,8 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.GetResponse;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -32,6 +34,7 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.messaging.rabbitmq.observability.RabbitMQMetricsUtil;
 import org.ballerinalang.messaging.rabbitmq.observability.RabbitMQObservabilityConstants;
@@ -49,10 +52,13 @@ import java.util.concurrent.TimeoutException;
  * @since 0.995.0
  */
 public class ChannelUtils {
-    public static Channel createChannel(Connection connection) {
+    public static Channel createChannel(Connection connection, ObjectValue channelObj) {
         try {
             Channel channel = connection.createChannel();
             RabbitMQMetricsUtil.reportNewChannel(channel);
+            String connectorId = channelObj.getStringValue(RabbitMQConstants.CONNECTOR_ID).getValue();
+            channelObj.addNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT,
+                                     new RabbitMQTransactionContext(channel, connectorId));
             return channel;
         } catch (IOException exception) {
             RabbitMQMetricsUtil.reportError(connection, RabbitMQObservabilityConstants.ERROR_TYPE_CHANNEL_CREATE);
@@ -126,7 +132,8 @@ public class ChannelUtils {
     }
 
     public static Object basicPublish(Object messageContent, BString routingKey, BString exchangeName,
-                                      Object properties, Channel channel) {
+                                      Object properties, Channel channel, ObjectValue channelObj) {
+        Strand strand = Scheduler.getStrand();
         String defaultExchangeName = "";
         if (exchangeName != null) {
             defaultExchangeName = exchangeName.getValue();
@@ -160,6 +167,9 @@ public class ChannelUtils {
             RabbitMQMetricsUtil.reportPublish(channel, defaultExchangeName, routingKey.getValue(),
                                               messageContentBytes.length);
             RabbitMQTracingUtil.tracePublishResourceInvocation(channel, defaultExchangeName, routingKey.getValue());
+            if (strand.isInTransaction()) {
+                RabbitMQUtils.handleTransaction(channelObj, strand);
+            }
         } catch (IOException | RabbitMQConnectorException exception) {
             RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_PUBLISH);
             return RabbitMQUtils.returnErrorValue("Error occurred while publishing the message: "

@@ -346,6 +346,15 @@ public class BallerinaFileBuilder {
             }
             return "";
         });
+        handlebars.registerHelper("ignoreQuote", (object, options) -> {
+            if (object instanceof String) {
+                String word = (String) object;
+                if (word.startsWith("'")) {
+                    return word.substring(1);
+                }
+            }
+            return object;
+        });
         handlebars.registerHelper("uppercase", (object, options) -> {
             if (object instanceof String) {
                 return ((String) object).toUpperCase(Locale.ENGLISH);

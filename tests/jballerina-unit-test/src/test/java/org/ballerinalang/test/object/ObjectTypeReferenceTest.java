@@ -125,7 +125,7 @@ public class ObjectTypeReferenceTest {
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testSimpleObjectTypeReferenceSemanticsNegative_2() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-2-semantics" +
                 "-negative.bal");

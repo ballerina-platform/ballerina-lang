@@ -53,7 +53,7 @@ public class Flags {
     public static final int WORKER = LANG_LIB << 1;
     public static final int FORKED = WORKER << 1;
     public static final int TRANSACTIONAL = FORKED << 1;
-    public static final int PARAMETERIZED = FORKED << 1;
+    public static final int PARAMETERIZED = TRANSACTIONAL << 1;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -224,6 +224,10 @@ public class Flags {
             addIfFlagOn(flagSet, mask, flagVal, flag);
         }
         return flagSet;
+    }
+
+    public static int unset(int mask, int flag) {
+        return mask & (~flag);
     }
 
     private static void addIfFlagOn(Set<Flag> flagSet, int mask, int flagVal, Flag flag) {
