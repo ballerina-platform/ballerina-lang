@@ -151,6 +151,10 @@ type PersonObj object {
     function name() returns string => self.fname + " " + self.lname;
 };
 
+type PersonTable table<Person>;
+type IntStream stream<int>;
+type IntArray int[];
+
 function testComplexTypes() {
     json j = rt:echo(json, <json>{"name": "John Doe"});
     assert(<json>{"name": "John Doe"}, j);
@@ -158,7 +162,7 @@ function testComplexTypes() {
     xml x = rt:echo(xml, xml `<hello>xml content</hello>`);
     assert(xml `<hello>xml content</hello>`, x);
 
-    int[] ar = rt:echo(int[], <int[]>[20, 30, 40]);
+    int[] ar = rt:echo(IntArray, <int[]>[20, 30, 40]);
     assert(<int[]>[20, 30, 40], ar);
 
     PersonObj pObj = new("John", "Doe");
@@ -167,7 +171,7 @@ function testComplexTypes() {
 
     int[] intList = [10, 20, 30, 40, 50];
     stream<int> st = intList.toStream();
-    stream<int> newSt = rt:echo(stream<int>, st);
+    stream<int> newSt = rt:echo(IntStream, st);
     int tot = 0;
 
     error? err = newSt.forEach(function (int x) { tot+= x; });
@@ -180,7 +184,7 @@ function testComplexTypes() {
         { name: "Granier", age: 34}
     ];
 
-    table<Person> newTab = rt:echo(table<Person>, tab);
+    table<Person> newTab = rt:echo(PersonTable, tab);
     assert(tab, newTab);
 }
 

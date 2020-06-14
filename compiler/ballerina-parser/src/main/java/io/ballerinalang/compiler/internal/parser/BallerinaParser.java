@@ -13713,8 +13713,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseMemberBracketedList(false);
             case IDENTIFIER_TOKEN:
                 STNode identifier = parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
-                STNode varName = ((STSimpleNameReferenceNode) identifier).name;
-                if (isWildcardBP(varName)) {
+                if (isWildcardBP(identifier)) {
+                    STNode varName = ((STSimpleNameReferenceNode) identifier).name;
                     return getWildcardBindingPattern(varName);
                 }
 
