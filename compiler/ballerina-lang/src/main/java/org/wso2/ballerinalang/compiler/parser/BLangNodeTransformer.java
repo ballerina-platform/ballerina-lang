@@ -1647,10 +1647,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     createIdentifier(((SimpleNameReferenceNode) fieldName).name());
             bLFieldBasedAccess.fieldKind = FieldKind.SINGLE;
         }
+
+        io.ballerinalang.compiler.syntax.tree.ExpressionNode containerExpr = fieldAccessExprNode.expression();
+        if (containerExpr.kind() == SyntaxKind.BRACED_EXPRESSION) {
+            bLFieldBasedAccess.expr = createExpression(((BracedExpressionNode) containerExpr).expression());
+        } else {
+            bLFieldBasedAccess.expr = createExpression(containerExpr);
+        }
+
         bLFieldBasedAccess.pos = getPosition(fieldAccessExprNode);
         bLFieldBasedAccess.field.pos = getPosition(fieldAccessExprNode);
         trimLeft(bLFieldBasedAccess.field.pos, getPosition(fieldAccessExprNode.dotToken()));
-        bLFieldBasedAccess.expr = createExpression(fieldAccessExprNode.expression());
         bLFieldBasedAccess.optionalFieldAccess = false;
         return bLFieldBasedAccess;
     }
