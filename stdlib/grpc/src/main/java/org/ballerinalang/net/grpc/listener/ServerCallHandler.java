@@ -225,6 +225,8 @@ public abstract class ServerCallHandler {
          * timeouts, explicit cancellation by the client, network errors, etc.
          *
          * <p>There will be no further callbacks for the call.
+         *
+         * @param message a received error message.
          */
         void onCancel(Message message);
 
