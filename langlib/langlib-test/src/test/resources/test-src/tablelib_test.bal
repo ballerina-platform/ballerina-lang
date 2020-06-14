@@ -67,6 +67,8 @@ type EngineerTable table<Engineer>;
 
 type InternTable table<Intern>;
 
+type PersonAnyTable table<map<any>>;
+
 PersonalTable tab = table key(name)[
   { name: "Chiran", age: 33 },
   { name: "Mohan", age: 37 },
@@ -362,6 +364,16 @@ function testAddInconsistentData2() {
     personTbl.add(student1);
 }
 
+function testAddInconsistentDataWithMapConstrTbl() {
+    EngineerTable engineerTbl = table key(name) [
+      { name: "Lisa", age: 22, intern: true },
+      { name: "Jonas", age: 21, intern: false }
+    ];
+    PersonAnyTable personTbl = engineerTbl;
+    Student student1 = { name: "John", age: 20, studentId: 1 };
+    personTbl.put(student1);
+}
+
 function testAddValidData() returns boolean {
     boolean testPassed = true;
     EngineerTable engineerTbl = table key(name) [
@@ -389,6 +401,20 @@ function testAddValidData2() returns boolean {
     Person[] tableToList = personTbl.toArray();
     testPassed = testPassed && tableToList.length() == 3;
     testPassed = testPassed && tableToList[2] == intern1;
+    return testPassed;
+}
+
+function testAddValidDataWithMapConstrTbl() returns boolean {
+    boolean testPassed = true;
+    EngineerTable engineerTbl = table key(name) [
+      { name: "Lisa", age: 22, intern: true },
+      { name: "Jonas", age: 21, intern: false }
+    ];
+    PersonAnyTable personTbl = engineerTbl;
+    Intern intern1 = { name: "John", age: 23, intern: true, salary: 100 };
+    personTbl.add(intern1);
+    testPassed = testPassed && personTbl.toString() == "name=Lisa age=22 intern=true\n" +
+    "name=Jonas age=21 intern=false\nname=John age=23 intern=true salary=100";
     return testPassed;
 }
 
@@ -430,6 +456,16 @@ function testPutInconsistentData2() {
     personTbl.put(student1);
 }
 
+function testPutInconsistentDataWithMapConstrTbl() {
+    EngineerTable engineerTbl = table key(name) [
+      { name: "Lisa", age: 22, intern: true },
+      { name: "Jonas", age: 21, intern: false }
+    ];
+    PersonAnyTable personTbl = engineerTbl;
+    Student student1 = { name: "John", age: 20, studentId: 1 };
+    personTbl.put(student1);
+}
+
 function testPutValidData() returns boolean {
     boolean testPassed = true;
     EngineerTable engineerTbl = table key(name) [
@@ -457,6 +493,20 @@ function testPutValidData2() returns boolean {
     Person[] tableToList = personTbl.toArray();
     testPassed = testPassed && tableToList.length() == 3;
     testPassed = testPassed && tableToList[2] == intern1;
+    return testPassed;
+}
+
+function testPutValidDataWithMapConstrTbl() returns boolean {
+    boolean testPassed = true;
+    EngineerTable engineerTbl = table key(name) [
+      { name: "Lisa", age: 22, intern: true },
+      { name: "Jonas", age: 21, intern: false }
+    ];
+    PersonAnyTable personTbl = engineerTbl;
+    Intern intern1 = { name: "John", age: 23, intern: true, salary: 100 };
+    personTbl.put(intern1);
+    testPassed = testPassed && personTbl.toString() == "name=Lisa age=22 intern=true\n" +
+    "name=Jonas age=21 intern=false\nname=John age=23 intern=true salary=100";
     return testPassed;
 }
 

@@ -218,6 +218,14 @@ public class LangLibTableTest {
         Assert.fail();
     }
 
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}ValueInconsistentError " +
+                    "message=value inconsistent with inherent table type 'table<Engineer> key\\(name\\)'.*")
+    public void testAddInconsistentDataWithMapConstrTbl() {
+        BRunUtil.invoke(compileResult, "testAddInconsistentDataWithMapConstrTbl");
+        Assert.fail();
+    }
+
     @Test
     public void testAddValidData() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAddValidData");
@@ -227,6 +235,12 @@ public class LangLibTableTest {
     @Test
     public void testAddValidData2() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAddValidData2");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testAddValidDataWithMapConstrTbl() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAddValidDataWithMapConstrTbl");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
@@ -252,6 +266,14 @@ public class LangLibTableTest {
         Assert.fail();
     }
 
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}ValueInconsistentError " +
+                    "message=value inconsistent with inherent table type 'table<Engineer> key\\(name\\)'.*")
+    public void testPutInconsistentDataWithMapConstrTbl() {
+        BRunUtil.invoke(compileResult, "testPutInconsistentDataWithMapConstrTbl");
+        Assert.fail();
+    }
+
     @Test
     public void testPutValidData() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testPutValidData");
@@ -261,6 +283,12 @@ public class LangLibTableTest {
     @Test
     public void testPutValidData2() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testPutValidData2");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testPutValidDataWithMapConstrTbl() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPutValidDataWithMapConstrTbl");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
