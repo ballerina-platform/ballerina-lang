@@ -110,6 +110,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
@@ -374,7 +375,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (isLambda) {
             return;
         }
-        transactionalFuncCheckStack.push(funcNode.flagSet.contains(Flag.TRANSACTIONAL));
 
         validateParams(funcNode);
 
@@ -401,7 +401,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.workerActionSystemStack.peek().endWorkerActionStateMachine();
         } finally {
             this.finalizeCurrentWorkerActionSystem();
-            transactionalFuncCheckStack.pop();
         }
         funcNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
@@ -420,6 +419,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.returnWithintransactionCheckStack.push(true);
         this.doneWithintransactionCheckStack.push(true);
         this.returnTypes.push(new LinkedHashSet<>());
+        this.transactionalFuncCheckStack.push(funcNode.flagSet.contains(Flag.TRANSACTIONAL));
         this.resetFunction();
         if (Symbols.isNative(funcNode.symbol)) {
             return;
@@ -444,6 +444,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.returnTypes.pop();
         this.returnWithintransactionCheckStack.pop();
         this.doneWithintransactionCheckStack.pop();
+        this.transactionalFuncCheckStack.pop();
     }
 
     private boolean isPublicInvokableNode(BLangInvokableNode invNode) {
@@ -453,7 +454,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBlockFunctionBody body) {
-        if (!transactionalFuncCheckStack.empty()) {
+        boolean prevWithinTxScope = withinTransactionScope;
+        if (!transactionalFuncCheckStack.empty() && !withinTransactionScope) {
             withinTransactionScope = transactionalFuncCheckStack.peek();
         }
         final SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(body, env);
@@ -461,6 +463,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeNode(e, blockEnv);
         }
         this.resetLastStatement();
+        if (!transactionalFuncCheckStack.empty() && transactionalFuncCheckStack.peek()) {
+            withinTransactionScope = prevWithinTxScope;
+        }
     }
 
     @Override
@@ -599,8 +604,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetryTransaction retryTransaction) {
+        this.returnWithinRetryCheckStack.push(false);
         analyzeNode(retryTransaction.retrySpec, env);
         analyzeNode(retryTransaction.transaction, env);
+        retryTransaction.transactionReturns = this.returnWithinRetryCheckStack.peek();
+        this.returnWithinRetryCheckStack.pop();
     }
 
     private void checkUnreachableCode(BLangStatement stmt) {
@@ -2432,6 +2440,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
         analyzeExprs(stringTemplateLiteral.exprs);
+    }
+
+    public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
+        analyzeExprs(rawTemplateLiteral.strings);
+        analyzeExprs(rawTemplateLiteral.insertions);
     }
 
     public void visit(BLangLambdaFunction bLangLambdaFunction) {

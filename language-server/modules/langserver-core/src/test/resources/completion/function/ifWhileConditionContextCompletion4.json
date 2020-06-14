@@ -365,6 +365,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "myCookie",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "180",
+      "insertText": "myCookie",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "CookieClient",
       "kind": "Interface",
       "detail": "Object",
@@ -1215,6 +1223,17 @@
       },
       "sortText": "180",
       "insertText": "ClientConfiguration",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CsvPersistentCookieHandler",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a default persistent cookie handler, which stores persistent cookies in a CSV file.\n"
+      },
+      "sortText": "190",
+      "insertText": "CsvPersistentCookieHandler",
       "insertTextFormat": "Snippet"
     },
     {

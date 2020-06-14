@@ -358,7 +358,7 @@ public class StubGeneratorTestCase {
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 8,
                 "Expected type definitions not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 35,
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 36,
                 "Expected functions not found in compile results.");
         validatePublicAttachedFunctions(compileResult);
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1,
@@ -379,7 +379,7 @@ public class StubGeneratorTestCase {
                 "Expected compilation units not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 8,
                 "Expected type definitions not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 21,
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 23,
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
@@ -398,7 +398,7 @@ public class StubGeneratorTestCase {
                 "Expected compilation units not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 9,
                 "Expected type definitions not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 22,
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 24,
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
@@ -417,7 +417,7 @@ public class StubGeneratorTestCase {
                 "Expected compilation units not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 4,
                 "Expected type definitions not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 17,
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 19,
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
@@ -436,7 +436,7 @@ public class StubGeneratorTestCase {
                 "Expected compilation units not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 9,
                 "Expected type definitions not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 22,
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 24,
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
@@ -455,7 +455,7 @@ public class StubGeneratorTestCase {
                 "Expected compilation units not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
                 "Expected type definitions not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 14,
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 16,
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");

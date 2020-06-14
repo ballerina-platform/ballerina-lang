@@ -55,12 +55,6 @@ public class BRecordType extends BStructureType {
         this.readonly = Flags.isFlagOn(flags, Flags.READONLY);
     }
 
-    public BRecordType(String typeName, BPackage pkg, int flags, boolean sealed, int typeFlags,
-                       BIntersectionType immutableType) {
-        this(typeName, pkg, flags, sealed, typeFlags);
-        this.immutableType = immutableType;
-    }
-
     /**
      * Create a {@code BRecordType} which represents the user defined record type.
      *

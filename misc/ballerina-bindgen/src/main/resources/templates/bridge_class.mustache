@@ -23,7 +23,7 @@ import ballerina/java;{{/if}}
     # The init function of the Ballerina object mapping `{{#replace className "." "/"}}{{/replace}}` Java class.
     #
     # + obj - The `handle` value containing the Java reference of the object.
-    {{accessModifier}}function __init(handle obj) {
+    {{accessModifier}}function init(handle obj) {
         self.jObj = obj;
     }
 
@@ -74,7 +74,7 @@ import ballerina/java;{{/if}}
     #
     # + return - The `{{fieldType}}` value of the field.
     {{accessModifier}}function {{fieldMethodName}}() returns {{fieldType}}{{#if isString}}?{{/if}}{{#if returnError}}|error{{/if}} {
-        return {{#if isString}}java:toString({{else if isArray}}<{{fieldType}}>check fromHandle({{/if}}{{prefix}}_{{fieldMethodName}}(self.jObj){{#if isString}}){{else if isArray}}){{/if}};
+        return {{#if isString}}java:toString({{else if isArray}}<{{fieldType}}>check fromHandle({{/if}}{{prefix}}_{{fieldMethodName}}(self.jObj){{#if isString}}){{else if isArray}}, "{{returnTypeJava}}"){{/if}};
     }{{/if}}{{/unless}}{{/fieldList}}
 };
 {{#initFunctionList}}
@@ -136,7 +136,7 @@ import ballerina/java;{{/if}}
     {{#if isObject}}
     {{fieldType}} obj = new({{#if handleException}}check {{/if}}{{#if isStringReturn}}java:toString({{/if}}{{prefix}}_{{fieldMethodName}}(){{#if isStringReturn}}){{/if}});
     return obj;{{else}}
-    return {{#if isString}}java:toString({{else if isArray}}<{{fieldType}}>check fromHandle({{/if}}{{prefix}}_{{fieldMethodName}}(){{#if isString}}){{else if isArray}}){{/if}};{{/if}}
+    return {{#if isString}}java:toString({{else if isArray}}<{{fieldType}}>check fromHandle({{/if}}{{prefix}}_{{fieldMethodName}}(){{#if isString}}){{else if isArray}}, "{{returnTypeJava}}"){{/if}};{{/if}}
 }
 {{/if}}{{/if}}{{/fieldList}}{{#if constructorList}}
 // External interop functions for mapping public constructors.

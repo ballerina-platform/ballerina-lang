@@ -2560,12 +2560,16 @@ public class BLangPackageBuilder {
     }
 
     void addObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isAnonymous, boolean isAbstract,
-                       boolean isClient, boolean isService) {
+                       boolean isReadOnly, boolean isClient, boolean isService) {
         BLangObjectTypeNode objectTypeNode = populateObjectTypeNode(pos, ws, isAnonymous);
         objectTypeNode.addWS(this.objectFieldBlockWs.pop());
 
         if (isAbstract) {
             objectTypeNode.flagSet.add(Flag.ABSTRACT);
+        }
+
+        if (isReadOnly) {
+            objectTypeNode.flagSet.add(Flag.READONLY);
         }
 
         if (isClient) {
@@ -3192,17 +3196,6 @@ public class BLangPackageBuilder {
         transaction.addWS(ws);
         transaction.setTransactionBody((BLangBlockStmt) this.blockNodeStack.pop());
         addStmtToCurrentBlock(transaction);
-
-        // TODO This is a temporary workaround to flag coordinator service start
-        boolean transactionsModuleAlreadyImported = this.imports.stream()
-                .anyMatch(importPackage -> importPackage.orgName.value.equals(Names.BALLERINA_ORG.value)
-                        && importPackage.pkgNameComps.get(0).value.equals(Names.TRANSACTION_PACKAGE.value));
-
-        if (!transactionsModuleAlreadyImported) {
-            List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
-            addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value, nameComps, Names.EMPTY.value,
-                    Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
-        }
     }
 
     void createRetrySpec(DiagnosticPos pos, Set<Whitespace> ws, boolean typeParamAvailable, boolean argsAvailable) {

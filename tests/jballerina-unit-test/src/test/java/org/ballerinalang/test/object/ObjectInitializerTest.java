@@ -75,7 +75,7 @@ public class ObjectInitializerTest {
 
     }
 
-    @Test(description = "Test negative object initializers scenarios")
+    @Test(description = "Test negative object initializers scenarios", groups = { "brokenOnNewParser" })
     public void testObjectInitializerNegatives() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_initializer_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 8);
@@ -116,7 +116,7 @@ public class ObjectInitializerTest {
         Assert.assertEquals(person.get("misc").stringValue(), "[{\"city\":\"Colombo\", \"country\":\"Sri Lanka\"}]");
     }
 
-    @Test(description = "Test returning a custom error from initializer")
+    @Test(description = "Test returning a custom error from initializer", groups = { "brokenOnNewParser" })
     public void testCustomErrorReturn() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCustomErrorReturn");
 

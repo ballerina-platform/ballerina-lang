@@ -2624,7 +2624,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token startBacktick =
                 modifyToken(byteArrayLiteralNode.startBacktick());
         Token content =
-                modifyToken(byteArrayLiteralNode.content());
+                modifyToken(byteArrayLiteralNode.content().orElse(null));
         Token endBacktick =
                 modifyToken(byteArrayLiteralNode.endBacktick());
         return byteArrayLiteralNode.modify(
@@ -2706,8 +2706,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(matchStatementNode.condition());
         Token openBrace =
                 modifyToken(matchStatementNode.openBrace());
-        SeparatedNodeList<MatchClauseNode> matchClauses =
-                modifySeparatedNodeList(matchStatementNode.matchClauses());
+        NodeList<MatchClauseNode> matchClauses =
+                modifyNodeList(matchStatementNode.matchClauses());
         Token closeBrace =
                 modifyToken(matchStatementNode.closeBrace());
         return matchStatementNode.modify(
@@ -2773,6 +2773,18 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 methodName,
                 methodSignature,
                 functionBody);
+    }
+
+    @Override
+    public DistinctTypeDescriptorNode transform(
+            DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
+        Token distinctKeyword =
+                modifyToken(distinctTypeDescriptorNode.distinctKeyword());
+        TypeDescriptorNode typeDescriptor =
+                modifyNode(distinctTypeDescriptorNode.typeDescriptor());
+        return distinctTypeDescriptorNode.modify(
+                distinctKeyword,
+                typeDescriptor);
     }
 
     // Tokens

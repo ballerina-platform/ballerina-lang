@@ -53,6 +53,8 @@ public enum DiagnosticCode {
     INVALID_INTERSECTION_TYPE("invalid.intersection.type"),
     INVALID_NON_READONLY_INTERSECTION_TYPE("invalid.non.readonly.intersection.type"),
     INVALID_READONLY_INTERSECTION_TYPE("invalid.readonly.intersection.type"),
+    INVALID_READONLY_OBJECT_INTERSECTION_TYPE("invalid.readonly.object.intersection.type"),
+    INVALID_READONLY_OBJECT_TYPE("invalid.readonly.object.type"),
     STREAM_INVALID_CONSTRAINT("stream.invalid.constraint"),
     STREAM_INIT_NOT_ALLOWED_HERE("stream.initialization.not.allowed.here"),
     CANNOT_INFER_OBJECT_TYPE_FROM_LHS("cannot.infer.object.type.from.lhs"),
@@ -539,7 +541,15 @@ public enum DiagnosticCode {
 
     INVALID_USE_OF_TYPEDESC_PARAM("invalid.use.of.typedesc.param"),
     INVALID_PARAM_TYPE_FOR_RETURN_TYPE("invalid.param.type.for.return.type"),
-    INVALID_TYPEDESC_PARAM("invalid.typedesc.param");
+    INVALID_TYPEDESC_PARAM("invalid.typedesc.param"),
+
+    INVALID_RAW_TEMPLATE_TYPE("invalid.raw.template.type"),
+    INVALID_NUM_STRINGS("invalid.num.of.strings"),
+    INVALID_NUM_INSERTIONS("invalid.num.of.insertions"),
+    INVALID_RAW_TEMPLATE_ASSIGNMENT("invalid.raw.template.assignment"),
+    INVALID_NUM_FIELDS("invalid.number.of.fields"),
+    METHODS_NOT_ALLOWED("methods.not.allowed"),
+    ;
     private String value;
 
     DiagnosticCode(String value) {
