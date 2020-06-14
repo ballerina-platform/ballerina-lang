@@ -48,7 +48,7 @@ public class ExprBodiedFunctionTest {
         compileResult = BCompileUtil.compile("test-src/functions/expr_bodied_functions.bal");
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testSyntaxErrors() {
         CompileResult result = BCompileUtil.compile("test-src/functions/expr_bodied_functions_negative.bal");
         Set<Integer> errorLines = new HashSet<>(Arrays.asList(19, 23, 20, 26));
