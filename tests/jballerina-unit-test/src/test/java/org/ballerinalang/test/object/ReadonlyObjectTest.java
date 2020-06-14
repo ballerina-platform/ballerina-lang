@@ -31,16 +31,17 @@ import static org.testng.Assert.assertEquals;
  *
  * @since 2.0.0
  */
+@Test(groups = { "brokenOnNewParser" })
 public class ReadonlyObjectTest {
 
     @Test
-    public void testReadonlyRecordFields() {
+    public void testReadonlyObjects() {
         CompileResult result = BCompileUtil.compile("test-src/object/readonly_objects.bal");
         BRunUtil.invoke(result, "testReadonlyObjects");
     }
 
     @Test
-    public void testReadonlyRecordFieldsNegative() {
+    public void testReadonlyObjectsNegative() {
         CompileResult result = BCompileUtil.compile("test-src/object/readonly_objects_negative.bal");
         int index = 0;
 
