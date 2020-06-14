@@ -104,9 +104,11 @@ public type Client client object {
     #
     # + sqlQueries - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `ParameterizedString` with an array
     #                of values passed in.
-    # + return - Summary of the sql update query as `ExecutionResult[]` or returns `BatchUpdateError`.
-    #            if any error occured when executing the query. `BatchUpdateError` will include summary of the
-    #            sql update query as `executionResults` for commands executed successfully.
+    # + return - Summary of the executed SQL queries as `ExecutionResult[]` which includes details such as
+    #            `affectedRowCount` and `lastInsertId`. If one of the commands in the batch fails, this function
+    #            will return `BatchExecuteError`, however the JDBC driver may or maynot continue to process the
+    #            remaining commands in the batch after a failure. `BatchExecuteError.detail()?.executionReults` will
+    #            return the summary of the executed commands.
     public remote function batchExecute(sql:ParameterizedString[] sqlQueries) returns sql:ExecutionResult[]|sql:Error {
         if (sqlQueries.length() == 0) {
             return sql:ApplicationError(" Parameter 'sqlQueries' cannot be empty array");
