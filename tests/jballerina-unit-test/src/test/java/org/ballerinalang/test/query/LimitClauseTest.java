@@ -43,7 +43,6 @@ public class LimitClauseTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/query/limit-clause.bal");
-        negativeResult = BCompileUtil.compile("test-src/query/limit-clause-negative.bal");
     }
 
     @Test(description = "Test limit clause when limit < number of elements")
@@ -149,8 +148,10 @@ public class LimitClauseTest {
         Assert.assertEquals(fullName2.get("lastName").stringValue(), "Fonseka");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class, description = "Test limit clause with incompatible types")
+    @Test(expectedExceptions = BLangRuntimeException.class, description = "Test limit clause with incompatible types",
+            groups = { "brokenOnNewParser" })
     public void testNegativeScenarios() {
+        negativeResult = BCompileUtil.compile("test-src/query/limit-clause-negative.bal");
         Assert.assertEquals(negativeResult.getErrorCount(), 2);
         int index = 0;
 

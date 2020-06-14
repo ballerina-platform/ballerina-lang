@@ -1517,12 +1517,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createQueryExpressionNode(
             STNode queryConstructType,
             STNode queryPipeline,
-            STNode selectClause) {
+            STNode selectClause,
+            STNode onConflictClause,
+            STNode limitClause) {
 
         return new STQueryExpressionNode(
                 queryConstructType,
                 queryPipeline,
-                selectClause);
+                selectClause,
+                onConflictClause,
+                limitClause);
     }
 
     public static STNode createIntersectionTypeDescriptorNode(
@@ -1794,12 +1798,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createQueryActionNode(
             STNode queryPipeline,
             STNode doKeyword,
-            STNode blockStatement) {
+            STNode blockStatement,
+            STNode limitClause) {
 
         return new STQueryActionNode(
                 queryPipeline,
                 doKeyword,
-                blockStatement);
+                blockStatement,
+                limitClause);
     }
 
     public static STNode createOptionalFieldAccessExpressionNode(
@@ -2054,6 +2060,50 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STDistinctTypeDescriptorNode(
                 distinctKeyword,
                 typeDescriptor);
+    }
+
+    public static STNode createOnConflictClauseNode(
+            STNode onKeyword,
+            STNode conflictKeyword,
+            STNode expression) {
+
+        return new STOnConflictClauseNode(
+                onKeyword,
+                conflictKeyword,
+                expression);
+    }
+
+    public static STNode createLimitClauseNode(
+            STNode limitKeyword,
+            STNode expression) {
+
+        return new STLimitClauseNode(
+                limitKeyword,
+                expression);
+    }
+
+    public static STNode createJoinClauseNode(
+            STNode outerKeyword,
+            STNode joinKeyword,
+            STNode typedBindingPattern,
+            STNode inKeyword,
+            STNode expression) {
+
+        return new STJoinClauseNode(
+                outerKeyword,
+                joinKeyword,
+                typedBindingPattern,
+                inKeyword,
+                expression);
+    }
+
+    public static STNode createOnClauseNode(
+            STNode onKeyword,
+            STNode expression) {
+
+        return new STOnClauseNode(
+                onKeyword,
+                expression);
     }
 }
 

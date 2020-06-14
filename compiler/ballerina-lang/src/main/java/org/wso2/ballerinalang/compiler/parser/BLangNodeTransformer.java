@@ -82,11 +82,13 @@ import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
 import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.InterpolationNode;
 import io.ballerinalang.compiler.syntax.tree.IntersectionTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.JoinClauseNode;
 import io.ballerinalang.compiler.syntax.tree.KeySpecifierNode;
 import io.ballerinalang.compiler.syntax.tree.KeyTypeConstraintNode;
 import io.ballerinalang.compiler.syntax.tree.LetClauseNode;
 import io.ballerinalang.compiler.syntax.tree.LetExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.LetVariableDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.LimitClauseNode;
 import io.ballerinalang.compiler.syntax.tree.ListBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ListenerDeclarationNode;
@@ -112,6 +114,8 @@ import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
 import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectMethodDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.OnClauseNode;
+import io.ballerinalang.compiler.syntax.tree.OnConflictClauseNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.PanicStatementNode;
@@ -244,7 +248,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -1383,7 +1391,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         doClause.pos = doClause.body.pos;
         bLQueryAction.queryClauseList.add(queryActionNode.queryPipeline().fromClause().apply(this));
         bLQueryAction.queryClauseList.addAll(applyAll(queryActionNode.queryPipeline().intermediateClauses()));
+
+        Optional<LimitClauseNode> limit = queryActionNode.limitClause();
+        if (limit.isPresent()) {
+            bLQueryAction.queryClauseList.add(limit.get().apply(this));
+        }
+
         bLQueryAction.queryClauseList.add(doClause);
+        bLQueryAction.doClause = doClause;
         bLQueryAction.pos = getPosition(queryActionNode);
         return bLQueryAction;
     }
@@ -3010,6 +3025,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangSelectClause selectClause = (BLangSelectClause) queryExprNode.selectClause().apply(this);
         queryExpr.queryClauseList.add(selectClause);
 
+        Optional<OnConflictClauseNode> onConflict = queryExprNode.onConflictClause();
+        if (onConflict.isPresent()) {
+            queryExpr.queryClauseList.add(onConflict.get().apply(this));
+        }
+
+        Optional<LimitClauseNode> limit = queryExprNode.limitClause();
+        if (limit.isPresent()) {
+            queryExpr.queryClauseList.add(limit.get().apply(this));
+        }
+
         boolean isTable = false;
         boolean isStream = false;
 
@@ -3048,9 +3073,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         fromClause.pos = getPosition(fromClauseNode);
         fromClause.collection = createExpression(fromClauseNode.expression());
         TypedBindingPatternNode bindingPatternNode = fromClauseNode.typedBindingPattern();
-        boolean isDeclaredWithVar = bindingPatternNode.typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC;
         fromClause.variableDefinitionNode = createBLangVarDef(getPosition(bindingPatternNode), bindingPatternNode,
                 Optional.empty(), Optional.empty());
+
+        boolean isDeclaredWithVar = bindingPatternNode.typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC;
         fromClause.isDeclaredWithVar = isDeclaredWithVar;
 
         return fromClause;
@@ -3070,6 +3096,45 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         selectClause.pos = getPosition(selectClauseNode);
         selectClause.expression = createExpression(selectClauseNode.expression());
         return selectClause;
+    }
+
+    @Override
+    public BLangNode transform(OnConflictClauseNode onConflictClauseNode) {
+        BLangOnConflictClause onConflictClause = (BLangOnConflictClause) TreeBuilder.createOnConflictClauseNode();
+        onConflictClause.pos = getPosition(onConflictClauseNode);
+        onConflictClause.expression = createExpression(onConflictClauseNode.expression());
+        return onConflictClause;
+    }
+
+    @Override
+    public BLangNode transform(LimitClauseNode limitClauseNode) {
+        BLangLimitClause selectClause = (BLangLimitClause) TreeBuilder.createLimitClauseNode();
+        selectClause.pos = getPosition(limitClauseNode);
+        selectClause.expression = createExpression(limitClauseNode.expression());
+        return selectClause;
+    }
+
+    @Override
+    public BLangNode transform(OnClauseNode onClauseNode) {
+        BLangOnClause selectClause = (BLangOnClause) TreeBuilder.createOnClauseNode();
+        selectClause.pos = getPosition(onClauseNode);
+        selectClause.expression = createExpression(onClauseNode.expression());
+        return selectClause;
+    }
+
+    @Override
+    public BLangNode transform(JoinClauseNode joinClauseNode) {
+        BLangJoinClause joinClause = (BLangJoinClause) TreeBuilder.createJoinClauseNode();
+        joinClause.pos = getPosition(joinClauseNode);
+        TypedBindingPatternNode typedBindingPattern = joinClauseNode.typedBindingPattern();
+        joinClause.variableDefinitionNode =
+                createBLangVarDef(getPosition(joinClauseNode), typedBindingPattern, Optional.empty(), Optional.empty());
+        joinClause.collection = createExpression(joinClauseNode.expression());
+
+        boolean isDeclaredWithVar = typedBindingPattern.typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC;
+        joinClause.isDeclaredWithVar = isDeclaredWithVar;
+
+        return joinClause;
     }
 
     @Override
