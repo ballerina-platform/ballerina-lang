@@ -147,6 +147,7 @@ public class SymbolTable {
     public BObjectType intRangeType;
     public BMapType mapAllType;
     public BArrayType arrayAllType;
+    public BObjectType rawTemplateType;
 
     // builtin subtypes
     public final BIntSubType signed32IntType = new BIntSubType(TypeTags.SIGNED32_INT, Names.SIGNED32);

@@ -115,7 +115,9 @@
 <!--            <package name="org.ballerinalang.test.expressions.mappingconstructor.*"/>-->
             <package name="org.ballerinalang.test.expressions.listconstructor.*"/>
 <!--            <package name="org.ballerinalang.test.expressions.group.*"/>-->
+            <package name="org.ballerinalang.test.expressions.rawtemplate.*"/>
             <package name="org.ballerinalang.test.object.*" />
+<!--            <package name="org.ballerinalang.test.dataflow.analysis.*" />-->
 <!--            <package name="org.ballerinalang.test.documentation.*" />-->
 <!--            <package name="org.ballerinalang.test.endpoint.*" />-->
 <!--            &lt;!&ndash;&lt;!&ndash; <package name="org.ballerinalang.test.loc.*" /> &ndash;&gt;&ndash;&gt;-->
