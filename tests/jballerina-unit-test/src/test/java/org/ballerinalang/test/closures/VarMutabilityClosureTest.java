@@ -159,7 +159,7 @@ public class VarMutabilityClosureTest {
         Assert.assertEquals(((BXMLSequence) returns[0]).getItem(2).toString(), "<!--I am a comment-->");
     }
 
-    @Test(description = "Test variable mutability with error types", groups = "brokenOnNewParser")
+    @Test(description = "Test variable mutability with error types")
     public void testVarMutabilityWithError() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test13");
         Assert.assertEquals(((BError) returns[0]).getReason(), "Account Not Found");

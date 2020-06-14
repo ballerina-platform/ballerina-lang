@@ -721,11 +721,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
-        // TODO : Add parameter
-        // commenting out as error reason type is no longer supported.
-//        if (errorTypeDescriptorNode.errorTypeParamsNode().isPresent()) {
-//            errorType.reasonType = createTypeNode(errorTypeDescriptorNode.errorTypeParamsNode().get());
-//        }
+        if (errorTypeDescriptorNode.errorTypeParamsNode().isPresent()) {
+            errorType.detailType = createTypeNode(errorTypeDescriptorNode.errorTypeParamsNode().get());
+        }
         return errorType;
     }
 
