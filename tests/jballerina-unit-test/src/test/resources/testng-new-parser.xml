@@ -109,16 +109,21 @@
             <package name="org.ballerinalang.test.expressions.elvis.*"/>
             <package name="org.ballerinalang.test.expressions.ternary.*"/>
             <package name="org.ballerinalang.test.expressions.typeof.*"/>
-<!--            <package name="org.ballerinalang.test.expressions.stamp.*"/>-->
+
+            <!-- 
+                Need to convert type-desc in expr ctx to module type-desc.
+                Blocked due to a bug in semantic analyzer.
+             -->
+            <!-- <package name="org.ballerinalang.test.expressions.stamp.*"/> -->
+            <!-- <package name="org.ballerinalang.test.expressions.group.*"/> -->
+
             <package name="org.ballerinalang.test.expressions.lambda.*"/>
             <package name="org.ballerinalang.test.expressions.invocations.*"/>
             <package name="org.ballerinalang.test.expressions.mappingconstructor.*"/>
             <package name="org.ballerinalang.test.expressions.listconstructor.*"/>
-<!--            <package name="org.ballerinalang.test.expressions.group.*"/>-->
             <package name="org.ballerinalang.test.object.*" />
 <!--            <package name="org.ballerinalang.test.documentation.*" />-->
-<!--            <package name="org.ballerinalang.test.endpoint.*" />-->
-<!--            &lt;!&ndash;&lt;!&ndash; <package name="org.ballerinalang.test.loc.*" /> &ndash;&gt;&ndash;&gt;-->
+            <package name="org.ballerinalang.test.endpoint.*" />
             <package name="org.ballerinalang.test.packaging.*" />
             <package name="org.ballerinalang.test.types.xml.*" />
             <package name="org.ballerinalang.test.record.*"/>
