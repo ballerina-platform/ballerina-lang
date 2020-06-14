@@ -92,7 +92,7 @@ function stampAnyArrayToObject() returns EmployeeObject|error {
 function stampAnyArrayToMap() returns map<any>|error {
 
     anydata[] anyArray = ["Mohan", "Single", "LK2014"];
-    map<any>|error mapValue = anyArray.cloneWithType(map<any>);
+    map<any>|error mapValue = anyArray.cloneWithType(AnyMap);
 
     return mapValue;
 }
@@ -105,3 +105,4 @@ function stampExtendedRecordToAnydata() returns anydata|error {
     return anydataValue;
 }
 
+type AnyMap map<any>;

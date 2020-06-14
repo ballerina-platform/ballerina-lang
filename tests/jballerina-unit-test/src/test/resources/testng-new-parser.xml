@@ -114,7 +114,7 @@
                 Need to convert type-desc in expr ctx to module type-desc.
                 Blocked due to a bug in semantic analyzer.
              -->
-            <!-- <package name="org.ballerinalang.test.expressions.stamp.*"/> -->
+            <package name="org.ballerinalang.test.expressions.stamp.*"/>
             <!-- <package name="org.ballerinalang.test.expressions.group.*"/> -->
 
             <package name="org.ballerinalang.test.expressions.lambda.*"/>
