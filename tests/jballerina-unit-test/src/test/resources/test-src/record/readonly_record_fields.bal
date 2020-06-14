@@ -24,6 +24,9 @@ function testReadonlyRecordFields() {
     testRecordWithStructuredReadonlyFields();
     testReadOnlyFieldWithDefaultValue();
     testTypeReadOnlyFlagForAllReadOnlyFields();
+    testSubTypingWithReadOnlyFields();
+    testSubTypingWithReadOnlyFieldsViaReadOnlyType();
+    testSubTypingWithReadOnlyFieldsNegative();
 }
 
 type Student record {
@@ -236,10 +239,137 @@ function testTypeReadOnlyFlagForAllReadOnlyFields() {
     assertTrue(rd is Bar & readonly);
 }
 
+type Person record {|
+    readonly Particulars particulars;
+    int id;
+|};
+
+type Undergraduate record {|
+    Particulars & readonly particulars;
+    int id;
+|};
+
+type Graduate record {|
+    Particulars particulars;
+    int id;
+|};
+
+type Particulars record {|
+    string name;
+|};
+
+type OptionalId record {|
+    readonly map<int>|boolean id?;
+    map<int>|boolean...;
+|};
+
+function testSubTypingWithReadOnlyFields() {
+    Person p1 = {
+        particulars: {
+            name: "Jo"
+        },
+        id: 1234
+    };
+    Undergraduate u = p1;
+    assertTrue(u is Person);
+
+    var fn1 = function () {
+        u.particulars = {name: "May"};
+    };
+    error? res = trap fn1();
+    assertTrue(res is error);
+    error err = <error> res;
+    assertEquality("cannot update 'readonly' field 'particulars' in record of type 'Person'", err.detail()["message"]);
+
+    Person p2 = {
+        particulars: {
+          name: "Amy"
+        },
+        id: 1121
+    };
+    Graduate g = p2;
+
+    var fn2 = function () {
+        u.particulars = {name: "May"};
+    };
+    res = trap fn2();
+    assertTrue(res is error);
+    err = <error> res;
+    assertEquality("cannot update 'readonly' field 'particulars' in record of type 'Person'", err.detail()["message"]);
+
+    assertTrue(g is Person);
+    var fn3 = function () {
+        g.particulars.name = "Anne";
+    };
+    res = trap fn3();
+    assertTrue(res is error);
+    err = <error> res;
+    assertEquality("cannot update 'readonly' field 'name' in record of type '(Particulars & readonly)'",
+                   err.detail()["message"]);
+
+    map<map<int>|boolean> & readonly mp = {
+        a: true,
+        b: {
+            x: 1,
+            y: 2
+        }
+    };
+    OptionalId opId = mp;
+    assertEquality((), opId?.id);
+    assertEquality(<map<int>> {x: 1, y: 2}, opId["b"]);
+}
+
+function testSubTypingWithReadOnlyFieldsViaReadOnlyType() {
+    Undergraduate & readonly u = {
+        particulars: {
+            name: "Jo"
+        },
+        id: 1234
+    };
+    Person p1 = u;
+    assertTrue(p1 is Undergraduate & readonly);
+
+    Graduate & readonly g = {
+        particulars: {
+          name: "Amy"
+        },
+        id: 1121
+    };
+    Person p2 = g;
+    assertTrue(p2 is Graduate & readonly);
+}
+
+function testSubTypingWithReadOnlyFieldsNegative() {
+    Undergraduate u = {
+        particulars: {
+            name: "Jo"
+        },
+        id: 1234
+    };
+    any undergrad = u;
+
+    Graduate g = {
+        particulars: {
+          name: "Amy"
+        },
+        id: 1121
+    };
+    any grad = g;
+
+    assertTrue(undergrad is Undergraduate);
+    assertTrue(grad is Graduate);
+    assertFalse(undergrad is Person);
+    assertFalse(grad is Person);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
+}
+
+function assertFalse(any|error actual) {
+    assertEquality(false, actual);
 }
 
 function assertEquality(any|error expected, any|error actual) {

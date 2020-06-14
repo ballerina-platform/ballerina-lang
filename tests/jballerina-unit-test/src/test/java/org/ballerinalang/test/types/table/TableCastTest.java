@@ -60,7 +60,7 @@ public class TableCastTest {
         Assert.assertTrue(((BBoolean) results[0]).booleanValue());
     }
 
-    @Test
+    @Test(enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/24105#issuecomment-643760140
     public void testKeyConstraintCastToString4() {
         BValue[] results = BRunUtil.invoke(result, "testKeyConstraintCastToString4");
         Assert.assertTrue(((BBoolean) results[0]).booleanValue());
