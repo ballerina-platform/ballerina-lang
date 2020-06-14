@@ -225,17 +225,17 @@ finiteTypeUnit
     ;
 
 typeName
-    :   simpleTypeName                                                                          # simpleTypeNameLabel
-    |   typeName (LEFT_BRACKET (integerLiteral | MUL)? RIGHT_BRACKET)+                          # arrayTypeNameLabel
-    |   typeName (PIPE typeName)+                                                               # unionTypeNameLabel
-    |   typeName BIT_AND typeName                                                               # intersectionTypeNameLabel
-    |   typeName QUESTION_MARK                                                                  # nullableTypeNameLabel
-    |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                             # groupTypeNameLabel
-    |   tupleTypeDescriptor                                                                     # tupleTypeNameLabel
-    |   ((ABSTRACT? CLIENT?) | (CLIENT? ABSTRACT)) OBJECT LEFT_BRACE objectBody RIGHT_BRACE     # objectTypeNameLabel
-    |   inclusiveRecordTypeDescriptor                                                           # inclusiveRecordTypeNameLabel
-    |   exclusiveRecordTypeDescriptor                                                           # exclusiveRecordTypeNameLabel
-    |   tableTypeDescriptor                                                                     # tableTypeNameLabel
+    :   simpleTypeName                                                                                      # simpleTypeNameLabel
+    |   typeName (LEFT_BRACKET (integerLiteral | MUL)? RIGHT_BRACKET)+                                      # arrayTypeNameLabel
+    |   typeName (PIPE typeName)+                                                                           # unionTypeNameLabel
+    |   typeName BIT_AND typeName                                                                           # intersectionTypeNameLabel
+    |   typeName QUESTION_MARK                                                                              # nullableTypeNameLabel
+    |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                                         # groupTypeNameLabel
+    |   tupleTypeDescriptor                                                                                 # tupleTypeNameLabel
+    |   ((ABSTRACT? CLIENT?) | (CLIENT? ABSTRACT)) TYPE_READONLY? OBJECT LEFT_BRACE objectBody RIGHT_BRACE  # objectTypeNameLabel
+    |   inclusiveRecordTypeDescriptor                                                                       # inclusiveRecordTypeNameLabel
+    |   exclusiveRecordTypeDescriptor                                                                       # exclusiveRecordTypeNameLabel
+    |   tableTypeDescriptor                                                                                 # tableTypeNameLabel
     ;
 
 inclusiveRecordTypeDescriptor
