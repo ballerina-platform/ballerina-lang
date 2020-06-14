@@ -30,6 +30,7 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.api.BString;
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -66,7 +67,7 @@ public class TableOMDataSource extends AbstractPushOMDataSource {
             table.getIterator().next();
             xmlStreamWriter.writeStartElement("", this.rowWrapper, "");
             TupleValueImpl tupleValue = (TupleValueImpl) itr.next();
-            MapValueImpl record = ((MapValueImpl)tupleValue.get(0));
+            MapValueImpl record = ((MapValueImpl) tupleValue.get(0));
 
             BStructureType structType = (BStructureType) record.getType();
             BField[] structFields = null;
@@ -106,7 +107,7 @@ public class TableOMDataSource extends AbstractPushOMDataSource {
                 value = String.valueOf(record.getFloatValue(key));
                 break;
             case TypeTags.DECIMAL_TAG:
-                DecimalValue decimalVal = (DecimalValue)record.get(key);
+                DecimalValue decimalVal = (DecimalValue) record.get(key);
                 value = String.valueOf(decimalVal);
                 break;
             case TypeTags.ARRAY_TAG:

@@ -82,9 +82,9 @@ public class TableJSONDataSource implements JSONDataSource {
     public Object build() {
         ArrayValue values = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
         IteratorValue itr = this.tableValue.getIterator();
-        while(itr.hasNext()) {
+        while (itr.hasNext()) {
             TupleValueImpl tupleValue = (TupleValueImpl) itr.next();
-            MapValueImpl record = ((MapValueImpl)tupleValue.get(0));
+            MapValueImpl record = ((MapValueImpl) tupleValue.get(0));
             try {
                 values.append(this.objGen.transform(record));
             } catch (IOException e) {
@@ -139,7 +139,7 @@ public class TableJSONDataSource implements JSONDataSource {
                 jsonObject.put(StringUtils.fromString(name), floatVal);
                 break;
             case TypeTags.DECIMAL_TAG:
-                DecimalValue decimalVal = (DecimalValue)record.get(key);
+                DecimalValue decimalVal = (DecimalValue) record.get(key);
                 jsonObject.put(StringUtils.fromString(name), decimalVal);
                 break;
             case TypeTags.BOOLEAN_TAG:
