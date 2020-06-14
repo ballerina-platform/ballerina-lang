@@ -53,7 +53,7 @@ function testProvideErrorAsReturnValue() {
   smtpClient = mockSmtpClient;
 
   string[] emailIds = ["user1@test.com", "user2@test.com"];
-  error? errMock = error(email:SEND_ERROR, message = "email sending failed");
+  error? errMock = email:SendError("email sending failed");
   test:prepare(mockSmtpClient).when("send").thenReturn(errMock);
   error? err = sendNotification(emailIds);
   test:assertTrue(err is error);
