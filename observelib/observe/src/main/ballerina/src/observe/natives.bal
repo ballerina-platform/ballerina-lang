@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/java;
+
 final StatisticConfig[] DEFAULT_GAUGE_STATS_CONFIG = [{ timeWindow: 600000, buckets: 5,
     percentiles: [0.33, 0.5, 0.66, 0.75, 0.95, 0.99, 0.999] }];
 
@@ -60,6 +62,14 @@ public function getAllMetrics() returns Metric[] = external;
 # + tags - The key/value pair tags that associated with the metric that should be looked up.
 # + return - The metric instance.
 public function lookupMetric(string name, map<string>? tags = ()) returns Counter|Gauge? = external;
+
+# Checks of either metrics or tracing had been enabled.
+#
+# + return - True if observability had been enabled.
+public function isObservabilityEnabled() returns boolean = @java:Method {
+    name: "isObservabilityEnabled",
+    class: "org.ballerinalang.jvm.observability.ObserveUtils"
+} external;
 
 # This represents the metric type - counter, that can be only increased by an integer number.
 #
