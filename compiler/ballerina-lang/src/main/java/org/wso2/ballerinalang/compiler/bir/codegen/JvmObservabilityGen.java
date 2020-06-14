@@ -113,6 +113,7 @@ class JvmObservabilityGen {
     private Map<Object, BIROperand> compileTimeConstants;
 
     public JvmObservabilityGen(JvmPackageGen pkgGen) {
+        compileTimeConstants = new HashMap<>();
         packageCache = pkgGen.packageCache;
         symbolTable = pkgGen.symbolTable;
         lambdaIndex = 0;
@@ -126,7 +127,6 @@ class JvmObservabilityGen {
      * @param pkg The package to instrument
      */
     public void rewriteObservableFunctions(BIRPackage pkg) {
-        compileTimeConstants = new HashMap<>();
         for (int i = 0; i < pkg.functions.size(); i++) {
             BIRFunction func = pkg.functions.get(i);
             rewriteAsyncInvocations(func, null, pkg);
