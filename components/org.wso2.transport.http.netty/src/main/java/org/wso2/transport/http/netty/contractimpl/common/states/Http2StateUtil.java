@@ -104,7 +104,7 @@ public class Http2StateUtil {
                         http2SourceHandler.getServerChannelInitializer(), httpRequestMsg,
                         http2SourceHandler.getChannelHandlerContext(), http2SourceHandler.getConnection(),
                         http2SourceHandler.getEncoder(), streamId, http2SourceHandler.getServerName(),
-                        http2SourceHandler.getRemoteAddress(), http2SourceHandler.getServerRemoteFlowControlListener(),
+                        http2SourceHandler.getRemoteHost(), http2SourceHandler.getServerRemoteFlowControlListener(),
                         http2SourceHandler.getHttp2ServerChannel());
                 outboundRespFuture.setHttpConnectorListener(http2OutboundRespListener);
                 http2SourceHandler.getServerConnectorFuture().notifyHttpListener(httpRequestMsg);
@@ -143,6 +143,7 @@ public class Http2StateUtil {
             localAddress = (InetSocketAddress) ctx.channel().localAddress();
         }
         sourceReqCMsg.setProperty(LOCAL_ADDRESS, localAddress);
+        sourceReqCMsg.setProperty(Constants.REMOTE_ADDRESS, http2SourceHandler.getRemoteAddress());
         sourceReqCMsg.setProperty(LISTENER_PORT, localAddress != null ? localAddress.getPort() : null);
         sourceReqCMsg.setProperty(LISTENER_INTERFACE_ID, http2SourceHandler.getInterfaceId());
         sourceReqCMsg.setProperty(PROTOCOL, HTTP_SCHEME);
