@@ -30,6 +30,7 @@ under the License.
             <class name="org.ballerinalang.sql.query.NumericTypesQueryTest"/>
             <class name="org.ballerinalang.sql.query.ComplexTypesQueryTest"/>
             <class name="org.ballerinalang.sql.query.ParamsQueryTest"/>
+            <class name="org.ballerinalang.sql.transaction.LocalTransactionsTest"/>
             <class name="org.ballerinalang.sql.batchexecute.BatchExecuteTest"/>
         </classes>
     </test>
