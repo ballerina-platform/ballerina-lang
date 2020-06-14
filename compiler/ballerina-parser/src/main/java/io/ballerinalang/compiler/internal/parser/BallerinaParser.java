@@ -13851,7 +13851,8 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseStatementStartBracketedList(STNode annots, STNode openBracket, List<STNode> members,
                                                     STNode closeBracket, boolean isRoot, boolean possibleMappingField) {
-        switch (peek().kind) {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
             case EQUAL_TOKEN:
                 if (!isRoot) {
                     endContext();
@@ -13925,11 +13926,9 @@ public class BallerinaParser extends AbstractParser {
                     return new STAmbiguousCollectionNode(SyntaxKind.BRACKETED_LIST, openBracket, members, closeBracket);
                 }
 
-                STNode expressions = STNodeFactory.createNodeList(getExpressionList(members));
-                STNode listConstructor =
-                        STNodeFactory.createListConstructorExpressionNode(openBracket, expressions, closeBracket);
-                endContext();
-                return parseStmtStartsWithTypedBPOrExprRhs(annots, listConstructor);
+                list = new STAmbiguousCollectionNode(SyntaxKind.BRACKETED_LIST, openBracket, members, closeBracket);
+                STNode exprOrTPB = parseTypedBindingPatternOrExprRhs(list, false);
+                return parseStmtStartsWithTypedBPOrExprRhs(annots, exprOrTPB);
         }
     }
 
