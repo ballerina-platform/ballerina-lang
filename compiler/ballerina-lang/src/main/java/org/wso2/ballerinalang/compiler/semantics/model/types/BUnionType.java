@@ -50,8 +50,17 @@ public class BUnionType extends BType implements UnionType {
     private Optional<Boolean> isAnyData = Optional.empty();
     private Optional<Boolean> isPureType = Optional.empty();
 
-    protected BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable) {
+    protected BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly) {
         super(TypeTags.UNION, tsymbol);
+
+        if (readonly) {
+            this.flags |= Flags.READONLY;
+
+            if (tsymbol != null) {
+                this.tsymbol.flags |= Flags.READONLY;
+            }
+        }
+
         this.memberTypes = memberTypes;
         this.nullable = nullable;
     }
@@ -124,9 +133,16 @@ public class BUnionType extends BType implements UnionType {
      */
     public static BUnionType create(BTypeSymbol tsymbol, LinkedHashSet<BType> types) {
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+
+        boolean isImmutable = true;
+
         for (BType memBType : toFlatTypeSet(types)) {
             if (memBType.tag != TypeTags.NEVER) {
                 memberTypes.add(memBType);
+            }
+
+            if (isImmutable && !Symbols.isFlagOn(memBType.flags, Flags.READONLY)) {
+                isImmutable = false;
             }
         }
 
@@ -150,11 +166,11 @@ public class BUnionType extends BType implements UnionType {
 
         for (BType memberType : memberTypes) {
             if (memberType.isNullable()) {
-                return new BUnionType(tsymbol, memberTypes, true);
+                return new BUnionType(tsymbol, memberTypes, true, isImmutable);
             }
         }
 
-        return new BUnionType(tsymbol, memberTypes, false);
+        return new BUnionType(tsymbol, memberTypes, false, isImmutable);
     }
 
     /**
@@ -187,6 +203,11 @@ public class BUnionType extends BType implements UnionType {
         } else {
             this.memberTypes.add(type);
         }
+
+        if (Symbols.isFlagOn(this.flags, Flags.READONLY) && !Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+            this.flags ^= Flags.READONLY;
+        }
+
         this.nullable = this.nullable || type.isNullable();
     }
 
@@ -209,6 +230,22 @@ public class BUnionType extends BType implements UnionType {
 
         if (type.isNullable()) {
             this.nullable = false;
+        }
+
+        if (Symbols.isFlagOn(this.flags, Flags.READONLY)) {
+            return;
+        }
+
+        boolean isImmutable = true;
+        for (BType memBType : this.memberTypes) {
+            if (!Symbols.isFlagOn(memBType.flags, Flags.READONLY)) {
+                isImmutable = false;
+                break;
+            }
+        }
+
+        if (isImmutable) {
+            this.flags |= Flags.READONLY;
         }
     }
 

@@ -232,10 +232,10 @@ typeName
     |   typeName QUESTION_MARK                                                                  # nullableTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                             # groupTypeNameLabel
     |   tupleTypeDescriptor                                                                     # tupleTypeNameLabel
-    |   DISTINCT? ((ABSTRACT? CLIENT?) | (CLIENT? ABSTRACT)) OBJECT LEFT_BRACE objectBody RIGHT_BRACE     # objectTypeNameLabel
-    |   inclusiveRecordTypeDescriptor                                                           # inclusiveRecordTypeNameLabel
-    |   exclusiveRecordTypeDescriptor                                                           # exclusiveRecordTypeNameLabel
-    |   tableTypeDescriptor                                                                     # tableTypeNameLabel
+    |   DISTINCT? ((ABSTRACT? CLIENT?) | (CLIENT? ABSTRACT)) TYPE_READONLY? OBJECT LEFT_BRACE objectBody RIGHT_BRACE  # objectTypeNameLabel
+    |   inclusiveRecordTypeDescriptor                                                                       # inclusiveRecordTypeNameLabel
+    |   exclusiveRecordTypeDescriptor                                                                       # exclusiveRecordTypeNameLabel
+    |   tableTypeDescriptor                                                                                 # tableTypeNameLabel
     ;
 
 inclusiveRecordTypeDescriptor

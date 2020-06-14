@@ -26,7 +26,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -112,11 +112,12 @@ public class TypeDefBuilderHelper {
                                                                 Names names, SymbolTable symTable) {
         BLangFunction initFunction = createInitFunctionForStructureType(recordTypeNode, env,
                                                                         Names.INIT_FUNCTION_SUFFIX, names, symTable);
-        BRecordTypeSymbol recordSymbol = ((BRecordTypeSymbol) recordTypeNode.type.tsymbol);
-        recordSymbol.initializerFunc = new BAttachedFunction(initFunction.symbol.name, initFunction.symbol,
+        BStructureTypeSymbol structureSymbol = ((BStructureTypeSymbol) recordTypeNode.type.tsymbol);
+        structureSymbol.initializerFunc = new BAttachedFunction(initFunction.symbol.name, initFunction.symbol,
                                                              (BInvokableType) initFunction.type);
         recordTypeNode.initFunction = initFunction;
-        recordSymbol.scope.define(recordSymbol.initializerFunc.symbol.name, recordSymbol.initializerFunc.symbol);
+        structureSymbol.scope.define(structureSymbol.initializerFunc.symbol.name,
+                                     structureSymbol.initializerFunc.symbol);
         return initFunction;
     }
 
