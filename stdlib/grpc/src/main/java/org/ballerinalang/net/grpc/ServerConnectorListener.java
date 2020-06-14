@@ -254,9 +254,21 @@ public class ServerConnectorListener implements HttpConnectorListener {
             // Deframe the message. If a failure occurs, deframeFailed will be called.
             deframe(httpContent);
             if (endOfStream) {
+                Status status;
+                Throwable error = httpContent.getDecoderResult().cause();
+                if (error != null) {
+                    status = Status.fromCode(Status.Code.CANCELLED).withDescription(error.getMessage());
+                    listener.closed(status);
+                } else {
+                    LastHttpContent lastHttpContent = (LastHttpContent) httpContent;
+                    HttpHeaders trailingHeaders = lastHttpContent.trailingHeaders();
+                    if (!trailingHeaders.isEmpty()) {
+                        status = MessageUtils.statusFromTrailers(trailingHeaders);
+                        listener.closed(status);
+                    }
+                }
                 closeDeframer(false);
             }
         }
     }
-
 }
