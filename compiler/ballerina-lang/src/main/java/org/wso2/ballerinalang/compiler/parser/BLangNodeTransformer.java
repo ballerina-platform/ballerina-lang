@@ -3551,6 +3551,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         for (Node memberNode : memberNodes) {
             stringTemplateLiteral.exprs.add((BLangExpression) memberNode.apply(this));
         }
+
+        if (stringTemplateLiteral.exprs.isEmpty()) {
+            BLangLiteral emptyLiteral = createEmptyLiteral();
+            emptyLiteral.pos = pos;
+            stringTemplateLiteral.exprs.add(emptyLiteral);
+        }
+
         stringTemplateLiteral.pos = pos;
         return stringTemplateLiteral;
     }

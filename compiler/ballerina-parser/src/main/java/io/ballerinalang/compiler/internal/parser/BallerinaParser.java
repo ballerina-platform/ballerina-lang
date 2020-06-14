@@ -538,7 +538,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseCompoundBinaryOperator();
             case CONST_DECL_RHS:
                 return parseConstantOrListenerDeclRhs((STNode) args[0], (STNode) args[1], (STNode) args[2],
-                        (STNode) args[3], (boolean) args[3]);
+                        (STNode) args[3], (boolean) args[4]);
             case CONST_KEYWORD:
                 return parseConstantKeyword();
             case UNARY_OPERATOR:
