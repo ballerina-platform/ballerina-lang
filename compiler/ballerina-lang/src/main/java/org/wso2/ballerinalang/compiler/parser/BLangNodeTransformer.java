@@ -3663,7 +3663,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             //TODO: Check effect of mapping negative(-) numbers as unary-expr
             typeTag = NumericLiteralSupport.isDecimalDiscriminated(textValue) ? TypeTags.DECIMAL : TypeTags.FLOAT;
             if (isFiniteType) {
-                value = textValue.replaceAll("[f,d,/+]","");
+                value = textValue.replaceAll("[f,d,/+]", "");
                 originalValue = textValue.replaceAll("[/+]", "");
             } else {
                 value = textValue;
