@@ -164,6 +164,9 @@ public class JvmConstants {
     public static final String ERROR_REASON_CLASS_TOO_LARGE = "ClassTooLarge";
     public static final String TRAP_ERROR_METHOD = "trapError";
 
+    // Immutable type related constants.
+    public static final String SET_IMMUTABLE_TYPE_METHOD = "setImmutableType";
+
     // exception classes
     public static final String BLANG_RUNTIME_EXCEPTION = "org/ballerinalang/jvm/util/exceptions/BLangRuntimeException";
     public static final String THROWABLE = "java/lang/Throwable";

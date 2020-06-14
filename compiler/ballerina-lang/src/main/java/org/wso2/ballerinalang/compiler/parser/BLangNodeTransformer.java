@@ -274,6 +274,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordSpreadOperatorField;
@@ -1852,9 +1853,20 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         SyntaxKind kind = expressionNode.kind();
         switch (kind) {
             case XML_TEMPLATE_EXPRESSION:
-                return expressionNode.content().get(0).apply(this);
+                SyntaxKind contentKind = expressionNode.content().get(0).kind();
+                switch (contentKind) {
+                    case XML_COMMENT:
+                    case XML_PI:
+                    case XML_ELEMENT:
+                    case XML_EMPTY_ELEMENT:
+                        return createExpression(expressionNode.content().get(0));
+                    default:
+                        return createXMLLiteral(expressionNode);
+                }
             case STRING_TEMPLATE_EXPRESSION:
                 return createStringTemplateLiteral(expressionNode.content(), getPosition(expressionNode));
+            case RAW_TEMPLATE_EXPRESSION:
+                return createRawTemplateLiteral(expressionNode.content(), getPosition(expressionNode));
             default:
                 throw new RuntimeException("Syntax kind is not supported: " + kind);
         }
@@ -2632,8 +2644,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(XMLProcessingInstruction xmlProcessingInstruction) {
         BLangXMLProcInsLiteral xmlProcInsLiteral =
                 (BLangXMLProcInsLiteral) TreeBuilder.createXMLProcessingIntsructionLiteralNode();
-        for (Node dataNode : xmlProcessingInstruction.data()) {
-            xmlProcInsLiteral.dataFragments.add(createExpression(dataNode));
+        if (xmlProcessingInstruction.data().isEmpty()) {
+            BLangLiteral emptyLiteral = createEmptyLiteral();
+            emptyLiteral.pos = getPosition(xmlProcessingInstruction);
+            xmlProcInsLiteral.dataFragments.add(emptyLiteral);
+        } else {
+            for (Node dataNode : xmlProcessingInstruction.data()) {
+                xmlProcInsLiteral.dataFragments.add(createExpression(dataNode));
+            }
         }
 
         XMLNameNode target = xmlProcessingInstruction.target();
@@ -2650,10 +2668,18 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(XMLComment xmlComment) {
         BLangXMLCommentLiteral xmlCommentLiteral = (BLangXMLCommentLiteral) TreeBuilder.createXMLCommentLiteralNode();
-        for (Node commentNode : xmlComment.content()) {
-            xmlCommentLiteral.textFragments.add(createExpression(commentNode));
+        DiagnosticPos pos = getPosition(xmlComment);
+
+        if (xmlComment.content().isEmpty()) {
+            BLangLiteral emptyLiteral = createEmptyLiteral();
+            emptyLiteral.pos = pos;
+            xmlCommentLiteral.textFragments.add(emptyLiteral);
+        } else {
+            for (Node commentNode : xmlComment.content()) {
+                xmlCommentLiteral.textFragments.add(createExpression(commentNode));
+            }
         }
-        xmlCommentLiteral.pos = getPosition(xmlComment);
+        xmlCommentLiteral.pos = pos;
         return xmlCommentLiteral;
     }
 
@@ -2710,8 +2736,20 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             quotedString.quoteType = QuoteType.DOUBLE_QUOTE;
         }
 
-        for (Node value : xmlAttributeValue.value()) {
-            quotedString.textFragments.add(createExpression(value));
+        if (xmlAttributeValue.value().isEmpty()) {
+            BLangLiteral emptyLiteral = createEmptyLiteral();
+            emptyLiteral.pos = getPosition(xmlAttributeValue);
+            quotedString.textFragments.add(emptyLiteral);
+        } else if (xmlAttributeValue.value().size() == 1 &&
+                xmlAttributeValue.value().get(0).kind() == SyntaxKind.INTERPOLATION) {
+            quotedString.textFragments.add(createExpression(xmlAttributeValue.value().get(0)));
+            BLangLiteral emptyLiteral = createEmptyLiteral();
+            emptyLiteral.pos = getPosition(xmlAttributeValue);
+            quotedString.textFragments.add(emptyLiteral);
+        } else {
+            for (Node value : xmlAttributeValue.value()) {
+                quotedString.textFragments.add(createExpression(value));
+            }
         }
 
         return quotedString;
@@ -2729,9 +2767,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(XMLTextNode xmlTextNode) {
+        return createExpression(xmlTextNode.content());
+    }
+
+    private BLangNode createXMLLiteral(TemplateExpressionNode expressionNode) {
         BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
-        xmlTextLiteral.textFragments.add(0, (BLangExpression) xmlTextNode.content().apply(this));
-        xmlTextLiteral.pos = getPosition(xmlTextNode);
+        xmlTextLiteral.pos = getPosition(expressionNode);
+        for (Node node : expressionNode.content()) {
+            xmlTextLiteral.textFragments.add(createExpression(node));
+        }
         return xmlTextLiteral;
     }
 
@@ -2770,6 +2814,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 xmlQualifiedNameNode.name().name());
         xmlName.prefix = createIdentifier(getPosition(xmlQualifiedNameNode.prefix()),
                 xmlQualifiedNameNode.prefix().name());
+        xmlName.pos = getPosition(xmlQualifiedNameNode);
         return xmlName;
     }
 
@@ -2779,6 +2824,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         xmlName.localname = createIdentifier(xmlSimpleNameNode.name());
         xmlName.prefix = createIdentifier(null, "");
+        xmlName.pos = getPosition(xmlSimpleNameNode);
         return xmlName;
     }
 
@@ -3220,6 +3266,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return fieldBindingPatternsList;
     }
 
+    private BLangLiteral createEmptyLiteral() {
+        BLangLiteral bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        bLiteral.value = "";
+        bLiteral.originalValue = "";
+        bLiteral.type = symTable.getTypeFromTag(TypeTags.STRING);
+        return bLiteral;
+    }
+
     private BLangVariable createSimpleVariable(DiagnosticPos pos, String identifier, DiagnosticPos identifierPos) {
         BLangSimpleVariable memberVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         memberVar.pos = pos;
@@ -3427,6 +3481,39 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
         stringTemplateLiteral.pos = pos;
         return stringTemplateLiteral;
+    }
+
+    private BLangRawTemplateLiteral createRawTemplateLiteral(NodeList<TemplateMemberNode> members, DiagnosticPos pos) {
+        BLangRawTemplateLiteral literal = (BLangRawTemplateLiteral) TreeBuilder.createRawTemplateLiteralNode();
+        literal.pos = pos;
+
+        boolean prevNodeWasInterpolation = false;
+        Node firstMember = members.isEmpty() ? null : members.get(0); // will be empty for empty raw template
+
+        if (firstMember != null && firstMember.kind() == SyntaxKind.INTERPOLATION) {
+            literal.strings.add(createStringLiteral("", getPosition(firstMember)));
+        }
+
+        for (Node member : members) {
+            if (member.kind() == SyntaxKind.INTERPOLATION) {
+                literal.insertions.add((BLangExpression) member.apply(this));
+
+                if (prevNodeWasInterpolation) {
+                    literal.strings.add(createStringLiteral("", getPosition(member)));
+                }
+
+                prevNodeWasInterpolation = true;
+            } else {
+                literal.strings.add((BLangLiteral) member.apply(this));
+                prevNodeWasInterpolation = false;
+            }
+        }
+
+        if (prevNodeWasInterpolation) {
+            literal.strings.add(createStringLiteral("", getPosition(members.get(members.size() - 1))));
+        }
+
+        return literal;
     }
 
     private BLangSimpleVariable createSimpleVar(Optional<Token> name, Node type, NodeList<AnnotationNode> annotations) {
@@ -3644,6 +3731,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLiteral.value = value;
         bLiteral.originalValue = originalValue;
         return bLiteral;
+    }
+
+    private BLangLiteral createStringLiteral(String value, DiagnosticPos pos) {
+        BLangLiteral strLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        strLiteral.value = strLiteral.originalValue = value;
+        strLiteral.type = symTable.stringType;
+        strLiteral.pos = pos;
+        return strLiteral;
     }
 
     private BLangType createTypeNode(Node type) {

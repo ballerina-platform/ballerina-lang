@@ -74,6 +74,7 @@ import org.ballerinalang.model.tree.expressions.MatchExpressionNode;
 import org.ballerinalang.model.tree.expressions.MatchExpressionNode.MatchExpressionPatternNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.expressions.QueryExpressionNode;
+import org.ballerinalang.model.tree.expressions.RawTemplateLiteralNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.RecordVariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.RestArgsNode;
@@ -209,6 +210,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
@@ -840,6 +842,10 @@ public class TreeBuilder {
 
     public static StringTemplateLiteralNode createStringTemplateLiteralNode() {
         return new BLangStringTemplateLiteral();
+    }
+
+    public static RawTemplateLiteralNode createRawTemplateLiteralNode() {
+        return new BLangRawTemplateLiteral();
     }
 
     public static IndexBasedAccessNode createXMLAttributeAccessNode() {

@@ -863,6 +863,19 @@ public class SymbolResolver extends BLangNodeVisitor {
         throw new IllegalStateException("built-in Integer Range type not found ?");
     }
 
+    public void loadRawTemplateType() {
+        ScopeEntry entry = symTable.langObjectModuleSymbol.scope.lookup(Names.RAW_TEMPLATE);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
+                entry = entry.next;
+                continue;
+            }
+            symTable.rawTemplateType = (BObjectType) entry.symbol.type;
+            return;
+        }
+        throw new IllegalStateException("'lang.object:RawTemplate' type not found");
+    }
+
     // visit type nodes
 
     public void visit(BLangValueType valueTypeNode) {
@@ -937,13 +950,18 @@ public class SymbolResolver extends BLangNodeVisitor {
             flags.add(Flag.PUBLIC);
         }
 
+        boolean isReadOnly = objectTypeNode.flagSet.contains(Flag.READONLY);
+        if (isReadOnly) {
+            flags.add(Flag.READONLY);
+        }
+
         BTypeSymbol objectSymbol = Symbols.createObjectSymbol(Flags.asMask(flags), Names.EMPTY,
                 env.enclPkg.symbol.pkgID, null, env.scope.owner);
         BObjectType objectType;
         if (flags.contains(Flag.SERVICE)) {
             objectType = new BServiceType(objectSymbol);
         } else {
-            objectType = new BObjectType(objectSymbol);
+            objectType = isReadOnly ? new BObjectType(objectSymbol, Flags.READONLY) : new BObjectType(objectSymbol);
         }
         objectSymbol.type = objectType;
         objectTypeNode.symbol = objectSymbol;
@@ -1618,9 +1636,14 @@ public class SymbolResolver extends BLangNodeVisitor {
             return potentialIntersectionType;
         }
 
-        if (!types.isSelectivelyImmutableType(potentialIntersectionType)) {
-            dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_READONLY_INTERSECTION_TYPE,
-                       potentialIntersectionType);
+        if (!types.isSelectivelyImmutableType(potentialIntersectionType, true)) {
+            if (types.isSelectivelyImmutableType(potentialIntersectionType)) {
+                // This intersection would have been valid if not for `readonly object`s.
+                dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_READONLY_OBJECT_INTERSECTION_TYPE);
+            } else {
+                dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_READONLY_INTERSECTION_TYPE,
+                           potentialIntersectionType);
+            }
             return symTable.semanticError;
         }
 

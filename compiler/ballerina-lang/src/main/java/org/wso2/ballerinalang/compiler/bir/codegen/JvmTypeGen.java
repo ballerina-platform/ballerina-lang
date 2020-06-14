@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
@@ -48,6 +49,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -139,6 +141,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_DETAIL_TYPE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_IMMUTABLE_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_TYPE;
@@ -154,6 +157,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNION_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.loadConstantValue;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupTypeName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getObjectField;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getRecordField;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getStrandMetadataVarName;
@@ -279,8 +283,10 @@ class JvmTypeGen {
                 BRecordType recordType = (BRecordType) bType;
                 mv.visitTypeInsn(CHECKCAST, RECORD_TYPE);
                 mv.visitInsn(DUP);
+                mv.visitInsn(DUP);
                 addRecordFields(mv, recordType.fields);
                 addRecordRestField(mv, recordType.restFieldType);
+                addImmutableType(mv, recordType);
             } else if (bType.tag == TypeTags.OBJECT) {
                 if (bType instanceof BServiceType) {
                     BServiceType serviceType = (BServiceType) bType;
@@ -293,6 +299,7 @@ class JvmTypeGen {
                     BObjectType objectType = (BObjectType) bType;
                     mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
                     mv.visitInsn(DUP);
+                    mv.visitInsn(DUP);
                     addObjectFields(mv, objectType.fields);
                     BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) objectType.tsymbol;
                     addObjectInitFunction(mv, objectTypeSymbol.generatedInitializerFunc, objectType, indexMap,
@@ -300,6 +307,7 @@ class JvmTypeGen {
                     addObjectInitFunction(mv, objectTypeSymbol.initializerFunc, objectType, indexMap, "init",
                             "setInitializer", symbolTable);
                     addObjectAttachedFunctions(mv, objectTypeSymbol.attachedFuncs, objectType, indexMap, symbolTable);
+                    addImmutableType(mv, objectType);
                 }
             } else if (bType.tag == TypeTags.ERROR) {
                 // populate detail field
@@ -317,6 +325,18 @@ class JvmTypeGen {
         }
 
         return funcNames;
+    }
+
+    private static void addImmutableType(MethodVisitor mv, BStructureType structureType) {
+        BIntersectionType immutableType = ((SelectivelyImmutableReferenceType) structureType).getImmutableType();
+        if (immutableType == null) {
+            return;
+        }
+
+        mv.visitInsn(DUP);
+        loadType(mv, immutableType);
+        mv.visitMethodInsn(INVOKEVIRTUAL, BTYPE, SET_IMMUTABLE_TYPE_METHOD, String.format("(L%s;)V", INTERSECTION_TYPE),
+                           false);
     }
 
     // -------------------------------------------------------
@@ -587,17 +607,9 @@ class JvmTypeGen {
         // Load type flags
         mv.visitLdcInsn(typeFlag(recordType));
 
-        BIntersectionType immutableType = recordType.immutableType;
-        if (immutableType == null) {
-            mv.visitInsn(ACONST_NULL);
-        } else {
-            loadType(mv, immutableType);
-        }
-
         // initialize the record type
         mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE, "<init>",
-                String.format("(L%s;L%s;IZIL%s;)V", STRING_VALUE, PACKAGE_TYPE, INTERSECTION_TYPE),
-                false);
+                String.format("(L%s;L%s;IZI)V", STRING_VALUE, PACKAGE_TYPE), false);
     }
 
     /**
@@ -1353,6 +1365,17 @@ class JvmTypeGen {
         mv.visitTypeInsn(NEW, INTERSECTION_TYPE);
         mv.visitInsn(DUP);
 
+        mv.visitTypeInsn(NEW, PACKAGE_TYPE);
+        mv.visitInsn(DUP);
+
+        PackageID packageID = bType.tsymbol.pkgID;
+
+        mv.visitLdcInsn(packageID.orgName.value);
+        mv.visitLdcInsn(packageID.name.value);
+        mv.visitLdcInsn(packageID.version.value);
+        mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
+                           "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
+
         // Create the constituent types array.
         Set<BType> constituentTypes = bType.getConstituentTypes();
         mv.visitLdcInsn((long) constituentTypes.size());
@@ -1382,7 +1405,7 @@ class JvmTypeGen {
         loadReadonlyFlag(mv, bType);
 
         mv.visitMethodInsn(INVOKESPECIAL, INTERSECTION_TYPE, "<init>",
-                           String.format("([L%s;L%s;IZ)V", BTYPE, BTYPE), false);
+                           String.format("(L%s;[L%s;L%s;IZ)V", PACKAGE_TYPE, BTYPE, BTYPE), false);
     }
 
     /**
@@ -1450,7 +1473,7 @@ class JvmTypeGen {
      */
     private static String getTypeFieldName(String typeName) {
 
-        return String.format("$type$%s", typeName);
+        return String.format("$type$%s", cleanupTypeName(typeName));
     }
 
     private static void loadFutureType(MethodVisitor mv, BFutureType bType) {

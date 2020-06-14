@@ -635,6 +635,19 @@ public class ASTBuilderUtil {
         return arrayLiteralNode;
     }
 
+    static BLangListConstructorExpr createListConstructorExpr(DiagnosticPos pos, BType type) {
+        if (type.tag != TypeTags.ARRAY && type.tag != TypeTags.TUPLE) {
+            throw new IllegalArgumentException("Expected a 'BArrayType' instance or a 'BTupleType' instance");
+        }
+
+        final BLangListConstructorExpr listConstructorExpr =
+                (BLangListConstructorExpr) TreeBuilder.createListConstructorExpressionNode();
+        listConstructorExpr.pos = pos;
+        listConstructorExpr.type = type;
+        listConstructorExpr.exprs = new ArrayList<>();
+        return listConstructorExpr;
+    }
+
     static BLangTypeInit createEmptyTypeInit(DiagnosticPos pos, BType type) {
         BLangTypeInit objectInitNode = (BLangTypeInit) TreeBuilder.createInitNode();
         objectInitNode.pos = pos;

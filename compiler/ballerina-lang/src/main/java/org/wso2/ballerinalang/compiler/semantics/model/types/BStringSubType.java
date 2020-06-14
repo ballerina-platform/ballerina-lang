@@ -21,6 +21,7 @@ import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.Flags;
 
 /**
  * Represents Builtin Subtype of String.
@@ -31,7 +32,7 @@ public class BStringSubType extends BType {
 
     public BStringSubType(int tag, Name name) {
 
-        super(tag, null, name, 0);
+        super(tag, null, name, Flags.READONLY);
     }
 
     public boolean isNullable() {
