@@ -35,7 +35,7 @@ public type Client abstract client object {
     # + sqlQuery - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `string` or `ParameterizedQuery`
     #              when the query has params to be passed in
     # + return - Summary of the sql update query as `ExecutionResult` or an `Error`
-    #           if any error occured when executing the query
+    #           if any error occurred when executing the query
     public remote function execute(@untainted string|ParameterizedQuery sqlQuery) returns ExecutionResult|Error;
 
     # Executes a batch of parameterised DDL or DML sql query provided by the user,
@@ -43,9 +43,11 @@ public type Client abstract client object {
     #
     # + sqlQueries - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `ParameterizedQuery` with an array
     #                of values passed in.
-    # + return - Summary of the sql update query as `ExecutionResult[]` or returns `BatchUpdateError`.
-    #            if any error occured when executing the query. `BatchUpdateError` will include summary of the
-    #            sql update query as `ExecutionResult[]` for commands executed successfully.
+    # + return - Summary of the executed SQL queries as `ExecutionResult[]` which includes details such as
+    #            `affectedRowCount` and `lastInsertId`. If one of the commands in the batch fails, this function
+    #            will return `BatchExecuteError`, however the JDBC driver may or may not continue to process the
+    #            remaining commands in the batch after a failure. The summary of the executed queries in case of error
+    #            can be accessed as `(<sql:BatchExecuteError> result).detail()?.executionResults`.
     public remote function batchExecute(ParameterizedQuery[] sqlQueries) returns ExecutionResult[]|Error;
 
     # Close the SQL client.

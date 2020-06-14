@@ -72,7 +72,7 @@ public type Client client object {
     # + sqlQuery - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `string` or `ParameterizedQuery`
     #              when the query has params to be passed in
     # + return - Summary of the sql update query as `ExecutionResult` or returns `Error`
-    #           if any error occured when executing the query
+    #           if any error occurred when executing the query
     public remote function execute(@untainted string|sql:ParameterizedQuery sqlQuery) returns sql:ExecutionResult|sql:Error {
         if (self.clientActive) {
             return nativeExecute(self, sqlQuery);
@@ -87,9 +87,11 @@ public type Client client object {
     #
     # + sqlQueries - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `ParameterizedQuery` with an array
     #                of values passed in.
-    # + return - Summary of the sql update query as `ExecutionResult[]` or returns `BatchUpdateError`.
-    #            if any error occured when executing the query. `BatchUpdateError` will include summary of the
-    #            sql update query as `ExecutionResult[]` for commands executed successfully.
+    # + return - Summary of the executed SQL queries as `ExecutionResult[]` which includes details such as
+    #            `affectedRowCount` and `lastInsertId`. If one of the commands in the batch fails, this function
+    #            will return `BatchExecuteError`, however the JDBC driver may or may not continue to process the
+    #            remaining commands in the batch after a failure. The summary of the executed queries in case of error
+    #            can be accessed as `(<sql:BatchExecuteError> result).detail()?.executionResults`.
     public remote function batchExecute(sql:ParameterizedQuery[] sqlQueries) returns sql:ExecutionResult[]|sql:Error {
         if (sqlQueries.length() == 0) {
             return sql:ApplicationError(message = " Parameter 'sqlQueries' cannot be empty array");
@@ -155,9 +157,9 @@ public type SSLMode SSL_PREFERRED|SSL_REQUIRED|SSL_VERIFY_CERT|SSL_VERIFY_IDENTI
 
 # SSL Configuration to be used when connecting to mysql server.
 #
-# + mode - `SSLMode` to be usedduring the connection
+# + mode - `SSLMode` to be used during the connection
 # + clientCertKeystore - Keystore configuration of the client certificates
-# + trustCertKeystore - Keystore configurtion of the trust certificates
+# + trustCertKeystore - Keystore configuration of the trust certificates
 #
 public type SSLConfig record {|
     SSLMode mode = SSL_PREFERRED;

@@ -38,7 +38,7 @@ connection pool handling.  For its properties and possible values, see the `sql:
 2. Client owned, unsharable connection pool
 
     If you define the `connectionPool` field inline when creating the database client with the `sql:ConnectionPool` type, 
-    an unshareable connection pool will be created. The JDBC module example below shows how the global 
+    an unsharable connection pool will be created. The JDBC module example below shows how the global 
     connection pool is used.
 
     ```ballerina
