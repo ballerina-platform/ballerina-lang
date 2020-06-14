@@ -169,6 +169,7 @@ import io.ballerinalang.compiler.syntax.tree.TypeParameterNode;
 import io.ballerinalang.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
+import io.ballerinalang.compiler.syntax.tree.TypedescTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeofExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
@@ -2249,6 +2250,22 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         lockBlock.pos = getPosition(lockStatementNode.blockStatement());
         lockNode.setBody(lockBlock);
         return lockNode;
+    }
+
+    @Override
+    public BLangNode transform(TypedescTypeDescriptorNode typedescTypeDescriptorNode) {
+        BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
+        refType.typeKind = TypeKind.TYPEDESC;
+
+        Optional<TypeParameterNode> node = typedescTypeDescriptorNode.typedescTypeParamsNode();
+        if (node.isPresent()) {
+            BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
+            constrainedType.type = refType;
+            constrainedType.constraint = createTypeNode(node.get().typeNode());
+            return constrainedType;
+        }
+
+        return refType;
     }
 
     @Override
