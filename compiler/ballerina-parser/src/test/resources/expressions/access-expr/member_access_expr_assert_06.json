@@ -1,8 +1,10 @@
 {
   "kind": "INDEXED_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "FIELD_ACCESS",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "FIELD_ACCESS",
@@ -25,7 +27,11 @@
         },
         {
           "kind": "IDENTIFIER_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
         }
       ]
     },

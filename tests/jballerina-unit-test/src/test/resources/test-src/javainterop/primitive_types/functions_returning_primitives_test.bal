@@ -7,7 +7,7 @@ function testReturningBBooleanJBoolean(handle receiver, handle strValue) returns
 
 public function contentEquals(handle receiver, handle strValue) returns boolean = @java:Method {
     class:"java.lang.String",
-    paramTypes: ["java.lang.String", "java.lang.String"]
+    paramTypes: ["java.lang.String"]
 } external;
 
 

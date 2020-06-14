@@ -35,7 +35,7 @@ type Config record {
 };
 
 type DummyEndpoint object {
-    function init (Config conf)  {
+    function _init_ (Config conf)  {
     }
 };
 

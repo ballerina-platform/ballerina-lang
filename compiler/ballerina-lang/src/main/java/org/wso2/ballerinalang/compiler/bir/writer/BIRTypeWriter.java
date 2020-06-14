@@ -41,13 +41,16 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -189,12 +192,22 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     @Override
+    public void visit(BParameterizedType type) {
+        writeTypeCpIndex(type.paramValueType);
+    }
+
+    @Override
     public void visit(BFutureType bFutureType) {
         writeTypeCpIndex(bFutureType.constraint);
     }
 
     @Override
     public void visit(BHandleType bHandleType) {
+    }
+
+    @Override
+    public void visit(BNeverType bNeverType) {
+        // Nothing to do
     }
 
     @Override
@@ -252,6 +265,16 @@ public class BIRTypeWriter implements TypeVisitor {
         for (BType memberType : bUnionType.getMemberTypes()) {
             writeTypeCpIndex(memberType);
         }
+    }
+
+    @Override
+    public void visit(BIntersectionType bIntersectionType) {
+        buff.writeInt(bIntersectionType.getConstituentTypes().size());
+        for (BType constituentType : bIntersectionType.getConstituentTypes()) {
+            writeTypeCpIndex(constituentType);
+        }
+
+        writeTypeCpIndex(bIntersectionType.effectiveType);
     }
 
     @Override

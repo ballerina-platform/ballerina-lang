@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type TransactionContext record {
+public type TransactionContext record {
     string contextVersion = "1.0";
     string transactionId = "";
     string transactionBlockId = "";

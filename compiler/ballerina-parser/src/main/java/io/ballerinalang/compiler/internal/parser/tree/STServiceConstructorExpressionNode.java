@@ -70,7 +70,35 @@ public class STServiceConstructorExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STServiceConstructorExpressionNode modify(
+            STNode annotations,
+            STNode serviceKeyword,
+            STNode serviceBody) {
+        if (checkForReferenceEquality(
+                annotations,
+                serviceKeyword,
+                serviceBody)) {
+            return this;
+        }
+
+        return new STServiceConstructorExpressionNode(
+                annotations,
+                serviceKeyword,
+                serviceBody,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ServiceConstructorExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

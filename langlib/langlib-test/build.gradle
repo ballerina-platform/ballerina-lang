@@ -54,6 +54,7 @@ dependencies {
     testRuntime project(':ballerina-lang:xml')
     testRuntime project(':ballerina-lang:bool')
     testRuntime project(':ballerina-lang:query')
+    testRuntime project(':ballerina-lang:transaction')
     testRuntime project(':ballerina-lang-test')
     testRuntime project(':ballerina-runtime')
     testRuntime project(':ballerina-lang:internal')
@@ -78,6 +79,7 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-lang-test', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:query', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:transaction', configuration: 'baloImplementation')
 }
 
 task createBre(type: org.gradle.api.tasks.Copy) {

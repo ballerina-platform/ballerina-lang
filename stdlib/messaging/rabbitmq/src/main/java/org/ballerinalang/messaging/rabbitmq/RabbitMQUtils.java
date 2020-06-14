@@ -21,6 +21,7 @@ package org.ballerinalang.messaging.rabbitmq;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -81,6 +82,14 @@ public class RabbitMQUtils {
             arrayList.remove(objectValue);
         }
         return arrayList;
+    }
+
+    public static void handleTransaction(ObjectValue objectValue, Strand strand) {
+        RabbitMQTransactionContext transactionContext =
+                (RabbitMQTransactionContext) objectValue.getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
+        if (transactionContext != null) {
+            transactionContext.handleTransactionBlock(strand);
+        }
     }
 
     private RabbitMQUtils() {

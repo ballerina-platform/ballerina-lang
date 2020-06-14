@@ -63,7 +63,32 @@ public class STNilLiteralNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STNilLiteralNode modify(
+            STNode openParenToken,
+            STNode closeParenToken) {
+        if (checkForReferenceEquality(
+                openParenToken,
+                closeParenToken)) {
+            return this;
+        }
+
+        return new STNilLiteralNode(
+                openParenToken,
+                closeParenToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new NilLiteralNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

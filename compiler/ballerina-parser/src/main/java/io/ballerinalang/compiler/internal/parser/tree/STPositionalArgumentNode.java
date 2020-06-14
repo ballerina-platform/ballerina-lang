@@ -63,7 +63,32 @@ public class STPositionalArgumentNode extends STFunctionArgumentNode {
                 diagnostics);
     }
 
+    public STPositionalArgumentNode modify(
+            STNode leadingComma,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                leadingComma,
+                expression)) {
+            return this;
+        }
+
+        return new STPositionalArgumentNode(
+                leadingComma,
+                expression,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new PositionalArgumentNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

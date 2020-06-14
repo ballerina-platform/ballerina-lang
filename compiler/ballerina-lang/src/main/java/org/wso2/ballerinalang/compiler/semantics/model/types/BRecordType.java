@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.RecordType;
-import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -49,7 +48,7 @@ public class BRecordType extends BStructureType implements RecordType {
     private Optional<Boolean> isAnyData = Optional.empty();
     private boolean resolving = false;
 
-    public BRecordType immutableType;
+    public BIntersectionType immutableType;
     public BRecordType mutableType;
 
     public BRecordType(BTypeSymbol tSymbol) {
@@ -122,7 +121,7 @@ public class BRecordType extends BStructureType implements RecordType {
     }
 
     @Override
-    public Type getImmutableType() {
+    public BIntersectionType getImmutableType() {
         return this.immutableType;
     }
 }

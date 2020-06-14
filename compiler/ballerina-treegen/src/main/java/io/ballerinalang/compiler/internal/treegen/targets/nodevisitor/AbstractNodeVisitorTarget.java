@@ -39,8 +39,11 @@ public abstract class AbstractNodeVisitorTarget extends Target {
 
     static final String TREE_MODIFIER_CN = "TreeModifier";
     static final String NODE_TRANSFORMER_CN = "NodeTransformer";
+    static final String INTERNAL_TREE_MODIFIER_CN = "STTreeModifier";
     static final String INTERNAL_NODE_FACTORY_CN = "STNodeFactory";
+    static final String INTERNAL_NODE_TRANSFORMER_CN = "STNodeTransformer";
     static final String INTERNAL_BASE_NODE_FACTORY_CN = "STAbstractNodeFactory";
+    public static final String INTERNAL_NODE_VISITOR_CN = "STNodeVisitor";
     static final String EXTERNAL_NODE_FACTORY_CN = "NodeFactory";
     static final String EXTERNAL_BASE_NODE_FACTORY_CN = "AbstractNodeFactory";
     public static final String EXTERNAL_NODE_VISITOR_CN = "NodeVisitor";

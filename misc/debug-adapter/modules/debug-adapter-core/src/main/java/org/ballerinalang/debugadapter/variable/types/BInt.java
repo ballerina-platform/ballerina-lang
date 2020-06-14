@@ -18,6 +18,7 @@ package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.Field;
 import com.sun.jdi.Value;
+import com.sun.tools.jdi.IntegerValueImpl;
 import com.sun.tools.jdi.LongValueImpl;
 import com.sun.tools.jdi.ObjectReferenceImpl;
 import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
@@ -42,7 +43,7 @@ public class BInt extends BPrimitiveVariable {
 
     @Override
     public String getValue() {
-        if (jvmValue instanceof LongValueImpl) {
+        if (jvmValue instanceof IntegerValueImpl || jvmValue instanceof LongValueImpl) {
             return jvmValue.toString();
         } else if (jvmValue instanceof ObjectReferenceImpl) {
             ObjectReferenceImpl valueObjectRef = ((ObjectReferenceImpl) jvmValue);

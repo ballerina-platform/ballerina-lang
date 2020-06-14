@@ -77,7 +77,38 @@ public class STAssignmentStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STAssignmentStatementNode modify(
+            STNode varRef,
+            STNode equalsToken,
+            STNode expression,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                varRef,
+                equalsToken,
+                expression,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STAssignmentStatementNode(
+                varRef,
+                equalsToken,
+                expression,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new AssignmentStatementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

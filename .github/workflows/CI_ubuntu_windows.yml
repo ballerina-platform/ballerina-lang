@@ -7,14 +7,14 @@ on:
       - next-release
       - release-stage
       - stage
-      - ballerina-[0-9]+.[0-9]+.[0-9]+
+      - ballerina-[0-9]+.[0-9]+.x
   pull_request:
     branches-ignore:
       - master
       - next-release
       - release-stage
       - stage
-      - ballerina-[0-9]+.[0-9]+.[0-9]+
+      - ballerina-[0-9]+.[0-9]+.x
 
 jobs:
   ubuntu_build:

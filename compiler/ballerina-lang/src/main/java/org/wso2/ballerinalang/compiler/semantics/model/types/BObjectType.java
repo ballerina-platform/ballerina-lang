@@ -43,6 +43,9 @@ public class BObjectType extends BStructureType implements ObjectType {
     private static final String RIGHT_CURL = "}";
     private static final String SEMI_COLON = ";";
 
+    public BIntersectionType immutableType;
+    public BObjectType mutableType = null;
+
     public BObjectType(BTypeSymbol tSymbol) {
         super(TypeTags.OBJECT, tSymbol);
     }
@@ -93,5 +96,10 @@ public class BObjectType extends BStructureType implements ObjectType {
             return sb.toString();
         }
         return this.tsymbol.toString();
+    }
+
+    @Override
+    public BIntersectionType getImmutableType() {
+        return this.immutableType;
     }
 }

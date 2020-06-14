@@ -63,7 +63,32 @@ public class STDoubleGTTokenNode extends STNode {
                 diagnostics);
     }
 
+    public STDoubleGTTokenNode modify(
+            STNode openGTToken,
+            STNode endGTToken) {
+        if (checkForReferenceEquality(
+                openGTToken,
+                endGTToken)) {
+            return this;
+        }
+
+        return new STDoubleGTTokenNode(
+                openGTToken,
+                endGTToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new DoubleGTTokenNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

@@ -53,6 +53,8 @@ public interface BTypeVisitor<T, R> {
 
     R visit(BUnionType t, T s);
 
+    R visit(BIntersectionType t, T s);
+
     R visit(BErrorType t, T s);
     
     R visit(BFutureType t, T s);
@@ -63,4 +65,5 @@ public interface BTypeVisitor<T, R> {
 
     R visit(BTypedescType t, T s);
 
+    R visit(BParameterizedType t, T s);
 }

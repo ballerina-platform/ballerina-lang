@@ -70,7 +70,35 @@ public class STFieldAccessExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STFieldAccessExpressionNode modify(
+            STNode expression,
+            STNode dotToken,
+            STNode fieldName) {
+        if (checkForReferenceEquality(
+                expression,
+                dotToken,
+                fieldName)) {
+            return this;
+        }
+
+        return new STFieldAccessExpressionNode(
+                expression,
+                dotToken,
+                fieldName,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FieldAccessExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

@@ -54,15 +54,15 @@ public class Writer {
      */
     public static void writeHtmlDocument(Object object, String packageTemplateName, String filePath) throws
             IOException {
-        String templatesFolderPath = System.getProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY, File
-                .separator + "template" + File.separator + "html");
+        String templatesFolderPath = System.getProperty("ballerina.home") + File.separator + "lib" + File.separator +
+                "templates";
 
         String templatesClassPath = System.getProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY,
                 "/template/html");
         PrintWriter writer = null;
         try {
-            Handlebars handlebars = new Handlebars().with(new ClassPathTemplateLoader(templatesClassPath), new
-                    FileTemplateLoader(templatesFolderPath));
+            Handlebars handlebars = new Handlebars().with(new FileTemplateLoader(templatesFolderPath),
+                    new ClassPathTemplateLoader(templatesClassPath));
             handlebars.registerHelpers(StringHelpers.class);
             handlebars.registerHelper("paramSummary", (Helper<List<DefaultableVariable>>)
                     (varList, options) -> varList.stream()
@@ -110,6 +110,13 @@ public class Writer {
                 } else {
                     return splits[0] + ".";
                 }
+            });
+
+            handlebars.registerHelper("setStyles", (Helper<String>) (description, options) -> {
+                //set css for table tags
+                String newDescription = description.replaceAll("<table>", "<table class=\"ui table row-border " +
+                        "pad-left\">");
+                return newDescription;
             });
 
             handlebars.registerHelper("removePTags", (Helper<String>) (string, options) -> {

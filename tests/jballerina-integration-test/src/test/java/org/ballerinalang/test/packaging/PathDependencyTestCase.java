@@ -198,7 +198,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(enabled = false)
+    @Test()
     public void testBaloPathCase4() throws BallerinaTestException, IOException, InterruptedException {
         Path caseResources = tempTestResources.resolve("case4");
         // Build bee module of TestProject1
@@ -455,7 +455,7 @@ public class PathDependencyTestCase extends BaseTest {
      * @throws BallerinaTestException Error when executing the commands.
      */
     @Test(description = "Case8: Test single bal file using external module with interop dependency",
-    dependsOnMethods = "testBaloPathCase7")
+    dependsOnMethods = "testBaloPathCase4")
     public void testBaloSingleBalFileCase8() throws BallerinaTestException, IOException {
 
         Path caseResources = tempTestResources.resolve("case8");
@@ -563,7 +563,8 @@ public class PathDependencyTestCase extends BaseTest {
     @Test(description = "Test platform library dependency valid path")
     public void testValidatePlatformLibraryPath() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("platform-dependency");
-        String msg = "error: path is not specified for given platform library dependency.";
+        String msg = "error: path or maven dependency properties are not specified for given platform library " +
+                "dependency.";
         LogLeecher bazRunLeecher = new LogLeecher(msg, LogLeecher.LeecherType.ERROR);
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{}, new LogLeecher[]{bazRunLeecher},
                 caseResources.resolve("TestProject1").toString());
@@ -610,7 +611,7 @@ public class PathDependencyTestCase extends BaseTest {
      */
     private Map<String, String> addEnvVariables(Map<String, String> envVariables) {
         envVariables.put(ProjectDirConstants.HOME_REPO_ENV_KEY, tempHomeDirectory.toString());
-        envVariables.put("BALLERINA_DEV_STAGE_CENTRAL", "true");
+        envVariables.put("BALLERINA_DEV_PREPROD_CENTRAL", "true");
         return envVariables;
     }
     

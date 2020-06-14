@@ -48,7 +48,7 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
     @Test
     public void testVarDeclStmtModification() {
         SyntaxTree syntaxTree = parseFile("variable_decl_stmt_modify.bal");
-        ModulePartNode oldRoot = syntaxTree.modulePart();
+        ModulePartNode oldRoot = syntaxTree.rootNode();
 
         VariableDeclModifier variableDeclModifier = new VariableDeclModifier();
         ModulePartNode newRoot = (ModulePartNode) oldRoot.apply(variableDeclModifier);
@@ -72,7 +72,7 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
     @Test
     public void testRenameIdentifierWithoutTrivia() {
         SyntaxTree syntaxTree = parseFile("variable_decl_stmt_modify.bal");
-        ModulePartNode oldRoot = syntaxTree.modulePart();
+        ModulePartNode oldRoot = syntaxTree.rootNode();
 
         IdentifierModifier identifierModifier = new IdentifierModifier();
         ModulePartNode newRoot = (ModulePartNode) oldRoot.apply(identifierModifier);
@@ -91,7 +91,7 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
         // There are no '-' or '/' tokens in the old tree
         // There are two '+' tokens and two '*' tokens in the old tree
         SyntaxTree syntaxTree = parseFile("binary_expression_modify.bal");
-        ModulePartNode oldRoot = syntaxTree.modulePart();
+        ModulePartNode oldRoot = syntaxTree.rootNode();
 
         // // There are no '+' or '*' tokens here in the new tree
         BinaryExpressionModifier binaryExprModifier = new BinaryExpressionModifier();

@@ -30,7 +30,7 @@ public type Listener object {
     # Creates a new Directory listener.
     # 
     # + listenerConfig - The `ListenerConfig` record with the directory details 
-    public function __init(ListenerConfig listenerConfig) {
+    public function init(ListenerConfig listenerConfig) {
         self.config = listenerConfig;
         var result = initEndpoint(self);
         if (result is error) {

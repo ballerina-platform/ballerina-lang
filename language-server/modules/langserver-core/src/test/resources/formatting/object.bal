@@ -7,7 +7,7 @@ type ObjectName2 object {private  int  bd = 0;public int a = 0;public string s;s
 type ObjectName3 object {public int a = 0;
         public string s;public ObjectName1? b;string h;
 
-    function __init() {self . s = "";}
+    function init() {self . s = "";}
 
        public   function testS () { self. a = 1;}
 
@@ -35,7 +35,7 @@ function close( io:ReadableByteChannel   |io:WritableByteChannel  ch) {
     #
     # + url - URL of the target service
     # + config - The configurations to be used when initializing the client
-         public    function __init(string url) {
+         public    function init(string url) {
         self.url = url;
     }
 
