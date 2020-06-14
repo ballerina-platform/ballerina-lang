@@ -907,7 +907,8 @@ public class BIRPackageSymbolEnter {
                             names.fromString(recordName), env.pkgSymbol.pkgID, null, env.pkgSymbol);
                     recordSymbol.flags |= flags;
                     recordSymbol.scope = new Scope(recordSymbol);
-                    BRecordType recordType = new BRecordType(recordSymbol, flags);
+                    BRecordType recordType = new BRecordType(recordSymbol, recordSymbol.flags);
+                    recordType.flags |= flags;
 
                     if (isImmutable(flags)) {
                         recordSymbol.flags |= Flags.READONLY;
