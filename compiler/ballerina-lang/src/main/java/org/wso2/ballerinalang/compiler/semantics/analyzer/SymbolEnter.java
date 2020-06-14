@@ -61,7 +61,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -1459,6 +1458,15 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
             if (typeDef.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+                BObjectType objectType = (BObjectType) typeDef.symbol.type;
+
+                if (objectType.mutableType != null) {
+                    // If this is an object type definition defined for an immutable type.
+                    // We skip defining methods here since they would either be defined already, or would be defined
+                    // later.
+                    continue;
+                }
+
                 BLangObjectTypeNode objTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
                 SymbolEnv objMethodsEnv =
                         SymbolEnv.createObjectMethodsEnv(objTypeNode, (BObjectTypeSymbol) objTypeNode.symbol, pkgEnv);
@@ -1466,7 +1474,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // Define the functions defined within the object
                 defineObjectInitFunction(objTypeNode, objMethodsEnv);
                 objTypeNode.functions.forEach(f -> {
-                    f.setReceiver(ASTBuilderUtil.createReceiver(typeDef.pos, typeDef.symbol.type));
+                    f.setReceiver(ASTBuilderUtil.createReceiver(typeDef.pos, objectType));
                     defineNode(f, objMethodsEnv);
                 });
 
@@ -1524,16 +1532,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            BObjectType objectType = (BObjectType) typeDef.symbol.type;
-            BIntersectionType immutableType = objectType.immutableType;
-            if (immutableType == null) {
-                continue;
-            }
-
-            BObjectType immutableObjectType = (BObjectType) immutableType.effectiveType;
+            BObjectType immutableObjectType = (BObjectType) typeDef.symbol.type;
+            BObjectType mutableObjectType = immutableObjectType.mutableType;
 
             ImmutableTypeCloner.defineObjectFunctions((BObjectTypeSymbol) immutableObjectType.tsymbol,
-                                                      (BObjectTypeSymbol) objectType.tsymbol, names);
+                                                      (BObjectTypeSymbol) mutableObjectType.tsymbol, names);
         }
     }
 
