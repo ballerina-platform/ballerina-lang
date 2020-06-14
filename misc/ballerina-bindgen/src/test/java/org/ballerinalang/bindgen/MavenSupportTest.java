@@ -61,7 +61,7 @@ public class MavenSupportTest extends CommandTest {
         }
     }
 
-    @Test(description = "Test the maven support in the Bindgen tool inside a project")
+    @Test(description = "Test the maven support in the Bindgen tool inside a project", enabled = false)
     public void testBindgenMvnCmd() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
         String moduleDir = Paths.get(projectDir, "src", "balModule1").toString();
