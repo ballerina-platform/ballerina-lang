@@ -20,7 +20,6 @@ package org.ballerinalang.net.grpc.proto;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.ballerinalang.net.grpc.config.ServiceConfiguration;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -33,12 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CALLER_ENDPOINT_TYPE;
-import static org.ballerinalang.net.grpc.GrpcConstants.ON_COMPLETE_RESOURCE;
-import static org.ballerinalang.net.grpc.GrpcConstants.ON_ERROR_RESOURCE;
-import static org.ballerinalang.net.grpc.GrpcConstants.ON_MESSAGE_RESOURCE;
-import static org.ballerinalang.net.grpc.GrpcConstants.ON_OPEN_RESOURCE;
 import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.ANN_SERVICE_CONFIG;
-import static org.ballerinalang.net.grpc.proto.ServiceProtoUtils.getServiceConfiguration;
 
 /**
  * A utility class for validating an gRPC service signature at compile time.
@@ -82,75 +76,25 @@ public class ServiceDefinitionValidator {
                     "There cannot be more than one service annotations");
             return false;
         } else if (count == 1) {
-            boolean isNameExists = false;
-            boolean clientStreaming = false;
             for (BLangRecordLiteral.BLangRecordKeyValueField keyValue : annVals) {
-                switch (((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue()) {
-                    case "name":
-                        isNameExists = true;
-                        break;
-                    case "clientStreaming":
-                        clientStreaming = true;
-                        break;
-                    default:
-                        break;
+                if (((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue().equals("name")) {
+                    return true;
+                } else {
+                    return false;
                 }
             }
-            return isNameExists && clientStreaming;
         }
         return true;
     }
 
     private static boolean validateResource(ServiceNode serviceNode, DiagnosticLog dlog) {
         List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
-        ServiceConfiguration serviceConfig = getServiceConfiguration(serviceNode);
-        if (serviceConfig.getRpcEndpoint() != null && (serviceConfig.isClientStreaming())) {
-            if (resources.size() != 4) {
-                dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                        "There should be four resources defined in client/bidirectional streaming services");
+        for (BLangFunction resourceNode : resources) {
+            if (!validateResourceSignature(resourceNode, dlog, resourceNode.pos)) {
                 return false;
             }
-            boolean onMessageExists = false;
-            boolean onOpenExists = false;
-            boolean onErrorExists = false;
-            boolean onCompleteExists = false;
-            for (BLangFunction resourceNode : resources) {
-                switch (resourceNode.getName().getValue()) {
-                    case ON_OPEN_RESOURCE:
-                        onOpenExists = true;
-                        break;
-                    case ON_MESSAGE_RESOURCE:
-                        onMessageExists = true;
-                        break;
-                    case ON_ERROR_RESOURCE:
-                        onErrorExists = true;
-                        break;
-                    case ON_COMPLETE_RESOURCE:
-                        onCompleteExists = true;
-                        break;
-                    default:
-                        break;
-                }
-                if (!validateResourceSignature(resourceNode, dlog, resourceNode.pos)) {
-                    return false;
-                }
-            }
-            if (onMessageExists && onOpenExists && onErrorExists && onCompleteExists) {
-                return true;
-            } else {
-                dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                        "One or more resources(onOpen/onMessage/onError/onComplete) is not implemented in " +
-                                "client/bidirectional streaming service");
-                return false;
-            }
-        } else {
-            for (BLangFunction resourceNode : resources) {
-                if (!validateResourceSignature(resourceNode, dlog, resourceNode.pos)) {
-                    return false;
-                }
-            }
-            return true;
         }
+        return true;
     }
 
     private static boolean validateResourceSignature(BLangFunction resourceNode, DiagnosticLog dlog,

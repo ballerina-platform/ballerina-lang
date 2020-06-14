@@ -42,6 +42,7 @@ import static org.wso2.ballerinalang.compiler.util.Names.QUERY_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.STREAM_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.STRING_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.TABLE_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.TRANSACTION_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.TYPEDESC_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.VALUE_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.XML_VERSION;
@@ -96,6 +97,8 @@ public class PackageID {
             Lists.of(Names.LANG, Names.BOOLEAN), BOOLEAN_VERSION);
     public static final PackageID QUERY = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.QUERY), QUERY_VERSION);
+    public static final PackageID TRANSACTION = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.TRANSACTION), TRANSACTION_VERSION);
 
     public final Name orgName;
     public Name name;

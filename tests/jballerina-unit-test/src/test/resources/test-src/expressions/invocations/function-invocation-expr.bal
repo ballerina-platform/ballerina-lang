@@ -1,5 +1,8 @@
 import ballerina/math;
 
+type BooleanArray boolean[];
+type StringArray string[];
+
 function testFuncInvocation (int a, int b, int c) returns (int) {
     int x;
     x = 10;
@@ -160,11 +163,11 @@ function testVarargEvaluationCount() {
 }
 
 function baz(int i, boolean... b) returns [int, boolean[]] {
-    return [i, checkpanic b.cloneWithType(boolean[])];
+    return [i, checkpanic b.cloneWithType(BooleanArray)];
 }
 
 function bar(int i, string s = "hello", string... t) returns [int, string, string[]] {
-    return [i, s, checkpanic t.cloneWithType(string[])];
+    return [i, s, checkpanic t.cloneWithType(StringArray)];
 }
 
 function qux(int i, string... s) {
@@ -278,11 +281,11 @@ function testMethodVarargEvaluationCount() {
 
 type Foo client object {
     function baz(int i, boolean... b) returns [int, boolean[]] {
-        return [i, checkpanic b.cloneWithType(boolean[])];
+        return [i, checkpanic b.cloneWithType(BooleanArray)];
     }
 
     remote function bar(int i, string s = "hello", string... t) returns [int, string, string[]] {
-        return [i, s, checkpanic t.cloneWithType(string[])];
+        return [i, s, checkpanic t.cloneWithType(StringArray)];
     }
 };
 

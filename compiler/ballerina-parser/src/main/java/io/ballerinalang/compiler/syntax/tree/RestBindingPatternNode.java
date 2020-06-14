@@ -26,7 +26,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class RestBindingPatternNode extends NonTerminalNode {
+public class RestBindingPatternNode extends BindingPatternNode {
 
     public RestBindingPatternNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

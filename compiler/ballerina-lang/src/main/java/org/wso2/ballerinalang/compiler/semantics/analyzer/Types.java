@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
@@ -70,6 +71,7 @@ import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
+import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -114,6 +116,7 @@ public class Types {
 
     private static final CompilerContext.Key<Types> TYPES_KEY =
             new CompilerContext.Key<>();
+    private final ResolvedTypeBuilder typeBuilder;
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
@@ -139,7 +142,9 @@ public class Types {
         this.dlogHelper = BLangDiagnosticLogHelper.getInstance(context);
         this.names = Names.getInstance(context);
         this.expandedXMLBuiltinSubtypes = BUnionType.create(null,
-                symTable.xmlElementType, symTable.xmlCommentType, symTable.xmlPIType, symTable.xmlTextType);
+                                                            symTable.xmlElementType, symTable.xmlCommentType,
+                                                            symTable.xmlPIType, symTable.xmlTextType);
+        this.typeBuilder = new ResolvedTypeBuilder();
     }
 
     public List<BType> checkTypes(BLangExpression node,
@@ -476,8 +481,9 @@ public class Types {
         int sourceTag = source.tag;
         int targetTag = target.tag;
 
-        if (!isInherentlyImmutableType(target) &&
-                Symbols.isFlagOn(target.flags, Flags.READONLY) && !Symbols.isFlagOn(source.flags, Flags.READONLY)) {
+        if (!Symbols.isFlagOn(source.flags, Flags.PARAMETERIZED) &&
+                !isInherentlyImmutableType(target) && Symbols.isFlagOn(target.flags, Flags.READONLY) &&
+                !isInherentlyImmutableType(source) && !Symbols.isFlagOn(source.flags, Flags.READONLY)) {
             return false;
         }
 
@@ -638,6 +644,11 @@ public class Types {
 
         if (sourceTag == TypeTags.INVOKABLE && targetTag == TypeTags.INVOKABLE) {
             return isFunctionTypeAssignable((BInvokableType) source, (BInvokableType) target, new HashSet<>());
+        }
+
+        if (sourceTag == TypeTags.PARAMETERIZED_TYPE) {
+            BType resolvedType = typeBuilder.build(source);
+            return isAssignable(resolvedType, target, unresolvedTypes);
         }
 
         return sourceTag == TypeTags.ARRAY && targetTag == TypeTags.ARRAY &&
@@ -942,10 +953,18 @@ public class Types {
     }
 
     boolean isSelectivelyImmutableType(BType type) {
-        return isSelectivelyImmutableType(type, new HashSet<>());
+        return isSelectivelyImmutableType(type, false, new HashSet<>());
+    }
+
+    boolean isSelectivelyImmutableType(BType type, boolean disallowReadOnlyObjects) {
+        return isSelectivelyImmutableType(type, disallowReadOnlyObjects, new HashSet<>());
     }
 
     public boolean isSelectivelyImmutableType(BType type, Set<BType> unresolvedTypes) {
+        return isSelectivelyImmutableType(type, false, unresolvedTypes);
+    }
+
+    boolean isSelectivelyImmutableType(BType type, boolean disallowReadOnlyObjects, Set<BType> unresolvedTypes) {
         if (isInherentlyImmutableType(type) || !(type instanceof SelectivelyImmutableReferenceType)) {
             // Always immutable.
             return false;
@@ -1009,6 +1028,22 @@ public class Types {
                 BType constraintType = ((BMapType) type).constraint;
                 return isInherentlyImmutableType(constraintType) ||
                         isSelectivelyImmutableType(constraintType, unresolvedTypes);
+            case TypeTags.OBJECT:
+                BObjectType objectType = (BObjectType) type;
+
+                if (!Symbols.isFlagOn(objectType.tsymbol.flags, Flags.ABSTRACT) &&
+                        (disallowReadOnlyObjects || !Symbols.isFlagOn(objectType.flags, Flags.READONLY))) {
+                    return false;
+                }
+
+                for (BField field : objectType.fields.values()) {
+                    BType fieldType = field.type;
+                    if (!isInherentlyImmutableType(fieldType) &&
+                            !isSelectivelyImmutableType(fieldType, unresolvedTypes)) {
+                        return false;
+                    }
+                }
+                return true;
             case TypeTags.TABLE:
                 BType tableConstraintType = ((BTableType) type).constraint;
                 return isInherentlyImmutableType(tableConstraintType) ||
@@ -1017,7 +1052,7 @@ public class Types {
                 boolean readonlyIntersectionExists = false;
                 for (BType memberType : ((BUnionType) type).getMemberTypes()) {
                     if (isInherentlyImmutableType(memberType) ||
-                            isSelectivelyImmutableType(memberType, unresolvedTypes)) {
+                            isSelectivelyImmutableType(memberType, disallowReadOnlyObjects, unresolvedTypes)) {
                         readonlyIntersectionExists = true;
                     }
                 }
@@ -1673,6 +1708,8 @@ public class Types {
         BType newTargetType = targetType;
         if ((targetType.tag == TypeTags.UNION || targetType.tag == TypeTags.FINITE) && isValueType(actualType)) {
             newTargetType = symTable.anyType;   // TODO : Check for correctness.
+        } else if (targetType.tag == TypeTags.INTERSECTION) {
+            newTargetType = ((BIntersectionType) targetType).effectiveType;
         }
 
         TypeTestResult result = isBuiltInTypeWidenPossible(actualType, newTargetType);
@@ -2158,6 +2195,16 @@ public class Types {
             return s == t;
         }
 
+        @Override
+        public Boolean visit(BParameterizedType t, BType s) {
+            if (s.tag != TypeTags.PARAMETERIZED_TYPE) {
+                return false;
+            }
+
+            BParameterizedType sType = (BParameterizedType) s;
+            return isSameType(sType.paramValueType, t.paramValueType) && sType.paramSymbol.equals(t.paramSymbol);
+        }
+
     };
 
     private boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType, Set<TypePair> unresolvedTypes) {
@@ -2215,15 +2262,13 @@ public class Types {
         Set<BType> targetTypes = new LinkedHashSet<>();
 
         if (source.tag == TypeTags.UNION) {
-            BUnionType sourceUnionType = (BUnionType) source;
-            sourceTypes.addAll(sourceUnionType.getMemberTypes());
+            sourceTypes.addAll(getEffectiveMemberTypes((BUnionType) source));
         } else {
             sourceTypes.add(source);
         }
 
         if (target.tag == TypeTags.UNION) {
-            BUnionType targetUnionType = (BUnionType) target;
-            targetTypes.addAll(targetUnionType.getMemberTypes());
+            targetTypes.addAll(getEffectiveMemberTypes((BUnionType) target));
         } else {
             targetTypes.add(target);
         }
@@ -2249,6 +2294,25 @@ public class Types {
             }
         }
         return true;
+    }
+
+    private Set<BType> getEffectiveMemberTypes(BUnionType unionType) {
+        Set<BType> memTypes = new LinkedHashSet<>();
+
+        for (BType memberType : unionType.getMemberTypes()) {
+            if (memberType.tag == TypeTags.INTERSECTION) {
+                BType effectiveType = ((BIntersectionType) memberType).effectiveType;
+                if (effectiveType.tag == TypeTags.UNION) {
+                    memTypes.addAll(getEffectiveMemberTypes((BUnionType) effectiveType));
+                    continue;
+                }
+                memTypes.add(effectiveType);
+                continue;
+            }
+
+            memTypes.add(memberType);
+        }
+        return memTypes;
     }
 
     private boolean isFiniteTypeAssignable(BFiniteType finiteType, BType targetType, Set<TypePair> unresolvedTypes) {

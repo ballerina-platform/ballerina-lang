@@ -86,6 +86,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ballerina/lang.transaction",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "120",
+      "insertText": "ballerina/lang.'transaction;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ballerina/file",
       "kind": "Module",
       "detail": "Module",

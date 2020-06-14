@@ -118,11 +118,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER };
 
     private static final ParserRuleContext[] TOP_LEVEL_NODE_WITHOUT_MODIFIER =
-            { ParserRuleContext.EOF , ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE,
+            { ParserRuleContext.EOF, ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE,
                     ParserRuleContext.MODULE_TYPE_DEFINITION, ParserRuleContext.SERVICE_DECL,
                     ParserRuleContext.LISTENER_DECL, ParserRuleContext.CONSTANT_DECL, ParserRuleContext.ANNOTATION_DECL,
                     ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.XML_NAMESPACE_DECLARATION,
-                    ParserRuleContext.MODULE_ENUM_DECLARATION, ParserRuleContext.IMPORT_DECL};
+                    ParserRuleContext.MODULE_ENUM_DECLARATION, ParserRuleContext.IMPORT_DECL };
 
     private static final ParserRuleContext[] TYPE_OR_VAR_NAME =
             { ParserRuleContext.VARIABLE_NAME, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN };
@@ -1009,6 +1009,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case STRING_KEYWORD:
             case BASE16_KEYWORD:
             case BASE64_KEYWORD:
+            case DISTINCT_KEYWORD:
                 return true;
             default:
                 return false;
@@ -1713,6 +1714,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case MAPPING_CONSTRUCTOR:
             case MULTI_WAIT_FIELDS:
+            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 alternatives = new ParserRuleContext[] { ParserRuleContext.CLOSE_BRACE,
                         ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
                         ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPTIONAL_CHAINING_TOKEN,
@@ -2558,6 +2560,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     return ParserRuleContext.SPECIFIC_FIELD;
                 }
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
+            case DISTINCT_KEYWORD:
+                return ParserRuleContext.TYPE_DESCRIPTOR;
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -2845,6 +2849,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LIST_BINDING_PATTERN:
                 return ParserRuleContext.LIST_BINDING_PATTERN_CONTENTS;
             case MAPPING_BINDING_PATTERN:
+            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 return ParserRuleContext.MAPPING_BINDING_PATTERN_MEMBER;
             case MULTI_RECEIVE_WORKERS:
                 return ParserRuleContext.RECEIVE_FIELD;
@@ -3144,6 +3149,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case STMT_START_BRACKETED_LIST:
                 return ParserRuleContext.BRACKETED_LIST_MEMBER_END;
             case MAPPING_BINDING_PATTERN:
+            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 endContext();
                 return getNextRuleForBindingPattern();
             case FORK_STMT:
@@ -3245,6 +3251,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case REST_BINDING_PATTERN:
             case FIELD_BINDING_PATTERN:
             case MAPPING_BINDING_PATTERN:
+            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 return getNextRuleForBindingPattern();
             case LISTENER_DECL:
             case CONSTANT_DECL:
@@ -3552,6 +3559,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case BRACKETED_LIST:
                 return ParserRuleContext.LIST_BINDING_PATTERN_END_OR_CONTINUE;
             case MAPPING_BINDING_PATTERN:
+            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 return ParserRuleContext.MAPPING_BINDING_PATTERN_END;
             case REST_BINDING_PATTERN:
                 endContext();
@@ -3624,6 +3632,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 endContext(); // end conditional-expr
                 return ParserRuleContext.EXPRESSION;
             case MAPPING_BINDING_PATTERN:
+            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 return ParserRuleContext.VARIABLE_NAME;
             case FIELD_BINDING_PATTERN:
                 endContext();
@@ -3851,6 +3860,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.EQUAL_TOKEN;
             case FUNC_BODY_OR_TYPE_DESC_RHS:
             case FUNC_BODY_BLOCK:
+            case FUNC_BODY:
                 return SyntaxKind.OPEN_BRACE_TOKEN;
             case FUNC_DEF:
             case FUNC_DEF_OR_FUNC_TYPE:
@@ -4244,6 +4254,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.FROM_KEYWORD;
             case DO_KEYWORD:
                 return SyntaxKind.DO_KEYWORD;
+            case DISTINCT_KEYWORD:
+                return SyntaxKind.DISTINCT_KEYWORD;
             default:
                 return SyntaxKind.NONE;
         }

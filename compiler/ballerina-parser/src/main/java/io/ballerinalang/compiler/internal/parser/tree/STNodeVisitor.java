@@ -713,6 +713,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(objectMethodDefinitionNode);
     }
 
+    public void visit(STDistinctTypeDescriptorNode distinctTypeDescriptorNode) {
+        visitSyntaxNode(distinctTypeDescriptorNode);
+    }
+
     // STNodeList
     public void visit(STNodeList nodeList) {
         visitChildren(nodeList);

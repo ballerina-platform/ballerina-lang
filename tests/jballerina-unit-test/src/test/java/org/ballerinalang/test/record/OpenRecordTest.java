@@ -162,7 +162,7 @@ public class OpenRecordTest {
                                     "family:{spouse:\"Jane\", noOfChildren:0, children:[\"Alex\", \"Bob\"]}}");
     }
 
-    @Test(description = "Negative test to test attaching functions to record literal")
+    @Test(description = "Negative test to test attaching functions to record literal", groups = { "brokenOnNewParser" })
     public void testStructLiteralAttachedFunc() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/record/record_literal_with_attached_functions_negative.bal");

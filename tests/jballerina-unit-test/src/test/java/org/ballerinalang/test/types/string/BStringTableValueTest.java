@@ -26,20 +26,19 @@ import org.testng.annotations.Test;
  * Test BString support in Object.
  */
 
-//TODO Table remove - Fix
 public class BStringTableValueTest extends BStringTestCommons {
 
-    @BeforeClass(enabled = false)
+    @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/string/bstring-table-test.bal");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testTableGeneration() {
         testAndAssert("testTableGeneration", 84);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testTableWithArrayGeneration() {
         testAndAssert("testTableWithArrayGeneration", 37);
     }

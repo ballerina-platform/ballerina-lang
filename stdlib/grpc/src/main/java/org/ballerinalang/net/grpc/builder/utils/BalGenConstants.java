@@ -87,6 +87,8 @@ public class BalGenConstants {
 
     public static final String GOOGLE_STANDARD_LIB = "google.protobuf";
 
+    public static final String GOOGLE_API_LIB = "google.api";
+
     public static final String HTTP_PATTERN_NOT_SET = "PATTERN_NOT_SET";
 
     public static final String INITIAL_PARENT_PREFIX = "new";

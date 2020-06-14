@@ -656,7 +656,7 @@ public class JvmCastGen {
             generateCheckCastToUnionType(mv, sourceType, (BUnionType) targetType);
             return;
         } else if (targetType.tag == TypeTags.INTERSECTION) {
-            generateCheckCastToIntersectionType(mv, sourceType, (BIntersectionType) targetType);
+            generateCheckCast(mv, sourceType, ((BIntersectionType) targetType).effectiveType, indexMap);
             return;
         } else if (targetType.tag == TypeTags.ANYDATA) {
             generateCheckCastToAnyData(mv, sourceType);
@@ -1028,13 +1028,6 @@ public class JvmCastGen {
         checkCast(mv, targetType);
     }
 
-    private static void generateCheckCastToIntersectionType(MethodVisitor mv, BType sourceType,
-                                                            BIntersectionType targetType) {
-
-        generateCastToAny(mv, sourceType);
-        checkCast(mv, targetType);
-    }
-
     private static void checkCast(MethodVisitor mv, BType targetType) {
 
         loadType(mv, targetType);
@@ -1121,6 +1114,9 @@ public class JvmCastGen {
                 targetType.tag == TypeTags.JSON ||
                 targetType.tag == TypeTags.FINITE) {
             generateCastToAny(mv, sourceType);
+            return;
+        } else if (targetType.tag == TypeTags.INTERSECTION) {
+            generateCast(mv, sourceType, ((BIntersectionType) targetType).effectiveType);
             return;
         }
 

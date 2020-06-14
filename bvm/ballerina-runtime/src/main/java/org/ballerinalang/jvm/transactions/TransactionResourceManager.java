@@ -311,7 +311,7 @@ public class TransactionResourceManager {
     }
 
     private void invokeCommittedFunction(Strand strand, String transactionId, String transactionBlockId) {
-        List<FPValue> fpValueList = committedFuncRegistry.get(transactionBlockId);
+        List<FPValue> fpValueList = committedFuncRegistry.get(transactionId);
         Object[] args = { strand, strand.transactionLocalContext.getInfoRecord(), true };
         if (fpValueList != null) {
             for (int i = fpValueList.size(); i > 0; i--) {
@@ -325,7 +325,7 @@ public class TransactionResourceManager {
     }
 
     private void invokeAbortedFunction(Strand strand, String transactionId, String transactionBlockId, Object error) {
-        List<FPValue> fpValueList = abortedFuncRegistry.get(transactionBlockId);
+        List<FPValue> fpValueList = abortedFuncRegistry.get(transactionId);
         //TODO: Need to pass the retryManager to get the willRetry value.
         Object[] args = { strand, strand.transactionLocalContext.getInfoRecord(), true, error, true, false, true };
         if (fpValueList != null) {

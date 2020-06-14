@@ -87,6 +87,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordSpreadOperatorField;
@@ -1099,9 +1100,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         fieldAccessExpr.expr.accept(this);
-        if (fieldAccessExpr.impConversionExpr != null) {
-            fieldAccessExpr.impConversionExpr.accept(this);
-        }
     }
 
     @Override
@@ -1362,6 +1360,17 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
         stringTemplateLiteral.exprs.forEach(expression -> expression.accept(this));
+    }
+
+    @Override
+    public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
+        for (BLangLiteral str : rawTemplateLiteral.strings) {
+            str.accept(this);
+        }
+
+        for (BLangExpression expr : rawTemplateLiteral.insertions) {
+            expr.accept(this);
+        }
     }
 
     @Override
