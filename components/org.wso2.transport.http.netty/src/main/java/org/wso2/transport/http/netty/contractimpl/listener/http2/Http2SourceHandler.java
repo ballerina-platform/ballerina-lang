@@ -73,9 +73,10 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
     private Http2Connection conn;
     private String interfaceId;
     private String serverName;
-    private String remoteAddress;
+    private String remoteHost;
     private Map<String, GenericObjectPool> targetChannelPool; //Keeps only h1 target channels
     private ServerRemoteFlowControlListener serverRemoteFlowControlListener;
+    private SocketAddress remoteAddress;
 
     Http2SourceHandler(HttpServerChannelInitializer serverChannelInitializer, Http2ConnectionEncoder encoder,
                        String interfaceId, Http2Connection conn, ServerConnectorFuture serverConnectorFuture,
@@ -110,11 +111,11 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
         super.handlerAdded(ctx);
         this.ctx = ctx;
         // Populate remote address
-        SocketAddress address = ctx.channel().remoteAddress();
-        if (address instanceof InetSocketAddress) {
-            remoteAddress = ((InetSocketAddress) address).getAddress().toString();
-            if (remoteAddress.startsWith("/")) {
-                remoteAddress = remoteAddress.substring(1);
+        this.remoteAddress = ctx.channel().remoteAddress();
+        if (this.remoteAddress instanceof InetSocketAddress) {
+            remoteHost = ((InetSocketAddress) this.remoteAddress).getAddress().toString();
+            if (remoteHost.startsWith("/")) {
+                remoteHost = remoteHost.substring(1);
             }
         }
     }
@@ -251,8 +252,8 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
         return serverName;
     }
 
-    public String getRemoteAddress() {
-        return remoteAddress;
+    public String getRemoteHost() {
+        return remoteHost;
     }
     public Map<String, GenericObjectPool> getTargetChannelPool() {
         return targetChannelPool;
@@ -268,5 +269,9 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
 
     public Http2ServerChannel getHttp2ServerChannel() {
         return http2ServerChannel;
+    }
+
+    public SocketAddress getRemoteAddress() {
+        return remoteAddress;
     }
 }
