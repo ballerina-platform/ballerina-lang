@@ -42,7 +42,7 @@ public class ClientUtils {
         try {
             SQLDatasource sqlDatasource = SQLDatasource.retrieveDatasource(sqlDatasourceParams);
             client.addNativeData(Constants.DATABASE_CLIENT, sqlDatasource);
-            client.addNativeData(Constants.CONNECTOR_ID_KEY, UUID.randomUUID().toString());
+            client.addNativeData(Constants.SQL_CONNECTOR_TRANSACTION_ID, UUID.randomUUID().toString());
             return null;
         } catch (ErrorValue errorValue) {
             return errorValue;

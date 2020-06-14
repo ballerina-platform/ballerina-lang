@@ -148,6 +148,7 @@ public class SymbolTable {
     public BObjectType intRangeType;
     public BMapType mapAllType;
     public BArrayType arrayAllType;
+    public BObjectType rawTemplateType;
 
     // builtin subtypes
     public final BIntSubType signed32IntType = new BIntSubType(TypeTags.SIGNED32_INT, Names.SIGNED32);
@@ -183,6 +184,7 @@ public class SymbolTable {
     public BPackageSymbol langXmlModuleSymbol;
     public BPackageSymbol langBooleanModuleSymbol;
     public BPackageSymbol langQueryModuleSymbol;
+    public BPackageSymbol langTransactionModuleSymbol;
 
     private Names names;
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
