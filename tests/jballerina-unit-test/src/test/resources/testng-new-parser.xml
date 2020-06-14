@@ -112,7 +112,7 @@
 <!--            <package name="org.ballerinalang.test.expressions.stamp.*"/>-->
 <!--            <package name="org.ballerinalang.test.expressions.lambda.*"/>-->
 <!--            <package name="org.ballerinalang.test.expressions.invocations.*"/>-->
-<!--            <package name="org.ballerinalang.test.expressions.mappingconstructor.*"/>-->
+            <package name="org.ballerinalang.test.expressions.mappingconstructor.*"/>
             <package name="org.ballerinalang.test.expressions.listconstructor.*"/>
 <!--            <package name="org.ballerinalang.test.expressions.group.*"/>-->
             <package name="org.ballerinalang.test.object.*" />
