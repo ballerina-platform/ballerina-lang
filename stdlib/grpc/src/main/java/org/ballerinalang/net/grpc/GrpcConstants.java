@@ -225,9 +225,6 @@ public class GrpcConstants {
     public static final String TAG_KEY_GRPC_ERROR_MESSAGE = "grpc.error_message";
 
     // Strand meta data
-    public static final StrandMetadata METADATA_ON_OPEN =
-            new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, PROTOCOL_PACKAGE_GRPC, PROTOCOL_PACKAGE_VERSION_GRPC,
-                               ON_OPEN_RESOURCE);
     public static final StrandMetadata METADATA_ON_MESSAGE =
             new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, PROTOCOL_PACKAGE_GRPC, PROTOCOL_PACKAGE_VERSION_GRPC,
                                ON_MESSAGE_RESOURCE);
