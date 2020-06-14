@@ -1214,9 +1214,7 @@ public class JvmMethodGen {
      * @return cleaned name
      */
     static String cleanupTypeName(String name) {
-        name = name.replace("/", "_");
-        name = name.replace(".", "_");
-        return name.replace("$", "_");
+        return name.replaceAll("[/$ .]", "_");
     }
 
     static String cleanupBalExt(String name) {
@@ -1359,7 +1357,7 @@ public class JvmMethodGen {
     }
 
     static String getStrandMetadataVarName(String typeName, String parentFunction) {
-        return STRAND_METADATA_VAR_PREFIX + typeName + "$" + parentFunction + "$";
+        return STRAND_METADATA_VAR_PREFIX + cleanupTypeName(typeName) + "$" + parentFunction + "$";
     }
 
     static String cleanupFunctionName(String functionName) {

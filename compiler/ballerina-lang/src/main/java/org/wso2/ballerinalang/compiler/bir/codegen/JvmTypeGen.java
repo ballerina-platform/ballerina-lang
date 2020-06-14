@@ -413,7 +413,7 @@ class JvmTypeGen {
             mv.visitTypeInsn(NEW, STRAND);
             mv.visitInsn(DUP);
             mv.visitInsn(ACONST_NULL);
-            String metaDataVarName = getStrandMetadataVarName(typeDef.name.value);
+            String metaDataVarName = getStrandMetadataVarName(CREATE_RECORD_VALUE);
             asyncDataCollector
                     .getStrandMetadata().putIfAbsent(metaDataVarName, new ScheduleFunctionInfo(CREATE_RECORD_VALUE));
             mv.visitFieldInsn(GETSTATIC, typeOwnerClass, metaDataVarName, String.format("L%s;", STRAND_METADATA));
