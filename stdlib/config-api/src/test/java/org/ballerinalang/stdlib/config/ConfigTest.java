@@ -374,7 +374,7 @@ public class ConfigTest {
     }
 
     @Test(description = "Test retrieving an invalid int config", expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*error: \\{ballerina/config\\}LookupError message=config key " +
+          expectedExceptionsMessageRegExp = ".*error: error occurred while trying to retrieve the value; config key " +
                   "'expirationPeriod' does not map to a valid 'int'.*")
     public void testGetAsIntNegative() throws IOException {
         BString key = new BString("expirationPeriod");
@@ -386,7 +386,7 @@ public class ConfigTest {
     }
 
     @Test(description = "Test retrieving an invalid float config", expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*error: \\{ballerina/config\\}LookupError message=config key " +
+          expectedExceptionsMessageRegExp = ".*error: error occurred while trying to retrieve the value; config key " +
                   "'\"ballerina.http.host\"' does not map to a valid 'float'.*")
     public void testGetAsFloatNegative() throws IOException {
         BString key = new BString("\"ballerina.http.host\"");
@@ -398,7 +398,7 @@ public class ConfigTest {
     }
 
     @Test(description = "Test retrieving an invalid boolean config", expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*error: \\{ballerina/config\\}LookupError message=config key " +
+          expectedExceptionsMessageRegExp = ".*error: error occurred while trying to retrieve the value; config key " +
                   "'expirationPeriod' does not map to a valid 'boolean'.*")
     public void testGetAsBooleanNegative() throws IOException {
         BString key = new BString("expirationPeriod");

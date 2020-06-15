@@ -70,7 +70,7 @@ public class ServiceTest {
         Assert.assertEquals(result[0].stringValue(), "2_1");
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testServiceBasicsNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_basic_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 17);

@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 /**
  * {@code BNeverType} represents the singleton type when functions don't have a return value.
@@ -30,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 public class BNeverType extends BType {
 
     public BNeverType() {
-        super(TypeTags.NEVER, null);
+        super(TypeTags.NEVER, null, Flags.READONLY);
     }
 
     @Override

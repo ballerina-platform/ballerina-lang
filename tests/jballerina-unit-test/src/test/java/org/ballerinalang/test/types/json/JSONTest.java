@@ -145,7 +145,7 @@ public class JSONTest {
         BValue[] args = {new BString("some words without quotes")};
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
+        String errorMsg = ((BError) returns[0]).getMessage();
         Assert.assertEquals(errorMsg, "unrecognized token 'some' at line: 1 column: 6");
     }
 

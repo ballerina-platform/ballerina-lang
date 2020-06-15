@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.ldap.nativeimpl;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -80,7 +79,7 @@ public class GetGroups {
                                                     CommonLdapConfiguration ldapAuthConfig,
                                                     DirContext ldapConnectionContext) throws NamingException {
         if (userName == null) {
-            throw BallerinaErrors.createError("UserName value is null.");
+            throw LdapUtils.createError("UserName value is null.");
         }
 
         SearchControls searchControls = new SearchControls();
@@ -92,7 +91,7 @@ public class GetGroups {
         String nameInSpace = getNameInSpaceForUserName(userName, ldapAuthConfig, ldapConnectionContext);
 
         if (membershipProperty == null || membershipProperty.length() < 1) {
-            throw BallerinaErrors.createError("MembershipAttribute not set in configuration.");
+            throw LdapUtils.createError("MembershipAttribute not set in configuration.");
         }
 
         String membershipValue;

@@ -77,15 +77,15 @@ function testSimpleAssignmentForInherentlyImmutableBasicTypes() {
     readonly h = err;
     assertTrue(h is error);
     error errorVal = <error> h;
-    assertEquality("Reason", errorVal.reason());
-    assertEquality("error message", errorVal.detail()?.message);
+    assertEquality("Reason", errorVal.message());
+    assertEquality("error message", errorVal.detail()["message"]);
 
-    error myError = AssertionError(message = "second error message");
+    error myError = AssertionError(ASSERTION_ERROR_REASON, message = "second error message");
     readonly i = myError;
     assertTrue(i is error);
     errorVal = <error> i;
-    assertEquality(ASSERTION_ERROR_REASON, errorVal.reason());
-    assertEquality("second error message", errorVal.detail()?.message);
+    assertEquality(ASSERTION_ERROR_REASON, errorVal.message());
+    assertEquality("second error message", errorVal.detail()["message"]);
 
     readonly j = assertTrue;
     assertTrue(j is function (any|error actual));
@@ -144,7 +144,7 @@ function testRuntimeIsTypeForInherentlyImmutableBasicTypes() {
     any|error h = err;
     assertTrue(h is readonly);
 
-    error myError = AssertionError(message = "second error message");
+    error myError = AssertionError(ASSERTION_ERROR_REASON, message = "second error message");
     any|error i = myError;
     assertTrue(i is readonly);
 
@@ -183,7 +183,7 @@ function testRuntimeIsTypeForNeverImmutableBasicTypes() {
     assertFalse(b is readonly);
 }
 
-type AssertionError error<ASSERTION_ERROR_REASON>;
+type AssertionError distinct error;
 
 type Employee record {
     string name;
@@ -217,5 +217,5 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

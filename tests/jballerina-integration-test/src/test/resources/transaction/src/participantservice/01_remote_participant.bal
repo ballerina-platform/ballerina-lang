@@ -111,7 +111,7 @@ service hello on new http:Listener(8889) {
             if (participant is string) {
                 s += participant;
             } else {
-                s += "remote-local-error:[" + <string>participant.detail()["message"] + "]";
+                s += "remote-local-error:[" + participant.message() + "]";
             }
         } else if (nestedTrxInNonParticipantLocalFunc) {
             log:printInfo("In nested trx in remote's local non participant");
@@ -119,7 +119,7 @@ service hello on new http:Listener(8889) {
             if (participant is string) {
                 s += participant;
             } else {
-                s += "remote-local-error-trapped:[" + <string>participant.detail()["message"] + "]";
+                s += "remote-local-error-trapped:[" + participant.message() + "]";
             }
         }
 
@@ -227,11 +227,11 @@ function initiatorFunc(boolean throw1, boolean throw2,
                         log:printInfo(payload);
                         S1 = S1 + " <" + <@untainted>  payload + ">";
                     } else {
-                        log:printError(payload.reason());
+                        log:printError(payload.message());
                     }
                 }
             } else {
-                log:printError(resp.reason());
+                log:printError(resp.message());
             }
         }
         if (trx_ran_once && remoteExecuted2 == false && remote2) {
@@ -251,11 +251,11 @@ function initiatorFunc(boolean throw1, boolean throw2,
                         log:printInfo(payload);
                         S1 = S1 + " <" + <@untainted>  payload + ">";
                     } else {
-                        log:printError(payload.reason());
+                        log:printError(payload.message());
                     }
                 }
             } else {
-                log:printError(resp.reason());
+                log:printError(resp.message());
             }
         }
         if (throw1 && !thrown1) {
@@ -328,12 +328,12 @@ function initiateNestedTransactionInRemote(string nestingMethod) returns @tainte
                     log:printInfo(text);
                     s += " <" + <@untainted>  text + ">";
                 } else {
-                    s += " error-in-remote-response " + text.reason();
-                    log:printError(text.reason());
+                    s += " error-in-remote-response " + text.message();
+                    log:printError(text.message());
                 }
             }
         } else {
-            s += " remote call error: " + resp.reason();
+            s += " remote call error: " + resp.message();
         }
     } onretry {
         s += " onretry";
@@ -364,12 +364,12 @@ function remoteErrorReturnInitiator() returns @tainted string {
                     log:printInfo(text);
                     s += " <" + <@untainted> text + ">";
                 } else {
-                    s += " error-in-remote-response " + text.reason();
-                    log:printError(text.reason());
+                    s += " error-in-remote-response " + text.message();
+                    log:printError(text.message());
                 }
             }
         } else {
-            s += " remote call error: " + resp.reason();
+            s += " remote call error: " + resp.message();
         }
     } onretry {
         s += " onretry";
@@ -402,11 +402,11 @@ function callParticipantMultipleTimes() returns string {
                         S1 += " <" + <@untainted>  payload + ">";
                         S1 += localParticipant();
                     } else {
-                        log:printError(payload.reason());
+                        log:printError(payload.message());
                     }
                 }
             } else {
-                log:printError(resp.reason());
+                log:printError(resp.message());
             }
         }
         S1 += " in-trx-lastline";
@@ -584,7 +584,7 @@ service initiatorService on new http:Listener(8888) {
                     s += " error-getTextPayload";
                 }
             } else {
-                s += " error-from-remote: " + result.reason() + "desc: " + <string> result.detail()["message"];
+                s += " error-from-remote: " + result.message() + "desc: " + result.message();
             }
             s += localParticipant();
         } onretry {

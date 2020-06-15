@@ -23,7 +23,7 @@ type ErrorRecord record {
     error cause?;
 };
 
-type USER_DEF_ERROR error<ERR_REASON, ErrorRecord>;
+type USER_DEF_ERROR distinct error<ErrorRecord>;
 
 public function main(string s, int code) returns error? {
     io:print("error? returning main invoked");
@@ -36,7 +36,7 @@ public function main(string s, int code) returns error? {
             return;
         }
         "user_def_error" => {
-            USER_DEF_ERROR e = error(ERR_REASON, message = "error message", statusCode = code);
+            USER_DEF_ERROR e = USER_DEF_ERROR(ERR_REASON, message = "error message", statusCode = code);
             return e;
         }
     }

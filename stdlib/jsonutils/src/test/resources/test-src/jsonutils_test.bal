@@ -24,6 +24,26 @@ type Person record {
     boolean married;
 };
 
+type Employee record {
+    int id;
+    string name;
+    float salary;
+    boolean permanent;
+    string[] dependents;
+    Contact contact;
+};
+
+type Contact record {
+    int[] phone;
+    Address address;
+    string emergency;
+};
+
+type Address record {
+    int number;
+    string street;
+};
+
 function testFromXML() returns json|error {
     var x1 = xml `<!-- outer comment -->`;
     var x2 = xml `<name>supun</name>`;
@@ -32,17 +52,35 @@ function testFromXML() returns json|error {
     return j;
 }
 
-//TODO Table remove - Fix
-//public function testFromTable() returns string {
-//    table<Person> personTable = table{
-//        { key id, age, salary, name, married },
-//        [ { 1, 30,  300.5, "Mary", true },
-//          { 2, 20,  300.5, "John", true }
-//        ]
-//    };
-//
-//    return jsonutils:fromTable(personTable).toJsonString();
-//}
+public function testFromTable() returns string {
+    table<Person> personTable = table[ { id: 1, age: 30,  salary: 300.5, name: "Mary", married: true },
+          { id: 2, age: 20,  salary: 300.5, name: "John", married: true }
+        ];
+
+    return jsonutils:fromTable(personTable).toJsonString();
+}
+
+public function testFromTable2() returns string {
+    table<Employee> employeeTable = table [
+                {id: 1, name: "Mary", salary: 300.5, permanent: true, dependents: ["Mike", "Rachel"],
+                    contact: {
+                        phone: [445566, 778877],
+                        address: {number: 34, street: "Straford"},
+                        emergency: "Stephen"}},
+                {id: 2, name: "John", salary: 200.5, permanent: false, dependents: ["Kyle"],
+                    contact: {
+                        phone: [6060606, 556644],
+                        address: {number: 10, street: "Oxford"},
+                        emergency: "Elizabeth"}} ,
+                {id: 3, name: "Jim", salary: 330.5, permanent: true, dependents: [],
+                    contact: {
+                        phone: [960960, 889889],
+                        address: {number: 46, street: "Queens"},
+                        emergency: "Veronica"}}
+            ];
+
+    return jsonutils:fromTable(employeeTable).toJsonString();
+}
 
 function testFromXML2() returns json|error {
     return jsonutils:fromXML(xml `foo`);

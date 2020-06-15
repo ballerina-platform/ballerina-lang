@@ -385,6 +385,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(streamTypeParamsNode);
     }
 
+    public void visit(STTypedescTypeDescriptorNode typedescTypeDescriptorNode) {
+        visitSyntaxNode(typedescTypeDescriptorNode);
+    }
+
     public void visit(STLetExpressionNode letExpressionNode) {
         visitSyntaxNode(letExpressionNode);
     }

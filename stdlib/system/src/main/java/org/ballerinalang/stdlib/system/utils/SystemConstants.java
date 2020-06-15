@@ -59,10 +59,8 @@ public class SystemConstants {
 
     static final String PROCESS_FIELD = "ProcessField";
 
-    // System error codes
-    public static final String PROCESS_EXEC_ERROR = "{ballerina/system}ProcessExecError";
-    static final String ERROR_DETAILS = "Detail";
-    static final String ERROR_MESSAGE = "message";
+    // System error type names
+    public static final String PROCESS_EXEC_ERROR = "ProcessExecError";
 
     // System constant fields
     public static final int DEFAULT_MAX_DEPTH = -1;

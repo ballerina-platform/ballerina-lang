@@ -60,19 +60,19 @@ public type CsvPersistentCookieHandler object {
             if (tblResult is table<myCookie> key(name, domain, path)) {
                 self.cookiesTable = tblResult;
             } else {
-                return error(COOKIE_HANDLING_ERROR, message = "Error in reading the csv file", cause = tblResult);
+                return CookieHandlingError("Error in reading the csv file", tblResult);
             }
         }
         var tableUpdateResult = addNewCookieToTable(self.cookiesTable, cookie);
         if (tableUpdateResult is table<myCookie> key(name, domain, path)) {
             self.cookiesTable = tableUpdateResult;
         } else {
-            return error(COOKIE_HANDLING_ERROR, message = "Error in updating the records in csv file",
+            return CookieHandlingError("Error in updating the records in csv file",
             cause = tableUpdateResult);
         }
         var result = writeToFile(self.cookiesTable, <@untainted> self.fileName);
         if (result is error) {
-            return error(COOKIE_HANDLING_ERROR, message = "Error in writing the csv file", cause = result);
+            return CookieHandlingError("Error in writing the csv file", result);
         }
     }
 
@@ -105,7 +105,7 @@ public type CsvPersistentCookieHandler object {
                 }
                 return cookies;
             } else {
-                return error(COOKIE_HANDLING_ERROR, message = "Error in reading the csv file", cause = tblResult);
+                return CookieHandlingError("Error in reading the csv file", tblResult);
             }
         }
        return cookies;
@@ -127,21 +127,21 @@ public type CsvPersistentCookieHandler object {
                 if (tblResult is table<myCookie> key(name, domain, path)) {
                     self.cookiesTable = tblResult;
                 } else {
-                    return error(COOKIE_HANDLING_ERROR, message = "Error in reading the csv file", cause = tblResult);
+                    return CookieHandlingError("Error in reading the csv file", tblResult);
                 }
             }
             var removedCookie = self.cookiesTable.remove([name, domain, path]);
             error? removeResults = file:remove(<@untainted> self.fileName);
             if (removeResults is error) {
-                return error(COOKIE_HANDLING_ERROR, message = "Error in removing the csv file", cause = removeResults);
+                return CookieHandlingError("Error in removing the csv file", removeResults);
             }
             var writeResult = writeToFile(self.cookiesTable, <@untainted> self.fileName);
             if (writeResult is error) {
-                return error(COOKIE_HANDLING_ERROR, message = "Error in writing the csv file", cause = writeResult);
+                return CookieHandlingError("Error in writing the csv file", writeResult);
             }
             return;
         }
-        return error(COOKIE_HANDLING_ERROR, message = "Error in removing cookie: No persistent cookie store file to remove");
+        return CookieHandlingError("Error in removing cookie: No persistent cookie store file to remove");
     }
 
     # Removes all persistent cookies.
@@ -150,7 +150,7 @@ public type CsvPersistentCookieHandler object {
     public function removeAllCookies() returns CookieHandlingError? {
         error? removeResults = file:remove(self.fileName);
         if (removeResults is error) {
-            return error(COOKIE_HANDLING_ERROR, message = "Error in removing the csv file", cause = removeResults);
+            return CookieHandlingError("Error in removing the csv file", removeResults);
         }
     }
 };
@@ -159,7 +159,7 @@ function validateFileExtension(string fileName) returns string|CookieHandlingErr
     if (fileName.toLowerAscii().endsWith(".csv")) {
         return fileName;
     }
-    return error(COOKIE_HANDLING_ERROR, message = "Invalid file format");
+    return CookieHandlingError("Invalid file format");
 }
 
 function readFile(string fileName) returns @tainted error|table<myCookie> key(name, domain, path) {
@@ -199,8 +199,7 @@ returns table<myCookie> key(name, domain, path)|error {
         var result = tableToReturn.add(c1);
         return tableToReturn;
     }
-    CookieHandlingError err = error(COOKIE_HANDLING_ERROR, message = "Invalid data types for cookie attributes");
-    return err;
+    return CookieHandlingError("Invalid data types for cookie attributes");
 }
 
 // Writes the updated table to the file.

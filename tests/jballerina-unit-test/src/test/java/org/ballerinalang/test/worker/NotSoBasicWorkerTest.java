@@ -148,7 +148,7 @@ public class NotSoBasicWorkerTest {
         Assert.assertEquals(vals[0].stringValue(), "W3: data1, W4: data2");
     }
 
-    @Test()
+    @Test
     public void testForkJoinWorkersWithNonBlockingConnector() {
         CompileResult result = BCompileUtil.compile("test-src/workers/fork-join-blocking.bal");
         BValue[] vals = BRunUtil.invoke(result, "testForkJoin", new BValue[0]);

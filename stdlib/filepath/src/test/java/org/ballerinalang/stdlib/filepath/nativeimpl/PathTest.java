@@ -24,7 +24,6 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.stdlib.filepath.Constants;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -117,7 +116,7 @@ public class PathTest {
         if (IS_WINDOWS) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/filepath}InvalidPathError");
+            assertTrue(error.getMessage().contains("Invalid path"));
         } else {
             BString absPath = (BString) returns[0];
             log.info("{ballerina/filepath}:absolute(). Return value: " + absPath.stringValue());
@@ -165,8 +164,8 @@ public class PathTest {
         if ("error".equals(expected)) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/filepath}UNCPathError");
-            log.info("Ballerina error: " + error.getDetails().stringValue());
+            assertTrue(error.getMessage().contains("UNC path"));
+            log.info("Ballerina error: " + error.getMessage());
         } else {
             assertTrue(returns[0] instanceof BString);
             BString filename = (BString) returns[0];
@@ -193,8 +192,8 @@ public class PathTest {
         if ("error".equals(expected)) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/filepath}UNCPathError");
-            log.info("Ballerina error: " + error.getDetails().stringValue());
+            assertTrue(error.getMessage().contains("UNC path"));
+            log.info("Ballerina error: " + error.getMessage());
         } else {
             assertTrue(returns[0] instanceof BString);
             BString parent = (BString) returns[0];
@@ -222,8 +221,8 @@ public class PathTest {
         if ("error".equals(expected)) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/filepath}UNCPathError");
-            log.info("Ballerina error: " + error.getDetails().stringValue());
+            assertTrue(error.getMessage().contains("UNC path"));
+            log.info("Ballerina error: " + error.getMessage());
         } else {
             assertTrue(returns[0] instanceof BString);
             BString filepath = (BString) returns[0];
@@ -250,8 +249,8 @@ public class PathTest {
         if ("error".equals(expected)) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/filepath}UNCPathError");
-            log.info("Ballerina error: " + error.getDetails().stringValue());
+            assertTrue(error.getMessage().contains("UNC path"));
+            log.info("Ballerina error: " + error.getMessage());
         } else {
             assertTrue(returns[0] instanceof BValueArray);
             BValueArray parts = (BValueArray) returns[0];
@@ -292,8 +291,8 @@ public class PathTest {
         if ("error".equals(expected)) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/filepath}UNCPathError");
-            log.info("Ballerina error: " + error.getDetails().stringValue());
+            assertTrue(error.getMessage().contains("UNC path"));
+            log.info("Ballerina error: " + error.getMessage());
         } else {
             assertTrue(returns[0] instanceof BString);
             BString resultPath = (BString) returns[0];
@@ -336,8 +335,8 @@ public class PathTest {
         if ("error".equals(expected)) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getDetails().stringValue(),
-                         "{message:\"Can't make: " + targetPath + " relative to " + basePath + "\"}");
+            assertEquals(error.getMessage(),
+                         "Can't make: " + targetPath + " relative to " + basePath);
         } else {
             assertTrue(returns[0] instanceof BString);
             BString relative = (BString) returns[0];
@@ -386,8 +385,8 @@ public class PathTest {
         assertEquals(returns.length, 1);
         assertTrue(returns[0] instanceof BError);
         BError resolveError = (BError) returns[0];
-        assertEquals(resolveError.getReason(), Constants.NOT_LINK_ERROR);
-        log.info("Ballerina error: " + resolveError.getDetails().stringValue());
+        assertTrue(resolveError.getMessage().contains("Path is not a symbolic link"));
+        log.info("Ballerina error: " + resolveError.getMessage());
     }
 
     @Test(description = "Test resolve path function for non existence path")
@@ -399,8 +398,8 @@ public class PathTest {
         assertEquals(returns.length, 1);
         assertTrue(returns[0] instanceof BError);
         BError resolveError = (BError) returns[0];
-        assertEquals(resolveError.getReason(), Constants.FILE_NOT_FOUND_ERROR);
-        log.info("Ballerina error: " + resolveError.getDetails().stringValue());
+        assertTrue(resolveError.getMessage().contains("File does not exist at"));
+        log.info("Ballerina error: " + resolveError.getMessage());
     }
 
     @Test(description = "Test path matches", dataProvider = "match_test")
@@ -419,8 +418,8 @@ public class PathTest {
         if ("error".equals(expected)) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), Constants.INVALID_PATTERN_ERROR);
-            log.info("Ballerina error: " + error.getDetails().stringValue());
+            assertTrue((error.getMessage()).contains("Invalid pattern"));
+            log.info("Ballerina error: " + error.getMessage());
         } else {
             assertTrue(returns[0] instanceof BBoolean);
             BBoolean matches = (BBoolean) returns[0];

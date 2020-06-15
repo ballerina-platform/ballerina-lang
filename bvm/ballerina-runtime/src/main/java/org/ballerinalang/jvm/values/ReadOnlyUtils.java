@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BIntersectionType;
 import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BTableType;
@@ -195,6 +196,29 @@ public class ReadOnlyUtils {
                 }
 
                 return createAndSetImmutableIntersectionType(origTableType, immutableTableType);
+            case TypeTags.OBJECT_TYPE_TAG:
+                BObjectType origObjectType = (BObjectType) type;
+
+                Map<String, BField> originalObjectFields = origObjectType.getFields();
+                Map<String, BField> immutableObjectFields = new HashMap<>(originalObjectFields.size());
+                BObjectType immutableObjectType = new BObjectType(origObjectType.getName().concat(" & readonly"),
+                                                                  origObjectType.getPackage(),
+                                                                  origObjectType.flags |= Flags.READONLY);
+                immutableObjectType.setFields(immutableObjectFields);
+                immutableObjectType.generatedInitializer = origObjectType.generatedInitializer;
+                immutableObjectType.initializer = origObjectType.initializer;
+                immutableObjectType.setAttachedFunctions(origObjectType.getAttachedFunctions());
+
+                BIntersectionType objectIntersectionType = createAndSetImmutableIntersectionType(origObjectType,
+                                                                                                 immutableObjectType);
+
+                for (Map.Entry<String, BField> entry : originalObjectFields.entrySet()) {
+                    BField originalField = entry.getValue();
+                    immutableObjectFields.put(entry.getKey(), new BField(getImmutableType(originalField.type,
+                                                                                          unresolvedTypes),
+                                                          originalField.name, originalField.flags));
+                }
+                return objectIntersectionType;
             case TypeTags.ANY_TAG:
             case TypeTags.ANYDATA_TAG:
             case TypeTags.JSON_TAG:
@@ -229,6 +253,11 @@ public class ReadOnlyUtils {
     }
 
     private static BIntersectionType createAndSetImmutableIntersectionType(BType originalType, BType effectiveType) {
+        return createAndSetImmutableIntersectionType(originalType.getPackage(), originalType, effectiveType);
+    }
+
+    private static BIntersectionType createAndSetImmutableIntersectionType(BPackage pkg, BType originalType,
+                                                                           BType effectiveType) {
         int typeFlags = 0;
 
         if (effectiveType.isAnydata()) {
@@ -243,7 +272,9 @@ public class ReadOnlyUtils {
             typeFlags |= TypeFlags.NILABLE;
         }
 
-        BIntersectionType intersectionType = new BIntersectionType(new BType[]{ originalType, BTypes.typeReadonly },
+        BIntersectionType intersectionType = new BIntersectionType(pkg, // TODO: 6/3/20 Fix to use current package
+                                                                   // for records and objects
+                                                                   new BType[]{ originalType, BTypes.typeReadonly },
                                                                    effectiveType, typeFlags, true);
         originalType.setImmutableType(intersectionType);
         return intersectionType;

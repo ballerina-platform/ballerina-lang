@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.990.0
  */
+@Test
 public class TransactionLocalParticipantFunctionTest {
     CompileResult result;
 

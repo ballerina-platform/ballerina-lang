@@ -75,7 +75,7 @@ public class ObjectInitializerTest {
 
     }
 
-    @Test(description = "Test negative object initializers scenarios")
+    @Test(description = "Test negative object initializers scenarios", groups = { "brokenOnNewParser" })
     public void testObjectInitializerNegatives() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_initializer_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 8);
@@ -116,7 +116,7 @@ public class ObjectInitializerTest {
         Assert.assertEquals(person.get("misc").stringValue(), "[{\"city\":\"Colombo\", \"country\":\"Sri Lanka\"}]");
     }
 
-    @Test(description = "Test returning a custom error from initializer")
+    @Test(description = "Test returning a custom error from initializer", groups = { "brokenOnNewParser" })
     public void testCustomErrorReturn() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCustomErrorReturn");
 
@@ -156,7 +156,7 @@ public class ObjectInitializerTest {
 
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
         Assert.assertEquals(((BError) returns[0]).getReason(), "failed to create Person object");
-        Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(), "{f:\"foo\"}");
+        Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(), "{\"f\":\"foo\"}");
     }
 
     @Test(description = "Test checkpanic expression in object init expr's argument")

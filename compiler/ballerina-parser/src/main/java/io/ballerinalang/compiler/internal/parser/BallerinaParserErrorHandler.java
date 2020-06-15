@@ -1714,6 +1714,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case MAPPING_CONSTRUCTOR:
             case MULTI_WAIT_FIELDS:
+            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 alternatives = new ParserRuleContext[] { ParserRuleContext.CLOSE_BRACE,
                         ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
                         ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPTIONAL_CHAINING_TOKEN,
@@ -2848,6 +2849,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LIST_BINDING_PATTERN:
                 return ParserRuleContext.LIST_BINDING_PATTERN_CONTENTS;
             case MAPPING_BINDING_PATTERN:
+            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 return ParserRuleContext.MAPPING_BINDING_PATTERN_MEMBER;
             case MULTI_RECEIVE_WORKERS:
                 return ParserRuleContext.RECEIVE_FIELD;
@@ -3147,6 +3149,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case STMT_START_BRACKETED_LIST:
                 return ParserRuleContext.BRACKETED_LIST_MEMBER_END;
             case MAPPING_BINDING_PATTERN:
+            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 endContext();
                 return getNextRuleForBindingPattern();
             case FORK_STMT:
@@ -3248,6 +3251,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case REST_BINDING_PATTERN:
             case FIELD_BINDING_PATTERN:
             case MAPPING_BINDING_PATTERN:
+            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 return getNextRuleForBindingPattern();
             case LISTENER_DECL:
             case CONSTANT_DECL:
@@ -3555,6 +3559,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case BRACKETED_LIST:
                 return ParserRuleContext.LIST_BINDING_PATTERN_END_OR_CONTINUE;
             case MAPPING_BINDING_PATTERN:
+            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 return ParserRuleContext.MAPPING_BINDING_PATTERN_END;
             case REST_BINDING_PATTERN:
                 endContext();
@@ -3627,6 +3632,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 endContext(); // end conditional-expr
                 return ParserRuleContext.EXPRESSION;
             case MAPPING_BINDING_PATTERN:
+            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 return ParserRuleContext.VARIABLE_NAME;
             case FIELD_BINDING_PATTERN:
                 endContext();
