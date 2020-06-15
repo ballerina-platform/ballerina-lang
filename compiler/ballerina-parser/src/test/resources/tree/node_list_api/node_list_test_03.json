@@ -11,14 +11,38 @@
       ]
     },
     {
-      "kind": "PUBLIC_KEYWORD"
+      "kind": "PUBLIC_KEYWORD",
+      "leadingMinutiae": [
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        }
+      ],
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
-      "kind": "TYPE_KEYWORD"
+      "kind": "TYPE_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "IDENTIFIER_TOKEN",
-      "value": "Employee"
+      "value": "Employee",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "OBJECT_TYPE_DESC",
@@ -28,7 +52,13 @@
           "children": []
         },
         {
-          "kind": "OBJECT_KEYWORD"
+          "kind": "OBJECT_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "OPEN_BRACE_TOKEN"
@@ -43,7 +73,13 @@
       ]
     },
     {
-      "kind": "SEMICOLON_TOKEN"
+      "kind": "SEMICOLON_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        }
+      ]
     }
   ]
 }

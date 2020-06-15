@@ -144,7 +144,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test var in variable def.")
+    @Test(description = "Test var in variable def.", groups = { "brokenOnNewParser" })
     public void testVarTypeInVariableDefStatement() {
         //var type is not not allowed in variable def statements
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-type-variable-def-negative.bal");
@@ -152,7 +152,7 @@ public class VarDeclaredAssignmentStmtTest {
         BAssertUtil.validateError(res, 0, "mismatched input ';'. expecting '='", 2, 12);
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testVarTypeInServiceLevelVariableDefStatement() {
         //var type is not not allowed in service level variable def statements
         CompileResult res = BCompileUtil.compile("test-src/types/var/service-level-variable-def-with-var-negative.bal");
@@ -163,7 +163,7 @@ public class VarDeclaredAssignmentStmtTest {
         BAssertUtil.validateError(res, 2, "extraneous input '}'", 12, 1);
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testVarDeclarationWithStructFieldAssignmentLHSExpr() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-invalid-usage-struct-field-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);

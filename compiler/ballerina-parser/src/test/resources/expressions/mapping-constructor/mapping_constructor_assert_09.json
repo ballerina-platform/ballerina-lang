@@ -1,18 +1,25 @@
 {
   "kind": "MAPPING_CONSTRUCTOR",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "OPEN_BRACE_TOKEN"
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "SPECIFIC_FIELD",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_IDENTIFIER"
+              ]
             }
           ]
         },
@@ -21,10 +28,15 @@
         },
         {
           "kind": "SPECIFIC_FIELD",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_IDENTIFIER"
+              ]
             }
           ]
         },
@@ -33,10 +45,15 @@
         },
         {
           "kind": "SPECIFIC_FIELD",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_IDENTIFIER"
+              ]
             }
           ]
         }

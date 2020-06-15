@@ -160,6 +160,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
@@ -212,6 +213,8 @@ public class BIRGen extends BLangNodeVisitor {
 
     // Required variables for Mock function implementation
     private static final String MOCK_ANNOTATION_DELIMITER = "#";
+
+    private ResolvedTypeBuilder typeBuilder = new ResolvedTypeBuilder();
 
     public static BIRGen getInstance(CompilerContext context) {
         BIRGen birGen = context.get(BIR_GEN);
@@ -500,8 +503,9 @@ public class BIRGen extends BLangNodeVisitor {
 
         // TODO: Return variable with NIL type should be written to BIR
         // Special %0 location for storing return values
-        birFunc.returnVariable = new BIRVariableDcl(astFunc.pos, astFunc.symbol.type.getReturnType(),
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.RETURN, null);
+        BType retType = typeBuilder.build(astFunc.symbol.type.getReturnType());
+        birFunc.returnVariable = new BIRVariableDcl(astFunc.pos, retType, this.env.nextLocalVarId(names),
+                                                    VarScope.FUNCTION, VarKind.RETURN, null);
         birFunc.localVars.add(0, birFunc.returnVariable);
 
         //add closure vars
@@ -1106,16 +1110,19 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarError);
         BIROperand lhsOp = new BIROperand(tempVarError);
 
-        // visit reason and detail expressions
+        // visit message, cause and detail expressions
         this.env.targetOperand = lhsOp;
         invocationExpr.requiredArgs.get(0).accept(this);
-        BIROperand reasonOp = this.env.targetOperand;
+        BIROperand messageOp = this.env.targetOperand;
 
         invocationExpr.requiredArgs.get(1).accept(this);
+        BIROperand causeOp = this.env.targetOperand;
+
+        invocationExpr.requiredArgs.get(2).accept(this);
         BIROperand detailsOp = this.env.targetOperand;
 
         BIRNonTerminator.NewError newError = new BIRNonTerminator.NewError(invocationExpr.pos, invocationExpr.type,
-                lhsOp, reasonOp, detailsOp);
+                lhsOp, messageOp, causeOp, detailsOp);
         emit(newError);
         this.env.targetOperand = lhsOp;
     }
@@ -1490,7 +1497,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand keyRegIndex = this.env.targetOperand;
         if (variableStore) {
             emit(new BIRNonTerminator.FieldAccess(astMapAccessExpr.pos, InstructionKind.MAP_STORE, varRefRegIndex,
-                                                  keyRegIndex, rhsOp));
+                                                  keyRegIndex, rhsOp, astMapAccessExpr.isStoreOnCreation));
             return;
         }
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(astMapAccessExpr.type, this.env.nextLocalVarId(names),
@@ -2298,7 +2305,7 @@ public class BIRGen extends BLangNodeVisitor {
                 insKind = InstructionKind.MAP_STORE;
             }
             emit(new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos, insKind, varRefRegIndex, keyRegIndex,
-                                                  rhsOp));
+                                                  rhsOp, astIndexBasedAccessExpr.isStoreOnCreation));
         } else {
             BIRVariableDcl tempVarDcl = new BIRVariableDcl(astIndexBasedAccessExpr.type, this.env.nextLocalVarId(names),
                     VarScope.FUNCTION, VarKind.TEMP);

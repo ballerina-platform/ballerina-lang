@@ -1,17 +1,31 @@
 {
   "kind": "TABLE_CONSTRUCTOR",
+  "hasDiagnostics": true,
   "children": [
     {
-      "kind": "TABLE_KEYWORD"
+      "kind": "TABLE_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "KEY_SPECIFIER",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "KEY_KEYWORD"
         },
         {
-          "kind": "OPEN_PAREN_TOKEN"
+          "kind": "OPEN_PAREN_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "LIST",
@@ -19,7 +33,11 @@
         },
         {
           "kind": "CLOSE_PAREN_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+          ]
         }
       ]
     },

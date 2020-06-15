@@ -44,9 +44,10 @@ public class FromXML {
             return XMLFactory.convertToJSON(xml, attributePrefix, preserveNamespaces);
         } catch (Exception e) {
             try {
+                // todo: fix after fixing `handleXMLException`
                 BLangExceptionHelper.handleXMLException("{ballerina/jsonutils}Error", e);
             } catch (Exception ex) {
-                return BallerinaErrors.createError("{ballerina/jsonutils}Error", ex.getMessage());
+                return BallerinaErrors.createError(StringUtils.fromString(ex.getMessage()));
             }
         }
         return null;

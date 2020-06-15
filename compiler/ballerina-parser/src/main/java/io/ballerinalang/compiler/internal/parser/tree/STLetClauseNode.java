@@ -63,7 +63,32 @@ public class STLetClauseNode extends STClauseNode {
                 diagnostics);
     }
 
+    public STLetClauseNode modify(
+            STNode letKeyword,
+            STNode letVarDeclarations) {
+        if (checkForReferenceEquality(
+                letKeyword,
+                letVarDeclarations)) {
+            return this;
+        }
+
+        return new STLetClauseNode(
+                letKeyword,
+                letVarDeclarations,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new LetClauseNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

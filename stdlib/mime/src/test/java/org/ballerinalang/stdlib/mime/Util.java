@@ -26,15 +26,14 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.HeaderUtil;
-import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.jvnet.mimepull.MIMEPart;
 import org.slf4j.Logger;
@@ -342,9 +341,9 @@ public class Util {
         Assert.assertEquals(xmlData.stringValue(), "<name>Ballerina xml file part</name>");
 
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(2));
-        String textData = EntityBodyHandler.constructStringDataSource(bodyPart);
+        BString textData = EntityBodyHandler.constructStringDataSource(bodyPart);
         Assert.assertNotNull(textData);
-        Assert.assertEquals(textData, "Ballerina text body part");
+        Assert.assertEquals(textData.getValue(), "Ballerina text body part");
 
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(3));
         ArrayValue blobDataSource = EntityBodyHandler.constructBlobDataSource(bodyPart);
@@ -355,9 +354,7 @@ public class Util {
         Assert.assertEquals(new String(outStream.toByteArray(), StandardCharsets.UTF_8), "Ballerina binary file part");
     }
 
-    public static void verifyMimeError(BValue returnValue, String errMsg, String expectedErrorCode) {
-        Assert.assertEquals(((BError) returnValue).getReason(), expectedErrorCode);
-        Assert.assertEquals(((BMap) ((BError) returnValue).getDetails()).get(MimeConstants.MIME_ERROR_MESSAGE)
-                                    .stringValue(), errMsg);
+    static void verifyMimeError(BValue returnValue, String errMsg) {
+        Assert.assertEquals(((BError) returnValue).getMessage(), errMsg);
     }
 }

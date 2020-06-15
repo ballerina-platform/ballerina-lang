@@ -70,7 +70,35 @@ public class STXMLAttributeNode extends STNode {
                 diagnostics);
     }
 
+    public STXMLAttributeNode modify(
+            STNode attributeName,
+            STNode equalToken,
+            STNode value) {
+        if (checkForReferenceEquality(
+                attributeName,
+                equalToken,
+                value)) {
+            return this;
+        }
+
+        return new STXMLAttributeNode(
+                attributeName,
+                equalToken,
+                value,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLAttributeNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

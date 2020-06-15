@@ -63,7 +63,32 @@ public class STQueryPipelineNode extends STNode {
                 diagnostics);
     }
 
+    public STQueryPipelineNode modify(
+            STNode fromClause,
+            STNode intermediateClauses) {
+        if (checkForReferenceEquality(
+                fromClause,
+                intermediateClauses)) {
+            return this;
+        }
+
+        return new STQueryPipelineNode(
+                fromClause,
+                intermediateClauses,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new QueryPipelineNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

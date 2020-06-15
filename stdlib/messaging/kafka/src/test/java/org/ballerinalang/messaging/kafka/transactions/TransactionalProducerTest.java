@@ -31,10 +31,13 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.PROTOCOL_PLAINTEXT;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.STRING_DESERIALIZER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_TRANSACTIONS;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
@@ -52,18 +55,21 @@ public class TransactionalProducerTest {
 
     private static KafkaCluster kafkaCluster;
     private CompileResult result;
+    private final List<String> topicsList = Collections.singletonList("transaction-topic");
 
     @BeforeTest(alwaysRun = true)
     public void setup() throws Throwable {
         kafkaCluster = new KafkaCluster(dataDir)
                 .withZookeeper(14051)
                 .withBroker(PROTOCOL_PLAINTEXT, 14151, getZookeeperTimeoutProperty())
+                .withConsumer(STRING_DESERIALIZER, STRING_DESERIALIZER, "transaction-consumer", topicsList)
                 .start();
     }
 
-    @Test(description = "Test Kafka producer send function within transaction")
+    @Test(description = "Test Kafka producer send function within transaction", enabled = false)
     public void testSendFromTransactionalProducer() {
         String balFile = "transactional_send.bal";
+        String message = "Hello World Transaction";
         result = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_TRANSACTIONS, balFile)));
         BValue[] returnBValues = BRunUtil.invoke(result, "testTransactionSendTest");
 
@@ -74,52 +80,16 @@ public class TransactionalProducerTest {
                 return ((BBoolean) returnBValues[0]).booleanValue();
             });
         } catch (Throwable e) {
-            Assert.fail(e.getMessage());
+            Assert.fail("Failed to send messages using transactional producer");
         }
-    }
 
-    @Test(description = "Test kafka producer commitConsumerOffsets() function")
-    public void testCommitConsumerOffsetsTest() {
-        String balFile = "commit_consumer_offsets.bal";
-        result = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_TRANSACTIONS, balFile)));
-        BRunUtil.invoke(result, "testProduce");
         try {
             await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-                BValue[] returnBValues = BRunUtil.invoke(result, "testCommitOffsets");
-                Assert.assertEquals(returnBValues.length, 1);
-                Assert.assertTrue(returnBValues[0] instanceof BBoolean);
-                return ((BBoolean) returnBValues[0]).booleanValue();
+                String messageReceived = kafkaCluster.consumeMessage(3000);
+                return messageReceived.equals(message);
             });
         } catch (Throwable e) {
-            Assert.fail(e.getMessage());
-        }
-
-        try {
-            await().atMost(5000, TimeUnit.MILLISECONDS).until(() -> {
-                BValue[] returnBValues = BRunUtil.invoke(result, "testPollAgain");
-                Assert.assertEquals(returnBValues.length, 1);
-                Assert.assertTrue(returnBValues[0] instanceof BBoolean);
-                return ((BBoolean) returnBValues[0]).booleanValue();
-            });
-        } catch (Throwable e) {
-            Assert.fail(e.getMessage());
-        }
-    }
-
-    @Test(description = "Test producer commit consumer functionality")
-    public void testCommitConsumerTest() {
-        String balFile = "commit_consumer.bal";
-        result = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_TRANSACTIONS, balFile)));
-        BRunUtil.invoke(result, "testProduce");
-        try {
-            await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-                BValue[] returnBValues = BRunUtil.invoke(result, "testConsume");
-                Assert.assertEquals(returnBValues.length, 1);
-                Assert.assertTrue(returnBValues[0] instanceof BBoolean);
-                return (((BBoolean) returnBValues[0]).booleanValue());
-            });
-        } catch (Throwable e) {
-            Assert.fail(e.getMessage());
+            Assert.fail("Message did not receive from the transactional producer");
         }
     }
 

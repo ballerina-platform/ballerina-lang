@@ -41,7 +41,7 @@ public type InboundOAuth2Provider object {
     # Provides authentication based on the provided introspection configurations.
     #
     # + introspectionServerConfig - OAuth2 introspection server configurations
-    public function __init(IntrospectionServerConfig introspectionServerConfig) {
+    public function init(IntrospectionServerConfig introspectionServerConfig) {
         self.introspectionServerConfig = introspectionServerConfig;
     }
 
@@ -104,7 +104,7 @@ public function validateOAuth2Token(string token, IntrospectionServerConfig conf
     if (response is http:Response) {
         json|error result = response.getJsonPayload();
         if (result is error) {
-            return <@untainted> prepareError(result.reason(), result);
+            return <@untainted> prepareError(result.message(), result);
         }
         IntrospectionResponse introspectionResponse = prepareIntrospectionResponse(<json>result);
         if (introspectionResponse.active) {

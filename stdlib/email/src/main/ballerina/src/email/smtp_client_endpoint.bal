@@ -25,7 +25,7 @@ public type SmtpClient client object {
     # + username - Username of the SMTP Client
     # + password - Password of the SMTP Client
     # + clientConfig - Configurations for SMTP Client
-    public function __init(@untainted string host, @untainted string username, @untainted string password,
+    public function init(@untainted string host, @untainted string username, @untainted string password,
             SmtpConfig clientConfig = {}) {
         initSmtpClientEndpoint(self, host, username, password, clientConfig);
     }
@@ -43,20 +43,20 @@ public type SmtpClient client object {
             if (email?.contentType == ()) {
                 email.contentType = "application/xml";
             } else if (!self.containsType(email?.contentType, "xml")) {
-                return SendError(message = "Content type of the email should be XML.");
+                return SendError("Content type of the email should be XML.");
             }
             body = body.toString();
         } else if (body is string) {
             if (email?.contentType == ()) {
                 email.contentType = "text/plain";
             } else if (!self.containsType(email?.contentType, "text")) {
-                return SendError(message = "Content type of the email should be text.");
+                return SendError("Content type of the email should be text.");
             }
         } else {
             if (email?.contentType == ()) {
                 email.contentType = "application/json";
             } else if (!self.containsType(email?.contentType, "json")) {
-                return SendError(message = "Content type of the email should be json.");
+                return SendError("Content type of the email should be json.");
             }
             body = body.toJsonString();
         }

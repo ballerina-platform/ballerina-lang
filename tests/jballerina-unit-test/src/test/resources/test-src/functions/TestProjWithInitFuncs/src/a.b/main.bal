@@ -21,7 +21,7 @@ int i = 10;
 int? iFromInit = ();
 string? sFromInit = ();
 
-function __init() {
+function init() {
     iFromInit = i + 100;
     sFromInit = d:getS();
 }

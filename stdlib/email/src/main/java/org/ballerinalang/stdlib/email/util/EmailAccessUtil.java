@@ -345,7 +345,7 @@ public class EmailAccessUtil {
     private static ArrayValue getArrayOfEntities(ArrayList<ObjectValue> entities) {
         BType typeOfEntity = entities.get(0).getType();
         ObjectValue[] result = entities.toArray(new ObjectValue[entities.size()]);
-        return new ArrayValueImpl(result, new org.ballerinalang.jvm.types.BArrayType(typeOfEntity));
+        return new ArrayValueImpl(result, new BArrayType(typeOfEntity));
     }
 
     private static ObjectValue createMediaTypeObject() {

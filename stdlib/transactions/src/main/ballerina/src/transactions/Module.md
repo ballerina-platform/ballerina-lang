@@ -4,6 +4,7 @@ This module provides Ballerina transaction manager implementation.
 
 The code snippet given below uses the functions in the module to get the transaction information.
 
+_NOTE: This module is deprecated from 2.0.0-preview1 onwards. Please use lang.transaction module instead._
 ```ballerina
 
 // When the `transaction` statement starts, a distributed transaction context is created.

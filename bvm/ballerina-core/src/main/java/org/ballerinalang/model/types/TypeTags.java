@@ -43,7 +43,8 @@ public class TypeTags {
     public static final int ENDPOINT_TAG = ANY_TAG + 1;
     public static final int ARRAY_TAG = ENDPOINT_TAG + 1;
     public static final int UNION_TAG = ARRAY_TAG + 1;
-    public static final int PACKAGE_TAG = UNION_TAG + 1;
+    public static final int INTERSECTION_TAG = UNION_TAG + 1;
+    public static final int PACKAGE_TAG = INTERSECTION_TAG + 1;
     public static final int NONE_TAG = PACKAGE_TAG + 1;
     public static final int VOID_TAG = NONE_TAG + 1;
     public static final int XMLNS_TAG = VOID_TAG + 1;
@@ -59,6 +60,7 @@ public class TypeTags {
     public static final int FUNCTION_POINTER_TAG = BYTE_ARRAY_TAG + 1;
     public static final int CHANNEL_TAG = FUNCTION_POINTER_TAG + 1;
     public static final int HANDLE_TAG = FUNCTION_POINTER_TAG + 1;
+    public static final int READONLY_TAG = HANDLE_TAG + 1;
 
     public static final int SERVICE_TAG = OBJECT_TYPE_TAG;
 }

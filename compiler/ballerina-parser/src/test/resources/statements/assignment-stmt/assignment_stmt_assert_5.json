@@ -1,16 +1,27 @@
 {
   "kind": "ASSIGNMENT_STATEMENT",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
+      "value": "a",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "EQUAL_TOKEN"
     },
     {
       "kind": "IDENTIFIER_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_IDENTIFIER"
+      ]
     },
     {
       "kind": "SEMICOLON_TOKEN"

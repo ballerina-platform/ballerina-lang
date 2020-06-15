@@ -41,7 +41,7 @@ public type ConnectionPool record {|
 type GlobalConnectionPoolContainer object {
     private ConnectionPool connectionPool = {};
 
-    function __init() {
+    function init() {
         // poolConfig record is frozen so that it cannot be modified during runtime
         ConnectionPool frozenConfig = self.connectionPool.cloneReadOnly();
         initGlobalPoolContainer(frozenConfig);
@@ -56,7 +56,7 @@ function initGlobalPoolContainer(ConnectionPool poolConfig) = @java:Method {
     class: "org.ballerinalang.sql.utils.ConnectionPoolUtils"
 } external;
 
-// This is an instance of GlobalPoolConfigContainer object type. The __init functions of database clients pass
+// This is an instance of GlobalPoolConfigContainer object type. The init functions of database clients pass
 // poolConfig member of this instance to the external client creation logic in order to access the internal map
 // of connection pools.
 final GlobalConnectionPoolContainer globalPoolContainer = new;

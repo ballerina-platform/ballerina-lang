@@ -20,9 +20,9 @@ import ballerina/time;
 # Represents a parameter for the SQL Client remote functions when a variable needs to be passed
 # to the remote function.
 #
-# + value - Value of paramter passed into the SQL statement
+# + value - Value of parameter passed into the SQL statement
 public type TypedValue abstract object {
-    public anydata|object{}|record{} value;
+    anydata|object {}? value;
 };
 
 # Possible type of parameters that can be passed into the SQL query.
@@ -31,281 +31,281 @@ public type Value string|int|boolean|float|decimal|byte[]|xml|TypedValue?;
 # Represents Varchar SQL field.
 #
 public type VarcharValue object {
-   *TypedValue;
+    string? value;
 
-   public function __init(string? value = ()) {
-       self.value = value;
-   }
+    public function init(string? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents NVarchar SQL field.
 #
 public type NVarcharValue object {
-   *TypedValue;
+    string? value;
 
-   public function __init(string? value = ()) {
-      self.value = value;
-   }
+    public function init(string? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents Char SQL field.
 #
 public type CharValue object {
-   *TypedValue;
+    string? value;
 
-   public function __init(string? value = ()) {
-       self.value = value;
-   }
+    public function init(string? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents NChar SQL field.
 #
 public type NCharValue object {
-   *TypedValue;
+    string? value;
 
-   public function __init(string? value = ()) {
-       self.value = value;
-   }
+    public function init(string? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents Text SQL field.
 #
 public type TextValue object {
-   *TypedValue;
+    io:ReadableCharacterChannel|string? value;
 
-   public function __init(io:ReadableCharacterChannel|string? value = ()) {
-       self.value = value;
-   }
+    public function init(io:ReadableCharacterChannel|string? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents Clob SQL field.
 #
 public type ClobValue object {
-   *TypedValue;
+    io:ReadableCharacterChannel|string? value;
 
-   public function __init(io:ReadableCharacterChannel|string? value = ()) {
-       self.value = value;
-   }
+    public function init(io:ReadableCharacterChannel|string? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents NClob SQL field.
 #
 public type NClobValue object {
-   *TypedValue;
+    io:ReadableCharacterChannel|string? value;
 
-   public function __init(io:ReadableCharacterChannel|string? value = ()) {
-       self.value = value;
-   }
+    public function init(io:ReadableCharacterChannel|string? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents SmallInt SQL field.
 #
 public type SmallIntValue object {
-   *TypedValue;
+    int? value;
 
-   public function __init(int? value = ()) {
-       self.value = value;
-   }
+    public function init(int? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents Integer SQL field.
 #
 public type IntegerValue object {
-   *TypedValue;
+    int? value;
 
-   public function __init(int? value = ()) {
-       self.value = value;
-   }
+    public function init(int? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents BigInt SQL field.
 #
 public type BigIntValue object {
-   *TypedValue;
+    int? value;
 
-   public function __init(int? value = ()) {
-       self.value = value;
-   }
+    public function init(int? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents Numeric SQL field.
 #
 public type NumericValue object {
-   *TypedValue;
+    int|float|decimal? value;
 
-   public function __init(int|float|decimal? value = ()) {
-       self.value = value;
-   }
+    public function init(int|float|decimal? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents Decimal SQL field.
 #
 public type DecimalValue object {
-   *TypedValue;
+    int|decimal? value;
 
-   public function __init(int|decimal? value = ()) {
-       self.value = value;
-   }
+    public function init(int|decimal? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents Real SQL field.
 #
 public type RealValue object {
-   *TypedValue;
+    int|float|decimal? value;
 
-   public function __init(int|float|decimal? value = ()) {
-       self.value = value;
-   }
+    public function init(int|float|decimal? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents Float SQL field.
 #
 public type FloatValue object {
-   *TypedValue;
+    int|float? value;
 
-   public function __init(int|float? value = ()) {
-       self.value = value;
-   }
+    public function init(int|float? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents Double SQL field.
 #
 public type DoubleValue object {
-   *TypedValue;
+    int|float|decimal? value;
 
-   public function __init(int|float|decimal? value = ()) {
-       self.value = value;
-   }
+    public function init(int|float|decimal? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents Bit SQL field.
 #
 public type BitValue object {
-   *TypedValue;
+    boolean|int? value;
 
-   public function __init(boolean|int? value = ()) {
-       self.value = value;
-   }
+    public function init(boolean|int? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents Boolean SQL field.
 #
 public type BooleanValue object {
-   *TypedValue;
+    boolean? value;
 
-   public function __init(boolean? value = ()) {
-       self.value = value;
-   }
+    public function init(boolean? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents Binary SQL field.
 #
 public type BinaryValue object {
-   *TypedValue;
+    byte[]|io:ReadableByteChannel? value;
 
-   public function __init(byte[]|io:ReadableByteChannel? value = ()) {
-       self.value = value;
-   }
+    public function init(byte[]|io:ReadableByteChannel? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents VarBinary SQL field.
 #
 public type VarBinaryValue object {
-   *TypedValue;
+    byte[]|io:ReadableByteChannel? value;
 
-   public function __init(byte[]|io:ReadableByteChannel? value = ()) {
-       self.value = value;
-   }
+    public function init(byte[]|io:ReadableByteChannel? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents Blob SQL field.
 #
 public type BlobValue object {
-   *TypedValue;
+    byte[]|io:ReadableByteChannel? value;
 
-   public function __init(byte[]|io:ReadableByteChannel? value = ()) {
-       self.value = value;
-   }
+    public function init(byte[]|io:ReadableByteChannel? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents Date SQL field.
 #
 public type DateValue object {
-   *TypedValue;
+    string|int|time:Time? value;
 
-   public function __init(string|int|time:Time? value = ()) {
-       self.value = value;
-   }
+    public function init(string|int|time:Time? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents Time SQL field.
 #
 public type TimeValue object {
-   *TypedValue;
+    string|int|time:Time? value;
 
-   public function __init(string|int|time:Time? value = ()) {
-       self.value = value;
-   }
+    public function init(string|int|time:Time? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents DateTime SQL field.
 #
 public type DateTimeValue object {
-   *TypedValue;
+    string|int|time:Time? value;
 
-   public function __init(string|int|time:Time? value = ()) {
-       self.value = value;
-   }
+    public function init(string|int|time:Time? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents Timestamp SQL field.
 #
 public type TimestampValue object {
-   *TypedValue;
+    string|int|time:Time? value;
 
-   public function __init(string|int|time:Time? value = ()) {
-       self.value = value;
-   }
+    public function init(string|int|time:Time? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents ArrayValue SQL field.
 #
 public type ArrayValue object {
-   *TypedValue;
+    string[]|int[]|boolean[]|float[]|decimal[]|byte[][]? value;
 
-   public function __init(string[]|int[]|boolean[]|float[]|decimal[]|byte[][]? value = ()) {
-       self.value = value;
-   }
+    public function init(string[]|int[]|boolean[]|float[]|decimal[]|byte[][]? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents Ref SQL field.
 #
 public type RefValue object {
-   *TypedValue;
+    record {}? value;
 
-   public function __init(record{}? value = ()) {
-       self.value = value;
-   }
+    public function init(record {}? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents Struct SQL field.
 #
 public type StructValue object {
-   *TypedValue;
+    record {}? value;
 
-   public function __init(record{}? value = ()) {
-       self.value = value;
-   }
+    public function init(record {}? value = ()) {
+        self.value = value;
+    }
 };
 
 # Represents Row SQL field.
 #
 public type RowValue object {
-   *TypedValue;
+    byte[]? value;
 
-   public function __init(byte[]? value = ()) {
-       self.value = value;
-   }
+    public function init(byte[]? value = ()) {
+        self.value = value;
+    }
 };
 
 # Temporay solution util the language supports `Backtick string` natively as mentioned in
@@ -314,17 +314,32 @@ public type RowValue object {
 # + parts - The seperated parts of the sql query
 # + insertions - The values that should be filled in between the parts
 public type ParameterizedString record {|
-   string[] parts;
-   Value[] insertions;
+    string[] parts;
+    Value[] insertions;
 |};
+
+# Constant indicating that the specific batch statement executed successfully
+# but that no count of the number of rows it affected is available.
+public const SUCCESS_NO_INFO = -2;
+
+#Constant indicating that the specific batch statement failed.
+public const EXECUTION_FAILED = -3;
 
 # The result of the query without returning the rows.
 #
-# + affectedRowCount - Number of rows affected by the execution of the query
+# + affectedRowCount - Number of rows affected by the execution of the query. It may be one of the following,
+#                      (1) A number greater than or equal to zero -- indicates that the command was processed
+#                          successfully and is the affected row count in the database that were affected by
+#                          the command's execution
+#                      (2) A value of `SUCCESS_NO_INFO` indicates that the command was processed successfully but
+#                          that the number of rows affected is unknown
+#                      (3) A value of `EXECUTION_FAILED` indicated the specific command failed. This can be returned
+#                          in `BatchExecuteError` and only if the driver continues to process the statements after
+#                          the error occured.
 # + lastInsertId - The integer or string generated by the database in response to a query execution.
 #                  Typically this will be from an "auto increment" column when inserting a new row. Not all databases
 #                  support this feature, and hence it can be also nil
-public type ExecuteResult record {
+public type ExecutionResult record {
     int? affectedRowCount;
     string|int? lastInsertId;
 };
@@ -335,7 +350,7 @@ type ResultIterator object {
     private boolean isClosed = false;
     private Error? err;
 
-    public function __init(public Error? err = ()) {
+    public function init(public Error? err = ()) {
         self.err = err;
     }
 

@@ -14,7 +14,7 @@ public type personFoo object {
     public string ssn = "";
     public int id = 0;
 
-    public function __init(int age, string name, string ssn, int id) {
+    public function init(int age, string name, string ssn, int id) {
         self.age = age;
         self.name = name;
         self.ssn = ssn;

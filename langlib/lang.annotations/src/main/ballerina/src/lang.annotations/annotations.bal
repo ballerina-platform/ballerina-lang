@@ -15,7 +15,7 @@
 // under the License.
 
 # Denote that the return value is tainted.
-public const annotation tainted on parameter, return, source listener, source var;
+public const annotation tainted on parameter, return, source listener, source var, source type;
 
 # Denote that the return value is untainted, parameter expect untainted value, type cast mark value untainted,
 # denote a listener as producing untainted arguments to service resource params.

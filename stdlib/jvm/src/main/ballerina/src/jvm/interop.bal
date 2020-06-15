@@ -81,11 +81,11 @@ public type Field record {|
 
 public type InteropValidator object {
 
-    public function __init(string[] jarUrls, boolean useSystemClassLoader) {
-        self.init(jarUrls, useSystemClassLoader);
+    public function init(string[] jarUrls, boolean useSystemClassLoader) {
+        self.externalInit(jarUrls, useSystemClassLoader);
     }
 
-    function init(string[] jarUrls, boolean useSystemClassLoader) = external;
+    function externalInit(string[] jarUrls, boolean useSystemClassLoader) = external;
 
     public function validateAndGetJMethod(MethodValidationRequest methodValidationReq) returns Method | error = external;
 

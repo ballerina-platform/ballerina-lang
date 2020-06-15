@@ -16,21 +16,12 @@
 
 import ballerina/log;
 
-# Record type to hold the details of an error.
-#
-# + message - Specific error message of the error
-# + cause - Any other error, which causes this error
-public type Detail record {
-    string message;
-    error cause?;
-};
-
-# Represents the Auth error reason.
-public const AUTH_ERROR = "{ballerina/auth}Error";
-
-# Represents the Auth error type with details. This will be returned if an error occurred while inbound auth providers
+# Represents the Auth error. This will be returned if an error occurred while inbound auth providers
 # try to authenticate the received credentials and outbound auth providers try to generate the token.
-public type Error error<AUTH_ERROR, Detail>;
+public type AuthError distinct error;
+
+# Represents the Auth module related error.
+public type Error AuthError;
 
 # Log and prepare `error` as a `Error`.
 #
@@ -41,9 +32,9 @@ function prepareError(string message, error? err = ()) returns Error {
     log:printError(message, err);
     Error authError;
     if (err is error) {
-        authError = error(AUTH_ERROR, message = message, cause = err);
+        authError = AuthError(message, err);
     } else {
-        authError = error(AUTH_ERROR, message = message);
+        authError = AuthError(message);
     }
     return authError;
 }

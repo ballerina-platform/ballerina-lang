@@ -40,9 +40,6 @@ const string HTTP_SCHEME = "http://";
 # Represents https protocol scheme
 const string HTTPS_SCHEME = "https://";
 
-# Constant for the http error code
-public const string HTTP_ERROR_CODE = "{ballerina/http}HTTPError";
-
 # Constant for the default listener endpoint timeout
 const int DEFAULT_LISTENER_TIMEOUT = 120000; //2 mins
 
@@ -229,12 +226,7 @@ public type CommonClientConfiguration record {|
 # + headerValue - The header value
 # + return - A tuple containing the value and its parameter map or else an `http:ClientError` if the header parsing fails
 //TODO: Make the error nillable
-public function parseHeader(string headerValue) returns [string, map<any>]|ClientError {
-    return externParseHeader(java:fromString(headerValue));
-}
-
-function externParseHeader(handle headerValue) returns [string, map<any>]|ClientError =
-@java:Method {
+public function parseHeader(string headerValue) returns [string, map<any>]|ClientError = @java:Method {
     class: "org.ballerinalang.net.http.nativeimpl.ParseHeader",
     name: "parseHeader"
 } external;
@@ -364,9 +356,7 @@ function populateErrorCodeIndex (int[] errorCode) returns boolean[] {
 }
 
 function getError() returns UnsupportedActionError {
-    string message = "Unsupported connector action received.";
-    UnsupportedActionError unsupportedActionError = error(UNSUPPORTED_ACTION, message = message);
-    return unsupportedActionError;
+    return UnsupportedActionError("Unsupported connector action received.");
 }
 
 function populateRequestFields (Request originalRequest, Request newRequest)  {
@@ -386,7 +376,7 @@ function populateMultipartRequest(Request inRequest) returns Request|ClientError
                 mime:Entity[]|error result = bodyPart.getBodyParts();
 
                 if (result is error) {
-                    return getGenericClientError(result.reason(), result);
+                    return GenericClientError(result.message(), result);
                 }
 
                 mime:Entity[] childParts = <mime:Entity[]> result;
@@ -428,28 +418,16 @@ function createFailoverRequest(Request request, mime:Entity requestEntity) retur
 }
 
 function getInvalidTypeError() returns ClientError {
-    string message = "Invalid return type found for the HTTP operation";
-    GenericClientError invalidTypeError = error(GENERIC_CLIENT_ERROR, message = message);
-    return invalidTypeError;
+    return GenericClientError("Invalid return type found for the HTTP operation");
 }
 
 function createErrorForNoPayload(mime:Error err) returns GenericClientError {
     string message = "No payload";
-    return getGenericClientError(message, err);
+    return GenericClientError(message, err);
 }
 
 //Resolve a given path against a given URI.
-function resolve(string baseUrl, string path) returns string|ClientError {
-    var result = externResolve(java:fromString(baseUrl), java:fromString(path));
-    if (result is handle) {
-        return <string>java:toString(result);
-    } else {
-        return result;
-    }
-}
-
-function externResolve(handle baseUrl, handle path) returns handle|ClientError =
-@java:Method {
+function resolve(string baseUrl, string path) returns string|ClientError = @java:Method {
     class: "org.ballerinalang.net.uri.nativeimpl.Resolve",
     name: "resolve"
 } external;

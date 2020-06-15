@@ -15,8 +15,8 @@
 // under the License.
 
 import ballerina/crypto;
-import ballerina/sql;
 import ballerina/java;
+import ballerina/sql;
 
 # Represents a MySQL database client.
 public type Client client object {
@@ -34,7 +34,7 @@ public type Client client object {
     # + connectionPool - The `sql:ConnectionPool` object to be used within the jdbc client.
     #                   If there is no connectionPool is provided, the global connection pool will be used and it will
     #                   be shared by other clients which has same properties
-    public function __init(public string host = "localhost",
+    public function init(public string host = "localhost",
         public string? user = (), public string? password = (), public string? database = (),
         public int port = 3306, public Options? options = (),
         public sql:ConnectionPool? connectionPool = ()) returns sql:Error? {
@@ -58,12 +58,12 @@ public type Client client object {
     #             column names of the query result set be used for the record attributes
     # + return - Stream of records in the type of `rowType`
     public remote function query(@untainted string|sql:ParameterizedString sqlQuery, typedesc<record {}>? rowType = ())
-    returns @tainted stream<record{}, sql:Error> {
+    returns @tainted stream <record {}, sql:Error> {
         if (self.clientActive) {
             sql:ParameterizedString sqlParamString;
             if (sqlQuery is string) {
                 sqlParamString = {
-                    parts : [sqlQuery],
+                    parts: [sqlQuery],
                     insertions: []
                 };
             } else {
@@ -80,9 +80,9 @@ public type Client client object {
     #
     # + sqlQuery - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `string` or `ParameterizedString`
     #              when the query has params to be passed in
-    # + return - Summary of the sql update query as `ExecuteResult` or returns `Error`
+    # + return - Summary of the sql update query as `ExecutionResult` or returns `Error`
     #           if any error occured when executing the query
-    public remote function execute(@untainted string|sql:ParameterizedString sqlQuery) returns sql:ExecuteResult|sql:Error? {
+    public remote function execute(@untainted string|sql:ParameterizedString sqlQuery) returns sql:ExecutionResult|sql:Error {
         if (self.clientActive) {
             sql:ParameterizedString sqlParamString;
             if (sqlQuery is string) {
@@ -95,8 +95,28 @@ public type Client client object {
             }
             return nativeExecute(self, sqlParamString);
         } else {
-            return sql:ApplicationError( message = "MySQL Client is already closed,"
-                + " hence further operations are not allowed");
+            return sql:ApplicationError("MySQL Client is already closed, hence further operations are not allowed");
+        }
+    }
+
+    # Executes a batch of parameterised DDL or DML sql query provided by the user,
+    # and returns the summary of the execution.
+    #
+    # + sqlQueries - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `ParameterizedString` with an array
+    #                of values passed in.
+    # + return - Summary of the executed SQL queries as `ExecutionResult[]` which includes details such as
+    #            `affectedRowCount` and `lastInsertId`. If one of the commands in the batch fails, this function
+    #            will return `BatchExecuteError`, however the JDBC driver may or may not continue to process the
+    #            remaining commands in the batch after a failure. The summary of the executed queries in case of error
+    #            can be accessed as `(<sql:BatchExecuteError> result).detail()?.executionResults`.
+    public remote function batchExecute(sql:ParameterizedString[] sqlQueries) returns sql:ExecutionResult[]|sql:Error {
+        if (sqlQueries.length() == 0) {
+            return sql:ApplicationError(" Parameter 'sqlQueries' cannot be empty array");
+        }
+        if (self.clientActive) {
+            return nativeBatchExecute(self, sqlQueries);
+        } else {
+            return sql:ApplicationError("JDBC Client is already closed, hence further operations are not allowed");
         }
     }
 
@@ -169,12 +189,17 @@ function createClient(Client mysqlClient, ClientConfiguration clientConf,
 } external;
 
 function nativeQuery(Client sqlClient, sql:ParameterizedString sqlQuery, typedesc<record {}>? rowtype)
-returns stream<record{}, sql:Error> = @java:Method {
+returns stream <record {}, sql:Error> = @java:Method {
     class: "org.ballerinalang.sql.utils.QueryUtils"
 } external;
 
 function nativeExecute(Client sqlClient, sql:ParameterizedString sqlQuery)
-returns sql:ExecuteResult|sql:Error? = @java:Method {
+returns sql:ExecutionResult|sql:Error = @java:Method {
+    class: "org.ballerinalang.sql.utils.ExecuteUtils"
+} external;
+
+function nativeBatchExecute(Client sqlClient, sql:ParameterizedString[] sqlQueries)
+returns sql:ExecutionResult[]|sql:Error = @java:Method {
     class: "org.ballerinalang.sql.utils.ExecuteUtils"
 } external;
 

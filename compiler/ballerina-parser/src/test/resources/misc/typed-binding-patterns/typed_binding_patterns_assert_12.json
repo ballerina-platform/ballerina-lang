@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_PART",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -7,9 +8,11 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "FUNCTION_DEFINITION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -21,7 +24,13 @@
               ]
             },
             {
-              "kind": "FUNCTION_KEYWORD"
+              "kind": "FUNCTION_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",
@@ -38,81 +47,156 @@
                   "children": []
                 },
                 {
-                  "kind": "CLOSE_PAREN_TOKEN"
+                  "kind": "CLOSE_PAREN_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },
             {
               "kind": "FUNCTION_BODY_BLOCK",
+              "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "OPEN_BRACE_TOKEN"
+                  "kind": "OPEN_BRACE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
                 },
                 {
                   "kind": "LIST",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "ASSIGNMENT_STATEMENT",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "x"
+                          "value": "x",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         },
                         {
-                          "kind": "EQUAL_TOKEN"
+                          "kind": "EQUAL_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         },
                         {
                           "kind": "QUERY_EXPRESSION",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "QUERY_PIPELINE",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "FROM_CLAUSE",
                                   "children": [
                                     {
-                                      "kind": "FROM_KEYWORD"
+                                      "kind": "FROM_KEYWORD",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "TYPED_BINDING_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "INT_KEYWORD"
+                                          "kind": "INT_KEYWORD",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "CAPTURE_BINDING_PATTERN",
                                           "children": [
                                             {
                                               "kind": "IDENTIFIER_TOKEN",
-                                              "value": "a"
+                                              "value": "a",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
                                             }
                                           ]
                                         }
                                       ]
                                     },
                                     {
-                                      "kind": "IN_KEYWORD"
+                                      "kind": "IN_KEYWORD",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
-                                      "value": "b"
+                                      "value": "b",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
                                 {
                                   "kind": "LIST",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "LET_CLAUSE",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "LET_KEYWORD"
+                                          "kind": "LET_KEYWORD",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "LIST",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
                                               "kind": "LET_VAR_DECL",
+                                              "hasDiagnostics": true,
                                               "children": [
                                                 {
                                                   "kind": "LIST",
@@ -120,18 +204,27 @@
                                                 },
                                                 {
                                                   "kind": "TYPED_BINDING_PATTERN",
+                                                  "hasDiagnostics": true,
                                                   "children": [
                                                     {
-                                                      "kind": "VAR_KEYWORD"
+                                                      "kind": "VAR_KEYWORD",
+                                                      "trailingMinutiae": [
+                                                        {
+                                                          "kind": "WHITESPACE_MINUTIAE",
+                                                          "value": " "
+                                                        }
+                                                      ]
                                                     },
                                                     {
                                                       "kind": "LIST_BINDING_PATTERN",
+                                                      "hasDiagnostics": true,
                                                       "children": [
                                                         {
                                                           "kind": "OPEN_BRACKET_TOKEN"
                                                         },
                                                         {
                                                           "kind": "LIST",
+                                                          "hasDiagnostics": true,
                                                           "children": [
                                                             {
                                                               "kind": "CAPTURE_BINDING_PATTERN",
@@ -143,29 +236,47 @@
                                                               ]
                                                             },
                                                             {
-                                                              "kind": "COMMA_TOKEN"
+                                                              "kind": "COMMA_TOKEN",
+                                                              "trailingMinutiae": [
+                                                                {
+                                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                                  "value": " "
+                                                                }
+                                                              ]
                                                             },
                                                             {
                                                               "kind": "LIST_BINDING_PATTERN",
+                                                              "hasDiagnostics": true,
                                                               "children": [
                                                                 {
                                                                   "kind": "OPEN_BRACKET_TOKEN"
                                                                 },
                                                                 {
                                                                   "kind": "LIST",
+                                                                  "hasDiagnostics": true,
                                                                   "children": [
                                                                     {
                                                                       "kind": "CAPTURE_BINDING_PATTERN",
                                                                       "children": [
                                                                         {
                                                                           "kind": "IDENTIFIER_TOKEN",
-                                                                          "value": "x"
+                                                                          "value": "x",
+                                                                          "trailingMinutiae": [
+                                                                            {
+                                                                              "kind": "WHITESPACE_MINUTIAE",
+                                                                              "value": " "
+                                                                            }
+                                                                          ]
                                                                         }
                                                                       ]
                                                                     },
                                                                     {
                                                                       "kind": "COMMA_TOKEN",
-                                                                      "isMissing": true
+                                                                      "isMissing": true,
+                                                                      "hasDiagnostics": true,
+                                                                      "diagnostics": [
+                                                                        "ERROR_MISSING_COMMA_TOKEN"
+                                                                      ]
                                                                     },
                                                                     {
                                                                       "kind": "CAPTURE_BINDING_PATTERN",
@@ -179,20 +290,36 @@
                                                                   ]
                                                                 },
                                                                 {
-                                                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                                                  "kind": "CLOSE_BRACKET_TOKEN",
+                                                                  "trailingMinutiae": [
+                                                                    {
+                                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                                      "value": " "
+                                                                    }
+                                                                  ]
                                                                 }
                                                               ]
                                                             },
                                                             {
                                                               "kind": "COMMA_TOKEN",
-                                                              "isMissing": true
+                                                              "isMissing": true,
+                                                              "hasDiagnostics": true,
+                                                              "diagnostics": [
+                                                                "ERROR_MISSING_COMMA_TOKEN"
+                                                              ]
                                                             },
                                                             {
                                                               "kind": "WILDCARD_BINDING_PATTERN",
                                                               "children": [
                                                                 {
                                                                   "kind": "IDENTIFIER_TOKEN",
-                                                                  "value": "_"
+                                                                  "value": "_",
+                                                                  "trailingMinutiae": [
+                                                                    {
+                                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                                      "value": "  "
+                                                                    }
+                                                                  ]
                                                                 }
                                                               ]
                                                             }
@@ -200,18 +327,34 @@
                                                         },
                                                         {
                                                           "kind": "CLOSE_BRACKET_TOKEN",
-                                                          "isMissing": true
+                                                          "isMissing": true,
+                                                          "hasDiagnostics": true,
+                                                          "diagnostics": [
+                                                            "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
+                                                          ]
                                                         }
                                                       ]
                                                     }
                                                   ]
                                                 },
                                                 {
-                                                  "kind": "EQUAL_TOKEN"
+                                                  "kind": "EQUAL_TOKEN",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "d"
+                                                  "value": "d",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             }
@@ -227,7 +370,13 @@
                               "kind": "SELECT_CLAUSE",
                               "children": [
                                 {
-                                  "kind": "SELECT_KEYWORD"
+                                  "kind": "SELECT_KEYWORD",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
@@ -238,72 +387,139 @@
                           ]
                         },
                         {
-                          "kind": "SEMICOLON_TOKEN"
+                          "kind": "SEMICOLON_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
                         }
                       ]
                     },
                     {
                       "kind": "ASSIGNMENT_STATEMENT",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "x"
+                          "value": "x",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         },
                         {
-                          "kind": "EQUAL_TOKEN"
+                          "kind": "EQUAL_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         },
                         {
                           "kind": "QUERY_EXPRESSION",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "QUERY_PIPELINE",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "FROM_CLAUSE",
                                   "children": [
                                     {
-                                      "kind": "FROM_KEYWORD"
+                                      "kind": "FROM_KEYWORD",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "TYPED_BINDING_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "INT_KEYWORD"
+                                          "kind": "INT_KEYWORD",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "CAPTURE_BINDING_PATTERN",
                                           "children": [
                                             {
                                               "kind": "IDENTIFIER_TOKEN",
-                                              "value": "a"
+                                              "value": "a",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
                                             }
                                           ]
                                         }
                                       ]
                                     },
                                     {
-                                      "kind": "IN_KEYWORD"
+                                      "kind": "IN_KEYWORD",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
-                                      "value": "b"
+                                      "value": "b",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
                                 {
                                   "kind": "LIST",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "LET_CLAUSE",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "LET_KEYWORD"
+                                          "kind": "LET_KEYWORD",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "LIST",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
                                               "kind": "LET_VAR_DECL",
+                                              "hasDiagnostics": true,
                                               "children": [
                                                 {
                                                   "kind": "LIST",
@@ -311,19 +527,28 @@
                                                 },
                                                 {
                                                   "kind": "TYPED_BINDING_PATTERN",
+                                                  "hasDiagnostics": true,
                                                   "children": [
                                                     {
                                                       "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "T"
+                                                      "value": "T",
+                                                      "trailingMinutiae": [
+                                                        {
+                                                          "kind": "WHITESPACE_MINUTIAE",
+                                                          "value": " "
+                                                        }
+                                                      ]
                                                     },
                                                     {
                                                       "kind": "LIST_BINDING_PATTERN",
+                                                      "hasDiagnostics": true,
                                                       "children": [
                                                         {
                                                           "kind": "OPEN_BRACKET_TOKEN"
                                                         },
                                                         {
                                                           "kind": "LIST",
+                                                          "hasDiagnostics": true,
                                                           "children": [
                                                             {
                                                               "kind": "CAPTURE_BINDING_PATTERN",
@@ -335,29 +560,47 @@
                                                               ]
                                                             },
                                                             {
-                                                              "kind": "COMMA_TOKEN"
+                                                              "kind": "COMMA_TOKEN",
+                                                              "trailingMinutiae": [
+                                                                {
+                                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                                  "value": " "
+                                                                }
+                                                              ]
                                                             },
                                                             {
                                                               "kind": "LIST_BINDING_PATTERN",
+                                                              "hasDiagnostics": true,
                                                               "children": [
                                                                 {
                                                                   "kind": "OPEN_BRACKET_TOKEN"
                                                                 },
                                                                 {
                                                                   "kind": "LIST",
+                                                                  "hasDiagnostics": true,
                                                                   "children": [
                                                                     {
                                                                       "kind": "CAPTURE_BINDING_PATTERN",
                                                                       "children": [
                                                                         {
                                                                           "kind": "IDENTIFIER_TOKEN",
-                                                                          "value": "x"
+                                                                          "value": "x",
+                                                                          "trailingMinutiae": [
+                                                                            {
+                                                                              "kind": "WHITESPACE_MINUTIAE",
+                                                                              "value": " "
+                                                                            }
+                                                                          ]
                                                                         }
                                                                       ]
                                                                     },
                                                                     {
                                                                       "kind": "COMMA_TOKEN",
-                                                                      "isMissing": true
+                                                                      "isMissing": true,
+                                                                      "hasDiagnostics": true,
+                                                                      "diagnostics": [
+                                                                        "ERROR_MISSING_COMMA_TOKEN"
+                                                                      ]
                                                                     },
                                                                     {
                                                                       "kind": "CAPTURE_BINDING_PATTERN",
@@ -371,20 +614,36 @@
                                                                   ]
                                                                 },
                                                                 {
-                                                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                                                  "kind": "CLOSE_BRACKET_TOKEN",
+                                                                  "trailingMinutiae": [
+                                                                    {
+                                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                                      "value": " "
+                                                                    }
+                                                                  ]
                                                                 }
                                                               ]
                                                             },
                                                             {
                                                               "kind": "COMMA_TOKEN",
-                                                              "isMissing": true
+                                                              "isMissing": true,
+                                                              "hasDiagnostics": true,
+                                                              "diagnostics": [
+                                                                "ERROR_MISSING_COMMA_TOKEN"
+                                                              ]
                                                             },
                                                             {
                                                               "kind": "WILDCARD_BINDING_PATTERN",
                                                               "children": [
                                                                 {
                                                                   "kind": "IDENTIFIER_TOKEN",
-                                                                  "value": "_"
+                                                                  "value": "_",
+                                                                  "trailingMinutiae": [
+                                                                    {
+                                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                                      "value": "  "
+                                                                    }
+                                                                  ]
                                                                 }
                                                               ]
                                                             }
@@ -392,18 +651,34 @@
                                                         },
                                                         {
                                                           "kind": "CLOSE_BRACKET_TOKEN",
-                                                          "isMissing": true
+                                                          "isMissing": true,
+                                                          "hasDiagnostics": true,
+                                                          "diagnostics": [
+                                                            "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
+                                                          ]
                                                         }
                                                       ]
                                                     }
                                                   ]
                                                 },
                                                 {
-                                                  "kind": "EQUAL_TOKEN"
+                                                  "kind": "EQUAL_TOKEN",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "d"
+                                                  "value": "d",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             }
@@ -419,7 +694,13 @@
                               "kind": "SELECT_CLAUSE",
                               "children": [
                                 {
-                                  "kind": "SELECT_KEYWORD"
+                                  "kind": "SELECT_KEYWORD",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
@@ -430,72 +711,139 @@
                           ]
                         },
                         {
-                          "kind": "SEMICOLON_TOKEN"
+                          "kind": "SEMICOLON_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
                         }
                       ]
                     },
                     {
                       "kind": "ASSIGNMENT_STATEMENT",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "x"
+                          "value": "x",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         },
                         {
-                          "kind": "EQUAL_TOKEN"
+                          "kind": "EQUAL_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         },
                         {
                           "kind": "QUERY_EXPRESSION",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "QUERY_PIPELINE",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "FROM_CLAUSE",
                                   "children": [
                                     {
-                                      "kind": "FROM_KEYWORD"
+                                      "kind": "FROM_KEYWORD",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "TYPED_BINDING_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "INT_KEYWORD"
+                                          "kind": "INT_KEYWORD",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "CAPTURE_BINDING_PATTERN",
                                           "children": [
                                             {
                                               "kind": "IDENTIFIER_TOKEN",
-                                              "value": "a"
+                                              "value": "a",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
                                             }
                                           ]
                                         }
                                       ]
                                     },
                                     {
-                                      "kind": "IN_KEYWORD"
+                                      "kind": "IN_KEYWORD",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
-                                      "value": "b"
+                                      "value": "b",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
                                 {
                                   "kind": "LIST",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "LET_CLAUSE",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "LET_KEYWORD"
+                                          "kind": "LET_KEYWORD",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "LIST",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
                                               "kind": "LET_VAR_DECL",
+                                              "hasDiagnostics": true,
                                               "children": [
                                                 {
                                                   "kind": "LIST",
@@ -503,9 +851,11 @@
                                                 },
                                                 {
                                                   "kind": "TYPED_BINDING_PATTERN",
+                                                  "hasDiagnostics": true,
                                                   "children": [
                                                     {
                                                       "kind": "ARRAY_TYPE_DESC",
+                                                      "hasDiagnostics": true,
                                                       "children": [
                                                         {
                                                           "kind": "ARRAY_TYPE_DESC",
@@ -531,11 +881,21 @@
                                                         },
                                                         {
                                                           "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "k2"
+                                                          "value": "k2",
+                                                          "trailingMinutiae": [
+                                                            {
+                                                              "kind": "WHITESPACE_MINUTIAE",
+                                                              "value": " "
+                                                            }
+                                                          ]
                                                         },
                                                         {
                                                           "kind": "CLOSE_BRACKET_TOKEN",
-                                                          "isMissing": true
+                                                          "isMissing": true,
+                                                          "hasDiagnostics": true,
+                                                          "diagnostics": [
+                                                            "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
+                                                          ]
                                                         }
                                                       ]
                                                     },
@@ -560,18 +920,36 @@
                                                           ]
                                                         },
                                                         {
-                                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                                          "kind": "CLOSE_BRACKET_TOKEN",
+                                                          "trailingMinutiae": [
+                                                            {
+                                                              "kind": "WHITESPACE_MINUTIAE",
+                                                              "value": " "
+                                                            }
+                                                          ]
                                                         }
                                                       ]
                                                     }
                                                   ]
                                                 },
                                                 {
-                                                  "kind": "EQUAL_TOKEN"
+                                                  "kind": "EQUAL_TOKEN",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "d"
+                                                  "value": "d",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             }
@@ -587,7 +965,13 @@
                               "kind": "SELECT_CLAUSE",
                               "children": [
                                 {
-                                  "kind": "SELECT_KEYWORD"
+                                  "kind": "SELECT_KEYWORD",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
@@ -598,14 +982,26 @@
                           ]
                         },
                         {
-                          "kind": "SEMICOLON_TOKEN"
+                          "kind": "SEMICOLON_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
                         }
                       ]
                     }
                   ]
                 },
                 {
-                  "kind": "CLOSE_BRACE_TOKEN"
+                  "kind": "CLOSE_BRACE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
                 }
               ]
             }

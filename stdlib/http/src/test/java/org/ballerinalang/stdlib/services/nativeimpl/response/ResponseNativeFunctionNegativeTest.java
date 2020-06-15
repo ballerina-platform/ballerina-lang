@@ -65,7 +65,7 @@ public class ResponseNativeFunctionNegativeTest {
         } catch (Exception exception) {
             String errorMessage = exception.getMessage();
             Assert.assertTrue(
-                    errorMessage.contains("error: {ballerina/mime}HeaderNotFound message=Http header does not exist"));
+                    errorMessage.contains("error: Http header does not exist"));
         }
     }
 
@@ -77,9 +77,10 @@ public class ResponseNativeFunctionNegativeTest {
         inResponse.set(RESPONSE_ENTITY_FIELD, entity);
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", new Object[]{ inResponse });
         Assert.assertNotNull(returnVals[0]);
-        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(), "{message:\"No payload\", " +
-                "cause:{ballerina/mime}ParsingEntityBodyFailed {message:\"Error occurred while extracting json" +
-                " data from entity\", cause:{ballerina/mime}NoContentError {message:\"Empty content\"}}}");
+        BError err = (BError) (returnVals[0]);
+        Assert.assertEquals(err.getMessage(), "No payload");
+        Assert.assertEquals(err.getCause().getMessage(), "Error occurred while extracting json data from entity");
+        Assert.assertEquals(err.getCause().getCause().getMessage(), "Empty content");
     }
 
     @Test(description = "Test method with string payload")
@@ -92,10 +93,10 @@ public class ResponseNativeFunctionNegativeTest {
         inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", new Object[]{ inResponse });
         Assert.assertNotNull(returnVals[0]);
-        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(), "{message:\"Error occurred while "
-                + "retrieving the json payload from the response\", cause:{ballerina/mime}ParsingEntityBodyFailed "
-                + "{message:\"Error occurred while extracting json data from entity: unrecognized token 'ballerina' "
-                + "at line: 1 column: 11\"}}");
+        BError err = (BError) (returnVals[0]);
+        Assert.assertEquals(err.getMessage(), "Error occurred while retrieving the json payload from the response");
+        Assert.assertEquals(err.getCause().getMessage(), "Error occurred while extracting json data from entity: " +
+                "unrecognized token 'ballerina' at line: 1 column: 11");
     }
 
     @Test(description = "Test getTextPayload method without a payload")
@@ -106,10 +107,10 @@ public class ResponseNativeFunctionNegativeTest {
         inResponse.set(RESPONSE_ENTITY_FIELD, entity);
         BValue[] returnVals = BRunUtil.invoke(result, "testGetTextPayload", new Object[]{ inResponse });
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
-        Assert.assertTrue(returnVals[0].stringValue()
-                .contains("{message:\"No payload\", cause:{ballerina/mime}ParsingEntityBodyFailed " +
-                        "{message:\"Error occurred while extracting text data from entity\", " +
-                        "cause:{ballerina/mime}NoContentError {message:\"Empty content\"}}}"));
+        BError err = (BError) (returnVals[0]);
+        Assert.assertEquals(err.getMessage(), "No payload");
+        Assert.assertEquals(err.getCause().getMessage(), "Error occurred while extracting text data from entity");
+        Assert.assertEquals(err.getCause().getCause().getMessage(), "Empty content");
     }
 
     @Test
@@ -119,9 +120,10 @@ public class ResponseNativeFunctionNegativeTest {
         TestEntityUtils.enrichTestEntityHeaders(entity, APPLICATION_XML);
         inResponse.set(RESPONSE_ENTITY_FIELD, entity);
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", new Object[]{ inResponse });
-        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(), "{message:\"No payload\", " +
-                "cause:{ballerina/mime}ParsingEntityBodyFailed {message:\"Error occurred while extracting xml " +
-                "data from entity\", cause:{ballerina/mime}NoContentError {message:\"Empty content\"}}}");
+        BError err = (BError) (returnVals[0]);
+        Assert.assertEquals(err.getMessage(), "No payload");
+        Assert.assertEquals(err.getCause().getMessage(), "Error occurred while extracting xml data from entity");
+        Assert.assertEquals(err.getCause().getCause().getMessage(), "Empty content");
     }
 
     @Test
@@ -135,15 +137,11 @@ public class ResponseNativeFunctionNegativeTest {
         inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", new Object[]{ inResponse });
         Assert.assertNotNull(returnVals[0]);
-        String errorMessage = ((BError) returnVals[0]).getDetails().stringValue();
-        String expectedErrorMessagePattern =
-                "\\{message:\"Error occurred while retrieving the xml payload from the response\", " +
-                        "cause:\\{ballerina\\/mime\\}ParsingEntityBodyFailed " +
-                        "\\{message:\"Error occurred while extracting xml data from entity\", " +
-                        "cause:failed to create xml: Unexpected character 'b' \\(code 98\\) in prolog; expected '<'" +
-                        "(\n|\r\n)" +
-                        " at \\[row,col \\{unknown-source}]: \\[1,1] \\{\\}\\}\\}";
-        Assert.assertTrue(errorMessage.matches(expectedErrorMessagePattern));
+        BError err = (BError) (returnVals[0]);
+        Assert.assertEquals(err.getMessage(), "Error occurred while retrieving the xml payload from the response");
+        Assert.assertEquals(err.getCause().getMessage(), "Error occurred while extracting xml data from entity");
+        Assert.assertTrue(err.getCause().getCause().getMessage().contains("failed to create xml: Unexpected " +
+                                                                                   "character 'b'"));
     }
 
     @Test(description = "Test getEntity method on a response without a entity")

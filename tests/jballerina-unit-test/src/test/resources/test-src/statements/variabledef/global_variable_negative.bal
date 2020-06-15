@@ -36,7 +36,7 @@ public type Listener object {
 
     *Listener;
 
-    public function __init() {
+    public function init() {
 
     }
 

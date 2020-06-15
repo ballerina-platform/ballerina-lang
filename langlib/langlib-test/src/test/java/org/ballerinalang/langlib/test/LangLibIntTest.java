@@ -70,8 +70,8 @@ public class LangLibIntTest {
 
         BError err = (BError) returns[1];
         assertEquals(err.getReason(), getModulePrefixedReason(INT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER));
-        assertEquals(err.getDetails().toString(), "{message:\"'string' value '12invalid34' cannot be converted to " +
-                "'int'\"}");
+        assertEquals(err.getDetails().toString(), "{\"message\":\"'string' value '12invalid34' " +
+                "cannot be converted to 'int'\"}");
     }
 
     @Test
@@ -103,7 +103,7 @@ public class LangLibIntTest {
 
         BError err = (BError) returns[1];
         assertEquals(err.getReason(), getModulePrefixedReason(INT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER));
-        assertEquals(err.getDetails().toString(), "{message:\"For input string: \"12invalid34\"\"}");
+        assertEquals(err.getDetails().toString(), "{\"message\":\"For input string: \"12invalid34\"\"}");
     }
 
     @DataProvider(name = "MaxNumList")

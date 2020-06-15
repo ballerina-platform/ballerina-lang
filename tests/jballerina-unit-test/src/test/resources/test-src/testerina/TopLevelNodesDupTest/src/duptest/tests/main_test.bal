@@ -16,7 +16,7 @@ public type Company object {
     string name;
     string address;
 
-    public function __init() {
+    public function init() {
     	 self.name = "test";
     	 self.address = "test";
     }

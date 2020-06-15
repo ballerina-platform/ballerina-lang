@@ -17,7 +17,7 @@
 import ballerina/log;
 import ballerina/http;
 
-const string TWO_PHASE_COMMIT = "2pc";
+public const string TWO_PHASE_COMMIT = "2pc";
 const string PROTOCOL_COMPLETION = "completion";
 const string PROTOCOL_VOLATILE = "volatile";
 const string PROTOCOL_DURABLE = "durable";
@@ -111,15 +111,13 @@ service InitiatorService on coordinatorListener {
                     res.setJsonPayload(<@untainted json> resPayload);
                     var resResult = conn->respond(res);
                     if (resResult is http:ListenerError) {
-                        error err = resResult;
                         log:printError("Sending response for register request for transaction " + txnId +
                                 " failed", resResult);
                     } else {
                         log:printInfo("Registered remote participant: " + participantId + " for transaction: " + txnId);
                     }
                 } else {
-                    error resPayloadError = <error>resPayload;
-                    panic resPayloadError;
+                    panic resPayload;
                 }
             }
         }

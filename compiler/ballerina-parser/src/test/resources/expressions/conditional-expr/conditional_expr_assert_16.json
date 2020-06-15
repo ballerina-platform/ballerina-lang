@@ -1,25 +1,38 @@
 {
   "kind": "LIST_CONSTRUCTOR",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "OPEN_BRACKET_TOKEN"
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "IDENTIFIER_TOKEN",
           "value": "foo"
         },
         {
-          "kind": "COMMA_TOKEN"
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "CONDITIONAL_EXPRESSION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_IDENTIFIER"
+              ]
             },
             {
               "kind": "QUESTION_MARK_TOKEN"

@@ -1,8 +1,15 @@
 {
   "kind": "RETURN_STATEMENT",
+  "hasDiagnostics": true,
   "children": [
     {
-      "kind": "RETURN_KEYWORD"
+      "kind": "RETURN_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "DECIMAL_INTEGER_LITERAL",
@@ -10,7 +17,11 @@
     },
     {
       "kind": "SEMICOLON_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_SEMICOLON_TOKEN"
+      ]
     }
   ]
 }

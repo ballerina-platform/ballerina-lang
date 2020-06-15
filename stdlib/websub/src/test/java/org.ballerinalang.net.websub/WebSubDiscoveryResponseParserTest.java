@@ -19,7 +19,6 @@
 package org.ballerinalang.net.websub;
 
 import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -83,7 +82,7 @@ public class WebSubDiscoveryResponseParserTest {
         BValue[] returns = BRunUtil.invoke(result, testFunction, new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get("message").stringValue(),
+        Assert.assertEquals(((BError) returns[0]).getMessage(),
                             "Hub and/or Topic URL(s) not identified in link header of discovery response",
                             "invalid error message on unavailable topic");
     }
@@ -93,7 +92,7 @@ public class WebSubDiscoveryResponseParserTest {
         BValue[] returns = BRunUtil.invoke(result, testFunction, new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get("message").stringValue(),
+        Assert.assertEquals(((BError) returns[0]).getMessage(),
                             "Hub and/or Topic URL(s) not identified in link header of discovery response",
                             "invalid error message on unavailable hub");
     }
@@ -103,8 +102,7 @@ public class WebSubDiscoveryResponseParserTest {
         BValue[] returns = BRunUtil.invoke(result, "testMissingLinkHeader", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "Link header unavailable in discovery response",
+        Assert.assertEquals(((BError) returns[0]).getMessage(), "Link header unavailable in discovery response",
                             "invalid error message on unavailable link headers(s)");
     }
 
@@ -113,8 +111,7 @@ public class WebSubDiscoveryResponseParserTest {
         BValue[] returns = BRunUtil.invoke(result, testFunction, new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "Link Header contains > 1 self URLs",
+        Assert.assertEquals(((BError) returns[0]).getMessage(), "Link Header contains > 1 self URLs",
                             "invalid error message on > 1 topics");
     }
 

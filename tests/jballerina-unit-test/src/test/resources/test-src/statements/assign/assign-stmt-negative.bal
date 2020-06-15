@@ -108,8 +108,8 @@ public type Detail record {
     error cause?;
 };
 
-type CError error<C_ERROR, Detail>;
-type LError error<L_ERROR, Detail>;
+type CError distinct error<Detail>;
+type LError distinct error<Detail>;
 type CLError CError|LError;
 
 function nonAssingableErrorTypeArrayAssign() {

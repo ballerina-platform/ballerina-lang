@@ -2,10 +2,9 @@ import ballerina/http;
 import ballerina/lang.'string as strings;
 import ballerina/mime;
 
-function setErrorResponse(http:Response response,  error err) {
+function setErrorResponse(http:Response response, error err) {
     response.statusCode = 500;
-    string? errMsg = err.detail()?.message;
-    response.setPayload(errMsg is string ? <@untainted> errMsg : "Error in parsing payload");
+    response.setPayload(<@untainted> err.message());
 }
 
 listener http:MockListener mockEP = new(9090);
@@ -124,9 +123,7 @@ service test on mockEP {
         if (bodyParts is mime:Entity[]) {
             response.setPayload("Body parts detected!");
         } else {
-            error err = bodyParts;
-            string? errMsg = err.detail()?.message;
-            response.setPayload(errMsg is string ? <@untainted> errMsg : "Error in parsing body parts");
+            response.setPayload(<@untainted> bodyParts.message());
         }
         checkpanic caller->respond(response);
     }
@@ -211,7 +208,7 @@ function handleContent(mime:Entity bodyPart) returns @tainted string {
             }
         }
     } else {
-        return mediaType.reason();
+        return mediaType.message();
     }
     return "";
 }

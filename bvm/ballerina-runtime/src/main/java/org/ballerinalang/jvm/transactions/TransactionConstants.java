@@ -35,11 +35,11 @@ public class TransactionConstants {
     public static final String COORDINATOR_ABORT_TRANSACTION = "abortTransaction";
 
     public static final String TRANSACTION_PACKAGE_NAME = "ballerina.transactions";
-    public static final String TRANSACTION_PACKAGE_VERSION = "0.5.0";
+    public static final String TRANSACTION_PACKAGE_VERSION = "0.0.1";
     public static final String TRANSACTION_PACKAGE_PATH =
             "ballerina" + ORG_NAME_SEPARATOR + "transactions" + VERSION_SEPARATOR + TRANSACTION_PACKAGE_VERSION;
 
-    public static final BPackage TRANSACTION_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "transactions",
+    public static final BPackage TRANSACTION_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "lang.transaction",
                                                                        TRANSACTION_PACKAGE_VERSION);
     public static final String TRANSACTION_BLOCK_CLASS_NAME = "transaction_block";
     public static final String COORDINATOR_PACKAGE = TRANSACTION_PACKAGE_PATH;

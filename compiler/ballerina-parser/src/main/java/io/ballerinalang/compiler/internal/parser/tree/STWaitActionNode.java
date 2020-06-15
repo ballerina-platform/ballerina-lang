@@ -63,7 +63,32 @@ public class STWaitActionNode extends STActionNode {
                 diagnostics);
     }
 
+    public STWaitActionNode modify(
+            STNode waitKeyword,
+            STNode waitFutureExpr) {
+        if (checkForReferenceEquality(
+                waitKeyword,
+                waitFutureExpr)) {
+            return this;
+        }
+
+        return new STWaitActionNode(
+                waitKeyword,
+                waitFutureExpr,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new WaitActionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

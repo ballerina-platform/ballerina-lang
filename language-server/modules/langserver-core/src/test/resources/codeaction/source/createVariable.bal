@@ -10,7 +10,7 @@ public type Grapes object {
      private string color;
 
      # creates new Grapes
-     public function __init(string color) {
+     public function init(string color) {
         self.color = color;
      }
 };

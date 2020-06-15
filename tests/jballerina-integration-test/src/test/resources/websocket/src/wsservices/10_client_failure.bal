@@ -31,7 +31,7 @@ service clientFailure on new http:Listener(21010) {
                             readyOnConnect: false });
         var err = wsClientEp->ready();
         if (err is http:WebSocketError) {
-          io:println(err.detail()["message"]);
+            io:println(err.message());
         }
     }
 }
@@ -39,7 +39,7 @@ service errorHandlingService = @http:WebSocketServiceConfig {} service {
     resource function onError(http:WebSocketClient caller, error err) {
         http:WebSocketCaller? serverCaller = globalServerCaller;
         if (serverCaller is http:WebSocketCaller) {
-            var closeErr = serverCaller->close(1011, <string>err.detail()["message"], 0);
+            var closeErr = serverCaller->close(1011, err.message(), 0);
             io:println("Failed during closing the connection: ", closeErr);
         } else {
             io:println("serverCaller has not been set");

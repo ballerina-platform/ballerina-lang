@@ -32,7 +32,7 @@ public function testClientSocketTimeout() returns string {
 
     // Reads message from response.
     if (unionResp is grpc:Error) {
-        return "Error from Connector: " + unionResp.reason() + " - " + <string> unionResp.detail()["message"];
+        return "Error from Connector: " + unionResp.message();
     } else {
         string result;
         [result, _] = unionResp;
@@ -46,7 +46,7 @@ public type HelloWorld14BlockingClient client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientConfiguration? config = ()) {
+    public function init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         self.grpcClient = new(url, config);
         checkpanic self.grpcClient.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
@@ -68,7 +68,7 @@ public type HelloWorld14Client client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientConfiguration? config = ()) {
+    public function init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         self.grpcClient = new(url, config);
         checkpanic self.grpcClient.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());

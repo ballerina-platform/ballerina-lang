@@ -36,7 +36,7 @@ type CustomListener object {
 
     private string listenerName;
 
-    public function __init(string name) {
+    public function init(string name) {
         self.listenerName = name;
     }
 

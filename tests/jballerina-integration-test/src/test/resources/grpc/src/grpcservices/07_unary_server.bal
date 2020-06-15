@@ -33,7 +33,7 @@ service HelloWorld100 on ep7 {
             err = caller->send(message);
         }
         if (err is grpc:Error) {
-            io:println("Error from Connector: " + err.reason());
+            io:println("Error from Connector: " + err.message());
         }
         checkpanic caller->complete();
     }
@@ -43,7 +43,7 @@ service HelloWorld100 on ep7 {
         int displayAge = age - 2;
         grpc:Error? err = caller->send(displayAge);
         if (err is grpc:Error) {
-            io:println("Error from Connector: " + err.reason());
+            io:println("Error from Connector: " + err.message());
         } else {
             io:println("display age : " + displayAge.toString());
         }
@@ -55,7 +55,7 @@ service HelloWorld100 on ep7 {
         float netSalary = salary * 0.88;
         grpc:Error? err = caller->send(netSalary);
         if (err is grpc:Error) {
-            io:println("Error from Connector: " + err.reason());
+            io:println("Error from Connector: " + err.message());
         } else {
             io:println("net salary : " + netSalary.toString());
         }
@@ -67,7 +67,7 @@ service HelloWorld100 on ep7 {
         boolean aval = available || true;
         grpc:Error? err = caller->send(aval);
         if (err is grpc:Error) {
-            io:println("Error from Connector: " + err.reason());
+            io:println("Error from Connector: " + err.message());
         } else {
             io:println("avaliability : " + aval.toString());
         }
@@ -79,7 +79,7 @@ service HelloWorld100 on ep7 {
         Response response = {resp:"Acknowledge " + msg.name};
         grpc:Error? err = caller->send(response);
         if (err is grpc:Error) {
-            io:println("Error from Connector: " + err.reason());
+            io:println("Error from Connector: " + err.message());
         } else {
             io:println("msg : " + response.resp);
         }
@@ -90,7 +90,7 @@ service HelloWorld100 on ep7 {
         string resp = "service invoked with no request";
         grpc:Error? err = caller->send(resp);
         if (err is grpc:Error) {
-            io:println("Error from Connector: " + err.reason());
+            io:println("Error from Connector: " + err.message());
         } else {
             io:println("response : " + resp);
         }
