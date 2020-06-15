@@ -362,11 +362,11 @@ public class FiniteTypeTest {
         Assert.assertEquals(returns[1], new BDecimal("1.0"));
     }
 
-//    @Test(description = "Test finite type where typename is espaed identifier", groups = { "brokenOnSpecDeviation" })
-//    public void testEscapedTypeName() {
-//        BValue[] returns = BRunUtil.invoke(result, "testEscapedTypeName");
-//        Assert.assertEquals(returns[0].stringValue(), "-");
-//    }
+    @Test(description = "Test finite type where typename is espaed identifier", groups = { "brokenOnSpecDeviation" })
+    public void testEscapedTypeName() {
+        BValue[] returns = BRunUtil.invoke(result, "testEscapedTypeName");
+        Assert.assertEquals(returns[0].stringValue(), "-");
+    }
 
     @Test(description = "Test finite type where integer literals with positive sign as members")
     public void testFiniteTypesWithPositiveIntegers() {

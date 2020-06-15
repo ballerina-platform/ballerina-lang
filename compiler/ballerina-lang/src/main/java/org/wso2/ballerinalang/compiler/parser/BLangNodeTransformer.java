@@ -632,12 +632,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             SingletonTypeDescriptorNode singletonTypeNode = (SingletonTypeDescriptorNode) finiteTypeEl;
             BLangLiteral literal;
             Node simpleContExprNode = singletonTypeNode.simpleContExprNode();
-            if (simpleContExprNode.kind() == SyntaxKind.UNARY_EXPRESSION) {
-                UnaryExpressionNode unaryExpr = (UnaryExpressionNode) simpleContExprNode;
-                literal = createSimpleLiteral(unaryExpr.expression(), unaryExpr.unaryOperator().kind(), true);
-            } else {
-                literal = createSimpleLiteral(simpleContExprNode, SyntaxKind.NONE, true);
-            }
+            literal = createSimpleLiteral(simpleContExprNode, true);
             bLangFiniteTypeNode.addValue(literal);
         }
 
@@ -984,7 +979,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
         BLangFiniteTypeNode bLangFiniteTypeNode = new BLangFiniteTypeNode();
-        BLangLiteral simpleLiteral = createSimpleLiteral(singletonTypeDescriptorNode.simpleContExprNode());
+        BLangLiteral simpleLiteral = createSimpleLiteral(singletonTypeDescriptorNode.simpleContExprNode(), false);
         bLangFiniteTypeNode.valueSpace.add(simpleLiteral);
         return bLangFiniteTypeNode;
     }
@@ -1586,7 +1581,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         SyntaxKind operatorKind = unaryExprNode.unaryOperator().kind();
         if (expressionKind == SyntaxKind.DECIMAL_INTEGER_LITERAL ||
                 expressionKind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL) {
-            BLangNumericLiteral numericLiteral = (BLangNumericLiteral) createSimpleLiteral(unaryExprNode.expression());
+            BLangNumericLiteral numericLiteral =
+                    (BLangNumericLiteral) createSimpleLiteral(unaryExprNode.expression(), false);
             if (operatorKind == SyntaxKind.MINUS_TOKEN) {
                 if (numericLiteral.value instanceof String) {
                     numericLiteral.value = "-" + numericLiteral.value;
@@ -1844,7 +1840,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             case XML_TEXT_CONTENT:
             case TEMPLATE_STRING:
             case CLOSE_BRACE_TOKEN:
-                return createSimpleLiteral(token);
+                return createSimpleLiteral(token, false);
             default:
                 throw new RuntimeException("Syntax kind is not supported: " + kind);
         }
@@ -2663,10 +2659,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         XMLNameNode target = xmlProcessingInstruction.target();
         if (target.kind() == SyntaxKind.XML_SIMPLE_NAME) {
-            xmlProcInsLiteral.target = createSimpleLiteral(((XMLSimpleNameNode) target).name());
+            xmlProcInsLiteral.target = createSimpleLiteral(((XMLSimpleNameNode) target).name(), false);
         } else {
             // this could be a bug in the old parser
-            xmlProcInsLiteral.target = createSimpleLiteral(((XMLQualifiedNameNode) target).prefix());
+            xmlProcInsLiteral.target = createSimpleLiteral(((XMLQualifiedNameNode) target).prefix(), false);
         }
 
         return xmlProcInsLiteral;
@@ -2698,7 +2694,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         for (Node node : xmlElementNode.content()) {
             if (node.kind() == SyntaxKind.XML_TEXT) {
-                xmlElement.children.add(createSimpleLiteral(((XMLTextNode) node).content()));
+                xmlElement.children.add(createSimpleLiteral(((XMLTextNode) node).content(), false));
                 continue;
             }
             xmlElement.children.add(createExpression(node));
@@ -2791,7 +2787,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
         BLangIdentifier prefixIdentifier = createIdentifier(xmlnsDeclNode.namespacePrefix());
 
-        xmlns.namespaceURI = createSimpleLiteral(xmlnsDeclNode.namespaceuri());
+        xmlns.namespaceURI = createSimpleLiteral(xmlnsDeclNode.namespaceuri(), false);
         xmlns.prefix = prefixIdentifier;
         xmlns.pos = getPosition(xmlnsDeclNode);
 
@@ -2806,7 +2802,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
         BLangIdentifier prefixIdentifier = createIdentifier(xmlnsDeclNode.namespacePrefix());
 
-        xmlns.namespaceURI = createSimpleLiteral(xmlnsDeclNode.namespaceuri());
+        xmlns.namespaceURI = createSimpleLiteral(xmlnsDeclNode.namespaceuri(), false);
         xmlns.prefix = prefixIdentifier;
         xmlns.pos = getPosition(xmlnsDeclNode);
 
@@ -2968,11 +2964,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangLiteral literal;
         BLangLiteral deepLiteral;
         if (member.constExprNode() != null) {
-            literal = createSimpleLiteral(member.constExprNode());
-            deepLiteral = createSimpleLiteral(member.constExprNode());
+            literal = createSimpleLiteral(member.constExprNode(), false);
+            deepLiteral = createSimpleLiteral(member.constExprNode(), false);
         } else {
-            literal = createSimpleLiteral(member.identifier());
-            deepLiteral = createSimpleLiteral(member.identifier());
+            literal = createSimpleLiteral(member.identifier(), false);
+            deepLiteral = createSimpleLiteral(member.identifier(), false);
         }
         if (literal.originalValue != "") {
             bLangConstant.setInitialExpression(literal);
@@ -3184,7 +3180,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (node.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             return createExpression(node);
         }
-        return createSimpleLiteral(node);
+        return createSimpleLiteral(node, false);
     }
 
     private BLangXMLElementFilter createXMLElementFilter(Node node) {
@@ -3450,7 +3446,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private BLangExpression createExpression(Node expression) {
         if (isSimpleLiteral(expression.kind())) {
-            return createSimpleLiteral(expression);
+            return createSimpleLiteral(expression, false);
         } else if (expression.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
                    expression.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE ||
                    expression.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
@@ -3622,13 +3618,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return bLIdentifer;
     }
 
-    private BLangLiteral createSimpleLiteral(Node literal) {
+    private BLangLiteral createSimpleLiteral(Node literal, boolean isFiniteType) {
         if (literal.kind() == SyntaxKind.UNARY_EXPRESSION) {
             UnaryExpressionNode unaryExpr = (UnaryExpressionNode) literal;
-            return createSimpleLiteral(unaryExpr.expression(), unaryExpr.unaryOperator().kind(), false);
+            return createSimpleLiteral(unaryExpr.expression(), unaryExpr.unaryOperator().kind(), isFiniteType);
         }
 
-        return createSimpleLiteral(literal, SyntaxKind.NONE, false);
+        return createSimpleLiteral(literal, SyntaxKind.NONE, isFiniteType);
     }
 
     private BLangLiteral createSimpleLiteral(Node literal, SyntaxKind sign, boolean isFiniteType) {
@@ -3663,8 +3659,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             //TODO: Check effect of mapping negative(-) numbers as unary-expr
             typeTag = NumericLiteralSupport.isDecimalDiscriminated(textValue) ? TypeTags.DECIMAL : TypeTags.FLOAT;
             if (isFiniteType) {
-                value = textValue.replaceAll("[f,d,/+]", "");
-                originalValue = textValue.replaceAll("[/+]", "");
+                value = textValue.replaceAll("[fd+]", "");
+                originalValue = textValue.replace("+", "");
             } else {
                 value = textValue;
                 originalValue = textValue;
