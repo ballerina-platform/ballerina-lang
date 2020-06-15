@@ -8008,7 +8008,8 @@ public class BallerinaParser extends AbstractParser {
             case QUALIFIED_NAME_REFERENCE:
                 break;
             default:
-                this.errorHandler.reportInvalidNode(null, "namespace uri must be a subtype of string");
+                expr = SyntaxErrors.addDiagnostics(expr,
+                        DiagnosticErrorCode.ERROR_INVALID_XML_NAMESPACE_URI);
         }
 
         return expr;
