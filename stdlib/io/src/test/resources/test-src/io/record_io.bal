@@ -48,8 +48,7 @@ function nextRecord() returns @tainted string[]|error {
             return result;
         }
     }
-    error e = error("Record channel not initialized properly");
-    return e;
+    return io:GenericError("Record channel not initialized properly");
 }
 
 function writeRecord(string[] fields) {

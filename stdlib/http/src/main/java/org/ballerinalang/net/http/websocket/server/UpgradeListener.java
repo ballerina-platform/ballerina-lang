@@ -20,7 +20,6 @@ package org.ballerinalang.net.http.websocket.server;
 
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
-import org.ballerinalang.net.http.websocket.WebSocketException;
 import org.ballerinalang.net.http.websocket.WebSocketResourceDispatcher;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.slf4j.Logger;
@@ -53,7 +52,7 @@ class UpgradeListener implements ServerHandshakeListener {
     public void onError(Throwable throwable) {
         String msg = "Unable to complete WebSocket handshake: ";
         logger.error(msg, throwable);
-        throw new WebSocketException(WebSocketConstants.ErrorCode.WsInvalidHandshakeError,
-                                     msg + throwable.getMessage());
+        throw WebSocketUtil.getWebSocketException("", throwable, WebSocketConstants.ErrorCode.WsGenericError.
+                errorCode(), null);
     }
 }

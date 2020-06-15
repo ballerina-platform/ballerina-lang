@@ -244,7 +244,7 @@ function testTypeGuardsWithBinaryOps_6() {
 function testTypeGuardsWithErrorInmatch() returns string {
     any a = 5;
     match a {
-        var p if p is error => {return string `${p.reason()}`;}
+        var p if p is error => {return string `${p.message()}`;}
         var p => {return "Internal server error";}
     }
 }
@@ -362,8 +362,8 @@ type Detail record {
     int? code;
 };
 
-function errorReturningFunc(int? i) returns error<string, Detail> {
-    return error("hello", message = "hello", code = i, f = 1.0);
+function errorReturningFunc(int? i) returns error<Detail> {
+    return ErrorD("hello", message = "hello", code = i, f = 1.0);
 }
 
 function testInvalidAccessOfOutOfScopeVar() {
@@ -377,3 +377,5 @@ function testInvalidAccessOfOutOfScopeVar() {
         int k = j; // undefined symbol 'j'
     }
 }
+
+type ErrorD error<Detail>;

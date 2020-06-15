@@ -30,6 +30,7 @@ import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
@@ -68,6 +69,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -787,13 +790,27 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.name = names.fromIdNode(typeDefinition.getName());
         typeDefSymbol.pkgID = env.enclPkg.packageID;
 
+        boolean distinctFlagPresent = isDistinctFlagPresent(typeDefinition);
+
+        // todo: need to handle intersections
+        if (distinctFlagPresent) {
+            if (definedType.getKind() == TypeKind.ERROR) {
+                BErrorType distinctType = getDistinctErrorType(typeDefinition, (BErrorType) definedType, typeDefSymbol);
+                typeDefinition.typeNode.type = distinctType;
+                definedType = distinctType;
+            } else if (definedType.getKind() == TypeKind.UNION) {
+                validateUnionForDistinctType((BUnionType) definedType, typeDefinition.pos);
+            } else {
+                dlog.error(typeDefinition.pos, DiagnosticCode.DISTINCT_TYPING_ONLY_SUPPORT_OBJECTS_AND_ERRORS);
+            }
+        }
+
         typeDefSymbol.flags |= Flags.asMask(typeDefinition.flagSet);
         // Reset public flag when set on a non public type.
         typeDefSymbol.flags &= getPublicFlagResetingMask(typeDefinition.flagSet, typeDefinition.typeNode);
         if (isDeprecated(typeDefinition.annAttachments)) {
             typeDefSymbol.flags |= Flags.DEPRECATED;
         }
-        definedType.flags |= typeDefSymbol.flags;
 
         if (typeDefinition.annAttachments.stream()
                 .anyMatch(attachment -> attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value))) {
@@ -809,6 +826,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 dlog.error(typeDefinition.pos, DiagnosticCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
             }
         }
+        definedType.flags |= typeDefSymbol.flags;
+
         typeDefinition.symbol = typeDefSymbol;
         boolean isLanglibModule = PackageID.isLangLibPackageID(this.env.enclPkg.packageID);
         if (isLanglibModule) {
@@ -818,10 +837,55 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         defineSymbol(typeDefinition.name.pos, typeDefSymbol);
 
-        if (typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE) {
+        if (typeDefinition.typeNode.type.tag == TypeTags.ERROR) {
             // constructors are only defined for named types.
             defineErrorConstructorSymbol(typeDefinition.name.pos, typeDefSymbol);
         }
+    }
+
+    private void validateUnionForDistinctType(BUnionType definedType, DiagnosticPos pos) {
+        Set<BType> memberTypes = definedType.getMemberTypes();
+        TypeKind firstTypeKind = null;
+        for (BType type : memberTypes) {
+            TypeKind typeKind = type.getKind();
+            if (firstTypeKind == null && (typeKind == TypeKind.ERROR || typeKind == TypeKind.OBJECT)) {
+                firstTypeKind = typeKind;
+
+            }
+            if (typeKind != firstTypeKind) {
+                dlog.error(pos, DiagnosticCode.DISTINCT_TYPING_ONLY_SUPPORT_OBJECTS_AND_ERRORS);
+            }
+        }
+    }
+
+    private BErrorType getDistinctErrorType(BLangTypeDefinition typeDefinition, BErrorType definedType,
+                                            BTypeSymbol typeDefSymbol) {
+        BErrorType definedErrorType = definedType;
+        // Create a new type for distinct type definition such as `type FooErr distinct BarErr;`
+        // `typeDefSymbol` is different to `definedErrorType.tsymbol` in a type definition statement that use
+        // already defined type as the base type.
+        if (definedErrorType.tsymbol != typeDefSymbol) {
+            BErrorType bErrorType = new BErrorType(typeDefSymbol);
+            bErrorType.detailType = definedErrorType.detailType;
+            typeDefSymbol.type = bErrorType;
+            definedErrorType = bErrorType;
+        }
+        boolean isPublicType = typeDefinition.flagSet.contains(Flag.PUBLIC);
+        definedErrorType.typeIdSet = calculateTypeIdSet(typeDefinition, isPublicType, definedType.typeIdSet);
+        return definedErrorType;
+    }
+
+    private BTypeIdSet calculateTypeIdSet(BLangTypeDefinition typeDefinition, boolean isPublicType,
+                                          BTypeIdSet secondary) {
+        String name = typeDefinition.flagSet.contains(Flag.ANONYMOUS)
+                ? anonymousModelHelper.getNextDistinctErrorId(env.enclPkg.packageID)
+                : typeDefinition.getName().value;
+
+        return BTypeIdSet.from(env.enclPkg.packageID, name, isPublicType, secondary);
+    }
+
+    private boolean isDistinctFlagPresent(BLangTypeDefinition typeDefinition) {
+        return typeDefinition.typeNode.flagSet.contains(Flag.DISTINCT);
     }
 
     private void handleLangLibTypes(BLangTypeDefinition typeDefinition) {
@@ -1386,20 +1450,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             BLangErrorType errorTypeNode = (BLangErrorType) typeDef.typeNode;
             SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(errorTypeNode, typeDef.symbol.scope, pkgEnv);
 
-            BType reasonType = Optional.ofNullable(errorTypeNode.reasonType)
-                                        .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
-                                        .orElse(symTable.stringType);
             BType detailType = Optional.ofNullable(errorTypeNode.detailType)
                                         .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
                                         .orElse(symTable.detailType);
 
-            if (reasonType == symTable.stringType && detailType == symTable.detailType) {
-                typeDef.symbol.type = symTable.errorType;
-                continue;
-            }
-
             BErrorType errorType = (BErrorType) typeDef.symbol.type;
-            errorType.reasonType = reasonType;
             errorType.detailType = detailType;
         }
     }

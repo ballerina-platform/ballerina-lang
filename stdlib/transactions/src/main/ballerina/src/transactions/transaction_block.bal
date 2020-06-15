@@ -49,15 +49,13 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
     boolean isTrxSuccess = false;
     int rCnt = 1;
     if (rMax < 0) {
-        error err = error("TransactionError", message = "invalid retry count");
-        panic err;
+        panic TransactionError("invalid retry count");
     }
     // If global tx enabled, it is managed via transaction coordinator.Otherwise it is managed locally
     // without any interaction with the transaction coordinator.
     if (isNestedTransaction()) {
         // Starting a transaction within already infected transaction.
-        error err = error("{ballerina}TransactionError", message =  "dynamically nested transactions are not allowed");
-        panic err;
+        panic TransactionError("dynamically nested transactions are not allowed");
     }
     TransactionContext|error txnContext;
     string transactionId = "";
@@ -98,18 +96,18 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
                 break;
             }
         } else {
-            log:printDebug(trxResult.reason());
+            log:printDebug(trxResult.message());
         }
         rCnt = rCnt + 1;
         // retry
         if (rCnt <= rMax) {
             rollbackResult = trap rollbackTransaction(transactionBlockId);
             if (rollbackResult is error) {
-                log:printDebug(rollbackResult.reason());
+                log:printDebug(rollbackResult.message());
             }
             retryResult = trap retryFunc();
             if (retryResult is error) {
-                log:printDebug(retryResult.reason());
+                log:printDebug(retryResult.message());
             }
         } else {
             break;
@@ -118,12 +116,12 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
     if (isTrxSuccess) {
         committedResult = trap committedFunc();
         if (committedResult is error) {
-            log:printDebug(committedResult.reason());
+            log:printDebug(committedResult.message());
         }
     } else {
         abortResult = trap handleAbortTransaction(transactionId, transactionBlockId, abortedFunc);
         if (abortResult is error) {
-            log:printDebug(abortResult.reason());
+            log:printDebug(abortResult.message());
         }
     }
     cleanupTransactionContext(transactionBlockId);
@@ -268,8 +266,7 @@ function abortTransaction(string transactionId, string transactionBlockId) retur
         if (initiatedTxn is TwoPhaseCommitTransaction) {
             return initiatedTxn.markForAbortion();
         } else {
-            error err = error("Unknown transaction");
-            panic err;
+            panic TransactionError("Unknown transaction");
         }
     }
 }
@@ -287,8 +284,7 @@ function abortTransaction(string transactionId, string transactionBlockId) retur
 public function endTransaction(string transactionId, string transactionBlockId) returns @tainted string|error {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (!initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
-        error err = error("Transaction: " + participatedTxnId + " not found");
-        panic err;
+        panic TransactionError("Transaction: " + participatedTxnId + " not found");
     }
 
     // Only the initiator can end the transaction. Here we check whether the entity trying to end the transaction is

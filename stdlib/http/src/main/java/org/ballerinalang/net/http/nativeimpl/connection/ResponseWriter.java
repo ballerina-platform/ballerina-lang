@@ -38,7 +38,7 @@ import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import static org.ballerinalang.mime.util.MimeConstants.SERIALIZATION_ERROR_CODE;
+import static org.ballerinalang.mime.util.MimeConstants.SERIALIZATION_ERROR;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 
 /**
@@ -104,7 +104,7 @@ public class ResponseWriter {
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
             }
         } catch (IOException ex) {
-            throw BallerinaErrors.createError(SERIALIZATION_ERROR_CODE, "error occurred while serializing " +
+            throw BallerinaErrors.createError(SERIALIZATION_ERROR, "error occurred while serializing " +
                     "byte channel content : " + ex.getMessage());
         }
     }
@@ -127,7 +127,7 @@ public class ResponseWriter {
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
             }
         } catch (IOException ex) {
-            throw BallerinaErrors.createError(SERIALIZATION_ERROR_CODE, "error occurred while serializing message" +
+            throw BallerinaErrors.createError(SERIALIZATION_ERROR, "error occurred while serializing message" +
                     " data source : " + ex.getMessage());
         }
     }

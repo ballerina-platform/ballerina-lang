@@ -24,17 +24,13 @@ import ballerina/java;
 # ```ballerina
 # ldap:InboundLdapAuthProvider inboundLdapAuthProvider = new(ldapConfig, "instanceId");
 # ```
-#
-# + instanceId - Instance ID of the endpoint
-# + ldapConnection - LDAP connection instance
-# + ldapConnectionConfig - LDAP connection configurations
 public type InboundLdapAuthProvider object {
 
     *auth:InboundAuthProvider;
 
-    public string instanceId;
-    public LdapConnection ldapConnection;
-    public LdapConnectionConfig ldapConnectionConfig;
+    string instanceId;
+    LdapConnection ldapConnection;
+    LdapConnectionConfig ldapConnectionConfig;
 
     # Creates an LDAP auth store with the given configurations.
     #

@@ -111,29 +111,30 @@ public class MessageUtils {
      * @return error value.
      */
     public static ErrorValue getConnectorError(Throwable error) {
-        String reason;
+        String errorIdName;
         String message;
         if (error instanceof StatusRuntimeException) {
             StatusRuntimeException statusException = (StatusRuntimeException) error;
-            reason = statusException.getStatus().getReason();
+            errorIdName = statusException.getStatus().getReason();
             String errorDescription = statusException.getStatus().getDescription();
             if (errorDescription != null) {
                 message =  statusException.getStatus().getDescription();
             } else if (statusException.getStatus().getCause() != null) {
-                message = statusException.getStatus().getCause().getMessage();
+                String causeMessage = statusException.getStatus().getCause().getMessage();
+                message = causeMessage == null ? UNKNOWN_ERROR_DETAIL : causeMessage;
             } else {
                 message = UNKNOWN_ERROR_DETAIL;
             }
         } else {
             if (error.getMessage() == null) {
-                reason = GrpcConstants.UNKNOWN_ERROR;
+                errorIdName = GrpcConstants.UNKNOWN_ERROR;
                 message = UNKNOWN_ERROR_DETAIL;
             } else {
-                reason = GrpcConstants.INTERNAL_ERROR;
+                errorIdName = GrpcConstants.INTERNAL_ERROR;
                 message = error.getMessage();
             }
         }
-        return BallerinaErrors.createError(reason, message);
+        return BallerinaErrors.createDistinctError(errorIdName, PROTOCOL_GRPC_PKG_ID, message);
     }
     
     /**

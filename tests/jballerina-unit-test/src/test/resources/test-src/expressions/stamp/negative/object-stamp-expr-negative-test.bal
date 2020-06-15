@@ -103,21 +103,21 @@ function stampObjectsToXML() returns xml|error {
 
 function stampObjectsToMap() returns map<any>|error {
     PersonObj p = new PersonObj();
-    map<any>|error mapValue = p.cloneWithType(map<any>);
+    map<any>|error mapValue = p.cloneWithType(AnyMap);
 
     return mapValue;
 }
 
 function stampObjectsToArray() returns any[]|error {
     PersonObj p = new PersonObj();
-    any[]|error anyValue = p.cloneWithType(any[]);
+    any[]|error anyValue = p.cloneWithType(AnyArray);
 
     return anyValue;
 }
 
 function stampObjectsToTuple() returns [int,string]|error {
     PersonObj p = new PersonObj();
-    [int, string]|error tupleValue = p.cloneWithType([int,string]);
+    [int, string]|error tupleValue = p.cloneWithType(IntString);
 
     return tupleValue;
 }
@@ -174,3 +174,7 @@ function stampTupleToObject() returns EmployeeObj|error {
     EmployeeObj|error objectValue = tupleValue.cloneWithType(EmployeeObj);
     return objectValue;
 }
+
+type AnyMap map<any>;
+type IntString [int, string];
+type AnyArray any[];

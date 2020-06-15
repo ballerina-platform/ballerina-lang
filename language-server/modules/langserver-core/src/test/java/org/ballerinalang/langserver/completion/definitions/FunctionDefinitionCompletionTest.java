@@ -175,7 +175,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"returnParameterContextSuggestion9.json", "function"},
                 {"returnParameterContextSuggestion10.json", "function"},
                 {"returnParameterContextSuggestion11.json", "function"},
-                {"typeDescSuggestions1.json", "function"},
+//                {"typeDescSuggestions1.json", "function"},
                 {"typeDescSuggestions2.json", "function"},
                 {"delimiterBasedCompletionOverArrays.json", "function"},
                 {"delimiterBasedCompletionOverMaps.json", "function"},

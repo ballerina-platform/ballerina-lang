@@ -35,18 +35,20 @@ public class BPackage {
     public String org;
     public String name;
     public String version;
-    private int hashCode = Objects.hash(org, name, version);
+    private int hashCode;
 
     public BPackage(String org, String name, String version) {
         this.org = org;
         this.name = name;
         this.version = version;
+        hashCode = Objects.hash(org, name, version);
     }
 
     public BPackage(String org, String name) {
         this.org = org;
         this.name = name;
         this.version = "";
+        hashCode = Objects.hash(org, name);
     }
 
     public String getOrg() {

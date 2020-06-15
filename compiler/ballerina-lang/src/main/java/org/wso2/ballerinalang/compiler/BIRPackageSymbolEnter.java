@@ -74,6 +74,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -904,8 +905,10 @@ public class BIRPackageSymbolEnter {
                     String recordName = getStringCPEntryValue(inputStream);
                     BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                             names.fromString(recordName), env.pkgSymbol.pkgID, null, env.pkgSymbol);
+                    recordSymbol.flags |= flags;
                     recordSymbol.scope = new Scope(recordSymbol);
-                    BRecordType recordType = new BRecordType(recordSymbol, flags);
+                    BRecordType recordType = new BRecordType(recordSymbol, recordSymbol.flags);
+                    recordType.flags |= flags;
 
                     if (isImmutable(flags)) {
                         recordSymbol.flags |= Flags.READONLY;
@@ -1102,9 +1105,7 @@ public class BIRPackageSymbolEnter {
                     pkgCpIndex = inputStream.readInt();
                     pkgId = getPackageId(pkgCpIndex);
                     String errorName = getStringCPEntryValue(inputStream);
-                    BType reasonType = readTypeFromCp();
                     BType detailsType = readTypeFromCp();
-                    errorType.reasonType = reasonType;
                     errorType.detailType = detailsType;
                     errorType.flags = flags;
                     errorSymbol.type = errorType;
@@ -1117,6 +1118,7 @@ public class BIRPackageSymbolEnter {
                         // This is a workaround to avoid, getting no type for error detail field.
                         return symTable.errorType;
                     }
+                    errorType.typeIdSet = readTypeIdSet(inputStream);
                     return errorType;
                 case TypeTags.ITERATOR:
                     // TODO fix
@@ -1253,6 +1255,30 @@ public class BIRPackageSymbolEnter {
                     return symTable.xmlTextType;
             }
             return null;
+        }
+
+        private BTypeIdSet readTypeIdSet(DataInputStream inputStream) throws IOException {
+            Set<BTypeIdSet.BTypeId> primary = new HashSet<>();
+            int primaryTypeIdCount = inputStream.readInt();
+            for (int i = 0; i < primaryTypeIdCount; i++) {
+                primary.add(readTypeId(inputStream));
+            }
+
+            Set<BTypeIdSet.BTypeId> secondary = new HashSet<>();
+            int secondaryTypeIdCount = inputStream.readInt();
+            for (int i = 0; i < secondaryTypeIdCount; i++) {
+                secondary.add(readTypeId(inputStream));
+            }
+
+            return new BTypeIdSet(primary, secondary);
+        }
+
+        private BTypeIdSet.BTypeId readTypeId(DataInputStream inputStream) throws IOException {
+            int pkgCPIndex = inputStream.readInt();
+            PackageID packageId = getPackageId(pkgCPIndex);
+            String name = getStringCPEntryValue(inputStream);
+            boolean isPublicTypeId = inputStream.readBoolean();
+            return new BTypeIdSet.BTypeId(packageId, name, isPublicTypeId);
         }
 
         private void ignoreAttachedFunc() throws IOException {
