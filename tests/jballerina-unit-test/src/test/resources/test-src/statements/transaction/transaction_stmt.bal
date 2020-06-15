@@ -156,7 +156,7 @@ public function testArrowFunctionInsideTransaction() returns int {
     int b = 11;
     transaction {
         int c = a + b;
-        function (int, int) returns int arrow = (x, y) => x + y;
+        function (int, int) returns int arrow = (x, y) => x + y + a + b + c;
         a = arrow(1, 1);
         var commitRes = commit;
     }
