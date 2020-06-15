@@ -3847,11 +3847,19 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseAssignmentStmtRhs(STNode lvExpr) {
-        validateLVExpr(lvExpr);
         STNode assign = parseAssignOp();
         STNode expr = parseActionOrExpression();
         STNode semicolon = parseSemicolon();
         endContext();
+
+        boolean lvExprValid = isValidLVExpr(lvExpr);
+        if (!lvExprValid) {
+            // Create a missing simple variable reference and attach the invalid lvExpr as minutiae
+            STNode identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            STNode simpleNameRef = STNodeFactory.createSimpleNameReferenceNode(identifier);
+            lvExpr = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(simpleNameRef, lvExpr,
+                    DiagnosticErrorCode.ERROR_INVALID_EXPR_IN_ASSIGNMENT_LHS);
+        }
         return STNodeFactory.createAssignmentStatementNode(lvExpr, assign, expr, semicolon);
     }
 
@@ -3889,13 +3897,6 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseExpression(boolean isRhsExpr) {
         return parseExpression(DEFAULT_OP_PRECEDENCE, isRhsExpr, false);
-    }
-
-    private void validateLVExpr(STNode expression) {
-        if (isValidLVExpr(expression)) {
-            return;
-        }
-        this.errorHandler.reportInvalidNode(null, "invalid expression for assignment lhs");
     }
 
     private boolean isValidLVExpr(STNode expression) {
@@ -6161,12 +6162,20 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseCompoundAssignmentStmtRhs(STNode lvExpr) {
-        validateLVExpr(lvExpr);
         STNode binaryOperator = parseCompoundBinaryOperator();
         STNode equalsToken = parseAssignOp();
         STNode expr = parseActionOrExpression();
         STNode semicolon = parseSemicolon();
         endContext();
+
+        boolean lvExprValid = isValidLVExpr(lvExpr);
+        if (!lvExprValid) {
+            // Create a missing simple variable reference and attach the invalid lvExpr as minutiae
+            STNode identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            STNode simpleNameRef = STNodeFactory.createSimpleNameReferenceNode(identifier);
+            lvExpr = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(simpleNameRef, lvExpr,
+                    DiagnosticErrorCode.ERROR_INVALID_EXPR_IN_COMPOUND_ASSIGNMENT_LHS);
+        }
         return STNodeFactory.createCompoundAssignmentStatementNode(lvExpr, binaryOperator, equalsToken, expr,
                 semicolon);
     }
