@@ -133,6 +133,13 @@ public class MessageUtils {
                 message = error.getMessage();
             }
         }
+
+        if (errorIdName == null) {
+            errorIdName = GrpcConstants.UNKNOWN_ERROR;
+        }
+        if (message == null) {
+            message = UNKNOWN_ERROR_DETAIL;
+        }
         return BallerinaErrors.createDistinctError(errorIdName, PROTOCOL_GRPC_PKG_ID, message);
     }
     
