@@ -71,7 +71,7 @@ service Chat on ep3 {
                 conn = connection;
                 grpc:Error? err = conn->send(msg);
                 if (err is grpc:Error) {
-                    log:printError("Error from Connector: " + err.reason() + <string> err.detail()["message"]);
+                    log:printError("Error from Connector: " + err.message());
                 } else {
                     log:printInfo("Server message to caller " + callerId + " sent successfully.");
                 }
@@ -89,15 +89,13 @@ service Chat on ep3 {
                 conn = connection;
                 grpc:Error? err = conn->send(msg);
                 if (err is grpc:Error) {
-                    log:printError("Error from Connector: " + err.reason() + " - "
-                                    + <string> err.detail()["message"]);
+                    log:printError("Error from Connector: " + err.message());
                 } else {
                     log:printInfo("Server message to caller " + callerId + " sent successfully.");
                 }
             }
         } else if (e is error) {
-            log:printError("Error from Connector: " + e.reason() + " - "
-                            + <string> e.detail()["message"]);
+            log:printError("Error from Connector: " + e.message());
         }
     }
 }

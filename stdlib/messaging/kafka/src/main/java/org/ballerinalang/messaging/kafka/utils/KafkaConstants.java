@@ -42,8 +42,8 @@ public class KafkaConstants {
 
     public static final String FULL_PACKAGE_NAME = KAFKA_PACKAGE_NAME + BLOCK_SEPARATOR + VERSION;
     public static final String KAFKA_PROTOCOL_PACKAGE_FQN = BALLERINA_PACKAGE_PREFIX + FULL_PACKAGE_NAME;
-    public static final BPackage KAFKA_PROTOCOL_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX,
-                                                                          KAFKA_PACKAGE_NAME, VERSION);
+    public static final BPackage KAFKA_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX,
+                                                                 KAFKA_PACKAGE_NAME, VERSION);
 
     // Kafka log messages
     public static final String SERVICE_STARTED = "[ballerina/kafka] started kafka listener ";
@@ -64,9 +64,9 @@ public class KafkaConstants {
     public static final BString AVRO_SCHEMA_STRING_NAME = StringUtils.fromString("schemaString");
     public static final String OFFSET_STRUCT_NAME = "PartitionOffset";
 
-    public static final String CONSUMER_ERROR = "{ballerina/kafka}ConsumerError";
-    public static final String PRODUCER_ERROR = "{ballerina/kafka}ProducerError";
-    public static final String AVRO_ERROR = "{ballerina/kafka}AvroError";
+    public static final String CONSUMER_ERROR = "ConsumerError";
+    public static final String PRODUCER_ERROR = "ProducerError";
+    public static final String AVRO_ERROR = "AvroError";
     public static final String DETAIL_RECORD_NAME = "Detail";
 
     public static final String AVRO_GENERIC_RECORD_NAME = "AvroGenericRecord";

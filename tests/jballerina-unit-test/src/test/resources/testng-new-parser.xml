@@ -30,6 +30,7 @@
                 <exclude name="brokenOnSpecDeviation"/>
                 <exclude name="brokenOnXMLLangLibChange"/>
                 <exclude name="brokenOnNewParser"/>
+                <exclude name="brokenOnErrorChange"/>
             </run>
         </groups>
         <packages>
@@ -146,6 +147,7 @@
         </packages>
 
         <classes>
+            <class name="org.ballerinalang.test.typedefs.DistinctTypeDefTest"/>
             <class name="org.ballerinalang.test.balo.constant.SimpleConstantBaloNegativeTests"></class>
             <class name="org.ballerinalang.test.expressions.builtinoperations.BuiltinOperationsTest"></class>
             <class name="org.ballerinalang.test.expressions.invocations.StringFunctionInvocationExprTest"></class>

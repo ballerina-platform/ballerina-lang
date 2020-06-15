@@ -62,8 +62,6 @@ import org.ballerinalang.model.tree.types.TypeNode;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.wso2.ballerinalang.compiler.SourceDirectoryManager;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -280,12 +278,8 @@ public class CreateBallerinaServiceResourceMethodExecutor implements LSCommandEx
             //TODO handle constrained types
         } else if (node instanceof BLangErrorType) {
             //TODO Error type is handled as string variables. Need to discuss
-            final BLangErrorType fieldTypeNode = (BLangErrorType) node;
-            final BType bErrorType = fieldTypeNode.type;
-            if (bErrorType instanceof BErrorType) {
-                property = mapBallerinaTypes(((BErrorType) bErrorType)
-                                                     .getReasonType().getKind().typeName());
-            }
+//            final BLangErrorType fieldTypeNode = (BLangErrorType) node;
+//            final BType bErrorType = fieldTypeNode.type;
         } else if (node instanceof BLangFiniteTypeNode) {
             //TODO handle finite types
         } else if (node instanceof BLangFunctionTypeNode) {

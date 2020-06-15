@@ -57,10 +57,9 @@ service helloContinue on new http:Listener(9090) {
                 log:printError("Error sending response", responseError);
             }
         } else {
-            error err = result;
             res.statusCode = 500;
-            res.setPayload(<@untainted> err.reason());
-            log:printError("Failed to retrieve payload from request: " + err.reason());
+            res.setPayload(<@untainted> result.message());
+            log:printError("Failed to retrieve payload from request: " + result.message());
             var responseError = caller->respond(res);
             if (responseError is error) {
                 log:printError("Error sending response", responseError);
@@ -83,18 +82,16 @@ service helloContinue on new http:Listener(9090) {
                 if (result is string) {
                     replyMsg += " Key:" + contentDisposition.name + " Value: " + result;
                 } else {
-                    replyMsg += <string> " Key:" + contentDisposition.name + " Value: " + result.detail()["message"];
+                    replyMsg += <string> " Key:" + contentDisposition.name + " Value: " + result.message();
                 }
                 i += 1;
             }
             var responseError = caller->respond(<@untainted> replyMsg);
             if (responseError is error) {
-                error err = responseError;
-                log:printError(<string> err.detail()["message"], responseError);
+                log:printError(responseError.message(), responseError);
             }
         } else {
-            error err = bodyParts;
-            log:printError(<string> err.detail()["message"], bodyParts);
+            log:printError(bodyParts.message(), bodyParts);
         }
     }
 
@@ -113,8 +110,7 @@ service helloContinue on new http:Listener(9090) {
                 log:printError("Error sending response", responseError);
             }
         } else {
-            error err = res;
-            log:printError(<string> err.detail()["message"], res);
+            log:printError(res.message(), res);
         }
     }
 }
@@ -126,8 +122,7 @@ service backend on new http:Listener(9224) {
         if (payload is string) {
             response.setTextPayload(<@untainted> payload);
         } else {
-            error err = payload;
-            response.setTextPayload(<@untainted> err.reason());
+            response.setTextPayload(<@untainted> payload.message());
         }
         var responseError = caller->respond(response);
         if (responseError is error) {

@@ -96,7 +96,7 @@ function testCustomErrorFuture() {
 
     error x = wait te;
 
-    assertEquality("SimpleErrorType", x.reason());
+    assertEquality("SimpleErrorType", x.message());
 }
 
 function testCustomErrorFutureWithoutConstraint() {

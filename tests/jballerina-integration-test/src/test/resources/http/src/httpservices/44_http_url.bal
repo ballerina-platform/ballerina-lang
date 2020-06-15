@@ -47,7 +47,7 @@ service urlClientTest on new http:Listener(9255)  {
             if (result is string) {
                 value = result;
             } else {
-                value = result.reason();
+                value = result.message();
             }
         }
         checkpanic caller->respond(<@untainted> value);

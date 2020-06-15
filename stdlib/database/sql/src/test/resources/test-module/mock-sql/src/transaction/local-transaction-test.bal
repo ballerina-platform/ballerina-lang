@@ -288,7 +288,7 @@ function testLocalTransactionFailed(string jdbcURL, string user, string password
     if (ret is string) {
         a = ret;
     } else {
-        a = ret.reason() + " trapped";
+        a = ret.message() + " trapped";
     }
     a = a + " afterTrx";
     int count = check getCount(dbClient, "111");

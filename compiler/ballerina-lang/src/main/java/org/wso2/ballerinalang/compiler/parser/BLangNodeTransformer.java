@@ -723,9 +723,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
-        // TODO : Add parameter
         if (errorTypeDescriptorNode.errorTypeParamsNode().isPresent()) {
-            errorType.reasonType = createTypeNode(errorTypeDescriptorNode.errorTypeParamsNode().get());
+            errorType.detailType = createTypeNode(errorTypeDescriptorNode.errorTypeParamsNode().get());
         }
         return errorType;
     }
@@ -737,7 +736,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(DistinctTypeDescriptorNode distinctTypeDesc) {
-        return createTypeNode(distinctTypeDesc.typeDescriptor());
+        BLangType typeNode = createTypeNode(distinctTypeDesc.typeDescriptor());
+        typeNode.flagSet.add(Flag.DISTINCT);
+        return typeNode;
     }
 
     @Override
@@ -4110,7 +4111,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 break;
             case ERROR_VARIABLE:
                 BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
-                markVariableAsFinal(errorVariable.reason);
+                markVariableAsFinal(errorVariable.message);
                 errorVariable.detail.forEach(entry -> markVariableAsFinal(entry.valueBindingPattern));
                 if (errorVariable.restDetail != null) {
                     markVariableAsFinal(errorVariable.restDetail);

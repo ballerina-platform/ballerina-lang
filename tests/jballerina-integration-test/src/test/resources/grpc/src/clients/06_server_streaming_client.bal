@@ -33,7 +33,7 @@ function testServerStreaming(string name) returns int {
     // Executing unary non-blocking call registering server message listener.
     grpc:Error? result = helloWorldEp->lotsOfReplies(name, HelloWorldMessageListener);
     if (result is grpc:Error) {
-        io:println("Error from Connector: " + result.reason() + " - " + <string> result.detail()["message"]);
+        io:println("Error from Connector: " + result.message());
         return total;
     } else {
         io:println("Connected successfully");
@@ -66,7 +66,7 @@ service HelloWorldMessageListener = service {
 
     // Resource registered to receive server error messages
     resource function onError(error err) {
-        io:println("Error from Connector: " + err.reason() + " - " + <string> err.detail()["message"]);
+        io:println("Error from Connector: " + err.message());
     }
 
     // Resource registered to receive server completed message.

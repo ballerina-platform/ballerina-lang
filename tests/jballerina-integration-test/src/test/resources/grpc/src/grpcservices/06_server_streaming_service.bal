@@ -32,7 +32,7 @@ service HelloWorld45 on ep6 {
         foreach var greet in greets {
             grpc:Error? err = caller->send(greet + " " + name);
             if (err is grpc:Error) {
-                io:println("Error from Connector: " + err.reason());
+                io:println("Error from Connector: " + err.message());
             } else {
                 io:println("send reply: " + greet + " " + name);
             }

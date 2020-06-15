@@ -61,8 +61,8 @@ import static org.ballerinalang.mime.util.MimeConstants.DEFAULT_SUB_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.DISPOSITION_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.DOUBLE_QUOTE;
 import static org.ballerinalang.mime.util.MimeConstants.FORM_DATA_PARAM;
-import static org.ballerinalang.mime.util.MimeConstants.INVALID_CONTENT_LENGTH;
-import static org.ballerinalang.mime.util.MimeConstants.INVALID_CONTENT_TYPE;
+import static org.ballerinalang.mime.util.MimeConstants.INVALID_CONTENT_LENGTH_ERROR;
+import static org.ballerinalang.mime.util.MimeConstants.INVALID_CONTENT_TYPE_ERROR;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
@@ -78,7 +78,6 @@ import static org.ballerinalang.mime.util.MimeConstants.SIZE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.SUBTYPE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.SUFFIX_ATTACHMENT;
 import static org.ballerinalang.mime.util.MimeConstants.SUFFIX_FIELD;
-import static org.ballerinalang.stdlib.io.utils.Utils.populateMimeErrorRecord;
 
 /**
  * Mime utility functions are included in here.
@@ -146,7 +145,7 @@ public class MimeUtil {
             MimeTypeParameterList parameterList = mimeType.getParameters();
             return parameterList.get(parameterName);
         } catch (MimeTypeParseException e) {
-            throw MimeUtil.createError(INVALID_CONTENT_TYPE, e.getMessage());
+            throw MimeUtil.createError(INVALID_CONTENT_TYPE_ERROR, e.getMessage());
         }
     }
 
@@ -163,7 +162,7 @@ public class MimeUtil {
             MimeTypeParameterList parameterList = mimeType.getParameters();
             return parameterList.get(parameterName);
         } catch (MimeTypeParseException e) {
-            throw MimeUtil.createError(INVALID_CONTENT_TYPE, e.getMessage());
+            throw MimeUtil.createError(INVALID_CONTENT_TYPE_ERROR, e.getMessage());
         }
     }
 
@@ -227,7 +226,7 @@ public class MimeUtil {
             mediaType.set(SUFFIX_FIELD, suffix);
             mediaType.set(PARAMETER_MAP_FIELD, parameterMap);
         } catch (MimeTypeParseException e) {
-            throw new ErrorValue(org.ballerinalang.jvm.StringUtils.fromString(INVALID_CONTENT_TYPE), e.getMessage());
+            throw MimeUtil.createError(INVALID_CONTENT_TYPE_ERROR, e.getMessage());
         }
         return mediaType;
     }
@@ -451,19 +450,26 @@ public class MimeUtil {
     }
 
     /**
-     * Create mime specific error record with '{ballerina/mime}MIMEError' as error code.
+     * Create mime specific error with the error message.
      *
-     *
-     * @param reason Error reason
-     * @param errMsg  Actual error message
+     * @param errorTypeName The error type
+     * @param errMsg  The actual error message
      * @return Ballerina error value
      */
-    public static ErrorValue createError(String reason, String errMsg) {
-        return BallerinaErrors.createError(reason, populateMimeErrorRecord(null, errMsg));
+    public static ErrorValue createError(String errorTypeName, String errMsg) {
+        return BallerinaErrors.createDistinctError(errorTypeName, PROTOCOL_MIME_PKG_ID, errMsg);
     }
 
-    public static ErrorValue createError(String reason, String errMsg, ErrorValue errorValue) {
-        return BallerinaErrors.createError(reason, populateMimeErrorRecord(errorValue, errMsg));
+    /**
+     * Create mime specific error with the error message and cause.
+     *
+     * @param errorTypeName The error type
+     * @param errMsg  The actual error message
+     * @param errorValue  The error cause
+     * @return Ballerina error value
+     */
+    public static ErrorValue createError(String errorTypeName, String errMsg, ErrorValue errorValue) {
+        return BallerinaErrors.createDistinctError(errorTypeName, PROTOCOL_MIME_PKG_ID, errMsg, errorValue);
     }
 
     public static boolean isJSONCompatible(org.ballerinalang.jvm.types.BType type) {
@@ -558,7 +564,7 @@ public class MimeUtil {
                 contentLength = httpCarbonMessage.countMessageLengthTill(ONE_BYTE);
             }
         } catch (NumberFormatException e) {
-            throw MimeUtil.createError(INVALID_CONTENT_LENGTH, "Invalid content length");
+            throw MimeUtil.createError(INVALID_CONTENT_LENGTH_ERROR, "Invalid content length");
         }
         return contentLength;
     }

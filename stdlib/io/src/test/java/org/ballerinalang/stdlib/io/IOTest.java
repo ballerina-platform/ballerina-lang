@@ -46,7 +46,6 @@ import java.util.stream.Stream;
 import javax.xml.stream.XMLStreamException;
 
 import static org.ballerinalang.stdlib.common.CommonTestUtils.getAbsoluteFilePath;
-import static org.ballerinalang.stdlib.io.utils.IOConstants.ErrorCode.EoF;
 
 /**
  * Tests I/O related functions.
@@ -206,7 +205,7 @@ public class IOTest {
 
         returns = BRunUtil.invoke(recordsInputOutputProgramFile, "nextRecord");
         BError error = (BError) returns[0];
-        Assert.assertEquals(error.getReason(), EoF.errorCode());
+        Assert.assertEquals(error.getMessage(), "EoF when reading from the channel");
         returns = BRunUtil.invoke(recordsInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertFalse(hasNextRecord.booleanValue(), "Not expecting anymore records");
