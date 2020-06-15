@@ -53,6 +53,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STTypeReferenceTypeDescNod
 import io.ballerinalang.compiler.internal.parser.tree.STTypeTestExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STTypedBindingPatternNode;
 import io.ballerinalang.compiler.internal.parser.tree.STUnionTypeDescriptorNode;
+import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocuments;
@@ -1640,7 +1641,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEmpty(STNode node) {
-        return node == null;
+        return !SyntaxUtils.isSTNodePresent(node);
     }
 
     /**
@@ -3988,8 +3989,9 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode expr = parseTerminalExpression(kind, annots, isRhsExpr, allowActions, isInConditionalExpr);
-        if (!isEmpty(annots) && expr.kind != SyntaxKind.START_ACTION) {
-            this.errorHandler.reportInvalidNode(null, "annotations are not supported for expressions");
+        if (!isNodeListEmpty(annots) && expr.kind != SyntaxKind.START_ACTION) {
+            expr = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(expr, annots,
+                    DiagnosticErrorCode.ERROR_ANNOTATIONS_ATTACHED_TO_EXPRESSION);
         }
 
         return expr;
