@@ -66,7 +66,7 @@ public class TransactionalProducerTest {
                 .start();
     }
 
-    @Test(description = "Test Kafka producer send function within transaction", enabled = false)
+    @Test(description = "Test Kafka producer send function within transaction")
     public void testSendFromTransactionalProducer() {
         String balFile = "transactional_send.bal";
         String message = "Hello World Transaction";
