@@ -1173,6 +1173,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression);
     }
 
+    public static STNode createXmlTypeDescriptorNode(
+            STNode xmlKeywordToken,
+            STNode xmlTypeParamsNode) {
+
+        return new STXmlTypeDescriptorNode(
+                xmlKeywordToken,
+                xmlTypeParamsNode);
+    }
+
     public static STNode createLetVariableDeclarationNode(
             STNode annotations,
             STNode typedBindingPattern,

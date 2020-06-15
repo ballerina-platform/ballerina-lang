@@ -1587,6 +1587,18 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public XmlTypeDescriptorNode transform(
+            XmlTypeDescriptorNode xmlTypeDescriptorNode) {
+        Token xmlKeywordToken =
+                modifyToken(xmlTypeDescriptorNode.xmlKeywordToken());
+        TypeParameterNode xmlTypeParamsNode =
+                modifyNode(xmlTypeDescriptorNode.xmlTypeParamsNode().orElse(null));
+        return xmlTypeDescriptorNode.modify(
+                xmlKeywordToken,
+                xmlTypeParamsNode);
+    }
+
+    @Override
     public LetVariableDeclarationNode transform(
             LetVariableDeclarationNode letVariableDeclarationNode) {
         NodeList<AnnotationNode> annotations =

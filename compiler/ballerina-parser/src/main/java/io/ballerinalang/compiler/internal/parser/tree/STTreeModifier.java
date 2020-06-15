@@ -1249,6 +1249,16 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STXmlTypeDescriptorNode transform(
+            STXmlTypeDescriptorNode xmlTypeDescriptorNode) {
+        STNode xmlKeywordToken = modifyNode(xmlTypeDescriptorNode.xmlKeywordToken);
+        STNode xmlTypeParamsNode = modifyNode(xmlTypeDescriptorNode.xmlTypeParamsNode);
+        return xmlTypeDescriptorNode.modify(
+                xmlKeywordToken,
+                xmlTypeParamsNode);
+    }
+
+    @Override
     public STLetVariableDeclarationNode transform(
             STLetVariableDeclarationNode letVariableDeclarationNode) {
         STNode annotations = modifyNode(letVariableDeclarationNode.annotations);

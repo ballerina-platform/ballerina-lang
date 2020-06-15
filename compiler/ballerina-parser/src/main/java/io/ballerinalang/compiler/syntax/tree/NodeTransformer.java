@@ -404,6 +404,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(letExpressionNode);
     }
 
+    public T transform(XmlTypeDescriptorNode xmlTypeDescriptorNode) {
+        return transformSyntaxNode(xmlTypeDescriptorNode);
+    }
+
     public T transform(LetVariableDeclarationNode letVariableDeclarationNode) {
         return transformSyntaxNode(letVariableDeclarationNode);
     }

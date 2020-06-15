@@ -393,6 +393,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(letExpressionNode);
     }
 
+    public void visit(STXmlTypeDescriptorNode xmlTypeDescriptorNode) {
+        visitSyntaxNode(xmlTypeDescriptorNode);
+    }
+
     public void visit(STLetVariableDeclarationNode letVariableDeclarationNode) {
         visitSyntaxNode(letVariableDeclarationNode);
     }

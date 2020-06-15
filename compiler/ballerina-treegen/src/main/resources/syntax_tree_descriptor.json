@@ -2099,6 +2099,22 @@
             ]
         },
         {
+            "name": "XmlTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "XML_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "xmlKeywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "xmlTypeParamsNode",
+                    "type": "TypeParameterNode",
+                    "isOptional": true
+                }
+            ]
+        },
+        {
             "name": "LetVariableDeclarationNode",
             "base": "Node",
             "kind": "LET_VAR_DECL",

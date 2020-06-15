@@ -1556,6 +1556,17 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stLetExpressionNode.createUnlinkedFacade();
     }
 
+    public static XmlTypeDescriptorNode createXmlTypeDescriptorNode(
+            Token xmlKeywordToken,
+            TypeParameterNode xmlTypeParamsNode) {
+        Objects.requireNonNull(xmlKeywordToken, "xmlKeywordToken must not be null");
+
+        STNode stXmlTypeDescriptorNode = STNodeFactory.createXmlTypeDescriptorNode(
+                xmlKeywordToken.internalNode(),
+                getOptionalSTNode(xmlTypeParamsNode));
+        return stXmlTypeDescriptorNode.createUnlinkedFacade();
+    }
+
     public static LetVariableDeclarationNode createLetVariableDeclarationNode(
             NodeList<AnnotationNode> annotations,
             TypedBindingPatternNode typedBindingPattern,
