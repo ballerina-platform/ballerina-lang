@@ -129,7 +129,7 @@ public class ManifestProcessor {
             throw new TomlException("invalid Ballerina.toml file: " + tomlErrMsg);
         }
     }
-    
+
     /**
      * Get the char stream from inputstream.
      *
@@ -154,10 +154,12 @@ public class ManifestProcessor {
 
             Manifest manifest = toml.to(Manifest.class);
             manifest.getProject().setOrgName(toml.getString("project.org-name"));
-            Toml buildOptionsTable = toml.getTable("build-options");
-            if (buildOptionsTable != null) {
+            if (toml.contains("build-options")) {
+                Toml buildOptionsTable = toml.getTable("build-options");
                 BuildOptions buildOptions = new BuildOptions();
-                buildOptions.setWithChoreo(buildOptionsTable.getBoolean("with-choreo"));
+                if (buildOptionsTable.contains("with-choreo")) {
+                    buildOptions.setWithChoreo(buildOptionsTable.getBoolean("with-choreo"));
+                }
                 manifest.setBuildOptions(buildOptions);
             }
             validateManifestProject(manifest);
