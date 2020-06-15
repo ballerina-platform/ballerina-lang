@@ -38,6 +38,8 @@ import org.ballerinalang.packerina.task.CreateTargetDirTask;
 import org.ballerinalang.packerina.task.ListTestGroupsTask;
 import org.ballerinalang.packerina.task.ResolveMavenDependenciesTask;
 import org.ballerinalang.packerina.task.RunTestsTask;
+import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -370,7 +372,9 @@ public class TestCommand implements BLauncherCmd {
         buildContext.setOut(outStream);
         buildContext.setErr(errStream);
 
-        boolean isChoreoExtensionSkipped = !withChoreo;
+        Manifest manifest = ManifestProcessor.getInstance(compilerContext).getManifest();
+        boolean isChoreoExtensionSkipped = !(withChoreo ||
+                (manifest.getBuildOptions() != null && manifest.getBuildOptions().isWithChoreo()));
 
         boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
         // output path is the current directory if -o flag is not given.
