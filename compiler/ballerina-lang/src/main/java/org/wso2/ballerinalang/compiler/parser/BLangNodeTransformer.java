@@ -732,14 +732,27 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
-        if (errorTypeDescriptorNode.errorTypeParamsNode().isPresent()) {
-            errorType.detailType = createTypeNode(errorTypeDescriptorNode.errorTypeParamsNode().get());
+        Optional<ErrorTypeParamsNode> typeParam = errorTypeDescriptorNode.errorTypeParamsNode();
+        if (typeParam.isPresent()) {
+            BLangType detail = createTypeNode(typeParam.get());
+            if (detail != null) {
+                errorType.detailType = detail;
+            } else {
+                errorType.inferErrorType = true;
+            }
         }
+
+        errorType.pos = getPosition(errorTypeDescriptorNode);
         return errorType;
     }
 
     @Override
     public BLangNode transform(ErrorTypeParamsNode errorTypeParamsNode) {
+        Node param = errorTypeParamsNode.parameter();
+        if (param.kind() == SyntaxKind.ASTERISK_TOKEN) {
+            return null;
+        }
+
         return createTypeNode(errorTypeParamsNode.parameter());
     }
 
@@ -2315,7 +2328,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 }
 
                 TypeDescriptorNode typeDesc = typedBindingPattern.typeDescriptor();
-                variable.isDeclaredWithVar = typeDesc.kind() == SyntaxKind.VAR_TYPE_DESC;
+                variable.isDeclaredWithVar = isDeclaredWithVar(typeDesc);
                 if (!variable.isDeclaredWithVar) {
                     variable.setTypeNode(createTypeNode(typeDesc));
                 }
@@ -2340,7 +2353,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             markVariableAsFinal(var);
         }
 
-        var.isDeclaredWithVar = type.kind() == SyntaxKind.VAR_TYPE_DESC;
+        var.isDeclaredWithVar = isDeclaredWithVar(type);
         if (!var.isDeclaredWithVar) {
             var.setTypeNode(createTypeNode(type));
         }
@@ -2361,7 +2374,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             markVariableAsFinal(tupleVar);
         }
 
-        tupleVar.isDeclaredWithVar = typeDesc.kind() == SyntaxKind.VAR_TYPE_DESC;
+        tupleVar.isDeclaredWithVar = isDeclaredWithVar(typeDesc);
         if (!tupleVar.isDeclaredWithVar) {
             tupleVar.setTypeNode(createTypeNode(typeDesc));
         }
@@ -3638,7 +3651,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         bLSimpleVar.setName(this.createIdentifier(name));
 
-        if (typeName == null || typeName.kind() == SyntaxKind.VAR_TYPE_DESC) {
+        if (isDeclaredWithVar(typeName)) {
             bLSimpleVar.isDeclaredWithVar = true;
         } else {
             bLSimpleVar.setTypeNode(createTypeNode(typeName));
@@ -3668,6 +3681,19 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         return bLSimpleVar;
+    }
+
+    private boolean isDeclaredWithVar(Node typeNode) {
+        if (typeNode == null || typeNode.kind() == SyntaxKind.VAR_TYPE_DESC) {
+            return true;
+        }
+
+        if (typeNode.kind() == SyntaxKind.ERROR_TYPE_DESC) {
+            Optional<ErrorTypeParamsNode> typeParam = ((ErrorTypeDescriptorNode) typeNode).errorTypeParamsNode();
+            return typeParam.isPresent() && typeParam.get().parameter().kind() == SyntaxKind.ASTERISK_TOKEN;
+        }
+
+        return false;
     }
 
     private BLangIdentifier createIdentifier(Token token) {
