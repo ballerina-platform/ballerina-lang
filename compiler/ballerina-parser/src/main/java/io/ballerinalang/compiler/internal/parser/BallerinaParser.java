@@ -10908,7 +10908,8 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseWaitFutureExpr() {
         STNode waitFutureExpr = parseExpression();
         if (waitFutureExpr.kind == SyntaxKind.MAPPING_CONSTRUCTOR) {
-            this.errorHandler.reportInvalidNode(null, "mapping constructor expression cannot use as å wait expression");
+            waitFutureExpr = SyntaxErrors.addDiagnostics(waitFutureExpr,
+                    DiagnosticErrorCode.ERROR_MAPPING_CONSTRUCTOR_EXPR_AS_A_WAIT_EXPR);
         }
         return waitFutureExpr;
     }

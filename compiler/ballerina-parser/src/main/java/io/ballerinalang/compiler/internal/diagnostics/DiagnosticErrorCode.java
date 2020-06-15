@@ -220,6 +220,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_EXPRESSION_IN_START_ACTION("BCE207"),
     // Cannot have the  same qualifier twice
     ERROR_SAME_OBJECT_TYPE_QUALIFIER("BCE208"),
+    // Mapping constructor expression cannot be used as a wait expression
+    ERROR_MAPPING_CONSTRUCTOR_EXPR_AS_A_WAIT_EXPR("BCE209"),
 
     ERROR_PARAMETER_AFTER_THE_REST_PARAMETER("BCE300"),
     ERROR_REQUIRED_PARAMETER_AFTER_THE_DEFAULTABLE_PARAMETER("BCE301"),
