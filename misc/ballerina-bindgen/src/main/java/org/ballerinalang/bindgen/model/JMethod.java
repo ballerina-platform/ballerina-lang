@@ -63,6 +63,7 @@ public class JMethod {
     private String returnTypeJava;
     private String shortClassName;
     private String javaMethodName;
+    private String exceptionConstName;
     private String returnComponentType;
     private String interopType = METHOD_INTEROP_TYPE;
 
@@ -88,6 +89,7 @@ public class JMethod {
                         .isAssignableFrom(exceptionType)) {
                     JError jError = new JError(exceptionType);
                     exceptionName = jError.getShortExceptionName();
+                    exceptionConstName = jError.getExceptionConstName();
                     setExceptionList(jError);
                     hasException = true;
                     handleException = true;
