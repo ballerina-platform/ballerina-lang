@@ -23,6 +23,7 @@ package org.ballerinalang.testerina.natives.test;
 public class MockConstants {
 
     public static final String DEFAULT_MOCK_OBJ_ANON = "$anonType$";
+    public static final String FUNCTION_CALL_PLACEHOLDER = "__CALL__";
 
     // constants to represent error messages
     public static final String FUNCTION_NOT_FOUND_ERROR = "{ballerina/test}FunctionNotFoundError";
@@ -30,4 +31,5 @@ public class MockConstants {
     public static final String FUNCTION_SIGNATURE_MISMATCH_ERROR = "{ballerina/test}FunctionSignatureMismatchError";
     public static final String INVALID_MEMBER_FIELD_ERROR = "{ballerina/test}InvalidMemberFieldError";
 
+    public static final String FUNCTION_CALL_ERROR = "{ballerina/test}FunctionCallError";
 }

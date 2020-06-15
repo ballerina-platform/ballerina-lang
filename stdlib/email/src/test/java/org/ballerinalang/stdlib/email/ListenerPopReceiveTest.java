@@ -68,11 +68,11 @@ public class ListenerPopReceiveTest {
     @BeforeClass
     public void setup() {
         startServer();
-        compileBallerinaScript();
     }
 
     @Test(description = "Test for receiving an email with simple parameters")
     public void testReceiveSimpleEmail() throws MessagingException, InterruptedException {
+        compileBallerinaScript();
         sendEmail();
         Thread.sleep(10000);
         readEmail();
@@ -83,6 +83,7 @@ public class ListenerPopReceiveTest {
             dependsOnMethods = "testReceiveSimpleEmail"
     )
     public void testReceiveError() throws InterruptedException {
+        compileBallerinaScript();
         mailServer.stop();
         Thread.sleep(10000);
         readError();
