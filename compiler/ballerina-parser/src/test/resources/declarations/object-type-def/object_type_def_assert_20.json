@@ -1,5 +1,6 @@
 {
   "kind": "TYPE_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -31,9 +32,11 @@
     },
     {
       "kind": "OBJECT_TYPE_DESC",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "ABSTRACT_KEYWORD",
@@ -46,10 +49,26 @@
             },
             {
               "kind": "CLIENT_KEYWORD",
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_SAME_OBJECT_TYPE_QUALIFIER"
+              ],
               "trailingMinutiae": [
                 {
                   "kind": "WHITESPACE_MINUTIAE",
                   "value": " "
+                },
+                {
+                  "kind": "INVALID_NODE_MINUTIAE",
+                  "invalidNode": {
+                    "kind": "ABSTRACT_KEYWORD",
+                    "trailingMinutiae": [
+                      {
+                        "kind": "WHITESPACE_MINUTIAE",
+                        "value": " "
+                      }
+                    ]
+                  }
                 }
               ]
             }

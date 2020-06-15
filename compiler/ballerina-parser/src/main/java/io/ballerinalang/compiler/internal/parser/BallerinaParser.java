@@ -1816,6 +1816,15 @@ public class BallerinaParser extends AbstractParser {
         nodeList.add(newNode);
     }
 
+    private boolean isNodeWithSyntaxKindInList(List<STNode> nodeList, SyntaxKind kind) {
+        for (STNode node : nodeList) {
+            if (node.kind == kind) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private STNode parseParameterRhs() {
         return parseParameterRhs(peek().kind);
     }
@@ -5067,16 +5076,13 @@ public class BallerinaParser extends AbstractParser {
         STNode firstQualifier;
         switch (kind) {
             case CLIENT_KEYWORD:
-                STNode clientKeyword = parseClientKeyword();
-                firstQualifier = clientKeyword;
+                firstQualifier = parseClientKeyword();
                 break;
             case ABSTRACT_KEYWORD:
-                STNode abstractKeyword = parseAbstractKeyword();
-                firstQualifier = abstractKeyword;
+                firstQualifier = parseAbstractKeyword();
                 break;
             case READONLY_KEYWORD:
-                STNode readonlyKeyword = parseReadonlyKeyword();
-                firstQualifier = readonlyKeyword;
+                firstQualifier = parseReadonlyKeyword();
                 break;
             case OBJECT_KEYWORD:
                 return STNodeFactory.createEmptyNodeList();
@@ -5093,44 +5099,43 @@ public class BallerinaParser extends AbstractParser {
                 return parseObjectTypeQualifiers(solution.tokenKind);
         }
 
-        // Parse the second qualifier if available.
-        STNode secondQualifier = parseObjectTypeNextQualifier(firstQualifier, firstQualifier);
+        return parseObjectTypeNextQualifiers(firstQualifier);
+    }
 
+    private STNode parseObjectTypeNextQualifiers(STNode firstQualifier) {
         List<STNode> qualifiers = new ArrayList<>();
         qualifiers.add(firstQualifier);
 
-        if (secondQualifier != null) {
-            qualifiers.add(secondQualifier);
-
-            // Parse the third qualifier if available.
-            STNode thirdQualifier = parseObjectTypeNextQualifier(firstQualifier, secondQualifier);
-            if (thirdQualifier != null) {
-                qualifiers.add(thirdQualifier);
+        // Parse the second and third qualifiers
+        for (int i = 0; i < 2; i++) {
+            STNode nextToken = peek();
+            if (isNodeWithSyntaxKindInList(qualifiers, nextToken.kind)) {
+                // Consumer the nextToken
+                nextToken = consume();
+                updateLastNodeInListWithInvalidNode(qualifiers, nextToken,
+                        DiagnosticErrorCode.ERROR_SAME_OBJECT_TYPE_QUALIFIER);
+                continue;
             }
+
+            STNode nextQualifier;
+            switch (nextToken.kind) {
+                case CLIENT_KEYWORD:
+                    nextQualifier = parseClientKeyword();
+                    break;
+                case ABSTRACT_KEYWORD:
+                    nextQualifier = parseAbstractKeyword();
+                    break;
+                case READONLY_KEYWORD:
+                    nextQualifier = parseReadonlyKeyword();
+                    break;
+                case OBJECT_KEYWORD:
+                default:
+                    return STNodeFactory.createNodeList(qualifiers);
+            }
+            qualifiers.add(nextQualifier);
         }
 
         return STNodeFactory.createNodeList(qualifiers);
-    }
-
-    private STNode parseObjectTypeNextQualifier(STNode firstQualifier, STNode secondQualifier) {
-        SyntaxKind nextTokenKind = peek().kind;
-        if (firstQualifier.kind == nextTokenKind || secondQualifier.kind == nextTokenKind) {
-            // if the same qualifier occurs twice it is simply discarded
-            this.errorHandler.reportInvalidNode(null, "Cannot have the  same qualifier twice");
-            consume();
-            nextTokenKind = peek().kind;
-        }
-        switch (nextTokenKind) {
-            case CLIENT_KEYWORD:
-                return parseClientKeyword();
-            case ABSTRACT_KEYWORD:
-                return parseAbstractKeyword();
-            case READONLY_KEYWORD:
-                return parseReadonlyKeyword();
-            case OBJECT_KEYWORD:
-            default:
-                return null;
-        }
     }
 
     /**
