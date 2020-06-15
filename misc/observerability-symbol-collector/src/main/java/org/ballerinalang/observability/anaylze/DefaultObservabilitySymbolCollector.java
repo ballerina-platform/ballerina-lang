@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -60,6 +61,7 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
     private static final String NAME = "name";
     private static final String ORG_NAME = "orgName";
     private static final String PKG_VERSION = "pkgVersion";
+    private static final String BALLERINA_VERSION = "ballerinaVersion";
     private static final String COMPILATION_UNITS = "compilationUnits";
     private static final String SRC = "src";
     private static final String KEY_URI = "uri";
@@ -181,6 +183,7 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
     }
 
     private String generateCanonicalJsonString(Map<String, PkgASTHolder> packageMap) throws IOException {
+        final String ballerinaVersion = RepoUtils.getBallerinaVersion();
         StringBuilder jsonStringBuilder = new StringBuilder().append("{");
         String[] packageNames = packageMap.keySet().toArray(new String[0]);
         Arrays.sort(packageNames);
@@ -193,10 +196,11 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
             }
 
             jsonStringBuilder.append("\"").append(packageName).append("\":{\"")
-                    .append(NAME).append("\":\"").append(pkgASTHolder.getName()).append("\",\"")
-                    .append(ORG_NAME).append("\":\"").append(pkgASTHolder.getOrgName()).append("\",\"")
-                    .append(PKG_VERSION).append("\":\"").append(pkgASTHolder.getVersion()).append("\",\"")
-                    .append(COMPILATION_UNITS).append("\":").append("{");
+                             .append(NAME).append("\":\"").append(pkgASTHolder.getName()).append("\",\"")
+                             .append(ORG_NAME).append("\":\"").append(pkgASTHolder.getOrgName()).append("\",\"")
+                             .append(PKG_VERSION).append("\":\"").append(pkgASTHolder.getVersion()).append("\",\"")
+                             .append(BALLERINA_VERSION).append("\":\"").append(ballerinaVersion).append("\",\"")
+                             .append(COMPILATION_UNITS).append("\":").append("{");
 
             String[] cUnitNames = pkgASTHolder.getCompilationUnits().keySet().toArray(new String[0]);
             Arrays.sort(cUnitNames);
