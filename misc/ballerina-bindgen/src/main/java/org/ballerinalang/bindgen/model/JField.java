@@ -28,6 +28,7 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.MUTATE_FIELD;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.MUTATE_FIELD_INTEROP_TYPE;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaHandleType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaParamType;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.getJavaType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isStaticField;
 
 /**
@@ -41,6 +42,7 @@ public class JField {
     private String fieldType;
     private String interopType;
     private String externalType;
+    private String returnTypeJava;
     private String fieldMethodName;
 
     private boolean isArray;
@@ -48,6 +50,7 @@ public class JField {
     private boolean isString;
     private boolean isObject = true;
     private boolean isSetter = false;
+    private boolean returnError = false;
 
     private JParameter fieldObj;
 
@@ -68,6 +71,7 @@ public class JField {
         }
         if (type.isArray()) {
             isArray = true;
+            returnError = true;
             if (!type.getComponentType().isPrimitive()) {
                 isObject = false;
             }
@@ -76,6 +80,7 @@ public class JField {
         if (fieldKind.equals(ACCESS_FIELD)) {
             fieldMethodName = "get" + StringUtils.capitalize(fieldName);
             interopType = ACCESS_FIELD_INTEROP_TYPE;
+            returnTypeJava = getJavaType(type);
         } else if (fieldKind.equals(MUTATE_FIELD)) {
             fieldMethodName = "set" + StringUtils.capitalize(fieldName);
             interopType = MUTATE_FIELD_INTEROP_TYPE;
@@ -97,5 +102,9 @@ public class JField {
 
     public boolean isSetter() {
         return isSetter;
+    }
+
+    public String getFieldName() {
+        return fieldName;
     }
 }

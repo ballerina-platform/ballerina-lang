@@ -46,6 +46,7 @@ public class JClass {
     private String prefix;
     private String className;
     private String packageName;
+    private String accessModifier;
     private String shortClassName;
 
     private boolean isInterface = false;
@@ -152,10 +153,19 @@ public class JClass {
     }
 
     private void populateFields(Field[] fields) {
+        boolean addField = true;
         for (Field field : fields) {
-            fieldList.add(new JField(field, ACCESS_FIELD));
-            if (!isFinalField(field) && isPublicField(field)) {
-                fieldList.add(new JField(field, MUTATE_FIELD));
+            // To prevent the duplication of fields resulting from super classes.
+            for (JField jField : fieldList) {
+                if (jField.getFieldName().equals(field.getName())) {
+                    addField = false;
+                }
+            }
+            if (addField) {
+                fieldList.add(new JField(field, ACCESS_FIELD));
+                if (!isFinalField(field) && isPublicField(field)) {
+                    fieldList.add(new JField(field, MUTATE_FIELD));
+                }
             }
         }
     }
@@ -176,5 +186,9 @@ public class JClass {
 
     public String getPackageName() {
         return packageName;
+    }
+
+    public void setAccessModifier(String accessModifier) {
+        this.accessModifier = accessModifier;
     }
 }

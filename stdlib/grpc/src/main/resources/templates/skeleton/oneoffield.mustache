@@ -10,9 +10,9 @@ function isValid{{camelcase messageName}}({{messageName}} r) returns boolean {
     return true;
 }
 {{#each oneofFieldMap}}{{#each this}}
-function set{{messageName}}_{{{camelcase fieldName}}}({{messageName}} r, {{{fieldType}}} {{{fieldName}}}) {
+function set{{messageName}}_{{{camelcase (ignoreQuote fieldName)}}}({{messageName}} r, {{{fieldType}}} {{{fieldName}}}) {
     r.{{{fieldName}}} = {{{fieldName}}};
-    {{#each ../this}}{{#not_equal fieldName ../fieldName}}_ = r.removeIfHasKey("{{fieldName}}");
+    {{#each ../this}}{{#not_equal fieldName ../fieldName}}_ = r.removeIfHasKey("{{ignoreQuote fieldName}}");
     {{/not_equal}}{{/each}}
 }{{/each}}
 {{/each}}
