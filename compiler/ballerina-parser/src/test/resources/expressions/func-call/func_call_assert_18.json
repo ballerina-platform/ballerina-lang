@@ -42,7 +42,6 @@
         },
         {
           "kind": "NAMED_ARG",
-          "hasDiagnostics": true,
           "children": [
             {
               "kind": "COMMA_TOKEN",
@@ -74,16 +73,71 @@
             },
             {
               "kind": "DECIMAL_INTEGER_LITERAL",
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_INVALID_TOKEN"
-              ],
-              "value": "18",
+              "value": "18"
+            }
+          ]
+        },
+        {
+          "kind": "REST_ARG",
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_ARG_FOLLOWED_BY_REST_ARG"
+          ],
+          "children": [
+            {
+              "kind": "COMMA_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "ELLIPSIS_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "subjects",
               "trailingMinutiae": [
                 {
                   "kind": "INVALID_NODE_MINUTIAE",
                   "invalidNode": {
-                    "kind": "COMMA_TOKEN"
+                    "kind": "NAMED_ARG",
+                    "children": [
+                      {
+                        "kind": "COMMA_TOKEN",
+                        "trailingMinutiae": [
+                          {
+                            "kind": "WHITESPACE_MINUTIAE",
+                            "value": " "
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "IDENTIFIER_TOKEN",
+                        "value": "b",
+                        "trailingMinutiae": [
+                          {
+                            "kind": "WHITESPACE_MINUTIAE",
+                            "value": " "
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "EQUAL_TOKEN",
+                        "trailingMinutiae": [
+                          {
+                            "kind": "WHITESPACE_MINUTIAE",
+                            "value": " "
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "DECIMAL_INTEGER_LITERAL",
+                        "value": "10"
+                      }
+                    ]
                   }
                 }
               ]

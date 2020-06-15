@@ -43,6 +43,9 @@
         {
           "kind": "NAMED_ARG",
           "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_NAMED_ARG_FOLLOWED_BY_POSITIONAL_ARG"
+          ],
           "children": [
             {
               "kind": "COMMA_TOKEN",
@@ -74,16 +77,27 @@
             },
             {
               "kind": "DECIMAL_INTEGER_LITERAL",
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_INVALID_TOKEN"
-              ],
               "value": "18",
               "trailingMinutiae": [
                 {
                   "kind": "INVALID_NODE_MINUTIAE",
                   "invalidNode": {
-                    "kind": "COMMA_TOKEN"
+                    "kind": "POSITIONAL_ARG",
+                    "children": [
+                      {
+                        "kind": "COMMA_TOKEN",
+                        "trailingMinutiae": [
+                          {
+                            "kind": "WHITESPACE_MINUTIAE",
+                            "value": " "
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "DECIMAL_INTEGER_LITERAL",
+                        "value": "10"
+                      }
+                    ]
                   }
                 }
               ]

@@ -1763,14 +1763,14 @@ public class BallerinaParser extends AbstractParser {
             // context is ended inside parseParameter() method
             STNode param = parseParameter(paramEnd, prevParamKind, isParamNameOptional);
             if (paramOrderErrorPresent) {
-                updateParamListWithInvalidNode(paramsList, param, null);
+                updateLastNodeInListWithInvalidNode(paramsList, param, null);
             } else {
                 DiagnosticCode paramOrderError = validateParamOrder(param, prevParamKind);
                 if (paramOrderError == null) {
                     paramsList.add(param);
                 } else {
                     paramOrderErrorPresent = true;
-                    updateParamListWithInvalidNode(paramsList, param, paramOrderError);
+                    updateLastNodeInListWithInvalidNode(paramsList, param, paramOrderError);
                 }
             }
 
@@ -1798,21 +1798,22 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Clones the last parameter in list with the invalid node as minutiae and update the list.
+     * Clones the last node in list with the invalid node as minutiae and update the list.
      *
-     * @param paramList function parameter list
-     * @param invalidParam the param to be attached to the last param in list as minutiae
+     * @param nodeList       node list to be updated
+     * @param invalidParam   the invalid node to be attached to the last node in list as minutiae
      * @param diagnosticCode diagnostic code related to the invalid node
      */
-    private void updateParamListWithInvalidNode(ArrayList<STNode> paramList, STNode invalidParam,
-                                                DiagnosticCode diagnosticCode) {
-        int lastIndex = paramList.size() - 1;
-        STNode prevParamNode = paramList.remove(lastIndex);
-        STNode newParamNode = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevParamNode, invalidParam);
+    private void updateLastNodeInListWithInvalidNode(ArrayList<STNode> nodeList,
+                                                     STNode invalidParam,
+                                                     DiagnosticCode diagnosticCode) {
+        int lastIndex = nodeList.size() - 1;
+        STNode prevNode = nodeList.remove(lastIndex);
+        STNode newNode = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevNode, invalidParam);
         if (diagnosticCode != null) {
-            newParamNode = SyntaxErrors.addDiagnostics(newParamNode, diagnosticCode);
+            newNode = SyntaxErrors.addDiagnostics(newNode, diagnosticCode);
         }
-        paramList.add(newParamNode);
+        nodeList.add(newNode);
     }
 
     private STNode parseParameterRhs() {
@@ -4833,67 +4834,86 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode leadingComma = STNodeFactory.createEmptyNode();
-        STNode arg = parseArg(leadingComma);
-        if (arg == null) {
-            STNode args = STNodeFactory.createEmptyNodeList();
+        STNode firstArg = parseArg(leadingComma);
+        if (firstArg == null) {
             endContext();
-            return args;
+            return STNodeFactory.createEmptyNodeList();
         }
 
-        // TODO: Is this check required?
-        ArrayList<STNode> argsList = new ArrayList<>();
-        SyntaxKind lastProcessedArgKind;
-        if (SyntaxKind.POSITIONAL_ARG.ordinal() <= arg.kind.ordinal()) {
-            argsList.add(arg);
-            lastProcessedArgKind = arg.kind;
-        } else {
-            reportInvalidOrderOfArgs(peek(), SyntaxKind.POSITIONAL_ARG, arg.kind);
-            lastProcessedArgKind = SyntaxKind.POSITIONAL_ARG;
-        }
-
-        parseFollowUpArgs(argsList, lastProcessedArgKind);
-        STNode args = STNodeFactory.createNodeList(argsList);
+        STNode argsList = parseArgList(firstArg);
         endContext();
-        return args;
+        return argsList;
     }
 
     /**
      * Parse follow up arguments.
      *
-     * @param argsList Arguments list to which the parsed argument must be added
-     * @param lastProcessedArgKind Kind of the argument processed prior to this
+     * @param firstArg first argument in the list
+     * @return the argument list
      */
-    private void parseFollowUpArgs(ArrayList<STNode> argsList, SyntaxKind lastProcessedArgKind) {
+    private STNode parseArgList(STNode firstArg) {
+        boolean invalidArgFound = false;
+        ArrayList<STNode> argsList = new ArrayList<>();
+        argsList.add(firstArg);
+        SyntaxKind prevArgKind = firstArg.kind;
         STToken nextToken = peek();
         while (!isEndOfParametersList(nextToken.kind)) {
             STNode argEnd = parseArgEnd(nextToken.kind);
             if (argEnd == null) {
                 // null marks the end of args
-                break;
+                return STNodeFactory.createNodeList(argsList);
             }
 
             // If there's an extra comma at the end of arguments list, remove it.
             // Then stop the argument parsing.
             nextToken = peek();
             if (isEndOfParametersList(nextToken.kind)) {
-                this.errorHandler.reportInvalidNode((STToken) argEnd, "invalid token " + argEnd);
-                break;
+                int prevArgIndex = argsList.size() - 1;
+                STNode prevArg = argsList.remove(prevArgIndex);
+                STNode prevArgWithDiagnostics = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(
+                        prevArg, argEnd, DiagnosticErrorCode.ERROR_INVALID_TOKEN);
+                argsList.add(prevArgWithDiagnostics);
+                return STNodeFactory.createNodeList(argsList);
             }
 
-            STNode arg = parseArg(nextToken.kind, argEnd);
-            if (lastProcessedArgKind.ordinal() <= arg.kind.ordinal()) {
-                if (lastProcessedArgKind == SyntaxKind.REST_ARG && arg.kind == SyntaxKind.REST_ARG) {
-                    this.errorHandler.reportInvalidNode(nextToken, "cannot more than one rest arg");
-                } else {
-                    argsList.add(arg);
-                    lastProcessedArgKind = arg.kind;
-                }
+            STNode curArg = parseArg(nextToken.kind, argEnd);
+            if (invalidArgFound) {
+                updateLastNodeInListWithInvalidNode(argsList, curArg, null);
             } else {
-                reportInvalidOrderOfArgs(nextToken, lastProcessedArgKind, arg.kind);
+                DiagnosticErrorCode errorCode = validateArgumentOrder(prevArgKind, curArg.kind);
+                if (errorCode == null) {
+                    argsList.add(curArg);
+                    prevArgKind = curArg.kind;
+                } else {
+                    updateLastNodeInListWithInvalidNode(argsList, curArg, errorCode);
+                    invalidArgFound = true;
+                }
             }
 
             nextToken = peek();
         }
+        return STNodeFactory.createNodeList(argsList);
+    }
+
+    private DiagnosticErrorCode validateArgumentOrder(SyntaxKind prevArgKind, SyntaxKind curArgKind) {
+        DiagnosticErrorCode errorCode = null;
+        switch (prevArgKind) {
+            case POSITIONAL_ARG:
+                break;
+            case NAMED_ARG:
+                if (curArgKind == SyntaxKind.POSITIONAL_ARG) {
+                    errorCode = DiagnosticErrorCode.ERROR_NAMED_ARG_FOLLOWED_BY_POSITIONAL_ARG;
+                }
+                break;
+            case REST_ARG:
+                // Nothing is allowed after a rest arg
+                errorCode = DiagnosticErrorCode.ERROR_ARG_FOLLOWED_BY_REST_ARG;
+                break;
+            default:
+                // This line should never get reached
+                throw new IllegalStateException("Invalid SyntaxKind in an argument");
+        }
+        return errorCode;
     }
 
     private STNode parseArgEnd() {
@@ -4919,17 +4939,6 @@ public class BallerinaParser extends AbstractParser {
 
                 return parseArgEnd(solution.tokenKind);
         }
-    }
-
-    /**
-     * Report invalid order of args.
-     *
-     * @param token Staring token of the arg.
-     * @param lastArgKind Kind of the previously processed arg
-     * @param argKind Current arg
-     */
-    private void reportInvalidOrderOfArgs(STToken token, SyntaxKind lastArgKind, SyntaxKind argKind) {
-        this.errorHandler.reportInvalidNode(token, "cannot have a " + argKind + " after the " + lastArgKind);
     }
 
     /**
