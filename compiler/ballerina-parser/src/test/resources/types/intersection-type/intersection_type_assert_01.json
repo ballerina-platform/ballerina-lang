@@ -235,64 +235,64 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "ARRAY_TYPE_DESC",
+                      "kind": "INTERSECTION_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "INTERSECTION_TYPE_DESC",
+                          "kind": "PARAMETERIZED_TYPE_DESC",
                           "children": [
                             {
-                              "kind": "PARAMETERIZED_TYPE_DESC",
-                              "children": [
+                              "kind": "MAP_KEYWORD",
+                              "leadingMinutiae": [
                                 {
-                                  "kind": "MAP_KEYWORD",
-                                  "leadingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "    "
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "LT_TOKEN"
-                                },
-                                {
-                                  "kind": "STRING_KEYWORD"
-                                },
-                                {
-                                  "kind": "GT_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
                                 }
                               ]
                             },
                             {
-                              "kind": "BITWISE_AND_TOKEN",
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "STRING_KEYWORD"
+                            },
+                            {
+                              "kind": "GT_TOKEN",
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
                                   "value": " "
                                 }
                               ]
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "T"
                             }
                           ]
                         },
                         {
-                          "kind": "OPEN_BRACKET_TOKEN"
-                        },
-                        {
-                          "kind": "CLOSE_BRACKET_TOKEN",
+                          "kind": "BITWISE_AND_TOKEN",
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
                               "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "ARRAY_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "T"
+                            },
+                            {
+                              "kind": "OPEN_BRACKET_TOKEN"
+                            },
+                            {
+                              "kind": "CLOSE_BRACKET_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         }

@@ -18,8 +18,12 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BErrorType;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypeIdSet;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
@@ -62,12 +66,12 @@ public class BallerinaErrors {
     public static final String GENERATE_OBJECT_CLASS_PREFIX = ".$value$";
 
     @Deprecated
-    public static ErrorValue createError(String reason) {
-        return createError(StringUtils.fromString(reason));
+    public static ErrorValue createError(String message) {
+        return createError(StringUtils.fromString(message));
     }
 
-    public static ErrorValue createError(BString reason) {
-        return new ErrorValue(reason, new MapValueImpl<>(BTypes.typeErrorDetail));
+    public static ErrorValue createError(BString message) {
+        return new ErrorValue(message, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
     @Deprecated
@@ -84,25 +88,53 @@ public class BallerinaErrors {
     }
 
     @Deprecated
-    public static ErrorValue createError(BType type, String reason, String detail) {
-        return createError(type, StringUtils.fromString(reason), StringUtils.fromString(detail));
+    public static ErrorValue createError(BType type, String message, String detail) {
+        return createError(type, StringUtils.fromString(message), StringUtils.fromString(detail));
     }
 
-    public static ErrorValue createError(BType type, BString reason, BString detail) {
+    public static ErrorValue createError(BType type, BString message, BString detail) {
         MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
         if (detail != null) {
             detailMap.put(ERROR_MESSAGE_FIELD, detail);
         }
-        return new ErrorValue(type, reason, detailMap);
+        return new ErrorValue(type, message, null, detailMap);
+    }
+
+    public static ErrorValue createDistinctError(String typeIdName, BPackage typeIdPkg, String message) {
+        return createDistinctError(typeIdName, typeIdPkg, message, new MapValueImpl<>(BTypes.typeErrorDetail));
+    }
+
+    public static ErrorValue createDistinctError(String typeIdName, BPackage typeIdPkg, String message,
+                                                 MapValue<BString, Object> detailRecord) {
+        ErrorValue error = createError(message, detailRecord);
+        setTypeId(typeIdName, typeIdPkg, error);
+        return error;
+    }
+
+    public static ErrorValue createDistinctError(String typeIdName, BPackage typeIdPkg, String message,
+                                                 ErrorValue cause) {
+        MapValueImpl<Object, Object> details = new MapValueImpl<>(BTypes.typeErrorDetail);
+        ErrorValue error = new ErrorValue(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(),
+                                                         TypeChecker.getType(details)),
+                                          StringUtils.fromString(message), cause, details);
+        setTypeId(typeIdName, typeIdPkg, error);
+        return error;
+    }
+
+    public static void setTypeId(String typeIdName, BPackage typeIdPkg, ErrorValue error) {
+        BErrorType type = (BErrorType) error.getType();
+        BTypeIdSet typeIdSet = new BTypeIdSet();
+        typeIdSet.add(typeIdPkg, typeIdName, true);
+        type.setTypeIdSet(typeIdSet);
     }
 
     @Deprecated
-    public static ErrorValue createError(String reason, MapValue detailMap) {
-        return createError(StringUtils.fromString(reason), detailMap);
+    public static ErrorValue createError(String message, MapValue detailMap) {
+        return createError(StringUtils.fromString(message), detailMap);
     }
 
-    public static ErrorValue createError(BString reason, MapValue detailMap) {
-        return new ErrorValue(reason, detailMap);
+    public static ErrorValue createError(BString message, MapValue detailMap) {
+        return new ErrorValue(message, detailMap);
     }
 
     public static ErrorValue createError(Throwable error) {

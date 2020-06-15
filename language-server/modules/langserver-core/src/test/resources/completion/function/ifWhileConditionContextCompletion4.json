@@ -582,17 +582,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Detail",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Holds the details of an HTTP error\n"
-      },
-      "sortText": "180",
-      "insertText": "Detail",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ResiliencyError",
       "kind": "Event",
       "detail": "Union",
@@ -970,7 +959,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Represents an error occurred in an remote function of the Load Balance connector.\n"
+        "left": "Represents the error attributes in addition to the message and the cause of the `LoadBalanceActionError`.\n"
       },
       "sortText": "180",
       "insertText": "LoadBalanceActionErrorData",

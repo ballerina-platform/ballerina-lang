@@ -81,9 +81,9 @@ function getObject(typedesc<anydata> td) returns object {
     paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
 } external;
 
-function getError(typedesc<string> reason, typedesc<record {}> detail,
-                    error<string, record {| string message?; error cause?; (anydata|error)...; |}> err)
-                                                                    returns error<reason, detail> = @java:Method {
+function getError(typedesc<string> reason, typedesc<record {| (anydata|readonly)...; |}> detail,
+                    error<record {| string message?; error cause?; (anydata|readonly)...; |}> err)
+                                                                    returns error<detail> = @java:Method {
     class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getError",
     paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc", "org.ballerinalang.jvm.values.api.BTypedesc",

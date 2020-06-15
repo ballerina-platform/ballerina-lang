@@ -82,11 +82,11 @@ public class IOConstants {
      */
     public enum ErrorCode {
 
-        GenericError("{ballerina/io}GenericError"),
-        ConnectionTimedOut("{ballerina/io}ConnectionTimedOut"),
-        AccessDeniedError("{ballerina/io}AccessDeniedError"),
-        FileNotFoundError("{ballerina/io}FileNotFoundError"),
-        EoF("{ballerina/io}EoF");
+        GenericError("GenericError"),
+        ConnectionTimedOut("ConnectionTimedOut"),
+        AccessDeniedError("AccessDeniedError"),
+        FileNotFoundError("FileNotFoundError"),
+        EoF("EofError");
 
         private String errorCode;
 

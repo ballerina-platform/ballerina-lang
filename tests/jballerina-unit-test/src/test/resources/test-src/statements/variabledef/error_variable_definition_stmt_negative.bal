@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type SMS error <string, record {| string message?; error cause?; string...; |}>;
-type SMA error <string, record {| string message?; error cause?; anydata...; |}>;
+type SMS error <record {| string message?; error cause?; string...; |}>;
+type SMA error <record {| string message?; error cause?; anydata...; |}>;
 
 function testBasicErrorVariableWithMapDetails() {
-    SMS err1 = error("Error One", message = "Msg One", detail = "Detail Msg");
-    SMA err2 = error("Error Two", message = "Msg Two", fatal = true);
+    SMS err1 = SMS("Error One", message = "Msg One", detail = "Detail Msg");
+    SMA err2 = SMA("Error Two", message = "Msg Two", fatal = true);
 
     SMS error (reason11, ... detail11) = err1;
     SMS error (reason12, message = message12, detail = detail12, extra = extra12) = err1;
@@ -32,8 +32,8 @@ function testBasicErrorVariableWithMapDetails() {
 }
 
 function testBasicErrorVariable() {
-    SMS err1 = error("Error One", message = "Msg One", detail = "Detail Msg");
-    SMA err2 = error("Error Two", message = "Msg Two", fatal = true);
+    SMS err1 = SMS("Error One", message = "Msg One", detail = "Detail Msg");
+    SMA err2 = SMA("Error Two", message = "Msg Two", fatal = true);
 
     var error (reason11, ... detail11) = err1;
     var error (reason12, message = message12, detail = detail12, extra = extra12) = err1;
@@ -61,17 +61,11 @@ function errorVarInTupleVar() {
     [int, error] tuple = [100, error("Error Code")];
     var [a, error(reason, message = message)] = tuple;
     boolean r = reason; // incompatible types: expected 'boolean', found 'string'
-    string m = message; // incompatible types: expected 'string', found 'anydata|error'
+    string m = message; // incompatible types: expected 'string', found 'anydata|readonly'
 }
 
 function errorVarWithConstrainedMap() {
-    error <string, record {| string message?; error cause?; string...; |}> err = error("Error Code", message = "Fatal");
+    error err = error("Error Code", message = "Fatal");
     var error (reason, message = message) = err;
-    string m = message; // incompatible types: expected 'string', found 'string?'
-}
-
-function errorVarWithUnderscore() {
-    error <string, record {| string message?; error cause?; string...; |}> err = error("Error Code", message = "Fatal");
-    var error (_, ..._) = err; // no new variables on left side
-    var error (_) = err; // no new variables on left side
+    string m = message; // incompatible types: expected 'string', found 'anydata|readonly'
 }

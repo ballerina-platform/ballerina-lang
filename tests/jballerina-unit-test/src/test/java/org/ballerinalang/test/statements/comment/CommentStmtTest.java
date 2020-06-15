@@ -31,6 +31,7 @@ import java.util.List;
 /**
  * Class to test comments.
  */
+@Test
 public class CommentStmtTest {
 
     private CompileResult result;

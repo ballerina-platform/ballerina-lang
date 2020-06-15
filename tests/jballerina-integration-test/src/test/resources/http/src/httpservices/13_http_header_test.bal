@@ -31,8 +31,7 @@ service headerService on new http:Listener(9106) {
         if (result is http:Response) {
             checkpanic caller->respond(result);
         } else {
-            error err = result;
-            checkpanic caller->respond(err.reason());
+            checkpanic caller->respond(result.message());
         }
     }
 
@@ -53,8 +52,7 @@ service headerService on new http:Listener(9106) {
             }
             checkpanic caller->respond(payload);
         } else {
-            error err = clientResponse;
-            checkpanic caller->respond(err.reason());
+            checkpanic caller->respond(clientResponse.message());
         }
     }
 
@@ -63,8 +61,7 @@ service headerService on new http:Listener(9106) {
         if (result is http:Response) {
             checkpanic caller->respond(result);
         } else {
-            error err = result;
-            checkpanic caller->respond(err.reason());
+            checkpanic caller->respond(result.message());
         }
     }
 
@@ -73,8 +70,7 @@ service headerService on new http:Listener(9106) {
         if (result is http:Response) {
             checkpanic caller->respond(result);
         } else {
-            error err = result;
-            checkpanic caller->respond(err.reason());
+            checkpanic caller->respond(result.message());
         }
     }
 
@@ -85,8 +81,7 @@ service headerService on new http:Listener(9106) {
         if (result is http:Response) {
             checkpanic caller->respond(result);
         } else {
-            error err = result;
-            checkpanic caller->respond(err.reason());
+            checkpanic caller->respond(result.message());
         }
     }
 
@@ -95,8 +90,7 @@ service headerService on new http:Listener(9106) {
         if (result is http:Response) {
             checkpanic caller->respond(result);
         } else {
-            error err = result;
-            checkpanic caller->respond(err.reason());
+            checkpanic caller->respond(result.message());
         }
     }
 
@@ -105,8 +99,7 @@ service headerService on new http:Listener(9106) {
         if (result is http:Response) {
             checkpanic caller->respond(result);
         } else {
-            error err = result;
-            checkpanic caller->respond(err.reason());
+            checkpanic caller->respond(result.message());
         }
     }
 
@@ -115,8 +108,7 @@ service headerService on new http:Listener(9106) {
         if (result is http:Response) {
             checkpanic caller->respond(result);
         } else {
-            error err = result;
-            checkpanic caller->respond(err.reason());
+            checkpanic caller->respond(result.message());
         }
     }
 
@@ -125,8 +117,7 @@ service headerService on new http:Listener(9106) {
         if (result is http:Response) {
             checkpanic caller->respond(result);
         } else {
-            error err = result;
-            checkpanic caller->respond(err.reason());
+            checkpanic caller->respond(result.message());
         }
     }
 }

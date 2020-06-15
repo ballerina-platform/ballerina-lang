@@ -18,9 +18,9 @@
 package org.ballerinalang.nats.streaming.message;
 
 import io.nats.streaming.Message;
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
+import org.ballerinalang.nats.Utils;
 
 import java.io.IOException;
 
@@ -36,12 +36,12 @@ public class Ack {
             if (manualAck) {
                 streamingMessage.ack();
             } else {
-                return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Invalid operation, " +
+                return Utils.createNatsError("Invalid operation, " +
                         "manual acknowledgement is not supported in auto ACK mode.");
             }
             return null;
         } catch (IOException e) {
-            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, e.getMessage());
+            return Utils.createNatsError(e.getMessage());
         }
     }
 }

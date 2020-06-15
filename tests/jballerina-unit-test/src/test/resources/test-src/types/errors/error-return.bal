@@ -1,4 +1,4 @@
-public type InvalidNameError error<string, record { string companyName; string message?; error cause?; }>;
+public type InvalidNameError error<record { string companyName; }>;
 
 function getQuote(string name) returns (float|InvalidNameError) {
 
@@ -8,7 +8,7 @@ function getQuote(string name) returns (float|InvalidNameError) {
         return 11.5;
     }
 
-    InvalidNameError err = error("invalid name", companyName = name);
+    InvalidNameError err = InvalidNameError("invalid name", companyName = name);
     return err;
 }
 
@@ -61,7 +61,7 @@ function testReturnAndThrowError() returns (string){
     error? e = trap checkAndThrow();
 
     if (e is error) {
-        return e.reason();
+        return e.message();
     }
 
     return "OK";

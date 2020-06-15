@@ -38,7 +38,7 @@ function recordStringValue() returns int {
 function testError() returns int {
     string smiley = "h🤷llo";
     error err = error(smiley);
-    return err.reason().length();
+    return err.message().length();
 }
 
 function testArrayStore() returns int {

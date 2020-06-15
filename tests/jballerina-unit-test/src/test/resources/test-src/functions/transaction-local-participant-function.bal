@@ -69,14 +69,14 @@ function initiatorFunc(boolean error1, boolean error2) returns string {
             thrown2 = true;
             var er = trap erroredFunc();
             if (er is error) {
-                S = S + " " + er.reason();
+                S = S + " " + er.message();
             }
         }
         if (!thrown1 && error1) {
             thrown1 = true;
             var er = trap erroredFunc();
             if (er is error) {
-                S = S + " " + er.reason();
+                S = S + " " + er.message();
             }
         }
 
@@ -109,7 +109,7 @@ function initiatorWithLocalNonParticipantError() returns string {
         if (t is string) {
             s += t;
         } else {
-            s += " trapped:[" + <string>t.detail()["message"] + "]";
+            s += " trapped:[" + t.message() + "]";
         }
         s += " last-line";
     } onretry {
@@ -184,7 +184,7 @@ function participantInNonStrand() returns string {
         if (t is string) {
             s += t;
         } else {
-            s += " trapped:[" + t.reason() + "]";
+            s += " trapped:[" + t.message() + "]";
         }
         s += " last-line";
     } onretry {
@@ -212,7 +212,7 @@ function onSomeOtherStrand(string s) {
     io:println("in some other strand");
     var r = trap otherStrand(s);
     if (r is error) {
-        S += "error in otherStrand: " + r.reason();
+        S += "error in otherStrand: " + r.message();
         io:println("trapped error from otherStrand()");
     }
 }

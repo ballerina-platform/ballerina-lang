@@ -34,7 +34,7 @@ function testAssertFail () {
     error? err = trap test:assertFail(msg = "assertFailed");
     test:assertTrue(err is error);
     error result = <error>err;
-    test:assertTrue(result.reason().toString().startsWith("assertFailed"));
+    test:assertTrue(result.message().toString().startsWith("assertFailed"));
 }
 
 @test:Config {}

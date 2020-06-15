@@ -317,20 +317,24 @@ function testJsonArrayToJsonCasting () returns (json) {
     return j2;
 }
 
+type Json2DArray json[][];
+
 function testJsonToJsonArrayCasting() returns [any, json[][]|error, json[][]|error] {
     json j1 = [[1, 2, 3], [3, 4, 5], [7, 8, 9]];
 
     json[] j2 = <json[]>j1;
     json[][]|error j3 = trap <json[][]>j1;
-    json[][]|error j4 = j1.cloneWithType(json[][]);
+    json[][]|error j4 = j1.cloneWithType(Json2DArray);
 
     return [j2, j3, j4];
 }
 
+type Json3DArray json[][][];
+
 function testJsonToJsonArrayInvalidCasting () returns (json[][][] | error) {
     json j1 = [[1, 2, 3], [3, 4, 5], [7, 8, 9]];
 
-    var j2 = j1.cloneWithType(json[][][]);
+    var j2 = j1.cloneWithType(Json3DArray);
 
     return j2;
 }
@@ -372,9 +376,11 @@ function testNullJsonToBoolean() returns (boolean) {
     return <boolean>j;
 }
 
+type JsonMap map<json>;
+
 function testNullJsonToMap() returns (map<any>) {
     json j = null;
-    var m = j.cloneWithType(map<json>);
+    var m = j.cloneWithType(JsonMap);
     if (m is map<json>) {
         return m;
     } else {

@@ -30,7 +30,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -145,7 +144,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
@@ -1120,43 +1118,12 @@ public class ClosureDesugar extends BLangNodeVisitor {
      * @param mapSymbol  map symbol to be used
      */
     private void updateClosureVars(BLangSimpleVarRef varRefExpr, BVarSymbol mapSymbol) {
-        // Get type of the index based access expression.
-        BType typeOfExpr = getTypeOfIndexBasedAccessExpr(varRefExpr.type);
         // Create the index based access expression.
         BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(varRefExpr.pos, symTable.stringType,
                 varRefExpr.varSymbol.name.value);
-        BLangIndexBasedAccess accessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(varRefExpr.pos, typeOfExpr,
+        BLangIndexBasedAccess accessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(varRefExpr.pos, varRefExpr.type,
                 mapSymbol, indexExpr);
-        // If its in the LHS of an assignment.
-        if (varRefExpr.lhsVar) {
-            // x = 1 ==> $innerMap$1["x"] = <any> 1
-            result = rewriteExpr(accessExpr);
-            return;
-        }
-        // int z = x + 1 ==> int z = <int>$innerMap$1["x"] + 1;
-        result = rewriteExpr(desugar.addConversionExprIfRequired(accessExpr, varRefExpr.type));
-    }
-
-    /**
-     * Get type of the index based access expression.
-     *
-     * @param bType type of the closure variable
-     * @return type of the index based access expression
-     */
-    private BType getTypeOfIndexBasedAccessExpr(BType bType) {
-        switch (bType.tag) {
-            case TypeTags.ARRAY:
-            case TypeTags.JSON:
-            case TypeTags.MAP:
-            case TypeTags.OBJECT:
-            case TypeTags.RECORD:
-            case TypeTags.TUPLE:
-            case TypeTags.XML:
-                return bType;
-            default:
-                // If its any other type return the any|error.
-                return BUnionType.create(null, symTable.anyType, symTable.errorType);
-        }
+        result = rewriteExpr(accessExpr);
     }
 
     @Override

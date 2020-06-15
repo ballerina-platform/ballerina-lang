@@ -19,8 +19,6 @@ package org.ballerinalang.jdbc.utils;
 
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -174,14 +172,7 @@ public class SQLDBUtils {
     public static void assertNotError(Object value) {
         if (value instanceof BError) {
             BError bError = (BError) value;
-            String message = "Not expecting an error. Error details: \nReason:" + bError.getReason();
-            Object details = bError.getDetails();
-            if (details instanceof BMap) {
-                BValue errMessage = ((BMap) details).get("message");
-                if (errMessage != null) {
-                    message += " , message: " + errMessage.stringValue();
-                }
-            }
+            String message = "Not expecting an error. Error message: \nMessage:" + bError.getMessage();
             Assert.fail(message);
         }
     }

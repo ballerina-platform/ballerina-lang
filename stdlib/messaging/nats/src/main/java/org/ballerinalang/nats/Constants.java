@@ -67,7 +67,7 @@ public class Constants {
     public static final String NATS_MSG = "NATSMSG";
 
     // Error code for i/o.
-    public static final String NATS_ERROR_CODE = "{ballerina/nats}Error";
+    static final String NATS_ERROR = "NatsError";
 
     // Represents the NATS error detail record.
     static final String NATS_ERROR_DETAIL_RECORD = "Detail";

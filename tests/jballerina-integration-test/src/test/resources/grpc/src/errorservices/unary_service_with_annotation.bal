@@ -40,7 +40,7 @@ service TestService on server8 {
         io:println("Server send response : " + resp);
         grpc:Error? err = caller->send(resp);
         if (err is grpc:Error) {
-            io:println("Error from Connector: " + err.reason());
+            io:println("Error from Connector: " + err.message());
         }
         checkpanic caller->complete();
     }
