@@ -4597,7 +4597,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseFieldAccessOrMethodCall(STNode lhsExpr) {
         STNode dotToken = parseDotToken();
         STToken token = peek();
-        if (token.kind == SyntaxKind.MAP_KEYWORD) {
+        if (token.kind == SyntaxKind.MAP_KEYWORD || token.kind == SyntaxKind.START_KEYWORD) {
             STToken mapKeyword = consume();
             STNode methodName = STNodeFactory.createIdentifierToken(mapKeyword.text(), mapKeyword.leadingMinutiae(),
                     mapKeyword.trailingMinutiae(), mapKeyword.diagnostics());
