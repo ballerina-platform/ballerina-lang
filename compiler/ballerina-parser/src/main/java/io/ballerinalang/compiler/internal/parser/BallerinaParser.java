@@ -4389,13 +4389,15 @@ public class BallerinaParser extends AbstractParser {
             case RIGHT_ARROW_TOKEN:
                 newLhsExpr = parseRemoteMethodCallOrAsyncSendAction(lhsExpr, isRhsExpr);
                 if (!allowActions) {
-                    this.errorHandler.reportInvalidNode(null, "actions are not allowed here");
+                    newLhsExpr = SyntaxErrors.addDiagnostics(newLhsExpr,
+                            DiagnosticErrorCode.ERROR_EXPRESSION_EXPECTED_ACTION_FOUND);
                 }
                 break;
             case SYNC_SEND_TOKEN:
                 newLhsExpr = parseSyncSendAction(lhsExpr);
                 if (!allowActions) {
-                    this.errorHandler.reportInvalidNode(null, "actions are not allowed here");
+                    newLhsExpr = SyntaxErrors.addDiagnostics(newLhsExpr,
+                            DiagnosticErrorCode.ERROR_EXPRESSION_EXPECTED_ACTION_FOUND);
                 }
                 break;
             case RIGHT_DOUBLE_ARROW_TOKEN:

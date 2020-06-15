@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -46,6 +47,7 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN",
@@ -58,12 +60,15 @@
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "CALL_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "FUNCTION_CALL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
@@ -80,12 +85,18 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "POSITIONAL_ARG",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "REMOTE_METHOD_CALL_ACTION",
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_EXPRESSION_EXPECTED_ACTION_FOUND"
+                              ],
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
