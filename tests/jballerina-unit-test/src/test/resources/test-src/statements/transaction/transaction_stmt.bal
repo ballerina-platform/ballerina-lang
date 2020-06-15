@@ -115,27 +115,27 @@ string ss = "";
 function testTrxHandlers() returns string {
     ss = ss + "started";
     transactions:Info transInfo;
-    var onRollbackFunc = function(transactions:Info? info, error? cause, boolean willTry) {
-    ss = ss + " trxAborted";
-};
+        var onRollbackFunc = function(transactions:Info? info, error? cause, boolean willTry) {
+        ss = ss + " trxAborted";
+    };
 
-var onCommitFunc = function(transactions:Info? info) {
-ss = ss + " trxCommited";
-};
+    var onCommitFunc = function(transactions:Info? info) {
+        ss = ss + " trxCommited";
+    };
 
-transaction {
-transInfo = transactions:info();
-transactions:onRollback(onRollbackFunc);
-transactions:onCommit(onCommitFunc);
-trxfunction();
-           var commitRes = commit;
-}
-ss += " endTrx";
-return ss;
+    transaction {
+        transInfo = transactions:info();
+        transactions:onRollback(onRollbackFunc);
+        transactions:onCommit(onCommitFunc);
+        trxfunction();
+        var commitRes = commit;
+    }
+    ss += " endTrx";
+    return ss;
 }
 
 transactional function trxfunction() {
-                                  ss = ss + " within transactional func";
+    ss = ss + " within transactional func";
 }
 
 public function testTransactionInsideIfStmt() returns int {
@@ -160,7 +160,6 @@ public function testArrowFunctionInsideTransaction() returns int {
         a = arrow(1, 1);
         var commitRes = commit;
     }
-    io:println(a);
     return a;
 }
 
