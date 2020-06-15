@@ -54,6 +54,8 @@ public class IntersectionTypeTest {
                 "'readonly'", 19, 5);
         validateError(result, index++, "invalid intersection type 'json & int', intersection types are currently " +
                 "supported only with 'readonly'", 23, 5);
+        validateError(result, index++, "invalid intersection type '(Bar & readonly)': no intersection", 26, 45);
+        validateError(result, index++, "invalid intersection type '(Baz & readonly)': no intersection", 32, 45);
 
         assertEquals(result.getErrorCount(), index);
     }
