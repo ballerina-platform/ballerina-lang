@@ -22,8 +22,9 @@ import java.util.List;
  */
 public class TypesPageContext extends ModulePageContext {
     public List<UnionType> types;
-    public TypesPageContext(List<UnionType> types, Module module, Project project, String rootPath, String title) {
-        super(module, project, rootPath, title);
+    public TypesPageContext(List<UnionType> types, Module module, Project project, String rootPath, String title,
+                            boolean excludeIndex) {
+        super(module, project, rootPath, title, excludeIndex);
         this.types = types;
     }
 }

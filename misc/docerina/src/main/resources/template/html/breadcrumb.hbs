@@ -1,3 +1,6 @@
-<a class="breadcrumb-home" href="{{ rootPath }}index.html">
+<a class="breadcrumb-home" href="{{#if excludeIndex}}
+    {{ rootPath }}{{ module.id }}/index.html
+{{else}}
+    {{ rootPath }}index.html{{/if}}">
     <img class="breadcrumb-home-icon" src="{{ rootPath }}html-template-resources/images/home.svg">
 </a>
