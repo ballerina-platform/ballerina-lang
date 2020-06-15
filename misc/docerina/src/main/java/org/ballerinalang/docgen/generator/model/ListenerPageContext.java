@@ -20,8 +20,9 @@ package org.ballerinalang.docgen.generator.model;
  */
 public class ListenerPageContext extends ModulePageContext {
     public Listener listener;
-    public ListenerPageContext(Listener listener, Module module, Project project, String rootPath, String title) {
-        super(module, project, rootPath, title);
+    public ListenerPageContext(Listener listener, Module module, Project project, String rootPath, String title,
+                               boolean excludeIndex) {
+        super(module, project, rootPath, title, excludeIndex);
         this.listener = listener;
     }
 }
