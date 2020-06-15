@@ -66,6 +66,14 @@ public class JClass {
         shortClassName = c.getSimpleName();
         packageName = c.getPackage().getName();
 
+        // Append the prefix "J" in front of bindings generated for Java exceptions.
+        try {
+            if (this.getClass().getClassLoader().loadClass(Exception.class.getCanonicalName()).isAssignableFrom(c)) {
+                shortClassName = "J" + shortClassName;
+            }
+        } catch (ClassNotFoundException ignore) {
+        }
+
         setAllClasses(shortClassName);
         if (c.isInterface()) {
             isInterface = true;
@@ -121,6 +129,7 @@ public class JClass {
         constructorList.sort(Comparator.comparing(JConstructor::getParamTypes));
         for (JConstructor jConstructor:constructorList) {
             jConstructor.setConstructorName("new" + shortClassName + i);
+            jConstructor.setShortClassName(shortClassName);
             i++;
         }
     }
@@ -147,6 +156,7 @@ public class JClass {
         for (Method method : declaredMethods) {
             if (isPublicMethod(method)) {
                 JMethod jMethod = new JMethod(method);
+                jMethod.setShortClassName(shortClassName);
                 methodList.add(jMethod);
             }
         }
