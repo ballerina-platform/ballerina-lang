@@ -224,6 +224,7 @@ public class ParserTestUtils {
     private static void assertTerminalNode(JsonObject json, STToken node) {
         // We've asserted the missing property earlier
         if (node.isMissing()) {
+            validateMinutiae(json, node);
             return;
         }
 

@@ -401,6 +401,61 @@
               "hasDiagnostics": true,
               "diagnostics": [
                 "ERROR_MISSING_SEMICOLON_TOKEN"
+              ],
+              "trailingMinutiae": [
+                {
+                  "kind": "INVALID_NODE_MINUTIAE",
+                  "invalidNode": {
+                    "kind": "IMPORT_DECLARATION",
+                    "children": [
+                      {
+                        "kind": "IMPORT_KEYWORD",
+                        "leadingMinutiae": [
+                          {
+                            "kind": "END_OF_LINE_MINUTIAE",
+                            "value": "\n"
+                          }
+                        ],
+                        "trailingMinutiae": [
+                          {
+                            "kind": "WHITESPACE_MINUTIAE",
+                            "value": " "
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "IMPORT_ORG_NAME",
+                        "children": [
+                          {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "ballerina"
+                          },
+                          {
+                            "kind": "SLASH_TOKEN"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "LIST",
+                        "children": [
+                          {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "io"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "SEMICOLON_TOKEN",
+                        "trailingMinutiae": [
+                          {
+                            "kind": "END_OF_LINE_MINUTIAE",
+                            "value": "\n"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
               ]
             }
           ]

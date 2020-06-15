@@ -106,6 +106,9 @@ public class SyntaxTreeJSONGenerator {
         if (treeNode.isMissing()) {
             jsonNode.addProperty(IS_MISSING_FIELD, treeNode.isMissing());
             addDiagnostics(treeNode, jsonNode);
+            if (ParserTestUtils.isToken(treeNode)) {
+                addTrivia((STToken) treeNode, jsonNode);
+            }
             return jsonNode;
         }
 
@@ -117,10 +120,7 @@ public class SyntaxTreeJSONGenerator {
             if (!ParserTestUtils.isKeyword(nodeKind)) {
                 jsonNode.addProperty(VALUE_FIELD, ParserTestUtils.getTokenText((STToken) treeNode));
             }
-
-            if (!ParserTestUtils.isTrivia(nodeKind)) {
-                addTrivia((STToken) treeNode, jsonNode);
-            }
+            addTrivia((STToken) treeNode, jsonNode);
             // else do nothing
         } else {
             addChildren(treeNode, jsonNode);
