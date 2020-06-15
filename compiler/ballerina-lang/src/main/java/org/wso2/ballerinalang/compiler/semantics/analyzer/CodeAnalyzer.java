@@ -592,7 +592,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRetrySpec retrySpec) {
         if (retrySpec.retryManagerType != null) {
-            BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) symTable.langInternalModuleSymbol
+            BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) symTable.langTransactionModuleSymbol
                     .scope.lookup(names.fromString("RetryManager")).symbol;
             BType abstractRetryManagerType = retryManagerTypeSymbol.type;
             if (!types.isAssignable(retrySpec.retryManagerType.type, abstractRetryManagerType)) {
