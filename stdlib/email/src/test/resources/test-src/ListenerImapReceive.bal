@@ -39,21 +39,23 @@ string receivedError = "";
 service emailObserver on emailServer {
 
     resource function onMessage(email:Email emailMessage) {
-        onMessageInvoked = true;
         receivedMessage = <@untainted>emailMessage.subject;
+        onMessageInvoked = true;
+        error? res = emailServer.__stop();
     }
 
     resource function onError(email:Error emailError) {
-        onErrorInvoked = true;
         receivedError = <@untainted>emailError.detail().toString();
+        onErrorInvoked = true;
+        error? res = emailServer.__stop();
     }
 
 }
 
 function isOnMessageInvoked() returns boolean {
     int i = 0;
-    while (!onMessageInvoked && i < 60) {
-    	 runtime:sleep(2000);
+    while ((!onMessageInvoked) && (i < 10)) {
+    	 runtime:sleep(1000);
     	 i += 1;
     }
     return onMessageInvoked;
@@ -61,17 +63,27 @@ function isOnMessageInvoked() returns boolean {
 
 function isOnErrorInvoked() returns boolean {
     int i = 0;
-    while (!onMessageInvoked && i < 60) {
-         runtime:sleep(2000);
+    while ((!onErrorInvoked) && (i < 10)) {
+         runtime:sleep(1000);
          i += 1;
     }
     return onErrorInvoked;
 }
 
 function getReceivedMessage() returns string {
+    int i = 0;
+    while ((!onMessageInvoked) && (i < 10)) {
+         runtime:sleep(1000);
+         i += 1;
+    }
     return <@untainted>receivedMessage;
 }
 
 function getReceivedError() returns string {
+    int i = 0;
+    while ((!onErrorInvoked) && (i < 10)) {
+         runtime:sleep(1000);
+         i += 1;
+    }
     return <@untainted>receivedError;
 }
