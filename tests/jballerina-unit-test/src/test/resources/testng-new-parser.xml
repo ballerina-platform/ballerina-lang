@@ -96,7 +96,7 @@
 
             <!-- has error type usages -->
             <package name="org.ballerinalang.test.expressions.builtinoperations.*"/>
-            <!-- <package name="org.ballerinalang.test.expressions.let.*"/> -->
+            <package name="org.ballerinalang.test.expressions.let.*"/>
             <!-- <package name="org.ballerinalang.test.expressions.checkpanicexpr.*"/> -->
 
             <package name="org.ballerinalang.test.expressions.builtinfunctions.*"/>
