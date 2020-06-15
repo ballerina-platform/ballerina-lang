@@ -1477,8 +1477,8 @@ public class BallerinaParser extends AbstractParser {
                     functionKeyword, name, funcSignature, body);
         }
 
-        return STNodeFactory.createFunctionDefinitionNode(metadata, qualifiers[0], qualifiers[1], functionKeyword, name, funcSignature,
-                body);
+        return STNodeFactory.createFunctionDefinitionNode(metadata, qualifiers[0], qualifiers[1], functionKeyword, name,
+                funcSignature, body);
     }
 
     /**
