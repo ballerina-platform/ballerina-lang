@@ -495,11 +495,12 @@ public class PackageLoader {
 
     private BLangPackage parse(PackageID pkgId, PackageSource pkgSource) {
         BLangPackage packageNode;
-        if (this.newParserEnabled) {
+//        Uncomment and change following to mach your module just to enable new parser for that.
+//        if (pkgSource.getPackageId().name.value.equals("lang.error")) {
             packageNode = this.parser.parseNew(pkgSource, this.sourceDirectory.getPath());
-        } else {
-            packageNode = this.parser.parse(pkgSource, this.sourceDirectory.getPath());
-        }
+//        } else {
+//            packageNode = this.parser.parse(pkgSource, this.sourceDirectory.getPath());
+//        }
         packageNode.packageID = pkgId;
         // Set the same packageId to the testable node
         packageNode.getTestablePkgs().forEach(testablePkg -> testablePkg.packageID = pkgId);
