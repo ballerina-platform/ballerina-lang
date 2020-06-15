@@ -746,7 +746,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             BLangType detail = createTypeNode(typeParam.get());
             if (detail != null) {
                 errorType.detailType = detail;
-                return deSugarTypeAsUserDefType(errorType);
+                if (errorTypeDescriptorNode.parent().kind() != SyntaxKind.TYPE_DEFINITION) {
+                    return deSugarTypeAsUserDefType(errorType);
+                }
             } else {
                 errorType.inferErrorType = true;
             }
