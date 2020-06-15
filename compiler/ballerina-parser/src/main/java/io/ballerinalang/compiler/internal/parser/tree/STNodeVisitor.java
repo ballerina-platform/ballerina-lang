@@ -721,6 +721,22 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(distinctTypeDescriptorNode);
     }
 
+    public void visit(STOnConflictClauseNode onConflictClauseNode) {
+        visitSyntaxNode(onConflictClauseNode);
+    }
+
+    public void visit(STLimitClauseNode limitClauseNode) {
+        visitSyntaxNode(limitClauseNode);
+    }
+
+    public void visit(STJoinClauseNode joinClauseNode) {
+        visitSyntaxNode(joinClauseNode);
+    }
+
+    public void visit(STOnClauseNode onClauseNode) {
+        visitSyntaxNode(onClauseNode);
+    }
+
     // STNodeList
     public void visit(STNodeList nodeList) {
         visitChildren(nodeList);

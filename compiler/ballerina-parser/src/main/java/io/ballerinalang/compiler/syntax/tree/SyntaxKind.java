@@ -93,6 +93,11 @@ public enum SyntaxKind {
     BASE16_KEYWORD(239, "base16"),
     BASE64_KEYWORD(240, "base64"),
     MATCH_KEYWORD(241, "match"),
+    CONFLICT_KEYWORD(242, "conflict"),
+    LIMIT_KEYWORD(243, "limit"),
+    JOIN_KEYWORD(244, "join"),
+    OUTER_KEYWORD(245, "outer"),
+    EQUALS_KEYWORD(246, "equals"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -398,6 +403,10 @@ public enum SyntaxKind {
     MATCH_CLAUSE(3068),
     MATCH_GUARD(3069),
     OBJECT_METHOD_DEFINITION(3070),
+    ON_CONFLICT_CLAUSE(3071),
+    LIMIT_CLAUSE(3072),
+    JOIN_CLAUSE(3073),
+    ON_CLAUSE(3074),
 
     // XML
     XML_ELEMENT(4000),
