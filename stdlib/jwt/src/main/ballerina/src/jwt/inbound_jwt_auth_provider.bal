@@ -32,7 +32,6 @@ import ballerina/stringutils;
 #     }
 # });
 # ```
-#
 public type InboundJwtAuthProvider object {
 
     *auth:InboundAuthProvider;

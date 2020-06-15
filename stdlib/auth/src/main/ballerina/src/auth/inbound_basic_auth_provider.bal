@@ -30,13 +30,11 @@ import ballerina/stringutils;
 # password="<password>"
 # scopes="<comma_separated_scopes>"
 # ```
-#
-# + basicAuthConfig - The Basic Auth provider configurations
 public type InboundBasicAuthProvider object {
 
     *InboundAuthProvider;
 
-    public BasicAuthConfig basicAuthConfig;
+    BasicAuthConfig basicAuthConfig;
 
     # Provides authentication based on the provided configurations.
     #
