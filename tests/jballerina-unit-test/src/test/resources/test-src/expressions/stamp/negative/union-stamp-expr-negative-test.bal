@@ -31,8 +31,9 @@ function stampUnionToXML() returns Employee|error {
 
 function stampUnionToConstraintMapToUnionNegative() returns int|float|decimal|[string, int]|error  {
     int|float|[string, string] unionVar = 2;
-    float|decimal|[string, int]|error  tupleValue = unionVar.cloneWithType(typedesc<float|decimal|[string, int]>);
+    float|decimal|[string, int]|error  tupleValue = unionVar.cloneWithType(UnionTypedesc);
 
     return tupleValue;
 }
 
+type UnionTypedesc typedesc<float|decimal|[string, int]>;

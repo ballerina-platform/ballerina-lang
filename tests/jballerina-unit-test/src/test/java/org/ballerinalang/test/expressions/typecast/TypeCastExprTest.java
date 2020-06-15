@@ -428,7 +428,7 @@ public class TypeCastExprTest {
         BRunUtil.invoke(result, "testAnyToTable");
     }
 
-    @Test(description = "Test casting a null as any type to json", enabled = false)
+    @Test(description = "Test casting a null as any type to json")
     public void testAnyNullToJson() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToJson");
         Assert.assertNull(returns[0]);
@@ -544,7 +544,7 @@ public class TypeCastExprTest {
         Assert.assertEquals(((BInteger) structC.get("y")).intValue(), 4);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testInCompatibleStructForceCasting() {
         BValue[] returns = BRunUtil.invoke(result, "testInCompatibleStructForceCasting");
 
