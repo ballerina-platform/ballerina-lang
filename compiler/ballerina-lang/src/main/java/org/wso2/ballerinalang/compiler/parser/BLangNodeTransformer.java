@@ -835,7 +835,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         DiagnosticPos pos = getPosition(serviceNode);
         String serviceName;
         DiagnosticPos identifierPos;
-        if (isAnonServiceValue) {
+        if (isAnonServiceValue || serviceNameNode == null) {
             serviceName = this.anonymousModelHelper.getNextAnonymousServiceVarKey(diagnosticSource.pkgID);
             identifierPos = pos;
         } else {
@@ -2802,7 +2802,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
         BLangIdentifier prefixIdentifier = createIdentifier(xmlnsDeclNode.namespacePrefix());
 
-        xmlns.namespaceURI = createSimpleLiteral(xmlnsDeclNode.namespaceuri());
+        BLangLiteral namespaceUri = createSimpleLiteral(xmlnsDeclNode.namespaceuri());
+        // This is done to be consistent with BLangPackageBuilder
+        namespaceUri.originalValue = (String) namespaceUri.value;
+        xmlns.namespaceURI = namespaceUri;
         xmlns.prefix = prefixIdentifier;
         xmlns.pos = getPosition(xmlnsDeclNode);
 
@@ -2817,7 +2820,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
         BLangIdentifier prefixIdentifier = createIdentifier(xmlnsDeclNode.namespacePrefix());
 
-        xmlns.namespaceURI = createSimpleLiteral(xmlnsDeclNode.namespaceuri());
+        BLangLiteral namespaceUri = createSimpleLiteral(xmlnsDeclNode.namespaceuri());
+        // This is done to be consistent with BLangPackageBuilder
+        namespaceUri.originalValue = (String) namespaceUri.value;
+        xmlns.namespaceURI = namespaceUri;
         xmlns.prefix = prefixIdentifier;
         xmlns.pos = getPosition(xmlnsDeclNode);
 
@@ -3857,7 +3863,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLInvocation.name = (BLangIdentifier) reference.name;
 
         List<BLangExpression> args = new ArrayList<>();
-        arguments.iterator().forEachRemaining(arg -> args.add((BLangExpression) arg.apply(this)));
+        arguments.iterator().forEachRemaining(arg -> args.add(createExpression(arg)));
         bLInvocation.argExprs = args;
         bLInvocation.pos = position;
         return bLInvocation;
