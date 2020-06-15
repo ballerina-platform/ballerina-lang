@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -46,6 +47,7 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN",
@@ -58,9 +60,11 @@
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -117,6 +121,7 @@
                 },
                 {
                   "kind": "XML_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "XML_KEYWORD",
@@ -132,9 +137,11 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "XML_PI",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "XML_PI_START_TOKEN"
@@ -156,10 +163,40 @@
                             },
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "XML_TEXT_CONTENT",
-                                  "value": "a"
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_INTERPOLATION_IS_NOT_ALLOWED_WITHIN_XML_PI"
+                                  ],
+                                  "value": "a",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "INVALID_NODE_MINUTIAE",
+                                      "invalidNode": {
+                                        "kind": "INTERPOLATION",
+                                        "children": [
+                                          {
+                                            "kind": "INTERPOLATION_START_TOKEN"
+                                          },
+                                          {
+                                            "kind": "SIMPLE_NAME_REFERENCE",
+                                            "children": [
+                                              {
+                                                "kind": "IDENTIFIER_TOKEN",
+                                                "value": "b"
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "kind": "CLOSE_BRACE_TOKEN"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "INTERPOLATION",

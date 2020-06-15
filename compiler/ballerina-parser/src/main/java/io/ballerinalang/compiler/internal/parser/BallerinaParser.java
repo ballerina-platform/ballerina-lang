@@ -1797,25 +1797,6 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    /**
-     * Clones the last node in list with the invalid node as minutiae and update the list.
-     *
-     * @param nodeList       node list to be updated
-     * @param invalidParam   the invalid node to be attached to the last node in list as minutiae
-     * @param diagnosticCode diagnostic code related to the invalid node
-     */
-    private void updateLastNodeInListWithInvalidNode(List<STNode> nodeList,
-                                                     STNode invalidParam,
-                                                     DiagnosticCode diagnosticCode) {
-        int lastIndex = nodeList.size() - 1;
-        STNode prevNode = nodeList.remove(lastIndex);
-        STNode newNode = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevNode, invalidParam);
-        if (diagnosticCode != null) {
-            newNode = SyntaxErrors.addDiagnostics(newNode, diagnosticCode);
-        }
-        nodeList.add(newNode);
-    }
-
     private boolean isNodeWithSyntaxKindInList(List<STNode> nodeList, SyntaxKind kind) {
         for (STNode node : nodeList) {
             if (node.kind == kind) {

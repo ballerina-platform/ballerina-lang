@@ -26,6 +26,8 @@ import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.syntax.NodeListUtils;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.List;
+
 /**
  * @since 2.0.0
  */
@@ -118,5 +120,24 @@ public abstract class AbstractParser {
             return SyntaxErrors.addDiagnostics(target, diagnosticCode);
         }
         return target;
+    }
+
+    /**
+     * Clones the last node in list with the invalid node as minutiae and update the list.
+     *
+     * @param nodeList       node list to be updated
+     * @param invalidParam   the invalid node to be attached to the last node in list as minutiae
+     * @param diagnosticCode diagnostic code related to the invalid node
+     */
+    protected void updateLastNodeInListWithInvalidNode(List<STNode> nodeList,
+                                                       STNode invalidParam,
+                                                       DiagnosticCode diagnosticCode) {
+        int lastIndex = nodeList.size() - 1;
+        STNode prevNode = nodeList.remove(lastIndex);
+        STNode newNode = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevNode, invalidParam);
+        if (diagnosticCode != null) {
+            newNode = SyntaxErrors.addDiagnostics(newNode, diagnosticCode);
+        }
+        nodeList.add(newNode);
     }
 }

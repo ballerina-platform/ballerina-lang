@@ -193,8 +193,30 @@ public class XMLParser extends AbstractParser {
         startContext(ParserRuleContext.XML_START_OR_EMPTY_TAG);
         STNode tagOpen = parseLTToken();
         STNode name = parseXMLNCName();
-        STNode attributes = parseXMLAttributes();
-        return parseXMLElementTagEnd(tagOpen, name, attributes);
+
+        // Parse XML Attributes
+        startContext(ParserRuleContext.XML_ATTRIBUTES);
+        List<STNode> attributes = new ArrayList<>();
+        STToken nextToken = peek();
+        while (!isEndOfXMLAttributes(nextToken.kind)) {
+            STNode attribute = parseXMLAttribute();
+            if (attribute.kind == SyntaxKind.INTERPOLATION) {
+                if (attributes.isEmpty()) {
+                    name = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(name, attribute,
+                            DiagnosticErrorCode.ERROR_INTERPOLATION_IS_NOT_ALLOWED_WITHIN_ELEMENT_TAGS);
+                } else {
+                    updateLastNodeInListWithInvalidNode(attributes, attribute,
+                            DiagnosticErrorCode.ERROR_INTERPOLATION_IS_NOT_ALLOWED_WITHIN_ELEMENT_TAGS);
+                }
+            } else {
+                attributes.add(attribute);
+            }
+            nextToken = peek();
+        }
+        endContext();
+
+        STNode xmlAttributes = STNodeFactory.createNodeList(attributes);
+        return parseXMLElementTagEnd(tagOpen, name, xmlAttributes);
     }
 
     private STNode parseXMLElementTagEnd(STNode tagOpen, STNode name, STNode attributes) {
@@ -340,30 +362,8 @@ public class XMLParser extends AbstractParser {
     }
 
     /**
-     * Parse XML attributes.
-     * 
-     * @return XML attributes
-     */
-    private STNode parseXMLAttributes() {
-        startContext(ParserRuleContext.XML_ATTRIBUTES);
-        List<STNode> attributes = new ArrayList<>();
-        STToken nextToken = peek();
-        while (!isEndOfXMLAttributes(nextToken.kind)) {
-            STNode attribute = parseXMLAttribute();
-            if (attribute.kind == SyntaxKind.INTERPOLATION) {
-                this.errorHandler.reportInvalidNode(null, "interpolation is not allowed within element-tags");
-            } else {
-                attributes.add(attribute);
-            }
-            nextToken = peek();
-        }
-        endContext();
-        return STNodeFactory.createNodeList(attributes);
-    }
-
-    /**
      * Check whether the parser has reached the end of the XML attributes.
-     * 
+     *
      * @param kind Next token kind
      * @return <code>true</code> if this is the end of the XML attributes. <code>false</code> otherwise
      */
@@ -522,7 +522,13 @@ public class XMLParser extends AbstractParser {
         while (!isEndOfXMLComment(nextToken.kind)) {
             STNode contentItem = parseXMLCharacterSet();
             if (contentItem.kind == SyntaxKind.INTERPOLATION) {
-                this.errorHandler.reportInvalidNode(nextToken, "interpolation is not allowed within xml comments");
+                if (items.isEmpty()) {
+                    commentStart = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(commentStart, contentItem,
+                            DiagnosticErrorCode.ERROR_INTERPOLATION_IS_NOT_ALLOWED_WITHIN_XML_COMMENTS);
+                } else {
+                    updateLastNodeInListWithInvalidNode(items, contentItem,
+                            DiagnosticErrorCode.ERROR_INTERPOLATION_IS_NOT_ALLOWED_WITHIN_XML_COMMENTS);
+                }
             }
             items.add(contentItem);
             nextToken = peek();
@@ -597,8 +603,13 @@ public class XMLParser extends AbstractParser {
         while (!isEndOfXMLPI(nextToken.kind)) {
             STNode contentItem = parseXMLCharacterSet();
             if (contentItem.kind == SyntaxKind.INTERPOLATION) {
-                this.errorHandler.reportInvalidNode(nextToken,
-                        "interpolation is not allowed within xml processing instruction");
+                if (items.isEmpty()) {
+                    target = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(target, contentItem,
+                            DiagnosticErrorCode.ERROR_INTERPOLATION_IS_NOT_ALLOWED_WITHIN_XML_PI);
+                } else {
+                    updateLastNodeInListWithInvalidNode(items, contentItem,
+                            DiagnosticErrorCode.ERROR_INTERPOLATION_IS_NOT_ALLOWED_WITHIN_XML_PI);
+                }
             }
             items.add(contentItem);
             nextToken = peek();
