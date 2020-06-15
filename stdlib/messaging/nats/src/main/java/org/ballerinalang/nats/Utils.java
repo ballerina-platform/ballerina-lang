@@ -56,7 +56,7 @@ public class Utils {
         Object dispatchedData;
         switch (dataParamTypeTag) {
             case TypeTags.STRING_TAG:
-                dispatchedData = new String(data, StandardCharsets.UTF_8);
+                dispatchedData = StringUtils.fromString(new String(data, StandardCharsets.UTF_8));
                 break;
             case TypeTags.JSON_TAG:
                 try {

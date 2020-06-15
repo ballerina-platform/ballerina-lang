@@ -57,7 +57,8 @@
             <package name="org.ballerinalang.test.main.function.*"/>
             <package name="org.ballerinalang.test.types.decimaltype.*"/>
             <package name="org.ballerinalang.test.types.any.*"/>
-<!--            <package name="org.ballerinalang.test.error.*"/>-->
+            <package name="org.ballerinalang.test.error.*"/>
+            <package name="org.ballerinalang.test.enums.*"/>
             <package name="org.ballerinalang.test.types.finaltypes.*"/>
 <!--            <package name="org.ballerinalang.test.types.finite.*"/>-->
             <package name="org.ballerinalang.test.types.map.*"/>
@@ -119,7 +120,7 @@
             <package name="org.ballerinalang.test.types.xml.*" />
             <package name="org.ballerinalang.test.record.*"/>
             <package name="org.ballerinalang.test.types.constant.*" />
-<!--            <package name="org.ballerinalang.test.types.bytetype.*"/>-->
+            <package name="org.ballerinalang.test.types.bytetype.*"/>
             <package name="org.ballerinalang.test.types.handle.*"/>
             <package name="org.ballerinalang.test.balo.*"/>
             <package name="org.ballerinalang.test.expressions.typecast.*"/>
@@ -137,6 +138,8 @@
 
         <classes>
             <class name="org.ballerinalang.test.typedefs.DistinctTypeDefTest"/>
+            <class name="org.ballerinalang.test.statements.transaction.Test"></class>
+            <class name="org.ballerinalang.test.statements.transaction.RetryTransactionStmtTest"></class>
             <class name="org.ballerinalang.test.balo.constant.SimpleConstantBaloNegativeTests"></class>
             <class name="org.ballerinalang.test.expressions.builtinoperations.BuiltinOperationsTest"></class>
             <class name="org.ballerinalang.test.expressions.invocations.StringFunctionInvocationExprTest"></class>
