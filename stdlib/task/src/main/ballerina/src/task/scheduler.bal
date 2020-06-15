@@ -55,7 +55,7 @@ public type Scheduler object {
     # Starts running the task. Task Scheduler will not run until this has been called.
     #
     # + return - A `task:SchedulerError` if the process failed due to any reason or else ()
-    public function start() returns SchedulerError? {
+    public function 'start() returns SchedulerError? {
         var result = startExternal(self.taskListener);
         if (result is ListenerError) {
             string message = "Scheduler failed to start";
