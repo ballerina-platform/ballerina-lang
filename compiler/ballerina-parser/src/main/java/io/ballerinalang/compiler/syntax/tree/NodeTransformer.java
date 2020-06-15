@@ -732,6 +732,22 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(distinctTypeDescriptorNode);
     }
 
+    public T transform(OnConflictClauseNode onConflictClauseNode) {
+        return transformSyntaxNode(onConflictClauseNode);
+    }
+
+    public T transform(LimitClauseNode limitClauseNode) {
+        return transformSyntaxNode(limitClauseNode);
+    }
+
+    public T transform(JoinClauseNode joinClauseNode) {
+        return transformSyntaxNode(joinClauseNode);
+    }
+
+    public T transform(OnClauseNode onClauseNode) {
+        return transformSyntaxNode(onClauseNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

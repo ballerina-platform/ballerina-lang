@@ -65,7 +65,7 @@ public class ConstrainedMapTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<Person>', found 'map'", 45,
                 31);
         BAssertUtil.validateError(negativeResult, i, "incompatible types: 'map<Person>' cannot be cast to" +
-                " 'map<Student>'", 75, 29);
+                " 'map<Student>'", 77, 29);
     }
 
     @Test(description = "Test Map constrained with value type value retrieval positive case.")
