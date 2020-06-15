@@ -655,6 +655,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
+        unionTypeNode.pos = getPosition(unionTypeDescriptorNode);
         for (TypeDescriptorNode unionElement : unionElements) {
             unionTypeNode.memberTypeNodes.add(createTypeNode(unionElement));
         }

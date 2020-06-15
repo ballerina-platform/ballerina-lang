@@ -217,7 +217,7 @@ public type Consumer client object {
     #
     # + return - An `kafka:ConsumerError` if an error is encountered while starting the server or else nil
     public function __start() returns error? {
-        return start(self);
+        return 'start(self);
     }
 
     # Stops the kafka listener.
@@ -657,7 +657,7 @@ function register(Consumer consumer, service serviceType, string? name) returns 
     class: "org.ballerinalang.messaging.kafka.service.Register"
 } external;
 
-function start(Consumer consumer) returns ConsumerError? =
+function 'start(Consumer consumer) returns ConsumerError? =
 @java:Method {
     class: "org.ballerinalang.messaging.kafka.service.Start"
 } external;
