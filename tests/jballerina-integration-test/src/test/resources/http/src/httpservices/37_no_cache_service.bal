@@ -33,7 +33,7 @@ service cachingProxyService on new http:Listener(9244) {
         } else {
             http:Response res = new;
             res.statusCode = 500;
-            res.setPayload(response.reason());
+            res.setPayload(<@untainted> response.message());
             checkpanic caller->respond(res);
         }
     }

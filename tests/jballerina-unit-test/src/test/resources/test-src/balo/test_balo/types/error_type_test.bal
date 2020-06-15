@@ -17,12 +17,48 @@
 import testorg/errors as er;
 
 function getApplicationError() returns error {
-    er:ApplicationError e = error(er:APPLICATION_ERROR_REASON, message = "Client has been stopped");
+    er:ApplicationError e = er:ApplicationError(er:APPLICATION_ERROR_REASON, message = "Client has been stopped");
     return e;
 }
 
 function getApplicationErrorIndirectCtor() returns error {
-    er:ApplicationError e = er:ApplicationError(message = "Client has been stopped");
-    error e1 = er:ApplicationError(message = "Client has been stopped");
+    er:ApplicationError e = er:ApplicationError(er:APPLICATION_ERROR_REASON, message = "Client has been stopped");
+    error e1 = er:ApplicationError(er:APPLICATION_ERROR_REASON, message = "Client has been stopped");
+    return e;
+}
+
+function getDistinctError() returns error {
+    er:OrderCreationError2 k = er:OrderCreationError2("OrderCreationError2-msg", message = "Client has been stopped");
+    er:OrderCreationError f = k;
+    return f;
+}
+
+type OurError distinct er:OrderCreationError;
+
+function testDistinctTypeFromAnotherPackageInATypeDef() returns error {
+    OurError e = OurError("Our error message", message = "Client has been stopped");
+    er:OrderCreationError f = e;
+    return f;
+}
+
+type OurProccessingError distinct er:OrderCreationError2;
+
+function testDistinctTypeFromAnotherPackageInATypeDefWithACast() returns error {
+    OurProccessingError e = OurProccessingError("Our error message", message = "Client has been stopped");
+    error f = e;
+
+    er:OrderCreationError k = <er:OrderCreationError> f; // casting to distinct super type
+    return k;
+}
+
+function testDistinctTypeFromAnotherPackageInATypeDefWithACastNegative() returns error {
+    OurProccessingError e = OurProccessingError("Our error message", message = "Client has been stopped");
+    error f = e;
+    er:OrderProcessingError k = <er:OrderProcessingError> f; // casting to unrelated, yet same shaped type.
+    return k;
+}
+
+function performInvalidCastWithDistinctErrorType() returns error? {
+    error? e = trap testDistinctTypeFromAnotherPackageInATypeDefWithACastNegative();
     return e;
 }

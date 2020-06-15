@@ -21,6 +21,7 @@ package org.ballerinalang.test.balo.types;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.balo.BaloCreator;
+import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -35,15 +36,17 @@ import org.testng.annotations.Test;
 public class ErrorTypeTest {
 
     private CompileResult result;
+    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
         BaloCreator.cleanCacheDirectories();
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "errors");
         result = BCompileUtil.compile("test-src/balo/test_balo/types/error_type_test.bal");
+        negativeResult = BCompileUtil.compile("test-src/balo/test_balo/types/error_type_negative_test.bal");
     }
 
-    @Test()
+    @Test
     public void errorFromAnotherPkg() {
         BValue[] returns = BRunUtil.invoke(result, "getApplicationError");
         Assert.assertEquals(returns.length, 1);
@@ -53,7 +56,7 @@ public class ErrorTypeTest {
                 "{ballerina/sql}ApplicationError {message:\"Client has been stopped\"}");
     }
 
-    @Test()
+    @Test
     public void indirectErrorCtorFromAnotherPkg() {
         BValue[] returns = BRunUtil.invoke(result, "getApplicationErrorIndirectCtor");
         Assert.assertEquals(returns.length, 1);
@@ -61,6 +64,56 @@ public class ErrorTypeTest {
         Assert.assertTrue(returns[0] instanceof BError);
         Assert.assertEquals(returns[0].stringValue(),
                 "{ballerina/sql}ApplicationError {message:\"Client has been stopped\"}");
+    }
+
+    @Test
+    public void testUsageOfDistinctTypeFromAnotherPackage() {
+        BValue[] returns = BRunUtil.invoke(result, "getDistinctError");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(returns[0].stringValue(),
+                "OrderCreationError2-msg {message:\"Client has been stopped\"}");
+    }
+
+    @Test
+    public void testDistinctTypeFromAnotherPackageInATypeDef() {
+        BValue[] returns = BRunUtil.invoke(result, "testDistinctTypeFromAnotherPackageInATypeDef");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(returns[0].stringValue(),
+                "Our error message {message:\"Client has been stopped\"}");
+    }
+
+    @Test
+    public void testDistinctTypeFromAnotherPackageInATypeDefWithACast() {
+        BValue[] returns = BRunUtil.invoke(result, "testDistinctTypeFromAnotherPackageInATypeDefWithACast");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(returns[0].stringValue(),
+                "Our error message {message:\"Client has been stopped\"}");
+    }
+
+    @Test
+    public void testPerformInvalidCastWithDistinctErrorType() {
+        BValue[] returns = BRunUtil.invoke(result, "performInvalidCastWithDistinctErrorType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{ballerina}TypeCastError {\"message\":\"incompatible types: 'OurProccessingError' cannot be cast to " +
+                        "'errors:OrderProcessingError'\"}");
+    }
+    
+    @Test
+    public void testDistinctErrorTypeNegative() {
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'testorg/errors:1.0.0:OrderCreationError2', " +
+                        "found 'testorg/errors:1.0.0:OrderCreationError'", 23, 9);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @AfterClass

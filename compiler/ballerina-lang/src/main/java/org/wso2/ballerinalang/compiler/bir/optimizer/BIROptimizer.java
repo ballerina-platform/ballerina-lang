@@ -433,7 +433,8 @@ public class BIROptimizer {
         @Override
         public void visit(BIRNonTerminator.NewError birNewError) {
             this.optimizeNode(birNewError.lhsOp, this.env);
-            this.optimizeNode(birNewError.reasonOp, this.env);
+            this.optimizeNode(birNewError.messageOp, this.env);
+            this.optimizeNode(birNewError.causeOp, this.env);
             this.optimizeNode(birNewError.detailOp, this.env);
         }
 

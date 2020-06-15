@@ -24,7 +24,7 @@ function testTableConstructExprWithAnydataMap() {
     assertEquality("id=13 name=Sanjiva lname=Weerawarana\nid=23 name=James lname=Clark", customerTable.toString());
 }
 
-type AssertionError error<ASSERTION_ERROR_REASON>;
+type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
@@ -45,5 +45,5 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

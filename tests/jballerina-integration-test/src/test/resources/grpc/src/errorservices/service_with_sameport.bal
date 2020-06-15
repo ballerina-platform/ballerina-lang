@@ -31,7 +31,7 @@ service HelloWorld85 on server3 {
         io:println("Server send response : " + message);
         grpc:Error? err = caller->send(message);
         if (err is grpc:Error) {
-            io:println("Error from Connector: " + err.reason());
+            io:println("Error from Connector: " + err.message());
         }
         checkpanic caller->complete();
     }

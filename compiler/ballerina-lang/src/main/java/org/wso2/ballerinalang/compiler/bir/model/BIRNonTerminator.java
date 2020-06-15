@@ -316,16 +316,18 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     public static class NewError extends BIRNonTerminator {
 
         public BType type;
-        
-        public BIROperand reasonOp;
 
+        public BIROperand messageOp;
+        public BIROperand causeOp;
         public BIROperand detailOp;
         
-        public NewError(DiagnosticPos pos,  BType type, BIROperand lhsOp, BIROperand reasonOp, BIROperand detailOp) {
+        public NewError(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand messageOp, BIROperand causeOp,
+                        BIROperand detailOp) {
             super(pos, InstructionKind.NEW_ERROR);
             this.type = type;
             this.lhsOp = lhsOp;
-            this.reasonOp = reasonOp;
+            this.messageOp = messageOp;
+            this.causeOp = causeOp;
             this.detailOp = detailOp;
         }
 

@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 /**
  * Test class for String Template Literal.
  */
-@Test(groups = { "brokenOnOldParser" })
+@Test(groups = { "disableOnOldParser" })
 public class StringTemplateLiteralTest {
 
     private CompileResult result;

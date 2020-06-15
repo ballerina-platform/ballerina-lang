@@ -2059,6 +2059,22 @@
             ]
         },
         {
+            "name": "TypedescTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "TYPEDESC_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "typedescKeywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "typedescTypeParamsNode",
+                    "type": "TypeParameterNode",
+                    "isOptional": true
+                }
+            ]
+        },
+        {
             "name": "LetExpressionNode",
             "base": "ExpressionNode",
             "kind": "LET_EXPRESSION",

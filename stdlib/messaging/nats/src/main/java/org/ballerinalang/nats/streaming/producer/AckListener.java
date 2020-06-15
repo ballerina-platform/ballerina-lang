@@ -48,7 +48,7 @@ public class AckListener implements AckHandler {
             nonBlockingCallback.setReturnValues(nuid);
         } else {
             natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_ACKNOWLEDGEMENT);
-            ErrorValue error = Utils.createNatsError(nuid, ex.getMessage());
+            ErrorValue error = Utils.createNatsError("NUID: " + nuid + "; " + ex.getMessage());
             nonBlockingCallback.setReturnValues(error);
         }
         nonBlockingCallback.notifySuccess();

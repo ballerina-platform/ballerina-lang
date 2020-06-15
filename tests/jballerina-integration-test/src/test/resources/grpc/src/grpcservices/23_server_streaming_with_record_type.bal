@@ -34,8 +34,7 @@ service helloWorldServerStreaming on helloWorldStreamingep {
             HelloResponse msg = {message: message};
             grpc:Error? err = caller->send(msg);
             if (err is grpc:Error) {
-                log:printError("Error from Connector: " + err.reason() + " - "
-                                           + <string> err.detail()["message"]);
+                log:printError("Error from Connector: " + err.message());
             } else {
                 log:printInfo("Send reply: " + msg.toString());
             }

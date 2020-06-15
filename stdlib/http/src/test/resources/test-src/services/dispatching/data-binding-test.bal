@@ -100,7 +100,7 @@ service echo on testEP {
         if (jsonPayload is json) {
             checkpanic caller->respond(<@untainted json> jsonPayload);
         } else {
-            checkpanic caller->respond(<@untainted string> jsonPayload.detail().message);
+            checkpanic caller->respond(<@untainted string> jsonPayload.message());
         }
     }
 }

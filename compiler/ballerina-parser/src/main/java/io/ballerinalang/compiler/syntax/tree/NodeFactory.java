@@ -1527,6 +1527,17 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stStreamTypeParamsNode.createUnlinkedFacade();
     }
 
+    public static TypedescTypeDescriptorNode createTypedescTypeDescriptorNode(
+            Token typedescKeywordToken,
+            TypeParameterNode typedescTypeParamsNode) {
+        Objects.requireNonNull(typedescKeywordToken, "typedescKeywordToken must not be null");
+
+        STNode stTypedescTypeDescriptorNode = STNodeFactory.createTypedescTypeDescriptorNode(
+                typedescKeywordToken.internalNode(),
+                getOptionalSTNode(typedescTypeParamsNode));
+        return stTypedescTypeDescriptorNode.createUnlinkedFacade();
+    }
+
     public static LetExpressionNode createLetExpressionNode(
             Token letKeyword,
             SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations,
