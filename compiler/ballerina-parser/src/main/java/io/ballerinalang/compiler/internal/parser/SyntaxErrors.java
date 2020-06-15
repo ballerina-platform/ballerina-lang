@@ -405,7 +405,6 @@ public class SyntaxErrors {
             case TEMPLATE_STRING:
                 return DiagnosticErrorCode.ERROR_MISSING_TEMPLATE_STRING;
 
-
             case TYPE_DESC:
                 return DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC;
             default:
