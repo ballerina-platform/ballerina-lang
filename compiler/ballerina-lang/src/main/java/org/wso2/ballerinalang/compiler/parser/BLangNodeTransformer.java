@@ -631,9 +631,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangFiniteTypeNode bLangFiniteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
         for (TypeDescriptorNode finiteTypeEl : finiteTypeElements) {
             SingletonTypeDescriptorNode singletonTypeNode = (SingletonTypeDescriptorNode) finiteTypeEl;
-            BLangLiteral literal;
-            Node simpleContExprNode = singletonTypeNode.simpleContExprNode();
-            literal = createSimpleLiteral(simpleContExprNode, true);
+            BLangLiteral literal = createSimpleLiteral(singletonTypeNode.simpleContExprNode(), true);
             bLangFiniteTypeNode.addValue(literal);
         }
 
