@@ -2223,6 +2223,7 @@ public class BallerinaParser extends AbstractParser {
             // If next token after a type descriptor is <code>?</code> then it is an optional type descriptor
             case QUESTION_MARK_TOKEN:
                 if (context == ParserRuleContext.TYPE_DESC_IN_EXPRESSION &&
+                        !isValidTypeContinuationToken(getNextNextToken(nextToken.kind)) &&
                         isValidExprStart(getNextNextToken(nextToken.kind).kind)) {
                     return typeDesc;
                 }
