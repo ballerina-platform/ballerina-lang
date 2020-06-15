@@ -9,7 +9,7 @@
 {{/unless}}{{#if hasJavaModuleImport}}
 import ballerina/java;{{/if}}
 
-# Ballerina object mapping for {{#if isInterface}}Java interface{{else}}{{#if isAbstract}}Java abstract class{{else}}Java class{{/if}}{{/if}} `{{#replace className "." "/"}}{{/replace}}`.
+# Ballerina object mapping for {{#if isInterface}}Java interface{{else}}{{#if isAbstract}}Java abstract class{{else}}Java class{{/if}}{{/if}} `{{className}}`.
 #
 # + _{{shortClassName}} - The field that represents this Ballerina object, which is used for Java subtyping.{{#each superClasses}}
 # + _{{this}} - The field that represents the superclass object `{{this}}`.{{/each}}
@@ -20,7 +20,7 @@ import ballerina/java;{{/if}}
     {{accessModifier}}{{shortClassName}}T _{{shortClassName}} = {{shortClassName}}T;{{#each superClasses}}
     {{accessModifier}}{{this}}T _{{this}} = {{this}}T;{{/each}}
 
-    # The init function of the Ballerina object mapping `{{#replace className "." "/"}}{{/replace}}` Java class.
+    # The init function of the Ballerina object mapping `{{className}}` Java class.
     #
     # + obj - The `handle` value containing the Java reference of the object.
     {{accessModifier}}function init(handle obj) {
@@ -34,7 +34,7 @@ import ballerina/java;{{/if}}
         return jObjToString(self.jObj);
     }{{#methodList}}{{#unless isStatic}}
 
-    # The function that maps to the `{{javaMethodName}}` method of `{{#replace className "." "/"}}{{/replace}}`.{{#if parameters}}
+    # The function that maps to the `{{javaMethodName}}` method of `{{className}}`.{{#if parameters}}
     #{{#each parameters}}
     # + {{fieldName}} - The `{{shortTypeName}}` value required to map with the Java method parameter.{{/each}}{{/if}}{{#if (getReturn this "")}}{{#unless parameters}}
     # {{/unless}}
@@ -78,7 +78,7 @@ import ballerina/java;{{/if}}
     }{{/if}}{{/unless}}{{/fieldList}}
 };
 {{#initFunctionList}}
-# Constructor function to generate an object of type `{{shortClassName}}` representing the `{{#replace className "." "/"}}{{/replace}}` Java class.
+# Constructor function to generate an object of type `{{shortClassName}}` representing the `{{className}}` Java class.
 #{{#if parameters}}{{#each parameters}}
 # + {{fieldName}} - The `{{shortTypeName}}` value required to map with the Java constructor parameter.{{/each}}{{/if}}
 # + return - The new `{{shortClassName}}` object {{#if hasException}}or `{{#if handleException}}|{{exceptionName}}{{/if}}{{#if returnError}}|error{{/if}}` error {{/if}}generated.
@@ -93,7 +93,7 @@ import ballerina/java;{{/if}}
     } {{/if}}
 }
 {{/initFunctionList}}{{#methodList}}{{#isStatic}}
-# The function that maps to the `{{javaMethodName}}` method of `{{#replace className "." "/"}}{{/replace}}`.{{#if parameters}}
+# The function that maps to the `{{javaMethodName}}` method of `{{className}}`.{{#if parameters}}
 #{{#each parameters}}
 # + {{fieldName}} - The `{{shortTypeName}}` value required to map with the Java method parameter.{{/each}}{{/if}}{{#if (getReturn this "")}}{{#unless parameters}}
 # {{/unless}}
