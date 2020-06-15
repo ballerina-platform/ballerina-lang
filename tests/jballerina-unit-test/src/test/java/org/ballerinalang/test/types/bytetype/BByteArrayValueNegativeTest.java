@@ -44,7 +44,7 @@ public class BByteArrayValueNegativeTest {
         BAssertUtil.validateError(result, index++, "mismatched input '`'. " + msg1, 5, 23);
         BAssertUtil.validateError(result, index++, "mismatched input '`'. " + msg1, 6, 23);
         BAssertUtil.validateError(result, index++, "mismatched input '`'. expecting {'service', 'function'," +
-                " 'object', 'record', 'abstract', 'client', 'typeof', 'int', 'byte', 'float', 'decimal', " +
+                " 'object', 'record', 'abstract', 'client', 'typeof', 'distinct', 'int', 'byte', 'float', 'decimal', " +
                 "'boolean', 'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', 'typedesc', " +
                 "'future', 'anydata', 'handle', 'readonly', 'never', 'new', 'init', 'foreach', 'continue', " +
                 "'trap', COMMIT, 'transactional', 'start', 'check', 'checkpanic', 'flush', 'wait', 'from', 'let', " +

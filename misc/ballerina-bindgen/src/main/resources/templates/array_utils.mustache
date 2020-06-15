@@ -10,7 +10,7 @@ import ballerina/java.arrays as jarrays;
 # + jType - The `string` parameter provided to specify the Java array element type
 # + bType - The optional `string` parameter provided to specify the Ballerina array element type
 # + return - Ballerina `any[]|error` array for the provided handle
-public function fromHandle(handle array, string jType, string bType = "default") returns any[]|error {
+function fromHandle(handle array, string jType, string bType = "default") returns any[]|error {
     int count = jarrays:getLength(array);
     any[] returnArray = [];
     if (!java:isNull(array)) {

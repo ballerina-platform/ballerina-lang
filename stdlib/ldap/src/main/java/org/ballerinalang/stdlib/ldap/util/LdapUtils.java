@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.ldap.util;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
-import org.ballerinalang.stdlib.ldap.LdapConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +34,9 @@ import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+
+import static org.ballerinalang.stdlib.ldap.LdapConstants.LDAP_ERROR_TYPE;
+import static org.ballerinalang.stdlib.ldap.LdapConstants.LDAP_PACKAGE_ID;
 
 /**
  * Utility class for LDAP related common operations.
@@ -77,7 +79,7 @@ public class LdapUtils {
     private static String getNameInSpaceForUserName(String username, String searchBase,
                                                     String searchFilter, DirContext dirContext) throws NamingException {
         if (username == null) {
-            throw BallerinaErrors.createError("Username value is null.");
+            throw createError("Username value is null.");
         }
         String userDN = null;
         NamingEnumeration<SearchResult> answer = null;
@@ -241,7 +243,7 @@ public class LdapUtils {
     public static String getInstanceIdFromThreadLocal() {
         String result = socketFactoryName.get();
         if (result == null) {
-            throw BallerinaErrors.createError("Cannot infer the ssl context related to the service");
+            throw createError("Cannot infer the ssl context related to the service");
         }
         return result;
     }
@@ -255,6 +257,6 @@ public class LdapUtils {
     }
 
     public static ErrorValue createError(String errMsg) {
-        return BallerinaErrors.createError(LdapConstants.LDAP_ERROR_CODE, errMsg);
+        return BallerinaErrors.createDistinctError(LDAP_ERROR_TYPE, LDAP_PACKAGE_ID, errMsg);
     }
 }

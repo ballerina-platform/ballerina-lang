@@ -56,7 +56,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static org.ballerinalang.jvm.BallerinaErrors.ERROR_MESSAGE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 import static org.ballerinalang.net.http.HttpConstants.CALLER;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
@@ -237,8 +236,7 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
         }
         ErrorValue error = (ErrorValue) returnValue;
         if (error != null) {
-            log.debug("Signature Validation failed for Notification: " +
-                              ((MapValue) error.getDetails()).getStringValue(ERROR_MESSAGE_FIELD));
+            log.debug("Signature Validation failed for Notification: " + error.getMessage());
             httpCarbonMessage.setHttpStatusCode(404);
             throw new BallerinaException("validation failed for notification");
         }

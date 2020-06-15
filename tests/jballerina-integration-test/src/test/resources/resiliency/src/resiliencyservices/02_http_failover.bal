@@ -80,10 +80,9 @@ service failoverDemoService01 on failoverEP01 {
                 log:printError("Error sending response", responseToCaller);
             }
         } else {
-            error err = backendRes;
             http:Response response = new;
             response.statusCode = 500;
-            response.setPayload(<string> err.detail()?.message);
+            response.setPayload(<@untainted> backendRes.message());
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
                 log:printError("Error sending response", responseToCaller);
@@ -103,10 +102,9 @@ service failoverDemoService01 on failoverEP01 {
                 log:printError("Error sending response", responseToCaller);
             }
         } else {
-            error err = backendRes;
             http:Response response = new;
             response.statusCode = 500;
-            response.setPayload(<string> err.detail()?.message);
+            response.setPayload(<@untainted> backendRes.message());
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
                 log:printError("Error sending response", responseToCaller);
@@ -126,10 +124,9 @@ service failoverDemoService01 on failoverEP01 {
                 log:printError("Error sending response", responseToCaller);
             }
         } else {
-            error err = backendRes;
             http:Response response = new;
             response.statusCode = 500;
-            response.setPayload(<string> err.detail()?.message);
+            response.setPayload(<@untainted> backendRes.message());
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
                 log:printError("Error sending response", responseToCaller);
@@ -151,10 +148,9 @@ service failoverDemoService01 on failoverEP01 {
                 log:printError("Error sending response", responseToCaller);
             }
         } else {
-            error err = backendRes;
             http:Response response = new;
             response.statusCode = 500;
-            response.setPayload(<string> err.detail()?.message);
+            response.setPayload(<@untainted> backendRes.message());
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
                 log:printError("Error sending response", responseToCaller);
@@ -203,8 +199,7 @@ service mock01 on backendEP01 {
             && req.getHeader(mime:CONTENT_TYPE).startsWith(http:MULTIPART_AS_PRIMARY_TYPE)) {
             var mimeEntity = req.getBodyParts();
             if (mimeEntity is error) {
-                error err = mimeEntity;
-                log:printError(<string> err.detail()?.message);
+                log:printError(mimeEntity.message());
                 response.setPayload("Error in decoding multiparts!");
                 response.statusCode = 500;
             } else {
@@ -213,8 +208,7 @@ service mock01 on backendEP01 {
                         && bodyPart.getHeader(mime:CONTENT_TYPE).startsWith(http:MULTIPART_AS_PRIMARY_TYPE)) {
                         var nestedMimeEntity = bodyPart.getBodyParts();
                         if (nestedMimeEntity is error) {
-                            error nestedErr = nestedMimeEntity;
-                            log:printError(<string> nestedErr.detail()?.message);
+                            log:printError(nestedMimeEntity.message());
                             response.setPayload("Error in decoding nested multiparts!");
                             response.statusCode = 500;
                         } else {

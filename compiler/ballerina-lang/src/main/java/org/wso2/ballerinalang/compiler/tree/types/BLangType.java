@@ -17,8 +17,12 @@
 */
 package org.wso2.ballerinalang.compiler.tree.types;
 
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+
+import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * {@code BLangType} is the abstract implementation of the {@link TypeNode}
@@ -29,6 +33,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 public abstract class BLangType extends BLangNode implements TypeNode {
     public boolean nullable;
     public boolean grouped;
+    public Set<Flag> flagSet = EnumSet.noneOf(Flag.class);
 
     @Override
     public boolean isNullable() {

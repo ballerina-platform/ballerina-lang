@@ -180,22 +180,22 @@ public class GrpcConstants {
     public static final String LISTENER_CONNECTION_FIELD = "conn";
 
     // Error codes
-    public static final String CANCELLED_ERROR = "{ballerina/grpc}CancelledError";
-    public static final String UNKNOWN_ERROR = "{ballerina/grpc}UnKnownError";
-    public static final String INVALID_ARGUMENT_ERROR = "{ballerina/grpc}InvalidArgumentError";
-    public static final String DEADLINE_EXCEEDED_ERROR = "{ballerina/grpc}DeadlineExceededError";
-    public static final String NOT_FOUND_ERROR = "{ballerina/grpc}NotFoundError";
-    public static final String ALREADY_EXISTS_ERROR = "{ballerina/grpc}AleadyExistsError";
-    public static final String PERMISSION_DENIED_ERROR = "{ballerina/grpc}PermissionDeniedError";
-    public static final String RESOURCE_EXHAUSTED_ERROR = "{ballerina/grpc}ResourceExhaustedError";
-    public static final String FAILED_PRECONDITION_ERROR = "{ballerina/grpc}FailedPreconditionError";
-    public static final String ABORTED_ERROR = "{ballerina/grpc}AbortedError";
-    public static final String OUT_OF_RANGE_ERROR = "{ballerina/grpc}OutOfRangeError";
-    public static final String UNIMPLEMENTED_ERROR = "{ballerina/grpc}UnimplementedError";
-    public static final String INTERNAL_ERROR = "{ballerina/grpc}InternalError";
-    public static final String UNAVAILABLE_ERROR = "{ballerina/grpc}UnavailableError";
-    public static final String DATA_LOSS_ERROR = "{ballerina/grpc}DataLossError";
-    public static final String UNAUTHENTICATED_ERROR = "{ballerina/grpc}UnauthenticatedError";
+    public static final String CANCELLED_ERROR = "CancelledError";
+    public static final String UNKNOWN_ERROR = "UnKnownError";
+    public static final String INVALID_ARGUMENT_ERROR = "InvalidArgumentError";
+    public static final String DEADLINE_EXCEEDED_ERROR = "DeadlineExceededError";
+    public static final String NOT_FOUND_ERROR = "NotFoundError";
+    public static final String ALREADY_EXISTS_ERROR = "AleadyExistsError";
+    public static final String PERMISSION_DENIED_ERROR = "PermissionDeniedError";
+    public static final String RESOURCE_EXHAUSTED_ERROR = "ResourceExhaustedError";
+    public static final String FAILED_PRECONDITION_ERROR = "FailedPreconditionError";
+    public static final String ABORTED_ERROR = "AbortedError";
+    public static final String OUT_OF_RANGE_ERROR = "OutOfRangeError";
+    public static final String UNIMPLEMENTED_ERROR = "UnimplementedError";
+    public static final String INTERNAL_ERROR = "InternalError";
+    public static final String UNAVAILABLE_ERROR = "UnavailableError";
+    public static final String DATA_LOSS_ERROR = "DataLossError";
+    public static final String UNAUTHENTICATED_ERROR = "UnauthenticatedError";
 
     public static final Map<Integer, String> STATUS_ERROR_MAP;
 

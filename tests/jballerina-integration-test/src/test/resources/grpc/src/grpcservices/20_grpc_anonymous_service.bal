@@ -36,7 +36,7 @@ service helloService =
             string message = "Hello " + name;
             grpc:Error? err = caller->send(message);
             if (err is grpc:Error) {
-                log:printInfo("Error when sending the response: " + <string>err.detail()["message"]);
+                log:printInfo("Error when sending the response: " + err.message());
             } else {
                 log:printInfo("Server send response : " + message);
             }
@@ -48,11 +48,11 @@ public function main() {
     log:printInfo("Starting main function to attach anonymous service");
     error? attach = ep20.__attach(helloService);
     if (attach is error) {
-        log:printInfo("Error while attaching the service: " + <string>attach.detail()["message"]);
+        log:printInfo("Error while attaching the service: " + attach.message());
     }
     error? 'start = ep.__start();
     if ('start is error) {
-        log:printInfo("Error while starting the listener: " + <string>'start.detail()["message"]);
+        log:printInfo("Error while starting the listener: " + 'start.message());
     }
     log:printInfo("main function ends execution");
 }

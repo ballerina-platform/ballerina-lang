@@ -18,6 +18,9 @@
 
 package org.ballerinalang.stdlib.jsonutils;
 
+import org.ballerinalang.jvm.JSONUtils;
+import org.ballerinalang.jvm.values.TableValueImpl;
+
 /**
  * Converts a given table to its JSON representation.
  *
@@ -25,11 +28,10 @@ package org.ballerinalang.stdlib.jsonutils;
  */
 public class FromTable {
 
-    //TODO Table remove - Fix
-//    public static Object fromTable(TableValue tableValue) {
-//        return JSONUtils.toJSON(tableValue);
-//    }
-//
-//    private FromTable() {
-//    }
+    public static Object fromTable(TableValueImpl tableValue) {
+        return JSONUtils.toJSON(tableValue);
+    }
+
+    private FromTable() {
+    }
 }

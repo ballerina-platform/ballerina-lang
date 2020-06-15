@@ -16,8 +16,8 @@
 
 const FOO = "foo";
 
-type FooError error<FOO>;
-type TrxError error<string, TrxErrorData>;
+type FooError distinct error;
+type TrxError distinct error<TrxErrorData>;
 
 type TrxErrorData record {|
     string message?;
@@ -28,13 +28,13 @@ public function main() {
     worker w1 returns FooError|TrxError? {
         int j = 25;
         if (false) {
-            return FooError();
+            return FooError(FOO);
         }
 
         j = <- w2;
 
         if (1 == 2) {
-            TrxError e = error("trxError");
+            TrxError e = TrxError("trxError");
             return e;
         }
         j = <- w2;

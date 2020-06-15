@@ -1110,16 +1110,19 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarError);
         BIROperand lhsOp = new BIROperand(tempVarError);
 
-        // visit reason and detail expressions
+        // visit message, cause and detail expressions
         this.env.targetOperand = lhsOp;
         invocationExpr.requiredArgs.get(0).accept(this);
-        BIROperand reasonOp = this.env.targetOperand;
+        BIROperand messageOp = this.env.targetOperand;
 
         invocationExpr.requiredArgs.get(1).accept(this);
+        BIROperand causeOp = this.env.targetOperand;
+
+        invocationExpr.requiredArgs.get(2).accept(this);
         BIROperand detailsOp = this.env.targetOperand;
 
         BIRNonTerminator.NewError newError = new BIRNonTerminator.NewError(invocationExpr.pos, invocationExpr.type,
-                lhsOp, reasonOp, detailsOp);
+                lhsOp, messageOp, causeOp, detailsOp);
         emit(newError);
         this.env.targetOperand = lhsOp;
     }

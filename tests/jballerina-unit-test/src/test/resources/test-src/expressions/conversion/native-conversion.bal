@@ -46,6 +46,16 @@ type Student record {|
     string school = "";
 |};
 
+type AnydataMap map<anydata>;
+type StringMap map<string>;
+type T1Map map<T1>;
+type T1Array T1[];
+type T2Array T2[];
+type IntArrayType int[];
+type Int_String [int, string];
+type T1_T1 [T1, T1];
+type personArray person[];
+
 function testStructToMap () returns (map<anydata> | error) {
     Person p = {name:"Child",
                    age:25,
@@ -54,7 +64,7 @@ function testStructToMap () returns (map<anydata> | error) {
                    info:{status:"single"},
                    marks:[67, 38, 91]
                };
-    map<anydata> m =  check p.cloneWithType(map<anydata>);
+    map<anydata> m =  check p.cloneWithType(AnydataMap);
     return m;
 }
 
@@ -142,7 +152,7 @@ function testAnyRecordToAnydataMap() returns (map<anydata> | error) {
                     parent:{name:"Parent"},
                     address:{"city":"Colombo", "country":"SriLanka"}
     };
-    map<anydata> m =  check p.cloneWithType(map<anydata>);
+    map<anydata> m =  check p.cloneWithType(AnydataMap);
     return m;
 }
 
@@ -530,7 +540,7 @@ function testJsonToStringArray () returns StringArray|error {
 function testJsonIntArrayToStringArray () returns json|error {
     json j = {a:[4, 3, 9]};
     var x = check j.a;
-    int[] a =  check x.cloneWithType(int[]);
+    int[] a =  check x.cloneWithType(IntArrayType);
     string[] s =  [];
     foreach var i in a {
         s[s.length()] = i.toString();
@@ -651,10 +661,10 @@ function testStructToMapWithRefTypeArray () returns [map<any>, int]|error {
                             actors:[{fname:"Leonardo", lname:"DiCaprio", age:35},
                                     {fname:"Tom", lname:"Hardy", age:34}]};
 
-    map<anydata> m = check theRevenant.cloneWithType(map<anydata>);
+    map<anydata> m = check theRevenant.cloneWithType(AnydataMap);
 
     anydata a = m["writers"];
-    var writers = a.cloneWithType(person[]);
+    var writers = a.cloneWithType(personArray);
     if(writers is person[]){
         return [m, writers[0].age];
     } else {
@@ -763,7 +773,7 @@ function testJsonToMapUnconstrained() returns map<any>|error {
             c : true
         }
     };
-    map<anydata> m = check jx.cloneWithType(map<anydata>);
+    map<anydata> m = check jx.cloneWithType(AnydataMap);
     return m;
 }
 
@@ -773,7 +783,7 @@ function testJsonToMapConstrained1() returns map<any>|error {
         y: "B"
     };
 
-    return j.cloneWithType(map<string>);
+    return j.cloneWithType(StringMap);
 }
 
 type T1 record {
@@ -790,7 +800,7 @@ function testJsonToMapConstrained2() returns map<any>|error {
         a : j1
     };
     map<T1> m;
-    m = check j2.cloneWithType(map<T1>);
+    m = check j2.cloneWithType(T1Map);
     return m;
 }
 
@@ -802,7 +812,7 @@ function testJsonToMapConstrainedFail() returns map<any> {
         }
     };
     map<T1> m = {};
-    var result = j1.cloneWithType(map<T1>);
+    var result = j1.cloneWithType(T1Map);
     if (result is map<T1>) {
         m = result;
     } else {
@@ -824,7 +834,7 @@ function testStructArrayConversion1() returns T1|error {
     b[0].x = 5;
     b[0].y = 1;
     b[0].z = 2;
-    a = check b.cloneWithType(T1[]);
+    a = check b.cloneWithType(T1Array);
     return a[0];
 }
 
@@ -835,8 +845,8 @@ function testStructArrayConversion2() returns T2|error {
     b[0].x = 5;
     b[0].y = 1;
     b[0].z = 2;
-    a = check b.cloneWithType(T1[]);
-    b = check a.cloneWithType(T2[]);
+    a = check b.cloneWithType(T1Array);
+    b = check a.cloneWithType(T2Array);
     return b[0];
 }
 
@@ -873,14 +883,14 @@ function testTupleConversion1() returns [T1, T1]|error {
     [T1, T2] x = [a, b];
     [T1, T1] x2;
     anydata y = x;
-    x2 = check y.cloneWithType([T1, T1]);
+    x2 = check y.cloneWithType(T1_T1);
     return x2;
 }
 
 function testTupleConversion2() returns [int, string]|error {
     [int, string] x = [10, "XX"];
     anydata y = x;
-    x = check y.cloneWithType([int, string]);
+    x = check y.cloneWithType(Int_String);
     return x;
 }
 
@@ -917,13 +927,13 @@ function testJsonToArray1() returns T1[]|error {
     x[0] = {};
     x[0].x = 10;
     json j = check x.cloneWithType(json);
-    x = check j.cloneWithType(T1[]);
+    x = check j.cloneWithType(T1Array);
     return x;
 }
 
 function testJsonToArray2() returns int[]|error {
     json j = [1, 2, 3];
-    int[] x = check j.cloneWithType(int[]);
+    int[] x = check j.cloneWithType(IntArrayType);
     return x;
 }
 
@@ -932,7 +942,7 @@ function testJsonToArrayFail() {
         x: 1,
         y: 1.5
     };
-    var result = j.cloneWithType(int[]);
+    var result = j.cloneWithType(IntArrayType);
     if (result is int[]) {
         int[] x = result;
     } else {
