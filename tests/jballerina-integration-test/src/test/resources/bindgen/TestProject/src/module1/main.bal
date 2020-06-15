@@ -20,7 +20,7 @@ function testExceptionHandling() returns error? {
     File file2 = newFile2("./src/test3");
     FileInputStream|FileNotFoundException fileInput = newFileInputStream1(file2);
     if (fileInput is error) {
-        io:println(fileInput.message());
+        io:println(fileInput.reason());
         io:println(fileInput);
     } else {
         return error("Error in exception handling.");
@@ -41,7 +41,7 @@ function testArrayUtils() returns error? {
     byte[] strBytes = check str.getBytes1();
     io:println(strBytes);
 
-    ArithmeticException aexception = newArithmeticException1();
+    JArithmeticException aexception = newJArithmeticException1();
     StackTraceElement trace1 = newStackTraceElement1("ab", "cd", "ef", 5);
     StackTraceElement trace2 = newStackTraceElement1("gh", "ij", "kl", 7);
     StackTraceElement[] stackTrace = [trace1, trace2];
