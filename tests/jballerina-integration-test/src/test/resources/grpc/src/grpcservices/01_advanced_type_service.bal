@@ -32,7 +32,7 @@ service HelloWorld on ep {
         io:println("Response message " + message);
         grpc:Error? err = caller->send(message);
         if (err is grpc:Error) {
-            io:println("Error from Connector: " + err.reason());
+            io:println("Error from Connector: " + err.message());
         }
         checkpanic caller->complete();
     }
@@ -43,7 +43,7 @@ service HelloWorld on ep {
         io:println(person);
         grpc:Error? err = caller->send(person);
         if (err is grpc:Error) {
-            io:println("Error from Connector: " + err.reason());
+            io:println("Error from Connector: " + err.message());
         }
         checkpanic caller->complete();
     }
@@ -55,7 +55,7 @@ service HelloWorld on ep {
         io:println(res);
         grpc:Error? err = caller->send(res);
         if (err is grpc:Error) {
-            io:println("Error from Connector: " + err.reason());
+            io:println("Error from Connector: " + err.message());
         }
         checkpanic caller->complete();
     }
@@ -75,7 +75,7 @@ service HelloWorld on ep {
 
         grpc:Error? err = caller->send(quotes);
         if (err is grpc:Error) {
-            io:println("Error from Connector: " + err.reason());
+            io:println("Error from Connector: " + err.message());
         }
         checkpanic caller->complete();
     }
@@ -85,7 +85,7 @@ service HelloWorld on ep {
         StockNames stockNames = {names:names};
         grpc:Error? err = caller->send(stockNames);
         if (err is grpc:Error) {
-            io:println("Error from Connector: " + err.reason());
+            io:println("Error from Connector: " + err.message());
         }
         checkpanic caller->complete();
     }

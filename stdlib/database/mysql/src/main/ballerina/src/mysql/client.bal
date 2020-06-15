@@ -95,8 +95,7 @@ public type Client client object {
             }
             return nativeExecute(self, sqlParamString);
         } else {
-            return sql:ApplicationError(message = "MySQL Client is already closed,"
-                + " hence further operations are not allowed");
+            return sql:ApplicationError("MySQL Client is already closed, hence further operations are not allowed");
         }
     }
 
@@ -105,18 +104,19 @@ public type Client client object {
     #
     # + sqlQueries - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `ParameterizedString` with an array
     #                of values passed in.
-    # + return - Summary of the sql update query as `ExecutionResult[]` or returns `BatchUpdateError`.
-    #            if any error occured when executing the query. `BatchUpdateError` will include summary of the
-    #            sql update query as `ExecutionResult[]` for commands executed successfully.
+    # + return - Summary of the executed SQL queries as `ExecutionResult[]` which includes details such as
+    #            `affectedRowCount` and `lastInsertId`. If one of the commands in the batch fails, this function
+    #            will return `BatchExecuteError`, however the JDBC driver may or may not continue to process the
+    #            remaining commands in the batch after a failure. The summary of the executed queries in case of error
+    #            can be accessed as `(<sql:BatchExecuteError> result).detail()?.executionResults`.
     public remote function batchExecute(sql:ParameterizedString[] sqlQueries) returns sql:ExecutionResult[]|sql:Error {
         if (sqlQueries.length() == 0) {
-            return sql:ApplicationError(message = " Parameter 'sqlQueries' cannot be empty array");
+            return sql:ApplicationError(" Parameter 'sqlQueries' cannot be empty array");
         }
         if (self.clientActive) {
             return nativeBatchExecute(self, sqlQueries);
         } else {
-            return sql:ApplicationError(message = "JDBC Client is already closed,"
-                + " hence further operations are not allowed");
+            return sql:ApplicationError("JDBC Client is already closed, hence further operations are not allowed");
         }
     }
 

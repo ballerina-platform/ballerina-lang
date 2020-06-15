@@ -17,12 +17,12 @@ function testCheckedExprSemanticErrors2() returns error? {
     return ();
 }
 
-public type MyError error<string, record { int code; string message?; error cause?; }>;
+public type MyError error<record { int code; string message?; error cause?; }>;
 
-public type CustomError error<string, record { int code; string data; string message?; error cause?;}>;
+public type CustomError error<record { int code; string data; string message?; error cause?;}>;
 
 function readLine() returns MyError | CustomError {
-    MyError e = error("io error", code = 0);
+    MyError e = MyError("io error", code = 0);
     return e;
 }
 
@@ -41,7 +41,7 @@ function testCheckedExprSemanticErrors4() returns error? {
 }
 
 function readLineProper() returns string | MyError | CustomError {
-    MyError e = error("io error", code = 0);
+    MyError e = MyError("io error", code = 0);
     return e;
 }
 

@@ -82,7 +82,7 @@ public type MyErrorData record {|
     error cause?;
 |};
 
-type MyError error<string, MyErrorData>;
+type MyError error<MyErrorData>;
 
 public type CustomErrorData record {|
     string data;
@@ -90,7 +90,7 @@ public type CustomErrorData record {|
     error cause?;
 |};
 
-type CustomError error<string, CustomErrorData>;
+type CustomError error<CustomErrorData>;
 
 function getPerson() returns Person | MyError {
    //myerror e = error("ddd");
@@ -105,13 +105,13 @@ function testSafeAssignOpInAssignmentStatement7 () returns (string | error) {
 }
 
 
-function readLineError() returns string | MyError {
-    MyError e = error("io error");
+function readLineError() returns string|MyError {
+    MyError e = MyError("io error");
     return e;
 }
 
-function readLineCustomError() returns string | CustomError {
-    CustomError e = error("custom io error", data = "foo.txt");
+function readLineCustomError() returns string|CustomError {
+    CustomError e = CustomError("custom io error", data = "foo.txt");
     return e;
 }
 
@@ -150,29 +150,29 @@ function testCheckExprInBinaryExpr6() returns string | CustomError {
 }
 
 // This test case should panic an error since customError is not assignable to the MyError
-function testCheckExprInBinaryExpr7() returns string | CustomError {
+function testCheckExprInBinaryExpr7() returns string|CustomError {
     string str = "hello, " + check readLineError();
     return str;
 }
 
-function readLineProper() returns string | MyError | CustomError {
+function readLineProper() returns string|MyError|CustomError {
     return "Hello, World!!!";
 }
 
-function testCheckExprInBinaryExpr8() returns (string | error) {
+function testCheckExprInBinaryExpr8() returns (string|error) {
     string str = "hello, " + check readLineProper();
     return str;
 }
 
-function foo(string s) returns string | CustomError {
+function foo(string s) returns string|CustomError {
     return "(" + s + "|" + s + ")";
 }
 
-function bar(string s1, string s2) returns string | CustomError  {
+function bar(string s1, string s2) returns string|CustomError  {
     return s1 + " " + s2;
 }
 
-function testCheckedExprAsFuncParam1() returns string | error  {
+function testCheckedExprAsFuncParam1() returns string|error  {
     return check bar(check bar(check foo(check foo(check foo(check foo("S")))),
                 check foo(check foo("A"))) ,
                     check bar(check foo(check foo(check foo("M"))), "done"));

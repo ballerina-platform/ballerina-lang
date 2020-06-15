@@ -58,13 +58,36 @@ public class JsonUtilsTest {
         Assert.assertEquals(returns[0].stringValue(), "foo");
     }
 
-    //TODO Table remove - Fix
-//    @Test
-//    public void testFromTableFunction() {
-//        BValue[] returns = BRunUtil.invoke(result, "testFromTable");
-//        Assert.assertNotNull(returns[0]);
-//        Assert.assertEquals(returns[0].stringValue(),
-//                "[{\"id\":1, \"age\":30, \"salary\":\"300.5\", \"name\":\"Mary\", \"married\":true}, " +
-//                    "{\"id\":2, \"age\":20, \"salary\":\"300.5\", \"name\":\"John\", \"married\":true}]");
-//    }
+    @Test
+    public void testFromTableFunction() {
+        BValue[] returns = BRunUtil.invoke(result, "testFromTable");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(),
+                "[{\"id\":1, \"age\":30, \"salary\":300.5, \"name\":\"Mary\", \"married\":true}, " +
+                    "{\"id\":2, \"age\":20, \"salary\":300.5, \"name\":\"John\", \"married\":true}]");
+    }
+
+    @Test
+    public void testFromTableFunction2() {
+        BValue[] returns = BRunUtil.invoke(result, "testFromTable2");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(),
+                "[{\"id\":1, \"name\":\"Mary\", \"salary\":300.5, \"permanent\":true, " +
+                        "\"dependents\":[\"Mike\", \"Rachel\"], " +
+                        "\"contact\":{" +
+                            "\"phone\":[445566, 778877], " +
+                            "\"address\":{\"number\":34, \"street\":\"Straford\"}, " +
+                        "\"emergency\":\"Stephen\"}}, " +
+                        "{\"id\":2, \"name\":\"John\", \"salary\":200.5, \"permanent\":false, " +
+                        "\"dependents\":[\"Kyle\"]," +
+                        " \"contact\":{" +
+                            "\"phone\":[6060606, 556644], \"address\":{\"number\":10, \"street\":\"Oxford\"}, " +
+                        "\"emergency\":\"Elizabeth\"}}, " +
+                        "{\"id\":3, \"name\":\"Jim\", \"salary\":330.5, \"permanent\":true, " +
+                        "\"dependents\":[], " +
+                        "\"contact\":{" +
+                            "\"phone\":[960960, 889889], " +
+                            "\"address\":{\"number\":46, \"street\":\"Queens\"}, " +
+                        "\"emergency\":\"Veronica\"}}]");
+    }
 }

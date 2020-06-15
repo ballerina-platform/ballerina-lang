@@ -1251,6 +1251,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
+        analyzeNode(retryNode.retryBody, env);
     }
 
     @Override
@@ -1506,7 +1507,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
-        analyzeNode(varRefExpr.reason, env);
+        analyzeNode(varRefExpr.message, env);
+        if (varRefExpr.cause != null) {
+            analyzeNode(varRefExpr.cause, env);
+        }
         for (BLangNamedArgsExpression args : varRefExpr.detail) {
             analyzeNode(args.expr, env);
         }
@@ -1689,8 +1693,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 return;
             case ERROR_VARIABLE_REF:
                 BLangErrorVarRef errorVarRef = (BLangErrorVarRef) varRef;
-                if (errorVarRef.reason != null) {
-                    checkAssignment(errorVarRef.reason);
+                if (errorVarRef.message != null) {
+                    checkAssignment(errorVarRef.message);
+                }
+                if (errorVarRef.cause != null) {
+                    checkAssignment(errorVarRef.cause);
                 }
                 for (BLangNamedArgsExpression expression : errorVarRef.detail) {
                     checkAssignment(expression);

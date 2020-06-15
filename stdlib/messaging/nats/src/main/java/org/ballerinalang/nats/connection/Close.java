@@ -19,9 +19,9 @@
 package org.ballerinalang.nats.connection;
 
 import io.nats.client.Connection;
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
+import org.ballerinalang.nats.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,8 +50,8 @@ public class Close {
                 connectionObject.addNativeData(Constants.CONNECTED_CLIENTS, null);
                 return null;
             } catch (InterruptedException e) {
-                return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error while closing the connection " +
-                        "with nats server. " + e.getMessage());
+                return Utils.createNatsError("Error while closing the connection " +
+                                                     "with nats server. " + e.getMessage());
             }
         } else {
             String message = "Connection is still used by " + clientCount + " client(s). Close them before " +

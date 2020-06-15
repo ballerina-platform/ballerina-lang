@@ -48,10 +48,7 @@ function handleResponse(http:Response|error result) returns string {
     if (result is http:Response) {
         response = "Call succeeded";
     } else {
-        error err = result;
-        string? errMsg = <string> err.detail()?.message;
-        string reply = errMsg is string ? <@untainted string> errMsg : "client call";
-        response = "Call to backend failed due to:" + reply;
+        response = "Call to backend failed due to:" + result.message();
     }
     return response;
 }

@@ -24,7 +24,6 @@ import com.icegreen.greenmail.util.ServerSetup;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.stdlib.email.util.EmailConstants;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -105,7 +104,7 @@ public class SmtpSimpleSecureEmailSendTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSendSimpleEmail", args);
         assertNotNull("No error returned when wrong password is used for sending an email.", returns[0]);
         BError error = (BError) returns[0];
-        Assert.assertEquals(error.getReason(), EmailConstants.SEND_ERROR);
+        Assert.assertTrue(error.getMessage().contains("Authentication credentials invalid"));
     }
 
     @AfterClass

@@ -21,7 +21,7 @@ import ballerina/io;
 import ballerina/runtime;
 
 string responseMsg = "";
-const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
+const string ERROR_MSG_FORMAT = "Error from Connector: %s";
 const string RESP_MSG_FORMAT = "Failed: Invalid Response, expected %s, but received %s";
 
 // Enable when you need to test locally.
@@ -43,7 +43,7 @@ public function testBidiStreaming() returns string {
     // Executing unary non-blocking call registering server message listener.
     var res = chatEp->chat(ChatMessageListener);
     if (res is grpc:Error) {
-        string msg = io:sprintf(ERROR_MSG_FORMAT, res.reason(), <string> res.detail()["message"]);
+        string msg = io:sprintf(ERROR_MSG_FORMAT, res.message());
         io:println(msg);
     } else {
         ep = res;
@@ -52,7 +52,7 @@ public function testBidiStreaming() returns string {
     ChatMessage mes1 = {name:"Sam", message:"Hi"};
     grpc:Error? connErr = ep->send(mes1);
     if (connErr is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, connErr.reason(), <string> connErr.detail()["message"]);
+        return io:sprintf(ERROR_MSG_FORMAT, connErr.message());
     }
     if (!isValidResponse("Sam: Hi")) {
         return io:sprintf(RESP_MSG_FORMAT, "Sam: Hi", responseMsg);
@@ -63,7 +63,7 @@ public function testBidiStreaming() returns string {
     ChatMessage mes2 = {name:"Sam", message:"GM"};
     connErr = ep->send(mes2);
     if (connErr is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, connErr.reason(), <string> connErr.detail()["message"]);
+        return io:sprintf(ERROR_MSG_FORMAT, connErr.message());
     }
     if (!isValidResponse("Sam: GM")) {
         return io:sprintf(RESP_MSG_FORMAT, "Sam: GM", responseMsg);
@@ -94,7 +94,7 @@ service ChatMessageListener = service {
     }
 
     function onError(error err) {
-        responseMsg = io:sprintf(ERROR_MSG_FORMAT, err.reason(), <string> err.detail()["message"]);
+        responseMsg = io:sprintf(ERROR_MSG_FORMAT, err.message());
         io:println(responseMsg);
     }
 

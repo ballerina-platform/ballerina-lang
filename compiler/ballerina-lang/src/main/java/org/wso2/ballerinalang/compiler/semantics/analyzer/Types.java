@@ -779,8 +779,8 @@ public class Types {
             return true;
         }
         unresolvedTypes.add(pair);
-        return isAssignable(source.reasonType, target.reasonType, unresolvedTypes) &&
-                isAssignable(source.detailType, target.detailType, unresolvedTypes);
+        return isAssignable(source.detailType, target.detailType, unresolvedTypes)
+                && target.typeIdSet.isAssignableFrom(source.typeIdSet);
     }
 
     // TODO: Recheck this to support finite types
@@ -2177,7 +2177,7 @@ public class Types {
             }
             BErrorType source = (BErrorType) s;
 
-            if (!isSameType(source.reasonType, t.reasonType, this.unresolvedTypes)) {
+            if (!source.typeIdSet.equals(t.typeIdSet)) {
                 return false;
             }
 

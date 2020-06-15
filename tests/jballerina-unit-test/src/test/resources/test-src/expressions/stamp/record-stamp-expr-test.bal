@@ -399,7 +399,7 @@ function stampRecordToRecordWithOptionalFields() returns TeacherWithOptionalFiel
 
 function stampOpenRecordToMap() returns map<string>|error {
     Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    map<string>|error mapValue = teacher.cloneWithType(map<string>);
+    map<string>|error mapValue = teacher.cloneWithType(StringMap);
 
     return mapValue;
 }

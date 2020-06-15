@@ -9,7 +9,7 @@ function errorConstructReasonTest() returns (error, error, error, string, any, s
     map<string> m = { k1: "error3" };
     error er3 = error(m.k1);
 
-    return (er1, er2, er3, er1.reason(), er2.reason(), er3.reason());
+    return (er1, er2, er3, er1.message(), er2.message(), er3.message());
 }
 
 function errorConstructDetailTest() returns (error, error, error, any, any, any) {
@@ -78,7 +78,7 @@ function testConsecutiveTraps() returns (string, string) {
     error? e2 = trap generatePanic();
     if e1 is error {
         if e2 is error {
-            return (e1.reason(), e2.reason());
+            return (e1.message(), e2.message());
         }
     }
     return ("Failed", "Failed");
@@ -95,17 +95,17 @@ function testOneLinePanic() returns string[] {
     error? error3 = trap panicWithReasonAndDetailRecord();
     string[] results = [];
     if error1 is error {
-        results[0] = error1.reason();
+        results[0] = error1.message();
     }
 
     if error2 is error {
-        results[1] = error2.reason();
+        results[1] = error2.message();
         var detail = error2.detail();
         results[2] = <string>detail.msg;
     }
 
     if error3 is error {
-        results[3] = error3.reason();
+        results[3] = error3.message();
         var detail = error3.detail();
         results[4] = <string>detail.message;
         results[5] = string.convert(<int> detail.statusCode);
@@ -137,7 +137,7 @@ function testGenericErrorWithDetailRecord() returns boolean {
     string detailMessage = "Something Went Wrong";
     int detailStatusCode = 123;
     error e = error(reason, message = detailMessage, statusCode = detailStatusCode);
-    string errReason = e.reason();
+    string errReason = e.message();
     map<anydata|error> errDetail = e.detail();
     return errReason == reason && <string> errDetail.message == detailMessage &&
             <int> errDetail.statusCode == detailStatusCode;
@@ -177,9 +177,9 @@ function testErrorConstrWithConstLiteralForConstReason() returns error {
 //    MyError e1 = error(ERROR_REASON_ONE);
 //    MyError e2 = error(ERROR_REASON_TWO, e1);
 //
-//    boolean errOneInitSuccesful = e1.reason() == ERROR_REASON_ONE && e1.detail().length() == 0;
-//    boolean errTwoInitSuccesful = e2.reason() == ERROR_REASON_TWO && e2.detail().length() == 1 &&
-//                e2.detail().err.reason() == ERROR_REASON_ONE && e2.detail().err.detail().length() == 0;
+//    boolean errOneInitSuccesful = e1.message() == ERROR_REASON_ONE && e1.detail().length() == 0;
+//    boolean errTwoInitSuccesful = e2.message() == ERROR_REASON_TWO && e2.detail().length() == 1 &&
+//                e2.detail().err.message() == ERROR_REASON_ONE && e2.detail().err.detail().length() == 0;
 //    return errOneInitSuccesful && errTwoInitSuccesful;
 //}
 
@@ -187,7 +187,7 @@ function testUnspecifiedErrorDetailFrozenness() returns boolean {
     error e1 = error("reason 1");
     map<anydata|error> m1 = e1.detail();
     error? err = trap addValueToMap(m1, "k", 1);
-    return err is error && err.reason() == "{ballerina}InvalidUpdate";
+    return err is error && err.message() == "{ballerina}InvalidUpdate";
 }
 
 function addValueToMap(map<anydata|error> m, string key, anydata|error value) {

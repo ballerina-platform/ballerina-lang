@@ -76,9 +76,9 @@ function testInvalidReadOnlyObjectUpdateAtRuntime() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(MAPPING_INHERENT_TYPE_VIOLATION_REASON, err.reason());
+    assertEquality(MAPPING_INHERENT_TYPE_VIOLATION_REASON, err.message());
     assertEquality("cannot update 'readonly' field 'name' in record of type 'readonly_objects:(testorg/readonly_objects:1.0.0:Details & readonly)'",
-                   err.detail()?.message);
+                   err.detail()["message"]);
 
     fn = function () {
         obj.dept = {name: "finance"};
@@ -87,8 +87,8 @@ function testInvalidReadOnlyObjectUpdateAtRuntime() {
     assertTrue(res is error);
 
     err = <error> res;
-    assertEquality(OBJECT_INHERENT_TYPE_VIOLATION_REASON, err.reason());
-    assertEquality("modification not allowed on readonly value", err.detail()?.message);
+    assertEquality(OBJECT_INHERENT_TYPE_VIOLATION_REASON, err.message());
+    assertEquality("modification not allowed on readonly value", err.detail()["message"]);
 
     fn = function () {
         obj.id = 123;
@@ -97,8 +97,8 @@ function testInvalidReadOnlyObjectUpdateAtRuntime() {
     assertTrue(res is error);
 
     err = <error> res;
-    assertEquality(OBJECT_INHERENT_TYPE_VIOLATION_REASON, err.reason());
-    assertEquality("modification not allowed on readonly value", err.detail()?.message);
+    assertEquality(OBJECT_INHERENT_TYPE_VIOLATION_REASON, err.message());
+    assertEquality("modification not allowed on readonly value", err.detail()["message"]);
 }
 
 function testReadOnlyObjectsForImmutableIntersections1() {

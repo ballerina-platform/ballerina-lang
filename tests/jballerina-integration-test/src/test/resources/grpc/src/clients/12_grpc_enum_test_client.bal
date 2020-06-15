@@ -28,7 +28,7 @@ function testEnum() returns (string) {
     orderInfo orderReq = { id:"100500", mode:r };
     var addResponse = blockingEp->testEnum(orderReq);
     if (addResponse is grpc:Error) {
-        return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string> addResponse.detail()["message"]);
+        return io:sprintf("Error from Connector: %s", addResponse.message());
     } else {
         string result = "";
         [result, _] = addResponse;

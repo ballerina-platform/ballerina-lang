@@ -37,6 +37,7 @@ import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypeIdSet;
 import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
@@ -1949,9 +1950,17 @@ public class TypeChecker {
         }
         unresolvedTypes.add(pair);
         BErrorType bErrorType = (BErrorType) sourceType;
-        boolean reasonTypeMatched = checkIsType(bErrorType.reasonType, targetType.reasonType, unresolvedTypes);
 
-        return reasonTypeMatched && checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes);
+        if (targetType.typeIdSet == null) {
+            return checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes);
+        }
+
+        BTypeIdSet sourceTypeIdSet = bErrorType.typeIdSet;
+        if (sourceTypeIdSet == null) {
+            return false;
+        }
+
+        return sourceTypeIdSet.containsAll(targetType.typeIdSet);
     }
 
     private static boolean checkIsLikeErrorType(Object sourceValue, BErrorType targetType,
@@ -1960,10 +1969,18 @@ public class TypeChecker {
         if (sourceValue == null || sourceType.getTag() != TypeTags.ERROR_TAG) {
             return false;
         }
-        return checkIsLikeType(((ErrorValue) sourceValue).getReason(),
-                               targetType.reasonType, unresolvedValues, allowNumericConversion) &&
-                checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues,
-                                allowNumericConversion);
+
+        if (targetType.typeIdSet == null) {
+            return checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues,
+                    allowNumericConversion);
+        }
+
+        BTypeIdSet sourceIdSet = ((BErrorType) sourceType).typeIdSet;
+        if (sourceIdSet == null) {
+            return false;
+        }
+
+        return sourceIdSet.containsAll(targetType.typeIdSet);
     }
 
     private static boolean isSimpleBasicType(BType type) {
@@ -2153,8 +2170,9 @@ public class TypeChecker {
         }
         checkedValues.add(compValuePair);
 
-        return isEqual(lhsError.getReason(), rhsError.getReason(), checkedValues) &&
-                isEqual((MapValueImpl) lhsError.getDetails(), (MapValueImpl) rhsError.getDetails(), checkedValues);
+        return isEqual(lhsError.getMessage(), rhsError.getMessage(), checkedValues) &&
+                isEqual((MapValueImpl) lhsError.getDetails(), (MapValueImpl) rhsError.getDetails(), checkedValues) &&
+                isEqual(lhsError.getCause(), rhsError.getCause(), checkedValues);
     }
 
     /**

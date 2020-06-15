@@ -29,7 +29,7 @@ service sameResponse on new http:Listener(9258) {
     resource function sayHello(http:Caller caller, http:Request req) {
         var responseError = caller->respond(response);
         if (responseError is error) {
-            io:println(<string>responseError.detail()["message"]);
+            io:println(responseError.message());
         }
     }
 }

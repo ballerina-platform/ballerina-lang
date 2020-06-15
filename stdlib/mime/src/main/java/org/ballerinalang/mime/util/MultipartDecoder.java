@@ -43,7 +43,7 @@ import static org.ballerinalang.mime.util.MimeConstants.FIRST_ELEMENT;
 import static org.ballerinalang.mime.util.MimeConstants.MAX_THRESHOLD_PERCENTAGE;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.NO_CONTENT_LENGTH_FOUND;
-import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAILED;
+import static org.ballerinalang.mime.util.MimeConstants.PARSER_ERROR;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
 
 /**
@@ -67,7 +67,7 @@ public class MultipartDecoder {
                 populateBallerinaParts(entity, mimeParts);
             }
         } catch (MimeTypeParseException e) {
-            throw MimeUtil.createError(PARSING_ENTITY_BODY_FAILED,
+            throw MimeUtil.createError(PARSER_ERROR,
                                        "Error occurred while decoding body parts from inputstream " + e.getMessage());
         }
     }

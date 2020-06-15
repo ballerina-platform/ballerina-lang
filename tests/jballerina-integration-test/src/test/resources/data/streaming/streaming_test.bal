@@ -57,7 +57,7 @@ service dataService on dataServiceListener {
             }
         } else {
             error e = selectRet;
-            log:printError("Select data from Data table failed: " + e.reason());
+            log:printError("Select data from Data table failed: " + e.message());
         }
     }
 
@@ -73,7 +73,7 @@ service dataService on dataServiceListener {
             }
         } else {
             error e = selectRet;
-            log:printError("Select data from Data table failed: " + e.reason());
+            log:printError("Select data from Data table failed: " + e.message());
         }
     }
 
@@ -94,7 +94,7 @@ service dataService on dataServiceListener {
             }
         } else {
             error e = selectRet;
-            log:printError("Select data from Data table failed: " + e.reason());
+            log:printError("Select data from Data table failed: " + e.message());
         }
     }
 
@@ -110,7 +110,7 @@ service dataService on dataServiceListener {
             }
         } else {
             error e = selectRet;
-            log:printError("Select data from Data table failed: " + e.reason());
+            log:printError("Select data from Data table failed: " + e.message());
         }
     }
 }

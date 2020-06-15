@@ -50,7 +50,7 @@ public class ErrorReturnServiceTestCase extends GrpcBaseTest {
 
     @Test
     public void testBlockingErrorResponse() {
-        final String serverMsg = "Error from Connector: {ballerina/grpc}InternalError - error Testing message=Details";
+        final String serverMsg = "Error from Connector: error Details";
 
         BValue[] responses = BRunUtil.invoke(result, "testErrorResponse", new Object[]{StringUtils.fromString("WSO2")});
         Assert.assertEquals(responses.length, 1);

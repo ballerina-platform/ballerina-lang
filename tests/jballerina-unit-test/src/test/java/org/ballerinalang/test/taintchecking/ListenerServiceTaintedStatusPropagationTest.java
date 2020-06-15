@@ -26,8 +26,10 @@ import org.testng.annotations.Test;
 /**
  * Test taintedness propagation when listener is marked @tainted and @untainted.
  */
+@Test
 public class ListenerServiceTaintedStatusPropagationTest {
-    @Test
+
+    @Test(groups = { "brokenOnNewParser" })
     public void testUntaintedListernBasedService() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/taintchecking/propagation/listener-taintedness-propagation-untainted-listener.bal");
