@@ -38,7 +38,7 @@ function stampXMLToMap() returns map<anydata>|error {
 
     xml xmlValue = xml `<book>The Lost World</book>`;
 
-    map<anydata>|error mapValue = xmlValue.cloneWithType(map<anydata>);
+    map<anydata>|error mapValue = xmlValue.cloneWithType(AnydataMap);
     return mapValue;
 }
 
@@ -46,7 +46,7 @@ function stampXMLToArray() returns BookRecord[]|error {
 
     xml xmlValue = xml `<book>The Lost World</book>`;
 
-    BookRecord[]|error arrayValue = xmlValue.cloneWithType(BookRecord[]);
+    BookRecord[]|error arrayValue = xmlValue.cloneWithType(BookRecordArray);
     return arrayValue;
 }
 
@@ -57,3 +57,7 @@ function stampXMLToTuple() returns [string, string]|error {
     [string, string]|error tupleValue = xmlValue.cloneWithType([string, string]);
     return tupleValue;
 }
+
+type AnydataMap map<anydata>;
+type BookRecordArray BookRecord[];
+type StringString [string, string];

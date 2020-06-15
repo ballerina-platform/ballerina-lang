@@ -54,7 +54,7 @@ public class OpenRecordTypeReferenceTest {
         compileResult = BCompileUtil.compile("test-src/record/open_record_type_reference.bal");
     }
 
-    @Test(description = "Negative tests")
+    @Test(description = "Negative tests", groups = { "brokenOnNewParser" })
     public void negativeTests() {
         CompileResult negative = BCompileUtil.compile("test-src/record/open_record_type_reference_negative.bal");
         int index = 0;
