@@ -326,6 +326,7 @@ public enum ParserRuleContext {
     BASE64_KEYWORD("base64"),
     READONLY_KEYWORD("readonly"),
     MATCH_KEYWORD("match"),
+    DISTINCT_KEYWORD("distinct"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),

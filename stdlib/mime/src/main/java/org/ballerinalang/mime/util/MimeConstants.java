@@ -43,17 +43,17 @@ public class MimeConstants {
                                                                    PROTOCOL_IO_PKG_VERSION);
     public static final String READABLE_BYTE_CHANNEL_STRUCT = "ReadableByteChannel";
     public static final String MIME_ERROR_MESSAGE = "message";
-    public static final String PARSING_ENTITY_BODY_FAILED = "{ballerina/mime}ParsingEntityBodyFailed";
-    public static final String INVALID_CONTENT_TYPE = "{ballerina/mime}InvalidContentType";
-    public static final String READING_HEADER_FAILED = "{ballerina/mime}ReadingHeaderFailed";
-    public static final String MIME_ERROR_CODE = "{ballerina/mime}MIMEError";
-    public static final String INVALID_HEADER_VALUE = "{ballerina/mime}InvalidHeaderValue";
-    public static final String INVALID_HEADER_PARAM = "{ballerina/mime}InvalidHeaderParam";
-    public static final String INVALID_CONTENT_LENGTH = "{ballerina/mime}InvalidContentLength";
-    public static final String HEADER_NOT_FOUND = "{ballerina/mime}HeaderNotFound";
-    public static final String SERIALIZATION_ERROR_CODE = "{ballerina/mime}SerializationError";
-    public static final String NO_CONTENT_ERROR_CODE = "{ballerina/mime}NoContentError";
-    public static final String INVALID_HEADER_OPERATION = "{ballerina/mime}InvalidHeaderOperation";
+
+    // Mime error type names
+    public static final String PARSER_ERROR = "ParserError";
+    public static final String INVALID_CONTENT_TYPE_ERROR = "InvalidContentTypeError";
+    public static final String INVALID_HEADER_VALUE_ERROR = "InvalidHeaderValueError";
+    public static final String INVALID_HEADER_PARAM_ERROR = "InvalidHeaderParamError";
+    public static final String INVALID_CONTENT_LENGTH_ERROR = "InvalidContentLengthError";
+    public static final String HEADER_NOT_FOUND_ERROR = "HeaderNotFoundError";
+    public static final String SERIALIZATION_ERROR = "SerializationError";
+    public static final String NO_CONTENT_ERROR = "NoContentError";
+    public static final String INVALID_HEADER_OPERATION_ERROR = "InvalidHeaderOperationError";
 
     /**
      * Content type HTTP header.
@@ -177,7 +177,7 @@ public class MimeConstants {
     public static final String COMMA = ",";
     public static final String ASSIGNMENT = "=";
     public static final String DOUBLE_QUOTE = "\"";
-    public static final String PARSER_ERROR = "failed to parse: ";
+    public static final String FAILED_TO_PARSE = "failed to parse: ";
     public static final String CONTENT_DISPOSITION_FILE_NAME = "filename";
     public static final String CONTENT_DISPOSITION_NAME = "name";
 

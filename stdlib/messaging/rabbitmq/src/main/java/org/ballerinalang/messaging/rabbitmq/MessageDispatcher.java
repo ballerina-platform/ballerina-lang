@@ -68,16 +68,19 @@ public class MessageDispatcher {
     private Channel channel;
     private boolean autoAck;
     private ObjectValue service;
+    private ObjectValue channelObj;
     private String queueName;
     private BRuntime runtime;
 
-    public MessageDispatcher(ObjectValue service, Channel channel, boolean autoAck, BRuntime runtime) {
+    public MessageDispatcher(ObjectValue service, Channel channel, boolean autoAck, BRuntime runtime,
+                             ObjectValue channelObj) {
         this.channel = channel;
         this.autoAck = autoAck;
         this.service = service;
         this.queueName = getQueueNameFromConfig(service);
         this.consumerTag = service.getType().getName();
         this.runtime = runtime;
+        this.channelObj = channelObj;
     }
 
     private String getQueueNameFromConfig(ObjectValue service) {
@@ -211,11 +214,14 @@ public class MessageDispatcher {
     private ObjectValue getMessageObjectValue(byte[] message, long deliveryTag, AMQP.BasicProperties properties) {
         ObjectValue messageObjectValue = BallerinaValues.createObjectValue(RabbitMQConstants.PACKAGE_ID_RABBITMQ,
                                                                            RabbitMQConstants.MESSAGE_OBJECT);
+        RabbitMQTransactionContext transactionContext =
+                (RabbitMQTransactionContext) channelObj.getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         messageObjectValue.set(RabbitMQConstants.DELIVERY_TAG, deliveryTag);
         messageObjectValue.set(RabbitMQConstants.JAVA_CLIENT_CHANNEL, new HandleValue(channel));
         messageObjectValue.set(RabbitMQConstants.MESSAGE_CONTENT, BValueCreator.createArrayValue(message));
         messageObjectValue.set(RabbitMQConstants.AUTO_ACK_STATUS, autoAck);
         messageObjectValue.set(RabbitMQConstants.MESSAGE_ACK_STATUS, false);
+        messageObjectValue.addNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT, transactionContext);
         if (properties != null) {
             String replyTo = properties.getReplyTo();
             String contentType = properties.getContentType();

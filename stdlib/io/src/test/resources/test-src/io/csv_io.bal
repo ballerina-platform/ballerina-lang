@@ -92,8 +92,7 @@ function nextRecord() returns @tainted string[] | error {
             return result;
         }
     }
-    error e = error(io:GENERIC_ERROR, message = "Record channel not initialized properly");
-    return e;
+    return io:GenericError("Record channel not initialized properly");
 }
 
 function writeRecord(string[] fields) {
@@ -121,63 +120,62 @@ function hasNextRecord() returns boolean? {
     }
 }
 
-//TODO Table remove - Fix
-//function getTable(string filePath, string encoding, io:Separator fieldSeparator) returns @tainted float | error {
-//    var byteChannel = io:openReadableFile(filePath);
-//    if (byteChannel is io:ReadableByteChannel) {
-//        io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
-//        io:ReadableCSVChannel csv = new io:ReadableCSVChannel(charChannel, fieldSeparator);
-//        float total = 0.0;
-//        var tableResult = csv.getTable(Employee);
-//        if (tableResult is table<record {}>) {
-//            table<Employee> tb = <table<Employee>> tableResult;
-//            foreach var x in tb {
-//                total = total + x.salary;
-//            }
-//            error? closeResult = byteChannel.close();
-//            return total;
-//        } else {
-//            return tableResult;
-//        }
-//    } else {
-//        return byteChannel;
-//    }
-//}
-//
-//function getTableWithNill(string filePath) returns @tainted [string, string] | error {
-//    string name = "";
-//    string dep = "";
-//    var rCsvChannel = io:openReadableCsvFile(filePath, skipHeaders = 1);
-//    if (rCsvChannel is io:ReadableCSVChannel) {
-//        var tblResult = rCsvChannel.getTable(PerDiem);
-//        if (tblResult is table<record {}>) {
-//            table<PerDiem> tb = <table<PerDiem>> tblResult;
-//            foreach var rec in tb {
-//                name = name + rec.name;
-//                dep = dep + (rec.department ?: "-1");
-//            }
-//            error? closeResult = rCsvChannel.close();
-//        } else {
-//            return tblResult;
-//        }
-//    }
-//    return [name, dep];
-//}
-//
-//function getTableWithHeader(string filePath) returns @tainted string[] | error {
-//    var rCsvChannel = io:openReadableCsvFile(filePath, skipHeaders = 0);
-//    string[] keys = [];
-//    if (rCsvChannel is io:ReadableCSVChannel) {
-//        var tblResult = rCsvChannel.getTable(CommonApp);
-//        if (tblResult is table<record {}>) {
-//            table<CommonApp> tb = <table<CommonApp>> tblResult;
-//            foreach var rec in tb {
-//                keys.push(rec.appId);
-//            }
-//            error? closeResult = rCsvChannel.close();
-//        } else {
-//            return tblResult;
-//        }
-//    }
-//    return keys;
-//}
+function getTable(string filePath, string encoding, io:Separator fieldSeparator) returns @tainted float | error {
+    var byteChannel = io:openReadableFile(filePath);
+    if (byteChannel is io:ReadableByteChannel) {
+        io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
+        io:ReadableCSVChannel csv = new io:ReadableCSVChannel(charChannel, fieldSeparator);
+        float total = 0.0;
+        var tableResult = csv.getTable(Employee);
+        if (tableResult is table<record {}>) {
+            table<Employee> tb = <table<Employee>> tableResult;
+            foreach var x in tb {
+                total = total + x.salary;
+            }
+            error? closeResult = byteChannel.close();
+            return total;
+        } else {
+            return tableResult;
+        }
+    } else {
+        return byteChannel;
+    }
+}
+
+function getTableWithNill(string filePath) returns @tainted [string, string] | error {
+    string name = "";
+    string dep = "";
+    var rCsvChannel = io:openReadableCsvFile(filePath, skipHeaders = 1);
+    if (rCsvChannel is io:ReadableCSVChannel) {
+        var tblResult = rCsvChannel.getTable(PerDiem);
+        if (tblResult is table<record {}>) {
+            table<PerDiem> tb = <table<PerDiem>> tblResult;
+            foreach var rec in tb {
+                name = name + rec.name;
+                dep = dep + (rec.department ?: "-1");
+            }
+            error? closeResult = rCsvChannel.close();
+        } else {
+            return tblResult;
+        }
+    }
+    return [name, dep];
+}
+
+function getTableWithHeader(string filePath) returns @tainted string[] | error {
+    var rCsvChannel = io:openReadableCsvFile(filePath, skipHeaders = 0);
+    string[] keys = [];
+    if (rCsvChannel is io:ReadableCSVChannel) {
+        var tblResult = rCsvChannel.getTable(CommonApp);
+        if (tblResult is table<record {}>) {
+            table<CommonApp> tb = <table<CommonApp>> tblResult;
+            foreach var rec in tb {
+                keys.push(rec.appId);
+            }
+            error? closeResult = rCsvChannel.close();
+        } else {
+            return tblResult;
+        }
+    }
+    return keys;
+}

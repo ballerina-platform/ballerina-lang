@@ -15,11 +15,23 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "XMLNS_KEYWORD"
+              "kind": "XMLNS_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "constRef"
+              "value": "constRef",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN",
@@ -52,7 +64,13 @@
                   "children": [
                     {
                       "kind": "STRING_LITERAL",
-                      "value": "http://ballerinalang.org/ns1"
+                      "value": "http://ballerinalang.org/ns1",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -61,7 +79,13 @@
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
-                      "value": "ns1"
+                      "value": "ns1",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 }
@@ -80,7 +104,13 @@
               "value": "ns2"
             },
             {
-              "kind": "SEMICOLON_TOKEN"
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
             }
           ]
         }

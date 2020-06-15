@@ -27,6 +27,8 @@
             <run>
                 <exclude name="brokenOnJBallerina"/>
                 <exclude name="brokenOnSpecDeviation"/>
+                <exclude name="brokenOnErrorChange"/>
+                <exclude name="disableOnOldParser"/>
             </run>
         </groups>
         <packages>
@@ -86,6 +88,7 @@
             <package name="org.ballerinalang.test.types.never.*"/>
             <package name="org.ballerinalang.test.types.service.*"/>
             <package name="org.ballerinalang.test.types.globalvar.*"/>
+            <package name="org.ballerinalang.test.types.intersection.*"/>
             <package name="org.ballerinalang.test.types.readonly.*"/>
             <package name="org.ballerinalang.test.expressions.builtinoperations.*"/>
             <package name="org.ballerinalang.test.expressions.let.*"/>

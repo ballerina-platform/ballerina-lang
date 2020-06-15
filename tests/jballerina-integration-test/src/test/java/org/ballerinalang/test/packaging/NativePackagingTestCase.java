@@ -94,13 +94,15 @@ public class NativePackagingTestCase extends BaseTest {
     public void testBuildAndPushTestProject1() throws BallerinaTestException {
         // Build module
         String module1BaloFileName = module1Name + "-"
-                                     + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java-"
+                                     + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                                     + ProgramFileConstants.SUPPORTED_PLATFORMS[0]
+                                     + "-"
                                      + "0.7.2"
                                      + BLANG_COMPILED_PKG_BINARY_EXT;
         
         String module1BuildMsg = "target" + File.separator + "balo" + File.separator + module1BaloFileName;
         LogLeecher module1BuildLeecher = new LogLeecher(module1BuildMsg);
-        balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{},
+        balClient.runMain("build", new String[]{"-c", module1Name}, envVariables, new String[]{},
                 new LogLeecher[]{module1BuildLeecher}, testProj1Path.toString());
         module1BuildLeecher.waitForText(5000);
         
@@ -108,7 +110,7 @@ public class NativePackagingTestCase extends BaseTest {
         String orgName = "bcintegrationtest";
         String module1PushMsg = orgName + "/" + module1Name + ":0.7.2 [project repo -> central]";
         LogLeecher module1PushLeecher = new LogLeecher(module1PushMsg);
-        balClient.runMain("push", new String[]{}, envVariables, new String[]{},
+        balClient.runMain("push", new String[]{module1Name}, envVariables, new String[]{},
                 new LogLeecher[]{module1PushLeecher}, testProj1Path.toString());
         module1PushLeecher.waitForText(5000);
     }
@@ -142,7 +144,7 @@ public class NativePackagingTestCase extends BaseTest {
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
                 .await().atMost(120, SECONDS).until(() -> {
-            balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{}, new
+            balClient.runMain("build", new String[]{"-c", "baz"}, envVariables, new String[]{}, new
                     LogLeecher[]{bazBuildLeecher}, testProj2Path.toString());
             Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
             return Files.exists(lockFilePath);
@@ -163,7 +165,7 @@ public class NativePackagingTestCase extends BaseTest {
      */
     private Map<String, String> addEnvVariables(Map<String, String> envVariables) {
         envVariables.put(ProjectDirConstants.HOME_REPO_ENV_KEY, tempHomeDirectory.toString());
-        envVariables.put("BALLERINA_DEV_STAGE_CENTRAL", "true");
+        envVariables.put("BALLERINA_DEV_PREPROD_CENTRAL", "true");
         return envVariables;
     }
     

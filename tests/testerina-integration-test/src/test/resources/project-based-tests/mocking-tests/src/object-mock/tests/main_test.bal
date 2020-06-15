@@ -17,7 +17,7 @@ public type MockHttpClient client object {
 @test:Config {}
 function testUserDefinedMockObject() {
 
-  clientEndpoint  = <http:Client>test:mock(http:Client, new MockHttpClient());
+  clientEndpoint = <http:Client>test:mock(http:Client, new MockHttpClient());
   http:Response res = doGet();
   test:assertEquals(res.statusCode, 500);
   test:assertEquals(getClientUrl(), "http://mockUrl");
@@ -53,7 +53,7 @@ function testProvideErrorAsReturnValue() {
   smtpClient = mockSmtpClient;
 
   string[] emailIds = ["user1@test.com", "user2@test.com"];
-  error? errMock = error("EMAIL_ERROR", message = "email sending failed");
+  error? errMock = email:SendError("email sending failed");
   test:prepare(mockSmtpClient).when("send").thenReturn(errMock);
   error? err = sendNotification(emailIds);
   test:assertTrue(err is error);
@@ -119,6 +119,20 @@ public type MockSmtpClientSigErr client object {
   }
 };
 
+public type MockSmtpClientSigErr2 client object {
+  public remote function send(string[] email) returns string {
+    return "";
+  }
+};
+
+public type MockHttpClientSigErr client object {
+  public remote function get(@untainted string path, any message = ()) returns http:Response|http:ClientError {
+      http:Response res = new;
+      res.statusCode = 500;
+      return res;
+  }
+};
+
 // 1.1) when the user-defined mock object is empty
 @test:Config {}
 function testEmptyUserDefinedObj() {
@@ -142,7 +156,7 @@ function testUserDefinedMockInvalidFunction() {
   error? sendNotificationResult = sendNotification(["user1@test.com"]);
 }
 
-// 1.4) when the function signatures do not match
+// 1.4.1) when the function return types do not match
 @test:Config {}
 function testUserDefinedMockFunctionSignatureMismatch() {
   email:SmtpClient mockSmtpClient = <email:SmtpClient>test:mock(email:SmtpClient, new MockSmtpClientSigErr());
@@ -150,12 +164,26 @@ function testUserDefinedMockFunctionSignatureMismatch() {
   error? sendNotificationResult = sendNotification(["user1@test.com"]);
 }
 
+// 1.4.2) when the function parameters do not match
+@test:Config {}
+function testUserDefinedMockFunctionSignatureMismatch2() {
+  email:SmtpClient mockSmtpClient = <email:SmtpClient>test:mock(email:SmtpClient, new MockSmtpClientSigErr2());
+  smtpClient = mockSmtpClient;
+  error? sendNotificationResult = sendNotification(["user1@test.com"]);
+}
+
+// 1.4.3
+@test:Config {}
+function testUserDefinedMockFunctionSignatureMismatch3() {
+  http:Client mockHttpClient = <http:Client>test:mock(http:Client, new MockHttpClientSigErr());
+}
+
 # 2 - Validations for framework provided default mock object
 
 // 2.1  when the function called in mock is not available in the original
 @test:Config {}
 function testDefaultMockInvalidFunctionName() {
-  email:SmtpClient mockSmtpClient = <email:SmtpClient>test:mock(email:SmtpClient); 
+  email:SmtpClient mockSmtpClient = <email:SmtpClient>test:mock(email:SmtpClient);
   test:prepare(mockSmtpClient).when("get").doNothing();
 }
 
@@ -166,7 +194,28 @@ function testDefaultMockWrongAction() {
   test:prepare(mockHttpClient).when("get").doNothing();
 }
 
-// 2.3) when the object does not have a member variable of specified name
+// 2.3) when the return value does not match the function return type
+@test:Config {}
+function testDefaultInvalidFunctionReturnValue() {
+  http:Client mockHttpClient = <http:Client>test:mock(http:Client);
+  test:prepare(mockHttpClient).when("get").thenReturn("success");
+}
+
+// 2.4.1) when the number of arguments provided does not match the function signature
+@test:Config {}
+function testDefaultTooManyArgs() {
+  http:Client mockHttpClient = <http:Client>test:mock(http:Client);
+  test:prepare(mockHttpClient).when("get").withArguments("test", "", "").thenReturn(new http:Response());
+}
+
+// 2.4.2) when the type of arguments provided does not match the function signature
+@test:Config {}
+function testDefaultIncompatibleArgs() {
+  http:Client mockHttpClient = <http:Client>test:mock(http:Client);
+  test:prepare(mockHttpClient).when("get").withArguments(0).thenReturn(new http:Response());
+}
+
+// 2.5) when the object does not have a member variable of specified name
 @test:Config {}
 function testDefaultMockInvalidFieldName() {
   string mockClientUrl = "http://foo";
@@ -175,4 +224,11 @@ function testDefaultMockInvalidFieldName() {
 
   clientEndpoint = mockHttpClient;
   test:assertEquals(getClientUrl(), mockClientUrl);
+}
+
+// 2.6) when the member variable type does not match the return value
+@test:Config{}
+function testDefaultInvalidMemberReturnValue() {
+  http:Client mockHttpClient = <http:Client>test:mock(http:Client);
+  test:prepare(mockHttpClient).getMember("url").thenReturn(());
 }

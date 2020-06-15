@@ -42,6 +42,12 @@ type Teacher record {
     string school;
 };
 
+type AnydataMap map<anydata>;
+type AnydataArray anydata[];
+type AnydataArrayOrAnydataMap anydata[]|map<anydata>;
+type StudentArray Student[];
+type StringMap map<string>;
+
 //----------------------------JSON Stamp -------------------------------------------------------------
 
 function stampJSONToAnydata() returns anydata|error {
@@ -81,7 +87,7 @@ function stampJSONToJSON() returns json|error {
 
 function stampJSONToMap() returns map<anydata>|error {
     json employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
-    map<anydata>|error mapValue = employee.cloneWithType(map<anydata>);
+    map<anydata>|error mapValue = employee.cloneWithType(AnydataMap);
 
     return mapValue;
 }
@@ -89,7 +95,7 @@ function stampJSONToMap() returns map<anydata>|error {
 function stampJSONToMapV2() returns map<anydata>|error {
     json teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College",
         emp : { name: "John", status: "single", batch: "LK2014"} };
-    map<anydata>|error mapValue = teacher.cloneWithType(map<anydata>);
+    map<anydata>|error mapValue = teacher.cloneWithType(AnydataMap);
 
     return mapValue;
 }
@@ -98,14 +104,14 @@ function stampJSONArrayToConstraintArray() returns Student []|error{
     json employeeArray = [{ name: "John", status: "single", batch: "LK2014", school: "Hindu College" },
                             { name: "Raja", status: "married", batch: "LK2014", school: "Hindu College" }];
 
-    Student []|error studentArray = employeeArray.cloneWithType(Student[]);
+    Student []|error studentArray = employeeArray.cloneWithType(StudentArray);
 
     return studentArray;
 }
 
 function stampJSONArrayToAnyTypeArray() returns anydata []|error{
     json jsonArray =  [1, false, "foo", { first: "John", last: "Pala" }];
-    anydata[]|error anydataArray = jsonArray.cloneWithType(anydata[]);
+    anydata[]|error anydataArray = jsonArray.cloneWithType(AnydataArray);
 
     return anydataArray;
 }
@@ -119,14 +125,14 @@ function stampJSONToAnydataV3() returns anydata|error {
 
 function stampJSONToUnion() returns anydata[]|map<anydata>|error {
     json jsonValue = { name: "John", status: "single", batch: "LK2014" };
-    anydata[]|map<anydata>|error outputValue = jsonValue.cloneWithType(anydata[]|map<anydata>);
+    anydata[]|map<anydata>|error outputValue = jsonValue.cloneWithType(AnydataArrayOrAnydataMap);
 
     return outputValue;
 }
 
 function stampJSONArrayWithNullToAnydataArray() returns anydata []|error{
     json jsonArray =  [1, false, "foo", (), { first: "John", last: "Pala" }];
-    anydata[]|error anydataArray = jsonArray.cloneWithType(anydata[]);
+    anydata[]|error anydataArray = jsonArray.cloneWithType(AnydataArray);
 
     return anydataArray;
 }
@@ -153,7 +159,7 @@ function stampJSONToRecordNegative() returns Student|error {
 
 function stampJSONToMapNegative() returns map<string>|error {
     json employee = { name: "John", age : 23, status: "single", batch: "LK2014", school: "Hindu College" };
-    map<string>|error mapValue = employee.cloneWithType(map<string>);
+    map<string>|error mapValue = employee.cloneWithType(StringMap);
 
     return mapValue;
 }

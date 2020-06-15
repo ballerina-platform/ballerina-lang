@@ -25,6 +25,8 @@ import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.types.ConstrainedType;
+import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
@@ -34,6 +36,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeParamAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -64,12 +67,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -77,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -115,6 +121,7 @@ public class BIRPackageSymbolEnter {
     private final SymbolTable symTable;
     private final Names names;
     private final TypeParamAnalyzer typeParamAnalyzer;
+    private final Types types;
 
     private BIRPackageSymbolEnv env;
     private List<BStructureTypeSymbol> structureTypes; // TODO find a better way
@@ -141,6 +148,7 @@ public class BIRPackageSymbolEnter {
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
+        this.types = Types.getInstance(context);
     }
 
     BPackageSymbol definePackage(PackageID packageId, RepoHierarchy packageRepositoryHierarchy,
@@ -496,10 +504,11 @@ public class BIRPackageSymbolEnter {
 
     private BInvokableType createClonedInvokableTypeWithTsymbol(BInvokableType bInvokableType) {
         BInvokableType clonedType = new BInvokableType(bInvokableType.paramTypes, bInvokableType.restType,
-                bInvokableType.retType, null);
+                                                       bInvokableType.retType, null);
         clonedType.tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
-                bInvokableType.flags, env.pkgSymbol.pkgID, null,
-                env.pkgSymbol.owner);
+                                                               bInvokableType.flags, env.pkgSymbol.pkgID, null,
+                                                               env.pkgSymbol.owner);
+        clonedType.flags = bInvokableType.flags;
         //TODO: tsymbol param values should be read from bir and added here
         return clonedType;
     }
@@ -630,7 +639,7 @@ public class BIRPackageSymbolEnter {
             String paramName = getStringCPEntryValue(dataInStream);
             int flags = dataInStream.readInt();
             BVarSymbol varSymbol = new BVarSymbol(flags, names.fromString(paramName), this.env.pkgSymbol.pkgID,
-                    invokableType.paramTypes.get(i), invokableSymbol);
+                                                  invokableType.paramTypes.get(i), invokableSymbol);
             varSymbol.defaultableParam = ((flags & Flags.OPTIONAL) == Flags.OPTIONAL);
             invokableSymbol.params.add(varSymbol);
         }
@@ -638,8 +647,19 @@ public class BIRPackageSymbolEnter {
         if (dataInStream.readBoolean()) { //if rest param exist
             String paramName = getStringCPEntryValue(dataInStream);
             invokableSymbol.restParam = new BVarSymbol(0, names.fromString(paramName), this.env.pkgSymbol.pkgID,
-                    invokableType.restType, invokableSymbol);
+                                                       invokableType.restType, invokableSymbol);
         }
+
+        if (Symbols.isFlagOn(invokableSymbol.retType.flags, Flags.PARAMETERIZED)) {
+            Map<Name, BVarSymbol> paramsMap = new HashMap<>();
+            for (BVarSymbol param : invokableSymbol.params) {
+                if (paramsMap.put(param.getName(), param) != null) {
+                    throw new IllegalStateException("Duplicate key: " + param.getName());
+                }
+            }
+            populateParameterizedType(invokableSymbol.retType, paramsMap, invokableSymbol);
+        }
+
         BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) invokableType.tsymbol;
         tsymbol.flags = invokableSymbol.flags;
         tsymbol.params = invokableSymbol.params;
@@ -651,6 +671,76 @@ public class BIRPackageSymbolEnter {
             dataInStream.readByte();
             readBType(dataInStream);
             getStringCPEntryValue(dataInStream);
+        }
+    }
+
+    /**
+     * This method is used for filling the `paramSymbol` field in a parameterized type. Since we want to use the same
+     * symbol of the parameter referred to by the type, we have to wait until the parameter symbols are defined to fill
+     * in the `paramSymbol` field. Only types with constituent types are considered here since those are the only types
+     * which can recursively hold a parameterized type.
+     *
+     * @param type      The return type of a function, which possibly contains a parameterized type
+     * @param paramsMap A mapping between the parameter names and the parameter symbols of the function
+     * @param invSymbol The symbol of the function
+     */
+    private void populateParameterizedType(BType type, final Map<Name, BVarSymbol> paramsMap,
+                                           BInvokableSymbol invSymbol) {
+        if (type == null) {
+            return;
+        }
+
+        switch (type.tag) {
+            case TypeTags.PARAMETERIZED_TYPE:
+                BParameterizedType varType = (BParameterizedType) type;
+                varType.paramSymbol = paramsMap.get(varType.name);
+                varType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PARAMETERIZED | varType.paramSymbol.flags,
+                                                  varType.paramSymbol.name, varType.paramSymbol.pkgID, varType,
+                                                  invSymbol);
+                break;
+            case TypeTags.MAP:
+            case TypeTags.XML:
+            case TypeTags.FUTURE:
+            case TypeTags.TYPEDESC:
+                ConstrainedType constrainedType = (ConstrainedType) type;
+                populateParameterizedType((BType) constrainedType.getConstraint(), paramsMap, invSymbol);
+                break;
+            case TypeTags.ARRAY:
+                populateParameterizedType(((BArrayType) type).eType, paramsMap, invSymbol);
+                break;
+            case TypeTags.TUPLE:
+                BTupleType tupleType = (BTupleType) type;
+                for (BType t : tupleType.tupleTypes) {
+                    populateParameterizedType(t, paramsMap, invSymbol);
+                }
+                populateParameterizedType(tupleType.restType, paramsMap, invSymbol);
+                break;
+            case TypeTags.STREAM:
+                BStreamType streamType = (BStreamType) type;
+                populateParameterizedType(streamType.constraint, paramsMap, invSymbol);
+                populateParameterizedType(streamType.error, paramsMap, invSymbol);
+                break;
+            case TypeTags.TABLE:
+                BTableType tableType = (BTableType) type;
+                populateParameterizedType(tableType.constraint, paramsMap, invSymbol);
+                populateParameterizedType(tableType.keyTypeConstraint, paramsMap, invSymbol);
+                break;
+            case TypeTags.INVOKABLE:
+                BInvokableType invokableType = (BInvokableType) type;
+
+                for (BType t : invokableType.paramTypes) {
+                    populateParameterizedType(t, paramsMap, invSymbol);
+                }
+
+                populateParameterizedType(invokableType.restType, paramsMap, invSymbol);
+                populateParameterizedType(invokableType.retType, paramsMap, invSymbol);
+                break;
+            case TypeTags.UNION:
+                BUnionType unionType = (BUnionType) type;
+                for (BType t : unionType.getMemberTypes()) {
+                    populateParameterizedType(t, paramsMap, invSymbol);
+                }
+                break;
         }
     }
 
@@ -793,16 +883,21 @@ public class BIRPackageSymbolEnter {
                     return typeParamAnalyzer.getNominalType(symTable.booleanType, name, flags);
                 // All the above types are values type
                 case TypeTags.JSON:
-                    return symTable.jsonType;
+                    return isImmutable(flags) ? getEffectiveImmutableType(symTable.jsonType) : symTable.jsonType;
                 case TypeTags.XML:
                     BType constraintType = readTypeFromCp();
-                    return new BXMLType(constraintType, symTable.xmlType.tsymbol);
+                    BXMLType mutableXmlType = new BXMLType(constraintType, symTable.xmlType.tsymbol);
+                    return isImmutable(flags) ? getEffectiveImmutableType(mutableXmlType) : mutableXmlType;
                 case TypeTags.NIL:
                     return symTable.nilType;
                 case TypeTags.NEVER:
                     return symTable.neverType;
                 case TypeTags.ANYDATA:
-                    return typeParamAnalyzer.getNominalType(symTable.anydataType, name, flags);
+                    BType anydataNominalType = typeParamAnalyzer.getNominalType(symTable.anydataType, name, flags);
+                    return isImmutable(flags) ? getEffectiveImmutableType(anydataNominalType,
+                                                                          symTable.anydataType.tsymbol.pkgID,
+                                                                          symTable.anydataType.tsymbol.owner) :
+                            anydataNominalType;
                 case TypeTags.RECORD:
                     int pkgCpIndex = inputStream.readInt();
                     PackageID pkgId = getPackageId(pkgCpIndex);
@@ -810,8 +905,15 @@ public class BIRPackageSymbolEnter {
                     String recordName = getStringCPEntryValue(inputStream);
                     BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                             names.fromString(recordName), env.pkgSymbol.pkgID, null, env.pkgSymbol);
+                    recordSymbol.flags |= flags;
                     recordSymbol.scope = new Scope(recordSymbol);
-                    BRecordType recordType = new BRecordType(recordSymbol);
+                    BRecordType recordType = new BRecordType(recordSymbol, recordSymbol.flags);
+                    recordType.flags |= flags;
+
+                    if (isImmutable(flags)) {
+                        recordSymbol.flags |= Flags.READONLY;
+                    }
+
                     recordSymbol.type = recordType;
 
                     compositeStack.push(recordType);
@@ -872,17 +974,24 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.TYPEDESC:
                     BTypedescType typedescType = new BTypedescType(null, symTable.typeDesc.tsymbol);
                     typedescType.constraint = readTypeFromCp();
+                    typedescType.flags = flags;
                     return typedescType;
+                case TypeTags.PARAMETERIZED_TYPE:
+                    BParameterizedType type = new BParameterizedType(null, null, null, name);
+                    type.paramValueType = readTypeFromCp();
+                    type.flags = flags;
+                    return type;
                 case TypeTags.STREAM:
                     BStreamType bStreamType = new BStreamType(TypeTags.STREAM, null, null, symTable.streamType.tsymbol);
                     bStreamType.constraint = readTypeFromCp();
+                    bStreamType.flags = flags;
                     boolean hasError = inputStream.readByte() == 1;
                     if (hasError) {
                         bStreamType.error = readTypeFromCp();
                     }
                     return bStreamType;
                 case TypeTags.TABLE:
-                    BTableType bTableType = new BTableType(TypeTags.TABLE, null, symTable.tableType.tsymbol);
+                    BTableType bTableType = new BTableType(TypeTags.TABLE, null, symTable.tableType.tsymbol, flags);
                     bTableType.constraint = readTypeFromCp();
                     boolean hasFieldNameList = inputStream.readByte() == 1;
                     boolean hasKeyConstraint = inputStream.readByte() == 1;
@@ -906,7 +1015,7 @@ public class BIRPackageSymbolEnter {
                     }
                     return bTableType;
                 case TypeTags.MAP:
-                    BMapType bMapType = new BMapType(TypeTags.MAP, null, symTable.mapType.tsymbol);
+                    BMapType bMapType = new BMapType(TypeTags.MAP, null, symTable.mapType.tsymbol, flags);
                     bMapType.constraint = readTypeFromCp();
                     return bMapType;
                 case TypeTags.INVOKABLE:
@@ -925,7 +1034,11 @@ public class BIRPackageSymbolEnter {
                     return bInvokableType;
                 // All the above types are branded types
                 case TypeTags.ANY:
-                    return typeParamAnalyzer.getNominalType(symTable.anyType, name, flags);
+                    BType anyNominalType = typeParamAnalyzer.getNominalType(symTable.anyType, name, flags);
+                    return isImmutable(flags) ? getEffectiveImmutableType(anyNominalType,
+                                                                          symTable.anyType.tsymbol.pkgID,
+                                                                          symTable.anyType.tsymbol.owner) :
+                            anyNominalType;
                 case TypeTags.HANDLE:
                     return symTable.handleType;
                 case TypeTags.READONLY:
@@ -938,7 +1051,8 @@ public class BIRPackageSymbolEnter {
                     int size = inputStream.readInt();
                     BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.asMask(EnumSet
                             .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
-                    BArrayType bArrayType = new BArrayType(null, arrayTypeSymbol, size, BArrayState.valueOf(state));
+                    BArrayType bArrayType = new BArrayType(null, arrayTypeSymbol, size, BArrayState.valueOf(state),
+                                                           flags);
                     bArrayType.eType = readTypeFromCp();
                     return bArrayType;
                 case TypeTags.UNION:
@@ -950,6 +1064,7 @@ public class BIRPackageSymbolEnter {
                     for (int i = 0; i < unionMemberCount; i++) {
                         unionType.add(readTypeFromCp());
                     }
+                    unionType.flags = flags;
                     return unionType;
                 case TypeTags.INTERSECTION:
                     BTypeSymbol intersectionTypeSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE,
@@ -963,7 +1078,7 @@ public class BIRPackageSymbolEnter {
                     }
 
                     BType effectiveType = readTypeFromCp();
-                    return new BIntersectionType(intersectionTypeSymbol, constituentTypes, effectiveType);
+                    return new BIntersectionType(intersectionTypeSymbol, constituentTypes, effectiveType, flags);
                 case TypeTags.PACKAGE:
                     // TODO fix
                     break;
@@ -990,10 +1105,9 @@ public class BIRPackageSymbolEnter {
                     pkgCpIndex = inputStream.readInt();
                     pkgId = getPackageId(pkgCpIndex);
                     String errorName = getStringCPEntryValue(inputStream);
-                    BType reasonType = readTypeFromCp();
                     BType detailsType = readTypeFromCp();
-                    errorType.reasonType = reasonType;
                     errorType.detailType = detailsType;
+                    errorType.flags = flags;
                     errorSymbol.type = errorType;
                     errorSymbol.pkgID = pkgId;
                     errorSymbol.name = names.fromString(errorName);
@@ -1004,6 +1118,7 @@ public class BIRPackageSymbolEnter {
                         // This is a workaround to avoid, getting no type for error detail field.
                         return symTable.errorType;
                     }
+                    errorType.typeIdSet = readTypeIdSet(inputStream);
                     return errorType;
                 case TypeTags.ITERATOR:
                     // TODO fix
@@ -1012,6 +1127,7 @@ public class BIRPackageSymbolEnter {
                     BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet
                             .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
                     BTupleType bTupleType = new BTupleType(tupleTypeSymbol, null);
+                    bTupleType.flags = flags;
                     int tupleMemberCount = inputStream.readInt();
                     List<BType> tupleMemberTypes = new ArrayList<>();
                     for (int i = 0; i < tupleMemberCount; i++) {
@@ -1022,6 +1138,7 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.FUTURE:
                     BFutureType bFutureType = new BFutureType(TypeTags.FUTURE, null, symTable.futureType.tsymbol);
                     bFutureType.constraint = readTypeFromCp();
+                    bFutureType.flags = flags;
                     return bFutureType;
                 case TypeTags.FINITE:
                     String finiteTypeName = getStringCPEntryValue(inputStream);
@@ -1030,6 +1147,7 @@ public class BIRPackageSymbolEnter {
                             names.fromString(finiteTypeName), env.pkgSymbol.pkgID, null, env.pkgSymbol);
                     symbol.scope = new Scope(symbol);
                     BFiniteType finiteType = new BFiniteType(symbol);
+                    finiteType.flags = flags;
                     symbol.type = finiteType;
                     int valueSpaceSize = inputStream.readInt();
                     for (int i = 0; i < valueSpaceSize; i++) {
@@ -1045,7 +1163,7 @@ public class BIRPackageSymbolEnter {
                     String objName = getStringCPEntryValue(inputStream);
                     int objFlags = (inputStream.readBoolean() ? Flags.ABSTRACT : 0) | Flags.PUBLIC;
                     objFlags = inputStream.readBoolean() ? objFlags | Flags.CLIENT : objFlags;
-                    BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) Symbols.createObjectSymbol(objFlags,
+                    BObjectTypeSymbol objectSymbol = Symbols.createObjectSymbol(objFlags,
                             names.fromString(objName), env.pkgSymbol.pkgID, null, env.pkgSymbol);
                     objectSymbol.scope = new Scope(objectSymbol);
                     objectSymbol.methodScope = new Scope(objectSymbol);
@@ -1055,7 +1173,12 @@ public class BIRPackageSymbolEnter {
                         objectType = new BServiceType(objectSymbol);
                     } else {
                         objectType = new BObjectType(objectSymbol);
+
+                        if (isImmutable(flags)) {
+                            objectSymbol.flags |= Flags.READONLY;
+                        }
                     }
+                    objectType.flags = flags;
                     objectSymbol.type = objectType;
                     addShapeCP(objectType, cpI);
                     compositeStack.push(objectType);
@@ -1121,15 +1244,41 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.CHAR_STRING:
                     return symTable.charStringType;
                 case TypeTags.XML_ELEMENT:
-                    return symTable.xmlElementType;
+                    return isImmutable(flags) ? getEffectiveImmutableType(symTable.xmlElementType) :
+                            symTable.xmlElementType;
                 case TypeTags.XML_PI:
-                    return symTable.xmlPIType;
+                    return isImmutable(flags) ? getEffectiveImmutableType(symTable.xmlPIType) : symTable.xmlPIType;
                 case TypeTags.XML_COMMENT:
-                    return symTable.xmlCommentType;
+                return isImmutable(flags) ? getEffectiveImmutableType(symTable.xmlCommentType) :
+                        symTable.xmlCommentType;
                 case TypeTags.XML_TEXT:
                     return symTable.xmlTextType;
             }
             return null;
+        }
+
+        private BTypeIdSet readTypeIdSet(DataInputStream inputStream) throws IOException {
+            Set<BTypeIdSet.BTypeId> primary = new HashSet<>();
+            int primaryTypeIdCount = inputStream.readInt();
+            for (int i = 0; i < primaryTypeIdCount; i++) {
+                primary.add(readTypeId(inputStream));
+            }
+
+            Set<BTypeIdSet.BTypeId> secondary = new HashSet<>();
+            int secondaryTypeIdCount = inputStream.readInt();
+            for (int i = 0; i < secondaryTypeIdCount; i++) {
+                secondary.add(readTypeId(inputStream));
+            }
+
+            return new BTypeIdSet(primary, secondary);
+        }
+
+        private BTypeIdSet.BTypeId readTypeId(DataInputStream inputStream) throws IOException {
+            int pkgCPIndex = inputStream.readInt();
+            PackageID packageId = getPackageId(pkgCPIndex);
+            String name = getStringCPEntryValue(inputStream);
+            boolean isPublicTypeId = inputStream.readBoolean();
+            return new BTypeIdSet.BTypeId(packageId, name, isPublicTypeId);
         }
 
         private void ignoreAttachedFunc() throws IOException {
@@ -1200,5 +1349,20 @@ public class BIRPackageSymbolEnter {
         NodeKind nodeKind = valueType.tag <= TypeTags.DECIMAL ? NodeKind.NUMERIC_LITERAL : NodeKind.LITERAL;
         return nodeKind == NodeKind.LITERAL ? (BLangLiteral) TreeBuilder.createLiteralExpression() :
                 (BLangLiteral) TreeBuilder.createNumericLiteralExpression();
+    }
+
+    private boolean isImmutable(int flags) {
+        return Symbols.isFlagOn(flags, Flags.READONLY);
+    }
+
+    private BType getEffectiveImmutableType(BType type) {
+        return ImmutableTypeCloner.getEffectiveImmutableType(null, types, (SelectivelyImmutableReferenceType) type,
+                                                             type.tsymbol.pkgID, type.tsymbol.owner,
+                                                             symTable, null, names);
+    }
+
+    private BType getEffectiveImmutableType(BType type, PackageID pkgID, BSymbol owner) {
+        return ImmutableTypeCloner.getEffectiveImmutableType(null, types, (SelectivelyImmutableReferenceType) type,
+                                                             pkgID, owner, symTable, null, names);
     }
 }

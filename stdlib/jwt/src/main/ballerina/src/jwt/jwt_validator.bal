@@ -138,7 +138,7 @@ function getJwtHeader(string encodedHeader) returns @tainted JwtHeader|Error {
     if (header is byte[]) {
         string|error result = strings:fromBytes(header);
         if (result is error) {
-            return prepareError(result.reason(), result);
+            return prepareError(result.message(), result);
         }
         string jwtHeader = <string>result;
 
@@ -158,7 +158,7 @@ function getJwtPayload(string encodedPayload) returns @tainted JwtPayload|Error 
     if (payload is byte[]) {
         string|error result = strings:fromBytes(payload);
         if (result is error) {
-            return prepareError(result.reason(), result);
+            return prepareError(result.message(), result);
         }
         string jwtPayload = <string>result;
 
@@ -314,7 +314,7 @@ function validateMandatoryJwtHeaderFields(JwtHeader jwtHeader) returns boolean {
 function validateCertificate(crypto:PublicKey publicKey) returns boolean|Error {
     time:Time|error result = time:toTimeZone(time:currentTime(), "GMT");
     if (result is error) {
-        return prepareError(result.reason(), result);
+        return prepareError(result.message(), result);
     }
 
     time:Time currTimeInGmt = <time:Time>result;
@@ -388,7 +388,7 @@ function getJwk(string kid, JwksConfig jwksConfig) returns @tainted (json|Error)
     if (response is http:Response) {
         json|http:ClientError result = response.getJsonPayload();
         if (result is http:ClientError) {
-            return prepareError(result.reason(), result);
+            return prepareError(result.message(), result);
         }
         json payload = <json>result;
         json[] jwks = <json[]>payload.keys;
@@ -398,7 +398,7 @@ function getJwk(string kid, JwksConfig jwksConfig) returns @tainted (json|Error)
             }
         }
     } else {
-        return prepareError(response.reason(), response);
+        return prepareError("JWK retrieval failed", response);
     }
 }
 

@@ -71,20 +71,20 @@ public class ForeachErrorBindingPatternsTests {
         Assert.assertEquals(negative.getErrorCount(), 8);
         int i = 0;
         BAssertUtil.validateError(negative, i++,
-                "invalid error variable; expecting an error type but found 'error<string, Detail>?' in type definition",
-                31, 17);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'map<string>', found 'string?'", 60, 25);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected '(string|boolean)', found 'string?'",
-                64, 28);
+                "invalid error variable; expecting an error type but found 'DError?' in type definition",
+                33, 17);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'map<string>', found 'anydata'", 62, 25);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected '(string|boolean)', found 'anydata'",
+                66, 28);
         BAssertUtil.validateError(negative, i++,
-                "invalid error variable; expecting an error type but found 'error<string, Detail>?' in type definition",
-                76, 17);
+                "invalid error variable; expecting an error type but found 'DError?' in type definition",
+                78, 17);
         BAssertUtil.validateError(negative, i++,
-                "incompatible types: expected 'map<string>', found 'string?'", 107, 25);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected '(string|boolean)', found 'string?'",
-                111, 28);
-        BAssertUtil.validateError(negative, i++, "invalid error binding pattern with type 'error<string, ReasonT>'",
-                127, 17);
-        BAssertUtil.validateError(negative, i++, "undefined symbol 'otherVar'", 130, 17);
+                "incompatible types: expected 'map<string>', found 'anydata'", 109, 25);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected '(string|boolean)', found 'anydata'",
+                113, 28);
+        BAssertUtil.validateError(negative, i++, "invalid error binding pattern with type 'ReasonError'",
+                131, 17);
+        BAssertUtil.validateError(negative, i++, "undefined symbol 'otherVar'", 134, 17);
     }
 }

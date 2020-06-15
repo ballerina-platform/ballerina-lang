@@ -19,22 +19,34 @@
 package org.ballerinalang.net.grpc.listener;
 
 import com.google.protobuf.Descriptors;
+import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
+import org.ballerinalang.jvm.types.BStreamType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.ServerCall;
 import org.ballerinalang.net.grpc.ServiceResource;
-import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.callback.StreamingCallableUnitCallBack;
-import org.ballerinalang.net.grpc.callback.UnaryCallableUnitCallBack;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
+import static org.ballerinalang.net.grpc.GrpcConstants.COMPLETED_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.ITERATOR_OBJECT_NAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_QUEUE;
+
+
 
 /**
  * Interface to initiate processing of incoming remote calls for streaming services.
@@ -43,57 +55,59 @@ import java.util.Map;
  */
 public class StreamingServerCallHandler extends ServerCallHandler {
 
-    private final Map<String, ServiceResource> resourceMap;
+    private final ServiceResource resource;
+    private final BType inputType;
 
-    public StreamingServerCallHandler(Descriptors.MethodDescriptor methodDescriptor, Map<String, ServiceResource>
-            resourceMap) throws GrpcServerException {
+    public StreamingServerCallHandler(Descriptors.MethodDescriptor methodDescriptor, ServiceResource resource,
+                                      BType inputType) throws GrpcServerException {
         super(methodDescriptor);
-        validateStreamingResources(resourceMap);
-        this.resourceMap = resourceMap;
+        if (resource == null) {
+            throw new GrpcServerException("Streaming service resource doesn't exist.");
+        }
+        this.resource = resource;
+        this.inputType = inputType;
     }
 
     @Override
     public Listener startCall(ServerCall call) {
         ServerCallStreamObserver responseObserver = new ServerCallStreamObserver(call);
-        StreamObserver requestObserver = invoke(responseObserver, call.getObserverContext());
-        return new StreamingServerCallListener(requestObserver, responseObserver);
+        StreamObserver requestObserver = invoke(responseObserver, call);
+        return new StreamingServerCallHandler.StreamingServerCallListener(requestObserver, responseObserver);
     }
 
-    private StreamObserver invoke(StreamObserver responseObserver, ObserverContext context) {
-        ServiceResource onOpen = resourceMap.get(GrpcConstants.ON_OPEN_RESOURCE);
-        StreamingCallableUnitCallBack callback = new StreamingCallableUnitCallBack(responseObserver, context);
-        Map<String, Object> properties = new HashMap<>();
-        if (ObserveUtils.isObservabilityEnabled()) {
-            properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, context);
+    private StreamObserver invoke(StreamObserver responseObserver, ServerCall call) {
+        ObserverContext context = call.getObserverContext();
+        ObjectValue streamIterator = BallerinaValues.createObjectValue(GrpcConstants.PROTOCOL_GRPC_PKG_ID,
+                ITERATOR_OBJECT_NAME, new Object[1]);
+        BlockingQueue<Message> messageQueue = new LinkedBlockingQueue<>();
+        streamIterator.addNativeData(MESSAGE_QUEUE, messageQueue);
+        streamIterator.addNativeData(CLIENT_ENDPOINT_TYPE, getConnectionParameter(responseObserver));
+        StreamValue requestStream = new StreamValue(new BStreamType(inputType), streamIterator);
+        onStreamInvoke(resource, requestStream, call.getHeaders(), responseObserver, context);
+        return new StreamingServerRequestObserver(streamIterator, messageQueue);
+    }
+
+    private static final class StreamingServerRequestObserver implements StreamObserver {
+        private final BlockingQueue<Message> messageQueue;
+
+        StreamingServerRequestObserver(ObjectValue streamIterator, BlockingQueue<Message> messageQueue) {
+            this.messageQueue = messageQueue;
         }
-        onOpen.getRuntime().invokeMethodAsync(onOpen.getService(), onOpen.getFunctionName(), callback, properties,
-                computeMessageParams(onOpen, null, responseObserver));
-        callback.available.acquireUninterruptibly();
 
-        return new StreamObserver() {
-            @Override
-            public void onNext(Message value) {
-                ServiceResource onMessage = resourceMap.get(GrpcConstants.ON_MESSAGE_RESOURCE);
+        @Override
+        public void onNext(Message value) {
+            messageQueue.add(value);
+        }
 
-                CallableUnitCallback callback = new StreamingCallableUnitCallBack(responseObserver, context);
-                onMessage.getRuntime().invokeMethodAsync(onMessage.getService(), onMessage.getFunctionName(),
-                        callback, properties, computeMessageParams(onMessage, value, responseObserver));
-            }
+        @Override
+        public void onError(Message error) {
+            messageQueue.add(error);
+        }
 
-            @Override
-            public void onError(Message error) {
-                ServiceResource onError = resourceMap.get(GrpcConstants.ON_ERROR_RESOURCE);
-                onErrorInvoke(onError, responseObserver, error, context);
-            }
-
-            @Override
-            public void onCompleted() {
-                ServiceResource onCompleted = resourceMap.get(GrpcConstants.ON_COMPLETE_RESOURCE);
-                CallableUnitCallback callback = new UnaryCallableUnitCallBack(responseObserver, Boolean.FALSE, context);
-                onCompleted.getRuntime().invokeMethodAsync(onCompleted.getService(), onCompleted.getFunctionName(),
-                        callback, properties, computeMessageParams(onCompleted, null, responseObserver));
-            }
-        };
+        @Override
+        public void onCompleted() {
+            messageQueue.add(new Message(COMPLETED_MESSAGE, null));
+        }
     }
 
     private static final class StreamingServerCallListener implements Listener {
@@ -117,42 +131,40 @@ public class StreamingServerCallHandler extends ServerCallHandler {
 
         @Override
         public void onHalfClose() {
-            halfClosed = true;
-            requestObserver.onCompleted();
+            if (!halfClosed) {
+                halfClosed = true;
+                requestObserver.onCompleted();
+            }
+            // Once the client is closed the connection, 
+            // the client can't send new messages.
         }
 
         @Override
-        public void onCancel() {
+        public void onCancel(Message message) {
             responseObserver.cancelled = true;
-            if (!halfClosed) {
-                Message message = new Message(Status.Code.CANCELLED.toStatus()
-                        .withDescription("cancelled before receiving half close")
-                        .asRuntimeException());
-                requestObserver.onError(message);
-            }
+            requestObserver.onError(message);
         }
 
         @Override
         public void onComplete() {
-            // Additional logic when closing the stream at server side.
+            if (!halfClosed) {
+                halfClosed = true;
+                requestObserver.onCompleted();
+            }
+            // Once the client is closed the connection,
+            // the client can't send new messages.
         }
     }
 
-    private void validateStreamingResources(Map<String, ServiceResource> resourceMap) throws GrpcServerException {
-        if (resourceMap.isEmpty()) {
-            throw new GrpcServerException("Streaming service resources don't exist.");
+    void onStreamInvoke(ServiceResource resource, StreamValue requestStream, HttpHeaders headers,
+                        StreamObserver responseObserver, ObserverContext context) {
+        Object[] requestParams = computeResourceParams(resource, requestStream, headers, responseObserver);
+        Map<String, Object> properties = new HashMap<>();
+        if (ObserveUtils.isObservabilityEnabled()) {
+            properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, context);
         }
-        if (!resourceMap.containsKey(GrpcConstants.ON_OPEN_RESOURCE)) {
-            throw new GrpcServerException("Streaming service onOpen resource doesn't exist.");
-        }
-        if (!resourceMap.containsKey(GrpcConstants.ON_MESSAGE_RESOURCE)) {
-            throw new GrpcServerException("Streaming service onMessage resource doesn't exist.");
-        }
-        if (!resourceMap.containsKey(GrpcConstants.ON_ERROR_RESOURCE)) {
-            throw new GrpcServerException("Streaming service onError resource doesn't exist.");
-        }
-        if (!resourceMap.containsKey(GrpcConstants.ON_COMPLETE_RESOURCE)) {
-            throw new GrpcServerException("Streaming service onComplete resource doesn't exist.");
-        }
+        StreamingCallableUnitCallBack callback = new StreamingCallableUnitCallBack(responseObserver, context);
+        resource.getRuntime().invokeMethodAsync(resource.getService(), resource.getFunctionName(), callback,
+                properties, requestParams);
     }
 }

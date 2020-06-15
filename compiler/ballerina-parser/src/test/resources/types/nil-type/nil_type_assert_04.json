@@ -21,10 +21,22 @@
             },
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "t"
+              "value": "t",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
-              "kind": "CLOSE_PAREN_TOKEN"
+              "kind": "CLOSE_PAREN_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
         },

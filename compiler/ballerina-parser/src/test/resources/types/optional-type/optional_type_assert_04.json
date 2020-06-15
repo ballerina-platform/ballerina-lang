@@ -21,7 +21,13 @@
               "value": "T"
             },
             {
-              "kind": "QUESTION_MARK_TOKEN"
+              "kind": "QUESTION_MARK_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
         },

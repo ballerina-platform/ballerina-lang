@@ -35,7 +35,7 @@ service errorService on new http:Listener(21013) {
     }
 
     resource function onError(http:WebSocketCaller ep, error err) {
-        io:println(err.detail()["message"]);
+        io:println(err.message());
     }
 
     resource function onClose(http:WebSocketCaller ep, int statusCode, string reason) {

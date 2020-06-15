@@ -17,15 +17,15 @@
 const R1 = "first reason";
 const R2 = "second reason";
 
-type E1 error<R1>;
-type E2 error<R2>;
+type E1 distinct error;
+type E2 distinct error;
 
 function foo() returns E1? {
     int i = check bar(); // should fail - check returns E2, but return type is E1?
 }
 
 function bar() returns int|E2 {
-    return E2();
+    return E2(R1);
 }
 
 public function main() {

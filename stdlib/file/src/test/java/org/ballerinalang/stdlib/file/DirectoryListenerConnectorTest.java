@@ -166,7 +166,8 @@ public class DirectoryListenerConnectorTest {
         } catch (Throwable e) {
             String actualMsg = e.getMessage().substring(47, 51 + 54);
             String expectedErrorMsg = "Unable to find a directory: src/test/resources/fs/file.txt";
-            Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for invalid folder.");
+            Assert.assertTrue(e.getMessage().contains(expectedErrorMsg),
+                    "Didn't get expected error for invalid folder.");
         }
     }
 
@@ -175,9 +176,9 @@ public class DirectoryListenerConnectorTest {
         try {
             BCompileUtil.compileOffline(testResourceRoot.resolve("file-system-negative-folder-exist.bal").toString());
         } catch (BLangRuntimeException e) {
-            String actualMsg = e.getMessage().substring(47, 51 + 34);
             String expectedErrorMsg = "Folder does not exist: hello/ballerina";
-            Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for non-exist folder.");
+            Assert.assertTrue(e.getMessage().contains(expectedErrorMsg),
+                    "Didn't get expected error for non-exist folder.");
         }
     }
 
@@ -187,9 +188,8 @@ public class DirectoryListenerConnectorTest {
             BCompileUtil.compileOffline(testResourceRoot.resolve("file-system-negative-missing-variable.bal")
                     .toString());
         } catch (Throwable e) {
-            String actualMsg = e.getMessage().substring(47, 51 + 17);
             String expectedErrorMsg = "'path' field is empty";
-            Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for empty path.");
+            Assert.assertTrue(e.getMessage().contains(expectedErrorMsg), "Didn't get expected error for empty path.");
         }
     }
 

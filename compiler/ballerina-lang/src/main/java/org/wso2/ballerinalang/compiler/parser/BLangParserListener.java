@@ -257,7 +257,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), false, false, false, true);
+        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), false, false, false, false, true, false);
     }
 
     /**
@@ -489,12 +489,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         // Only difference is that in object type definition, object body's parent's parent does not have siblings.
         boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext)
                 || (ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext
-                    && ctx.parent.parent.parent instanceof BallerinaParser.FiniteTypeContext
-                    && ctx.parent.parent.parent.getChildCount() > 1);
+                && ctx.parent.parent.parent instanceof BallerinaParser.FiniteTypeContext
+                && ctx.parent.parent.parent.getChildCount() > 1);
 
         boolean isAbstract = ((ObjectTypeNameLabelContext) ctx.parent).ABSTRACT() != null;
         boolean isClient = ((ObjectTypeNameLabelContext) ctx.parent).CLIENT() != null;
-        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isAnonymous, isAbstract, isClient, false);
+        boolean isReadOnly = ((ObjectTypeNameLabelContext) ctx.parent).TYPE_READONLY() != null;
+        boolean isDistinct = ((ObjectTypeNameLabelContext) ctx.parent).DISTINCT() != null;
+        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isAnonymous, isAbstract, isReadOnly, isClient,
+                false, isDistinct);
     }
 
     /**
@@ -959,7 +962,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addUserDefineType(getWS(ctx));
+        RuleContext paren3Up = ctx.parent.parent.parent;
+        boolean isDistinct = (paren3Up instanceof BallerinaParser.SimpleTypeNameLabelContext)
+            && ((BallerinaParser.SimpleTypeNameLabelContext) paren3Up).DISTINCT() != null;
+
+        this.pkgBuilder.addUserDefineType(getWS(ctx), isDistinct);
     }
 
     @Override
@@ -1056,11 +1063,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-        boolean reasonTypeExists = !ctx.typeName().isEmpty();
-        boolean detailsTypeExists = ctx.typeName().size() > 1;
+        boolean detailsTypeExists = ctx.typeName() != null;
+        boolean isErrorTypeInfer = ctx.MUL() != null;
         boolean isAnonymous = !(ctx.parent.parent.parent.parent.parent.parent
-                                        instanceof BallerinaParser.FiniteTypeContext) && reasonTypeExists;
-        this.pkgBuilder.addErrorType(getCurrentPos(ctx), getWS(ctx), reasonTypeExists, detailsTypeExists, isAnonymous);
+                instanceof BallerinaParser.FiniteTypeContext) && detailsTypeExists;
+
+        RuleContext parent4up = ctx.parent.parent.parent.parent;
+        boolean isDistinct = parent4up instanceof BallerinaParser.SimpleTypeNameLabelContext
+                && ((BallerinaParser.SimpleTypeNameLabelContext) parent4up).DISTINCT() != null;
+
+        this.pkgBuilder.addErrorType(getCurrentPos(ctx), getWS(ctx), detailsTypeExists, isErrorTypeInfer, isAnonymous,
+                isDistinct);
     }
 
     @Override
@@ -1131,29 +1144,26 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        // Error binding pattern using indirect error constructor.
-        if (ctx.typeName() != null) {
-            if (ctx.errorFieldBindingPatterns().errorRestBindingPattern() != null) {
-                String restIdName = ctx.errorFieldBindingPatterns().errorRestBindingPattern().Identifier().getText();
-                DiagnosticPos restPos = getCurrentPos(ctx.errorFieldBindingPatterns().errorRestBindingPattern());
-                this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), restIdName, restPos);
-            } else {
-                this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), null, null);
-            }
-            return;
-        }
-        String reasonIdentifier = ctx.Identifier().getText();
+        BallerinaParser.ErrorBindingPatternParamatersContext paramCtx = ctx.errorBindingPatternParamaters();
+        TerminalNode messageNode = paramCtx.Identifier(0);
+        String reasonIdentifier = messageNode.getText(); // Mandatory first arg
         DiagnosticPos currentPos = getCurrentPos(ctx);
+
+        TerminalNode causeNode = paramCtx.Identifier().size() > 1 ? paramCtx.Identifier(1) : null;
+        String causeIdentifier = causeNode != null ? causeNode.getText() : null;
+        DiagnosticPos causePos = causeNode != null ? getCurrentPos(causeNode) : null;
 
         String restIdentifier = null;
         DiagnosticPos restParamPos = null;
-        if (ctx.errorRestBindingPattern() != null) {
-            restIdentifier = ctx.errorRestBindingPattern().Identifier().getText();
-            restParamPos = getCurrentPos(ctx.errorRestBindingPattern());
+        if (paramCtx.errorRestBindingPattern() != null) {
+            restIdentifier = paramCtx.errorRestBindingPattern().Identifier().getText();
+            restParamPos = getCurrentPos(paramCtx.errorRestBindingPattern());
         }
 
-        this.pkgBuilder.addErrorVariable(currentPos, getWS(ctx), reasonIdentifier, restIdentifier, false, false,
-                restParamPos);
+        boolean isUserDefinedErrorType = ctx.userDefineTypeName() != null;
+
+        this.pkgBuilder.addErrorVariable(currentPos, getWS(ctx), isUserDefinedErrorType, reasonIdentifier,
+                causeIdentifier, causePos, restIdentifier, false, false, restParamPos);
     }
 
     @Override
@@ -1282,7 +1292,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             }
         }
 
-        this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), reasonIdentifier,
+        this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), false, reasonIdentifier, null, null,
                 restIdentifier, reasonVar, constReasonMatchPattern, restParamPos);
     }
 
@@ -1315,15 +1325,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        int numNamedArgs = ctx.errorNamedArgRefPattern().size();
-        boolean reasonRefAvailable = ctx.variableReference() != null;
+        BallerinaParser.ErrorRefArgsPatternContext errorRefArgsPatternContext = ctx.errorRefArgsPattern();
+        int numNamedArgs = errorRefArgsPatternContext.errorNamedArgRefPattern().size();
+        boolean causeRefAvailable = errorRefArgsPatternContext.variableReference().size() > 1;
 
-        boolean restPatternAvailable = ctx.errorRefRestPattern() != null;
+        boolean restPatternAvailable = errorRefArgsPatternContext.errorRefRestPattern() != null;
 
         boolean indirectErrorRefPattern = ctx.typeName() != null;
 
         this.pkgBuilder.addErrorVariableReference(getCurrentPos(ctx), getWS(ctx),
-                numNamedArgs, reasonRefAvailable, restPatternAvailable, indirectErrorRefPattern);
+                numNamedArgs, causeRefAvailable, restPatternAvailable, indirectErrorRefPattern);
     }
 
     @Override

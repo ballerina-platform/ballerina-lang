@@ -66,7 +66,7 @@ function readAllCharacters() returns @tainted string|io:Error? {
             if (e is io:EofError) {
                 isDone = true;
             } else {
-                io:GenericError readError = error(io:GENERIC_ERROR, message = "Error while reading the content", cause = readResult);
+                io:GenericError readError = io:GenericError("Error while reading the content", readResult);
                 return readError;
             }
         }
@@ -85,7 +85,7 @@ function writeCharacters(string content, int startOffset) returns int|io:Error? 
         }
     }
     // error e = error("Character channel not initialized properly");
-    io:GenericError e = error(io:GENERIC_ERROR, message = "Character channel not initialized properly");
+    io:GenericError e = io:GenericError("Character channel not initialized properly");
     return e;
 }
 
@@ -99,7 +99,7 @@ function appendCharacters(string content, int startOffset) returns int|io:Error?
             return result;
         }
     }
-    io:GenericError e = error(io:GENERIC_ERROR, message = "Character channel not initialized properly");
+    io:GenericError e = io:GenericError("Character channel not initialized properly");
     return e;
 }
 
@@ -126,7 +126,7 @@ function readXml() returns @tainted xml|error {
             return result;
         }
     }
-    io:GenericError e = error(io:GENERIC_ERROR, message = "Character channel not initialized properly");
+    io:GenericError e = io:GenericError("Character channel not initialized properly");
     return e;
 }
 

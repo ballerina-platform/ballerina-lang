@@ -163,7 +163,8 @@ public class VarMutabilityClosureTest {
     public void testVarMutabilityWithError() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test13");
         Assert.assertEquals(((BError) returns[0]).getReason(), "Account Not Found");
-        Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(), "{accountID:222}");
+        String s = ((BError) returns[0]).getDetails().stringValue();
+        Assert.assertEquals(s, "{accountID:222}");
     }
 
 }

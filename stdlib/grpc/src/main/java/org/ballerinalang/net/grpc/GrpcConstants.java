@@ -57,7 +57,10 @@ public class GrpcConstants {
     public static final String RESPONSE_OBSERVER = "RESPONSE_OBSERVER";
     public static final String RESPONSE_MESSAGE_DEFINITION = "RESPONSE_DEFINITION";
     public static final BString CALLER_ID = StringUtils.fromString("instanceId");
-
+    public static final String MESSAGE_QUEUE = "messageQueue";
+    public static final String COMPLETED_MESSAGE = "completedMessage";
+    public static final String ERROR_MESSAGE = "errorMessage";
+    public static final String ITERATOR_OBJECT_NAME = "StreamIterator";
 
     // Service Descriptor Annotation
     public static final String DESCRIPTOR_MAP = "getDescriptorMap";
@@ -67,7 +70,7 @@ public class GrpcConstants {
     public static final String ANN_FIELD_DESCRIPTOR = "descriptor";
     public static final String ANN_FIELD_DESC_MAP = "descMap";
     public static final String ANN_SERVICE_DESCRIPTOR_FQN = PROTOCOL_STRUCT_PACKAGE_GRPC + ":" + ANN_SERVICE_DESCRIPTOR;
-    
+
     //client side endpoint constants
     public static final String CLIENT_ENDPOINT_TYPE = "Client";
     public static final String CLIENT_CONNECTOR = "ClientConnector";
@@ -125,7 +128,6 @@ public class GrpcConstants {
     public static final String WRAPPER_BYTES_MESSAGE = "BytesValue";
 
     // Server Streaming method resources.
-    public static final String ON_OPEN_RESOURCE = "onOpen";
     public static final String ON_COMPLETE_RESOURCE = "onComplete";
     public static final String ON_MESSAGE_RESOURCE = "onMessage";
     public static final String ON_ERROR_RESOURCE = "onError";
@@ -178,22 +180,22 @@ public class GrpcConstants {
     public static final String LISTENER_CONNECTION_FIELD = "conn";
 
     // Error codes
-    public static final String CANCELLED_ERROR = "{ballerina/grpc}CancelledError";
-    public static final String UNKNOWN_ERROR = "{ballerina/grpc}UnKnownError";
-    public static final String INVALID_ARGUMENT_ERROR = "{ballerina/grpc}InvalidArgumentError";
-    public static final String DEADLINE_EXCEEDED_ERROR = "{ballerina/grpc}DeadlineExceededError";
-    public static final String NOT_FOUND_ERROR = "{ballerina/grpc}NotFoundError";
-    public static final String ALREADY_EXISTS_ERROR = "{ballerina/grpc}AleadyExistsError";
-    public static final String PERMISSION_DENIED_ERROR = "{ballerina/grpc}PermissionDeniedError";
-    public static final String RESOURCE_EXHAUSTED_ERROR = "{ballerina/grpc}ResourceExhaustedError";
-    public static final String FAILED_PRECONDITION_ERROR = "{ballerina/grpc}FailedPreconditionError";
-    public static final String ABORTED_ERROR = "{ballerina/grpc}AbortedError";
-    public static final String OUT_OF_RANGE_ERROR = "{ballerina/grpc}OutOfRangeError";
-    public static final String UNIMPLEMENTED_ERROR = "{ballerina/grpc}UnimplementedError";
-    public static final String INTERNAL_ERROR = "{ballerina/grpc}InternalError";
-    public static final String UNAVAILABLE_ERROR = "{ballerina/grpc}UnavailableError";
-    public static final String DATA_LOSS_ERROR = "{ballerina/grpc}DataLossError";
-    public static final String UNAUTHENTICATED_ERROR = "{ballerina/grpc}UnauthenticatedError";
+    public static final String CANCELLED_ERROR = "CancelledError";
+    public static final String UNKNOWN_ERROR = "UnKnownError";
+    public static final String INVALID_ARGUMENT_ERROR = "InvalidArgumentError";
+    public static final String DEADLINE_EXCEEDED_ERROR = "DeadlineExceededError";
+    public static final String NOT_FOUND_ERROR = "NotFoundError";
+    public static final String ALREADY_EXISTS_ERROR = "AleadyExistsError";
+    public static final String PERMISSION_DENIED_ERROR = "PermissionDeniedError";
+    public static final String RESOURCE_EXHAUSTED_ERROR = "ResourceExhaustedError";
+    public static final String FAILED_PRECONDITION_ERROR = "FailedPreconditionError";
+    public static final String ABORTED_ERROR = "AbortedError";
+    public static final String OUT_OF_RANGE_ERROR = "OutOfRangeError";
+    public static final String UNIMPLEMENTED_ERROR = "UnimplementedError";
+    public static final String INTERNAL_ERROR = "InternalError";
+    public static final String UNAVAILABLE_ERROR = "UnavailableError";
+    public static final String DATA_LOSS_ERROR = "DataLossError";
+    public static final String UNAUTHENTICATED_ERROR = "UnauthenticatedError";
 
     public static final Map<Integer, String> STATUS_ERROR_MAP;
 

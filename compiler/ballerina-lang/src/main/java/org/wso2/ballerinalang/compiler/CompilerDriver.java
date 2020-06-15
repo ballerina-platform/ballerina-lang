@@ -60,6 +60,7 @@ import static org.ballerinalang.model.elements.PackageID.QUERY;
 import static org.ballerinalang.model.elements.PackageID.STREAM;
 import static org.ballerinalang.model.elements.PackageID.STRING;
 import static org.ballerinalang.model.elements.PackageID.TABLE;
+import static org.ballerinalang.model.elements.PackageID.TRANSACTION;
 import static org.ballerinalang.model.elements.PackageID.TYPEDESC;
 import static org.ballerinalang.model.elements.PackageID.VALUE;
 import static org.ballerinalang.model.elements.PackageID.XML;
@@ -151,6 +152,7 @@ public class CompilerDriver {
             symbolTable.langIntModuleSymbol = pkgLoader.loadPackageSymbol(INT, null, null);
             symbolTable.langMapModuleSymbol = pkgLoader.loadPackageSymbol(MAP, null, null);
             symbolTable.langObjectModuleSymbol = pkgLoader.loadPackageSymbol(OBJECT, null, null);
+            symResolver.loadRawTemplateType();
             symbolTable.langStreamModuleSymbol = pkgLoader.loadPackageSymbol(STREAM, null, null);
             symbolTable.langTableModuleSymbol = pkgLoader.loadPackageSymbol(TABLE, null, null);
             symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
@@ -159,6 +161,7 @@ public class CompilerDriver {
             symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
             symbolTable.langBooleanModuleSymbol = pkgLoader.loadPackageSymbol(BOOLEAN, null, null);
             symbolTable.langQueryModuleSymbol = pkgLoader.loadPackageSymbol(QUERY, null, null);
+            symbolTable.langTransactionModuleSymbol = pkgLoader.loadPackageSymbol(TRANSACTION, null, null);
             symResolver.loadFunctionalConstructors();
             return;
         }
@@ -196,6 +199,15 @@ public class CompilerDriver {
             symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
             symbolTable.langTableModuleSymbol = pkgLoader.loadPackageSymbol(TABLE, null, null);
             symbolTable.langStreamModuleSymbol = pkgLoader.loadPackageSymbol(STREAM, null, null);
+        }
+
+        if (langLib.equals(TRANSACTION)) {
+            // Transaction module requires  array, map, string, value modules. Hence loading them.
+            symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
+            symbolTable.langMapModuleSymbol = pkgLoader.loadPackageSymbol(MAP, null, null);
+            symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
+            symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
+            symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
         }
 
         symResolver.reloadIntRangeType();

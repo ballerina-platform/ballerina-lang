@@ -2059,6 +2059,22 @@
             ]
         },
         {
+            "name": "TypedescTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "TYPEDESC_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "typedescKeywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "typedescTypeParamsNode",
+                    "type": "TypeParameterNode",
+                    "isOptional": true
+                }
+            ]
+        },
+        {
             "name": "LetExpressionNode",
             "base": "ExpressionNode",
             "kind": "LET_EXPRESSION",
@@ -2644,12 +2660,13 @@
             "kind": "QUERY_CONSTRUCT_TYPE",
             "attributes": [
                 {
-                    "name": "tableKeyword",
+                    "name": "keyword",
                     "type": "Token"
                 },
                 {
                     "name": "keySpecifier",
-                    "type": "KeySpecifierNode"
+                    "type": "KeySpecifierNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -3022,7 +3039,7 @@
         },
         {
             "name": "RestBindingPatternNode",
-            "base": "Node",
+            "base": "BindingPatternNode",
             "kind": "REST_BINDING_PATTERN",
             "attributes": [
                 {
@@ -3199,7 +3216,7 @@
             "attributes": [
                 {
                     "name": "fieldName",
-                    "type": "NameReferenceNode"
+                    "type": "SimpleNameReferenceNode"
                 },
                 {
                     "name": "colon",
@@ -3495,7 +3512,8 @@
                 },
                 {
                     "name": "content",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "endBacktick",
@@ -3608,7 +3626,7 @@
                 {
                     "name": "matchClauses",
                     "type": "MatchClauseNode",
-                    "occurrences": "MULTIPLE_SEPARATED"
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "closeBrace",
@@ -3690,6 +3708,21 @@
                 {
                     "name": "functionBody",
                     "type": "FunctionBodyNode"
+                }
+            ]
+        },
+        {
+            "name": "DistinctTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "DISTINCT_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "distinctKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeDescriptor",
+                    "type": "TypeDescriptorNode"
                 }
             ]
         }

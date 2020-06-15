@@ -1527,6 +1527,17 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stStreamTypeParamsNode.createUnlinkedFacade();
     }
 
+    public static TypedescTypeDescriptorNode createTypedescTypeDescriptorNode(
+            Token typedescKeywordToken,
+            TypeParameterNode typedescTypeParamsNode) {
+        Objects.requireNonNull(typedescKeywordToken, "typedescKeywordToken must not be null");
+
+        STNode stTypedescTypeDescriptorNode = STNodeFactory.createTypedescTypeDescriptorNode(
+                typedescKeywordToken.internalNode(),
+                getOptionalSTNode(typedescTypeParamsNode));
+        return stTypedescTypeDescriptorNode.createUnlinkedFacade();
+    }
+
     public static LetExpressionNode createLetExpressionNode(
             Token letKeyword,
             SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations,
@@ -1941,14 +1952,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static QueryConstructTypeNode createQueryConstructTypeNode(
-            Token tableKeyword,
+            Token keyword,
             KeySpecifierNode keySpecifier) {
-        Objects.requireNonNull(tableKeyword, "tableKeyword must not be null");
-        Objects.requireNonNull(keySpecifier, "keySpecifier must not be null");
+        Objects.requireNonNull(keyword, "keyword must not be null");
 
         STNode stQueryConstructTypeNode = STNodeFactory.createQueryConstructTypeNode(
-                tableKeyword.internalNode(),
-                keySpecifier.internalNode());
+                keyword.internalNode(),
+                getOptionalSTNode(keySpecifier));
         return stQueryConstructTypeNode.createUnlinkedFacade();
     }
 
@@ -2361,7 +2371,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static WaitFieldNode createWaitFieldNode(
-            NameReferenceNode fieldName,
+            SimpleNameReferenceNode fieldName,
             Token colon,
             ExpressionNode waitFutureExpr) {
         Objects.requireNonNull(fieldName, "fieldName must not be null");
@@ -2585,13 +2595,12 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token endBacktick) {
         Objects.requireNonNull(type, "type must not be null");
         Objects.requireNonNull(startBacktick, "startBacktick must not be null");
-        Objects.requireNonNull(content, "content must not be null");
         Objects.requireNonNull(endBacktick, "endBacktick must not be null");
 
         STNode stByteArrayLiteralNode = STNodeFactory.createByteArrayLiteralNode(
                 type.internalNode(),
                 startBacktick.internalNode(),
-                content.internalNode(),
+                getOptionalSTNode(content),
                 endBacktick.internalNode());
         return stByteArrayLiteralNode.createUnlinkedFacade();
     }
@@ -2663,7 +2672,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token matchKeyword,
             ExpressionNode condition,
             Token openBrace,
-            SeparatedNodeList<MatchClauseNode> matchClauses,
+            NodeList<MatchClauseNode> matchClauses,
             Token closeBrace) {
         Objects.requireNonNull(matchKeyword, "matchKeyword must not be null");
         Objects.requireNonNull(condition, "condition must not be null");
@@ -2732,6 +2741,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 methodSignature.internalNode(),
                 functionBody.internalNode());
         return stObjectMethodDefinitionNode.createUnlinkedFacade();
+    }
+
+    public static DistinctTypeDescriptorNode createDistinctTypeDescriptorNode(
+            Token distinctKeyword,
+            TypeDescriptorNode typeDescriptor) {
+        Objects.requireNonNull(distinctKeyword, "distinctKeyword must not be null");
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+
+        STNode stDistinctTypeDescriptorNode = STNodeFactory.createDistinctTypeDescriptorNode(
+                distinctKeyword.internalNode(),
+                typeDescriptor.internalNode());
+        return stDistinctTypeDescriptorNode.createUnlinkedFacade();
     }
 }
 

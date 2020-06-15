@@ -3,7 +3,13 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "TABLE_KEYWORD"
+      "kind": "TABLE_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "KEY_SPECIFIER",
@@ -20,7 +26,13 @@
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "age"
+              "value": "age",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
         },

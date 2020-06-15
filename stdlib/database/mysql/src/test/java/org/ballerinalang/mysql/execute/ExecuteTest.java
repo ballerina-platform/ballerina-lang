@@ -225,13 +225,12 @@ public class ExecuteTest {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertTableWithDatabaseError");
         Assert.assertTrue(returnVal[0] instanceof BError);
         BError error = (BError) returnVal[0];
-        Assert.assertEquals(error.getReason(), "{ballerina/sql}DatabaseError");
-        Assert.assertTrue(error.getDetails() instanceof BMap);
-        BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
-        String errMessage = errorDetails.get(Constants.ErrorRecordFields.MESSAGE).stringValue();
+        String errMessage = error.getMessage();
         String expectedError = "Table 'test_sql_excute_query.numerictypesnonexisttable' doesn't exist";
         Assert.assertTrue(errMessage.toLowerCase(Locale.ENGLISH).contains(expectedError.toLowerCase(Locale.ENGLISH)),
                 "Found error message:" + errMessage);
+        Assert.assertTrue(error.getDetails() instanceof BMap);
+        BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
         Assert.assertEquals(((BInteger) errorDetails.get(Constants.ErrorRecordFields.ERROR_CODE)).intValue(),
                 1146);
         Assert.assertEquals(errorDetails.get(Constants.ErrorRecordFields.SQL_STATE).stringValue(), "42S02");
@@ -242,12 +241,11 @@ public class ExecuteTest {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertTableWithDataTypeError");
         Assert.assertTrue(returnVal[0] instanceof BError);
         BError error = (BError) returnVal[0];
-        Assert.assertEquals(error.getReason(), "{ballerina/sql}DatabaseError");
-        Assert.assertTrue(error.getDetails() instanceof BMap);
-        BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
-        String errMessage = errorDetails.get(Constants.ErrorRecordFields.MESSAGE).stringValue();
+        String errMessage = error.getMessage();
         Assert.assertTrue(errMessage.contains("Incorrect integer value: 'This is wrong type' for column 'int_type'"),
                 "Found error message:" + errMessage);
+        Assert.assertTrue(error.getDetails() instanceof BMap);
+        BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
         Assert.assertEquals(((BInteger) errorDetails.get(Constants.ErrorRecordFields.ERROR_CODE)).intValue(), 1366);
         Assert.assertEquals(errorDetails.get(Constants.ErrorRecordFields.SQL_STATE).stringValue(), "HY000");
     }

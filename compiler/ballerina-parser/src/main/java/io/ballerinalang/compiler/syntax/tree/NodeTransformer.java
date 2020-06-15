@@ -396,6 +396,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(streamTypeParamsNode);
     }
 
+    public T transform(TypedescTypeDescriptorNode typedescTypeDescriptorNode) {
+        return transformSyntaxNode(typedescTypeDescriptorNode);
+    }
+
     public T transform(LetExpressionNode letExpressionNode) {
         return transformSyntaxNode(letExpressionNode);
     }
@@ -722,6 +726,10 @@ public abstract class NodeTransformer<T> {
 
     public T transform(ObjectMethodDefinitionNode objectMethodDefinitionNode) {
         return transformSyntaxNode(objectMethodDefinitionNode);
+    }
+
+    public T transform(DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
+        return transformSyntaxNode(distinctTypeDescriptorNode);
     }
 
     // Tokens
