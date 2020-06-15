@@ -42,7 +42,7 @@ public type Listener object {
     #
     # + return - () or else error upon failure to start the listener
     public function __start() returns error? {
-        return self.start();
+        return self.'start();
     }
 
     # Stops the `email:Listener`.
@@ -98,7 +98,7 @@ public type Listener object {
         check self.stop();
     }
 
-    function start() returns error? {
+    function 'start() returns error? {
         var scheduler = self.config.cronExpression;
         if (scheduler is string) {
             task:AppointmentConfiguration config = {appointmentDetails: scheduler};
