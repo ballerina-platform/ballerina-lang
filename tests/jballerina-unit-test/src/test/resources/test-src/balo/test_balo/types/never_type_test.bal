@@ -3,8 +3,10 @@ import testorg/records;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
+type FunctionTypeDesc typedesc<function () returns (never)>;
+
 function testTypeOfNeverReturnTypedFunction() {
-    any|error expectedFunctionType = typedesc<function () returns (never)>;
+    any|error expectedFunctionType = FunctionTypeDesc;
 
     typedesc <any|error> actualFunctionType = typeof foo:sigma;
 

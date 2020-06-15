@@ -86,21 +86,19 @@ public class UnaryServerCallHandler extends ServerCallHandler {
                         new DefaultHttpHeaders());
                 return;
             }
-            invoke(request, responseObserver);
+            onMessageInvoke(resource, request, responseObserver, call.getObserverContext());
         }
 
         @Override
-        public void onCancel() {
-            responseObserver.cancelled = true;
+        public void onCancel(Message message) {
+            // This method is not invoked in unary and server streaming services. 
+            // The call stream is cancelled via halfclosed().
         }
 
         @Override
         public void onComplete() {
-            // Additional logic when closing the stream at server side.
-        }
-
-        void invoke(Message request, ServerCallStreamObserver responseObserver) {
-            onMessageInvoke(resource, request, responseObserver, call.getObserverContext());
+            // This method is not invoked in unary and server streaming services. 
+            // The call stream is closed via halfclosed(). 
         }
     }
 }

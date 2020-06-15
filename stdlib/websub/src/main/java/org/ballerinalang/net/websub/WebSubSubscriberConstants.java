@@ -131,6 +131,5 @@ public class WebSubSubscriberConstants {
     public static final String SERVICE_CONFIG_TOPIC_RESOURCE_MAP = "topicResourceMap";
 
     // WebSub error types related constants
-    public static final String ERROR_DETAIL_RECORD = "Detail";
-    public static final String WEBSUB_LISTENER_STARTUP_FAILURE = "{ballerina/websub}ListenerStartupError";
+    public static final String WEBSUB_LISTENER_STARTUP_FAILURE = "ListenerStartupError";
 }

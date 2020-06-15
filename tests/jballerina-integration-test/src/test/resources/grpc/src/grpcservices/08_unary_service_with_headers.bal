@@ -42,7 +42,7 @@ service HelloWorld101 on ep8 {
         }
         grpc:Error? err = caller->send(message, headers);
         if (err is grpc:Error) {
-            io:println("Error from Connector: " + err.reason());
+            io:println("Error from Connector: " + err.message());
         } else {
             io:println("Server send response : " + message);
         }

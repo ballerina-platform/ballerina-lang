@@ -80,6 +80,6 @@ public class TestCallableUnitCallback implements CallableUnitCallback {
     }
 
     private static String getAggregatedRootErrorMessages(ErrorValue error) {
-        return error.getReason().getValue();
+        return error.getErrorMessage().getValue();
     }
 }

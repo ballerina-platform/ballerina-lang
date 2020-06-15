@@ -116,3 +116,52 @@ function testInvalidImmutableTypeAssignmentForNotAllReadOnlyFields() {
     Foo & readonly f2 = new Baz();
     Foo & readonly f3 = new Qux();
 }
+
+type Person object {
+    readonly Particulars particulars;
+    int id;
+
+    function init(Particulars & readonly particulars) {
+        self.particulars = particulars;
+        self.id = 1021;
+    }
+};
+
+type Undergraduate object {
+    Particulars & readonly particulars;
+    int id = 1234;
+
+    function init(Particulars & readonly particulars) {
+        self.particulars = particulars;
+    }
+};
+
+type Graduate object {
+    Particulars particulars;
+    int id;
+
+    function init(Particulars particulars, int id) {
+        self.particulars = particulars;
+        self.id = id;
+    }
+};
+
+type Particulars record {|
+    string name;
+|};
+
+type AbstractPerson abstract object {
+    Particulars particulars;
+    int id;
+};
+
+function testSubTypingWithReadOnlyFieldsNegative() {
+    Undergraduate u = new ({name: "Jo"});
+    Person p1 = u;
+
+    Graduate g = new ({name: "Amy"}, 1121);
+    Person p2 = g;
+
+    AbstractPerson ap = g;
+    Person p3 = ap;
+}

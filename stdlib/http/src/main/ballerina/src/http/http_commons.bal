@@ -40,9 +40,6 @@ const string HTTP_SCHEME = "http://";
 # Represents https protocol scheme
 const string HTTPS_SCHEME = "https://";
 
-# Constant for the http error code
-public const string HTTP_ERROR_CODE = "{ballerina/http}HTTPError";
-
 # Constant for the default listener endpoint timeout
 const int DEFAULT_LISTENER_TIMEOUT = 120000; //2 mins
 
@@ -359,9 +356,7 @@ function populateErrorCodeIndex (int[] errorCode) returns boolean[] {
 }
 
 function getError() returns UnsupportedActionError {
-    string message = "Unsupported connector action received.";
-    UnsupportedActionError unsupportedActionError = error(UNSUPPORTED_ACTION, message = message);
-    return unsupportedActionError;
+    return UnsupportedActionError("Unsupported connector action received.");
 }
 
 function populateRequestFields (Request originalRequest, Request newRequest)  {
@@ -381,7 +376,7 @@ function populateMultipartRequest(Request inRequest) returns Request|ClientError
                 mime:Entity[]|error result = bodyPart.getBodyParts();
 
                 if (result is error) {
-                    return getGenericClientError(result.reason(), result);
+                    return GenericClientError(result.message(), result);
                 }
 
                 mime:Entity[] childParts = <mime:Entity[]> result;
@@ -423,14 +418,12 @@ function createFailoverRequest(Request request, mime:Entity requestEntity) retur
 }
 
 function getInvalidTypeError() returns ClientError {
-    string message = "Invalid return type found for the HTTP operation";
-    GenericClientError invalidTypeError = error(GENERIC_CLIENT_ERROR, message = message);
-    return invalidTypeError;
+    return GenericClientError("Invalid return type found for the HTTP operation");
 }
 
 function createErrorForNoPayload(mime:Error err) returns GenericClientError {
     string message = "No payload";
-    return getGenericClientError(message, err);
+    return GenericClientError(message, err);
 }
 
 //Resolve a given path against a given URI.

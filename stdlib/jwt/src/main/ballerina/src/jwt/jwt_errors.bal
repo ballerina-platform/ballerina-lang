@@ -17,21 +17,12 @@
 import ballerina/auth;
 import ballerina/log;
 
-# Record type to hold the details of an error.
-#
-# + message - The specific error message for the error.
-# + cause - The cause of the error if this error occurred due to another error
-public type Detail record {
-    string message;
-    error cause?;
-};
-
-# Represents the reason of the JWT error.
-public const JWT_ERROR = "{ballerina/jwt}Error";
+# Represents the JWT distinct error
+public type JWTError distinct error;
 
 # Represents the JWT error type with details. This will be returned if an error occurred while issuing/validating a
 # JWT or any operation related to JWT.
-public type Error error<JWT_ERROR, Detail>;
+public type Error JWTError;
 
 # Logs and prepares the `error` as an `Error`.
 #
@@ -42,9 +33,9 @@ function prepareError(string message, error? err = ()) returns Error {
     log:printError(message, err);
     Error jwtError;
     if (err is error) {
-        jwtError = error(JWT_ERROR, message = message, cause = err);
+        jwtError = JWTError(message, err);
     } else {
-        jwtError = error(JWT_ERROR, message = message);
+        jwtError = JWTError(message);
     }
     return jwtError;
 }
@@ -58,9 +49,9 @@ function prepareAuthError(string message, error? err = ()) returns auth:Error {
     log:printError(message, err);
     auth:Error authError;
     if (err is error) {
-        authError = error(auth:AUTH_ERROR, message = message, cause = err);
+        authError = auth:AuthError(message, err);
     } else {
-        authError = error(auth:AUTH_ERROR, message = message);
+        authError = auth:AuthError(message);
     }
     return authError;
 }

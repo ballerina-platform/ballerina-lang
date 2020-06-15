@@ -186,7 +186,7 @@ service InitiatorService00 on initiatorEP00 {
                 var fwdResult = conn -> respond(getResult);
                 if (fwdResult is error) {
                     io:print("Initiator could not forward response from participant 1 to originating client. Error:");
-                    io:print(fwdResult.reason());
+                    io:print(fwdResult.message());
                 } else {
                     io:print("");
                 }
@@ -372,7 +372,7 @@ function sendErrorResponseToCaller(http:Caller conn) {
     var respondResult = conn2 -> respond(errRes);
     if (respondResult is error) {
         io:print("Initiator could not send error response to originating client. Error:");
-        io:println(respondResult.reason());
+        io:println(respondResult.message());
     } else {
         return;
     }

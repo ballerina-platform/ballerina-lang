@@ -25,13 +25,6 @@ package org.ballerinalang.model.tree.types;
 public interface ErrorTypeNode extends TypeNode {
 
     /**
-     * Provides reason type node.
-     *
-     * @return reason type node if user specified the type, otherwise null.
-     */
-    TypeNode getReasonTypeNode();
-
-    /**
      * Provides details type node.
      *
      * @return details type node if user specified the type, otherwise null.

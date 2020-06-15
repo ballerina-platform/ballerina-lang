@@ -186,19 +186,19 @@ service publisherThree on publisherServiceEP {
 
         var err = websubHubClientEP->publishUpdate(WEBSUB_TOPIC_ONE, <@untainted> <json> payload);
         if (err is error) {
-            publishErrorMessagesConcatenated += err.detail()?.message ?: "";
+            publishErrorMessagesConcatenated += err.message();
             log:printError("Error publishing update remotely", err);
         }
 
         err = authnFailingClient->publishUpdate(WEBSUB_TOPIC_ONE, <@untainted> <json> payload);
         if (err is error) {
-            publishErrorMessagesConcatenated += err.detail()?.message ?: "";
+            publishErrorMessagesConcatenated += err.message();
             log:printError("Error publishing update remotely", err);
         }
 
         err = authzFailingClient->publishUpdate(WEBSUB_TOPIC_ONE, <@untainted> <json> payload);
         if (err is error) {
-            publishErrorMessagesConcatenated += err.detail()?.message ?: "";
+            publishErrorMessagesConcatenated += err.message();
             log:printError("Error publishing update remotely", err);
         }
 

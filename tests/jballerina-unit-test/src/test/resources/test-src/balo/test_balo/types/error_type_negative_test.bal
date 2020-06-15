@@ -1,4 +1,4 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,10 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const a = "{test string 1";
-const b = "{test string 2";
+import testorg/errors as er;
 
-type C a|"{test/string}identifier"|string;
-
-type ErrorOne error<a>;
-type ErrorTwo error<C>;
+function getDistinctError() returns error {
+    er:OrderCreationError e = er:OrderCreationError("order creation failed", message = "Client has been stopped");
+    er:OrderCreationError2 k = er:OrderCreationError2("failed", message = "Client has been stopped");
+    er:OrderCreationError f = k;
+    k = f; // expected 'testorg/errors:1.0.0:OrderCreationError2', found 'testorg/errors:1.0.0:OrderCreationError'
+    return f;
+}

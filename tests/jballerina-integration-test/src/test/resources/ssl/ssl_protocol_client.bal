@@ -39,11 +39,9 @@ public function main (string... args) {
         if (payload is string) {
             io:println(payload);
         } else {
-            error err = payload;
-            io:println(<string> err.detail()["message"]);
+            io:println(payload.message());
         }
     } else {
-        error err = resp;
-        io:println(<string> err.detail()["message"]);
+        io:println(resp.message());
     }
 }

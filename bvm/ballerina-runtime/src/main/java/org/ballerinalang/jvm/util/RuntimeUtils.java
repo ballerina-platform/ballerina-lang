@@ -143,7 +143,7 @@ public class RuntimeUtils {
     public static void handleRuntimeReturnValues(Object returnValue) {
         if (returnValue instanceof ErrorValue) {
             ErrorValue errorValue = (ErrorValue) returnValue;
-            errStream.println("error: " + errorValue.getReason() +
+            errStream.println("error: " + errorValue.getMessage() +
                     Optional.ofNullable(errorValue.getDetails()).map(details -> " " + details).orElse(""));
             Runtime.getRuntime().exit(1);
         }

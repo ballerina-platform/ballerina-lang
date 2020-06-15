@@ -209,7 +209,8 @@ public class WebSocketResourceDispatcher {
                 case TypeTags.XML_TAG:
                     XMLValue bxml = XMLFactory.parse(aggregateString);
                     if (bxml.getNodeType() != XMLNodeType.SEQUENCE) {
-                        throw new WebSocketException("Invalid XML data");
+                        throw WebSocketUtil.getWebSocketException("Invalid XML data", null,
+                                WebSocketConstants.ErrorCode.WsGenericError.errorCode(), null);
                     }
                     return bxml;
                 case TypeTags.RECORD_TYPE_TAG:
@@ -224,7 +225,8 @@ public class WebSocketResourceDispatcher {
                 default:
                     //Throw an exception because a different type is invalid.
                     //Cannot reach here because of compiler plugin validation.
-                    throw new WebSocketException("Invalid resource signature.");
+                    throw WebSocketUtil.getWebSocketException("Invalid resource signature.", null,
+                            WebSocketConstants.ErrorCode.WsGenericError.errorCode(), null);
             }
         } catch (WebSocketException ex) {
             webSocketConnection.terminateConnection(1003, ex.detailMessage());

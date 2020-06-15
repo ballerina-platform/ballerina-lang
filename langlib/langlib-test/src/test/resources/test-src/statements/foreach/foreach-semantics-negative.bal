@@ -17,6 +17,8 @@ type Detail record {
     boolean fatal;
 };
 
+type Error error<Detail>;
+
 type Employee record {
     int id;
     string name;
@@ -136,10 +138,10 @@ function test11() {
 }
 
 function test12() {
-    error<string, Detail> err1 = error("Error One", message = "msgOne", fatal = true);
-    error<string, Detail> err2 = error("Error Two", message = "msgTwo", fatal = false);
-    error<string, Detail> err3 = error("Error Three", message = "msgThree", fatal = true);
-    error<string, Detail>[3] errorArray = [err1, err2, err3];
+    Error err1 = Error("Error One", message = "msgOne", fatal = true);
+    Error err2 = Error("Error Two", message = "msgTwo", fatal = false);
+    Error err3 = Error("Error Three", message = "msgThree", fatal = true);
+    Error[3] errorArray = [err1, err2, err3];
 
     string result1 = "";
     foreach var error(reason, message = message, fatal = fatal) in errorArray {

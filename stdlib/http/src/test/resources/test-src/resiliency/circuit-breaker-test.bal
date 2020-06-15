@@ -381,8 +381,7 @@ public type MockClient client object {
             if (result is http:Response) {
                 response = result;
             } else {
-                error err = result;
-                string errMessage = err.reason();
+                string errMessage = result.message();
                 response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
                 response.setTextPayload(errMessage);
             }
@@ -391,8 +390,7 @@ public type MockClient client object {
             if (result is http:Response) {
                 response = result;
             } else {
-                error err = result;
-                string errMessage = err.reason();
+                string errMessage = result.message();
                 response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
                 response.setTextPayload(errMessage);
             }
@@ -401,8 +399,7 @@ public type MockClient client object {
             if (result is http:Response) {
                 response = result;
             } else {
-                error err = result;
-                string errMessage = err.reason();
+                string errMessage = result.message();
                 response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
                 response.setTextPayload(errMessage);
             }
@@ -413,8 +410,7 @@ public type MockClient client object {
             if (result is http:Response) {
                 response = result;
             } else {
-                error err = result;
-                string errMessage = err.reason();
+                string errMessage = result.message();
                 response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
                 response.setTextPayload(errMessage);
             }
@@ -515,8 +511,7 @@ function handleRequestVolumeThresholdFailureResponseScenario() returns http:Resp
 }
 
 function getErrorStruct() returns http:ClientError {
-    http:GenericClientError err = error(http:GENERIC_CLIENT_ERROR, message = "Connection refused");
-    return err;
+    return http:GenericClientError("Connection refused");
 }
 
 function getResponse() returns http:Response {
@@ -527,13 +522,11 @@ function getResponse() returns http:Response {
 }
 
 function getMockErrorStruct() returns http:ClientError {
-    http:GenericClientError err = error(http:GENERIC_CLIENT_ERROR, message = "Internal Server Error");
-    return err;
+    return http:GenericClientError("Internal Server Error");
 }
 
 function getUnsupportedError() returns http:ClientError {
-    http:GenericClientError err = error(http:GENERIC_CLIENT_ERROR, message = "Unsupported fucntion for MockClient");
-    return err;
+    return http:GenericClientError("Unsupported fucntion for MockClient");
 }
 
 function buildRequest(http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns

@@ -19,7 +19,6 @@
 package org.ballerinalang.messaging.kafka.serdes;
 
 import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -55,7 +54,7 @@ public class SerializerDeserializerTest {
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.length, 1);
         Assert.assertTrue(returnValues[0] instanceof BError, "Erroneous producer creation did not return error");
-        String receivedMessage = ((BMap) ((BError) returnValues[0]).getDetails()).getMap().get("message").toString();
+        String receivedMessage = ((BError) returnValues[0]).getMessage();
         Assert.assertEquals(receivedMessage, errorMessage, "Error message mismatch");
     }
 
@@ -67,7 +66,7 @@ public class SerializerDeserializerTest {
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.length, 1);
         Assert.assertTrue(returnValues[0] instanceof BError, "Erroneous producer creation did not return error");
-        String receivedMessage = ((BMap) ((BError) returnValues[0]).getDetails()).getMap().get("message").toString();
+        String receivedMessage = ((BError) returnValues[0]).getMessage();
         Assert.assertEquals(receivedMessage, errorMessage, "Error message mismatch");
     }
 
@@ -79,7 +78,7 @@ public class SerializerDeserializerTest {
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.length, 1);
         Assert.assertTrue(returnValues[0] instanceof BError, "Erroneous producer creation did not return error");
-        String receivedMessage = ((BMap) ((BError) returnValues[0]).getDetails()).getMap().get("message").toString();
+        String receivedMessage = ((BError) returnValues[0]).getMessage();
         Assert.assertEquals(receivedMessage, errorMessage, "Error message mismatch");
     }
 
@@ -91,7 +90,7 @@ public class SerializerDeserializerTest {
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.length, 1);
         Assert.assertTrue(returnValues[0] instanceof BError, "Erroneous producer creation did not return error");
-        String receivedMessage = ((BMap) ((BError) returnValues[0]).getDetails()).getMap().get("message").toString();
+        String receivedMessage = ((BError) returnValues[0]).getMessage();
         Assert.assertEquals(receivedMessage, errorMessage, "Error message mismatch");
     }
 }
