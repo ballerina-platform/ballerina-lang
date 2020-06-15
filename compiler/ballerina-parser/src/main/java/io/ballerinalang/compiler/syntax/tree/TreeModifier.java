@@ -2070,10 +2070,16 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(queryExpressionNode.queryPipeline());
         SelectClauseNode selectClause =
                 modifyNode(queryExpressionNode.selectClause());
+        OnConflictClauseNode onConflictClause =
+                modifyNode(queryExpressionNode.onConflictClause().orElse(null));
+        LimitClauseNode limitClause =
+                modifyNode(queryExpressionNode.limitClause().orElse(null));
         return queryExpressionNode.modify(
                 queryConstructType,
                 queryPipeline,
-                selectClause);
+                selectClause,
+                onConflictClause,
+                limitClause);
     }
 
     @Override
@@ -2445,10 +2451,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(queryActionNode.doKeyword());
         BlockStatementNode blockStatement =
                 modifyNode(queryActionNode.blockStatement());
+        LimitClauseNode limitClause =
+                modifyNode(queryActionNode.limitClause().orElse(null));
         return queryActionNode.modify(
                 queryPipeline,
                 doKeyword,
-                blockStatement);
+                blockStatement,
+                limitClause);
     }
 
     @Override
@@ -2797,6 +2806,66 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return distinctTypeDescriptorNode.modify(
                 distinctKeyword,
                 typeDescriptor);
+    }
+
+    @Override
+    public OnConflictClauseNode transform(
+            OnConflictClauseNode onConflictClauseNode) {
+        Token onKeyword =
+                modifyToken(onConflictClauseNode.onKeyword());
+        Token conflictKeyword =
+                modifyToken(onConflictClauseNode.conflictKeyword());
+        ExpressionNode expression =
+                modifyNode(onConflictClauseNode.expression());
+        return onConflictClauseNode.modify(
+                onKeyword,
+                conflictKeyword,
+                expression);
+    }
+
+    @Override
+    public LimitClauseNode transform(
+            LimitClauseNode limitClauseNode) {
+        Token limitKeyword =
+                modifyToken(limitClauseNode.limitKeyword());
+        ExpressionNode expression =
+                modifyNode(limitClauseNode.expression());
+        return limitClauseNode.modify(
+                limitKeyword,
+                expression);
+    }
+
+    @Override
+    public JoinClauseNode transform(
+            JoinClauseNode joinClauseNode) {
+        Token outerKeyword =
+                modifyToken(joinClauseNode.outerKeyword().orElse(null));
+        Token joinKeyword =
+                modifyToken(joinClauseNode.joinKeyword());
+        TypedBindingPatternNode typedBindingPattern =
+                modifyNode(joinClauseNode.typedBindingPattern());
+        Token inKeyword =
+                modifyToken(joinClauseNode.inKeyword());
+        ExpressionNode expression =
+                modifyNode(joinClauseNode.expression());
+        return joinClauseNode.modify(
+                outerKeyword,
+                joinKeyword,
+                typedBindingPattern,
+                inKeyword,
+                expression);
+    }
+
+    @Override
+    public OnClauseNode transform(
+            OnClauseNode onClauseNode) {
+        Token onKeyword =
+                modifyToken(onClauseNode.onKeyword());
+        ExpressionNode expression =
+                modifyNode(onClauseNode.expression());
+        return onClauseNode.modify(
+                onKeyword,
+                expression);
     }
 
     // Tokens

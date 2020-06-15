@@ -70,14 +70,14 @@ function stampClosedRecordToClosedRecord() returns Student|error {
 function stampClosedRecordToMap() returns map<string>|error {
 
     Person person = { name: "Raja", age: 25, batch: "LK2014", school: "Hindu College" };
-    map<string>|error mapValue = person.cloneWithType(map<string>);
+    map<string>|error mapValue = person.cloneWithType(StringMap);
 
     return mapValue;
 }
 
 function stampRecordToArray() returns string[]|error {
     Employee e1 = { name: "Raja", age: 30, salary: 10000 };
-    string[]|error stringArray = e1.cloneWithType(string[]);
+    string[]|error stringArray = e1.cloneWithType(StringArray);
 
     return stringArray;
 }
@@ -85,7 +85,7 @@ function stampRecordToArray() returns string[]|error {
 function stampRecordToTuple() returns [string, string]|error {
 
     Employee e1 = { name: "Raja", age: 30, salary: 10000 };
-    [string, string]|error tupleValue = e1.cloneWithType([string, string]);
+    [string, string]|error tupleValue = e1.cloneWithType(StringString);
 
     return tupleValue;
 }
@@ -103,3 +103,6 @@ type Address object {
     public string city = "colombo";
 };
 
+type StringMap map<string>;
+type StringString [string, string];
+type StringArray string[];

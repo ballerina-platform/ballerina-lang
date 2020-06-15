@@ -5,6 +5,7 @@ SYNOPSIS
        ballerina bindgen [(-cp|--classpath) <classpath>...]
                          [(-mvn|--maven) <groupId>:<artifactId>:<version>]
                          [(-o|--output) <output>]
+                         [--public]
                          (<class-name>...)
 
 
@@ -32,6 +33,9 @@ OPTIONS
        (-o|--output) <output>
            Location of the generated Ballerina bridge code. If this path is not specified,
            the output will be written onto the same directory from where the command is run.
+
+       --public
+           Set the visibility modifier of generated binding objects to public.
 
        <class-name>...
            One or more space separated fully qualified Java class names for which the bridge

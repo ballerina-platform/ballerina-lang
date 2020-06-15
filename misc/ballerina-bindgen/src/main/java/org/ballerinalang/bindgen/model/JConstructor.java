@@ -99,11 +99,15 @@ public class JConstructor implements Cloneable {
         return super.clone();
     }
 
-    public String getConstructorName() {
+    String getConstructorName() {
         return constructorName;
     }
 
     String getParamTypes() {
         return paramTypes.toString();
+    }
+
+    void setShortClassName(String shortClassName) {
+        this.shortClassName = shortClassName;
     }
 }

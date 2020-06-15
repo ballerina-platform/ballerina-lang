@@ -23,8 +23,8 @@ import java.util.List;
 public class AnnotationsPageContext extends ModulePageContext {
     public List<Annotation> annotations;
     public AnnotationsPageContext(List<Annotation> annotations, Module module, Project project, String rootPath,
-                                  String title) {
-        super(module, project, rootPath, title);
+                                  String title, boolean excludeIndex) {
+        super(module, project, rootPath, title, excludeIndex);
         this.annotations = annotations;
     }
 }
