@@ -869,6 +869,10 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
         if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             return consume();
+        } else if (token.kind == SyntaxKind.MAP_KEYWORD) {
+            STToken mapKeyword = consume();
+            return STNodeFactory.createIdentifierToken(mapKeyword.text(), mapKeyword.leadingMinutiae(),
+                    mapKeyword.trailingMinutiae(), mapKeyword.diagnostics());
         } else {
             Solution sol = recover(token, currentCtx);
             return sol.recoveredNode;
@@ -3359,6 +3363,12 @@ public class BallerinaParser extends AbstractParser {
             STToken colon = consume();
             STToken varOrFuncName = consume();
             return STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
+        } else if (nextNextToken.kind == SyntaxKind.MAP_KEYWORD) {
+            STToken colon = consume();
+            STToken mapKeyword = consume();
+            STNode refName = STNodeFactory.createIdentifierToken(mapKeyword.text(), mapKeyword.leadingMinutiae(),
+                    mapKeyword.trailingMinutiae(), mapKeyword.diagnostics());
+            return STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, refName);
         } else {
             if (isInConditionalExpr) {
                 return STNodeFactory.createSimpleNameReferenceNode(identifier);
