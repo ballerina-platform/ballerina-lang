@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
  *
  * @since 1.0
  */
+@Test
 public class AnnotationAccessViaReflectTest {
 
     private CompileResult resultOne;

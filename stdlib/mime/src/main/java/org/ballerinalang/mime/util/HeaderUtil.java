@@ -41,8 +41,8 @@ import static org.ballerinalang.mime.util.MimeConstants.ASSIGNMENT;
 import static org.ballerinalang.mime.util.MimeConstants.BOUNDARY;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_ELEMENT;
-import static org.ballerinalang.mime.util.MimeConstants.INVALID_HEADER_PARAM;
-import static org.ballerinalang.mime.util.MimeConstants.INVALID_HEADER_VALUE;
+import static org.ballerinalang.mime.util.MimeConstants.INVALID_HEADER_PARAM_ERROR;
+import static org.ballerinalang.mime.util.MimeConstants.INVALID_HEADER_VALUE_ERROR;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
 
@@ -93,7 +93,7 @@ public class HeaderUtil {
     private static String extractValue(String headerValue) {
         String value = headerValue.substring(0, headerValue.indexOf(SEMICOLON)).trim();
         if (value.isEmpty()) {
-            throw MimeUtil.createError(INVALID_HEADER_VALUE, "invalid header value: " + headerValue);
+            throw MimeUtil.createError(INVALID_HEADER_VALUE_ERROR, "invalid header value: " + headerValue);
         }
         return value;
     }
@@ -115,7 +115,7 @@ public class HeaderUtil {
             if (param.contains("=")) {
                 String[] keyValuePair = param.split("=", 2);
                 if (keyValuePair.length != 2 || keyValuePair[0].isEmpty() || keyValuePair[1].isEmpty()) {
-                    throw MimeUtil.createError(INVALID_HEADER_PARAM, "invalid header parameter: " + param);
+                    throw MimeUtil.createError(INVALID_HEADER_PARAM_ERROR, "invalid header parameter: " + param);
                 }
                 paramMap.put(StringUtils.fromString(keyValuePair[0].trim()),
                         StringUtils.fromString(keyValuePair[1].trim()));

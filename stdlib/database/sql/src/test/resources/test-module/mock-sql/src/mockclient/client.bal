@@ -35,20 +35,18 @@ public type Client client object {
         if (self.clientActive) {
             return nativeExecute(self, sqlQuery);
         } else {
-            return sql:ApplicationError( message = "SQL Client is already closed,"
-                            + " hence further operations are not allowed");
+            return sql:ApplicationError("SQL Client is already closed, hence further operations are not allowed");
         }
     }
 
     public remote function batchExecute(sql:ParameterizedQuery[] sqlQueries) returns sql:ExecutionResult[]|sql:Error {
         if (sqlQueries.length() == 0) {
-            return sql:ApplicationError( message = " Parameter 'sqlQueries' cannot be empty array");
+            return sql:ApplicationError(" Parameter 'sqlQueries' cannot be empty array");
         }
         if (self.clientActive) {
             return nativeBatchExecute(self, sqlQueries);
         } else {
-            return sql:ApplicationError( message = "JDBC Client is already closed,"
-                + " hence further operations are not allowed");
+            return sql:ApplicationError("JDBC Client is already closed, hence further operations are not allowed");
         }
     }
 

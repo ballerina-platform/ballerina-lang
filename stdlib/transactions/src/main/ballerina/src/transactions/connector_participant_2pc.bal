@@ -51,16 +51,14 @@ type Participant2pcClientEP client object {
         http:Response res = check result;
         int statusCode = res.statusCode;
         if (statusCode == http:STATUS_NOT_FOUND) {
-            error err = error(TRANSACTION_UNKNOWN);
-            return err;
+            return TransactionError(TRANSACTION_UNKNOWN);
         } else if (statusCode == http:STATUS_OK) {
             json payload = check res.getJsonPayload();
             PrepareResponse prepareRes = check payload.cloneWithType(typedesc<PrepareResponse>);
             return <@untainted> prepareRes.message;
         } else {
-            error err = error("Prepare failed. Transaction: " + transactionId + ", Participant: " +
+            return TransactionError("Prepare failed. Transaction: " + transactionId + ", Participant: " +
                 self.conf.participantURL);
-            return <@untainted> err;
         }
     }
 
@@ -81,12 +79,10 @@ type Participant2pcClientEP client object {
         } else if ((statusCode == http:STATUS_BAD_REQUEST && msg == NOTIFY_RESULT_NOT_PREPARED_STR) ||
             (statusCode == http:STATUS_NOT_FOUND && msg == TRANSACTION_UNKNOWN) ||
             (statusCode == http:STATUS_INTERNAL_SERVER_ERROR && msg == NOTIFY_RESULT_FAILED_EOT_STR)) {
-            error participantErr = error(msg);
-            return <@untainted error> participantErr;
+            return TransactionError(msg);
         } else { // Some other error state
-            error participantErr = error("Notify failed. Transaction: " + transactionId + ", Participant: " +
+            return TransactionError("Notify failed. Transaction: " + transactionId + ", Participant: " +
                 self.conf.participantURL);
-            return <@untainted error> participantErr;
         }
     }
 };

@@ -341,6 +341,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
         clone.nullable = source.nullable;
         clone.grouped = source.grouped;
+        clone.flagSet = cloneSet(source.flagSet, Flag.class);
     }
 
     private <T extends Enum<T>> EnumSet<T> cloneSet(Set<T> source, Class<T> elementType) {
@@ -863,7 +864,8 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangErrorVarRef clone = new BLangErrorVarRef();
         source.cloneRef = clone;
         clone.pkgAlias = source.pkgAlias;
-        clone.reason = clone(source.reason);
+        clone.message = clone(source.message);
+        clone.cause = clone(source.cause);
         clone.detail = cloneList(source.detail);
         clone.restVar = clone(source.restVar);
         clone.typeNode = clone(source.typeNode);
@@ -1591,8 +1593,8 @@ public class NodeCloner extends BLangNodeVisitor {
 
         BLangErrorType clone = new BLangErrorType();
         source.cloneRef = clone;
-        clone.reasonType = clone(source.reasonType);
         clone.detailType = clone(source.detailType);
+        clone.flagSet = cloneSet(source.flagSet, Flag.class);
         cloneBLangType(source, clone);
     }
 
@@ -1830,12 +1832,13 @@ public class NodeCloner extends BLangNodeVisitor {
 
         BLangErrorVariable clone = new BLangErrorVariable();
         source.cloneRef = clone;
-        clone.reason = clone(source.reason);
+        clone.message = clone(source.message);
         for (BLangErrorDetailEntry entry : source.detail) {
             clone.detail.add(new BLangErrorDetailEntry(entry.key, clone(entry.valueBindingPattern)));
         }
         clone.restDetail = clone(source.restDetail);
         clone.detailExpr = clone(source.detailExpr);
+        clone.cause = clone(source.cause);
         clone.reasonVarPrefixAvailable = source.reasonVarPrefixAvailable;
         clone.reasonMatchConst = source.reasonMatchConst;
         clone.isInMatchStmt = source.isInMatchStmt;

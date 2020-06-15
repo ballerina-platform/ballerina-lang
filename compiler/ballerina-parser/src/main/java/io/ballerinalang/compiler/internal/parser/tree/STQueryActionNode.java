@@ -34,15 +34,18 @@ public class STQueryActionNode extends STActionNode {
     public final STNode queryPipeline;
     public final STNode doKeyword;
     public final STNode blockStatement;
+    public final STNode limitClause;
 
     STQueryActionNode(
             STNode queryPipeline,
             STNode doKeyword,
-            STNode blockStatement) {
+            STNode blockStatement,
+            STNode limitClause) {
         this(
                 queryPipeline,
                 doKeyword,
                 blockStatement,
+                limitClause,
                 Collections.emptyList());
     }
 
@@ -50,16 +53,19 @@ public class STQueryActionNode extends STActionNode {
             STNode queryPipeline,
             STNode doKeyword,
             STNode blockStatement,
+            STNode limitClause,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.QUERY_ACTION, diagnostics);
         this.queryPipeline = queryPipeline;
         this.doKeyword = doKeyword;
         this.blockStatement = blockStatement;
+        this.limitClause = limitClause;
 
         addChildren(
                 queryPipeline,
                 doKeyword,
-                blockStatement);
+                blockStatement,
+                limitClause);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -67,17 +73,20 @@ public class STQueryActionNode extends STActionNode {
                 this.queryPipeline,
                 this.doKeyword,
                 this.blockStatement,
+                this.limitClause,
                 diagnostics);
     }
 
     public STQueryActionNode modify(
             STNode queryPipeline,
             STNode doKeyword,
-            STNode blockStatement) {
+            STNode blockStatement,
+            STNode limitClause) {
         if (checkForReferenceEquality(
                 queryPipeline,
                 doKeyword,
-                blockStatement)) {
+                blockStatement,
+                limitClause)) {
             return this;
         }
 
@@ -85,6 +94,7 @@ public class STQueryActionNode extends STActionNode {
                 queryPipeline,
                 doKeyword,
                 blockStatement,
+                limitClause,
                 diagnostics);
     }
 

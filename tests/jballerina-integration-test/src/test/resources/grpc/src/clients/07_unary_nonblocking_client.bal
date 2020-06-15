@@ -17,7 +17,7 @@ import ballerina/grpc;
 import ballerina/io;
 import ballerina/runtime;
 
-const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
+const string ERROR_MSG_FORMAT = "Error from Connector: %s";
 boolean respReceived = false;
 boolean eofReceived = false;
 
@@ -33,7 +33,7 @@ function testUnaryNonBlockingClient() returns boolean {
     // Executing unary non-blocking call registering server message listener.
     grpc:Error? result = helloWorldEp->hello("WSO2", HelloWorldMessageListener);
     if (result is grpc:Error) {
-        string msg = io:sprintf(ERROR_MSG_FORMAT, result.reason(), <string> result.detail()["message"]);
+        string msg = io:sprintf(ERROR_MSG_FORMAT, result.message());
         io:println(msg);
         return false;
     } else {
@@ -69,7 +69,7 @@ service HelloWorldMessageListener = service {
 
     // Resource registered to receive server error messages
     resource function onError(error err) {
-        string msg = io:sprintf(ERROR_MSG_FORMAT, err.reason(), <string> err.detail()["message"]);
+        string msg = io:sprintf(ERROR_MSG_FORMAT, err.message());
         io:println(msg);
     }
 
@@ -109,7 +109,7 @@ public type HelloWorldBlockingClient client object {
         if (value is int) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 
@@ -122,7 +122,7 @@ public type HelloWorldBlockingClient client object {
         if (value is float) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 
@@ -135,7 +135,7 @@ public type HelloWorldBlockingClient client object {
         if (value is boolean) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 
@@ -148,7 +148,7 @@ public type HelloWorldBlockingClient client object {
         if (value is Response) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 };

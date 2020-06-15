@@ -95,6 +95,8 @@ public class JvmConstants {
     public static final String FINITE_TYPE = "org/ballerinalang/jvm/types/BFiniteType";
     public static final String FUTURE_TYPE = "org/ballerinalang/jvm/types/BFutureType";
     public static final String PACKAGE_TYPE = "org/ballerinalang/jvm/types/BPackage";
+    public static final String TYPE_ID_SET = "org/ballerinalang/jvm/types/BTypeIdSet";
+    public static final String TYPE_ID = "org/ballerinalang/jvm/types/BTypeIdSet$TypeId";
 
     // other jvm-specific classes
     public static final String TYPE_CHECKER = "org/ballerinalang/jvm/TypeChecker";
@@ -159,9 +161,13 @@ public class JvmConstants {
     public static final String PANIC_FIELD = "panic";
     public static final String PRINT_STACK_TRACE_METHOD = "printStackTrace";
     public static final String SET_DETAIL_TYPE_METHOD = "setDetailType";
+    public static final String SET_TYPEID_SET_METHOD = "setTypeIdSet";
     public static final String ERROR_REASON_METHOD_TOO_LARGE = "MethodTooLarge";
     public static final String ERROR_REASON_CLASS_TOO_LARGE = "ClassTooLarge";
     public static final String TRAP_ERROR_METHOD = "trapError";
+
+    // Immutable type related constants.
+    public static final String SET_IMMUTABLE_TYPE_METHOD = "setImmutableType";
 
     // exception classes
     public static final String BLANG_RUNTIME_EXCEPTION = "org/ballerinalang/jvm/util/exceptions/BLangRuntimeException";

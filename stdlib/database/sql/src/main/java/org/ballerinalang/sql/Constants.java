@@ -34,15 +34,12 @@ public final class Constants {
     public static final String DATABASE_CLIENT = "Client";
     public static final String SQL_CONNECTOR_TRANSACTION_ID = "sql-transaction-id";
 
-    public static final String BATCH_EXECUTE_ERROR_DATA = "BatchExecuteErrorData";
-    public static final String BATCH_EXECUTE_ERROR_CODE = "{ballerina/sql}BatchExecuteError";
-
-    public static final String DATABASE_ERROR_DATA = "DatabaseErrorData";
-    public static final String DATABASE_ERROR_CODE = "{ballerina/sql}DatabaseError";
-
-    public static final String APPLICATION_ERROR_DATA = "ApplicationErrorData";
-    public static final String APPLICATION_ERROR_CODE = "{ballerina/sql}ApplicationError";
-
+    public static final String BATCH_EXECUTE_ERROR_DETAIL = "BatchExecuteErrorDetail";
+    public static final String BATCH_EXECUTE_ERROR = "BatchExecuteError";
+    public static final String BATCH_EXECUTE_ERROR_MESSAGE = "Error occurred when batch executing commands.";
+    public static final String DATABASE_ERROR_DETAILS = "DatabaseErrorDetail";
+    public static final String DATABASE_ERROR = "DatabaseError";
+    public static final String APPLICATION_ERROR = "ApplicationError";
     public static final String DATABASE_ERROR_MESSAGE = "Database Error Occurred";
 
     public static final String RESULT_ITERATOR_OBJECT = "ResultIterator";

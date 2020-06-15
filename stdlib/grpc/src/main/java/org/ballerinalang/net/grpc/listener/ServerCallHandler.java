@@ -225,8 +225,10 @@ public abstract class ServerCallHandler {
          * timeouts, explicit cancellation by the client, network errors, etc.
          *
          * <p>There will be no further callbacks for the call.
+         *
+         * @param message a received error message.
          */
-        void onCancel();
+        void onCancel(Message message);
 
         /**
          * The call is considered complete and {@link #onCancel} is guaranteed not to be called.

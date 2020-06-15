@@ -323,14 +323,13 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BErrorType originalType, BType newType) {
-        BType newReason = originalType.reasonType.accept(this, null);
         BType newDetail = originalType.detailType.accept(this, null);
 
-        if (newReason == originalType.reasonType && newDetail == originalType.detailType) {
+        if (newDetail == originalType.detailType) {
             return originalType;
         }
 
-        BErrorType type = new BErrorType(null, newReason, newDetail);
+        BErrorType type = new BErrorType(null, newDetail);
         setFlags(type, originalType.flags);
         return type;
     }

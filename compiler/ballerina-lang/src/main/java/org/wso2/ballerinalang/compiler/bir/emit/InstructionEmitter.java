@@ -198,7 +198,10 @@ class InstructionEmitter {
         str += emitSpaces(1);
         str += emitTypeRef(ins.type, 0);
         str += "(";
-        str += emitVarRef(ins.reasonOp);
+        str += emitVarRef(ins.messageOp);
+        str += ",";
+        str += emitSpaces(1);
+        str += emitVarRef(ins.causeOp);
         str += ",";
         str += emitSpaces(1);
         str += emitVarRef(ins.detailOp);
@@ -249,7 +252,8 @@ class InstructionEmitter {
             str += "[";
             str += emitVarRef(ins.keyOp);
             str += "]";
-        } else if (ins.kind == InstructionKind.MAP_STORE || ins.kind == InstructionKind.ARRAY_STORE) {
+        } else if (ins.kind == InstructionKind.MAP_STORE || ins.kind == InstructionKind.ARRAY_STORE ||
+                ins.kind == InstructionKind.OBJECT_STORE) {
             str += "[";
             str += emitVarRef(ins.keyOp);
             str += "]";

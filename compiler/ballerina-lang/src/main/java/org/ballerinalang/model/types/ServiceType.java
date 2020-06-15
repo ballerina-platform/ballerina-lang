@@ -16,10 +16,17 @@
  */
 package org.ballerinalang.model.types;
 
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
+
 /**
  * {@code {@link ServiceType}} represents the type of a service in Ballerina.
  *
  * @since 0.965.0
  */
 public interface ServiceType extends ObjectType {
+    @Override
+    default BIntersectionType getImmutableType() {
+        // A service type is an inherently immutable. So we shouldn't be calling this.
+        throw new UnsupportedOperationException("a service type is inherently immutable");
+    }
 }

@@ -481,8 +481,9 @@ public class Types {
         int sourceTag = source.tag;
         int targetTag = target.tag;
 
-        if (!isInherentlyImmutableType(target) &&
-                Symbols.isFlagOn(target.flags, Flags.READONLY) && !Symbols.isFlagOn(source.flags, Flags.READONLY)) {
+        if (!Symbols.isFlagOn(source.flags, Flags.PARAMETERIZED) &&
+                !isInherentlyImmutableType(target) && Symbols.isFlagOn(target.flags, Flags.READONLY) &&
+                !isInherentlyImmutableType(source) && !Symbols.isFlagOn(source.flags, Flags.READONLY)) {
             return false;
         }
 
@@ -749,13 +750,24 @@ public class Types {
         }
 
         for (BField field : targetRecType.fields.values()) {
-            if (!(Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
-                    isAssignable(sourceMapType.constraint, field.type))) {
+            if (!Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL)) {
+                return false;
+            }
+
+            if (hasIncompatibleReadOnlyFlags(field.symbol.flags, sourceMapType.flags)) {
+                return false;
+            }
+
+            if (!isAssignable(sourceMapType.constraint, field.type)) {
                 return false;
             }
         }
 
         return isAssignable(sourceMapType.constraint, targetRecType.restFieldType);
+    }
+
+    private boolean hasIncompatibleReadOnlyFlags(int targetFlags, int sourceFlags) {
+        return Symbols.isFlagOn(targetFlags, Flags.READONLY) && !Symbols.isFlagOn(sourceFlags, Flags.READONLY);
     }
 
     private boolean isErrorTypeAssignable(BErrorType source, BErrorType target, Set<TypePair> unresolvedTypes) {
@@ -767,8 +779,8 @@ public class Types {
             return true;
         }
         unresolvedTypes.add(pair);
-        return isAssignable(source.reasonType, target.reasonType, unresolvedTypes) &&
-                isAssignable(source.detailType, target.detailType, unresolvedTypes);
+        return isAssignable(source.detailType, target.detailType, unresolvedTypes)
+                && target.typeIdSet.isAssignableFrom(source.typeIdSet);
     }
 
     // TODO: Recheck this to support finite types
@@ -952,10 +964,18 @@ public class Types {
     }
 
     boolean isSelectivelyImmutableType(BType type) {
-        return isSelectivelyImmutableType(type, new HashSet<>());
+        return isSelectivelyImmutableType(type, false, new HashSet<>());
+    }
+
+    boolean isSelectivelyImmutableType(BType type, boolean disallowReadOnlyObjects) {
+        return isSelectivelyImmutableType(type, disallowReadOnlyObjects, new HashSet<>());
     }
 
     public boolean isSelectivelyImmutableType(BType type, Set<BType> unresolvedTypes) {
+        return isSelectivelyImmutableType(type, false, unresolvedTypes);
+    }
+
+    boolean isSelectivelyImmutableType(BType type, boolean disallowReadOnlyObjects, Set<BType> unresolvedTypes) {
         if (isInherentlyImmutableType(type) || !(type instanceof SelectivelyImmutableReferenceType)) {
             // Always immutable.
             return false;
@@ -1019,6 +1039,22 @@ public class Types {
                 BType constraintType = ((BMapType) type).constraint;
                 return isInherentlyImmutableType(constraintType) ||
                         isSelectivelyImmutableType(constraintType, unresolvedTypes);
+            case TypeTags.OBJECT:
+                BObjectType objectType = (BObjectType) type;
+
+                if (!Symbols.isFlagOn(objectType.tsymbol.flags, Flags.ABSTRACT) &&
+                        (disallowReadOnlyObjects || !Symbols.isFlagOn(objectType.flags, Flags.READONLY))) {
+                    return false;
+                }
+
+                for (BField field : objectType.fields.values()) {
+                    BType fieldType = field.type;
+                    if (!isInherentlyImmutableType(fieldType) &&
+                            !isSelectivelyImmutableType(fieldType, unresolvedTypes)) {
+                        return false;
+                    }
+                }
+                return true;
             case TypeTags.TABLE:
                 BType tableConstraintType = ((BTableType) type).constraint;
                 return isInherentlyImmutableType(tableConstraintType) ||
@@ -1027,7 +1063,7 @@ public class Types {
                 boolean readonlyIntersectionExists = false;
                 for (BType memberType : ((BUnionType) type).getMemberTypes()) {
                     if (isInherentlyImmutableType(memberType) ||
-                            isSelectivelyImmutableType(memberType, unresolvedTypes)) {
+                            isSelectivelyImmutableType(memberType, disallowReadOnlyObjects, unresolvedTypes)) {
                         readonlyIntersectionExists = true;
                     }
                 }
@@ -1160,8 +1196,10 @@ public class Types {
 
         for (BField lhsField : lhsType.fields.values()) {
             BField rhsField = rhsType.fields.get(lhsField.name.value);
-            if (rhsField == null || !isInSameVisibilityRegion(lhsField.symbol, rhsField.symbol)
-                    || !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
+            if (rhsField == null ||
+                    !isInSameVisibilityRegion(lhsField.symbol, rhsField.symbol) ||
+                    hasIncompatibleReadOnlyFlags(lhsField.symbol.flags, rhsField.symbol.flags) ||
+                    !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
                 return false;
             }
         }
@@ -1683,6 +1721,8 @@ public class Types {
         BType newTargetType = targetType;
         if ((targetType.tag == TypeTags.UNION || targetType.tag == TypeTags.FINITE) && isValueType(actualType)) {
             newTargetType = symTable.anyType;   // TODO : Check for correctness.
+        } else if (targetType.tag == TypeTags.INTERSECTION) {
+            newTargetType = ((BIntersectionType) targetType).effectiveType;
         }
 
         TypeTestResult result = isBuiltInTypeWidenPossible(actualType, newTargetType);
@@ -2019,7 +2059,9 @@ public class Types {
                 if (t.fields.containsKey(sourceField.name.value)) {
                     BField targetField = t.fields.get(sourceField.name.value);
                     if (isSameType(sourceField.type, targetField.type, this.unresolvedTypes) &&
-                            hasSameOptionalFlag(sourceField.symbol, targetField.symbol)) {
+                            hasSameOptionalFlag(sourceField.symbol, targetField.symbol) &&
+                            (!Symbols.isFlagOn(targetField.symbol.flags, Flags.READONLY) ||
+                                     Symbols.isFlagOn(sourceField.symbol.flags, Flags.READONLY))) {
                         continue;
                     }
                 }
@@ -2135,7 +2177,7 @@ public class Types {
             }
             BErrorType source = (BErrorType) s;
 
-            if (!isSameType(source.reasonType, t.reasonType, this.unresolvedTypes)) {
+            if (!source.typeIdSet.equals(t.typeIdSet)) {
                 return false;
             }
 
@@ -2192,6 +2234,10 @@ public class Types {
                 return false;
             }
 
+            if (hasIncompatibleReadOnlyFlags(lhsField.symbol.flags, rhsField.symbol.flags)) {
+                return false;
+            }
+
             // If LHS field is required, so should the RHS field
             if (!Symbols.isOptional(lhsField.symbol) && Symbols.isOptional(rhsField.symbol)) {
                 return false;
@@ -2235,15 +2281,13 @@ public class Types {
         Set<BType> targetTypes = new LinkedHashSet<>();
 
         if (source.tag == TypeTags.UNION) {
-            BUnionType sourceUnionType = (BUnionType) source;
-            sourceTypes.addAll(sourceUnionType.getMemberTypes());
+            sourceTypes.addAll(getEffectiveMemberTypes((BUnionType) source));
         } else {
             sourceTypes.add(source);
         }
 
         if (target.tag == TypeTags.UNION) {
-            BUnionType targetUnionType = (BUnionType) target;
-            targetTypes.addAll(targetUnionType.getMemberTypes());
+            targetTypes.addAll(getEffectiveMemberTypes((BUnionType) target));
         } else {
             targetTypes.add(target);
         }
@@ -2269,6 +2313,25 @@ public class Types {
             }
         }
         return true;
+    }
+
+    private Set<BType> getEffectiveMemberTypes(BUnionType unionType) {
+        Set<BType> memTypes = new LinkedHashSet<>();
+
+        for (BType memberType : unionType.getMemberTypes()) {
+            if (memberType.tag == TypeTags.INTERSECTION) {
+                BType effectiveType = ((BIntersectionType) memberType).effectiveType;
+                if (effectiveType.tag == TypeTags.UNION) {
+                    memTypes.addAll(getEffectiveMemberTypes((BUnionType) effectiveType));
+                    continue;
+                }
+                memTypes.add(effectiveType);
+                continue;
+            }
+
+            memTypes.add(memberType);
+        }
+        return memTypes;
     }
 
     private boolean isFiniteTypeAssignable(BFiniteType finiteType, BType targetType, Set<TypePair> unresolvedTypes) {

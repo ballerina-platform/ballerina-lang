@@ -54,13 +54,9 @@ public class ClientErrorsTest extends WebSocketTestCommons {
 
     @Test(description = "Connection refused IO error")
     public void testConnectionError() throws InterruptedException {
-        String expectedError1 = "error {ballerina/http}WsConnectionError " +
-                "message=IO Error " +
-                "cause=error {ballerina/io}GenericError message=lmnop.ls: Name or service not known";
+        String expectedError1 = "error ConnectionError: IO Error";
 
-        String expectedError2 = "error {ballerina/http}WsConnectionError " +
-                "message=IO Error " +
-                "cause=error {ballerina/io}GenericError message=lmnop.ls: nodename nor servname provided, or not known";
+        String expectedError2 = "error ConnectionError: IO Error";
         sendTextAndMatchAnyResponse("invalid-connection", expectedError1, expectedError2);
     }
 
@@ -68,15 +64,14 @@ public class ClientErrorsTest extends WebSocketTestCommons {
     public void testSslError() throws InterruptedException {
         sendTextAndAssertResponse(
                 "ssl",
-                "error {ballerina/http}WsGenericError message=SSL/TLS Error cause=error {ballerina/http}SslError " +
-                        "message=handshake timed out");
+                "error GenericError: SSL/TLS Error");
     }
 
     @Test(description = "The frame exceeds the max frame length")
     public void testLongFrameError() throws InterruptedException {
         sendTextAndAssertResponse(
                 "long-frame",
-                "error {ballerina/http}WsProtocolError message=io.netty.handler.codec.TooLongFrameException: invalid " +
+                "error ProtocolError: io.netty.handler.codec.TooLongFrameException: invalid " +
                         "payload for PING (payload length must be <= 125, was 148");
 
     }
@@ -85,8 +80,7 @@ public class ClientErrorsTest extends WebSocketTestCommons {
     public void testConnectionClosedError() throws InterruptedException {
         sendTextAndAssertResponse(
                 "connection-closed",
-                "error {ballerina/http}WsConnectionClosureError message=Close frame already sent. Cannot push text " +
-                        "data!");
+                "error ConnectionClosureError: Close frame already sent. Cannot push text data!");
 
     }
 
@@ -94,8 +88,7 @@ public class ClientErrorsTest extends WebSocketTestCommons {
     public void testHandshakeError() throws InterruptedException {
         sendTextAndAssertResponse(
                 "handshake",
-                "error {ballerina/http}WsInvalidHandshakeError message=Invalid subprotocol. Actual: null. Expected " +
-                        "one of: abc");
+                "error InvalidHandshakeError: Invalid subprotocol. Actual: null. Expected one of: abc");
 
     }
 
@@ -104,7 +97,7 @@ public class ClientErrorsTest extends WebSocketTestCommons {
     public void testReadyOnConnect() throws InterruptedException {
         sendTextAndAssertResponse(
                 "ready",
-                "error {ballerina/http}WsGenericError message=Already started reading frames");
+                "error GenericError: Already started reading frames");
 
     }
 
