@@ -401,7 +401,6 @@ public class ASTModifyTest {
 //        Assert.assertTrue(astModifyResponse.isParseSuccess());
 //        BallerinaASTResponse astResponse = LSExtensionTestUtil.getBallerinaDocumentAST(
 //                serviceHttpCallModifiedFile.toString(), this.serviceEndpoint);
-//        System.out.println(astResponse.getAst());
 //
 //        String expectedFileContent = new String(Files.readAllBytes(serviceHttpCallModifiedFile));
 //        assertSource(astModifyResponse.getSource(), expectedFileContent);
