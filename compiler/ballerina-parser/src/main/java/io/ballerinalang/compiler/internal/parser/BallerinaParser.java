@@ -10270,7 +10270,20 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseStartAction(STNode annots) {
         STNode startKeyword = parseStartKeyword();
         STNode expr = parseActionOrExpression();
-        validateExprInStartAction(expr);
+
+        // Validate expression or action in start action
+        switch (expr.kind) {
+            case FUNCTION_CALL:
+            case METHOD_CALL:
+            case REMOTE_METHOD_CALL_ACTION:
+                break;
+            default:
+                if (!isMissingNode(expr)) {
+                    expr = SyntaxErrors.addDiagnostics(expr,
+                            DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_IN_START_ACTION);
+                }
+        }
+
         return STNodeFactory.createStartActionNode(getAnnotations(annots), startKeyword, expr);
     }
 
@@ -10286,23 +10299,6 @@ public class BallerinaParser extends AbstractParser {
         } else {
             Solution sol = recover(token, ParserRuleContext.START_KEYWORD);
             return sol.recoveredNode;
-        }
-    }
-
-    private void validateExprInStartAction(STNode expression) {
-        switch (expression.kind) {
-            case FUNCTION_CALL:
-            case METHOD_CALL:
-            case REMOTE_METHOD_CALL_ACTION:
-                break;
-            default:
-                if (isMissingNode(expression)) {
-                    break;
-                }
-
-                this.errorHandler.reportInvalidNode(null, "expression followed by the start keyword must be a " +
-                        "func-call, a method-call or a remote-method-call");
-                break;
         }
     }
 

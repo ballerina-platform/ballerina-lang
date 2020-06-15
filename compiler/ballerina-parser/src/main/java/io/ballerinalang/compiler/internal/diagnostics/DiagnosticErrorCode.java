@@ -106,6 +106,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_IMPORT_DECLARATION_AFTER_OTHER_DECLARATIONS("BCE205"),
     // Annotations are not supported for expressions
     ERROR_ANNOTATIONS_ATTACHED_TO_EXPRESSION("BCE206"),
+    // Expression followed by the start keyword must be a func-call, a method-call or a remote-method-call
+    ERROR_INVALID_EXPRESSION_IN_START_ACTION("BCE207"),
 
     ERROR_PARAMETER_AFTER_THE_REST_PARAMETER("BCE300"),
     ERROR_REQUIRED_PARAMETER_AFTER_THE_DEFAULTABLE_PARAMETER("BCE301"),
