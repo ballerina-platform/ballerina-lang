@@ -16,31 +16,37 @@
       "hasDiagnostics": true,
       "children": [
         {
-          "kind": "PARAMETERIZED_TYPE_DESC",
+          "kind": "TYPEDESC_TYPE_DESC",
           "hasDiagnostics": true,
           "children": [
             {
               "kind": "TYPEDESC_KEYWORD"
             },
             {
-              "kind": "LT_TOKEN"
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "T",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
-            {
-              "kind": "GT_TOKEN",
-              "isMissing": true,
+              "kind": "TYPE_PARAMETER",
               "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_GT_TOKEN"
+              "children": [
+                {
+                  "kind": "LT_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "T",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "GT_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_GT_TOKEN"
+                  ]
+                }
               ]
             }
           ]

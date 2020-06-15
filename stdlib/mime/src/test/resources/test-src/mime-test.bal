@@ -298,10 +298,10 @@ function testSetEntityBodyMultipleTimes(io:ReadableByteChannel byteChannel, stri
             return returnValue;
         } else {
             error e = <error>returnValue;
-            return e.reason();
+            return e.message();
         }
     } else {
-        return result.reason();
+        return result.message();
     }
 }
 

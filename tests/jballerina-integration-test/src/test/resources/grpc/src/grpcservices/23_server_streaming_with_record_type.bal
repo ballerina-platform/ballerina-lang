@@ -25,7 +25,6 @@ listener grpc:Listener helloWorldStreamingep = new (9113);
 }
 service helloWorldServerStreaming on helloWorldStreamingep {
 
-    @grpc:ResourceConfig { streaming: true }
     resource function lotsOfReplies(grpc:Caller caller, HelloRequest value) {
         log:printInfo("Server received hello from " + value.name);
         string[] greets = ["Hi", "Hey", "GM"];
@@ -35,8 +34,7 @@ service helloWorldServerStreaming on helloWorldStreamingep {
             HelloResponse msg = {message: message};
             grpc:Error? err = caller->send(msg);
             if (err is grpc:Error) {
-                log:printError("Error from Connector: " + err.reason() + " - "
-                                           + <string> err.detail()["message"]);
+                log:printError("Error from Connector: " + err.message());
             } else {
                 log:printInfo("Send reply: " + msg.toString());
             }

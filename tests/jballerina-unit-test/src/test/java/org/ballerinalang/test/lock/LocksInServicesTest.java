@@ -39,6 +39,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @since 0.961.0
  */
+@Test
 public class LocksInServicesTest {
 
     CompileResult compileResult;

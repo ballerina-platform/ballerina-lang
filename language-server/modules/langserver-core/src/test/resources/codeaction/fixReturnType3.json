@@ -8,11 +8,11 @@
                 "range": {
                     "start": {
                         "line": 8,
-                        "character": 48
+                        "character": 47
                     },
                     "end": {
                         "line": 8,
-                        "character": 55
+                        "character": 54
                     }
                 },
                 "newText": "int[]"

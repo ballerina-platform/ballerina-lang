@@ -12,7 +12,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCreates a redirect client with the given configurations.\n  \n**Params**  \n- `string` url: Target service url  \n- `http:ClientConfiguration` config: HTTP ClientConfiguration to be used for HTTP client invocation  \n- `http:FollowRedirects` redirectConfig: Configurations associated with redirect  \n- `http:HttpClient` httpClient: HTTP client for outbound HTTP requests"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nCreates a redirect client with the given configurations.\n  \n**Params**  \n- `string` url: Target service url  \n- `http:ClientConfiguration` config: HTTP ClientConfiguration to be used for HTTP client invocation  \n- `http:FollowRedirects` redirectConfig: Configurations associated with redirect  \n- `http:HttpClient` httpClient: HTTP client for outbound HTTP requests"
         }
       },
       "sortText": "120",
@@ -30,7 +30,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCreates a redirect client with the given configurations.\n  \n**Params**  \n- `string` url: Target service url  \n- `http:ClientConfiguration` config: HTTP ClientConfiguration to be used for HTTP client invocation  \n- `http:FollowRedirects` redirectConfig: Configurations associated with redirect  \n- `http:HttpClient` httpClient: HTTP client for outbound HTTP requests"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nCreates a redirect client with the given configurations.\n  \n**Params**  \n- `string` url: Target service url  \n- `http:ClientConfiguration` config: HTTP ClientConfiguration to be used for HTTP client invocation  \n- `http:FollowRedirects` redirectConfig: Configurations associated with redirect  \n- `http:HttpClient` httpClient: HTTP client for outbound HTTP requests"
         }
       },
       "sortText": "120",
@@ -267,6 +267,29 @@
             }
           },
           "newText": "import ballerina/test;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.transaction",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "140",
+      "insertText": "'transaction",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'transaction;\n"
         }
       ]
     },

@@ -49,7 +49,8 @@ public type Client client object {
 # + descriptorKey - Key of the proto descriptor
 # + descriptorMap - Proto descriptor map with all the dependent descriptors
 # + return - A `grpc:Error` if an error occurs while initializing the stub or else `()`
-    public function initStub(AbstractClientEndpoint clientEndpoint, string stubType, string descriptorKey, map<any> descriptorMap) returns Error? {
+    public function initStub(AbstractClientEndpoint clientEndpoint, string stubType, string descriptorKey,
+                             map<any> descriptorMap) returns Error? {
         return externInitStub(self, clientEndpoint, stubType, descriptorKey, descriptorMap);
     }
 
@@ -62,7 +63,8 @@ public type Client client object {
 # + payload - Request message. The message type varies with the remote service method parameter
 # + headers - Optional headers parameter. The header value are passed only if needed. The default value is `()`
 # + return - The response message and headers if executed successfully or else a `grpc:Error`
-    public remote function blockingExecute(string methodID, anydata payload, Headers? headers = ()) returns ([anydata, Headers]|Error) {
+    public remote function blockingExecute(string methodID, anydata payload, Headers? headers = ())
+                                   returns ([anydata, Headers]|Error) {
         var retryConfig = self.config.retryConfiguration;
         if (retryConfig is RetryConfiguration) {
             return retryBlockingExecute(self, methodID, payload, headers, retryConfig);
@@ -80,20 +82,23 @@ public type Client client object {
 # + listenerService - Call back listener service. This service listens to the response message from the service
 # + headers - Optional headers parameter. The header values are passed only if needed. The default value is `()`
 # + return - A `grpc:Error` if an error occurs while sending the request or else `()`
-    public remote function nonBlockingExecute(string methodID, anydata payload, service listenerService, Headers? headers = ()) returns Error? {
+    public remote function nonBlockingExecute(string methodID, anydata payload, service listenerService,
+                                              Headers? headers = ()) returns Error? {
          return externNonBlockingExecute(self, methodID, payload, listenerService, headers);
     }
 
 
 # Calls when executing  a streaming call with a gRPC service.
 # ```ballerina
-# grpc:StreamingClient|grpc:Error result = grpcClient->streamingExecute("HelloWorld/lotsOfGreetings", msgListener, headers);
+# grpc:StreamingClient|grpc:Error result = grpcClient->streamingExecute("HelloWorld/lotsOfGreetings", msgListener,
+#                                                                        headers);
 # ```
 # + methodID - Remote service method ID
 # + listenerService - Call back listener service. This service listens to the response message from the service
 # + headers - Optional headers parameter. The header values are passed only if needed. The default value is `()`
 # + return - A `grpc:StreamingClient` object if executed successfully or else `()`
-    public remote function streamingExecute(string methodID, service listenerService, Headers? headers = ()) returns StreamingClient|Error {
+    public remote function streamingExecute(string methodID, service listenerService, Headers? headers = ())
+                                    returns StreamingClient|Error {
         return externStreamingExecute(self, methodID, listenerService, headers);
     }
 };
@@ -124,31 +129,35 @@ function retryBlockingExecute(Client grpcClient, string methodID, anydata payloa
         interval = (newInterval > maxInterval) ? maxInterval : newInterval;
         currentRetryCount += 1;
     }
-    return prepareError(ALL_RETRY_ATTEMPTS_FAILED, "Maximum retry attempts completed without getting a result", cause);
+    if (cause is error) {
+        return AllRetryAttemptsFailed("Maximum retry attempts completed without getting a result", cause);
+    } else {
+        return AllRetryAttemptsFailed("Maximum retry attempts completed without getting a result");
+    }
 }
 
-function externInit(Client clientEndpoint, string url, ClientConfiguration config, PoolConfiguration globalPoolConfig) returns Error? =
-@java:Method {
+function externInit(Client clientEndpoint, string url, ClientConfiguration config, PoolConfiguration globalPoolConfig)
+                returns Error? = @java:Method {
     class: "org.ballerinalang.net.grpc.nativeimpl.client.FunctionUtils"
 } external;
 
-function externInitStub(Client genericEndpoint, AbstractClientEndpoint clientEndpoint, string stubType, string descriptorKey, map<any> descriptorMap) returns Error? =
-@java:Method {
+function externInitStub(Client genericEndpoint, AbstractClientEndpoint clientEndpoint, string stubType,
+                        string descriptorKey, map<any> descriptorMap) returns Error? = @java:Method {
     class: "org.ballerinalang.net.grpc.nativeimpl.client.FunctionUtils"
 } external;
 
-function externBlockingExecute(Client clientEndpoint, string methodID, anydata payload, Headers? headers) returns ([anydata, Headers]|Error) =
-@java:Method {
+function externBlockingExecute(Client clientEndpoint, string methodID, anydata payload, Headers? headers)
+                returns ([anydata, Headers]|Error) = @java:Method {
     class: "org.ballerinalang.net.grpc.nativeimpl.client.FunctionUtils"
 } external;
 
-function externNonBlockingExecute(Client clientEndpoint, string methodID, anydata payload, service listenerService, Headers? headers) returns Error? =
-@java:Method {
+function externNonBlockingExecute(Client clientEndpoint, string methodID, anydata payload, service listenerService,
+                  Headers? headers) returns Error? = @java:Method {
     class: "org.ballerinalang.net.grpc.nativeimpl.client.FunctionUtils"
 } external;
 
-function externStreamingExecute(Client clientEndpoint, string methodID, service listenerService, Headers? headers) returns StreamingClient|Error =
-@java:Method {
+function externStreamingExecute(Client clientEndpoint, string methodID, service listenerService,
+                Headers? headers) returns StreamingClient|Error = @java:Method {
     class: "org.ballerinalang.net.grpc.nativeimpl.client.FunctionUtils"
 } external;
 
@@ -163,13 +172,13 @@ public type AbstractClientEndpoint abstract object {};
 # + intervalInMillis - Initial interval between retry attempts
 # + maxIntervalInMillis - Maximum interval between two retry attempts
 # + backoffFactor - Retry interval will be multiplied by this factor, in between retry attempts
-# + errorTypes - Error reasons which should be considered as failure scenarios to retry
+# + errorTypes - Error types which should be considered as failure scenarios to retry
 public type RetryConfiguration record {|
    int retryCount;
    int intervalInMillis;
    int maxIntervalInMillis;
    int backoffFactor;
-   ErrorType[] errorTypes = [INTERNAL_ERROR];
+   ErrorType[] errorTypes = [InternalError];
 |};
 
 # Represents client endpoint configuration.

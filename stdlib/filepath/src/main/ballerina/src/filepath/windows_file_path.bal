@@ -136,18 +136,18 @@ function getWindowsRoot(string input) returns [string, int]|Error {
         if (isSlash(c0) && isSlash(c1)) {
             boolean unc = check isUNC(input);
             if (!unc) {
-                return prepareError(UNC_PATH_ERROR, "Invalid UNC path: " + input);
+                return UNCPathError("Invalid UNC path: " + input);
             }
             offset = check nextNonSlashIndex(input, next, length);
             next = check nextSlashIndex(input, offset, length);
             if (offset == next) {
-                return prepareError(UNC_PATH_ERROR, "Hostname is missing in UNC path: " + input);
+                return UNCPathError("Hostname is missing in UNC path: " + input);
             }
             string host = input.substring(offset, next);  //host
             offset = check nextNonSlashIndex(input, next, length);
             next = check nextSlashIndex(input, offset, length);
             if (offset == next) {
-                return prepareError(UNC_PATH_ERROR, "Sharename is missing in UNC path: " + input);
+                return UNCPathError("Sharename is missing in UNC path: " + input);
             }
             //TODO remove dot from expression. added because of formatting issue #13872.
             root = "\\\\" + host + "\\" + input.substring(offset, next) + "\\";

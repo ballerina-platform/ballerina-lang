@@ -117,7 +117,7 @@ type CustomErrorData record {|
     int errorID?;
 |};
 
-type CustomError error<string, CustomErrorData>;
+type CustomError error<CustomErrorData>;
 
 type Iterable6 object {
     public function __iterator() returns abstract object {public function next() returns record {|int value;|}?;

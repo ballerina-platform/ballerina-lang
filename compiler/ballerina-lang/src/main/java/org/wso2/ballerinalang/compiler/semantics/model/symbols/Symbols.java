@@ -59,11 +59,11 @@ public class Symbols {
         return pkgSymbol;
     }
 
-    public static BTypeSymbol createObjectSymbol(int flags,
-                                                 Name name,
-                                                 PackageID pkgID,
-                                                 BType type,
-                                                 BSymbol owner) {
+    public static BObjectTypeSymbol createObjectSymbol(int flags,
+                                                       Name name,
+                                                       PackageID pkgID,
+                                                       BType type,
+                                                       BSymbol owner) {
         BObjectTypeSymbol typeSymbol = new BObjectTypeSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.OBJECT;
         return typeSymbol;
@@ -202,5 +202,9 @@ public class Symbols {
 
     public static boolean isFunctionDeclaration(BSymbol sym) {
         return (sym.flags & Flags.INTERFACE) == Flags.INTERFACE;
+    }
+
+    public static boolean isTagOn(BSymbol symbol, int symTag) {
+        return (symbol.tag & symTag) == symTag;
     }
 }

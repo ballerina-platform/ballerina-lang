@@ -175,3 +175,51 @@ function testAnonExclusiveRecordUnionTypeDef() {
         panic error("Error in union with anonymous record type definitions");
     }
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+type IntArray int[];
+type Int_String [int, string];
+
+function testIntArrayTypeDef() {
+    IntArray s = [1, 2];
+    anydata y = s;
+    IntArray|error b = y.cloneWithType(IntArray);
+    if (b is IntArray) {
+        assertEquality(s[0], b[0]);
+        assertEquality(s[1], b[1]);
+    } else {
+        assertFalse(true);
+    }
+}
+
+function testTupleTypeDef() {
+    Int_String x = [10, "XX"];
+    anydata y = x;
+    Int_String|error z = y.cloneWithType(Int_String);
+    if (z is Int_String) {
+        assertEquality(z[0], x[0]);
+        assertEquality(z[1], x[1]);
+    } else {
+        assertFalse(true);
+    }
+}
+
+type AssertionError error;
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertFalse(any|error actual) {
+    assertEquality(false, actual);
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

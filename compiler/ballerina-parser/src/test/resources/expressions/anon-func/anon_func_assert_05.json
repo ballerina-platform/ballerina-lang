@@ -96,6 +96,10 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "FUNCTION_KEYWORD"
                     },
                     {
@@ -236,6 +240,10 @@
                   "kind": "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
                   "hasDiagnostics": true,
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "FUNCTION_KEYWORD"
                     },

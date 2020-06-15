@@ -17,7 +17,7 @@ import ballerina/grpc;
 import ballerina/io;
 
 HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9097");
-const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
+const string ERROR_MSG_FORMAT = "Error from Connector: %s";
 
 // Enable when you need to test locally.
 //public function main() {
@@ -39,7 +39,7 @@ const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 function testUnaryBlockingClient(string name) returns (string) {
     [string, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->hello(name);
     if (unionResp is grpc:Error) {
-        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
         io:println(msg);
         return msg;
     } else {
@@ -54,7 +54,7 @@ function testUnaryBlockingClient(string name) returns (string) {
 function testUnaryBlockingIntClient(int age) returns (int) {
     [int, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->testInt(age);
     if (unionResp is grpc:Error) {
-        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
         io:println(msg);
         return -1;
     } else {
@@ -69,7 +69,7 @@ function testUnaryBlockingIntClient(int age) returns (int) {
 function testUnaryBlockingFloatClient(float salary) returns (float) {
     [float, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->testFloat(salary);
     if (unionResp is grpc:Error) {
-        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
         io:println(msg);
         return -1.0;
     } else {
@@ -84,7 +84,7 @@ function testUnaryBlockingFloatClient(float salary) returns (float) {
 function testUnaryBlockingBoolClient(boolean isAvailable) returns (boolean) {
     [boolean, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->testBoolean(isAvailable);
     if (unionResp is grpc:Error) {
-        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
         io:println(msg);
         return false;
     } else {
@@ -99,7 +99,7 @@ function testUnaryBlockingBoolClient(boolean isAvailable) returns (boolean) {
 function testResponseInsideMatch(string msg) returns Response {
     [Response, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->testResponseInsideMatch(msg);
     if (unionResp is grpc:Error) {
-        string message = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        string message = io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
         io:println(message);
         return {};
     } else {
@@ -115,7 +115,7 @@ function testUnaryBlockingStructClient() returns (Response) {
     Request req = {name:"Sam", age:10, message:"Testing."};
     [Response, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->testStruct(req);
     if (unionResp is grpc:Error) {
-        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
         io:println(msg);
         return {};
     } else {
@@ -156,7 +156,7 @@ public type HelloWorldBlockingClient client object {
         if (value is int) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 
@@ -169,7 +169,7 @@ public type HelloWorldBlockingClient client object {
         if (value is float) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 
@@ -182,7 +182,7 @@ public type HelloWorldBlockingClient client object {
         if (value is boolean) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 
@@ -195,7 +195,7 @@ public type HelloWorldBlockingClient client object {
         if (value is Response) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 
@@ -208,7 +208,7 @@ public type HelloWorldBlockingClient client object {
         if (value is Response) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 };

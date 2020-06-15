@@ -1151,6 +1151,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 gtToken);
     }
 
+    public static STNode createTypedescTypeDescriptorNode(
+            STNode typedescKeywordToken,
+            STNode typedescTypeParamsNode) {
+
+        return new STTypedescTypeDescriptorNode(
+                typedescKeywordToken,
+                typedescTypeParamsNode);
+    }
+
     public static STNode createLetExpressionNode(
             STNode letKeyword,
             STNode letVarDeclarations,
@@ -2045,6 +2054,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 methodName,
                 methodSignature,
                 functionBody);
+    }
+
+    public static STNode createDistinctTypeDescriptorNode(
+            STNode distinctKeyword,
+            STNode typeDescriptor) {
+
+        return new STDistinctTypeDescriptorNode(
+                distinctKeyword,
+                typeDescriptor);
     }
 }
 

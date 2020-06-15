@@ -47,8 +47,7 @@ function sendNotification(string[] emailIds) returns error? {
     email:Error? response = smtpClient->send(msg);
 
     if (response is error) {
-      string errMsg = <string> response.detail()["message"];
-      io:println("error while sending the email: " + errMsg);
+      io:println("error while sending the email: " + response.message());
       return response;
     }
 }

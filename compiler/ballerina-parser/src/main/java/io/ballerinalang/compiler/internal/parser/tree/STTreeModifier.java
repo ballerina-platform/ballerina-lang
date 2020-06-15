@@ -1225,6 +1225,16 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STTypedescTypeDescriptorNode transform(
+            STTypedescTypeDescriptorNode typedescTypeDescriptorNode) {
+        STNode typedescKeywordToken = modifyNode(typedescTypeDescriptorNode.typedescKeywordToken);
+        STNode typedescTypeParamsNode = modifyNode(typedescTypeDescriptorNode.typedescTypeParamsNode);
+        return typedescTypeDescriptorNode.modify(
+                typedescKeywordToken,
+                typedescTypeParamsNode);
+    }
+
+    @Override
     public STLetExpressionNode transform(
             STLetExpressionNode letExpressionNode) {
         STNode letKeyword = modifyNode(letExpressionNode.letKeyword);
@@ -2199,6 +2209,16 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 methodName,
                 methodSignature,
                 functionBody);
+    }
+
+    @Override
+    public STDistinctTypeDescriptorNode transform(
+            STDistinctTypeDescriptorNode distinctTypeDescriptorNode) {
+        STNode distinctKeyword = modifyNode(distinctTypeDescriptorNode.distinctKeyword);
+        STNode typeDescriptor = modifyNode(distinctTypeDescriptorNode.typeDescriptor);
+        return distinctTypeDescriptorNode.modify(
+                distinctKeyword,
+                typeDescriptor);
     }
 
     // Tokens

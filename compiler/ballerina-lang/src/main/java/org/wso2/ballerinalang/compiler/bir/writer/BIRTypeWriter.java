@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -57,6 +58,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -127,9 +129,30 @@ public class BIRTypeWriter implements TypeVisitor {
         int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
         buff.writeInt(pkgIndex);
         buff.writeInt(addStringCPEntry(bErrorType.tsymbol.name.value));
-        // Write reason and detail types.
-        writeTypeCpIndex(bErrorType.reasonType);
+        // Write detail types.
         writeTypeCpIndex(bErrorType.detailType);
+        writeTypeIds(bErrorType.typeIdSet);
+    }
+
+    private void writeTypeIds(BTypeIdSet typeIdSet) {
+        buff.writeInt(typeIdSet.primary.size());
+        for (BTypeIdSet.BTypeId bTypeId : typeIdSet.primary) {
+            writeTypeId(bTypeId);
+        }
+        buff.writeInt(typeIdSet.secondary.size());
+        for (BTypeIdSet.BTypeId bTypeId : typeIdSet.secondary) {
+            writeTypeId(bTypeId);
+        }
+    }
+
+    private void writeTypeId(BTypeIdSet.BTypeId bTypeId) {
+        int orgCPIndex = addStringCPEntry(bTypeId.packageID.orgName.value);
+        int nameCPIndex = addStringCPEntry(bTypeId.packageID.name.value);
+        int versionCPIndex = addStringCPEntry(bTypeId.packageID.version.value);
+        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        buff.writeInt(pkgIndex);
+        buff.writeInt(addStringCPEntry(bTypeId.name));
+        buff.writeBoolean(bTypeId.publicId);
     }
 
     @Override
@@ -188,6 +211,11 @@ public class BIRTypeWriter implements TypeVisitor {
     public void visit(BTypedescType typedescType) {
 
         writeTypeCpIndex(typedescType.constraint);
+    }
+
+    @Override
+    public void visit(BParameterizedType type) {
+        writeTypeCpIndex(type.paramValueType);
     }
 
     @Override

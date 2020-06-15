@@ -17,14 +17,15 @@
 import ballerina/kafka;
 
 
-string topic = "abort-transaction-topic";
+string topic = "transaction-topic";
 
 kafka:ProducerConfiguration producerConfigs = {
-    bootstrapServers:"localhost:14151",
-    clientId:"abort-transaction-producer",
+    bootstrapServers: "localhost:14151",
+    clientId: "abort-transaction-producer",
     acks: kafka:ACKS_ALL,
-    retryCount:3,
-    transactionalId:"abort-transaction-test-producer",
+    retryCount: 3,
+    maxBlock: 5000,
+    transactionalId: "transaction-test-producer",
     enableIdempotence: true
 };
 
@@ -40,12 +41,13 @@ function kafkaAdvancedTransactionalProduce(byte[] msg) returns error? {
     error? returnValue = ();
     error err = error("custom error");
     transaction {
-        var result = kafkaProducer->send(msg, topic, (), 0, ());
-        result = kafkaProducer->send(msg, topic, (), 0, ());
-    } committed {
-        returnValue = ();
-    } aborted {
-        return err;
+        var sendResult1 = kafkaProducer->send(msg, topic, (), 0, ());
+        var sendResult2 = kafkaProducer->send(msg, topic, (), 0, ());
+        if (sendResult1 is () && sendResult2 is ()) {
+            var commitResult = commit;
+        } else {
+            rollback;
+        }
     }
     return returnValue;
 }

@@ -81,8 +81,7 @@ service helloService07 on new http:Listener(8095) {
 function sendCBErrorResponse(http:Caller caller, error e) {
     http:Response response = new;
     response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
-    string errCause = <string> e.detail()?.message;
-    response.setPayload(errCause);
+    response.setPayload(<@untainted> e.message());
     var responseToCaller = caller->respond(response);
     if (responseToCaller is error) {
         log:printError("Error sending response", responseToCaller);

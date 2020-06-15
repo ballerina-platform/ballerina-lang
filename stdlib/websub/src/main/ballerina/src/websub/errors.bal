@@ -14,24 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Holds the details of a WebSub error.
-#
-# + message - Specific error message for the error
-# + cause - Cause of the error; If this error occurred due to another error (Probably from another module)
-public type Detail record {
-    string message;
-    error cause?;
-};
-
-# Represents the reason string for the `websub:ListenerStartupError`.
-public const LISTENER_STARTUP_ERROR = "{ballerina/websub}ListenerStartupError";
-
 # Represents a listener startup error.
-public type ListenerStartupError error<LISTENER_STARTUP_ERROR, Detail>;
-
-# Represents the reason string for the `websub:HubStartupError`.
-public const HUB_STARTUP_ERROR_REASON = "{ballerina/websub}HubStartupError";
+public type ListenerStartupError distinct error;
 
 # Represents a hub startup error.
-public type HubStartupError error<HUB_STARTUP_ERROR_REASON, Detail>;
+public type HubStartupError distinct error;
 
+# Represents a webSub distinct error.
+public type WebSubError distinct error;

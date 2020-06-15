@@ -395,6 +395,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(streamTypeParamsNode);
     }
 
+    public void visit(TypedescTypeDescriptorNode typedescTypeDescriptorNode) {
+        visitSyntaxNode(typedescTypeDescriptorNode);
+    }
+
     public void visit(LetExpressionNode letExpressionNode) {
         visitSyntaxNode(letExpressionNode);
     }
@@ -721,6 +725,10 @@ public abstract class NodeVisitor {
 
     public void visit(ObjectMethodDefinitionNode objectMethodDefinitionNode) {
         visitSyntaxNode(objectMethodDefinitionNode);
+    }
+
+    public void visit(DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
+        visitSyntaxNode(distinctTypeDescriptorNode);
     }
 
     // Tokens

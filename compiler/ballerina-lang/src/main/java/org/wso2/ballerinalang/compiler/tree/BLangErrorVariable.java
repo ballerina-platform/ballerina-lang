@@ -38,13 +38,14 @@ import java.util.StringJoiner;
  * @since 0.985.0
  */
 public class BLangErrorVariable extends BLangVariable implements ErrorVariableNode {
-    public BLangSimpleVariable reason;
+    public BLangSimpleVariable message;
     public List<BLangErrorDetailEntry> detail;
     public BLangSimpleVariable restDetail;
     public BLangInvocation detailExpr;
     public boolean reasonVarPrefixAvailable;
-    public BLangLiteral reasonMatchConst;
+    public BLangLiteral reasonMatchConst; // todo: no longer needed remove
     public boolean isInMatchStmt;
+    public BLangSimpleVariable cause;
 
     public BLangErrorVariable() {
         this.annAttachments = new ArrayList<>();
@@ -53,8 +54,8 @@ public class BLangErrorVariable extends BLangVariable implements ErrorVariableNo
     }
 
     @Override
-    public BLangSimpleVariable getReason() {
-        return reason;
+    public BLangSimpleVariable getMessage() {
+        return message;
     }
 
     @Override
@@ -81,7 +82,7 @@ public class BLangErrorVariable extends BLangVariable implements ErrorVariableNo
     public String toString() {
         StringJoiner details = new StringJoiner(", ");
         detail.forEach(d -> details.add(d.key.toString() + "=" + d.valueBindingPattern.toString()));
-        return "error (" + reason + ", " + details.toString() +
+        return "error (" + message + ", " + details.toString() +
                 (restDetail != null ? ", ...var " + restDetail.name.toString() : "") + ")";
     }
 

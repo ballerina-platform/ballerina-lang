@@ -161,7 +161,7 @@ public class ClosedRecordTest {
                         "family:{spouse:\"Jane\", noOfChildren:0, children:[\"Alex\", \"Bob\"]}}");
     }
 
-    @Test (description = "Negative test to test attaching functions to record literal")
+    @Test(description = "Negative test to test attaching functions to record literal", groups = { "brokenOnNewParser" })
     public void testStructLiteralAttachedFunc() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/record/sealed_record_literal_with_attached_functions_negative.bal");
@@ -210,7 +210,8 @@ public class ClosedRecordTest {
         Assert.assertEquals(returns[3].stringValue(), "{}");
     }
 
-    @Test(description = "Test white space between the type name and ellipsis in rest descriptor")
+    @Test(description = "Test white space between the type name and ellipsis in rest descriptor",
+            groups = { "brokenOnNewParser" })
     public void testRestDescriptorSyntax() {
         CompileResult result = BCompileUtil.compile("test-src/record/closed_record_invalid_delimiter.bal");
 
@@ -220,14 +221,16 @@ public class ClosedRecordTest {
         BAssertUtil.validateError(result, 3, "extraneous input '|'", 17, 1);
         BAssertUtil.validateError(result, 4,
                                   "mismatched input '|'. expecting {'service', 'function', 'object', 'record', " +
-                                          "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
+                                          "'abstract', 'client', 'distinct', 'int', 'byte', 'float', 'decimal', " +
+                                          "'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
                                           "'typedesc', 'future', 'anydata', " +
                                           "'handle', 'readonly', 'never', '(', '[', '|}', '*', '@', Identifier, " +
                                           "DocumentationLineStart}", 19, 25);
         BAssertUtil.validateError(result, 5,
                                   "mismatched input '}'. expecting {'service', 'function', 'object', 'record', " +
-                                          "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
+                                          "'abstract', 'client', 'distinct', 'int', 'byte', 'float', 'decimal', " +
+                                          "'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
                                           "'typedesc', 'future', 'anydata', " +
                                           "'handle', 'readonly', 'never', '(', '[', '+', '-', DecimalIntegerLiteral, " +
@@ -239,14 +242,16 @@ public class ClosedRecordTest {
         BAssertUtil.validateError(result, 7, "extraneous input '||'", 23, 25);
         BAssertUtil.validateError(result, 8,
                                   "mismatched input '|'. expecting {'service', 'function', 'object', 'record', " +
-                                          "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
+                                          "'abstract', 'client', 'distinct', 'int', 'byte', 'float', 'decimal', " +
+                                          "'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
                                           "'typedesc', 'future', 'anydata', " +
                                           "'handle', 'readonly', 'never', '}', '(', '[', '*', '@', Identifier, " +
                                           "DocumentationLineStart}", 25, 25);
         BAssertUtil.validateError(result, 9,
                                   "mismatched input '|'. expecting {'service', 'function', 'object', 'record', " +
-                                          "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
+                                          "'abstract', 'client', 'distinct', 'int', 'byte', 'float', 'decimal', " +
+                                          "'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
                                           "'typedesc', 'future', 'anydata', " +
                                           "'handle', 'readonly', 'never', '(', '[', '+', '-', DecimalIntegerLiteral, " +
@@ -256,7 +261,8 @@ public class ClosedRecordTest {
                                   25, 27);
         BAssertUtil.validateError(result, 10,
                                   "mismatched input '}'. expecting {'service', 'function', 'object', 'record', " +
-                                          "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
+                                          "'abstract', 'client', 'distinct', 'int', 'byte', 'float', 'decimal', " +
+                                          "'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
                                           "'typedesc', 'future', 'anydata', " +
                                           "'handle', 'readonly', 'never', '(', '[', '+', '-', DecimalIntegerLiteral, " +

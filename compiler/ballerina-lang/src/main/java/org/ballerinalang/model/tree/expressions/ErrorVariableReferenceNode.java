@@ -40,7 +40,7 @@ public interface ErrorVariableReferenceNode extends VariableReferenceNode {
 
     IdentifierNode getPackageAlias();
 
-    ExpressionNode getReason();
+    ExpressionNode getMessage();
 
     List<BLangNamedArgsExpression> getDetail();
 

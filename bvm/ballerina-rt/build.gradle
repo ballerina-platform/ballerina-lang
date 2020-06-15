@@ -49,6 +49,7 @@ dependencies {
     dist project(path: ':ballerina-lang:xml', configuration: 'birJar')
     dist project(path: ':ballerina-lang:bool', configuration: 'birJar')
     dist project(path: ':ballerina-lang:query', configuration: 'birJar')
+    dist project(path: ':ballerina-lang:transaction', configuration: 'birJar')
     dist project(path: ':ballerina-observability', configuration: 'birJar')
     dist project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'birJar')
 
@@ -71,6 +72,7 @@ dependencies {
     dist project(':ballerina-lang:xml')
     dist project(':ballerina-lang:bool')
     dist project(':ballerina-lang:query')
+    dist project(':ballerina-lang:transaction')
     dist project(':ballerina-observability')
     
     // Third party jars

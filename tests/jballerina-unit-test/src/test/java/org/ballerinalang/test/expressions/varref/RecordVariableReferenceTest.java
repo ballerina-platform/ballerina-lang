@@ -45,8 +45,6 @@ public class RecordVariableReferenceTest {
     public void setup() {
         result = BCompileUtil.compile("test-src/expressions/varref/record-variable-reference.bal");
         resultNegative = BCompileUtil.compile("test-src/expressions/varref/record-variable-reference-negative.bal");
-        resultSemanticsNegative = BCompileUtil.compile("test-src/expressions/varref/record-variable-reference" +
-                "-semantics-negative.bal");
     }
 
     @Test(description = "Test simple record variable definition")
@@ -177,8 +175,10 @@ public class RecordVariableReferenceTest {
 //        Assert.assertEquals(((BMap) returns[2]).get("format").stringValue(), "Y");
 //    }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testRecordVariablesSemanticsNegative() {
+        resultSemanticsNegative = BCompileUtil.compile("test-src/expressions/varref/record-variable-reference" +
+                "-semantics-negative.bal");
         final String undefinedSymbol = "undefined symbol ";
 
         int i = -1;
