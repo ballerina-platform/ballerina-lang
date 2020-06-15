@@ -409,8 +409,11 @@ public class ASTModifyTest {
 //    }
 
 
-    //    @Test
+//        @Test
 //    public void test() {
+////        String input = "import ballerina/http;\n" +
+////                "public function main() {\n" +
+////                "}";
 //        String input = "import ballerina/http;\n" +
 //                "public function main() {\n" +
 //                "http:Client clientEndpoint = new (\"http://postman-echo.com\");\n" +
@@ -418,6 +421,10 @@ public class ASTModifyTest {
 //                "}";
 //        TextDocument textDocument = TextDocuments.from(input);
 //        SyntaxTree oldTree = SyntaxTree.from(textDocument);
+////        TextEdit[] edits = new TextEdit[]{
+////                TextEdit.from(TextRange.from(0, 22),
+////                        ""),
+////        };
 //        TextEdit[] edits = new TextEdit[]{
 //                TextEdit.from(TextRange.from(23, 47 - 23),
 //                        "service hello on new http:Listener(9090) {\n" +
