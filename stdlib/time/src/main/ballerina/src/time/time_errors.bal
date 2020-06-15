@@ -14,16 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Details of an error.
-#
-# + message - Specific error message of the error
-# + cause - Any other error, which causes this error
-public type Detail record {
-    string message;
-    error cause?;
-};
-
 # Specifies the time error, which occurs in the module.
-public const TIME_ERROR_REASON = "{ballerina/time}TimeError";
+public type TimeError distinct error;
+
 # Represents the Time module related error.
-public type Error error<TIME_ERROR_REASON, Detail>;
+public type Error TimeError;

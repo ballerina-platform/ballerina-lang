@@ -17,7 +17,7 @@ import ballerina/grpc;
 import ballerina/io;
 
 HelloWorldBlockingClient HelloWorldBlockingEp = new("http://localhost:9091");
-const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
+const string ERROR_MSG_FORMAT = "Error from Connector: %s";
 
 // Enable when you need to test locally.
 //public function main() {
@@ -57,7 +57,7 @@ function testInputNestedStruct() returns (string) {
     [string, grpc:Headers]|error unionResp = HelloWorldBlockingEp->testInputNestedStruct(p);
     io:println(unionResp);
     if (unionResp is error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
     } else {
         io:println("Client Got Response : ");
         string result = "";
@@ -72,7 +72,7 @@ function testOutputNestedStruct(string name) returns (Person|string) {
     [Person, grpc:Headers]|grpc:Error unionResp = HelloWorldBlockingEp->testOutputNestedStruct(name);
     io:println(unionResp);
     if (unionResp is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
     } else {
         io:println("Client Got Response : ");
         Person result = {};
@@ -89,7 +89,7 @@ function testInputStructOutputStruct() returns (StockQuote|string) {
     [StockQuote, grpc:Headers]|grpc:Error unionResp = HelloWorldBlockingEp->testInputStructOutputStruct(request);
     io:println(unionResp);
     if (unionResp is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
     } else {
         io:println("Client Got Response : ");
         StockQuote result = {};
@@ -104,7 +104,7 @@ function testNoInputOutputStruct() returns (StockQuotes|string) {
     [StockQuotes, grpc:Headers]|grpc:Error unionResp = HelloWorldBlockingEp->testNoInputOutputStruct();
     io:println(unionResp);
     if (unionResp is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
     } else {
         io:println("Client Got Response : ");
         StockQuotes result = {};
@@ -119,7 +119,7 @@ function testNoInputOutputArray() returns (StockNames|string) {
     [StockNames, grpc:Headers]|grpc:Error unionResp = HelloWorldBlockingEp->testNoInputOutputArray();
     io:println(unionResp);
     if (unionResp is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
     } else {
         io:println("Client Got Response : ");
         StockNames result = {};
@@ -135,7 +135,7 @@ function testInputStructNoOutput(StockQuote quote) returns (string) {
     (grpc:Headers)|grpc:Error unionResp = HelloWorldBlockingEp->testInputStructNoOutput(quote);
     io:println(unionResp);
     if (unionResp is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
     } else {
         io:println("Client Got No Response : ");
         _ = unionResp;
@@ -174,7 +174,7 @@ public type HelloWorldBlockingClient client object {
         if (value is Person) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 
@@ -187,7 +187,7 @@ public type HelloWorldBlockingClient client object {
         if (value is StockQuote) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 
@@ -209,7 +209,7 @@ public type HelloWorldBlockingClient client object {
         if (value is StockQuotes) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 
@@ -223,7 +223,7 @@ public type HelloWorldBlockingClient client object {
         if (value is StockNames) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 };

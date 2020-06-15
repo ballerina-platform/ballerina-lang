@@ -1,11 +1,15 @@
-function testPanic() {
-    string|error x =  trap actualCode(2, false);
+function testRetry() {
+    string|error x = actualCode(2, false, false);
     if(x is string) {
-        assertEquality("start fc-2 inTrx blowUp inTrx blowUp inTrx Commit endTrx end", x);
+        assertEquality("start fc-2 inTrx failed inTrx failed inTrx Commit endTrx end", x);
     }
 }
 
-function actualCode(int failureCutOff, boolean requestRollback) returns (string) {
+function testPanic() {
+    string|error x = actualCode(2, false, true);
+}
+
+function actualCode(int failureCutOff, boolean requestRollback, boolean doPanic) returns (string|error) {
     string a = "";
     a = a + "start";
     a = a + " fc-" + failureCutOff.toString();
@@ -15,14 +19,19 @@ function actualCode(int failureCutOff, boolean requestRollback) returns (string)
         a = a + " inTrx";
         count = count + 1;
         if (count <= failureCutOff) {
-            a = a + " blowUp"; // transaction block panic scenario, Set failure cutoff to 0, for not blowing up.
-            int bV = blowUp();
+            a = a + " failed"; // transaction block panic error, Set failure cutoff to 0, for not blowing up.
+            int bV = check trxError();
         }
+
+        if (doPanic) {
+            blowUp();
+        }
+
         if (requestRollback) { // Set requestRollback to true if you want to try rollback scenario, otherwise commit
             rollback;
             a = a + " Rollback";
         } else {
-            var i = commit;
+            check commit;
             a = a + " Commit";
         }
         a = a + " endTrx";
@@ -31,15 +40,41 @@ function actualCode(int failureCutOff, boolean requestRollback) returns (string)
     return a;
 }
 
-function blowUp()  returns int {
+function trxError()  returns int|error {
     if (5 == 5) {
-        error err = error("TransactionError");
-        panic err;
+        return error("TransactionError");
     }
     return 5;
 }
 
-type AssertionError error<ASSERTION_ERROR_REASON>;
+function blowUp() {
+    panic error("TransactionError");
+}
+
+function transactionFailedHelper() returns string|error {
+    string a = "";
+    retry(2) transaction {
+                 a = a + " inTrx";
+                 check getError();
+                 a = a + " afterErr";
+                 check commit;
+             }
+    a = a + " afterTx";
+    return a;
+}
+
+function getError() returns error? {
+    return error("Generic Error", message = "Failed");
+}
+
+public function testFailedTransactionOutput() returns boolean {
+    boolean testPassed = true;
+    string|error result = transactionFailedHelper();
+    testPassed = (result is error) && ("Generic Error" == result.message());
+    return testPassed;
+}
+
+type AssertionError error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
@@ -52,6 +87,7 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    panic AssertionError(ASSERTION_ERROR_REASON,
+            message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
 

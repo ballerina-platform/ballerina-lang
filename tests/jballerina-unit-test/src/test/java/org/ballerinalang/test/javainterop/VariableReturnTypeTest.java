@@ -56,11 +56,9 @@ public class VariableReturnTypeTest {
         validateError(errors, indx++, "unknown type 'td'", 64, 73);
         validateError(errors, indx++, "unknown type 'td'", 72, 54);
         validateError(errors, indx++, "unknown type 'td'", 74, 88);
-        validateError(errors, indx++, "invalid error reason type 'other', expected a subtype of 'string'", 86, 83);
-        validateError(errors, indx++, "unknown type 'reason'", 86, 83);
-        validateError(errors, indx++, "invalid error detail type 'detail', expected a subtype of 'record {| " +
-                "string message?; error cause?; (anydata|error)...; |}'", 86, 91);
-        validateError(errors, indx++, "unknown type 'detail'", 86, 91);
+        validateError(errors, indx++, "invalid error detail type 'detail', expected a subtype of " +
+                "'map<(anydata|readonly)>'", 86, 83);
+        validateError(errors, indx++, "unknown type 'detail'", 86, 83);
         validateError(errors, indx++, "use of 'typedesc' parameters as types only allowed for return types " +
                 "in external functions", 93, 45);
         validateError(errors, indx++, "use of 'typedesc' parameters as types only allowed for return types " +

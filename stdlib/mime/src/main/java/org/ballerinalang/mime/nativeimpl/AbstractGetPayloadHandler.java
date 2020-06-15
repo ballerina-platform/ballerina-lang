@@ -18,7 +18,6 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
@@ -39,8 +38,8 @@ import static org.ballerinalang.mime.util.EntityBodyHandler.constructJsonDataSou
 import static org.ballerinalang.mime.util.EntityBodyHandler.constructStringDataSource;
 import static org.ballerinalang.mime.util.EntityBodyHandler.constructXmlDataSource;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.MimeConstants.NO_CONTENT_ERROR_CODE;
-import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAILED;
+import static org.ballerinalang.mime.util.MimeConstants.NO_CONTENT_ERROR;
+import static org.ballerinalang.mime.util.MimeConstants.PARSER_ERROR;
 import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 
 /**
@@ -107,7 +106,7 @@ public abstract class AbstractGetPayloadHandler {
 
     static Object createParsingEntityBodyFailedErrorAndNotify(NonBlockingCallback callback, String errMsg,
                                                               ErrorValue errorValue) {
-        ErrorValue error = MimeUtil.createError(PARSING_ENTITY_BODY_FAILED, errMsg, errorValue);
+        ErrorValue error = MimeUtil.createError(PARSER_ERROR, errMsg, errorValue);
         return returnErrorValue(callback, error);
     }
 
@@ -156,7 +155,7 @@ public abstract class AbstractGetPayloadHandler {
         if (message != null) {
             return message;
         } else {
-            throw BallerinaErrors.createError(NO_CONTENT_ERROR_CODE, "Empty content");
+            throw MimeUtil.createError(NO_CONTENT_ERROR, "Empty content");
         }
     }
 

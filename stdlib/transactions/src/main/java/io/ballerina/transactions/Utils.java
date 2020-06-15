@@ -47,7 +47,9 @@ import static org.ballerinalang.jvm.transactions.TransactionConstants.TRANSACTIO
  * Native function implementations of the transactions module.
  *
  * @since 1.1.0
+ * @deprecated use lang.transaction instead.
  */
+@Deprecated
 public class Utils {
     private static final String STRUCT_TYPE_TRANSACTION_CONTEXT = "TransactionContext";
     private static final String STRUCT_TYPE_TRANSACTION_INFO = "Info";
@@ -216,7 +218,7 @@ public class Utils {
         Strand strand = Scheduler.getStrand();
         TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
-        transactionResourceManager.registerCommittedFunction(transactionLocalContext.getCurrentTransactionBlockId(),
+        transactionResourceManager.registerCommittedFunction(transactionLocalContext.getGlobalTransactionId(),
                 fpValue);
     }
 
@@ -224,7 +226,7 @@ public class Utils {
         Strand strand = Scheduler.getStrand();
         TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
-        transactionResourceManager.registerAbortedFunction(transactionLocalContext.getCurrentTransactionBlockId(),
+        transactionResourceManager.registerAbortedFunction(transactionLocalContext.getGlobalTransactionId(),
                 fpValue);
     }
 

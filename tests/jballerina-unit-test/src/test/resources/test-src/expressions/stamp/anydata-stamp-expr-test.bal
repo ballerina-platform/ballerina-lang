@@ -88,11 +88,12 @@ function stampAnydataToTuple() returns [string,Teacher]|error  {
 
     return returnValue;
 }
+type AnydataMap map<anydata>;
 
 function stampAnydataMapToAnydataMap() returns map<anydata>|error {
     map<anydata> anydataMap = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
 
-    map<anydata>|error mapValue = anydataMap.cloneWithType(map<anydata>);
+    map<anydata>|error mapValue = anydataMap.cloneWithType(AnydataMap);
     return mapValue;
 }
 
@@ -104,9 +105,11 @@ function stampAnydataToAnydata() returns anydata|error {
     return returnValue;
 }
 
+type JsonOrXml json|xml;
+
 function stampAnydataMapToUnion() returns json|xml|error {
     map<anydata> anydataMap = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
 
-    json|xml|error mapValue = anydataMap.cloneWithType(json|xml);
+    json|xml|error mapValue = anydataMap.cloneWithType(JsonOrXml);
     return mapValue;
 }

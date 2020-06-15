@@ -18,12 +18,12 @@
 
 package org.ballerinalang.stdlib.email.client;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.stdlib.email.util.EmailAccessUtil;
 import org.ballerinalang.stdlib.email.util.EmailConstants;
+import org.ballerinalang.stdlib.email.util.SmtpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +75,7 @@ public class EmailAccessClient {
             return null;
         } catch (NoSuchProviderException e) {
             log.error("Failed initialize client properties : ", e);
-            return BallerinaErrors.createError(EmailConstants.READ_CLIENT_INIT_ERROR, e.getMessage());
+            return SmtpUtil.getBallerinaError(EmailConstants.READ_CLIENT_INIT_ERROR, e.getMessage());
         }
     }
 
@@ -101,7 +101,7 @@ public class EmailAccessClient {
             return null;
         } catch (NoSuchProviderException e) {
             log.error("Failed initialize client properties : ", e);
-            return BallerinaErrors.createError(EmailConstants.READ_CLIENT_INIT_ERROR, e.getMessage());
+            return SmtpUtil.getBallerinaError(EmailConstants.READ_CLIENT_INIT_ERROR, e.getMessage());
         }
     }
 
@@ -140,7 +140,7 @@ public class EmailAccessClient {
             return mapValue;
         } catch (MessagingException | IOException e) {
             log.error("Failed to read message : ", e);
-            return BallerinaErrors.createError(EmailConstants.READ_ERROR, e.getMessage());
+            return SmtpUtil.getBallerinaError(EmailConstants.READ_ERROR, e.getMessage());
         }
     }
 

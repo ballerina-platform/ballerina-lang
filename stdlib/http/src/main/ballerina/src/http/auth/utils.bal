@@ -57,6 +57,24 @@ public function extractAuthorizationHeaderValue(Request req) returns @tainted st
     return req.getHeader(AUTH_HEADER);
 }
 
+# Checks whether the calling resource is secured by evaluating the authentication hierarchy.
+#
+# + context - The `FilterContext` instance
+# + return - The status of calling resource is secured or not
+public function isResourceSecured(FilterContext context) returns boolean {
+    ResourceAuth? resourceLevelAuthAnn = getResourceAuthConfig(context);
+    ServiceAuth? serviceLevelAuthAnn = getServiceAuthConfig(context);
+
+    boolean? resourceSecured = isResourceAuthEnabled(resourceLevelAuthAnn);
+    boolean serviceSecured = isServiceAuthEnabled(serviceLevelAuthAnn);
+
+    if (resourceSecured is boolean) {
+        return resourceSecured;
+    } else {
+        return serviceSecured;
+    }
+}
+
 # Tries to retrieve the inbound authentication handlers based on their hierarchy
 # (i.e., first from the resource level and then from the service level, if it is not there at the resource level).
 #
@@ -67,8 +85,8 @@ function getAuthHandlers(FilterContext context) returns InboundAuthHandlers|bool
     ServiceAuth? serviceLevelAuthAnn = getServiceAuthConfig(context);
 
     // check if authentication is enabled for resource and service
-    boolean? resourceSecured = isResourceSecured(resourceLevelAuthAnn);
-    boolean serviceSecured = isServiceSecured(serviceLevelAuthAnn);
+    boolean? resourceSecured = isResourceAuthEnabled(resourceLevelAuthAnn);
+    boolean serviceSecured = isServiceAuthEnabled(serviceLevelAuthAnn);
 
     if (resourceSecured is boolean) {
         // if resource is not secured, no need to check further.
@@ -143,8 +161,8 @@ function getScopes(FilterContext context) returns Scopes|boolean {
     ServiceAuth? serviceLevelAuthAnn = getServiceAuthConfig(context);
 
      // check if authentication is enabled for resource and service
-    boolean? resourceSecured = isResourceSecured(resourceLevelAuthAnn);
-    boolean serviceSecured = isServiceSecured(serviceLevelAuthAnn);
+    boolean? resourceSecured = isResourceAuthEnabled(resourceLevelAuthAnn);
+    boolean serviceSecured = isServiceAuthEnabled(serviceLevelAuthAnn);
 
     if (resourceSecured is boolean) {
         // if resource is not secured, no need to check further.
@@ -238,7 +256,7 @@ function getResourceAuthConfig(FilterContext context) returns ResourceAuth? {
 #
 # + serviceAuth - Service auth annotation
 # + return - Whether the service is secured or not
-function isServiceSecured(ServiceAuth? serviceAuth) returns boolean {
+function isServiceAuthEnabled(ServiceAuth? serviceAuth) returns boolean {
     if (serviceAuth is ServiceAuth) {
         return serviceAuth.enabled;
     }
@@ -249,7 +267,7 @@ function isServiceSecured(ServiceAuth? serviceAuth) returns boolean {
 #
 # + resourceAuth - Resource auth annotation
 # + return - Whether the resource is secured or not
-function isResourceSecured(ResourceAuth? resourceAuth) returns boolean? {
+function isResourceAuthEnabled(ResourceAuth? resourceAuth) returns boolean? {
     if (resourceAuth is ResourceAuth) {
         return resourceAuth?.enabled;
     }
@@ -277,11 +295,9 @@ function createResponseHeaderMap(Response resp) returns @tainted map<anydata> {
 function prepareAuthenticationError(string message, error? err = ()) returns AuthenticationError {
     log:printDebug(function () returns string { return message; });
     if (err is error) {
-        AuthenticationError preparedError = error(AUTHN_FAILED, message = message, cause = err);
-        return preparedError;
+        return AuthenticationError(message, err);
     }
-    AuthenticationError preparedError = error(AUTHN_FAILED, message = message);
-    return preparedError;
+    return AuthenticationError(message);
 }
 
 # Logs, prepares, and returns the `AuthorizationError`.
@@ -292,9 +308,8 @@ function prepareAuthenticationError(string message, error? err = ()) returns Aut
 function prepareAuthorizationError(string message, error? err = ()) returns AuthorizationError {
     log:printDebug(function () returns string { return message; });
     if (err is error) {
-        AuthorizationError preparedError = error(AUTHZ_FAILED, message = message, cause = err);
-        return preparedError;
+        return AuthorizationError(message, err);
     }
-    AuthorizationError preparedError = error(AUTHZ_FAILED, message = message);
-    return preparedError;
+    return AuthorizationError(message);
 }
+

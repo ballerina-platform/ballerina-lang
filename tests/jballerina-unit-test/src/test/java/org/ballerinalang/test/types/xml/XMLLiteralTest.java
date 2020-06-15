@@ -45,7 +45,6 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
  *
  * @since 0.94
  */
-@Test(groups = { "brokenOnNewParser" })
 public class XMLLiteralTest {
 
     private CompileResult result;
@@ -156,13 +155,13 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[1].stringValue(), "<?foo 11?>");
 
         Assert.assertTrue(returns[2] instanceof BXML);
-        Assert.assertEquals(returns[2].stringValue(), "<?foo  aaa11bbb22ccc?>");
+        Assert.assertEquals(returns[2].stringValue(), "<?foo aaa11bbb22ccc?>");
 
         Assert.assertTrue(returns[3] instanceof BXML);
-        Assert.assertEquals(returns[3].stringValue(), "<?foo  <aaa11bbb22ccc??d?e>?f<<{>>>?>");
+        Assert.assertEquals(returns[3].stringValue(), "<?foo <aaa11bbb22ccc??d?e>?f<<{>>>?>");
 
         Assert.assertTrue(returns[4] instanceof BXML);
-        Assert.assertEquals(returns[4].stringValue(), "<?foo  ?a?aa11b${bb22c}cc{d{}e}{f{?>");
+        Assert.assertEquals(returns[4].stringValue(), "<?foo ?a?aa11b${bb22c}cc{d{}e}{f{?>");
     }
 
     @Test

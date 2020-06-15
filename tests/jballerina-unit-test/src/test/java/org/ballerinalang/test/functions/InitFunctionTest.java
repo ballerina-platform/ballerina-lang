@@ -70,7 +70,7 @@ public class InitFunctionTest {
         assertEquals(sValue.stringValue(), "hello world");
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void invalidInitFunctionSignatureTest() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/functions/test_init_function_negative.bal");
         assertEquals(negativeResult.getErrorCount(), 3);

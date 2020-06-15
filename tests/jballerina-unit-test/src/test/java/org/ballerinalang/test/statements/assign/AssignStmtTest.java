@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 /**
  * Class to test functionality of assignment operation.
  */
+@Test(groups = { "brokenOnNewParser" })
 public class AssignStmtTest {
 
     private CompileResult result;

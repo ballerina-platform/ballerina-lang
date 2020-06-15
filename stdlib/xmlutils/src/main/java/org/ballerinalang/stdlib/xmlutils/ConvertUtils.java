@@ -49,7 +49,7 @@ public class ConvertUtils {
             String arrayEntryTag = (options.get(StringUtils.fromString(OPTIONS_ARRAY_ENTRY_TAG))).getValue();
             return JSONToXMLConverter.convertToXML(json, attributePrefix, arrayEntryTag);
         } catch (Exception e) {
-            return BallerinaErrors.createError("{ballerina/xmlutils}Error", e.getMessage());
+            return BallerinaErrors.createError(StringUtils.fromString(e.getMessage()));
         }
     }
 

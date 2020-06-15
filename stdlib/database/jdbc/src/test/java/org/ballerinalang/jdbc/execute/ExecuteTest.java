@@ -221,11 +221,9 @@ public class ExecuteTest {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertTableWithDatabaseError", args);
         Assert.assertTrue(returnVal[0] instanceof BError);
         BError error = (BError) returnVal[0];
-        Assert.assertEquals(error.getReason(), "{ballerina/sql}DatabaseError");
+        Assert.assertTrue(error.getMessage().contains("Table \"NUMERICTYPESNONEXISTTABLE\" not found"));
         Assert.assertTrue(error.getDetails() instanceof BMap);
         BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
-        Assert.assertTrue(errorDetails.get(Constants.ErrorRecordFields.MESSAGE).stringValue()
-                .contains("Table \"NUMERICTYPESNONEXISTTABLE\" not found"));
         Assert.assertEquals(((BInteger) errorDetails.get(Constants.ErrorRecordFields.ERROR_CODE)).intValue(),
                 42102);
         Assert.assertEquals(errorDetails.get(Constants.ErrorRecordFields.SQL_STATE).stringValue(), "42S02");
@@ -236,12 +234,10 @@ public class ExecuteTest {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertTableWithDataTypeError", args);
         Assert.assertTrue(returnVal[0] instanceof BError);
         BError error = (BError) returnVal[0];
-        Assert.assertEquals(error.getReason(), "{ballerina/sql}DatabaseError");
+        Assert.assertTrue(error.getMessage().contains("Data conversion error converting \"'This is wrong type' " +
+                "(NUMERICTYPES: \"\"INT_TYPE\"\" INT)\""));
         Assert.assertTrue(error.getDetails() instanceof BMap);
         BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
-        Assert.assertTrue(errorDetails.get(Constants.ErrorRecordFields.MESSAGE).stringValue()
-                .contains("Data conversion error converting \"'This is wrong type' " +
-                        "(NUMERICTYPES: \"\"INT_TYPE\"\" INT)\""));
         Assert.assertEquals(((BInteger) errorDetails.get(Constants.ErrorRecordFields.ERROR_CODE)).intValue(), 22018);
         Assert.assertEquals(errorDetails.get(Constants.ErrorRecordFields.SQL_STATE).stringValue(), "22018");
     }

@@ -102,4 +102,9 @@ public class AccessTest {
         BValue[] returns = BRunUtil.invoke(result, "testNilLiftingOnMemberAccessOnNillableObjectField");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
+
+    @Test
+    public void testSimpleTypeAccessOnFunctionPointer() {
+        BRunUtil.invoke(result, "testSimpleTypeAccessOnFunctionPointer");
+    }
 }

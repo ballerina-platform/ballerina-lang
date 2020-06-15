@@ -37,14 +37,12 @@ service HelloWorld7 on ep4 {
             log:printInfo("Server Response");
             grpc:Error? err = caller->send("Ack");
             if (err is grpc:Error) {
-                log:printError("Error from Connector: " + err.reason() + " - "
-                                                           + <string>err.detail()["message"]);
+                log:printError("Error from Connector: " + err.message());
             } else {
                 log:printInfo("Server send response : Ack");
             }
         } else if (e is error) {
-            log:printError("Something unexpected happens at server :: " + e.reason() + " - "
-                                                       + <string>e.detail()["message"]);
+            log:printError("Something unexpected happens at server :: " + e.message());
         }
     }
 }

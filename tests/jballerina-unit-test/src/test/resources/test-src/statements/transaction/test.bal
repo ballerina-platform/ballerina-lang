@@ -1,4 +1,4 @@
-import ballerina/transactions;
+import ballerina/lang.'transaction as transactions;
 
 public type DefaultRetryManager object {
     private int count;
@@ -15,7 +15,6 @@ public type DefaultRetryManager object {
     }
 };
 
-
 function testRollback() returns string|error {
     string|error x =  trap desugaredCode(0, true);
     return x;
@@ -30,7 +29,6 @@ function testPanic() returns string|error {
     string|error x =  trap desugaredCode(1, false);
     return x;
 }
-
 
 //function actualCode(int failureCutOff, boolean requestRollback) returns (string) {
 //    string a = "";

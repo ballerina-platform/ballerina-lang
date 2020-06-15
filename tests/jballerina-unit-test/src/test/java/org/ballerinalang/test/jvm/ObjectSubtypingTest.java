@@ -105,7 +105,7 @@ public class ObjectSubtypingTest {
         assertEquals(result.getErrorCount(), i);
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testObjSubtypingSemanticsNegative() {
         CompileResult result = BCompileUtil.compile("test-src/jvm/object-subtype-semantics-negative.bal");
         int i = 0;

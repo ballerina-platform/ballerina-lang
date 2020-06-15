@@ -59,6 +59,7 @@ public class Names {
     public static final Name OBJECT = new Name("object");
     public static final Name STREAM = new Name("stream");
     public static final Name QUERY = new Name("query");
+    public static final Name TRANSACTION = new Name("transaction");
     public static final Name TABLE = new Name("table");
     public static final Name TYPEDESC = new Name("typedesc");
     public static final Name STRING = new Name("string");
@@ -96,6 +97,7 @@ public class Names {
     public static final Name DETAIL_CAUSE = new Name("cause");
 
     public static final Name NEVER = new Name("never");
+    public static final Name RAW_TEMPLATE = new Name("RawTemplate");
 
     // Subtypes
     public static final Name SIGNED32 = new Name(STRING_SIGNED32);
@@ -145,6 +147,7 @@ public class Names {
     public static final Name XML_VERSION = new Name(BLangCompilerConstants.XML_VERSION);
     public static final Name BOOLEAN_VERSION = new Name(BLangCompilerConstants.BOOLEAN_VERSION);
     public static final Name QUERY_VERSION = new Name(BLangCompilerConstants.QUERY_VERSION);
+    public static final Name TRANSACTION_VERSION = new Name(BLangCompilerConstants.TRANSACTION_VERSION);
 
     public CompilerContext context;
 

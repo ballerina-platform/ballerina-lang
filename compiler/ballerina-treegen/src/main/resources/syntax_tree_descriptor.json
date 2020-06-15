@@ -2059,6 +2059,22 @@
             ]
         },
         {
+            "name": "TypedescTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "TYPEDESC_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "typedescKeywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "typedescTypeParamsNode",
+                    "type": "TypeParameterNode",
+                    "isOptional": true
+                }
+            ]
+        },
+        {
             "name": "LetExpressionNode",
             "base": "ExpressionNode",
             "kind": "LET_EXPRESSION",
@@ -3023,7 +3039,7 @@
         },
         {
             "name": "RestBindingPatternNode",
-            "base": "Node",
+            "base": "BindingPatternNode",
             "kind": "REST_BINDING_PATTERN",
             "attributes": [
                 {
@@ -3496,7 +3512,8 @@
                 },
                 {
                     "name": "content",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "endBacktick",

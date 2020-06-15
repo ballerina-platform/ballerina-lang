@@ -14,17 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type SMS error <string, record {| string message?; error cause?; string...; |}>;
-type SMA error <string, record {| string message?; error cause?; anydata...; |}>;
-type CMS error <string, record {| string message?; error cause?; string...; |}>;
-type CMA error <string, record {| string message?; error cause?; anydata...; |}>;
+type SMS error <record {| string message?; error cause?; string...; |}>;
+type SMA error <record {| string message?; error cause?; anydata...; |}>;
+type CMS error <record {| string message?; error cause?; string...; |}>;
+type CMA error <record {| string message?; error cause?; anydata...; |}>;
 const ERROR1 = "Some Error One";
 const ERROR2 = "Some Error Two";
 
 function testBasicErrorVariableWithMapDetails() returns [string, string, string, string, map<string|error>, string?, string?,
                                                             string?, map<any|error>, any, any, any] {
-    SMS err1 = error("Error One", message = "Msg One", detail = "Detail Msg");
-    SMA err2 = error("Error Two", message = "Msg Two", fatal = true);
+    SMS err1 = SMS("Error One", message = "Msg One", detail = "Detail Msg");
+    SMA err2 = SMA("Error Two", message = "Msg Two", fatal = true);
     SMS error (reason11, message = m1, ... detail11) = err1;
     SMS error (reason12, message = message12, detail = detail12, extra = extra12) = err1;
     SMA error (reason21, ...detail21) = err2;
@@ -36,8 +36,8 @@ function testBasicErrorVariableWithMapDetails() returns [string, string, string,
 
 function testBasicErrorVariableWithConstAndMap() returns [string, string, string, string, map<string|error>, string?, string?,
                                                              string?, map<any|error>, any, any, any] {
-    CMS err3 = error(ERROR1, message = "Msg Three", detail = "Detail Msg");
-    CMA err4 = error(ERROR2, message = "Msg Four", fatal = true);
+    CMS err3 = CMS(ERROR1, message = "Msg Three", detail = "Detail Msg");
+    CMA err4 = CMA(ERROR2, message = "Msg Four", fatal = true);
     CMS error (reason31, ... detail31) = err3;
     CMS error (reason32, message = message32, detail = detail32, extra = extra32) = err3;
     CMA error (reason41, ... detail41) = err4;
@@ -49,8 +49,8 @@ function testBasicErrorVariableWithConstAndMap() returns [string, string, string
 
 function testVarBasicErrorVariableWithMapDetails() returns [string, string, string, string, map<string|error>, string?,
                                                                string?, string?, map<any|error>, any, any, any] {
-    SMS err1 = error("Error One", message = "Msg One", detail = "Detail Msg");
-    SMA err2 = error("Error Two", message = "Msg Two", fatal = true);
+    SMS err1 = SMS("Error One", message = "Msg One", detail = "Detail Msg");
+    SMA err2 = SMA("Error Two", message = "Msg Two", fatal = true);
     var error (reason11, ... detail11) = err1;
     var error (reason12, message = message12, detail = detail12, extra = extra12) = err1;
     var error (reason21, ... detail21) = err2;
@@ -62,8 +62,8 @@ function testVarBasicErrorVariableWithMapDetails() returns [string, string, stri
 
 function testVarBasicErrorVariableWithConstAndMap() returns [string, string, string, string, map<string|error>, string?,
                                                                 string?, string?, map<any|error>, any, any, any] {
-    CMS err3 = error(ERROR1, message = "Msg Three", detail = "Detail Msg");
-    CMA err4 = error(ERROR2, message = "Msg Four", fatal = true);
+    CMS err3 = CMS(ERROR1, message = "Msg Three", detail = "Detail Msg");
+    CMA err4 = CMA(ERROR2, message = "Msg Four", fatal = true);
     var error (reason31, ... detail31) = err3;
     var error (reason32, message = message32, detail = detail32, extra = extra32) = err3;
     var error (reason41, ... detail41) = err4;
@@ -79,39 +79,39 @@ type Foo record {
     error cause?;
 };
 
-type FooError error <string, Foo>;
+type FooError error <Foo>;
 
-function testBasicErrorVariableWithRecordDetails() returns [string, string, string, boolean, map<anydata|error>] {
-    FooError err1 = error("Error One", message = "Something Wrong", fatal = true);
+function testBasicErrorVariableWithRecordDetails() returns [string, string, string, boolean, map<anydata|readonly>] {
+    FooError err1 = FooError("Error One", message = "Something Wrong", fatal = true);
     FooError error (res1, ... rec) = err1;
-    FooError error (res2, message = message, fatal = fatal) = error("Error One", message = "Something Wrong", fatal = true);
+    FooError error (res2, message = message, fatal = fatal) = FooError("Error One", message = "Something Wrong", fatal = true);
     return [res1, res2, message, fatal, rec];
 }
 
-function testErrorInTuple() returns [int, string, string, anydata|error, boolean] {
+function testErrorInTuple() returns [int, string, string, anydata|readonly, boolean] {
     Foo f = { message: "fooMsg", fatal: true };
     [int, string, error, [error, Foo]] t1 = [12, "Bal", error("Err", message = "Something Wrong"),
                                                                 [error("Err2", message = "Something Wrong2"), f]];
     [int, string, error, [error, Foo]] [intVar, stringVar, erroVar, [errorVar2, fooVar]] = t1;
-    return [intVar, stringVar, erroVar.reason(), errorVar2.detail()["message"], fooVar.fatal];
+    return [intVar, stringVar, erroVar.message(), errorVar2.detail()["message"], fooVar.fatal];
 }
 
-function testErrorInTupleWithVar() returns [int, string, string, anydata|error, boolean] {
+function testErrorInTupleWithVar() returns [int, string, string, anydata|readonly, boolean] {
     Foo f = { message: "fooMsg", fatal: false };
     [int, string, error, [error, Foo]] t1 = [12, "Bal", error("Err", message = "Something Wrong"),
                                                                 [error("Err2", message = "Something Wrong2"), f]];
     var [intVar, stringVar, erroVar, [errorVar2, fooVar]] = t1;
-    return [intVar, stringVar, erroVar.reason(), errorVar2.detail()["message"], fooVar.fatal];
+    return [intVar, stringVar, erroVar.message(), errorVar2.detail()["message"], fooVar.fatal];
 }
 
-function testErrorInTupleWithDestructure() returns [int, string, string, map<anydata|error>, boolean] {
+function testErrorInTupleWithDestructure() returns [int, string, string, map<anydata|readonly>, boolean] {
     [int, string, [error, boolean]] t1 = [12, "Bal", [error("Err2", message = "Something Wrong2"), true]];
     [int, string, [error, boolean]] [intVar, stringVar, [error(reasonVar, ... detailVar), booleanVar]] = t1;
 
     return [intVar, stringVar, reasonVar, detailVar, booleanVar];
 }
 
-function testErrorInTupleWithDestructure2() returns [int, string, string, anydata|error, boolean] {
+function testErrorInTupleWithDestructure2() returns [int, string, string, anydata|readonly, boolean] {
     [int, string, [error, boolean]] t1 = [12, "Bal", [error("Err2", message = "Something Wrong2"), true]];
     [int, string, [error, boolean]] [intVar, stringVar, [error(reasonVar, message = message), booleanVar]] = t1;
     return [intVar, stringVar, reasonVar, message, booleanVar];
@@ -122,30 +122,30 @@ type Bar record {
     error e;
 };
 
-function testErrorInRecordWithDestructure() returns [int, string, anydata|error] {
+function testErrorInRecordWithDestructure() returns [int, string, anydata|readonly] {
     Bar b = { x: 1000, e: error("Err3", message = "Something Wrong3") };
     Bar { x, e: error(reason, ...detail) } = b;
     return [x, reason, detail["message"]];
 }
 
-function testErrorWithAnonErrorType() returns [string, string?] {
-    error <string, record {| string message?; error cause?; string...; |}> err = error("Error Code", message = "Fatal");
-    error <string, record {| string message?; error cause?; string...; |}> error(reason, message = message) = err;
+function testErrorWithAnonErrorType() returns [string, anydata|readonly] {
+    error err = error("Error Code", message = "Fatal");
+    error <record {| (anydata|readonly)...; |}> error(reason, message = message) = err;
     return [reason, message];
 }
 
 function testErrorWithUnderscore() returns [string, string, string, string, string, string, string, string,
-                                               string|error?, anydata|error?, anydata|error?] {
-    error <string, record {| string message?; error cause?; string...; |}> err = error("Error Code", message = "Fatal");
-    error <string, record {| string message?; error cause?; string...; |}> error (reason, ... _) = err;
-    error <string, record {| string message?; error cause?; string...; |}> error (reason2) = err;
+                                               string|error?, anydata|readonly?, anydata|readonly?] {
+    error err = error("Error Code", message = "Fatal");
+    error error (reason, ... _) = err;
+    error error (reason2) = err;
 
-    SMS err1 = error("Error One", message = "Msg One", detail = "Detail Msg");
+    SMS err1 = SMS("Error One", message = "Msg One", detail = "Detail Msg");
     SMS error (reason3, ... _) = err1;
     SMS error (reason4) = err1;
     SMS error (_, ... detail) = err1;
 
-    FooError err2 = error("Error Two", message = "Something Wrong", fatal = true);
+    FooError err2 = FooError("Error Two", message = "Something Wrong", fatal = true);
     FooError error (reason5, ... _) = err2;
     FooError error (reason6) = err2;
     FooError error (_, ... detail2) = err2;
@@ -166,11 +166,11 @@ type Bee record {|
 
 const R = "r";
 
-type BeeError error <R, Bee>;
+type BeeError distinct error<Bee>;
 
 function testIndirectErrorDestructuring() returns [string?, boolean, map<anydata|error>] {
-    FooError e = BeeError(message="Msg", fatal=false, other="k");
-    var FooError(message=m, fatal=f, ...rest) = e;
+    BeeError e = BeeError(R, message="Msg", fatal=false, other="k");
+    var BeeError(_, message=m, fatal=f, ...rest) = e;
     return [m, f, rest];
 }
 
@@ -179,10 +179,10 @@ type SealedErrorDetail record {|
     error cause?;
 |};
 
-type SealedError error<string, SealedErrorDetail>;
+type SealedError error<SealedErrorDetail>;
 
-function testSealedDetailDestructuring() returns [string, map<anydata|error>] {
-    SealedError e = error("sealed", message="Msg");
+function testSealedDetailDestructuring() returns [string, map<anydata|readonly>] {
+    SealedError e = SealedError("sealed", message="Msg");
     var error(reason, ...rest) = e;
     return [reason, rest];
 }

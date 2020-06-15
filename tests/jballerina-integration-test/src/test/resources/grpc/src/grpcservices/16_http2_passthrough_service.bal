@@ -65,14 +65,14 @@ service passthrough on helloWorldEP {
                log:printError("[http2-passthrough] Error sending response", err = result);
                http:Response res = new;
                res.statusCode = 500;
-               res.setPayload(<@untainted string> result.detail()["message"]);
+               res.setPayload(<@untainted>result.message());
                result = caller->respond(res);
             }
         } else {
             log:printError("[http2-passthrough] Error forwarding the message", err = clientResponse);
             http:Response res = new;
             res.statusCode = 500;
-            res.setPayload(<string> clientResponse.detail()["message"]);
+            res.setPayload(clientResponse.message());
             var result = caller->respond(res);
             if (result is error) {
                log:printError("[http2-passthrough] Error sending response", err = result);

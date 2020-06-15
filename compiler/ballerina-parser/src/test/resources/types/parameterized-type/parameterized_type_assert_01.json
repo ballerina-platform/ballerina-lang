@@ -338,7 +338,7 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "PARAMETERIZED_TYPE_DESC",
+                      "kind": "TYPEDESC_TYPE_DESC",
                       "children": [
                         {
                           "kind": "TYPEDESC_KEYWORD",
@@ -350,25 +350,30 @@
                           ]
                         },
                         {
-                          "kind": "LT_TOKEN"
-                        },
-                        {
-                          "kind": "NIL_TYPE_DESC",
+                          "kind": "TYPE_PARAMETER",
                           "children": [
                             {
-                              "kind": "OPEN_PAREN_TOKEN"
+                              "kind": "LT_TOKEN"
                             },
                             {
-                              "kind": "CLOSE_PAREN_TOKEN"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "GT_TOKEN",
-                          "trailingMinutiae": [
+                              "kind": "NIL_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "OPEN_PAREN_TOKEN"
+                                },
+                                {
+                                  "kind": "CLOSE_PAREN_TOKEN"
+                                }
+                              ]
+                            },
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "kind": "GT_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         }
@@ -407,7 +412,7 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "PARAMETERIZED_TYPE_DESC",
+                      "kind": "TYPEDESC_TYPE_DESC",
                       "children": [
                         {
                           "kind": "TYPEDESC_KEYWORD",
@@ -419,36 +424,41 @@
                           ]
                         },
                         {
-                          "kind": "LT_TOKEN"
-                        },
-                        {
-                          "kind": "OBJECT_TYPE_DESC",
+                          "kind": "TYPE_PARAMETER",
                           "children": [
                             {
-                              "kind": "LIST",
-                              "children": []
+                              "kind": "LT_TOKEN"
                             },
                             {
-                              "kind": "OBJECT_KEYWORD"
+                              "kind": "OBJECT_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "OBJECT_KEYWORD"
+                                },
+                                {
+                                  "kind": "OPEN_BRACE_TOKEN"
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "CLOSE_BRACE_TOKEN"
+                                }
+                              ]
                             },
                             {
-                              "kind": "OPEN_BRACE_TOKEN"
-                            },
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            },
-                            {
-                              "kind": "CLOSE_BRACE_TOKEN"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "GT_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "kind": "GT_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         }

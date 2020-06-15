@@ -1,7 +1,7 @@
 import ballerina/io;
 
 
-type TrxError error<string, TrxErrorData>;
+type TrxError error<TrxErrorData>;
 
 type TrxErrorData record {|
     string message?;

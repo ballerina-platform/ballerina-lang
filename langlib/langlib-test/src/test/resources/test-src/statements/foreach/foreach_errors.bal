@@ -21,11 +21,13 @@ type Detail record {
     boolean fatal;
 };
 
+type DError error<Detail>;
+
 function testArrayWithErrors() returns [string, string, string] {
-    error<string, Detail> err1 = error("Error One", message = "msgOne", fatal = true);
-    error<string, Detail> err2 = error("Error Two", message = "msgTwo", fatal = false);
-    error<string, Detail> err3 = error("Error Three", message = "msgThree", fatal = true);
-    error<string, Detail>[3] errorArray = [err1, err2, err3];
+    DError err1 = DError("Error One", message = "msgOne", fatal = true);
+    DError err2 = DError("Error Two", message = "msgTwo", fatal = false);
+    DError err3 = DError("Error Three", message = "msgThree", fatal = true);
+    DError[3] errorArray = [err1, err2, err3];
 
     string result1 = "";
     foreach var error(reason, message = message, fatal = fatal) in errorArray {
@@ -35,7 +37,7 @@ function testArrayWithErrors() returns [string, string, string] {
     }
 
     string result2 = "";
-    foreach error<string, Detail> error(reason2, message = message1, fatal = fatal1) in errorArray {
+    foreach DError error(reason2, message = message1, fatal = fatal1) in errorArray {
         result2 += reason2 + ":";
         any temp2 = message;
         result2 += <string> message1 + ":";
@@ -46,7 +48,7 @@ function testArrayWithErrors() returns [string, string, string] {
     foreach var error(reason3) in errorArray {
         result3 += reason3 + ":";
     }
-    foreach error<string, Detail> error(reason4, ..._) in errorArray {
+    foreach DError error(reason4, ..._) in errorArray {
         result3 += reason4 + ":";
     }
     return [result1, result2, result3];
@@ -54,10 +56,10 @@ function testArrayWithErrors() returns [string, string, string] {
 
 
 function testMapWithErrors() returns [string, string, string] {
-    error<string, Detail> err1 = error("Error One", message = "msgOne", fatal = true);
-    error<string, Detail> err2 = error("Error Two", message = "msgTwo", fatal = false);
-    error<string, Detail> err3 = error("Error Three", message = "msgThree", fatal = true);
-    map<error<string, Detail>> errMap = { a: err1, b: err2, c: err3 };
+    DError err1 = DError("Error One", message = "msgOne", fatal = true);
+    DError err2 = DError("Error Two", message = "msgTwo", fatal = false);
+    DError err3 = DError("Error Three", message = "msgThree", fatal = true);
+    map<DError> errMap = { a: err1, b: err2, c: err3 };
 
     string result1 = "";
     foreach var error(reason, message = message, fatal = fatal) in errMap {
@@ -67,7 +69,7 @@ function testMapWithErrors() returns [string, string, string] {
     }
 
     string result2 = "";
-    foreach error<string, Detail> error(reason2, message = message1, fatal = fatal1) in errMap {
+    foreach DError error(reason2, message = message1, fatal = fatal1) in errMap {
         result2 += reason2 + ":";
         any temp2 = message1;
         if (temp2 is string|boolean|()) {
@@ -80,7 +82,7 @@ function testMapWithErrors() returns [string, string, string] {
     foreach var error(reason3) in errMap {
         result3 += reason3 + ":";
     }
-    foreach error<string, Detail> error(reason4, ..._) in errMap {
+    foreach DError error(reason4, ..._) in errMap {
         result3 += reason4 + ":";
     }
     return [result1, result2, result3];

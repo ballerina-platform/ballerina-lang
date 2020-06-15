@@ -32,7 +32,7 @@ public function testClientSocketTimeout() returns string {
 
     // Reads message from response.
     if (unionResp is grpc:Error) {
-        return "Error from Connector: " + unionResp.reason() + " - " + <string> unionResp.detail()["message"];
+        return "Error from Connector: " + unionResp.message();
     } else {
         string result;
         [result, _] = unionResp;
