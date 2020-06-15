@@ -27,6 +27,7 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
+import org.ballerinalang.packerina.task.CopyChoreoExtensionTask;
 import org.ballerinalang.packerina.task.CopyModuleJarTask;
 import org.ballerinalang.packerina.task.CopyNativeLibTask;
 import org.ballerinalang.packerina.task.CopyResourcesTask;
@@ -150,6 +151,9 @@ public class TestCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
     private boolean coverage;
+
+    @CommandLine.Option(names = "--with-choreo", description = "package Choreo extension in the executable jar")
+    private boolean withChoreo;
 
     public void execute() {
         if (this.helpFlag) {
@@ -366,6 +370,8 @@ public class TestCommand implements BLauncherCmd {
         buildContext.setOut(outStream);
         buildContext.setErr(errStream);
 
+        boolean isChoreoExtensionSkipped = !withChoreo;
+
         boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
         // output path is the current directory if -o flag is not given.
 
@@ -378,6 +384,7 @@ public class TestCommand implements BLauncherCmd {
                 // (projects only)
                 .addTask(new CreateBirTask(), listGroups)   // create the bir
                 .addTask(new CopyNativeLibTask(), listGroups) // copy the native libs(projects only)
+                .addTask(new CopyChoreoExtensionTask(), isChoreoExtensionSkipped)   // copy the Choreo extension
                 .addTask(new CreateJarTask(this.skipCopyLibsFromDist), listGroups)  // create the jar
                 .addTask(new CopyResourcesTask(), isSingleFileBuild || listGroups)
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist, false), listGroups)
