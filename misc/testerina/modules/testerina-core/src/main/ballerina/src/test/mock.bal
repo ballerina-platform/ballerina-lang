@@ -23,31 +23,25 @@ public const ANY = "__ANY__";
 # Object mocking errors
 
 # Represents the reason for the mock object related errors.
-public const INVALID_OBJECT_ERROR = "{ballerina/test}InvalidObjectError";
-public type InvalidObjError error<INVALID_OBJECT_ERROR, Detail>;
+public const INVALID_OBJECT_ERROR = "InvalidObjectError";
+public type InvalidObjError distinct error<Detail>;
 
 # Represents the reason for the non-existing member function related errors.
-public const FUNCTION_NOT_FOUND_ERROR = "{ballerina/test}FunctionNotFoundError";
-public type FunctionNotFoundError error<FUNCTION_NOT_FOUND_ERROR, Detail>;
+public const FUNCTION_NOT_FOUND_ERROR = "FunctionNotFoundError";
+public type FunctionNotFoundError distinct error<Detail>;
 
 # Represents the reason for the function signature related errors.
-public const FUNCTION_SIGNATURE_MISMATCH_ERROR = "{ballerina/test}FunctionSignatureMismatchError";
-public type FunctionSignatureMismatchError error<FUNCTION_SIGNATURE_MISMATCH_ERROR, Detail>;
+public const FUNCTION_SIGNATURE_MISMATCH_ERROR = "FunctionSignatureMismatchError";
+public type FunctionSignatureMismatchError distinct error<Detail>;
 
 # Represents the reason for the object member field related errors.
-public const INVALID_MEMBER_FIELD_ERROR = "{ballerina/test}InvalidMemberFieldError";
-public type InvalidMemberFieldError error<INVALID_MEMBER_FIELD_ERROR, Detail>;
+public const INVALID_MEMBER_FIELD_ERROR = "InvalidMemberFieldError";
+public type InvalidMemberFieldError distinct error<Detail>;
 
 public type Error InvalidObjError | FunctionNotFoundError | FunctionSignatureMismatchError | InvalidMemberFieldError;
 
 # The details of an error.
-#
-# + message - Specific error message of the error
-# + cause - Any other error, which causes this error
-public type Detail record {
-    string message;
-    error cause?;
-};
+public type Detail record {};
 
 # Objects and functions related to exposed API
 

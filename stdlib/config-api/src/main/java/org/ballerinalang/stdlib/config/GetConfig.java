@@ -40,7 +40,6 @@ import java.util.Map;
  */
 public class GetConfig {
     private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-    private static final String LOOKUP_ERROR_REASON = "{ballerina/config}LookupError";
     private static final BMapType mapType = new BMapType(BTypes.typeAnydata);
     private static final BArrayType arrayType = new BArrayType(BTypes.typeAnydata);
 
@@ -63,7 +62,8 @@ public class GetConfig {
                     throw new IllegalStateException("invalid value type: " + type);
             }
         } catch (IllegalArgumentException e) {
-            throw BallerinaErrors.createError(LOOKUP_ERROR_REASON, e.getMessage());
+            throw BallerinaErrors.createError(StringUtils.fromString(
+                    "error occurred while trying to retrieve the value; " + e.getMessage()));
         }
     }
 

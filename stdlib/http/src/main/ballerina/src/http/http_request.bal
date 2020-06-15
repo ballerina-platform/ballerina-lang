@@ -199,7 +199,7 @@ public type Request object {
         var result = entity.setContentType(contentType);
         if (result is mime:Error) {
             string message = "Error occurred while setting content type header of the request";
-            return getGenericClientError(message, result);
+            return GenericClientError(message, result);
         } else {
             return;
         }
@@ -223,11 +223,11 @@ public type Request object {
         } else {
             var payload = result.getJson();
             if (payload is mime:Error) {
-                if (payload.detail()?.cause is mime:NoContentError) {
+                if (payload.cause() is mime:NoContentError) {
                     return createErrorForNoPayload(payload);
                 } else {
                     string message = "Error occurred while retrieving the json payload from the request";
-                    return getGenericClientError(message, payload);
+                    return GenericClientError(message, payload);
                }
             } else {
                 return payload;
@@ -245,11 +245,11 @@ public type Request object {
         } else {
             var payload = result.getXml();
             if (payload is mime:Error) {
-                if (payload.detail()?.cause is mime:NoContentError) {
+                if (payload.cause() is mime:NoContentError) {
                     return createErrorForNoPayload(payload);
                 } else {
                     string message = "Error occurred while retrieving the xml payload from the request";
-                    return getGenericClientError(message, payload);
+                    return GenericClientError(message, payload);
                 }
             } else {
                 return payload;
@@ -267,11 +267,11 @@ public type Request object {
         } else {
             var payload = result.getText();
             if (payload is mime:Error) {
-                if (payload.detail()?.cause is mime:NoContentError) {
+                if (payload.cause() is mime:NoContentError) {
                     return createErrorForNoPayload(payload);
                 } else {
                     string message = "Error occurred while retrieving the text payload from the request";
-                    return getGenericClientError(message, payload);
+                    return GenericClientError(message, payload);
                 }
             } else {
                 return payload;
@@ -291,7 +291,7 @@ public type Request object {
             var payload = result.getByteChannel();
             if (payload is mime:Error) {
                 string message = "Error occurred while retrieving the byte channel from the request";
-                return getGenericClientError(message, payload);
+                return GenericClientError(message, payload);
             } else {
                 return payload;
             }
@@ -309,7 +309,7 @@ public type Request object {
             var payload = result.getByteArray();
             if (payload is mime:Error) {
                 string message = "Error occurred while retrieving the binary payload from the request";
-                return getGenericClientError(message, payload);
+                return GenericClientError(message, payload);
             } else {
                 return payload;
             }
@@ -327,27 +327,25 @@ public type Request object {
             string message = "Error occurred while retrieving form parameters from the request";
             if (!mimeEntity.hasHeader(mime:CONTENT_TYPE)) {
                 string errMessage = "Content-Type header is not available";
-                mime:HeaderUnavailableError typeError = error(mime:HEADER_UNAVAILABLE, message = errMessage);
-                return getGenericClientError(message, typeError);
+                mime:HeaderUnavailableError typeError = mime:HeaderUnavailableError(errMessage);
+                return GenericClientError(message, typeError);
             }
             string contentTypeHeaderValue = "";
             var mediaType = mime:getMediaType(mimeEntity.getHeader(mime:CONTENT_TYPE));
             if (mediaType is mime:InvalidContentTypeError) {
-                string errorMessage = <string> mediaType.detail()["message"];
-                mime:InvalidContentTypeError typeError = error(mime:INVALID_CONTENT_TYPE, message = errorMessage);
-                return getGenericClientError(message, typeError);
+                return GenericClientError(message, mediaType);
             } else {
                 contentTypeHeaderValue = mediaType.primaryType + "/" + mediaType.subType;
             }
             if (!(stringutils:equalsIgnoreCase(mime:APPLICATION_FORM_URLENCODED, contentTypeHeaderValue))) {
                 string errorMessage = "Invalid content type : expected 'application/x-www-form-urlencoded'";
-                mime:InvalidContentTypeError typeError = error(mime:INVALID_CONTENT_TYPE, message = errorMessage);
-                return getGenericClientError(message, typeError);
+                mime:InvalidContentTypeError typeError = mime:InvalidContentTypeError(errorMessage);
+                return GenericClientError(message, typeError);
             }
             var formData = mimeEntity.getText();
             map<string> parameters = {};
             if (formData is error) {
-                return getGenericClientError(message, formData);
+                return GenericClientError(message, formData);
             } else {
                 if (formData != "") {
                     string[] entries = stringutils:split(formData, "&");
@@ -385,7 +383,7 @@ public type Request object {
             var bodyParts = result.getBodyParts();
             if (bodyParts is mime:Error) {
                 string message = "Error occurred while retrieving body parts from the request";
-                return getGenericClientError(message, bodyParts);
+                return GenericClientError(message, bodyParts);
             } else {
                 return bodyParts;
             }

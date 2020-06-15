@@ -104,8 +104,8 @@ function testNonNilNonMappingJsonMerge() returns boolean {
     json j2 = ["hello", "world"];
 
     json|error mj = j1.mergeJson(j2);
-    return mj is error && mj.reason() == MERGE_JSON_ERROR_REASON &&
-        mj.detail()[MESSAGE] == "Cannot merge JSON values of types 'float' and 'json[]'";
+    return mj is error && mj.message() == MERGE_JSON_ERROR_REASON &&
+        mj.detail()[MESSAGE].toString() == "Cannot merge JSON values of types 'float' and 'json[]'";
 }
 
 function testMappingJsonAndNonMappingJsonMerge1() returns boolean {
@@ -113,8 +113,8 @@ function testMappingJsonAndNonMappingJsonMerge1() returns boolean {
     json j2 = "string value";
 
     json|error mj = j1.mergeJson(j2);
-    return mj is error && mj.reason() == MERGE_JSON_ERROR_REASON &&
-        mj.detail()[MESSAGE] == "Cannot merge JSON values of types 'map<json>' and 'string'";
+    return mj is error && mj.message() == MERGE_JSON_ERROR_REASON &&
+        mj.detail()[MESSAGE].toString() == "Cannot merge JSON values of types 'map<json>' and 'string'";
 }
 
 function testMappingJsonAndNonMappingJsonMerge2() returns boolean {
@@ -122,8 +122,8 @@ function testMappingJsonAndNonMappingJsonMerge2() returns boolean {
     json[] j2 = [1, 2];
 
     json|error mj = j1.mergeJson(j2);
-    return mj is error && mj.reason() == MERGE_JSON_ERROR_REASON &&
-        mj.detail()[MESSAGE] == "Cannot merge JSON values of types 'map<json>' and 'json[]'";
+    return mj is error && mj.message() == MERGE_JSON_ERROR_REASON &&
+        mj.detail()[MESSAGE].toString() == "Cannot merge JSON values of types 'map<json>' and 'json[]'";
 }
 
 function testMappingJsonNoIntersectionMergeSuccess() returns boolean {
@@ -149,15 +149,15 @@ function testMappingJsonWithIntersectionMergeFailure1() returns boolean {
 
     json|error mj = j1.mergeJson(j2);
 
-    if (!(mj is error) || mj.reason() != MERGE_JSON_ERROR_REASON ||
-            mj.detail()[MESSAGE] != "JSON Merge failed for key 'two'") {
+    if (!(mj is error) || mj.message() != MERGE_JSON_ERROR_REASON ||
+            mj.detail()[MESSAGE].toString() != "JSON Merge failed for key 'two'") {
         return false;
     }
 
     error err = <error> mj;
-    error cause = <error> err.detail()?.cause;
-    return cause.reason() == MERGE_JSON_ERROR_REASON &&
-            cause.detail()[MESSAGE] == "Cannot merge JSON values of types 'string' and 'int'" &&
+    error cause = <error> err.detail()["cause"];
+    return cause.message() == MERGE_JSON_ERROR_REASON &&
+            cause.detail()[MESSAGE].toString() == "Cannot merge JSON values of types 'string' and 'int'" &&
             j1 == j1Clone && j2 == j2Clone;
 }
 
@@ -170,15 +170,15 @@ function testMappingJsonWithIntersectionMergeFailure2() returns boolean {
 
     json|error mj = j1.mergeJson(j2);
 
-    if (!(mj is error) || mj.reason() != MERGE_JSON_ERROR_REASON ||
-            mj.detail()[MESSAGE] != "JSON Merge failed for key 'one'") {
+    if (!(mj is error) || mj.message() != MERGE_JSON_ERROR_REASON ||
+            mj.detail()[MESSAGE].toString() != "JSON Merge failed for key 'one'") {
         return false;
     }
 
     error err = <error> mj;
-    error cause = <error> err.detail()?.cause;
-    return cause.reason() == MERGE_JSON_ERROR_REASON &&
-            cause.detail()[MESSAGE] == "Cannot merge JSON values of types 'map<json>' and 'boolean'" &&
+    error cause = <error> err.detail()["cause"];
+    return cause.message() == MERGE_JSON_ERROR_REASON &&
+            cause.detail()[MESSAGE].toString() == "Cannot merge JSON values of types 'map<json>' and 'boolean'" &&
             j1 == j1Clone && j2 == j2Clone;
 }
 
@@ -215,11 +215,11 @@ function testMergeJsonFailureForValuesWithIntersectingCyclicRefererences() retur
     j2["z"] = j2;
 
     var result = j1.mergeJson(j2);
-    if (result is json || result.detail()?.message != "JSON Merge failed for key 'z'") {
+    if (result is json || result.detail()["message"].toString() != "JSON Merge failed for key 'z'") {
         return false;
     } else {
-        error? cause = result.detail()?.cause;
-        if (cause is () || cause.detail()?.message != "Cannot merge JSON values with cyclic references") {
+        error? cause = <error?>result.detail()["cause"];
+        if (cause is () || cause.detail()["message"].toString() != "Cannot merge JSON values with cyclic references") {
             return false;
         }
     }
@@ -232,7 +232,7 @@ public type AnotherDetail record {
 };
 
 public const REASON_1 = "Reason1";
-public type FirstError error<REASON_1, AnotherDetail>;
+public type FirstError distinct error<AnotherDetail>;
 
 public type Student object {
 
@@ -280,7 +280,7 @@ function testToString() returns string[] {
     map<any|error> varMap = {};
     json varJson = {a: "STRING", b: 12, c: 12.4, d: true, e: {x:"x", y: ()}};
     any[] varArr = ["str", 23, 23.4, true];
-    FirstError varErr = error(REASON_1, message = "Test passing error union to a function");
+    FirstError varErr = FirstError(REASON_1, message = "Test passing error union to a function");
     Student varObj = new("Alaa", "MMV");
     Teacher varObj2 = new("Rola", "MMV");
     any[] varObjArr = [varObj, varObj2];
@@ -321,7 +321,7 @@ public function xmlSequenceFragmentToString() returns string {
    return (x/*).toString();
 }
 
-type AssertionError error<ASSERTION_ERROR_REASON>;
+type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
@@ -334,7 +334,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    panic AssertionError(ASSERTION_ERROR_REASON,
+            message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
 
 type Person2 record {
@@ -382,8 +383,8 @@ public function testCloneWithTypeOptionalFieldToMandotoryField() {
     assert(b is error, true);
 
     error bbe = <error> b;
-    assert(bbe.reason(), "{ballerina/lang.typedesc}ConversionError");
-    assert(bbe.detail()?.message, "'CRec' value cannot be converted to 'BRec'");
+    assert(bbe.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(bbe.detail()["message"].toString(), "'CRec' value cannot be converted to 'BRec'");
 }
 
 type Foo record {
@@ -406,8 +407,8 @@ function testCloneWithTypeAmbiguousTargetType() {
     assert(bb is error, true);
 
     error bbe = <error> bb;
-    assert(bbe.reason(), "{ballerina/lang.typedesc}ConversionError");
-    assert(bbe.detail()?.message, "'Foo' value cannot be converted to 'Bar|Baz': ambiguous target type");
+    assert(bbe.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(bbe.detail()["message"].toString(), "'Foo' value cannot be converted to 'Bar|Baz': ambiguous target type");
 }
 
 function testCloneWithTypeForNilPositive() {
@@ -426,7 +427,7 @@ function testCloneWithTypeForNilNegative() {
     assert(c2 is error, true);
 
     error c1e = <error> c1;
-    assert(c1e.detail()?.message, "cannot convert '()' to type 'string|int'");
+    assert(c1e.detail()["message"].toString(), "cannot convert '()' to type 'string|int'");
 }
 
 function testCloneWithTypeNumeric1() {

@@ -26,7 +26,7 @@ function removeRequiredOpen() {
 
 function testRemoveRequiredOpen() {
     error? result = trap removeRequiredOpen();
-    if ((result is error) && (result.reason() == "{ballerina/lang.map}OperationNotSupported")) {
+    if ((result is error) && (result.message() == "{ballerina/lang.map}OperationNotSupported")) {
         return;
     }
 
@@ -45,7 +45,7 @@ function removeRequiredClosed() {
 
 function testRemoveRequiredClosed() {
     error? result = trap removeRequiredClosed();
-    if ((result is error) && (result.reason() == "{ballerina/lang.map}OperationNotSupported")) {
+    if ((result is error) && (result.message() == "{ballerina/lang.map}OperationNotSupported")) {
         return;
     }
 

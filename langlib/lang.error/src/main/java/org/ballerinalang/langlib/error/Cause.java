@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  * <p>
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -19,7 +19,6 @@ package org.ballerinalang.langlib.error;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -28,18 +27,20 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import static org.ballerinalang.util.BLangCompilerConstants.ERROR_VERSION;
 
 /**
- * Get the reason phrase of an error value.
+ * Get error cause.
  *
- * @since 0.990.4
+ * @since 2.0.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.error", version = ERROR_VERSION,
-        functionName = "reason",
+        functionName = "cause",
         args = {@Argument(name = "value", type = TypeKind.ERROR)},
-        returnType = {@ReturnType(type = TypeKind.STRING)})
-public class Reason {
+        returnType = {@ReturnType(type = TypeKind.UNION)})
+public class Cause {
 
-    public static BString reason(Strand strand, ErrorValue value) {
-        return value.getReason();
+
+    @Deprecated
+    public static Object cause(Strand strand, ErrorValue value) {
+        return value.getCause();
     }
 }

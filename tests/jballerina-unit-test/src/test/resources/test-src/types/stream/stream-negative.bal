@@ -20,8 +20,8 @@ type CustomErrorData record {|
     int accountID?;
 |};
 
-type CustomError error<string, CustomErrorData>;
-type CustomError1 error<string, CustomErrorData>;
+type CustomError distinct error<CustomErrorData>;
+type CustomError1 distinct error<CustomErrorData>;
 
 type Iterator object {
     int i = 0;
@@ -46,7 +46,7 @@ type IteratorWithCustomError object {
     public function next() returns record {| int value; |}|CustomError? {
         self.i += 1;
         if (self.i == 2) {
-            CustomError e = error("CustomError", message = "custom error occured", accountID = 1);
+            CustomError e = CustomError("CustomError", message = "custom error occured", accountID = 1);
             return e;
         } else {
             return { value: self.i };

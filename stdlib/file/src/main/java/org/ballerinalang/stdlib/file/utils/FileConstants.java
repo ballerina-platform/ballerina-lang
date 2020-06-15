@@ -50,11 +50,11 @@ public class FileConstants {
                                                                 PACKAGE_VERSION);
     static final String FILE_INFO_TYPE = "FileInfo";
 
-    // File error codes
-    public static final String INVALID_OPERATION_ERROR = "{ballerina/file}InvalidOperationError";
-    public static final String PERMISSION_ERROR = "{ballerina/file}PermissionError";
-    public static final String FILE_SYSTEM_ERROR = "{ballerina/file}FileSystemError";
-    public static final String FILE_NOT_FOUND_ERROR = "{ballerina/file}FileNotFoundError";
+    // File error type IDs
+    public static final String INVALID_OPERATION_ERROR = "InvalidOperationError";
+    public static final String PERMISSION_ERROR = "PermissionError";
+    public static final String FILE_SYSTEM_ERROR = "FileSystemError";
+    public static final String FILE_NOT_FOUND_ERROR = "FileNotFoundError";
     static final String ERROR_DETAILS = "Detail";
     static final String ERROR_MESSAGE = "message";
 

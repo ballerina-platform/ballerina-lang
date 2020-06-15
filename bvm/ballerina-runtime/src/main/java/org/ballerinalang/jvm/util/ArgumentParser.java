@@ -78,7 +78,7 @@ public class ArgumentParser {
         try {
             bValueArgs = getEntryFuncArgs(funcInfo, args, hasRestParam);
         } catch (ErrorValue e) {
-            RuntimeUtils.handleUsageError(e.getReason().getValue());
+            RuntimeUtils.handleUsageError(e.getMessage());
         }
         return bValueArgs;
     }

@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
  *
  * @since 1.0
  */
+@Test
 public class AnnotationRuntimeTest {
 
     private CompileResult resultOne;

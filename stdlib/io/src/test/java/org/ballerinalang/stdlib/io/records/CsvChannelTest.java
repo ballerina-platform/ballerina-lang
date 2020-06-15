@@ -40,8 +40,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static org.ballerinalang.stdlib.io.utils.IOConstants.ErrorCode.EoF;
-
 /**
  * Tests the CSV channel with the specified values.
  */
@@ -89,7 +87,7 @@ public class CsvChannelTest {
 
         returns = BRunUtil.invoke(csvInputOutputProgramFile, "nextRecord");
         BError error = (BError) returns[0];
-        Assert.assertEquals(error.getReason(), EoF.errorCode());
+        Assert.assertEquals(error.getMessage(), "EoF when reading from the channel");
 
         returns = BRunUtil.invoke(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
@@ -133,7 +131,7 @@ public class CsvChannelTest {
 
         returns = BRunUtil.invoke(csvInputOutputProgramFile, "nextRecord");
         BError error = (BError) returns[0];
-        Assert.assertEquals(error.getReason(), EoF.errorCode());
+        Assert.assertEquals(error.getMessage(), "EoF when reading from the channel");
 
         returns = BRunUtil.invoke(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
@@ -261,7 +259,7 @@ public class CsvChannelTest {
 
         returns = BRunUtil.invoke(csvInputOutputProgramFile, "nextRecord");
         BError error = (BError) returns[0];
-        Assert.assertEquals(error.getReason(), EoF.errorCode());
+        Assert.assertEquals(error.getMessage(), "EoF when reading from the channel");
 
         returns = BRunUtil.invoke(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
@@ -304,7 +302,7 @@ public class CsvChannelTest {
 
         returns = BRunUtil.invoke(csvInputOutputProgramFile, "nextRecord");
         BError error = (BError) returns[0];
-        Assert.assertEquals(error.getReason(), EoF.errorCode());
+        Assert.assertEquals(error.getMessage(), "EoF when reading from the channel");
 
         returns = BRunUtil.invoke(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];

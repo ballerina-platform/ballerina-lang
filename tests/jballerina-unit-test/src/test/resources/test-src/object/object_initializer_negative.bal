@@ -73,7 +73,7 @@ type FooErrData record {
     error cause?;
 };
 
-type FooErr error<string, FooErrData>;
+type FooErr error<FooErrData>;
 
 type BarErrData record {
     string b;
@@ -81,14 +81,14 @@ type BarErrData record {
     error cause?;
 };
 
-type BarErr error<string, BarErrData>;
+type BarErr error<BarErrData>;
 
 type Person4 object {
     string name;
 
     function init() returns FooErr|BarErr {
         self.name = "";
-        FooErr e = error("Foo Error", f = "foo");
+        FooErr e = FooErr("Foo Error", f = "foo");
         return e;
     }
 };

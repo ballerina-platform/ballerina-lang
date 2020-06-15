@@ -59,7 +59,7 @@ public class UnaryBlockingRetryTestCase extends GrpcBaseTest {
 
     @Test(description = "Test client fails all the retry attempts")
     public void testUnaryBlockingRetryAllAttemptsFailing() {
-        final String serverMsg = "{ballerina/grpc}AllRetryAttemptsFailed";
+        final String serverMsg = "Maximum retry attempts completed without getting a result";
 
         BValue[] responses = BRunUtil.invoke(result, "testRetryFailingClient");
         Assert.assertEquals(responses.length, 1);

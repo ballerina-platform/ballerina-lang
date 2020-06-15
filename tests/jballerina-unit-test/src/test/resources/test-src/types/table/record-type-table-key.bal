@@ -165,9 +165,7 @@ function testInferTableTypeV2() {
     assertEquality(3, tb.length());
 }
 
-type AssertionError error<ASSERTION_ERROR_REASON>;
-
-const ASSERTION_ERROR_REASON = "AssertionError";
+type AssertionError error;
 
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
@@ -186,5 +184,5 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    panic AssertionError("AssertionError", message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

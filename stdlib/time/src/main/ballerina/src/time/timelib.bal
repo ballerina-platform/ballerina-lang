@@ -305,7 +305,7 @@ public function nanoTime() returns int = @java:Method {
 
 # Returns the Time object correspoding to the given time components and time-zone.
 # ```ballerina
-#  time:Time|error dateTime = time:createTime(2020, 3, 28, 23, 42, 45, 554, "America/Panama");
+#  time:Time|time:Error dateTime = time:createTime(2020, 3, 28, 23, 42, 45, 554, "America/Panama");
 # ```
 #
 # + year - The year representation
@@ -326,7 +326,7 @@ public function createTime(int year, int month, int date, int hour, int minute, 
 # Returns the time for the given string representation based on the given format string.
 # ```ballerina
 #  string timeFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
-#  time:Time|error time = time:parse("2020-06-26T09:46:22.444-0500", timeFormat);
+#  time:Time|time:Error time = time:parse("2020-06-26T09:46:22.444-0500", timeFormat);
 # ```
 #
 # + data - The time text to parse

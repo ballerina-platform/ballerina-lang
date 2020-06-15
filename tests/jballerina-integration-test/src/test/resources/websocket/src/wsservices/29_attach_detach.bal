@@ -61,6 +61,6 @@ service wsClientService = @http:WebSocketServiceConfig {} service {
 
 function handleError(error? err, http:WebSocketCaller caller) {
     if (err is http:WebSocketError) {
-        checkpanic caller->pushText(err.detail()["message"]);
+        checkpanic caller->pushText(err.message());
     }
 }

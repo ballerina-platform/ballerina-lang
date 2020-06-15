@@ -185,9 +185,7 @@ service echo on mockEP {
         if (payload is json) {
             response.setPayload(<@untainted> payload);
         } else {
-            error err = payload;
-            string? errMsg = err.detail()?.message;
-            response.setPayload(errMsg is string ? <@untainted>errMsg : "Error in parsing payload");
+            response.setPayload(<@untainted> payload.message());
         }
         checkpanic caller->respond(response);
     }
