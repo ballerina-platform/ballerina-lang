@@ -74,12 +74,18 @@ public class BindgenCommand implements BLauncherCmd {
     )
     private String outputPath;
 
+    @CommandLine.Option(names = {"--public"},
+            description = "Set the visibility modifier of Ballerina bindings to public."
+    )
+    private boolean publicFlag;
+
     @CommandLine.Parameters
     private List<String> classNames;
 
     private static final String BINDGEN_CMD = "ballerina bindgen [(-cp|--classpath) <classpath>...]\n" +
             "                  [(-mvn|--maven) <groupId>:<artifactId>:<version>]\n" +
             "                  [(-o|--output) <output>]\n" +
+            "                  [--public]\n" +
             "                  (<class-name>...)";
 
     @Override
@@ -107,6 +113,10 @@ public class BindgenCommand implements BLauncherCmd {
                 targetOutputPath = Paths.get(targetOutputPath.toString(), outputPath);
             }
             setOutputPath(outputPath);
+        }
+
+        if (publicFlag) {
+            bindingsGenerator.setPublic();
         }
 
         if (!ProjectDirs.isProject(targetOutputPath)) {
