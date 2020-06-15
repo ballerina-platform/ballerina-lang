@@ -500,16 +500,16 @@ service echo18 on listener18 {
         } else {
             http:Response errResponse = new;
             errResponse.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
-            var cause = backendResponse.detail()?.cause;
+            var cause = backendResponse.cause();
             if (cause is error) {
-                var innerCause = cause.detail()?.cause;
+                var innerCause = cause.cause();
                 while(innerCause is error) {
                     cause = innerCause;
-                    innerCause = innerCause.detail()?.cause;
+                    innerCause = innerCause.cause();
                 }
-                errResponse.setPayload(<string>cause.detail()?.message);
+                errResponse.setPayload(cause.message());
             } else {
-                errResponse.setPayload(<string>backendResponse.detail()?.message);
+                errResponse.setPayload(backendResponse.message());
             }
             checkpanic caller->respond(errResponse);
         }

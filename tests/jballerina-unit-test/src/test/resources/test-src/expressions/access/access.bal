@@ -128,7 +128,43 @@ function testNilLiftingOnMemberAccessOnNillableObjectField() returns boolean {
 
 function assertNonMappingJsonError(json|error je) returns boolean {
     if (je is error) {
-        return je.reason() == "{ballerina}JSONOperationError" && je.detail()?.message == "JSON value is not a mapping";
+        return je.message() == "{ballerina}JSONOperationError" && je.detail()["message"].toString() == "JSON value is not a mapping";
     }
     return false;
+}
+
+const ASSERTION_ERR_REASON = "AssertionError";
+
+function testSimpleTypeAccessOnFunctionPointer() {
+    boolean booleanVar = false;
+    int intVar = 2;
+    float floatVar = 2.5;
+    decimal decimalVar = 3.5;
+    string stringVar = "test_string";
+
+    var updateVariables = function () {
+        booleanVar = true;
+        intVar += 1;
+        floatVar += 2;
+        decimalVar += 3;
+        stringVar = "updated_test_string";
+    };
+
+    updateVariables();
+    assertEquality(true, booleanVar);
+    assertEquality(3, intVar);
+    assertEquality(4.5, floatVar);
+    assertEquality(<decimal> 6.5, decimalVar);
+    assertEquality("updated_test_string", stringVar);
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+    if expected === actual {
+        return;
+    }
+    panic error(ASSERTION_ERR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

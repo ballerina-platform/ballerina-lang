@@ -182,26 +182,26 @@ import javax.xml.namespace.QName;
      }
 
      /**
-      * Create error value with given type, reason and details.
+      * Create error value with given type, message and details.
       *
       * @param type {@code BErrorType} of the error
-      * @param reason error reason
+      * @param message error message
       * @param details error details
       * @return error value
       */
-     public static BError createErrorValue(BErrorType type, BString reason, Object details) {
-         return new ErrorValue(type, (StringValue) reason, details);
+     public static BError createErrorValue(BErrorType type, BString message, Object details) {
+         return new ErrorValue(type, (StringValue) message, null, details);
      }
 
      /**
-      * Create error value with given reason and error details.
+      * Create error value with given message and error details.
       *
-      * @param reason error reason
+      * @param message error message
       * @param details error detail
       * @return error value
       */
-     public static BError createErrorValue(BString reason, Object details) {
-         return new ErrorValue((StringValue) reason, details);
+     public static BError createErrorValue(BString message, Object details) {
+         return new ErrorValue((StringValue) message, details);
      }
 
      /**

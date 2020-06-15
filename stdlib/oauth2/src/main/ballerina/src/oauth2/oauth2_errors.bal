@@ -17,20 +17,11 @@
 import ballerina/auth;
 import ballerina/log;
 
-# Record type to hold the details of an error.
-#
-# + message - Specific error message of the error
-# + cause - Any other error, which causes this error
-public type Detail record {
-    string message;
-    error cause?;
-};
+# Represents the OAuth2 distinct error.
+public type OAuth2Error distinct error;
 
-# Represents the OAuth2 error reason.
-public const OAUTH2_ERROR = "{ballerina/oauth2}Error";
-
-# Represents the OAuth2 error type with details.
-public type Error error<OAUTH2_ERROR, Detail>;
+# Represents the OAuth2 error.
+public type Error OAuth2Error;
 
 # Logs and prepares the `error` as an `oauth2:Error`.
 #
@@ -41,9 +32,9 @@ function prepareError(string message, error? err = ()) returns Error {
     log:printError(message, err);
     Error oauth2Error;
     if (err is error) {
-        oauth2Error = error(OAUTH2_ERROR, message = message, cause = err);
+        oauth2Error = OAuth2Error(message, err);
     } else {
-        oauth2Error = error(OAUTH2_ERROR, message = message);
+        oauth2Error = OAuth2Error(message);
     }
     return oauth2Error;
 }
@@ -57,9 +48,9 @@ function prepareAuthError(string message, error? err = ()) returns auth:Error {
     log:printError(message, err);
     auth:Error authError;
     if (err is error) {
-        authError = error(auth:AUTH_ERROR, message = message, cause = err);
+        authError = auth:AuthError(message, err);
     } else {
-        authError = error(auth:AUTH_ERROR, message = message);
+        authError = auth:AuthError(message);
     }
     return authError;
 }

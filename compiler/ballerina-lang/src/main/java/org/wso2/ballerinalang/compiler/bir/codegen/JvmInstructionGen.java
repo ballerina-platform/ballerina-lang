@@ -1514,10 +1514,14 @@ public class JvmInstructionGen {
         this.mv.visitInsn(DUP);
         // load errorType
         loadType(this.mv, newErrorIns.type);
-        this.loadVar(newErrorIns.reasonOp.variableDcl);
+        this.loadVar(newErrorIns.messageOp.variableDcl);
+        this.loadVar(newErrorIns.causeOp.variableDcl);
         this.loadVar(newErrorIns.detailOp.variableDcl);
         this.mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, "<init>", String.format(
-                "(L%s;L%s;L%s;)V", BTYPE, JvmConstants.B_STRING_VALUE, OBJECT), false);
+                "(L%s;L%s;L%s;L%s;)V", BTYPE, JvmConstants.B_STRING_VALUE,
+                        ERROR_VALUE,
+                        OBJECT),
+                false);
         this.storeToVar(newErrorIns.lhsOp.variableDcl);
     }
 

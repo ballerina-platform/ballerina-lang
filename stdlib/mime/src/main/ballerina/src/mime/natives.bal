@@ -650,7 +650,7 @@ public function base64EncodeBlob(byte[] valueToBeEncoded) returns byte[]|EncodeE
     if (result is byte[]|EncodeError) {
         return result;
     } else {
-        return prepareEncodingErrorWithDetail("Error occurred while encoding byte[]");
+        return EncodeError("Error occurred while encoding byte[]");
     }
 }
 
@@ -663,7 +663,7 @@ public function base64DecodeBlob(byte[] valueToBeDecoded) returns byte[]|DecodeE
     if (result is byte[]|DecodeError) {
         return result;
     } else {
-        return prepareDecodingErrorWithDetail("Error occurred while decoding byte[]");
+        return DecodeError("Error occurred while decoding byte[]");
     }
 }
 

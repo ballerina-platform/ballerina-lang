@@ -18,7 +18,8 @@
 
 package org.ballerinalang.net.http.websocket.server;
 
-import org.ballerinalang.net.http.websocket.WebSocketException;
+import org.ballerinalang.net.http.websocket.WebSocketConstants;
+import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.ballerinalang.net.uri.parser.DataElement;
 import org.ballerinalang.net.uri.parser.DataReturnAgent;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
@@ -39,7 +40,8 @@ public class WebSocketDataElement implements DataElement<WebSocketServerService,
     @Override
     public void setData(WebSocketServerService webSocketService) {
         if (isFirstTraverse && webSocketService == null) {
-            throw new WebSocketException("Service has not been registered");
+            throw WebSocketUtil.getWebSocketException("Service has not been registered", null,
+                    WebSocketConstants.ErrorCode.WsGenericError.errorCode(), null);
         }
         if (isFirstTraverse) {
             isFirstTraverse = false;
@@ -48,7 +50,8 @@ public class WebSocketDataElement implements DataElement<WebSocketServerService,
             isFirstTraverse = true;
             this.webSocketService = null;
         } else {
-            throw new WebSocketException("Two services have the same addressable URI");
+            throw WebSocketUtil.getWebSocketException("Two services have the same addressable URI", null,
+                    WebSocketConstants.ErrorCode.WsGenericError.errorCode(), null);
         }
     }
 

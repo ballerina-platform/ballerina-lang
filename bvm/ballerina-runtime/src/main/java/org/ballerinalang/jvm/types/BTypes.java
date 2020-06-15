@@ -19,11 +19,9 @@ package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.ReadOnlyUtils;
 
 import java.util.Arrays;
-import java.util.HashMap;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.INT_LANG_LIB;
@@ -105,30 +103,16 @@ public class BTypes {
             null, null));
     // public static BType typeChannel = new BChannelType(TypeConstants.CHANNEL, null);
     public static BType typeAnyService = new BServiceType(TypeConstants.SERVICE, new BPackage(null, null, null), 0);
-    public static BRecordType typeErrorDetail = new BRecordType(TypeConstants.DETAIL_TYPE, new BPackage(null, null,
-            null), 0, false, TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE));
-    public static BErrorType typeError = new BErrorType(TypeConstants.ERROR, new BPackage(null,
-            null, null), typeString, typeErrorDetail);
-    public static BType typePureType = new BUnionType(Arrays.asList(typeAnydata, typeError));
-    public static BType typeAllType = new BUnionType(Arrays.asList(typeAny, typeError));
     public static BType typeHandle = new BHandleType(TypeConstants.HANDLE_TNAME, new BPackage(null, null, null));
+    public static BType anydataOrReadonly = new BUnionType(Arrays.asList(typeAnydata, typeReadonly));
+    public static BMapType typeErrorDetail = new BMapType(TypeConstants.MAP_TNAME, anydataOrReadonly,
+            new BPackage(null, null, null));
+    public static BErrorType typeError = new BErrorType(TypeConstants.ERROR, new BPackage(null, null, null),
+            typeErrorDetail);
 
     public static BRecordType stringItrNextReturnType = IteratorUtils.createIteratorNextReturnType(BTypes.typeString);
     public static BRecordType xmlItrNextReturnType = IteratorUtils
             .createIteratorNextReturnType(new BUnionType(Arrays.asList(BTypes.typeString, BTypes.typeXML)));
-
-    static {
-        HashMap<String, BField> fields = new HashMap<>();
-        fields.put(TypeConstants.DETAIL_MESSAGE.getValue(), new BField(
-                typeString, TypeConstants.DETAIL_MESSAGE.getValue(), Flags.OPTIONAL + Flags.PUBLIC));
-        fields.put(TypeConstants.DETAIL_CAUSE.getValue(), new BField(typeError, TypeConstants.DETAIL_CAUSE.getValue(),
-                                                                     Flags.OPTIONAL + Flags.PUBLIC));
-        typeErrorDetail.setFields(fields);
-        BType[] restFieldType = new BType[2];
-        restFieldType[0] = BTypes.typeAnydata;
-        restFieldType[1] = BTypes.typeError;
-        typeErrorDetail.restFieldType = new BUnionType(Arrays.asList(restFieldType));
-    }
 
     private BTypes() {
     }

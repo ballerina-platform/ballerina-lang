@@ -93,14 +93,11 @@ public class Constants {
     // SigningAlgorithm field in CERTIFICATE_RECORD.
     public static final String CERTIFICATE_RECORD_SIGNATURE_ALG_FIELD = "signingAlgorithm";
 
-    // Error record for crypto module.
-    public static final String CRYPTO_ERROR = "CryptoError";
+    // Crypto error type ID
+    static final String CRYPTO_ERROR = "CryptoError";
 
     // Message field within error record.
     public static final String MESSAGE = "message";
-
-    // Error code for crypto error
-    public static final String CRYPTO_ERROR_CODE = "{ballerina/crypto}Error";
 
     // PKCS12 keystore type
     public static final String KEYSTORE_TYPE_PKCS12 = "PKCS12";

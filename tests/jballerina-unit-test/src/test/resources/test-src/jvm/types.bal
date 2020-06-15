@@ -761,7 +761,7 @@ function testTypeDescValuePrint() {
     io:print(t1);
 }
 
-type AssertionError error<ASSERTION_ERROR_REASON>;
+type AssertionError error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
@@ -774,5 +774,5 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

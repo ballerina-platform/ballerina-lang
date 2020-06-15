@@ -35,7 +35,7 @@ public class Constants {
     public static final String STRUCT_TYPE_TIME = "Time";
     public static final String STRUCT_TYPE_TIMEZONE = "TimeZone";
 
-    public static final String TIME_ERROR_CODE = "{ballerina/time}TimeError";
+    public static final String TIME_ERROR = "TimeError";
     public static final String KEY_ZONED_DATETIME = "ZonedDateTime";
     public static final String TIME_FIELD = "time";
     public static final String ZONE_FIELD = "zone";

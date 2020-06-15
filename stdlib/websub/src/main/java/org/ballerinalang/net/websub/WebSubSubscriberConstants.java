@@ -134,9 +134,7 @@ public class WebSubSubscriberConstants {
     public static final String ON_SEND = "send";
 
     // WebSub error types related constants
-    public static final String ERROR_DETAIL_RECORD = "Detail";
-    public static final String WEBSUB_LISTENER_STARTUP_FAILURE = "{ballerina/websub}ListenerStartupError";
-
+    public static final String WEBSUB_LISTENER_STARTUP_FAILURE = "ListenerStartupError";
     // Strand meta data
     public static final StrandMetadata METADATA_ON_MESSAGE = new StrandMetadata(BALLERINA, WEBSUB, MODULE_VERSION,
                                                                                 RESOURCE_NAME_ON_MESSAGE);

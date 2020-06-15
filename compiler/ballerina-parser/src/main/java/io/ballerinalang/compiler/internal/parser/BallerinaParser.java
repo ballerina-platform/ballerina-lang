@@ -2265,8 +2265,9 @@ public class BallerinaParser extends AbstractParser {
                 return parseNilOrParenthesisedTypeDesc();
             case MAP_KEYWORD: // map type desc
             case FUTURE_KEYWORD: // future type desc
-            case TYPEDESC_KEYWORD: // typedesc type desc
                 return parseParameterizedTypeDescriptor();
+            case TYPEDESC_KEYWORD: // typedesc type desc
+                return parseTypedescTypeDescriptor();
             case ERROR_KEYWORD: // error type descriptor
                 return parseErrorTypeDescriptor();
             case STREAM_KEYWORD: // stream type desc
@@ -7355,7 +7356,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse <code>map</code> or <code>future</code> or <code>typedesc</code> keyword token.
+     * Parse <code>map</code> or <code>future</code> keyword token.
      *
      * @return Parsed node
      */
@@ -7364,7 +7365,6 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case MAP_KEYWORD: // map type desc
             case FUTURE_KEYWORD: // future type desc
-            case TYPEDESC_KEYWORD: // typedesc type desc
                 return consume();
             default:
                 Solution sol = recover(nextToken, ParserRuleContext.PARAMETERIZED_TYPE);
@@ -8826,6 +8826,39 @@ public class BallerinaParser extends AbstractParser {
             return consume();
         } else {
             Solution sol = recover(token, ParserRuleContext.ERROR_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse typedesc type descriptor.
+     * typedesc-type-descriptor := typedesc type-parameter
+     *
+     * @return Parsed typedesc type node
+     */
+    private STNode parseTypedescTypeDescriptor() {
+        STNode typedescKeywordToken = parseTypedescKeyword();
+        STNode typedescTypeParamsNode;
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.LT_TOKEN) {
+            typedescTypeParamsNode = parseTypeParameter();
+        } else {
+            typedescTypeParamsNode = STNodeFactory.createEmptyNode();
+        }
+        return STNodeFactory.createTypedescTypeDescriptorNode(typedescKeywordToken, typedescTypeParamsNode);
+    }
+
+    /**
+     * Parse typedesc-keyword.
+     *
+     * @return Parsed typedesc-keyword node
+     */
+    private STNode parseTypedescKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.TYPEDESC_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.TYPEDESC_KEYWORD);
             return sol.recoveredNode;
         }
     }

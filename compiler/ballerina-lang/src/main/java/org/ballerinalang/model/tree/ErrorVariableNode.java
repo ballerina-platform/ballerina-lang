@@ -30,7 +30,7 @@ import java.util.List;
  */
 public interface ErrorVariableNode extends VariableNode, AnnotatableNode, DocumentableNode, TopLevelNode {
 
-    VariableNode getReason();
+    VariableNode getMessage();
 
     List<? extends ErrorDetailEntry> getDetail();
 

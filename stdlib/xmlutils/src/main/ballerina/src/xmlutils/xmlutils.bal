@@ -45,25 +45,27 @@ public function fromJSON(json? jsonValue, JsonOptions options = {}) returns xml|
 } external;
 
 
-//TODO Table remove - Fix
-//# Converts a table to its XML representation.
-//# ```ballerina
-//# table<Person> personTable = table{
-//#     { key id, age, salary, name, married },
-//#     [ { 1, 30,  300.5, "Mary", true },
-//#         { 2, 20,  300.5, "John", true }
-//#     ]
-//# };
-//# xml xmlValue = xmlutils:fromTable(personTable).toString();
-//# ```
-//#
-//# + tableValue - The `table` value to be converted to an XML
-//# + return - The XML representation of the provided table
-//public function fromTable(table<record{}> tableValue) returns xml {
-//    return externFromTable(tbl);
-//}
-//
-//function externFromTable(table<record{}> tableValue) returns xml = @java:Method {
-//    name: "fromTable",
-//    class: "org.ballerinalang.stdlib.xmlutils.ConvertUtils"
-//} external;
+# Converts a table to its XML representation.
+# ```ballerina
+# type Employee record {
+#      int id;
+#      string name;
+#      float salary;
+#      boolean permanent;
+#  };
+# table<Employee> tableValue = table[ { id: 1, name: "Mary",  salary: 300.5, permanent: true },
+#         { id: 2, name: "John",  salary: 300.5, permanent: true }
+#     ];
+# xml xmlValue = xmlutils:fromTable(tableValue);
+# ```
+#
+# + tableValue - The `table` value to be converted to an XML
+# + return - The XML representation of the provided table
+public function fromTable(table<record{}> tableValue) returns xml {
+    return externFromTable(tableValue);
+}
+
+function externFromTable(table<record{}> tableValue) returns xml = @java:Method {
+    name: "fromTable",
+    class: "org.ballerinalang.stdlib.xmlutils.ConvertUtils"
+} external;

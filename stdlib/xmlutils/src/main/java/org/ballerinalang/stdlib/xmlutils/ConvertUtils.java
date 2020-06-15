@@ -20,7 +20,10 @@ package org.ballerinalang.stdlib.xmlutils;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.TableValueImpl;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BString;
 
 /**
@@ -49,18 +52,17 @@ public class ConvertUtils {
             String arrayEntryTag = (options.get(StringUtils.fromString(OPTIONS_ARRAY_ENTRY_TAG))).getValue();
             return JSONToXMLConverter.convertToXML(json, attributePrefix, arrayEntryTag);
         } catch (Exception e) {
-            return BallerinaErrors.createError("{ballerina/xmlutils}Error", e.getMessage());
+            return BallerinaErrors.createError(StringUtils.fromString(e.getMessage()));
         }
     }
 
-    //TODO Table remove - Fix
-//    /**
-//     * Converts a given table to its XML representation.
-//     *
-//     * @param tableValue Table record pointer
-//     * @return XML record that construct from the table
-//     */
-//    public static XMLValue fromTable(TableValue tableValue) {
-//        return XMLFactory.tableToXML(tableValue);
-//    }
+    /**
+     * Converts a given table to its XML representation.
+     *
+     * @param tableValue Table record pointer
+     * @return XML record that construct from the table
+     */
+    public static XMLValue fromTable(TableValueImpl tableValue) {
+        return XMLFactory.tableToXML(tableValue);
+    }
 }

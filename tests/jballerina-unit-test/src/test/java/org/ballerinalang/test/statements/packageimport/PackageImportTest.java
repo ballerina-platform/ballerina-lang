@@ -31,6 +31,7 @@ import java.io.PrintStream;
 /**
  * Tests covering package imports.
  */
+@Test
 public class PackageImportTest {
 
     @Test

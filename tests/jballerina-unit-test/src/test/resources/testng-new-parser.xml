@@ -30,6 +30,7 @@
                 <exclude name="brokenOnSpecDeviation"/>
                 <exclude name="brokenOnXMLLangLibChange"/>
                 <exclude name="brokenOnNewParser"/>
+                <exclude name="brokenOnErrorChange"/>
             </run>
         </groups>
         <packages>
@@ -66,7 +67,7 @@
 <!--            <package name="org.ballerinalang.test.types.errors.*"/>-->
             <package name="org.ballerinalang.test.types.var.*"/>
             <package name="org.ballerinalang.test.types.uniontypes.*"/>
-<!--            <package name="org.ballerinalang.test.types.typedesc.*"/>-->
+            <package name="org.ballerinalang.test.types.typedesc.*"/>
             <package name="org.ballerinalang.test.types.tuples.*"/>
             <package name="org.ballerinalang.test.types.anydata.*"/>
             <package name="org.ballerinalang.test.statements.arrays.*"/>
@@ -147,6 +148,7 @@
         </packages>
 
         <classes>
+            <class name="org.ballerinalang.test.typedefs.DistinctTypeDefTest"/>
             <class name="org.ballerinalang.test.balo.constant.SimpleConstantBaloNegativeTests"></class>
             <class name="org.ballerinalang.test.expressions.builtinoperations.BuiltinOperationsTest"></class>
             <class name="org.ballerinalang.test.expressions.invocations.StringFunctionInvocationExprTest"></class>

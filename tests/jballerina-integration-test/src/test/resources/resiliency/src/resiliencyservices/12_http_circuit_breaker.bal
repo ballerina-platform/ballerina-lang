@@ -52,11 +52,9 @@ service circuitbreaker05 on circuitBreakerEP05 {
                 log:printError("Error sending response", responseToCaller);
             }
         } else {
-            error err = backendRes;
             http:Response response = new;
             response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
-            string errCause = <string> err.detail()?.message;
-            response.setPayload(errCause);
+            response.setPayload(<@untainted> backendRes.message());
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
                 log:printError("Error sending response", responseToCaller);
