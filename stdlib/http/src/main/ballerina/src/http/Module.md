@@ -31,7 +31,8 @@ var response = clientEndpoint->get("/get?id=123");
 For more information, see the following.
 * [Client Endpoint Example](https://ballerina.io/learn/by-example/http-client-endpoint.html)
 * [Circuit Breaker Example](https://ballerina.io/learn/by-example/http-circuit-breaker.html)
-* [HTTP Redirects Example](https://ballerina.io/learn/by-example/http-redirects.html).
+* [HTTP Redirects Example](https://ballerina.io/learn/by-example/http-redirects.html)
+* [HTTP Cookies](https://ballerina.io/learn/by-example/http-cookies.html)
 
 ### Listener
 
