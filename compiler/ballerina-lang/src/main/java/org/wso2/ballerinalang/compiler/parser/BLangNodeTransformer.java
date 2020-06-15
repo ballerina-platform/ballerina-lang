@@ -4009,21 +4009,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             String text = token.text();
             text = text.substring(1);
 
-            if (text.startsWith("\n#")) { // currently parse sends us empty doc lines prepended to non empty ones
-                BLangMarkdownDocumentationLine docLine = (BLangMarkdownDocumentationLine)
-                        TreeBuilder.createMarkdownDocumentationTextNode();
-                docLine.text = "";
-
-                if (needToAppendThreeTickContent) {
-                    documentationLines.getLast().text += threeTickContent.toString();
-                    threeTickContent.setLength(0);
-                    needToAppendThreeTickContent = false;
-                }
-                documentationLines.add(docLine);
-
-                text = text.substring(2);
-            }
-
             boolean inThreeTicksPreviousLine = inThreeTicks;
             inThreeTicks = addReferences(text, references, inThreeTicks);
 
@@ -4093,7 +4078,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private String trimLeftAtMostOne(String text) {
         int countToStrip = 0;
-        if (Character.isWhitespace(text.charAt(0))) {
+        if (!text.isEmpty() && Character.isWhitespace(text.charAt(0))) {
             countToStrip = 1;
         }
         return text.substring(countToStrip);
