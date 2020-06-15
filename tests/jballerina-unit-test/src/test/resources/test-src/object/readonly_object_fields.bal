@@ -23,13 +23,14 @@ function testReadonlyObjectFields() {
     //testInvalidUpdateOfPossiblyReadonlyFieldInUnion(); https://github.com/ballerina-platform/ballerina-lang/issues/23551
     testObjectWithStructuredReadonlyFields();
     testReadOnlyFieldWithDefaultValue();
+    testTypeReadOnlyFlagForAllReadOnlyFields();
 }
 
 public type Student object {
     readonly string name;
     readonly int id;
-
-    public function __init(string n, int i) {
+    float avg = 80.0;
+    public function init(string n, int i) {
         self.name = n;
         self.id = i;
     }
@@ -40,7 +41,7 @@ public type NonReadOnlyStudent object {
     int id;
     int yob;
 
-    public function __init(string n, int i, int y) {
+    public function init(string n, int i, int y) {
         self.name = n;
         self.id = i;
         self.yob = y;
@@ -73,7 +74,7 @@ type ReadonlyNamedPerson object {
     readonly string name;
     int id;
 
-    function __init(string name, int id) {
+    function init(string name, int id) {
         self.name = name;
         self.id = id;
     }
@@ -83,7 +84,7 @@ type NonReadonlyNamedPerson object {
     string name;
     int id;
 
-    function __init(string name, int id) {
+    function init(string name, int id) {
         self.name = name;
         self.id = id;
     }
@@ -137,7 +138,7 @@ type Employee object {
     readonly Details details;
     string department = "IT";
 
-    function __init(Details & readonly details) {
+    function init(Details & readonly details) {
         self.details = details;
     }
 };
@@ -185,7 +186,7 @@ type Identifier object {
     readonly string id = "Identifier";
     string code;
 
-    function __init(string code, string? id = ()) {
+    function init(string code, string? id = ()) {
         self.code = code;
 
         if id is string {
@@ -216,6 +217,36 @@ function testReadOnlyFieldWithDefaultValue() {
     error err = <error> res;
     assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.reason());
     assertEquality("cannot update 'readonly' field 'id' in object of type 'Identifier'", err.detail()?.message);
+}
+
+type Foo abstract object {
+    string name;
+    int id;
+
+    function baz() returns string;
+};
+
+type Bar object {
+    readonly string name = "str";
+    readonly int id = 1234;
+    readonly int? oth = ();
+
+    function baz() returns string {
+        return string `${self.id}: ${self.name}`;
+    }
+};
+
+function testTypeReadOnlyFlagForAllReadOnlyFields() {
+    Bar st = new;
+
+    Foo & readonly pr = st;
+    assertTrue(pr is Bar);
+    assertEquality("str", pr.name);
+    assertEquality(1234, pr.id);
+    assertEquality("1234: str", pr.baz());
+
+    readonly rd = st;
+    assertTrue(rd is Bar);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

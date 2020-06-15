@@ -19,7 +19,7 @@ type TestObject object {
     int field2;
     TestRecord rec;
 
-    public function __init(string f1, int f2, TestRecord recF) {
+    public function init(string f1, int f2, TestRecord recF) {
          self.field1 = f1;
          self.field2 = f2;
          self.rec = recF;

@@ -42,7 +42,7 @@ public class ReturnStmtNegativeTest {
         BAssertUtil.validateError(result, 0, "incompatible types: expected '[string,string]', found 'string'", 2, 12);
     }
 
-    @Test(description = "Test not enough arguments to return")
+    @Test(description = "Test not enough arguments to return", groups = { "brokenOnNewParser" })
     public void testNotEnoughArgsToReturn3() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/not-enough-args-to-return-3.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
@@ -51,7 +51,7 @@ public class ReturnStmtNegativeTest {
                 "'@', '...', '|', '?:', '->>', '..<', '.@'}", 2, 20);
     }
 
-    @Test(description = "Test too many arguments to return")
+    @Test(description = "Test too many arguments to return", groups = { "brokenOnNewParser" })
     public void testTooManyArgsToReturn1() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/too-many-args-to-return-1.bal");
         Assert.assertEquals(result.getErrorCount(), 1);

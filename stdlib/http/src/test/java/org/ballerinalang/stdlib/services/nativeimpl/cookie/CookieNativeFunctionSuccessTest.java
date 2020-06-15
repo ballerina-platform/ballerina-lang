@@ -45,8 +45,7 @@ public class CookieNativeFunctionSuccessTest {
         result = BCompileUtil.compile(sourceRoot.resolve("cookie-native-function.bal").toString());
     }
 
-    @Test(description = "Test to add cookie with same domain and path values as in the request url , into cookie store",
-            enabled = false)
+    @Test(description = "Test to add cookie with same domain and path values as in the request url , into cookie store")
     public void testAddCookieToCookieStore1() {
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieToCookieStore1");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -56,8 +55,7 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test to add cookie coming from a sub domain of the cookie's domain value, into cookie store",
-            enabled = false)
+    @Test(description = "Test to add cookie coming from a sub domain of the cookie's domain value, into cookie store")
     public void testAddCookieToCookieStore2() {
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieToCookieStore2");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -67,7 +65,7 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test to add a host only cookie into cookie store", enabled = false)
+    @Test(description = "Test to add a host only cookie into cookie store")
     public void testAddCookieToCookieStore3() {
 
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieToCookieStore3");
@@ -78,7 +76,7 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test to add cookie with unspecified path value, into cookie store", enabled = false)
+    @Test(description = "Test to add cookie with unspecified path value, into cookie store")
     public void testAddCookieToCookieStore4() {
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieToCookieStore4");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -88,8 +86,7 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test to add cookie coming from a sub directory of the cookie's path value, into cookie store",
-            enabled = false)
+    @Test(description = "Test to add cookie coming from a sub directory of the cookie's path value, into cookie store")
     public void testAddCookieToCookieStore5() {
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieToCookieStore5");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -99,7 +96,7 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test to add a third party cookie into cookie store", enabled = false)
+    @Test(description = "Test to add a third party cookie into cookie store")
     public void testAddThirdPartyCookieToCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testAddThirdPartyCookieToCookieStore");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -109,7 +106,7 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test to add an array of cookies into cookie store", enabled = false)
+    @Test(description = "Test to add an array of cookies into cookie store")
     public void testAddCookiesToCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookiesToCookieStore");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -121,7 +118,7 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue2.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test to add a similar cookie as in the store", enabled = false)
+    @Test(description = "Test to add a similar cookie as in the store")
     public void testAddSimilarCookieToCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testAddSimilarCookieToCookieStore");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -132,7 +129,7 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue.get("value").stringValue(), "6789mnmsddd34");
     }
 
-    @Test(description = "Test to add cookies concurrently into cookie store", enabled = false)
+    @Test(description = "Test to add cookies concurrently into cookie store")
     public void testAddCookiesConcurrentlyToCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookiesConcurrentlyToCookieStore");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -144,7 +141,7 @@ public class CookieNativeFunctionSuccessTest {
     }
 
     @Test(description = "Test to get the relevant cookie with same domain and path values as in the request url from " +
-            "cookie store", enabled = false)
+            "cookie store")
     public void testGetCookiesFromCookieStore1() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookiesFromCookieStore1");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -155,7 +152,7 @@ public class CookieNativeFunctionSuccessTest {
     }
 
     @Test(description = "Test to get the relevant cookie to a sub domain of the cookie's domain value from cookie " +
-            "store", enabled = false)
+            "store")
     public void testGetCookiesFromCookieStore2() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookiesFromCookieStore2");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -165,7 +162,7 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test to get a host only cookie to the relevant domain from cookie store", enabled = false)
+    @Test(description = "Test to get a host only cookie to the relevant domain from cookie store")
     public void testGetCookiesFromCookieStore3() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookiesFromCookieStore3");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -176,7 +173,7 @@ public class CookieNativeFunctionSuccessTest {
     }
 
     @Test(description = "Test to get the relevant cookie to a sub directory of the cookie's path value from cookie " +
-            "store", enabled = false)
+            "store")
     public void testGetCookiesFromCookieStore4() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookiesFromCookieStore4");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -186,8 +183,7 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test to get a cookie with unspecified path value to the relevant path from cookie store",
-            enabled = false)
+    @Test(description = "Test to get a cookie with unspecified path value to the relevant path from cookie store")
     public void testGetCookiesFromCookieStore5() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookiesFromCookieStore5");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -198,7 +194,7 @@ public class CookieNativeFunctionSuccessTest {
     }
 
     @Test(description = "Test to get cookies when both matched and unmatched cookies are available in the cookie " +
-            "store.", enabled = false)
+            "store.")
     public void testGetCookiesFromCookieStore6() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookiesFromCookieStore6");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -208,7 +204,7 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test to get a secure cookie to a secure url from cookie store", enabled = false)
+    @Test(description = "Test to get a secure cookie to a secure url from cookie store")
     public void testGetSecureCookieFromCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetSecureCookieFromCookieStore");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -218,21 +214,21 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test to remove a specific session cookie from the cookie store", enabled = false)
+    @Test(description = "Test to remove a specific session cookie from the cookie store")
     public void testRemoveCookieFromCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testRemoveCookieFromCookieStore");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                           "Cookie objects are in the Return Values");
     }
 
-    @Test(description = "Test to remove all cookies from the cookie store", enabled = false)
+    @Test(description = "Test to remove all cookies from the cookie store")
     public void testRemoveAllCookiesInCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testRemoveAllCookiesInCookieStore");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                           "Cookie objects are in the Return Values");
     }
 
-    @Test(description = "Test to add persistent cookie into cookie store", enabled = false)
+    @Test(description = "Test to add persistent cookie into cookie store")
     public void testAddPersistentCookieToCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testAddPersistentCookieToCookieStore");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -242,8 +238,7 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test to add persistent cookie with a value below 69 for the year in expires attribute",
-            enabled = false)
+    @Test(description = "Test to add persistent cookie with a value below 69 for the year in expires attribute")
     public void testAddPersistentCookieToCookieStore_2() {
         BValue[] returnVals = BRunUtil.invoke(result, "testAddPersistentCookieToCookieStore_2");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -253,7 +248,7 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test to get the relevant persistent cookie from the cookie store", enabled = false)
+    @Test(description = "Test to get the relevant persistent cookie from the cookie store")
     public void testGetPersistentCookieFromCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetPersistentCookieFromCookieStore");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -263,15 +258,14 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test to remove a specific persistent cookie from the cookie store", enabled = false)
+    @Test(description = "Test to remove a specific persistent cookie from the cookie store")
     public void testRemovePersistentCookieFromCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testRemovePersistentCookieFromCookieStore");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                           "Cookie objects are in the Return Values");
     }
 
-    @Test(description = "Test to get all cookies from the cookie store, which match the given cookie name",
-            enabled = false)
+    @Test(description = "Test to get all cookies from the cookie store, which match the given cookie name")
     public void testGetCookiesByName() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookiesByName");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -281,8 +275,7 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test to get all cookies from the cookie store, which match the given cookie domain",
-            enabled = false)
+    @Test(description = "Test to get all cookies from the cookie store, which match the given cookie domain")
     public void testGetCookiesByDomain() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookiesByDomain");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -294,8 +287,7 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue2.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test to remove all cookies from the cookie store, which match the given cookie domain",
-            enabled = false)
+    @Test(description = "Test to remove all cookies from the cookie store, which match the given cookie domain")
     public void testRemoveCookiesByDomain() {
         BValue[] returnVals = BRunUtil.invoke(result, "testRemoveCookiesByDomain");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,

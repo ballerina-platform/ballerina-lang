@@ -53,6 +53,8 @@ public enum DiagnosticCode {
     INVALID_INTERSECTION_TYPE("invalid.intersection.type"),
     INVALID_NON_READONLY_INTERSECTION_TYPE("invalid.non.readonly.intersection.type"),
     INVALID_READONLY_INTERSECTION_TYPE("invalid.readonly.intersection.type"),
+    INVALID_READONLY_OBJECT_INTERSECTION_TYPE("invalid.readonly.object.intersection.type"),
+    INVALID_READONLY_OBJECT_TYPE("invalid.readonly.object.type"),
     STREAM_INVALID_CONSTRAINT("stream.invalid.constraint"),
     STREAM_INIT_NOT_ALLOWED_HERE("stream.initialization.not.allowed.here"),
     CANNOT_INFER_OBJECT_TYPE_FROM_LHS("cannot.infer.object.type.from.lhs"),
@@ -136,7 +138,8 @@ public enum DiagnosticCode {
     HEXADECIMAL_TOO_SMALL("hexadecimal.too.small"),
 
     //Transaction related error codes
-    ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("abort.cannot.be.outside.transaction.block"),
+    ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("rollback.cannot.be.outside.transaction.block"),
+    COMMIT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("commit.cannot.be.outside.transaction.block"),
     RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("retry.cannot.be.outside.transaction.block"),
     BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION("break.statement.cannot.be.used.to.exit.from.a.transaction"),
     CONTINUE_CANNOT_BE_USED_TO_EXIT_TRANSACTION("continue.statement.cannot.be.used.to.exit.from.a.transaction"),
@@ -144,12 +147,22 @@ public enum DiagnosticCode {
     RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION("return.statement.cannot.be.used.to.exit.from.a.transaction"),
     DONE_CANNOT_BE_USED_TO_EXIT_TRANSACTION("done.statement.cannot.be.used.to.exit.from.a.transaction"),
     INVALID_RETRY_COUNT("invalid.retry.count"),
+    INVALID_COMMIT_COUNT("invalid.commit.count"),
+    INVALID_ROLLBACK_COUNT("invalid.rollback.count"),
     INVALID_TRANSACTION_HANDLER_ARGS("invalid.transaction.handler.args"),
     INVALID_TRANSACTION_HANDLER_SIGNATURE("invalid.transaction.handler.signature"),
     LAMBDA_REQUIRED_FOR_TRANSACTION_HANDLER("lambda.required.for.transaction.handler"),
     TRANSACTION_CANNOT_BE_USED_WITHIN_HANDLER("transaction.cannot.be.used.within.handler"),
+    TRANSACTION_CANNOT_BE_USED_WITHIN_TRANSACTIONAL_SCOPE("transaction.cannot.be.used.within.transactional.scope"),
+    TRANSACTIONAL_FUNC_INVOKE_PROHIBITED("transactional.function.prohibited.outside.transactional.scope"),
     NESTED_TRANSACTIONS_ARE_INVALID("nested.transactions.are.invalid"),
     INVALID_FUNCTION_POINTER_ASSIGNMENT_FOR_HANDLER("invalid.function.pointer.assignment.for.handler"),
+    USAGE_OF_START_WITHIN_TRANSACTION_IS_PROHIBITED("usage.of.start.within.transaction.is.prohibited"),
+    ROLLBACK_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION("rollback.cannot.be.within.transactional.function"),
+    COMMIT_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION("commit.cannot.be.within.transactional.function"),
+    MAX_ONE_COMMIT_ROLLBACK_ALLOWED_WITHIN_A_BRANCH("max.one.commit.rollback.allowed.within.branch"),
+    COMMIT_NOT_ALLOWED("commit.not.allowed"),
+    ROLLBACK_NOT_ALLOWED("rollback.not.allowed"),
 
     // Service, endpoint related errors codes
     SERVICE_OBJECT_TYPE_REQUIRED("service.object.type.required"),
@@ -430,6 +443,7 @@ public enum DiagnosticCode {
     KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT("key.specifier.field.value.must.be.constant"),
     KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT
             ("key.constraint.not.supported.for.table.with.map.constraint"),
+    CANNOT_INFER_MEMBER_TYPE_FOR_TABLE_DUE_AMBIGUITY("cannot.infer.member.type.for.table.due.ambiguity"),
     CANNOT_INFER_MEMBER_TYPE_FOR_TABLE("cannot.infer.member.type.for.table"),
 
 
@@ -524,6 +538,17 @@ public enum DiagnosticCode {
     INVALID_WAIT_MAPPING_CONSTRUCTORS("invalid.wait.future.expr.mapping.constructors"),
     INVALID_WAIT_ACTIONS("invalid.wait.future.expr.actions"),
     INVALID_SEND_EXPR("invalid.send.expr"),
+
+    INVALID_USE_OF_TYPEDESC_PARAM("invalid.use.of.typedesc.param"),
+    INVALID_PARAM_TYPE_FOR_RETURN_TYPE("invalid.param.type.for.return.type"),
+    INVALID_TYPEDESC_PARAM("invalid.typedesc.param"),
+
+    INVALID_RAW_TEMPLATE_TYPE("invalid.raw.template.type"),
+    INVALID_NUM_STRINGS("invalid.num.of.strings"),
+    INVALID_NUM_INSERTIONS("invalid.num.of.insertions"),
+    INVALID_RAW_TEMPLATE_ASSIGNMENT("invalid.raw.template.assignment"),
+    INVALID_NUM_FIELDS("invalid.number.of.fields"),
+    METHODS_NOT_ALLOWED("methods.not.allowed"),
     ;
     private String value;
 

@@ -52,6 +52,8 @@ public class Flags {
     public static final int LANG_LIB = TYPE_PARAM << 1;
     public static final int WORKER = LANG_LIB << 1;
     public static final int FORKED = WORKER << 1;
+    public static final int TRANSACTIONAL = FORKED << 1;
+    public static final int PARAMETERIZED = TRANSACTIONAL << 1;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -131,6 +133,9 @@ public class Flags {
                     break;
                 case FORKED:
                     mask |= FORKED;
+                    break;
+                case TRANSACTIONAL:
+                    mask |= TRANSACTIONAL;
             }
         }
         return mask;
@@ -210,12 +215,19 @@ public class Flags {
                 case FORKED:
                     flagVal = FORKED;
                     break;
+                case TRANSACTIONAL:
+                    flagVal = TRANSACTIONAL;
+                    break;
                 default:
                     continue;
             }
             addIfFlagOn(flagSet, mask, flagVal, flag);
         }
         return flagSet;
+    }
+
+    public static int unset(int mask, int flag) {
+        return mask & (~flag);
     }
 
     private static void addIfFlagOn(Set<Flag> flagSet, int mask, int flagVal, Flag flag) {

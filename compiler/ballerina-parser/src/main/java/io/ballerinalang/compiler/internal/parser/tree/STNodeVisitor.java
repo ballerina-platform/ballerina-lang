@@ -697,6 +697,26 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(typeReferenceTypeDescNode);
     }
 
+    public void visit(STMatchStatementNode matchStatementNode) {
+        visitSyntaxNode(matchStatementNode);
+    }
+
+    public void visit(STMatchClauseNode matchClauseNode) {
+        visitSyntaxNode(matchClauseNode);
+    }
+
+    public void visit(STMatchGuardNode matchGuardNode) {
+        visitSyntaxNode(matchGuardNode);
+    }
+
+    public void visit(STObjectMethodDefinitionNode objectMethodDefinitionNode) {
+        visitSyntaxNode(objectMethodDefinitionNode);
+    }
+
+    public void visit(STDistinctTypeDescriptorNode distinctTypeDescriptorNode) {
+        visitSyntaxNode(distinctTypeDescriptorNode);
+    }
+
     // STNodeList
     public void visit(STNodeList nodeList) {
         visitChildren(nodeList);

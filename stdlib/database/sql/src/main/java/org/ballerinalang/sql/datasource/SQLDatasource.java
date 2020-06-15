@@ -34,6 +34,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.sql.XAConnection;
+import javax.sql.XADataSource;
+
 /**
  * SQL datasource representation.
  *
@@ -45,13 +48,30 @@ public class SQLDatasource {
     private AtomicInteger clientCounter = new AtomicInteger(0);
     private Lock mutex = new ReentrantLock();
     private boolean poolShutdown = false;
+    private boolean xaConn;
+    private XADataSource xaDataSource;
 
     private SQLDatasource(SQLDatasourceParams sqlDatasourceParams) {
         buildDataSource(sqlDatasourceParams);
-        try (Connection con = getSQLConnection()) {
+        Connection connection = null;
+        try {
+            xaConn = hikariDataSource.isWrapperFor(XADataSource.class);
+            if (xaConn) {
+                xaDataSource = hikariDataSource.unwrap(XADataSource.class);
+                connection = xaDataSource.getXAConnection().getConnection();
+            } else {
+                connection = getConnection();
+            }
         } catch (SQLException e) {
             throw ErrorGenerator.getSQLDatabaseError(e,
-                    "error while obtaining connection for " + Constants.CONNECTOR_NAME + ", ");
+                    "error while verifying the connection for " + Constants.CONNECTOR_NAME + ", ");
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ignored) {
+                }
+            }
         }
     }
 
@@ -101,9 +121,19 @@ public class SQLDatasource {
         return newSqlDatasource;
     }
 
-
-    public Connection getSQLConnection() throws SQLException {
+    Connection getConnection() throws SQLException {
         return hikariDataSource.getConnection();
+    }
+
+    public XAConnection getXAConnection() throws SQLException {
+        if (isXADataSource()) {
+            return xaDataSource.getXAConnection();
+        }
+        return null;
+    }
+
+    public boolean isXADataSource() {
+        return xaConn;
     }
 
     private void closeConnectionPool() {
@@ -156,6 +186,8 @@ public class SQLDatasource {
                     //either jdbcUrl or datasourceClassName will be honoured.
                     config.addDataSourceProperty(Constants.Options.URL.getValue(), sqlDatasourceParams.url);
                 }
+                config.addDataSourceProperty(Constants.USERNAME, sqlDatasourceParams.user);
+                config.addDataSourceProperty(Constants.PASSWORD, sqlDatasourceParams.password);
             }
             config.setDataSourceClassName(sqlDatasourceParams.datasourceName);
             if (sqlDatasourceParams.connectionPool != null) {

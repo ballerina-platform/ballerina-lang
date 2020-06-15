@@ -155,6 +155,12 @@ public abstract class AbstractObjectValue implements ObjectValue {
     }
 
     protected void checkFieldUpdate(String fieldName, Object value) {
+        if (type.isReadOnly()) {
+            throw BallerinaErrors.createError(
+                    getModulePrefixedReason(OBJECT_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_READONLY_VALUE_UPDATE));
+        }
+
         BField field = type.getFields().get(fieldName);
 
         if (Flags.isFlagOn(field.flags, Flags.READONLY)) {

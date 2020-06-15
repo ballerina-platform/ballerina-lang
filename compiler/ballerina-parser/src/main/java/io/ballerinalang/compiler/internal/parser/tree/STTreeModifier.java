@@ -1558,10 +1558,10 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STQueryConstructTypeNode transform(
             STQueryConstructTypeNode queryConstructTypeNode) {
-        STNode tableKeyword = modifyNode(queryConstructTypeNode.tableKeyword);
+        STNode keyword = modifyNode(queryConstructTypeNode.keyword);
         STNode keySpecifier = modifyNode(queryConstructTypeNode.keySpecifier);
         return queryConstructTypeNode.modify(
-                tableKeyword,
+                keyword,
                 keySpecifier);
     }
 
@@ -2139,6 +2139,76 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode typeRef = modifyNode(typeReferenceTypeDescNode.typeRef);
         return typeReferenceTypeDescNode.modify(
                 typeRef);
+    }
+
+    @Override
+    public STMatchStatementNode transform(
+            STMatchStatementNode matchStatementNode) {
+        STNode matchKeyword = modifyNode(matchStatementNode.matchKeyword);
+        STNode condition = modifyNode(matchStatementNode.condition);
+        STNode openBrace = modifyNode(matchStatementNode.openBrace);
+        STNode matchClauses = modifyNode(matchStatementNode.matchClauses);
+        STNode closeBrace = modifyNode(matchStatementNode.closeBrace);
+        return matchStatementNode.modify(
+                matchKeyword,
+                condition,
+                openBrace,
+                matchClauses,
+                closeBrace);
+    }
+
+    @Override
+    public STMatchClauseNode transform(
+            STMatchClauseNode matchClauseNode) {
+        STNode matchPatterns = modifyNode(matchClauseNode.matchPatterns);
+        STNode matchGuard = modifyNode(matchClauseNode.matchGuard);
+        STNode rightDoubleArrow = modifyNode(matchClauseNode.rightDoubleArrow);
+        STNode blockStatement = modifyNode(matchClauseNode.blockStatement);
+        return matchClauseNode.modify(
+                matchPatterns,
+                matchGuard,
+                rightDoubleArrow,
+                blockStatement);
+    }
+
+    @Override
+    public STMatchGuardNode transform(
+            STMatchGuardNode matchGuardNode) {
+        STNode ifKeyword = modifyNode(matchGuardNode.ifKeyword);
+        STNode expression = modifyNode(matchGuardNode.expression);
+        return matchGuardNode.modify(
+                ifKeyword,
+                expression);
+    }
+
+    @Override
+    public STObjectMethodDefinitionNode transform(
+            STObjectMethodDefinitionNode objectMethodDefinitionNode) {
+        STNode metadata = modifyNode(objectMethodDefinitionNode.metadata);
+        STNode visibilityQualifier = modifyNode(objectMethodDefinitionNode.visibilityQualifier);
+        STNode remoteKeyword = modifyNode(objectMethodDefinitionNode.remoteKeyword);
+        STNode functionKeyword = modifyNode(objectMethodDefinitionNode.functionKeyword);
+        STNode methodName = modifyNode(objectMethodDefinitionNode.methodName);
+        STNode methodSignature = modifyNode(objectMethodDefinitionNode.methodSignature);
+        STNode functionBody = modifyNode(objectMethodDefinitionNode.functionBody);
+        return objectMethodDefinitionNode.modify(
+                metadata,
+                visibilityQualifier,
+                remoteKeyword,
+                functionKeyword,
+                methodName,
+                methodSignature,
+                functionBody);
+    }
+
+    @Override
+    public STDistinctTypeDescriptorNode transform(
+            STDistinctTypeDescriptorNode distinctTypeDescriptorNode) {
+        STNode distinctKeyword = modifyNode(distinctTypeDescriptorNode.distinctKeyword);
+        STNode typeDescriptor = modifyNode(distinctTypeDescriptorNode.typeDescriptor);
+        return distinctTypeDescriptorNode.modify(
+                distinctKeyword,
+                typeDescriptor);
     }
 
     // Tokens

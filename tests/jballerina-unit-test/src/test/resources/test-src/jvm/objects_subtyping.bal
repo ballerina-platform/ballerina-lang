@@ -23,7 +23,7 @@ type Person1 object {
     int year = 50;
     string month = "february";
 
-    function __init(string name, int age) {
+    function init(string name, int age) {
         self.age = age;
         self.name = name;
     }
@@ -36,7 +36,7 @@ type Employee1 object {
     int year = 2;
     string month = "idk";
     
-    function __init(string name, int age) {
+    function init(string name, int age) {
         self.age = age;
         self.name = name;
         self.year = 50;
@@ -76,7 +76,7 @@ type Student1 object {
     public int age = 0;
     public string school = "";
 
-    public function __init(string name, int age, string school) {
+    public function init(string name, int age, string school) {
         self.name = name;
         self.age = age;
         self.school = school;
@@ -103,7 +103,7 @@ public type UniStudent1 object {
     public int age = 0;
     public string major;
 
-    public function __init(string name, string school, int age, string major) {
+    public function init(string name, string school, int age, string major) {
         self.name = name;
         self.age = age;
         self.school = school;
@@ -134,7 +134,7 @@ type Dog object {
     string name;
     float weight;
 
-    function __init(string name, float weight) {
+    function init(string name, float weight) {
         self.name = name;
         self.weight = weight;
     }
@@ -155,3 +155,29 @@ function testSubtypingAnAbsObjectInSameModule() returns string {
 //    jdbc:Client dbClient = subtyping:getClient();
 //    return dbClient;
 //}
+
+public function testObjectAssignabilityBetweenNonClientAndClientObject() {
+    subtyping:NonClientObject obj1 = new subtyping:NonClientObject("NonClientObject");
+    subtyping:ClientObjectWithoutRemoteMethod o2 = new subtyping:ClientObjectWithoutRemoteMethod("ClientObjectWithoutRemoteMethod");
+
+    subtyping:NonClientObject obj3 = o2;
+    subtyping:ClientObjectWithoutRemoteMethod obj4 = obj1;
+
+    assertEquality("NonClientObject", obj4.name);
+    assertEquality("ClientObjectWithoutRemoteMethod", obj3.name);
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if (expected is anydata && actual is anydata && expected == actual) {
+        return;
+    }
+
+    if (expected === actual) {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                 message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

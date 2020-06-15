@@ -1,12 +1,17 @@
 {
   "kind": "FUNCTION_CALL",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "ERROR_KEYWORD"
     },
     {
       "kind": "OPEN_PAREN_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_OPEN_PAREN_TOKEN"
+      ]
     },
     {
       "kind": "LIST",
@@ -24,14 +29,32 @@
           "kind": "NAMED_ARG",
           "children": [
             {
-              "kind": "COMMA_TOKEN"
+              "kind": "COMMA_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "message"
+              "value": "message",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
-              "kind": "EQUAL_TOKEN"
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "STRING_LITERAL",
@@ -43,7 +66,11 @@
     },
     {
       "kind": "CLOSE_PAREN_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+      ]
     }
   ]
 }

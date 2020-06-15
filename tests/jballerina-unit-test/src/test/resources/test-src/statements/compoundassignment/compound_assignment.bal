@@ -1,5 +1,5 @@
-xmlns "http://sample.com/wso2/a1" as ns0;
 import ballerina/lang.'xml as xmllib;
+xmlns "http://sample.com/wso2/a1" as ns0;
 
 function testCompoundAssignmentAddition() returns (int){
     int x = 5;

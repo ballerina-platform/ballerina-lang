@@ -37,13 +37,13 @@ import ballerina/test;
 //    }
 //};
 
-// The return type of the __init method must be a subtype of the union of error and nil; if
-// __init returns an error, it means that initialization of the object failed. The __init method
+// The return type of the init method must be a subtype of the union of error and nil; if
+// init returns an error, it means that initialization of the object failed. The init method
 // can declare parameters in the same way as any other method.
 // TODO: Init method of objects should be able to return a subset of error|().
 // https://github.com/ballerina-platform/ballerina-lang/issues/13342
 //type InitMethodInObject object {
-//    public function __init() returns error? {
+//    public function init() returns error? {
 //
 //    }
 //};
@@ -55,16 +55,16 @@ type NormalObjectBroken object {
     string fieldOne = "string value"; // Should fail at compile time
 };
 
-// At any point in the body of a __init method, the compiler determines which fields are
+// At any point in the body of a init method, the compiler determines which fields are
 // potentially uninitialized. A field is potentially uninitialized at some point if it is a field of a type
 // that does not have an implicit initial value and it is not definitely assigned at that point.
-// TODO: Object fields not initialized in __init() should take its implicit initial value.
+// TODO: Object fields not initialized in init() should take its implicit initial value.
 // https://github.com/ballerina-platform/ballerina-lang/issues/13341
 //type NormalObject2Broken object {
 //    string fieldOne;
 //    int[] fieldTwo;
 //
-//    function __init() {
+//    function init() {
 //
 //    }
 //};

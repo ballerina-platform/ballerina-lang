@@ -961,7 +961,7 @@ public class CommonUtil {
     public static Pair<String, String> getFunctionInvocationSignature(BInvokableSymbol symbol, String functionName,
                                                                       LSContext ctx) {
         if (symbol == null) {
-            // Symbol can be null for object init functions without an explicit __init
+            // Symbol can be null for object init functions without an explicit init
             return ImmutablePair.of(functionName + "();", functionName + "()");
         }
         StringBuilder signature = new StringBuilder(functionName + "(");
@@ -1081,8 +1081,8 @@ public class CommonUtil {
      */
     public static Predicate<BLangImportPackage> importInCurrentFilePredicate(LSContext ctx) {
         String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        return importPkg -> importPkg.pos.getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(currentFile)
-                && importPkg.getWS() != null;
+        //TODO: Removed `importPkg.getWS() != null` check, need to find another way to skip streaming imports
+        return importPkg -> importPkg.pos.getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(currentFile);
     }
 
     /**

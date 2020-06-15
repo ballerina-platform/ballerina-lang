@@ -355,7 +355,7 @@ public type String object {
 
     *java:JObject;
 
-    public function __init(handle obj) {
+    public function init(handle obj) {
         self.jObj = obj;
     }
 

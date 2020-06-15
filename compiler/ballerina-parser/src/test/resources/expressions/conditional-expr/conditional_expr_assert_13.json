@@ -1,52 +1,39 @@
 {
-  "kind": "BINARY_EXPRESSION",
+  "kind": "FUNCTION_CALL",
   "children": [
     {
-      "kind": "FUNCTION_CALL",
-      "children": [
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a",
+      "trailingMinutiae": [
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "a"
-        },
-        {
-          "kind": "OPEN_PAREN_TOKEN"
-        },
-        {
-          "kind": "LIST",
-          "children": [
-            {
-              "kind": "POSITIONAL_ARG",
-              "children": [
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "b"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "CLOSE_PAREN_TOKEN"
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": "  "
         }
       ]
     },
     {
-      "kind": "PLUS_TOKEN",
-      "isMissing": true
+      "kind": "OPEN_PAREN_TOKEN"
     },
     {
-      "kind": "QUALIFIED_NAME_REFERENCE",
+      "kind": "LIST",
       "children": [
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "isMissing": true
-        },
+          "kind": "POSITIONAL_ARG",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "b"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "CLOSE_PAREN_TOKEN",
+      "trailingMinutiae": [
         {
-          "kind": "COLON_TOKEN"
-        },
-        {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "c"
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
         }
       ]
     }
