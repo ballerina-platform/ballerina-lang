@@ -351,11 +351,12 @@ public class SymbolTable {
     }
 
     public void loadPredeclaredModules() {
-        this.predeclaredModules.put(Names.ERROR, this.langErrorModuleSymbol);
-        this.predeclaredModules.put(Names.OBJECT, this.langObjectModuleSymbol);
-        this.predeclaredModules.put(Names.XML, this.langXmlModuleSymbol);
+        Map<Name, BPackageSymbol> modules = new HashMap<>();
+        modules.put(Names.ERROR, this.langErrorModuleSymbol);
+        modules.put(Names.OBJECT, this.langObjectModuleSymbol);
+        modules.put(Names.XML, this.langXmlModuleSymbol);
 
-        this.predeclaredModules = Collections.unmodifiableMap(this.predeclaredModules);
+        this.predeclaredModules = Collections.unmodifiableMap(modules);
     }
 
     private void initializeType(BType type, String name) {
