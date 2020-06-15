@@ -617,8 +617,8 @@ public class BallerinaParser extends AbstractParser {
                     // If an import occurs after any other module level declaration,
                     // we add it to the other-decl list to preserve the order. But
                     // log an error and mark it as invalid.
-                    otherDecls.add(decl);
-                    this.errorHandler.reportInvalidNode(token, "imports must be declared before other declarations");
+                    updateLastNodeInListWithInvalidNode(otherDecls, decl,
+                            DiagnosticErrorCode.ERROR_IMPORT_DECLARATION_AFTER_OTHER_DECLARATIONS);
                 }
             } else {
                 if (processImports) {
@@ -1805,7 +1805,7 @@ public class BallerinaParser extends AbstractParser {
      * @param invalidParam   the invalid node to be attached to the last node in list as minutiae
      * @param diagnosticCode diagnostic code related to the invalid node
      */
-    private void updateLastNodeInListWithInvalidNode(ArrayList<STNode> nodeList,
+    private void updateLastNodeInListWithInvalidNode(List<STNode> nodeList,
                                                      STNode invalidParam,
                                                      DiagnosticCode diagnosticCode) {
         int lastIndex = nodeList.size() - 1;
