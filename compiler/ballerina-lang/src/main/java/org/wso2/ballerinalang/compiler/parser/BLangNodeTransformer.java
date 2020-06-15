@@ -734,6 +734,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
         if (errorTypeDescriptorNode.errorTypeParamsNode().isPresent()) {
             errorType.detailType = createTypeNode(errorTypeDescriptorNode.errorTypeParamsNode().get());
+            return deSugarTypeAsUserDefType(errorType);
         }
         return errorType;
     }
@@ -3896,6 +3897,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             case NIL_TYPE_DESC:
             case HANDLE_TYPE_DESC:
             case ANYDATA_TYPE_DESC:
+            case READONLY_TYPE_DESC:
                 BLangValueType valueType = (BLangValueType) TreeBuilder.createValueTypeNode();
                 valueType.typeKind = typeKind;
                 valueType.pos = getPosition(type);

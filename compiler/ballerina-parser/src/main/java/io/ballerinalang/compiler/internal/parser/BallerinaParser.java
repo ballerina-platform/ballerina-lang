@@ -8343,6 +8343,8 @@ public class BallerinaParser extends AbstractParser {
                 return SyntaxKind.ANY_TYPE_DESC;
             case ANYDATA_KEYWORD:
                 return SyntaxKind.ANYDATA_TYPE_DESC;
+            case READONLY_KEYWORD:
+                return SyntaxKind.READONLY_TYPE_DESC;
             case NEVER_KEYWORD:
                 return SyntaxKind.NEVER_TYPE_DESC;
             case SERVICE_KEYWORD:
