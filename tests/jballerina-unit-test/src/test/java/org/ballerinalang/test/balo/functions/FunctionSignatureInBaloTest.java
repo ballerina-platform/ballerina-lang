@@ -330,7 +330,7 @@ public class FunctionSignatureInBaloTest {
         BRunUtil.invoke(result, "testInvocationWithArgVarargMix");
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testNegativeFunctionInvocations() {
         int i = 0;
         validateError(resultNegative, i++, "missing required parameter 'b' in call to 'functionWithAllTypesParams'()",

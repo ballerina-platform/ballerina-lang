@@ -47,7 +47,7 @@ type EmployeeObject object {
 function seaWithInvalidNoOrParameters() returns json {
 
     json jsonValue = [1, false, null, "foo", { first: "John", last: "Pala" }];
-    json returnValue = jsonValue.cloneWithType(typedesc<json>, 34);
+    json returnValue = jsonValue.cloneWithType(JsonTypedesc, 34);
 
     return returnValue;
 }
@@ -92,7 +92,7 @@ function stampAnyArrayToObject() returns EmployeeObject|error {
 function stampAnyArrayToMap() returns map<any>|error {
 
     anydata[] anyArray = ["Mohan", "Single", "LK2014"];
-    map<any>|error mapValue = anyArray.cloneWithType(map<any>);
+    map<any>|error mapValue = anyArray.cloneWithType(AnyMap);
 
     return mapValue;
 }
@@ -105,3 +105,5 @@ function stampExtendedRecordToAnydata() returns anydata|error {
     return anydataValue;
 }
 
+type AnyMap map<any>;
+type JsonTypedesc typedesc<json>;

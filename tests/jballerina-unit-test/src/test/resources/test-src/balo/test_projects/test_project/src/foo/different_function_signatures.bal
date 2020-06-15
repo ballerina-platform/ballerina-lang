@@ -1,3 +1,7 @@
+
+type BooleanArray boolean[];
+type StringArray string[];
+
 //------------ Testing a function with all types of parameters ---------
 
 public function functionWithAllTypesParams(int a, float b, public string c = "John", public int d = 5, public string e = "Doe")
@@ -69,11 +73,11 @@ public function baz(string s, public float f = 2.0, boolean... b) {
 }
 
 public function bazTwo(int i, boolean... b) returns [int, boolean[]] {
-    return [i, checkpanic b.cloneWithType(boolean[])];
+    return [i, checkpanic b.cloneWithType(BooleanArray)];
 }
 
 public function barTwo(int i, string s = "hello", string... t) returns [int, string, string[]] {
-    return [i, s, checkpanic t.cloneWithType(string[])];
+    return [i, s, checkpanic t.cloneWithType(StringArray)];
 }
 
 
@@ -127,10 +131,10 @@ public type Foo client object {
 
 public type FooTwo client object {
     public function baz(int i, boolean... b) returns [int, boolean[]] {
-        return [i, checkpanic b.cloneWithType(boolean[])];
+        return [i, checkpanic b.cloneWithType(BooleanArray)];
     }
 
     public remote function bar(int i, string s = "hello", string... t) returns [int, string, string[]] {
-        return [i, s, checkpanic t.cloneWithType(string[])];
+        return [i, s, checkpanic t.cloneWithType(StringArray)];
     }
 };
