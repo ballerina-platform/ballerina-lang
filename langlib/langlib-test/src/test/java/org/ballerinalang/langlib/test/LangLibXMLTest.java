@@ -52,7 +52,6 @@ public class LangLibXMLTest {
         compileResult = BCompileUtil.compile("test-src/xmllib_test.bal");
         constrainedTest = BCompileUtil.compile("test-src/xmllib_constrained_test.bal");
         negativeResult = BCompileUtil.compile("test-src/xmllib_test_negative.bal");
-        constraintNegative = BCompileUtil.compile("test-src/xmllib_constrained_negative_test.bal");
     }
 
     @Test(dataProvider = "XMLDataProvider")
@@ -333,6 +332,7 @@ public class LangLibXMLTest {
 
     @Test
     public void testNegativeConstraint() {
+        constraintNegative = BCompileUtil.compile("test-src/xmllib_constrained_negative_test.bal");
         int i = 0;
         validateError(constraintNegative, i++, "incompatible types: expected 'xml:Comment', found 'xml:Element'",
                 20, 28);
