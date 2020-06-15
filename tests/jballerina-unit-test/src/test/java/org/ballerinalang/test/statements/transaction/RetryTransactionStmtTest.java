@@ -87,4 +87,11 @@ public class RetryTransactionStmtTest {
         BValue[] result = BRunUtil.invoke(programFile, "multipleTrxSequence", params);
         return result[0].stringValue();
     }
+
+    @Test
+    public void testCustomRetryManager() {
+        BValue[] result = BRunUtil.invoke(programFile, "testCustomRetryManager", new BValue[]{});
+        Assert.assertEquals(result[0].stringValue(), "start attempt 1:error, attempt 2:error, attempt 3:result " +
+                "returned end.");
+    }
 }
