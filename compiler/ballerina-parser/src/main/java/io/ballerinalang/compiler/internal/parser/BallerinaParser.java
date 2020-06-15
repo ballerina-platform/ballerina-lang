@@ -7327,6 +7327,7 @@ public class BallerinaParser extends AbstractParser {
                 name = STNodeFactory.createSimpleNameReferenceNode(parseFunctionName());
                 break;
             case CONTINUE_KEYWORD:
+            case COMMIT_KEYWORD:
                 name = getKeywordAsSimpleNameRef();
                 break;
             default:

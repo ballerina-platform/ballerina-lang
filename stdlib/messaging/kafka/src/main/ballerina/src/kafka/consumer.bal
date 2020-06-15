@@ -275,7 +275,7 @@ public type Consumer client object {
     # ```
     #
     # + return - A `kafka:ConsumerError` if an error is encountered or else '()'
-    public remote function commit() returns ConsumerError? {
+    public remote function 'commit() returns ConsumerError? {
         return consumerCommit(self);
     }
 
