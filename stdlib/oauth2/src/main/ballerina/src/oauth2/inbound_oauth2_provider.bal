@@ -31,7 +31,6 @@ import ballerina/time;
 # };
 # oauth2:InboundOAuth2Provider inboundOAuth2Provider = new(introspectionServerConfig);
 # ```
-#
 public type InboundOAuth2Provider object {
 
     *auth:InboundAuthProvider;
