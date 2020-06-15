@@ -61,7 +61,7 @@ function createRequest() returns http:Request {
     return inRequest;
 }
 
-public type CustomAuthProvider readonly object {
+public type CustomAuthProvider object {
 
     *auth:InboundAuthProvider;
 

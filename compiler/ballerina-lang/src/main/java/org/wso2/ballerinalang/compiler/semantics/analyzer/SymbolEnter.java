@@ -65,10 +65,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -1361,14 +1364,79 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         switch (type.tag) {
             case TypeTags.MAP:
+                BType constraintType = ((BMapType) type).constraint;
+                return isAnyDataOrReadOnlyTypeSkippingObjectType(constraintType);
             case TypeTags.RECORD:
-                return types.isAssignable(type, symTable.anydataOrReadOnlyMapType);
+                BRecordType recordType = (BRecordType) type;
+                for (BField field : recordType.fields.values()) {
+                    if (!isAnyDataOrReadOnlyTypeSkippingObjectType(field.type)) {
+                        return false;
+                    }
+                }
+
+                BType recordRestType = recordType.restFieldType;
+                if (recordRestType == null || recordRestType == symTable.noType) {
+                    return true;
+                }
+
+                return isAnyDataOrReadOnlyTypeSkippingObjectType(recordRestType);
             case TypeTags.ARRAY:
                 return isValidAnnotationType(((BArrayType) type).eType);
         }
 
         return types.isAssignable(type, symTable.trueType);
     }
+
+    private boolean isAnyDataOrReadOnlyTypeSkippingObjectType(BType type) {
+        if (type == symTable.semanticError) {
+            return false;
+        }
+        switch (type.tag) {
+            case TypeTags.OBJECT:
+                return true;
+            case TypeTags.RECORD:
+                BRecordType recordType = (BRecordType) type;
+                for (BField field : recordType.fields.values()) {
+                    if (!isAnyDataOrReadOnlyTypeSkippingObjectType(field.type)) {
+                        return false;
+                    }
+                }
+                BType recordRestType = recordType.restFieldType;
+                if (recordRestType == null || recordRestType == symTable.noType) {
+                    return true;
+                }
+                return isAnyDataOrReadOnlyTypeSkippingObjectType(recordRestType);
+            case TypeTags.MAP:
+                BType constraintType = ((BMapType) type).constraint;
+                return isAnyDataOrReadOnlyTypeSkippingObjectType(constraintType);
+            case TypeTags.UNION:
+                for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                    if (!isAnyDataOrReadOnlyTypeSkippingObjectType(memberType)) {
+                        return false;
+                    }
+                }
+                return true;
+            case TypeTags.TUPLE:
+                BTupleType tupleType = (BTupleType) type;
+                for (BType tupMemType : tupleType.getTupleTypes()) {
+                    if (!isAnyDataOrReadOnlyTypeSkippingObjectType(tupMemType)) {
+                        return false;
+                    }
+                }
+                BType tupRestType = tupleType.restType;
+                if (tupRestType == null) {
+                    return true;
+                }
+                return isAnyDataOrReadOnlyTypeSkippingObjectType(tupRestType);
+            case TypeTags.TABLE:
+                return isAnyDataOrReadOnlyTypeSkippingObjectType(((BTableType) type).constraint);
+            case TypeTags.ARRAY:
+                return isAnyDataOrReadOnlyTypeSkippingObjectType(((BArrayType) type).getElementType());
+        }
+
+        return types.isAssignable(type, symTable.anydataOrReadOnlyType);
+    }
+
 
     /**
      * Visit each compilation unit (.bal file) and add each top-level node
