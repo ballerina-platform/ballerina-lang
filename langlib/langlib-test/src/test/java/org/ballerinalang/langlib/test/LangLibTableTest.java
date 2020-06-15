@@ -228,6 +228,14 @@ public class LangLibTableTest {
         Assert.fail();
     }
 
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
+                    "message=value type 'map<string>' inconsistent with the inherent table type 'table<Teacher>'.*")
+    public void testAddInconsistentDataWithMapConstrTbl2() {
+        BRunUtil.invoke(compileResult, "testAddInconsistentDataWithMapConstrTbl2");
+        Assert.fail();
+    }
+
     @Test
     public void testAddValidData() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAddValidData");
@@ -276,6 +284,14 @@ public class LangLibTableTest {
                     "'table<Engineer>'.*")
     public void testPutInconsistentDataWithMapConstrTbl() {
         BRunUtil.invoke(compileResult, "testPutInconsistentDataWithMapConstrTbl");
+        Assert.fail();
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
+                    "message=value type 'map<string>' inconsistent with the inherent table type 'table<Teacher>'.*")
+    public void testPutInconsistentDataWithMapConstrTbl2() {
+        BRunUtil.invoke(compileResult, "testPutInconsistentDataWithMapConstrTbl2");
         Assert.fail();
     }
 

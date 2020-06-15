@@ -53,6 +53,11 @@ type Student record {|
      int studentId;
 |};
 
+type Teacher record {|
+   string fname;
+   string lname;
+|};
+
 type PersonalTable table<Person> key(name);
 
 type EmployeeTable table<Employee> key(name);
@@ -68,6 +73,10 @@ type EngineerTable table<Engineer>;
 type InternTable table<Intern>;
 
 type PersonAnyTable table<map<any>>;
+
+type TeacherTable table<Teacher>;
+
+type ExampleTable table<map<string>>;
 
 PersonalTable tab = table key(name)[
   { name: "Chiran", age: 33 },
@@ -374,6 +383,16 @@ function testAddInconsistentDataWithMapConstrTbl() {
     personTbl.put(student1);
 }
 
+function testAddInconsistentDataWithMapConstrTbl2() {
+    TeacherTable teacherTbl = table [
+      {fname: "Alex", lname: "Maddox"},
+      {fname: "Nina", lname: "Smith"}
+    ];
+    ExampleTable exampleTbl = teacherTbl;
+    map<string> s1= { name: "John" };
+    exampleTbl.add(s1);
+}
+
 function testAddValidData() returns boolean {
     boolean testPassed = true;
     EngineerTable engineerTbl = table key(name) [
@@ -464,6 +483,16 @@ function testPutInconsistentDataWithMapConstrTbl() {
     PersonAnyTable personTbl = engineerTbl;
     Student student1 = { name: "John", age: 20, studentId: 1 };
     personTbl.put(student1);
+}
+
+function testPutInconsistentDataWithMapConstrTbl2() {
+    TeacherTable teacherTbl = table [
+      {fname: "Alex", lname: "Maddox"},
+      {fname: "Nina", lname: "Smith"}
+    ];
+    ExampleTable exampleTbl = teacherTbl;
+    map<string> s1= { name: "John" };
+    exampleTbl.put(s1);
 }
 
 function testPutValidData() returns boolean {
