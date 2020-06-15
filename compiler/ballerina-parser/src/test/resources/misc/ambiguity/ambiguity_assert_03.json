@@ -101,8 +101,13 @@
                                   "kind": "LIST",
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "a"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "a"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "COMMA_TOKEN",
@@ -145,8 +150,13 @@
                                                           "kind": "FUNCTION_CALL",
                                                           "children": [
                                                             {
-                                                              "kind": "IDENTIFIER_TOKEN",
-                                                              "value": "p"
+                                                              "kind": "SIMPLE_NAME_REFERENCE",
+                                                              "children": [
+                                                                {
+                                                                  "kind": "IDENTIFIER_TOKEN",
+                                                                  "value": "p"
+                                                                }
+                                                              ]
                                                             },
                                                             {
                                                               "kind": "OPEN_PAREN_TOKEN"
@@ -159,7 +169,12 @@
                                                                   "children": [
                                                                     {
                                                                       "kind": "STRING_LITERAL",
-                                                                      "value": "hello"
+                                                                      "children": [
+                                                                        {
+                                                                          "kind": "STRING_LITERAL",
+                                                                          "value": "hello"
+                                                                        }
+                                                                      ]
                                                                     }
                                                                   ]
                                                                 }
@@ -180,8 +195,13 @@
                                                           ]
                                                         },
                                                         {
-                                                          "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "q"
+                                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                                          "children": [
+                                                            {
+                                                              "kind": "IDENTIFIER_TOKEN",
+                                                              "value": "q"
+                                                            }
+                                                          ]
                                                         }
                                                       ]
                                                     },
@@ -212,8 +232,13 @@
                                                   "kind": "COLON_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "d"
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "d"
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             }
@@ -234,8 +259,13 @@
                                       ]
                                     },
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "e"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "e"
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
@@ -260,8 +290,13 @@
                               ]
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "x"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "x"
+                                }
+                              ]
                             }
                           ]
                         },
@@ -295,8 +330,13 @@
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "a"
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "a"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "COMMA_TOKEN",
@@ -339,8 +379,13 @@
                                                       "kind": "FUNCTION_CALL",
                                                       "children": [
                                                         {
-                                                          "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "p"
+                                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                                          "children": [
+                                                            {
+                                                              "kind": "IDENTIFIER_TOKEN",
+                                                              "value": "p"
+                                                            }
+                                                          ]
                                                         },
                                                         {
                                                           "kind": "OPEN_PAREN_TOKEN"
@@ -353,7 +398,12 @@
                                                               "children": [
                                                                 {
                                                                   "kind": "STRING_LITERAL",
-                                                                  "value": "hello"
+                                                                  "children": [
+                                                                    {
+                                                                      "kind": "STRING_LITERAL",
+                                                                      "value": "hello"
+                                                                    }
+                                                                  ]
                                                                 }
                                                               ]
                                                             }
@@ -374,8 +424,13 @@
                                                       ]
                                                     },
                                                     {
-                                                      "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "q"
+                                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                                      "children": [
+                                                        {
+                                                          "kind": "IDENTIFIER_TOKEN",
+                                                          "value": "q"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 },
@@ -406,8 +461,13 @@
                                               "kind": "COLON_TOKEN"
                                             },
                                             {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "d"
+                                              "kind": "SIMPLE_NAME_REFERENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "d"
+                                                }
+                                              ]
                                             }
                                           ]
                                         }
@@ -428,8 +488,13 @@
                                   ]
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "e"
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "e"
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -454,8 +519,13 @@
                           ]
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "x"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "x"
+                            }
+                          ]
                         },
                         {
                           "kind": "SEMICOLON_TOKEN",
@@ -488,8 +558,13 @@
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "a"
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "a"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "COMMA_TOKEN",
@@ -532,8 +607,13 @@
                                                       "kind": "FUNCTION_CALL",
                                                       "children": [
                                                         {
-                                                          "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "p"
+                                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                                          "children": [
+                                                            {
+                                                              "kind": "IDENTIFIER_TOKEN",
+                                                              "value": "p"
+                                                            }
+                                                          ]
                                                         },
                                                         {
                                                           "kind": "OPEN_PAREN_TOKEN"
@@ -546,7 +626,12 @@
                                                               "children": [
                                                                 {
                                                                   "kind": "STRING_LITERAL",
-                                                                  "value": "hello"
+                                                                  "children": [
+                                                                    {
+                                                                      "kind": "STRING_LITERAL",
+                                                                      "value": "hello"
+                                                                    }
+                                                                  ]
                                                                 }
                                                               ]
                                                             }
@@ -567,8 +652,13 @@
                                                       ]
                                                     },
                                                     {
-                                                      "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "q"
+                                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                                      "children": [
+                                                        {
+                                                          "kind": "IDENTIFIER_TOKEN",
+                                                          "value": "q"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 },
@@ -599,8 +689,13 @@
                                               "kind": "COLON_TOKEN"
                                             },
                                             {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "d"
+                                              "kind": "SIMPLE_NAME_REFERENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "d"
+                                                }
+                                              ]
                                             }
                                           ]
                                         }
@@ -621,8 +716,13 @@
                                   ]
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "e"
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "e"
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -646,8 +746,13 @@
                           ]
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "x"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "x"
+                            }
+                          ]
                         },
                         {
                           "kind": "SEMICOLON_TOKEN",

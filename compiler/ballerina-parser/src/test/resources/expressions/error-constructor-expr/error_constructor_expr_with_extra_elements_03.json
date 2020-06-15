@@ -15,7 +15,12 @@
           "children": [
             {
               "kind": "STRING_LITERAL",
-              "value": "message"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "message"
+                }
+              ]
             }
           ]
         }

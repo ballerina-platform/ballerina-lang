@@ -22,11 +22,16 @@
             },
             {
               "kind": "DECIMAL_INTEGER_LITERAL",
-              "value": "5",
-              "trailingMinutiae": [
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "value": "5",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },
@@ -74,11 +79,16 @@
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "hello",
-              "trailingMinutiae": [
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "STRING_LITERAL",
+                  "value": "hello",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },

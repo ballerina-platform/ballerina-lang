@@ -15,7 +15,12 @@
               "children": []
             },
             {
-              "kind": "INT_KEYWORD"
+              "kind": "INT_TYPE_DESC",
+              "children": [
+                {
+                  "kind": "INT_KEYWORD"
+                }
+              ]
             }
           ]
         },
@@ -42,7 +47,12 @@
                   "children": []
                 },
                 {
-                  "kind": "DECIMAL_KEYWORD"
+                  "kind": "DECIMAL_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "DECIMAL_KEYWORD"
+                    }
+                  ]
                 }
               ]
             },
@@ -56,8 +66,13 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "a"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                }
+              ]
             }
           ]
         }
@@ -67,8 +82,13 @@
       "kind": "PLUS_TOKEN"
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "b"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "b"
+        }
+      ]
     }
   ]
 }

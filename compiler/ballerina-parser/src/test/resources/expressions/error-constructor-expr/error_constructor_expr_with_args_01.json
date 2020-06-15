@@ -15,7 +15,12 @@
           "children": [
             {
               "kind": "STRING_LITERAL",
-              "value": "ERROR_REASON"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "ERROR_REASON"
+                }
+              ]
             }
           ]
         },
@@ -32,12 +37,17 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "message",
-              "trailingMinutiae": [
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "message",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },
@@ -52,7 +62,12 @@
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "error message"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "error message"
+                }
+              ]
             }
           ]
         }

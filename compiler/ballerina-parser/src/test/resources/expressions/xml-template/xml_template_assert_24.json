@@ -73,17 +73,22 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "XML_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "XML_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "XML_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -138,8 +143,13 @@
                               "kind": "INTERPOLATION_START_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "a"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "a"
+                                }
+                              ]
                             },
                             {
                               "kind": "CLOSE_BRACE_TOKEN"
@@ -182,17 +192,22 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "XML_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "XML_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "XML_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -241,8 +256,13 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "XML_TEXT_CONTENT",
-                          "value": "aaa"
+                          "kind": "XML_TEXT",
+                          "children": [
+                            {
+                              "kind": "XML_TEXT_CONTENT",
+                              "value": "aaa"
+                            }
+                          ]
                         },
                         {
                           "kind": "INTERPOLATION",
@@ -251,8 +271,13 @@
                               "kind": "INTERPOLATION_START_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "v1"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "v1"
+                                }
+                              ]
                             },
                             {
                               "kind": "CLOSE_BRACE_TOKEN"
@@ -260,8 +285,13 @@
                           ]
                         },
                         {
-                          "kind": "XML_TEXT_CONTENT",
-                          "value": "b\\"
+                          "kind": "XML_TEXT",
+                          "children": [
+                            {
+                              "kind": "XML_TEXT_CONTENT",
+                              "value": "b\\"
+                            }
+                          ]
                         },
                         {
                           "kind": "INTERPOLATION",
@@ -270,8 +300,13 @@
                               "kind": "INTERPOLATION_START_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "bb"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "bb"
+                                }
+                              ]
                             },
                             {
                               "kind": "CLOSE_BRACE_TOKEN"
@@ -295,8 +330,13 @@
                           ]
                         },
                         {
-                          "kind": "XML_TEXT_CONTENT",
-                          "value": "cc{d{}e}{f{"
+                          "kind": "XML_TEXT",
+                          "children": [
+                            {
+                              "kind": "XML_TEXT_CONTENT",
+                              "value": "cc{d{}e}{f{"
+                            }
+                          ]
                         }
                       ]
                     },
@@ -328,17 +368,22 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "XML_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "XML_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "XML_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -452,8 +497,13 @@
                                                   "kind": "INTERPOLATION_START_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "v1"
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "v1"
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "CLOSE_BRACE_TOKEN"
@@ -480,8 +530,13 @@
                                                       "hasDiagnostics": true,
                                                       "children": [
                                                         {
-                                                          "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "b"
+                                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                                          "children": [
+                                                            {
+                                                              "kind": "IDENTIFIER_TOKEN",
+                                                              "value": "b"
+                                                            }
+                                                          ]
                                                         },
                                                         {
                                                           "kind": "PLUS_TOKEN",
@@ -494,11 +549,17 @@
                                                         {
                                                           "kind": "STRING_LITERAL",
                                                           "hasDiagnostics": true,
-                                                          "diagnostics": [
-                                                            "ERROR_INVALID_ESCAPE_SEQUENCE",
-                                                            "ERROR_INVALID_ESCAPE_SEQUENCE"
-                                                          ],
-                                                          "value": "b${v2}c\\}cc{d{}e}{f{\u0027 bar2\u003d\u0027aaa{${v1}}b\\${b"
+                                                          "children": [
+                                                            {
+                                                              "kind": "STRING_LITERAL",
+                                                              "hasDiagnostics": true,
+                                                              "diagnostics": [
+                                                                "ERROR_INVALID_ESCAPE_SEQUENCE",
+                                                                "ERROR_INVALID_ESCAPE_SEQUENCE"
+                                                              ],
+                                                              "value": "b${v2}c\\}cc{d{}e}{f{\u0027 bar2\u003d\u0027aaa{${v1}}b\\${b"
+                                                            }
+                                                          ]
                                                         }
                                                       ]
                                                     },
@@ -511,8 +572,13 @@
                                                       ]
                                                     },
                                                     {
-                                                      "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "b"
+                                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                                      "children": [
+                                                        {
+                                                          "kind": "IDENTIFIER_TOKEN",
+                                                          "value": "b"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 },

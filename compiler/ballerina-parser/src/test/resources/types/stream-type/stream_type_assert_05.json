@@ -98,11 +98,16 @@
                               "kind": "LT_TOKEN"
                             },
                             {
-                              "kind": "STRING_KEYWORD",
-                              "trailingMinutiae": [
+                              "kind": "STRING_TYPE_DESC",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "STRING_KEYWORD",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -225,11 +230,16 @@
                               "kind": "LT_TOKEN"
                             },
                             {
-                              "kind": "INT_KEYWORD",
-                              "trailingMinutiae": [
+                              "kind": "INT_TYPE_DESC",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "INT_KEYWORD",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -317,17 +327,28 @@
                               "kind": "LT_TOKEN"
                             },
                             {
-                              "kind": "INT_KEYWORD"
+                              "kind": "INT_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "INT_KEYWORD"
+                                }
+                              ]
                             },
                             {
                               "kind": "COMMA_TOKEN"
                             },
                             {
                               "kind": "TYPE_DESC",
-                              "isMissing": true,
                               "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_MISSING_TYPE_DESC"
+                              "children": [
+                                {
+                                  "kind": "TYPE_DESC",
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_TYPE_DESC"
+                                  ]
+                                }
                               ]
                             },
                             {
@@ -399,10 +420,16 @@
                             },
                             {
                               "kind": "TYPE_DESC",
-                              "isMissing": true,
                               "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_MISSING_TYPE_DESC"
+                              "children": [
+                                {
+                                  "kind": "TYPE_DESC",
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_TYPE_DESC"
+                                  ]
+                                }
                               ]
                             },
                             {
@@ -485,10 +512,16 @@
                             },
                             {
                               "kind": "TYPE_DESC",
-                              "isMissing": true,
                               "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_MISSING_TYPE_DESC"
+                              "children": [
+                                {
+                                  "kind": "TYPE_DESC",
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_TYPE_DESC"
+                                  ]
+                                }
                               ]
                             },
                             {
@@ -555,11 +588,16 @@
                               "kind": "LT_TOKEN"
                             },
                             {
-                              "kind": "STRING_KEYWORD",
-                              "trailingMinutiae": [
+                              "kind": "STRING_TYPE_DESC",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "STRING_KEYWORD",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -658,8 +696,13 @@
                       ]
                     },
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a"
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -703,7 +746,12 @@
                               "kind": "LT_TOKEN"
                             },
                             {
-                              "kind": "STRING_KEYWORD"
+                              "kind": "STRING_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "STRING_KEYWORD"
+                                }
+                              ]
                             },
                             {
                               "kind": "GT_TOKEN"

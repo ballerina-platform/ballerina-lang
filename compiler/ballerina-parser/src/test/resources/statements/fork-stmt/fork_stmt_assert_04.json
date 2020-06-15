@@ -157,11 +157,16 @@
                               "children": []
                             },
                             {
-                              "kind": "INT_KEYWORD",
-                              "trailingMinutiae": [
+                              "kind": "INT_TYPE_DESC",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "INT_KEYWORD",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -193,17 +198,22 @@
                                       "kind": "TYPED_BINDING_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "INT_KEYWORD",
-                                          "leadingMinutiae": [
+                                          "kind": "INT_TYPE_DESC",
+                                          "children": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "            "
-                                            }
-                                          ],
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "INT_KEYWORD",
+                                              "leadingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": "            "
+                                                }
+                                              ],
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -235,7 +245,12 @@
                                     },
                                     {
                                       "kind": "DECIMAL_INTEGER_LITERAL",
-                                      "value": "23"
+                                      "children": [
+                                        {
+                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                          "value": "23"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "SEMICOLON_TOKEN",
@@ -271,8 +286,13 @@
                                       ]
                                     },
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "i"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "i"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "SEMICOLON_TOKEN",
@@ -313,21 +333,26 @@
                                         "kind": "TYPED_BINDING_PATTERN",
                                         "children": [
                                           {
-                                            "kind": "INT_KEYWORD",
-                                            "leadingMinutiae": [
+                                            "kind": "INT_TYPE_DESC",
+                                            "children": [
                                               {
-                                                "kind": "END_OF_LINE_MINUTIAE",
-                                                "value": "\n"
-                                              },
-                                              {
-                                                "kind": "WHITESPACE_MINUTIAE",
-                                                "value": "        "
-                                              }
-                                            ],
-                                            "trailingMinutiae": [
-                                              {
-                                                "kind": "WHITESPACE_MINUTIAE",
-                                                "value": " "
+                                                "kind": "INT_KEYWORD",
+                                                "leadingMinutiae": [
+                                                  {
+                                                    "kind": "END_OF_LINE_MINUTIAE",
+                                                    "value": "\n"
+                                                  },
+                                                  {
+                                                    "kind": "WHITESPACE_MINUTIAE",
+                                                    "value": "        "
+                                                  }
+                                                ],
+                                                "trailingMinutiae": [
+                                                  {
+                                                    "kind": "WHITESPACE_MINUTIAE",
+                                                    "value": " "
+                                                  }
+                                                ]
                                               }
                                             ]
                                           },
@@ -359,7 +384,12 @@
                                       },
                                       {
                                         "kind": "DECIMAL_INTEGER_LITERAL",
-                                        "value": "5"
+                                        "children": [
+                                          {
+                                            "kind": "DECIMAL_INTEGER_LITERAL",
+                                            "value": "5"
+                                          }
+                                        ]
                                       },
                                       {
                                         "kind": "SEMICOLON_TOKEN",
@@ -379,12 +409,17 @@
                                     "kind": "COMPOUND_ASSIGNMENT_STATEMENT",
                                     "children": [
                                       {
-                                        "kind": "IDENTIFIER_TOKEN",
-                                        "value": "c",
-                                        "leadingMinutiae": [
+                                        "kind": "SIMPLE_NAME_REFERENCE",
+                                        "children": [
                                           {
-                                            "kind": "WHITESPACE_MINUTIAE",
-                                            "value": "        "
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "c",
+                                            "leadingMinutiae": [
+                                              {
+                                                "kind": "WHITESPACE_MINUTIAE",
+                                                "value": "        "
+                                              }
+                                            ]
                                           }
                                         ]
                                       },
@@ -396,7 +431,12 @@
                                       },
                                       {
                                         "kind": "DECIMAL_INTEGER_LITERAL",
-                                        "value": "2"
+                                        "children": [
+                                          {
+                                            "kind": "DECIMAL_INTEGER_LITERAL",
+                                            "value": "2"
+                                          }
+                                        ]
                                       },
                                       {
                                         "kind": "SEMICOLON_TOKEN",
@@ -469,11 +509,16 @@
                               "children": []
                             },
                             {
-                              "kind": "INT_KEYWORD",
-                              "trailingMinutiae": [
+                              "kind": "INT_TYPE_DESC",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "INT_KEYWORD",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -505,17 +550,22 @@
                                       "kind": "TYPED_BINDING_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "INT_KEYWORD",
-                                          "leadingMinutiae": [
+                                          "kind": "INT_TYPE_DESC",
+                                          "children": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "            "
-                                            }
-                                          ],
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "INT_KEYWORD",
+                                              "leadingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": "            "
+                                                }
+                                              ],
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -547,7 +597,12 @@
                                     },
                                     {
                                       "kind": "DECIMAL_INTEGER_LITERAL",
-                                      "value": "10"
+                                      "children": [
+                                        {
+                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                          "value": "10"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "SEMICOLON_TOKEN",
@@ -564,12 +619,17 @@
                                   "kind": "COMPOUND_ASSIGNMENT_STATEMENT",
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "f",
-                                      "leadingMinutiae": [
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "            "
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "f",
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "            "
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -581,7 +641,12 @@
                                     },
                                     {
                                       "kind": "DECIMAL_INTEGER_LITERAL",
-                                      "value": "5"
+                                      "children": [
+                                        {
+                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                          "value": "5"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "SEMICOLON_TOKEN",
@@ -617,8 +682,13 @@
                                       ]
                                     },
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "f"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "f"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "SEMICOLON_TOKEN",

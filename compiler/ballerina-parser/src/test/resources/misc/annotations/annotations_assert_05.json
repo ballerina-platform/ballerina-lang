@@ -30,8 +30,13 @@
                           "kind": "AT_TOKEN"
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "annot1"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "annot1"
+                            }
+                          ]
                         },
                         {
                           "kind": "MAPPING_CONSTRUCTOR",
@@ -165,8 +170,13 @@
                           ]
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "annot2"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "annot2"
+                            }
+                          ]
                         }
                       ]
                     }
@@ -249,8 +259,13 @@
                                       ]
                                     },
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "annot3"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "annot3"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "MAPPING_CONSTRUCTOR",
@@ -286,17 +301,22 @@
                           ]
                         },
                         {
-                          "kind": "INT_KEYWORD",
-                          "leadingMinutiae": [
+                          "kind": "INT_TYPE_DESC",
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "kind": "INT_KEYWORD",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ],
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -360,12 +380,17 @@
                           ]
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "annot5",
-                          "trailingMinutiae": [
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
                             {
-                              "kind": "END_OF_LINE_MINUTIAE",
-                              "value": "\n"
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "annot5",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ]
                             }
                           ]
                         }
@@ -454,8 +479,13 @@
                                       ]
                                     },
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "annot6"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "annot6"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "MAPPING_CONSTRUCTOR",
@@ -491,17 +521,22 @@
                           ]
                         },
                         {
-                          "kind": "INT_KEYWORD",
-                          "leadingMinutiae": [
+                          "kind": "INT_TYPE_DESC",
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "kind": "INT_KEYWORD",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ],
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -722,8 +757,13 @@
                           ]
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "annot8"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "annot8"
+                            }
+                          ]
                         },
                         {
                           "kind": "MAPPING_CONSTRUCTOR",
@@ -793,12 +833,17 @@
                   "kind": "EXPRESSION_LIST_ITEM",
                   "children": [
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "bar",
-                      "trailingMinutiae": [
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "bar",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -853,8 +898,13 @@
                                       ]
                                     },
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "annot9"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "annot9"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "MAPPING_CONSTRUCTOR",
@@ -1007,8 +1057,13 @@
                                       ]
                                     },
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "annot10"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "annot10"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "MAPPING_CONSTRUCTOR",
@@ -1159,8 +1214,13 @@
                           ]
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "annot11"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "annot11"
+                            }
+                          ]
                         },
                         {
                           "kind": "MAPPING_CONSTRUCTOR",
@@ -1225,7 +1285,12 @@
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "hello"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "hello"
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN",
@@ -1264,8 +1329,13 @@
                           ]
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "annot12"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "annot12"
+                            }
+                          ]
                         },
                         {
                           "kind": "MAPPING_CONSTRUCTOR",
@@ -1304,11 +1374,16 @@
               "kind": "TYPED_BINDING_PATTERN",
               "children": [
                 {
-                  "kind": "INT_KEYWORD",
-                  "trailingMinutiae": [
+                  "kind": "INT_TYPE_DESC",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "INT_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -1340,7 +1415,12 @@
             },
             {
               "kind": "DECIMAL_INTEGER_LITERAL",
-              "value": "4"
+              "children": [
+                {
+                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "value": "4"
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN",
@@ -1379,8 +1459,13 @@
                           ]
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "annot13"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "annot13"
+                            }
+                          ]
                         },
                         {
                           "kind": "MAPPING_CONSTRUCTOR",
@@ -1425,11 +1510,16 @@
               ]
             },
             {
-              "kind": "STRING_KEYWORD",
-              "trailingMinutiae": [
+              "kind": "STRING_TYPE_DESC",
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "STRING_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },
@@ -1454,7 +1544,12 @@
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "http://ballerinalang.io"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "http://ballerinalang.io"
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN",

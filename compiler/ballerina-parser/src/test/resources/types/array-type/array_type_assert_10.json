@@ -16,7 +16,12 @@
       "hasDiagnostics": true,
       "children": [
         {
-          "kind": "INT_KEYWORD"
+          "kind": "INT_TYPE_DESC",
+          "children": [
+            {
+              "kind": "INT_KEYWORD"
+            }
+          ]
         },
         {
           "kind": "LIST_BINDING_PATTERN",

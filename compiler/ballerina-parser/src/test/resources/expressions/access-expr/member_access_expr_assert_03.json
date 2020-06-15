@@ -7,8 +7,13 @@
       "hasDiagnostics": true,
       "children": [
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "x"
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "x"
+            }
+          ]
         },
         {
           "kind": "OPEN_BRACKET_TOKEN"
@@ -35,8 +40,13 @@
       "kind": "DOT_TOKEN"
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "y"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "y"
+        }
+      ]
     }
   ]
 }

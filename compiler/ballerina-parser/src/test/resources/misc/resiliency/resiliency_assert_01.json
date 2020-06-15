@@ -86,18 +86,23 @@
                           "kind": "TYPED_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "random",
-                              "leadingMinutiae": [
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "    "
-                                }
-                              ],
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "random",
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": "    "
+                                    }
+                                  ],
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -189,7 +194,12 @@
                                                 },
                                                 {
                                                   "kind": "STRING_LITERAL",
-                                                  "value": "b"
+                                                  "children": [
+                                                    {
+                                                      "kind": "STRING_LITERAL",
+                                                      "value": "b"
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             }
@@ -262,7 +272,12 @@
                                 },
                                 {
                                   "kind": "STRING_LITERAL",
-                                  "value": "f"
+                                  "children": [
+                                    {
+                                      "kind": "STRING_LITERAL",
+                                      "value": "f"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "SEMICOLON_TOKEN"
