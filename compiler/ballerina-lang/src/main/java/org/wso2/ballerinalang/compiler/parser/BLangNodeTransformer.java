@@ -963,13 +963,23 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         boolean isAnonymous = checkIfAnonymous(recordTypeDescriptorNode);
 
         for (Node field : recordTypeDescriptorNode.fields()) {
-            if (field.kind() == SyntaxKind.RECORD_FIELD || field.kind() == SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE) {
-                recordTypeNode.fields.add((BLangSimpleVariable) field.apply(this));
-            } else if (field.kind() == SyntaxKind.RECORD_REST_TYPE) {
-                recordTypeNode.restFieldType = createTypeNode(field);
-                hasRestField = true;
-            } else if (field.kind() == SyntaxKind.TYPE_REFERENCE) {
-                recordTypeNode.addTypeReference(createTypeNode(field));
+            if (field.kind() == SyntaxKind.RECORD_FIELD) {
+                BLangSimpleVariable bLFiled = (BLangSimpleVariable) field.apply(this);
+                Optional<Node> doc = ((RecordFieldNode) field).metadata().documentationString();
+                bLFiled.markdownDocumentationAttachment = createMarkdownDocumentationAttachment(doc);
+                recordTypeNode.fields.add(bLFiled);
+            } else if (field.kind() == SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE) {
+                BLangSimpleVariable bLFiled = (BLangSimpleVariable) field.apply(this);
+                Optional<Node> doc = ((RecordFieldWithDefaultValueNode) field).metadata().documentationString();
+                bLFiled.markdownDocumentationAttachment = createMarkdownDocumentationAttachment(doc);
+                recordTypeNode.fields.add(bLFiled);
+            } else {
+                if (field.kind() == SyntaxKind.RECORD_REST_TYPE) {
+                    recordTypeNode.restFieldType = createTypeNode(field);
+                    hasRestField = true;
+                } else if (field.kind() == SyntaxKind.TYPE_REFERENCE) {
+                    recordTypeNode.addTypeReference(createTypeNode(field));
+                }
             }
         }
         boolean isOpen = recordTypeDescriptorNode.bodyStartDelimiter().kind() == SyntaxKind.OPEN_BRACE_TOKEN;
