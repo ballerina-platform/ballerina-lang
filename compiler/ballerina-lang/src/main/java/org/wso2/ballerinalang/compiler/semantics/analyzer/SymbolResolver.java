@@ -394,15 +394,17 @@ public class SymbolResolver extends BLangNodeVisitor {
                 return entry.symbol;
             }
 
-            if ((entry.symbol.tag & SymTag.IMPORT) == SymTag.IMPORT &&
-                    ((BPackageSymbol) entry.symbol).compUnit == null) {
-                return entry.symbol;
-            } else if ((entry.symbol.tag & SymTag.IMPORT) == SymTag.IMPORT &&
-                    ((BPackageSymbol) entry.symbol).compUnit.equals(compUnit)) {
-                ((BPackageSymbol) entry.symbol).isUsed = true;
-                return entry.symbol;
+            if ((entry.symbol.tag & SymTag.IMPORT) == SymTag.IMPORT) {
+                Name importCompUnit = ((BPackageSymbol) entry.symbol).compUnit;
+                //importCompUnit is null for predeclared modules
+                if (importCompUnit == null) {
+                    return entry.symbol;
+                } else if (importCompUnit.equals(compUnit)) {
+                    ((BPackageSymbol) entry.symbol).isUsed = true;
+                    return entry.symbol;
+                }
             }
-
+            
             entry = entry.next;
         }
 

@@ -67,6 +67,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -352,6 +353,8 @@ public class SymbolTable {
         this.predeclaredModules.put(Names.ERROR, this.langErrorModuleSymbol);
         this.predeclaredModules.put(Names.OBJECT, this.langObjectModuleSymbol);
         this.predeclaredModules.put(Names.XML, this.langXmlModuleSymbol);
+
+        this.predeclaredModules = Collections.unmodifiableMap(this.predeclaredModules);
     }
 
     private void initializeType(BType type, String name) {

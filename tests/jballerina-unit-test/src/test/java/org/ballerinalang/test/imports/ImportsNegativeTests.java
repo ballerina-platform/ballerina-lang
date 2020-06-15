@@ -43,12 +43,12 @@ public class ImportsNegativeTests {
     @Test(description = "Test invalid autoimports")
     public void testInvalidAutoImports() {
         CompileResult result = BCompileUtil.compile("test-src/imports/predeclared-imports", "rpg");
-        assertEquals(result.getErrorCount(), 5);
-        validateError(result, 0, "undefined function 'max'", 3, 12);
-        validateError(result, 1, "undefined function 'min'", 7, 12);
-        validateError(result, 2, "undefined function 'concat'", 8, 12);
-        validateError(result, 3, "unknown type 'Listener'", 12, 6);
-        validateError(result, 4, "unknown type 'CallStackElement'", 35, 30);
-
+        int index = 0;
+        validateError(result, index++, "undefined function 'max'", 18, 12);
+        validateError(result, index++, "undefined function 'min'", 22, 12);
+        validateError(result, index++, "undefined function 'concat'", 24, 12);
+        validateError(result, index++, "unknown type 'Listener'", 28, 6);
+        validateError(result, index++, "unknown type 'CallStackElement'", 51, 30);
+        assertEquals(result.getErrorCount(), index);
     }
 }
