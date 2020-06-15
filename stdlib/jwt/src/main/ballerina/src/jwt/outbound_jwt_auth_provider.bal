@@ -35,13 +35,11 @@ import ballerina/time;
 #     }
 # });
 # ```
-#
-# + jwtIssuerConfig - JWT issuer configurations
 public type OutboundJwtAuthProvider object {
 
     *auth:OutboundAuthProvider;
 
-    public JwtIssuerConfig? jwtIssuerConfig;
+    JwtIssuerConfig? jwtIssuerConfig;
 
     # Provides authentication based on the provided JWT configuration.
     #
