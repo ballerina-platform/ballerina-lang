@@ -20,7 +20,7 @@ function testReadonlyObjectFields() {
     testObjectWithSimpleReadonlyFields();
     testInvalidObjectSimpleReadonlyFieldUpdate();
     testValidUpdateOfPossiblyReadonlyFieldInUnion();
-    //testInvalidUpdateOfPossiblyReadonlyFieldInUnion(); https://github.com/ballerina-platform/ballerina-lang/issues/23551
+    testInvalidUpdateOfPossiblyReadonlyFieldInUnion();
     testObjectWithStructuredReadonlyFields();
     testReadOnlyFieldWithDefaultValue();
     testTypeReadOnlyFlagForAllReadOnlyFields();
