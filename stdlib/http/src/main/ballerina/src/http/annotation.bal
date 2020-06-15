@@ -138,7 +138,7 @@ public type WebSocketUpgradeConfig record {|
 # should be successfully authorized.
 public type ServiceAuth record {|
     readonly boolean enabled = true;
-    InboundAuthHandlers authHandlers?;
+    readonly InboundAuthHandlers authHandlers?;
     readonly Scopes scopes?;
 |};
 
@@ -153,7 +153,7 @@ public type ServiceAuth record {|
 # should be successfully authorized.
 public type ResourceAuth record {|
     readonly boolean enabled?;
-    InboundAuthHandlers authHandlers?;
+    readonly InboundAuthHandlers authHandlers?;
     readonly Scopes scopes?;
 |};
 
