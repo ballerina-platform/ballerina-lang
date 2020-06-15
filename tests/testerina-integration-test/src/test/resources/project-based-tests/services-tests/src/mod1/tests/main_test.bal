@@ -27,10 +27,10 @@ function testFunction() {
         if (payload is string) {
             io:println(payload);
         } else {
-            io:println(payload.detail());
+            io:println(payload.message());
         }
     } else {
-        io:println(respModule.detail());
+        io:println(respModule.message());
     }
 
     if (respTest is http:Response) {
@@ -38,10 +38,10 @@ function testFunction() {
         if (payload is string) {
             io:println(payload);
         } else {
-            io:println(payload.detail());
+            io:println(payload.message());
         }
     } else {
-        io:println(respTest.detail());
+        io:println(respTest.message());
     }
 }
 

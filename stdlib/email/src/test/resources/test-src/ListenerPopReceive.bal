@@ -45,7 +45,7 @@ service emailObserver on emailServer {
     }
 
     resource function onError(email:Error emailError) {
-        receivedError = <@untainted>emailError.detail().toString();
+        receivedError = <@untainted>emailError.message();
         onErrorInvoked = true;
         error? res = emailServer.__stop();
     }

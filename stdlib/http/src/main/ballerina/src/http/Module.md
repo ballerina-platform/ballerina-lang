@@ -63,8 +63,7 @@ service helloWorld on helloWorldEP {
        // Sends the response back to the client.
        var result = caller->respond(res);
        if (result is http:ListenerError) {
-            error err = result;
-            log:printError("Error sending response", err = err);
+            log:printError("Error sending response", result);
        }
    }
 }

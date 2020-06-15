@@ -91,6 +91,10 @@
                       "children": [
                         {
                           "kind": "OPEN_BRACE_TOKEN",
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_WAIT_FIELD_IN_WAIT_ACTION"
+                          ],
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
@@ -100,17 +104,7 @@
                         },
                         {
                           "kind": "LIST",
-                          "hasDiagnostics": true,
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true,
-                              "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
-                              ]
-                            }
-                          ]
+                          "children": []
                         },
                         {
                           "kind": "CLOSE_BRACE_TOKEN"
@@ -567,6 +561,10 @@
                       "children": [
                         {
                           "kind": "OPEN_BRACE_TOKEN",
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_WAIT_FIELD_IN_WAIT_ACTION"
+                          ],
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
@@ -576,17 +574,7 @@
                         },
                         {
                           "kind": "LIST",
-                          "hasDiagnostics": true,
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true,
-                              "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
-                              ]
-                            }
-                          ]
+                          "children": []
                         },
                         {
                           "kind": "CLOSE_BRACE_TOKEN"

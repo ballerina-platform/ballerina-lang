@@ -91,9 +91,11 @@ type Bar record {|
     float f;
 |};
 
+type FooBarTypedesc typedesc<Foo|Bar>;
+
 function testGroupedTypedescLibInvocation() returns boolean {
     map<anydata> data= { s: "test string" };
-    Foo|Bar|error f = data.cloneWithType(typedesc<Foo|Bar>);
+    Foo|Bar|error f = data.cloneWithType(FooBarTypedesc);
     return f is Foo && f.s == data["s"];
 }
 

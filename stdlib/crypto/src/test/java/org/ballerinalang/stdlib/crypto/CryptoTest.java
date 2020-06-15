@@ -21,7 +21,6 @@ import org.apache.commons.codec.binary.Hex;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -295,8 +294,7 @@ public class CryptoTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha1WithInvalidKey",
                 new BValue[]{new BValueArray(payload)});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "Uninitialized private key: Key must not be null");
+        Assert.assertEquals(((BError) returnValues[0]).getMessage(), "Uninitialized private key: Key must not be null");
     }
 
     @Test(description = "Test RSA-SHA256 signing with an invalid private key")
@@ -305,8 +303,7 @@ public class CryptoTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha256WithInvalidKey",
                 new BValue[]{new BValueArray(payload)});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertTrue(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue()
-                                  .contains("Uninitialized private key:"));
+        Assert.assertTrue(((BError) returnValues[0]).getMessage().contains("Uninitialized private key:"));
     }
 
     @Test(description = "Test RSA-SHA384 signing with an invalid private key")
@@ -315,8 +312,7 @@ public class CryptoTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha384WithInvalidKey",
                 new BValue[]{new BValueArray(payload)});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertTrue(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue()
-                                  .contains("Uninitialized private key:"));
+        Assert.assertTrue(((BError) returnValues[0]).getMessage().contains("Uninitialized private key:"));
     }
 
     @Test(description = "Test RSA-SHA512 signing with an invalid private key")
@@ -325,8 +321,7 @@ public class CryptoTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha512WithInvalidKey",
                 new BValue[]{new BValueArray(payload)});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertTrue(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue()
-                                  .contains("Uninitialized private key:"));
+        Assert.assertTrue(((BError) returnValues[0]).getMessage().contains("Uninitialized private key:"));
     }
 
     @Test(description = "Test RSA-MD5 signing with an invalid private key")
@@ -335,8 +330,7 @@ public class CryptoTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaMd5WithInvalidKey",
                 new BValue[]{new BValueArray(payload)});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "Uninitialized private key: Key must not be null");
+        Assert.assertEquals(((BError) returnValues[0]).getMessage(), "Uninitialized private key: Key must not be null");
     }
 
     //
@@ -390,7 +384,7 @@ public class CryptoTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesCbc", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BError);
-        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+        Assert.assertEquals(((BError) returnValues[0]).getMessage(),
                 "Invalid key size. valid key sizes in bytes: [16, 24, 32]");
     }
 
@@ -414,7 +408,7 @@ public class CryptoTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesCbc", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BError);
-        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+        Assert.assertEquals(((BError) returnValues[0]).getMessage(),
                 "Error occurred while AES encrypt/decrypt: Wrong IV length: must be 16 bytes long");
     }
 
@@ -438,7 +432,7 @@ public class CryptoTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesCbc", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BError);
-        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+        Assert.assertEquals(((BError) returnValues[0]).getMessage(),
                 "Error occurred while AES encrypt/decrypt: Input length not multiple of 16 bytes");
     }
 
@@ -489,7 +483,7 @@ public class CryptoTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesCbc", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BError);
-        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+        Assert.assertEquals(((BError) returnValues[0]).getMessage(),
                 "Unsupported algorithm: AES CBC PKCS1: Cannot find any provider supporting AES/CBC/PKCS1Padding");
     }
 
@@ -534,7 +528,7 @@ public class CryptoTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesEcb", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BError);
-        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+        Assert.assertEquals(((BError) returnValues[0]).getMessage(),
                 "Invalid key size. valid key sizes in bytes: [16, 24, 32]");
     }
 
@@ -553,7 +547,7 @@ public class CryptoTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesEcb", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BError);
-        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+        Assert.assertEquals(((BError) returnValues[0]).getMessage(),
                 "Error occurred while AES encrypt/decrypt: Input length not multiple of 16 bytes");
     }
 
@@ -594,7 +588,7 @@ public class CryptoTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesEcb", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BError);
-        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+        Assert.assertEquals(((BError) returnValues[0]).getMessage(),
                 "Unsupported algorithm: AES ECB PKCS1: Cannot find any provider supporting AES/ECB/PKCS1Padding");
     }
 
@@ -650,7 +644,7 @@ public class CryptoTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesGcm", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BError);
-        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+        Assert.assertEquals(((BError) returnValues[0]).getMessage(),
                 "Invalid key size. valid key sizes in bytes: [16, 24, 32]");
     }
 
@@ -728,7 +722,7 @@ public class CryptoTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesGcm", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BError);
-        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+        Assert.assertEquals(((BError) returnValues[0]).getMessage(),
                 "Unsupported algorithm: AES GCM PKCS1: Cannot find any provider supporting AES/GCM/PKCS1Padding");
     }
 
@@ -752,8 +746,8 @@ public class CryptoTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptAesGcm", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BError);
-        Assert.assertTrue(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue()
-                .startsWith("Invalid tag size. valid tag sizes in bytes:"));
+        Assert.assertTrue(
+                ((BError) returnValues[0]).getMessage().startsWith("Invalid tag size. valid tag sizes in bytes:"));
     }
 
     //
@@ -899,8 +893,7 @@ public class CryptoTest {
         BValue[] args = {messageValue, new BString("PKCS1")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcbWithInvalidKey", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "Uninitialized private/public key");
+        Assert.assertEquals(((BError) returnValues[0]).getMessage(), "Uninitialized private/public key");
     }
 
     @Test(description = "Test encrypt and decrypt with RSA ECB PKCS1 with invalid padding")
@@ -912,7 +905,7 @@ public class CryptoTest {
                 new BString("ballerina"), new BString("ballerina"), new BString("PKCS99")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcb", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+        Assert.assertEquals(((BError) returnValues[0]).getMessage(),
                 "Error occurred while RSA encrypt/decrypt: Unsupported padding: PKCS99");
     }
 }

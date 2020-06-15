@@ -40,11 +40,13 @@ public class BReadonlyType extends BBuiltInRefType {
         super(tag, tsymbol);
         this.name = name;
         this.flags = flag;
+        this.flags |= Flags.READONLY;
     }
 
     public BReadonlyType(int tag, BTypeSymbol tsymbol, boolean nullable) {
         super(tag, tsymbol);
         this.nullable = nullable;
+        this.flags |= Flags.READONLY;
     }
 
     @Override

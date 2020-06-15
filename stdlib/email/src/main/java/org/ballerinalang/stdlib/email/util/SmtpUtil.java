@@ -18,8 +18,10 @@
 
 package org.ballerinalang.stdlib.email.util;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
@@ -259,4 +261,7 @@ public class SmtpUtil {
         return string != null && !string.isEmpty();
     }
 
+    public static ErrorValue getBallerinaError(String typeId, String message) {
+        return BallerinaErrors.createDistinctError(typeId, EmailConstants.EMAIL_PACKAGE_ID, message);
+    }
 }

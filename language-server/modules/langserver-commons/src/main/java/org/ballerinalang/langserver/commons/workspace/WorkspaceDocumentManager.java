@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.commons.workspace;
 
+import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import org.eclipse.lsp4j.CodeLens;
 
 import java.nio.file.Path;
@@ -169,13 +170,31 @@ public interface WorkspaceDocumentManager {
 
     /**
      * Returns a list of all file paths.
+     *
      * @return set of {@link Path}
      */
     Set<Path> getAllFilePaths();
 
     /**
      * Clear all file paths.
-     *
      */
     void clearAllFilePaths();
+
+    /**
+     * Returns a syntax tree.
+     *
+     * @param filePath Path of the file
+     * @return SyntaxTree
+     * @throws WorkspaceDocumentException when document read failed
+     */
+    SyntaxTree getTree(Path filePath) throws WorkspaceDocumentException;
+
+    /**
+     * Set the new tree.
+     *
+     * @param filePath Path of the file
+     * @param newTree  new tree
+     * @throws WorkspaceDocumentException when file is not open
+     */
+    void setTree(Path filePath, SyntaxTree newTree) throws WorkspaceDocumentException;
 }

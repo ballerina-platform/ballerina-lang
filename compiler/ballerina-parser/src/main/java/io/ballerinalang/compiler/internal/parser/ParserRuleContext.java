@@ -219,6 +219,7 @@ public enum ParserRuleContext {
     MATCH_PATTERN_END("match-pattern-end"),
     MATCH_PATTERN_RHS("match-pattern-rhs"),
     OPTIONAL_MATCH_GUARD("optional-match-guard"),
+    JOIN_CLAUSE("join-clause"),
 
     // Statements
     STATEMENT("statement"),
@@ -326,6 +327,11 @@ public enum ParserRuleContext {
     BASE64_KEYWORD("base64"),
     READONLY_KEYWORD("readonly"),
     MATCH_KEYWORD("match"),
+    DISTINCT_KEYWORD("distinct"),
+    CONFLICT_KEYWORD("conflict"),
+    LIMIT_KEYWORD("limit"),
+    JOIN_KEYWORD("join"),
+    OUTER_KEYWORD("outer"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),

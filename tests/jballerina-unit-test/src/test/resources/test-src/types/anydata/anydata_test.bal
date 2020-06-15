@@ -874,7 +874,7 @@ function testTypeCheckingOnAny() returns anydata {
     return ad;
 }
 
-type MyError error<string, MyErrorDetail>;
+type MyError error<MyErrorDetail>;
 
 type MyErrorDetail record {|
     error e1;
@@ -885,7 +885,7 @@ type MyErrorDetail record {|
 
 error e1 = error("err reason");
 error e2 = error("err reason 2", str = "string value", e1=e1);
-MyError e3 = error("err reason 3", e1 = e1, e2 = e2);
+MyError e3 = MyError("err reason 3", e1 = e1, e2 = e2);
 
 function testArraysWithErrorsAsAnydata() returns boolean {
     error?[] a1 = [e1, e2];
@@ -950,7 +950,7 @@ function testRecordsWithErrorsAsAnydata() returns boolean {
     return m3["err"] === e1 && m4["err"] === e3 && m3 === a1 && m2 === m4;
 }
 
-type AssertionError error<ASSERTION_ERROR_REASON>;
+type AssertionError error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
@@ -963,5 +963,5 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

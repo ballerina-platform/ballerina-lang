@@ -20,23 +20,11 @@ import ballerina/grpc;
 // Server endpoint configuration
 listener grpc:Listener server7 = new (9095);
 
-@grpc:ServiceConfig {name:"chat",
-    requestType: ChatMessage,
-    responseType: string,
-    clientStreaming:true,
-    serverStreaming:true}
+@grpc:ServiceConfig {name:"chat"}
 service Chat on server7 {
 
-    resource function onOpen(grpc:Caller caller) {
-    }
+    resource function chat(grpc:Caller caller, stream<ChatMessage,error> clientStream) {
 
-    resource function onMessage(grpc:Caller caller, ChatMessage chatMsg) {
-    }
-
-    resource function onError(grpc:Caller caller, error err) {
-    }
-
-    resource function onComplete(grpc:Caller caller) {
     }
 }
 

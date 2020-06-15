@@ -21,11 +21,13 @@ type Detail record {
     boolean fatal;
 };
 
+type DError error<Detail>;
+
 function testArrayWithErrors1() returns string {
-    error<string, Detail> err1 = error("Error One", message = "msgOne", fatal = true);
-    error<string, Detail> err2 = error("Error Two", message = "msgTwo", fatal = false);
-    error<string, Detail> err3 = error("Error Three", message = "msgThree", fatal = true);
-    error<string, Detail>?[3] errorArray = [err1, err2, err3];
+    DError err1 = DError("Error One", message = "msgOne", fatal = true);
+    DError err2 = DError("Error Two", message = "msgTwo", fatal = false);
+    DError err3 = DError("Error Three", message = "msgThree", fatal = true);
+    DError?[3] errorArray = [err1, err2, err3];
 
     string result1 = "";
     foreach var error(reason, message = message, fatal = fatal) in errorArray {
@@ -36,13 +38,13 @@ function testArrayWithErrors1() returns string {
 }
 
 function testArrayWithErrors2() returns string {
-    error<string, Detail> err1 = error("Error One", message = "msgOne", fatal = true);
-    error<string, Detail> err2 = error("Error Two", message = "msgTwo", fatal = false);
-    error<string, Detail> err3 = error("Error Three", message = "msgThree", fatal = true);
-    error<string, Detail>[3] errorArray = [err1, err2, err3];
+    DError err1 = DError("Error One", message = "msgOne", fatal = true);
+    DError err2 = DError("Error Two", message = "msgTwo", fatal = false);
+    DError err3 = DError("Error Three", message = "msgThree", fatal = true);
+    DError[3] errorArray = [err1, err2, err3];
 
     string result1 = "";
-    foreach error<string, Detail> error(reason, message = message, fatal = fatal) in errorArray {
+    foreach DError error(reason, message = message, fatal = fatal) in errorArray {
     // incompatible types: expected 'error', found 'error'
 
     }
@@ -50,10 +52,10 @@ function testArrayWithErrors2() returns string {
 }
 
 function testArrayWithErrors3() returns string {
-    error<string, Detail> err1 = error("Error One", message = "msgOne", fatal = true);
-    error<string, Detail> err2 = error("Error Two", message = "msgTwo", fatal = false);
-    error<string, Detail> err3 = error("Error Three", message = "msgThree", fatal = true);
-    error<string, Detail>[3] errorArray = [err1, err2, err3];
+    DError err1 = DError("Error One", message = "msgOne", fatal = true);
+    DError err2 = DError("Error Two", message = "msgTwo", fatal = false);
+    DError err3 = DError("Error Three", message = "msgThree", fatal = true);
+    DError[3] errorArray = [err1, err2, err3];
 
     string result1 = "";
     foreach var error(reason,  message = message, fatal = fatal) in errorArray {
@@ -67,10 +69,10 @@ function testArrayWithErrors3() returns string {
 }
 
 function testMapWithErrors1() returns string {
-    error<string, Detail> err1 = error("Error One", message = "msgOne", fatal = true);
-    error<string, Detail> err2 = error("Error Two", message = "msgTwo", fatal = false);
-    error<string, Detail> err3 = error("Error Three", message = "msgThree", fatal = true);
-    map<error<string, Detail>?> errMap = { a: err1, b: err2, c: err3 };
+    DError err1 = DError("Error One", message = "msgOne", fatal = true);
+    DError err2 = DError("Error Two", message = "msgTwo", fatal = false);
+    DError err3 = DError("Error Three", message = "msgThree", fatal = true);
+    map<DError?> errMap = { a: err1, b: err2, c: err3 };
 
     string result1 = "";
     foreach var error(reason,  message = message2, fatal = fatal2) in errMap {
@@ -82,14 +84,14 @@ function testMapWithErrors1() returns string {
 }
 
 function testMapWithErrors2() returns string {
-    error<string, Detail> err1 = error("Error One", message = "msgOne", fatal = true);
-    error<string, Detail> err2 = error("Error Two", message = "msgTwo", fatal = false);
-    error<string, Detail> err3 = error("Error Three", message = "msgThree", fatal = true);
-    map<error<string, Detail>> errMap = { a: err1, b: err2, c: err3 };
+    DError err1 = DError("Error One", message = "msgOne", fatal = true);
+    DError err2 = DError("Error Two", message = "msgTwo", fatal = false);
+    DError err3 = DError("Error Three", message = "msgThree", fatal = true);
+    map<DError> errMap = { a: err1, b: err2, c: err3 };
 
 
     string result1 = "";
-    foreach error<string, Detail> error(reason,  message = message, fatal = fatal) in errMap {
+    foreach DError error(reason,  message = message, fatal = fatal) in errMap {
     // incompatible types: expected '(string,error)', found '(string,error)'
 
     }
@@ -97,10 +99,10 @@ function testMapWithErrors2() returns string {
 }
 
 function testMapWithErrors3() returns string {
-    error<string, Detail> err1 = error("Error One", message = "msgOne", fatal = true);
-    error<string, Detail> err2 = error("Error Two", message = "msgTwo", fatal = false);
-    error<string, Detail> err3 = error("Error Three", message = "msgThree", fatal = true);
-    map<error<string, Detail>> errMap = { a: err1, b: err2, c: err3 };
+    DError err1 = DError("Error One", message = "msgOne", fatal = true);
+    DError err2 = DError("Error Two", message = "msgTwo", fatal = false);
+    DError err3 = DError("Error Three", message = "msgThree", fatal = true);
+    map<DError> errMap = { a: err1, b: err2, c: err3 };
 
     string result1 = "";
     foreach var error(reason, message = message3, fatal = fatal3) in errMap {
@@ -119,10 +121,12 @@ type ReasonT record {|
     error cause?;
 |};
 
+type ReasonError error<ReasonT>;
+
 function testForeachReasonBinding() {
-    error<string, ReasonT> err0 = error("reason-0", message = "message", fatal = true);
-    error<string, ReasonT> err1 = error("reason-1", message = "message", fatal = false);
-    map<error<string, ReasonT>> errMap = {a: err0, b: err1};
+    ReasonError err0 = ReasonError("reason-0", message = "message", fatal = true);
+    ReasonError err1 = ReasonError("reason-1", message = "message", fatal = false);
+    map<ReasonError> errMap = {a: err0, b: err1};
 
     foreach var error(reason, message = message5, fatal = fatal5, other2 = otherVar) in errMap {
         string m = message5;

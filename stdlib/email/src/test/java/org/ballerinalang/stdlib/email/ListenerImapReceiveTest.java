@@ -114,8 +114,8 @@ public class ListenerImapReceiveTest {
 
         BValue[] receivedErrorReturns = BRunUtil.invoke(compiledResult, "getReceivedError");
         assertTrue(receivedErrorReturns[0] instanceof BString);
-        String expectedError = "message=Couldn't connect to host, port: 127.0.0.1, 3993; timeout -1";
-        assertEquals((receivedErrorReturns[0]).stringValue(), expectedError);
+        assertEquals((receivedErrorReturns[0]).stringValue(), "Couldn't connect to host, port: 127.0.0.1," +
+                " 3993; timeout -1");
     }
 
     private void startServer() {

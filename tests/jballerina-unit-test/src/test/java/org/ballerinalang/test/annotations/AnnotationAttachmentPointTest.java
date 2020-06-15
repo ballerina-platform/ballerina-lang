@@ -29,6 +29,7 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
  *
  * @since 1.0
  */
+@Test(groups = { "brokenOnNewParser" })
 public class AnnotationAttachmentPointTest {
 
     private CompileResult compileResult;

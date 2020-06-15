@@ -385,6 +385,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(streamTypeParamsNode);
     }
 
+    public void visit(STTypedescTypeDescriptorNode typedescTypeDescriptorNode) {
+        visitSyntaxNode(typedescTypeDescriptorNode);
+    }
+
     public void visit(STLetExpressionNode letExpressionNode) {
         visitSyntaxNode(letExpressionNode);
     }
@@ -711,6 +715,26 @@ public abstract class STNodeVisitor {
 
     public void visit(STObjectMethodDefinitionNode objectMethodDefinitionNode) {
         visitSyntaxNode(objectMethodDefinitionNode);
+    }
+
+    public void visit(STDistinctTypeDescriptorNode distinctTypeDescriptorNode) {
+        visitSyntaxNode(distinctTypeDescriptorNode);
+    }
+
+    public void visit(STOnConflictClauseNode onConflictClauseNode) {
+        visitSyntaxNode(onConflictClauseNode);
+    }
+
+    public void visit(STLimitClauseNode limitClauseNode) {
+        visitSyntaxNode(limitClauseNode);
+    }
+
+    public void visit(STJoinClauseNode joinClauseNode) {
+        visitSyntaxNode(joinClauseNode);
+    }
+
+    public void visit(STOnClauseNode onClauseNode) {
+        visitSyntaxNode(onClauseNode);
     }
 
     // STNodeList

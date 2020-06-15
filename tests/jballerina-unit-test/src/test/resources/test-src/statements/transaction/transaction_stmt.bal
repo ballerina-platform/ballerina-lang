@@ -60,7 +60,40 @@ function blowUp()  returns int {
     return 5;
 }
 
-type AssertionError error<ASSERTION_ERROR_REASON>;
+function testLocalTransaction1(int i) returns int|error {
+    int x = i;
+
+    transaction {
+        x += 1;
+        check commit;
+    }
+
+    transaction {
+        x += 1;
+        check commit;
+    }
+    return x;
+}
+
+function testLocalTransaction2(int i) returns int|error {
+    int x = i;
+
+    transaction {
+        x += 1;
+        check commit;
+    }
+
+    return x;
+}
+
+function testMultipleTrxBlocks() returns error? {
+    int i = check testLocalTransaction1(1);
+    int j = check testLocalTransaction2(i);
+
+    assertEquality(4, j);
+}
+
+type AssertionError error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
@@ -73,5 +106,6 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    panic AssertionError(ASSERTION_ERROR_REASON,
+            message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

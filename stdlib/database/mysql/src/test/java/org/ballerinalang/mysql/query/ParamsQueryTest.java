@@ -183,8 +183,7 @@ public class ParamsQueryTest {
     public void testQueryTypBitInvalidIntParam() {
         BValue[] returns = BRunUtil.invokeFunction(result, "queryTypBitInvalidIntParam");
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
-        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(SQLDBUtils.SQL_ERROR_MESSAGE)
-                .stringValue().contains("Only 1 or 0 can be passed"));
+        Assert.assertTrue(((BError) returns[0]).getMessage().contains("Only 1 or 0 can be passed"));
     }
 
     @Test
@@ -390,8 +389,7 @@ public class ParamsQueryTest {
     public void testQueryTimeDateStringInvalidParam() {
         BValue[] returns = BRunUtil.invokeFunction(result, "queryTimeStringInvalidParam");
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
-        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(SQLDBUtils.SQL_ERROR_MESSAGE)
-                .stringValue().contains("IllegalArgumentException"));
+        Assert.assertTrue(((BError) returns[0]).getMessage().contains("IllegalArgumentException"));
     }
 
     @Test
@@ -404,8 +402,7 @@ public class ParamsQueryTest {
     public void testQueryTimestampDateStringInvalidParam() {
         BValue[] returns = BRunUtil.invokeFunction(result, "queryTimestampStringInvalidParam");
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
-        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(SQLDBUtils.SQL_ERROR_MESSAGE)
-                .stringValue().contains(" Timestamp format must be yyyy-mm-dd hh:mm:ss"));
+        Assert.assertTrue(((BError) returns[0]).getMessage().contains(" Timestamp format must be yyyy-mm-dd hh:mm:ss"));
     }
 
     @Test
