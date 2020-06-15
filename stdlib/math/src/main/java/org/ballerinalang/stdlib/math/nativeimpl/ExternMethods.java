@@ -19,12 +19,14 @@
 package org.ballerinalang.stdlib.math.nativeimpl;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.values.ErrorValue;
 
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.ballerinalang.stdlib.math.nativeimpl.Constant.DIVIDE_BY_ZERO_ERROR_MSG;
 import static org.ballerinalang.stdlib.math.nativeimpl.Constant.ILLEGAL_ARGUMENT_ERROR_MSG;
-import static org.ballerinalang.stdlib.math.nativeimpl.Constant.MATH_ERROR_CODE;
+import static org.ballerinalang.stdlib.math.nativeimpl.Constant.MATH_ERROR;
+import static org.ballerinalang.stdlib.math.nativeimpl.Constant.MATH_PACKAGE_ID;
 import static org.ballerinalang.stdlib.math.nativeimpl.Constant.OVERFLOW_ERROR_MSG;
 
 /**
@@ -40,7 +42,7 @@ public class ExternMethods {
         try {
             return Math.floorDiv(a, b);
         } catch (ArithmeticException ex) {
-            return BallerinaErrors.createError(MATH_ERROR_CODE, DIVIDE_BY_ZERO_ERROR_MSG);
+            return createMathError(DIVIDE_BY_ZERO_ERROR_MSG);
         }
     }
 
@@ -48,7 +50,7 @@ public class ExternMethods {
         try {
             return Math.floorMod(a, b);
         } catch (ArithmeticException ex) {
-            return BallerinaErrors.createError(MATH_ERROR_CODE, DIVIDE_BY_ZERO_ERROR_MSG);
+            return createMathError(DIVIDE_BY_ZERO_ERROR_MSG);
         }
     }
 
@@ -56,7 +58,7 @@ public class ExternMethods {
         try {
             return Math.negateExact(value);
         } catch (ArithmeticException ex) {
-            return BallerinaErrors.createError(MATH_ERROR_CODE, OVERFLOW_ERROR_MSG);
+            return createMathError(OVERFLOW_ERROR_MSG);
         }
     }
 
@@ -64,12 +66,16 @@ public class ExternMethods {
         try {
             return ThreadLocalRandom.current().nextLong(start, end);
         } catch (IllegalArgumentException ex) {
-            return BallerinaErrors.createError(MATH_ERROR_CODE, ILLEGAL_ARGUMENT_ERROR_MSG);
+            return createMathError(ILLEGAL_ARGUMENT_ERROR_MSG);
         }
     }
 
     public static double scalb(double a, long b) {
         int intVal = ((Long) b).intValue();
         return Math.scalb(a, intVal);
+    }
+
+    private static ErrorValue createMathError(String errMsg) {
+        return BallerinaErrors.createDistinctError(MATH_ERROR, MATH_PACKAGE_ID, errMsg);
     }
 }

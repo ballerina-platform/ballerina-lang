@@ -43,9 +43,11 @@ public type Client abstract client object {
     #
     # + sqlQueries - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `ParameterizedString` with an array
     #                of values passed in.
-    # + return - Summary of the sql update query as `ExecutionResult[]` or returns `BatchUpdateError`.
-    #            if any error occured when executing the query. `BatchUpdateError` will include summary of the
-    #            sql update query as `ExecutionResult[]` for commands executed successfully.
+    # + return - Summary of the executed SQL queries as `ExecutionResult[]` which includes details such as
+    #            `affectedRowCount` and `lastInsertId`. If one of the commands in the batch fails, this function
+    #            will return `BatchExecuteError`, however the JDBC driver may or may not continue to process the
+    #            remaining commands in the batch after a failure. The summary of the executed queries in case of error
+    #            can be accessed as `(<sql:BatchExecuteError> result).detail()?.executionResults`.
     public remote function batchExecute(ParameterizedString[] sqlQueries) returns ExecutionResult[]|Error;
 
     # Close the SQL client.
@@ -55,13 +57,11 @@ public type Client abstract client object {
 };
 
 function closedStreamInvocationError() returns Error {
-    ApplicationError e = ApplicationError(message = "Stream is closed. Therefore, "
-        + "no operations are allowed further on the stream.");
-    return e;
+   return ApplicationError("Stream is closed. Therefore, no operations are allowed further on the stream.");
 }
 
 public function generateApplicationErrorStream(string message) returns stream<record{}, Error> {
-    ApplicationError applicationErr = ApplicationError(message = message);
+    ApplicationError applicationErr = ApplicationError(message);
     ResultIterator resultIterator = new (err = applicationErr);
     stream<record{}, Error> errorStream = new (resultIterator);
     return errorStream;

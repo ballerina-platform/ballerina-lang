@@ -169,6 +169,7 @@ import io.ballerinalang.compiler.syntax.tree.TypeParameterNode;
 import io.ballerinalang.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
+import io.ballerinalang.compiler.syntax.tree.TypedescTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeofExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
@@ -725,9 +726,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
-        // TODO : Add parameter
         if (errorTypeDescriptorNode.errorTypeParamsNode().isPresent()) {
-            errorType.reasonType = createTypeNode(errorTypeDescriptorNode.errorTypeParamsNode().get());
+            errorType.detailType = createTypeNode(errorTypeDescriptorNode.errorTypeParamsNode().get());
         }
         return errorType;
     }
@@ -739,7 +739,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(DistinctTypeDescriptorNode distinctTypeDesc) {
-        return createTypeNode(distinctTypeDesc.typeDescriptor());
+        BLangType typeNode = createTypeNode(distinctTypeDesc.typeDescriptor());
+        typeNode.flagSet.add(Flag.DISTINCT);
+        return typeNode;
     }
 
     @Override
@@ -835,7 +837,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         DiagnosticPos pos = getPosition(serviceNode);
         String serviceName;
         DiagnosticPos identifierPos;
-        if (isAnonServiceValue) {
+        if (isAnonServiceValue || serviceNameNode == null) {
             serviceName = this.anonymousModelHelper.getNextAnonymousServiceVarKey(diagnosticSource.pkgID);
             identifierPos = pos;
         } else {
@@ -2255,6 +2257,22 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
+    public BLangNode transform(TypedescTypeDescriptorNode typedescTypeDescriptorNode) {
+        BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
+        refType.typeKind = TypeKind.TYPEDESC;
+
+        Optional<TypeParameterNode> node = typedescTypeDescriptorNode.typedescTypeParamsNode();
+        if (node.isPresent()) {
+            BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
+            constrainedType.type = refType;
+            constrainedType.constraint = createTypeNode(node.get().typeNode());
+            return constrainedType;
+        }
+
+        return refType;
+    }
+
+    @Override
     public BLangNode transform(VariableDeclarationNode varDeclaration) {
         return (BLangNode) createBLangVarDef(getPosition(varDeclaration), varDeclaration.typedBindingPattern(),
                 varDeclaration.initializer(), varDeclaration.finalKeyword());
@@ -2787,7 +2805,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
         BLangIdentifier prefixIdentifier = createIdentifier(xmlnsDeclNode.namespacePrefix());
 
-        xmlns.namespaceURI = createSimpleLiteral(xmlnsDeclNode.namespaceuri(), false);
+        BLangLiteral namespaceUri = createSimpleLiteral(xmlnsDeclNode.namespaceuri(), false);
+        // This is done to be consistent with BLangPackageBuilder
+        namespaceUri.originalValue = (String) namespaceUri.value;
+        xmlns.namespaceURI = namespaceUri;
         xmlns.prefix = prefixIdentifier;
         xmlns.pos = getPosition(xmlnsDeclNode);
 
@@ -2802,7 +2823,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
         BLangIdentifier prefixIdentifier = createIdentifier(xmlnsDeclNode.namespacePrefix());
 
-        xmlns.namespaceURI = createSimpleLiteral(xmlnsDeclNode.namespaceuri(), false);
+        BLangLiteral namespaceUri = createSimpleLiteral(xmlnsDeclNode.namespaceuri(), false);
+        // This is done to be consistent with BLangPackageBuilder
+        namespaceUri.originalValue = (String) namespaceUri.value;
+        xmlns.namespaceURI = namespaceUri;
         xmlns.prefix = prefixIdentifier;
         xmlns.pos = getPosition(xmlnsDeclNode);
 
@@ -3847,7 +3871,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLInvocation.name = (BLangIdentifier) reference.name;
 
         List<BLangExpression> args = new ArrayList<>();
-        arguments.iterator().forEachRemaining(arg -> args.add((BLangExpression) arg.apply(this)));
+        arguments.iterator().forEachRemaining(arg -> args.add(createExpression(arg)));
         bLInvocation.argExprs = args;
         bLInvocation.pos = position;
         return bLInvocation;
@@ -4118,7 +4142,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 break;
             case ERROR_VARIABLE:
                 BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
-                markVariableAsFinal(errorVariable.reason);
+                markVariableAsFinal(errorVariable.message);
                 errorVariable.detail.forEach(entry -> markVariableAsFinal(entry.valueBindingPattern));
                 if (errorVariable.restDetail != null) {
                     markVariableAsFinal(errorVariable.restDetail);

@@ -119,8 +119,8 @@ public class CacheTest {
         args[0] = new BString(key);
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetNonExistingEntry", args);
         Assert.assertTrue(returns[0] instanceof BError);
-        String errMsg = ((BError) returns[0]).getDetails().stringValue();
-        Assert.assertEquals(errMsg, "{message:\"Cache entry from the given key: " + key + ", is not available.\"}");
+        String errMsg = ((BError) returns[0]).getMessage();
+        Assert.assertEquals(errMsg, "Cache entry from the given key: " + key + ", is not available.");
     }
 
     @Test

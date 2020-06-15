@@ -76,13 +76,11 @@ service Participant2pcService on coordinatorListener {
             res.setJsonPayload(jsonResponse);
             var resResult = conn->respond(res);
             if (resResult is error) {
-                error err = resResult;
                 log:printError("Sending response for prepare request for transaction " +
                 transactionId + " failed", resResult);
             }
         } else {
-            error er = <error>jsonResponse;
-            panic er;
+            panic jsonResponse;
         }
     }
 
@@ -148,13 +146,11 @@ service Participant2pcService on coordinatorListener {
             res.setJsonPayload(jsonResponse);
             var resResult = conn->respond(res);
             if (resResult is http:ListenerError) {
-                error err = resResult;
                 log:printError("Sending response for notify request for transaction " + transactionId +
                         " failed", resResult);
             }
         } else {
-            error e = <error> jsonResponse;
-            panic e;
+            panic jsonResponse;
         }
     }
 }

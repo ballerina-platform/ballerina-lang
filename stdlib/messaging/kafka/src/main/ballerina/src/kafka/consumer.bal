@@ -175,7 +175,7 @@ public type Consumer client object {
         if (self.keyDeserializerType == DES_CUSTOM) {
             var keyDeserializerObject = config?.keyDeserializer;
             if (keyDeserializerObject is ()) {
-                panic error(CONSUMER_ERROR, message = "Invalid keyDeserializer config: Please Provide a " +
+                panic createConsumerError("Invalid keyDeserializer config: Please Provide a " +
                                         "valid custom deserializer for the keyDeserializer");
             } else {
                 self.keyDeserializer = keyDeserializerObject;
@@ -184,7 +184,7 @@ public type Consumer client object {
         if (self.keyDeserializerType == DES_AVRO) {
             var schemaRegistryUrl = config?.schemaRegistryUrl;
             if (schemaRegistryUrl is ()) {
-                panic error(PRODUCER_ERROR, message = "Missing schema registry URL for the Avro serializer. Please " +
+                panic createConsumerError("Missing schema registry URL for the Avro serializer. Please " +
                             "provide 'schemaRegistryUrl' configuration in 'kafka:ProducerConfiguration'.");
             }
         }
@@ -192,7 +192,7 @@ public type Consumer client object {
         if (self.valueDeserializerType == DES_CUSTOM) {
             var valueDeserializerObject = config?.valueDeserializer;
             if (valueDeserializerObject is ()) {
-                panic error(CONSUMER_ERROR, message = "Invalid valueDeserializer config: Please Provide a" +
+                panic createConsumerError("Invalid valueDeserializer config: Please Provide a" +
                                         " valid custom deserializer for the valueDeserializer");
             } else {
                 self.valueDeserializer = valueDeserializerObject;
@@ -201,7 +201,7 @@ public type Consumer client object {
         if (self.valueDeserializerType == DES_AVRO) {
             var schemaRegistryUrl = config?.schemaRegistryUrl;
             if (schemaRegistryUrl is ()) {
-                panic error(CONSUMER_ERROR, message = "Missing schema registry URL for the Avro deserializer. Please " +
+                panic createConsumerError("Missing schema registry URL for the Avro deserializer. Please " +
                             "provide 'schemaRegistryUrl' configuration in 'kafka:ConsumerConfiguration'.");
             }
         }
@@ -458,7 +458,7 @@ public type Consumer client object {
         if (self.consumerConfig?.groupId is string) {
             return consumerSubscribe(self, topics);
         } else {
-            panic error(CONSUMER_ERROR, message = "The groupId of the consumer must be set to subscribe to the topics");
+            panic createConsumerError("The groupId of the consumer must be set to subscribe to the topics");
         }
     }
 

@@ -164,6 +164,9 @@ public class Generator {
         } else if (kind == NodeKind.BUILT_IN_REF_TYPE) {
             // TODO: handle built in ref type
             added = true;
+        } else if (kind == NodeKind.CONSTRAINED_TYPE) {
+            // TODO: handle constrained types
+            added = true;
         }
         if (!added) {
             throw new UnsupportedOperationException("Type def not supported for " + kind);

@@ -14,17 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Record type to hold the details of an error.
-#
-# + message - Specific error message of the error
-# + cause - Any other error, which causes this error
-public type Detail record {
-    string message;
-    error cause?;
-};
+# Represents the Encoding error.
+public type EncodingError distinct error;
 
-# Represents the Encoding error code.
-public const ENCODING_ERROR = "{ballerina/encoding}Error";
+# Represents the Decoding error.
+public type DecodingError distinct error;
 
-# Represents the Encoding error type with details.
-public type Error error<ENCODING_ERROR, Detail>;
+# Represents the Encoding module error.
+public type Error EncodingError|DecodingError;

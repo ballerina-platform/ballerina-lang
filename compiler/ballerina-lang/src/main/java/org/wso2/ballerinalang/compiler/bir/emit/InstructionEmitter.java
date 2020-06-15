@@ -198,7 +198,10 @@ class InstructionEmitter {
         str += emitSpaces(1);
         str += emitTypeRef(ins.type, 0);
         str += "(";
-        str += emitVarRef(ins.reasonOp);
+        str += emitVarRef(ins.messageOp);
+        str += ",";
+        str += emitSpaces(1);
+        str += emitVarRef(ins.causeOp);
         str += ",";
         str += emitSpaces(1);
         str += emitVarRef(ins.detailOp);

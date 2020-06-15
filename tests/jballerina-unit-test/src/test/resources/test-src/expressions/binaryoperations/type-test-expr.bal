@@ -751,8 +751,8 @@ type Details record {
     error cause?;
 };
 
-type MyError error<ERR_REASON, Details>;
-type MyErrorTwo error<ERR_REASON_TWO, Details>;
+type MyError distinct error<Details>;
+type MyErrorTwo distinct error<Details>;
 
 function testError_1() returns [boolean, boolean, boolean, boolean] {
     error e = error("error reason one");
@@ -768,7 +768,7 @@ function testError_1() returns [boolean, boolean, boolean, boolean] {
 }
 
 function testError_2() returns [boolean, boolean, boolean] {
-    MyError e = error(ERR_REASON, message = "detail message");
+    MyError e = MyError(ERR_REASON, message = "detail message");
     any|error f = e;
     return [f is MyError, f is error, f is MyErrorTwo];
 }

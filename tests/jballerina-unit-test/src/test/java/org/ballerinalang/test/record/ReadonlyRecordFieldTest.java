@@ -54,6 +54,10 @@ public class ReadonlyRecordFieldTest {
         validateError(result, index++, "incompatible types: expected '(Foo & readonly)', found 'Bar'", 106, 25);
         validateError(result, index++, "incompatible types: expected '(Foo & readonly)', found 'Baz'", 107, 25);
         validateError(result, index++, "incompatible types: expected '(Foo & readonly)', found 'Qux'", 108, 25);
+        validateError(result, index++, "incompatible types: expected 'Person', found 'Undergraduate'", 142, 17);
+        validateError(result, index++, "incompatible types: expected 'Person', found 'Graduate'", 150, 17);
+        validateError(result, index++, "incompatible types: expected 'OptionalId', found 'map<(map<int>|boolean)>'",
+                      159, 23);
         assertEquals(result.getErrorCount(), index);
     }
 }

@@ -51,7 +51,7 @@ service participant2 on participant2EP02 {
         var forwardRes = conn -> respond(res);  
         if (forwardRes is error) {
             io:print("Participant2 could not send response to participant1. Error:");
-            io:println(forwardRes.reason());
+            io:println(forwardRes.message());
         } else {
             io:print("");
         }
@@ -68,7 +68,7 @@ service participant2 on participant2EP02 {
         var forwardRes = conn -> respond(res);  
         if (forwardRes is error) {
             io:print("Participant2 could not send response to participant1. Error:");
-            io:println(forwardRes.reason());
+            io:println(forwardRes.message());
         } else {
             io:print("");
         }
@@ -86,7 +86,7 @@ service participant2 on participant2EP02 {
         if (er is error) {
             http:Response res = new;
             res.statusCode = 200;
-            res.setTextPayload("error in SaveToDatabase: " + er.reason());
+            res.setTextPayload("error in SaveToDatabase: " + er.message());
             var resp2 = ep->respond(res);
         }
     }
@@ -149,7 +149,7 @@ function saveToDatabase(http:Caller conn, http:Request req, boolean shouldAbort)
     var forwardRes = ep -> respond(res);
     if (forwardRes is error) {
         io:print("Participant2 could not send response to participant1. Error:");
-        io:println(forwardRes.reason());
+        io:println(forwardRes.message());
     } else {
         io:print("");
     }

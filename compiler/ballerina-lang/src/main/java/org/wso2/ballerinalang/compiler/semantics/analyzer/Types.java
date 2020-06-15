@@ -750,13 +750,24 @@ public class Types {
         }
 
         for (BField field : targetRecType.fields.values()) {
-            if (!(Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
-                    isAssignable(sourceMapType.constraint, field.type))) {
+            if (!Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL)) {
+                return false;
+            }
+
+            if (hasIncompatibleReadOnlyFlags(field.symbol.flags, sourceMapType.flags)) {
+                return false;
+            }
+
+            if (!isAssignable(sourceMapType.constraint, field.type)) {
                 return false;
             }
         }
 
         return isAssignable(sourceMapType.constraint, targetRecType.restFieldType);
+    }
+
+    private boolean hasIncompatibleReadOnlyFlags(int targetFlags, int sourceFlags) {
+        return Symbols.isFlagOn(targetFlags, Flags.READONLY) && !Symbols.isFlagOn(sourceFlags, Flags.READONLY);
     }
 
     private boolean isErrorTypeAssignable(BErrorType source, BErrorType target, Set<TypePair> unresolvedTypes) {
@@ -768,8 +779,8 @@ public class Types {
             return true;
         }
         unresolvedTypes.add(pair);
-        return isAssignable(source.reasonType, target.reasonType, unresolvedTypes) &&
-                isAssignable(source.detailType, target.detailType, unresolvedTypes);
+        return isAssignable(source.detailType, target.detailType, unresolvedTypes)
+                && target.typeIdSet.isAssignableFrom(source.typeIdSet);
     }
 
     // TODO: Recheck this to support finite types
@@ -1185,8 +1196,10 @@ public class Types {
 
         for (BField lhsField : lhsType.fields.values()) {
             BField rhsField = rhsType.fields.get(lhsField.name.value);
-            if (rhsField == null || !isInSameVisibilityRegion(lhsField.symbol, rhsField.symbol)
-                    || !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
+            if (rhsField == null ||
+                    !isInSameVisibilityRegion(lhsField.symbol, rhsField.symbol) ||
+                    hasIncompatibleReadOnlyFlags(lhsField.symbol.flags, rhsField.symbol.flags) ||
+                    !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
                 return false;
             }
         }
@@ -2046,7 +2059,9 @@ public class Types {
                 if (t.fields.containsKey(sourceField.name.value)) {
                     BField targetField = t.fields.get(sourceField.name.value);
                     if (isSameType(sourceField.type, targetField.type, this.unresolvedTypes) &&
-                            hasSameOptionalFlag(sourceField.symbol, targetField.symbol)) {
+                            hasSameOptionalFlag(sourceField.symbol, targetField.symbol) &&
+                            (!Symbols.isFlagOn(targetField.symbol.flags, Flags.READONLY) ||
+                                     Symbols.isFlagOn(sourceField.symbol.flags, Flags.READONLY))) {
                         continue;
                     }
                 }
@@ -2162,7 +2177,7 @@ public class Types {
             }
             BErrorType source = (BErrorType) s;
 
-            if (!isSameType(source.reasonType, t.reasonType, this.unresolvedTypes)) {
+            if (!source.typeIdSet.equals(t.typeIdSet)) {
                 return false;
             }
 
@@ -2216,6 +2231,10 @@ public class Types {
 
             // There should be a corresponding RHS field
             if (rhsField == null) {
+                return false;
+            }
+
+            if (hasIncompatibleReadOnlyFlags(lhsField.symbol.flags, rhsField.symbol.flags)) {
                 return false;
             }
 

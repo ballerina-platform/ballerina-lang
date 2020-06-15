@@ -18,17 +18,25 @@
 
 package org.ballerinalang.stdlib.math.nativeimpl;
 
+import org.ballerinalang.jvm.types.BPackage;
+
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+
 /**
  * Constants related to math operations.
  */
 public class Constant {
 
-    public static final String MATH_ERROR_CODE = "{ballerina/math}Error";
+    static final String MATH_ERROR = "ArithmeticError";
 
     public static final String ILLEGAL_ARGUMENT_ERROR_MSG = "End range must be greater than the start range";
 
     public static final String DIVIDE_BY_ZERO_ERROR_MSG = "Division by zero occurred";
 
     public static final String OVERFLOW_ERROR_MSG = "Overflow occurred";
+
+    private static final String PACKAGE_NAME = "math";
+
+    static final BPackage MATH_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME, "1.0.0");
 
 }

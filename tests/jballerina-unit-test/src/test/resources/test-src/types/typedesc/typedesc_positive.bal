@@ -7,11 +7,17 @@ function testBasicTypes() returns [typedesc<any>, typedesc<any>, typedesc<any>, 
     return [a, b, c, d, e];
 }
 
+type mapOfAny map<any>;
+
+type Employee record {
+    string name;
+};
+
 function testRefTypes(){
     typedesc<xml> a = xml;
     typedesc<json> b = json;
-    typedesc<map<any>> c = map<any>;
-    typedesc<table<Employee>> d = table<Employee>;
+    typedesc<map<any>> c = mapOfAny;
+    typedesc<table<Employee>> d = tableOfEmployee;
 
     [typedesc<any>, typedesc<any>, typedesc<any>, typedesc<any>] tupleValue = [a, b, c, d];
 
@@ -21,11 +27,11 @@ function testRefTypes(){
     assertEquality("typedesc table<Employee>", d.toString());
 }
 
+type Pet object { public string name = ""; };
+
 function testObjectTypes() returns [typedesc<any>, typedesc<any>] {
     typedesc<Person> a = Person;
-    typedesc<any> b = object {
-        public string name = "";
-    };
+    typedesc<any> b = Pet;
     return [a,b];
 }
 
@@ -41,21 +47,20 @@ type Person object {
     }
 };
 
+type tableOfEmployee table<Employee>;
 
-type Employee record {
-    string name;
-};
-
+type intArray int[];
+type intArrayArray int[][];
 
 function testArrayTypes() returns [typedesc<any>, typedesc<any>] {
-    typedesc<int[]> a = int[];
-    typedesc<int[][]> b = int[][];
+    typedesc<int[]> a = intArray;
+    typedesc<int[][]> b = intArrayArray;
     return [a,b];
 }
 
 function testRecordTypes() returns [typedesc<any>, typedesc<any>] {
     typedesc<RecordA> a = RecordA;
-    typedesc<any> b = record {string c; int d;};
+    typedesc<any> b = RecordB;
     return [a,b];
 }
 
@@ -64,15 +69,24 @@ type RecordA record {
     int b;
 };
 
+type RecordB record {
+    string c;
+    int d;
+};
+
+type stringOrPerson [string, Person];
+
+type intOrString int|string;
+
 function testTupleUnionTypes() returns [typedesc<any>, typedesc<any>] {
-    typedesc<any> a = [string, Person];
-    typedesc<int|string> b = int|string;
+    typedesc<any> a = stringOrPerson;
+    typedesc<int|string> b = intOrString;
     return [a,b];
 }
 
 function testTuplesWithExpressions() returns typedesc<any> {
     int[] fib = [1, 1, 2, 3, 5, 8];
-    typedesc<any> desc = ["foo", 25, ["foo", "bar", "john"], utilFunc(), fib[4]];
+    typedesc<any> desc = typeof ["foo", 25, ["foo", "bar", "john"], utilFunc(), fib[4]];
     return desc;
 }
 
@@ -100,7 +114,7 @@ function testMethodLevelTypeDesc() returns typedesc<any> {
 
 const FOO_REASON = "FooError";
 
-type FooError error<FOO_REASON>;
+type FooError distinct error;
 
 function testCustomErrorTypeDesc() {
     typedesc<error> te = FooError;
@@ -128,30 +142,28 @@ function testRefTypesWithoutTypedescConstraint() {
 
 function testObjectTypesWithoutTypedescConstraint() {
     typedesc a = Person;
-    typedesc b = object {
-        public string name = "";
-    };
+    typedesc b = Pet;
 
     assertEquality("typedesc Person", a.toString());
 }
 
 function testArrayTypesWithoutTypedescConstraint() {
-    typedesc a = int[];
-    typedesc b = int[][];
+    typedesc a = intArray;
+    typedesc b = intArrayArray;
 
     assertEquality("typedesc int[]", a.toString());
 }
 
 function testRecordTypesWithoutTypedescConstraint() {
     typedesc a = RecordA;
-    typedesc b = record {string c; int d;};
+    typedesc b = RecordB;
 
     assertEquality("typedesc RecordA", a.toString());
 }
 
 function testTuplesWithExpressionsWithoutTypedescConstraint() {
     int[] fib = [1, 1, 2, 3, 5, 8];
-    typedesc desc = ["foo", 25, ["foo", "bar", "john"], utilFunc(), fib[4]];
+    typedesc desc = typeof ["foo", 25, ["foo", "bar", "john"], utilFunc(), fib[4]];
 
     assertEquality("typedesc [string,int,[string,string,string],string,int]", desc.toString());
 }
@@ -183,7 +195,7 @@ function testCustomErrorTypeDescWithoutConstraint() {
 
 }
 
-type AssertionError error<ASSERTION_ERROR_REASON>;
+type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
@@ -196,5 +208,5 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

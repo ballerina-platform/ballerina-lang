@@ -256,9 +256,7 @@ public type FailoverClient client object {
     # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
     # + return - An `http:PushPromise` message or else an `http:ClientError` if the invocation fails
     public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|ClientError {
-        string message = "Failover client not supported for getNextPromise action";
-        UnsupportedActionError err = error(UNSUPPORTED_ACTION, message = message);
-        return err;
+        return UnsupportedActionError("Failover client not supported for getNextPromise action");
     }
 
     # Retrieves the promised server push `http:Response` message.
@@ -266,9 +264,7 @@ public type FailoverClient client object {
     # + promise - The related `http:PushPromise`
     # + return - A promised `http:Response` message or else an `http:ClientError` if the invocation fails
     public remote function getPromisedResponse(PushPromise promise) returns Response|ClientError {
-        string message = "Failover client not supported for getPromisedResponse action";
-        UnsupportedActionError err = error(UNSUPPORTED_ACTION, message = message);
-        return err;
+        return UnsupportedActionError("Failover client not supported for getPromisedResponse action");
     }
 
     # Rejects an `http:PushPromise`. When an `http:PushPromise` is rejected, there is no chance of fetching a promised
@@ -402,11 +398,9 @@ function populateGenericFailoverActionError (ClientError?[] failoverActionErr, C
 
     failoverActionErr[index] = httpActionErr;
     error err = httpActionErr;
-    string lastErrorMsg = <string> err.detail()?.message;
+    string lastErrorMsg = err.message();
     string failoverMessage = "All the failover endpoints failed. Last error was: " + lastErrorMsg;
-    FailoverAllEndpointsFailedError actionError =
-                error(FAILOVER_ALL_ENDPOINTS_FAILED, message = failoverMessage, failoverErrors = failoverActionErr);
-    return actionError;
+    return FailoverAllEndpointsFailedError(failoverMessage, failoverErrors = failoverActionErr);
 }
 
 // If leaf endpoint returns a response with status code configured to retry in the failover connector, failover error
@@ -414,7 +408,7 @@ function populateGenericFailoverActionError (ClientError?[] failoverActionErr, C
 function populateFailoverErrorHttpStatusCodes (Response inResponse, ClientError?[] failoverActionErr, int index) {
     string failoverMessage = "Endpoint " + index.toString() + " returned response is: " +
                                 inResponse.statusCode.toString() + " " + inResponse.reasonPhrase;
-    FailoverActionFailedError httpActionErr = error(FAILOVER_ENDPOINT_ACTION_FAILED, message = failoverMessage);
+    FailoverActionFailedError httpActionErr = FailoverActionFailedError(failoverMessage);
     failoverActionErr[index] = httpActionErr;
 }
 
@@ -422,13 +416,11 @@ function populateErrorsFromLastResponse (Response inResponse, ClientError?[] fai
                                                                             returns (ClientError) {
     string message = "Last endpoint returned response: " + inResponse.statusCode.toString() + " " +
                         inResponse.reasonPhrase;
-    FailoverActionFailedError lastHttpConnectorErr = error(FAILOVER_ENDPOINT_ACTION_FAILED, message = message);
+    FailoverActionFailedError lastHttpConnectorErr = FailoverActionFailedError(message);
     failoverActionErr[index] = lastHttpConnectorErr;
     string failoverMessage = "All the failover endpoints failed. Last endpoint returned response is: "
                                 + inResponse.statusCode.toString() + " " + inResponse.reasonPhrase;
-    FailoverAllEndpointsFailedError actionError =
-                    error(FAILOVER_ALL_ENDPOINTS_FAILED, message = failoverMessage, failoverErrors = failoverActionErr);
-    return actionError;
+    return FailoverAllEndpointsFailedError(failoverMessage, failoverErrors = failoverActionErr);
 }
 
 # Provides a set of HTTP related configurations and failover related configurations.
