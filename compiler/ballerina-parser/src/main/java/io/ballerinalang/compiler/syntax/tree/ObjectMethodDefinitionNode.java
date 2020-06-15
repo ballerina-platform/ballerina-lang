@@ -45,20 +45,24 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
         return optionalChildInBucket(2);
     }
 
-    public Token functionKeyword() {
-        return childInBucket(3);
+    public Optional<Token> transactionalKeyword() {
+        return optionalChildInBucket(3);
     }
 
-    public IdentifierToken methodName() {
+    public Token functionKeyword() {
         return childInBucket(4);
     }
 
-    public FunctionSignatureNode methodSignature() {
+    public IdentifierToken methodName() {
         return childInBucket(5);
     }
 
-    public FunctionBodyNode functionBody() {
+    public FunctionSignatureNode methodSignature() {
         return childInBucket(6);
+    }
+
+    public FunctionBodyNode functionBody() {
+        return childInBucket(7);
     }
 
     @Override
@@ -77,6 +81,7 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
                 "metadata",
                 "visibilityQualifier",
                 "remoteKeyword",
+                "transactionalKeyword",
                 "functionKeyword",
                 "methodName",
                 "methodSignature",
@@ -87,6 +92,7 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
             MetadataNode metadata,
             Token visibilityQualifier,
             Token remoteKeyword,
+            Token transactionalKeyword,
             Token functionKeyword,
             IdentifierToken methodName,
             FunctionSignatureNode methodSignature,
@@ -95,6 +101,7 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
                 metadata,
                 visibilityQualifier,
                 remoteKeyword,
+                transactionalKeyword,
                 functionKeyword,
                 methodName,
                 methodSignature,
@@ -106,6 +113,7 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
                 metadata,
                 visibilityQualifier,
                 remoteKeyword,
+                transactionalKeyword,
                 functionKeyword,
                 methodName,
                 methodSignature,
@@ -126,6 +134,7 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
         private MetadataNode metadata;
         private Token visibilityQualifier;
         private Token remoteKeyword;
+        private Token transactionalKeyword;
         private Token functionKeyword;
         private IdentifierToken methodName;
         private FunctionSignatureNode methodSignature;
@@ -136,6 +145,7 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
             this.metadata = oldNode.metadata();
             this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
             this.remoteKeyword = oldNode.remoteKeyword().orElse(null);
+            this.transactionalKeyword = oldNode.transactionalKeyword().orElse(null);
             this.functionKeyword = oldNode.functionKeyword();
             this.methodName = oldNode.methodName();
             this.methodSignature = oldNode.methodSignature();
@@ -160,6 +170,13 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
                 Token remoteKeyword) {
             Objects.requireNonNull(remoteKeyword, "remoteKeyword must not be null");
             this.remoteKeyword = remoteKeyword;
+            return this;
+        }
+
+        public ObjectMethodDefinitionNodeModifier withTransactionalKeyword(
+                Token transactionalKeyword) {
+            Objects.requireNonNull(transactionalKeyword, "transactionalKeyword must not be null");
+            this.transactionalKeyword = transactionalKeyword;
             return this;
         }
 
@@ -196,6 +213,7 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
                     metadata,
                     visibilityQualifier,
                     remoteKeyword,
+                    transactionalKeyword,
                     functionKeyword,
                     methodName,
                     methodSignature,
