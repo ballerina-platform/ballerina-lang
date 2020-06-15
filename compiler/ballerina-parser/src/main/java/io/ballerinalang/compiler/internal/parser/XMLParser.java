@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
+import io.ballerinalang.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Action;
 import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Solution;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
@@ -303,11 +304,11 @@ public class XMLParser extends AbstractParser {
             return parseQualifiedIdentifier(consume());
         } else if (token.kind == SyntaxKind.INTERPOLATION_START_TOKEN) {
             // If there's an interpolation parse it and report an error.
-            parseInterpolation();
-            this.errorHandler.reportInvalidNode(null, "interpolation is not allowed for tag names");
-
+            STNode interpolation = parseInterpolation();
             // Then try to re-parse the same rule.
-            return parseXMLNCName();
+            STNode xmlNCName = parseXMLNCName();
+            return SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(xmlNCName, interpolation,
+                    DiagnosticErrorCode.ERROR_INTERPOLATION_IS_NOT_ALLOWED_FOR_XML_TAG_NAMES);
         } else {
             Solution sol = recover(token, ParserRuleContext.XML_NAME);
             return sol.recoveredNode;

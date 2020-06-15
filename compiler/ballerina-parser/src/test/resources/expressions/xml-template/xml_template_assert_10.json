@@ -158,10 +158,34 @@
                                       "kind": "IDENTIFIER_TOKEN",
                                       "hasDiagnostics": true,
                                       "diagnostics": [
-                                        "ERROR_INVALID_WHITESPACE_BEFORE"
+                                        "ERROR_INVALID_WHITESPACE_BEFORE",
+                                        "ERROR_INTERPOLATION_IS_NOT_ALLOWED_FOR_XML_TAG_NAMES"
                                       ],
                                       "value": "z",
                                       "leadingMinutiae": [
+                                        {
+                                          "kind": "INVALID_NODE_MINUTIAE",
+                                          "invalidNode": {
+                                            "kind": "INTERPOLATION",
+                                            "children": [
+                                              {
+                                                "kind": "INTERPOLATION_START_TOKEN"
+                                              },
+                                              {
+                                                "kind": "SIMPLE_NAME_REFERENCE",
+                                                "children": [
+                                                  {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "y"
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "kind": "CLOSE_BRACE_TOKEN"
+                                              }
+                                            ]
+                                          }
+                                        },
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
                                           "value": " "
@@ -247,7 +271,8 @@
                                   "isMissing": true,
                                   "hasDiagnostics": true,
                                   "diagnostics": [
-                                    "ERROR_MISSING_IDENTIFIER"
+                                    "ERROR_MISSING_IDENTIFIER",
+                                    "ERROR_INTERPOLATION_IS_NOT_ALLOWED_FOR_XML_TAG_NAMES"
                                   ]
                                 },
                                 {
