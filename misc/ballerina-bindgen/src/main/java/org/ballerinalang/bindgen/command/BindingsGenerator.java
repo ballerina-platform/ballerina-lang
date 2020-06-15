@@ -73,6 +73,7 @@ public class BindingsGenerator {
     private String mvnGroupId;
     private String mvnArtifactId;
     private String mvnVersion;
+    private String accessModifier;
     private PrintStream errStream;
     private PrintStream outStream;
     private Set<String> classNames = new HashSet<>();
@@ -246,6 +247,7 @@ public class BindingsGenerator {
                     Class classInstance = classLoader.loadClass(c);
                     if (classInstance != null && isPublicClass(classInstance)) {
                         JClass jClass = new JClass(classInstance);
+                        jClass.setAccessModifier(accessModifier);
                         String outputFile = Paths.get(modulePath.toString(), jClass.getPackageName()).toString();
                         createDirectory(outputFile);
                         String filePath = Paths.get(outputFile, jClass.getShortClassName() + BAL_EXTENSION).toString();
@@ -307,5 +309,9 @@ public class BindingsGenerator {
 
     public static String getOutputPath() {
         return outputPath;
+    }
+
+    void setPublic() {
+        this.accessModifier = "public ";
     }
 }

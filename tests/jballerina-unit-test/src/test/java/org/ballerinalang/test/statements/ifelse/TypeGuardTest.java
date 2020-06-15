@@ -371,7 +371,7 @@ public class TypeGuardTest {
         Assert.assertEquals(returns[0].stringValue(), "status: 500");
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test(groups = { "brokenOnJBallerina", "brokenOnNewParser" })
     public void testTypeGuardsWithErrorInmatch() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeGuardsWithErrorInmatch");
         Assert.assertEquals(returns[0].stringValue(), "some error");
@@ -587,13 +587,13 @@ public class TypeGuardTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test(groups = { "brokenOnJBallerina", "brokenOnNewParser"})
     public void testTypeGuardForErrorDestructuringAssignmentPositive() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForErrorDestructuringAssignmentPositive");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test(groups = { "brokenOnJBallerina", "brokenOnNewParser" })
     public void testTypeGuardForErrorDestructuringAssignmentNegative() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForErrorDestructuringAssignmentNegative");
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
