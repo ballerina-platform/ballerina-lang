@@ -4613,10 +4613,7 @@ public class BallerinaParser extends AbstractParser {
         STNode dotToken = parseDotToken();
         STToken token = peek();
         if (token.kind == SyntaxKind.MAP_KEYWORD) {
-            STToken mapKeyword = consume();
-            STNode methodName = STNodeFactory.createIdentifierToken(mapKeyword.text(), mapKeyword.leadingMinutiae(),
-                    mapKeyword.trailingMinutiae(), mapKeyword.diagnostics());
-            methodName = STNodeFactory.createSimpleNameReferenceNode(methodName);
+            STNode methodName = getKeywordAsSimpleNameRef();
             STNode openParen = parseOpenParenthesis(ParserRuleContext.ARG_LIST_START);
             STNode args = parseArgsList();
             STNode closeParen = parseCloseParenthesis();
@@ -4641,6 +4638,14 @@ public class BallerinaParser extends AbstractParser {
 
         // Everything else is field-access
         return STNodeFactory.createFieldAccessExpressionNode(lhsExpr, dotToken, fieldOrMethodName);
+    }
+
+    private STNode getKeywordAsSimpleNameRef() {
+        STToken mapKeyword = consume();
+        STNode methodName = STNodeFactory.createIdentifierToken(mapKeyword.text(), mapKeyword.leadingMinutiae(),
+                mapKeyword.trailingMinutiae(), mapKeyword.diagnostics());
+        methodName = STNodeFactory.createSimpleNameReferenceNode(methodName);
+        return methodName;
     }
 
     /**
@@ -7300,6 +7305,9 @@ public class BallerinaParser extends AbstractParser {
                 return parseAsyncSendAction(expression, rightArrow, name);
             case IDENTIFIER_TOKEN:
                 name = STNodeFactory.createSimpleNameReferenceNode(parseFunctionName());
+                break;
+            case CONTINUE_KEYWORD:
+                name = getKeywordAsSimpleNameRef();
                 break;
             default:
                 STToken token = peek();
