@@ -44,6 +44,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STFunctionDefinitionNode functionDefinitionNode) {
         STNode metadata = modifyNode(functionDefinitionNode.metadata);
         STNode visibilityQualifier = modifyNode(functionDefinitionNode.visibilityQualifier);
+        STNode transactionalKeyword = modifyNode(functionDefinitionNode.transactionalKeyword);
         STNode functionKeyword = modifyNode(functionDefinitionNode.functionKeyword);
         STNode functionName = modifyNode(functionDefinitionNode.functionName);
         STNode functionSignature = modifyNode(functionDefinitionNode.functionSignature);
@@ -51,6 +52,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return functionDefinitionNode.modify(
                 metadata,
                 visibilityQualifier,
+                transactionalKeyword,
                 functionKeyword,
                 functionName,
                 functionSignature,
@@ -2213,6 +2215,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode metadata = modifyNode(objectMethodDefinitionNode.metadata);
         STNode visibilityQualifier = modifyNode(objectMethodDefinitionNode.visibilityQualifier);
         STNode remoteKeyword = modifyNode(objectMethodDefinitionNode.remoteKeyword);
+        STNode transactionalKeyword = modifyNode(objectMethodDefinitionNode.transactionalKeyword);
         STNode functionKeyword = modifyNode(objectMethodDefinitionNode.functionKeyword);
         STNode methodName = modifyNode(objectMethodDefinitionNode.methodName);
         STNode methodSignature = modifyNode(objectMethodDefinitionNode.methodSignature);
@@ -2221,6 +2224,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 metadata,
                 visibilityQualifier,
                 remoteKeyword,
+                transactionalKeyword,
                 functionKeyword,
                 methodName,
                 methodSignature,

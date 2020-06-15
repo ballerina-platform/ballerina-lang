@@ -52,6 +52,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static FunctionDefinitionNode createFunctionDefinitionNode(
             MetadataNode metadata,
             Token visibilityQualifier,
+            Token transactionalKeyword,
             Token functionKeyword,
             IdentifierToken functionName,
             FunctionSignatureNode functionSignature,
@@ -65,6 +66,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stFunctionDefinitionNode = STNodeFactory.createFunctionDefinitionNode(
                 metadata.internalNode(),
                 getOptionalSTNode(visibilityQualifier),
+                getOptionalSTNode(transactionalKeyword),
                 functionKeyword.internalNode(),
                 functionName.internalNode(),
                 functionSignature.internalNode(),
@@ -2739,6 +2741,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             MetadataNode metadata,
             Token visibilityQualifier,
             Token remoteKeyword,
+            Token transactionalKeyword,
             Token functionKeyword,
             IdentifierToken methodName,
             FunctionSignatureNode methodSignature,
@@ -2753,6 +2756,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 metadata.internalNode(),
                 getOptionalSTNode(visibilityQualifier),
                 getOptionalSTNode(remoteKeyword),
+                getOptionalSTNode(transactionalKeyword),
                 functionKeyword.internalNode(),
                 methodName.internalNode(),
                 methodSignature.internalNode(),

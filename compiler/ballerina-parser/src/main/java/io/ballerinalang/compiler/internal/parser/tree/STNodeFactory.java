@@ -50,6 +50,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createFunctionDefinitionNode(
             STNode metadata,
             STNode visibilityQualifier,
+            STNode transactionalKeyword,
             STNode functionKeyword,
             STNode functionName,
             STNode functionSignature,
@@ -58,6 +59,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STFunctionDefinitionNode(
                 metadata,
                 visibilityQualifier,
+                transactionalKeyword,
                 functionKeyword,
                 functionName,
                 functionSignature,
@@ -2056,6 +2058,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode metadata,
             STNode visibilityQualifier,
             STNode remoteKeyword,
+            STNode transactionalKeyword,
             STNode functionKeyword,
             STNode methodName,
             STNode methodSignature,
@@ -2065,6 +2068,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 metadata,
                 visibilityQualifier,
                 remoteKeyword,
+                transactionalKeyword,
                 functionKeyword,
                 methodName,
                 methodSignature,

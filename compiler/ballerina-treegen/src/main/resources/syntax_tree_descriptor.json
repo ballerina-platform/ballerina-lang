@@ -53,6 +53,11 @@
                     "isOptional": true
                 },
                 {
+                    "name": "transactionalKeyword",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
                     "name": "functionKeyword",
                     "type": "Token"
                 },
@@ -3721,6 +3726,11 @@
                 },
                 {
                     "name": "remoteKeyword",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "transactionalKeyword",
                     "type": "Token",
                     "isOptional": true
                 },
