@@ -12,7 +12,7 @@ type JObject abstract object {
 #
 # + jObj - The `handle` reference to the Java object.
 # + return - The `string` value of the Java object.
-public function jObjToString(handle jObj) returns string {
+function jObjToString(handle jObj) returns string {
     handle jStringValue = toStringInternal(jObj);
     return java:toString(jStringValue) ?: "null";
 }
