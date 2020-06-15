@@ -139,6 +139,7 @@ import io.ballerinalang.compiler.syntax.tree.RestArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.RestBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.RestDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RestParameterNode;
+import io.ballerinalang.compiler.syntax.tree.RetryStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RollbackStatementNode;
@@ -163,6 +164,7 @@ import io.ballerinalang.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TemplateMemberNode;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.syntax.tree.TransactionStatementNode;
+import io.ballerinalang.compiler.syntax.tree.TransactionalExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TrapExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeCastExpressionNode;
@@ -239,6 +241,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
+import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
@@ -296,6 +299,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -334,6 +338,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetryTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRollback;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
@@ -2479,6 +2485,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangBlockStmt transactionBlock = (BLangBlockStmt) transactionStatementNode.blockStatement().apply(this);
         transactionBlock.pos = getPosition(transactionStatementNode.blockStatement());
         transaction.setTransactionBody(transactionBlock);
+        transaction.pos = getPosition(transactionStatementNode);
         return transaction;
     }
 
@@ -3187,6 +3194,49 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     protected BLangNode transformSyntaxNode(Node node) {
         // TODO: Remove this RuntimeException once all nodes covered
         throw new RuntimeException("Node not supported: " + node.getClass().getSimpleName());
+    }
+
+    @Override
+    public BLangNode transform(RetryStatementNode retryStatementNode) {
+        BLangRetrySpec retrySpec = createRetrySpec(retryStatementNode);
+        DiagnosticPos pos = getPosition(retryStatementNode);
+        StatementNode retryBody = retryStatementNode.retryBody();
+
+        if (retryBody.kind() == SyntaxKind.TRANSACTION_STATEMENT) {
+            BLangRetryTransaction retryTransaction = (BLangRetryTransaction) TreeBuilder.createRetryTransactionNode();
+            retryTransaction.pos = pos;
+            retryTransaction.setRetrySpec(retrySpec);
+            retryTransaction.setTransaction((BLangTransaction) retryBody.apply(this));
+            return retryTransaction;
+        }
+
+        BLangRetry retryNode = (BLangRetry) TreeBuilder.createRetryNode();
+        retryNode.pos = pos;
+        retryNode.setRetrySpec(retrySpec);
+        BLangBlockStmt retryBlock = (BLangBlockStmt) retryBody.apply(this);
+        retryNode.setRetryBody(retryBlock);
+        return retryNode;
+    }
+
+    private BLangRetrySpec createRetrySpec(RetryStatementNode retryStatementNode) {
+        BLangRetrySpec retrySpec = (BLangRetrySpec) TreeBuilder.createRetrySpecNode();
+        retrySpec.pos = getPosition(retryStatementNode.retryBody());
+        if (retryStatementNode.typeParameter().isPresent()) {
+            retrySpec.retryManagerType = createTypeNode(retryStatementNode.typeParameter().get().typeNode());
+        }
+        if (retryStatementNode.arguments().isPresent()) {
+            for (Node argNode : retryStatementNode.arguments().get().arguments()) {
+                retrySpec.argExprs.add(createExpression(argNode));
+            }
+        }
+        return retrySpec;
+    }
+
+    @Override
+    public BLangNode transform(TransactionalExpressionNode transactionalExpressionNode) {
+        BLangTransactionalExpr transactionalExpr = TreeBuilder.createTransactionalExpressionNode();
+        transactionalExpr.pos = getPosition(transactionalExpressionNode);
+        return transactionalExpr;
     }
 
     @Override
