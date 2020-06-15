@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -105,6 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
@@ -350,6 +352,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define type def members (if any)
         defineMembers(pkgNode.typeDefinitions, pkgEnv);
 
+        // Intersection type nodes need to look at the member fields of a structure too.
+        // Once all the fields and members of other types are set revisit intersection type definitions to validate
+        // them and set the fields and members of the relevant immutable type.
+        validateReadOnlyIntersectionTypeDefinitions(pkgNode.typeDefinitions);
         defineUndefinedReadOnlyTypes(pkgNode.typeDefinitions, pkgEnv);
 
         // Define service and resource nodes.
@@ -620,6 +626,12 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // If the current type node is a union type node, we need to check all member nodes.
                 memberTypeNodes = ((BLangUnionTypeNode) currentTypeNode).memberTypeNodes;
                 // Recursively check all members.
+                for (BLangType memberTypeNode : memberTypeNodes) {
+                    checkErrors(unresolvedType, memberTypeNode, visitedNodes);
+                }
+                break;
+            case INTERSECTION_TYPE_NODE:
+                memberTypeNodes = ((BLangIntersectionTypeNode) currentTypeNode).constituentTypeNodes;
                 for (BLangType memberTypeNode : memberTypeNodes) {
                     checkErrors(unresolvedType, memberTypeNode, visitedNodes);
                 }
@@ -1548,6 +1560,81 @@ public class SymbolEnter extends BLangNodeVisitor {
                         defineReferencedFunction(typeDef, objMethodsEnv, typeRef, function, includedFunctionNames);
                     }
                 }
+            }
+        }
+    }
+
+    private void validateReadOnlyIntersectionTypeDefinitions(List<BLangTypeDefinition> typeDefNodes) {
+        List<BType> loggedTypes = new ArrayList<>();
+
+        for (BLangTypeDefinition typeDefNode : typeDefNodes) {
+            BLangType typeNode = typeDefNode.typeNode;
+            NodeKind kind = typeNode.getKind();
+            if (kind == NodeKind.INTERSECTION_TYPE_NODE) {
+                BType currentType = typeNode.type;
+
+                if (currentType.tag != TypeTags.INTERSECTION) {
+                    continue;
+                }
+
+                BIntersectionType intersectionType = (BIntersectionType) currentType;
+
+                BType effectiveType = intersectionType.effectiveType;
+                if (loggedTypes.contains(effectiveType)) {
+                    continue;
+                }
+
+                loggedTypes.add(effectiveType);
+
+                boolean hasNonReadOnlyElement = false;
+                for (BType constituentType : intersectionType.getConstituentTypes()) {
+                    if (constituentType == symTable.readonlyType) {
+                        continue;
+                    }
+
+                    if (!types.isSelectivelyImmutableType(constituentType, true, true)) {
+                        hasNonReadOnlyElement = true;
+                        break;
+                    }
+                }
+
+                if (hasNonReadOnlyElement) {
+                    dlog.error(typeDefNode.typeNode.pos, DiagnosticCode.INVALID_INTERSECTION_TYPE, typeNode);
+                    typeNode.type = symTable.semanticError;
+                }
+
+                continue;
+            }
+
+            BStructureType immutableType;
+            BStructureType mutableType;
+
+            if (kind == NodeKind.OBJECT_TYPE) {
+                BObjectType currentType = (BObjectType) typeNode.type;
+                mutableType = currentType.mutableType;
+                if (mutableType == null) {
+                    continue;
+                }
+                immutableType = currentType;
+            } else if (kind == NodeKind.RECORD_TYPE) {
+                BRecordType currentType = (BRecordType) typeNode.type;
+                mutableType = currentType.mutableType;
+                if (mutableType == null) {
+                    continue;
+                }
+                immutableType = currentType;
+            } else {
+                continue;
+            }
+
+            if (loggedTypes.contains(immutableType)) {
+                continue;
+            }
+            loggedTypes.add(immutableType);
+
+            if (!types.isSelectivelyImmutableType(mutableType, false, true)) {
+                dlog.error(typeDefNode.typeNode.pos, DiagnosticCode.INVALID_INTERSECTION_TYPE, immutableType);
+                typeNode.type = symTable.semanticError;
             }
         }
     }

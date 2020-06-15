@@ -964,24 +964,25 @@ public class Types {
     }
 
     boolean isSelectivelyImmutableType(BType type) {
-        return isSelectivelyImmutableType(type, false, new HashSet<>());
+        return isSelectivelyImmutableType(type, false, new HashSet<>(), false);
     }
 
-    boolean isSelectivelyImmutableType(BType type, boolean disallowReadOnlyObjects) {
-        return isSelectivelyImmutableType(type, disallowReadOnlyObjects, new HashSet<>());
+    boolean isSelectivelyImmutableType(BType type, boolean disallowReadOnlyObjects, boolean forceCheck) {
+        return isSelectivelyImmutableType(type, disallowReadOnlyObjects, new HashSet<>(), forceCheck);
     }
 
     public boolean isSelectivelyImmutableType(BType type, Set<BType> unresolvedTypes) {
-        return isSelectivelyImmutableType(type, false, unresolvedTypes);
+        return isSelectivelyImmutableType(type, false, unresolvedTypes, false);
     }
 
-    boolean isSelectivelyImmutableType(BType type, boolean disallowReadOnlyObjects, Set<BType> unresolvedTypes) {
+    boolean isSelectivelyImmutableType(BType type, boolean disallowReadOnlyObjects, Set<BType> unresolvedTypes,
+                                       boolean forceCheck) {
         if (isInherentlyImmutableType(type) || !(type instanceof SelectivelyImmutableReferenceType)) {
             // Always immutable.
             return false;
         }
 
-        if (((SelectivelyImmutableReferenceType) type).getImmutableType() != null) {
+        if (!forceCheck && ((SelectivelyImmutableReferenceType) type).getImmutableType() != null) {
             return true;
         }
 
@@ -1063,7 +1064,8 @@ public class Types {
                 boolean readonlyIntersectionExists = false;
                 for (BType memberType : ((BUnionType) type).getMemberTypes()) {
                     if (isInherentlyImmutableType(memberType) ||
-                            isSelectivelyImmutableType(memberType, disallowReadOnlyObjects, unresolvedTypes)) {
+                            isSelectivelyImmutableType(memberType, disallowReadOnlyObjects, unresolvedTypes,
+                                                       forceCheck)) {
                         readonlyIntersectionExists = true;
                     }
                 }
