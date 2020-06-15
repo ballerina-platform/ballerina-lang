@@ -388,4 +388,11 @@
             <class name="org.ballerinalang.test.docerina.BallerinaApiDocsTestCase" />
         </classes>
     </test>
+
+    <test name="ballerina-bindgen-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.bindgen.BindgenTestCase" />
+        </classes>
+    </test>
 </suite>
