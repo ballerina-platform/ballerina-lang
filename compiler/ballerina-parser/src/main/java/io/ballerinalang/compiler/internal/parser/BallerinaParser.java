@@ -2498,7 +2498,8 @@ public class BallerinaParser extends AbstractParser {
                 case DEFAULT_WORKER:
                 default:
                     if (stmt.kind == SyntaxKind.NAMED_WORKER_DECLARATION) {
-                        this.errorHandler.reportInvalidNode(null, "named-workers are not allowed here");
+                        updateLastNodeInListWithInvalidNode(secondStmtList, stmt,
+                                DiagnosticErrorCode.ERROR_NAMED_WORKER_NOT_ALLOWED_HERE);
                         break;
                     }
                     secondStmtList.add(stmt);
@@ -8332,11 +8333,17 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse multiple named worker declarations.
+     * Parse fork statement.
+     * <code>fork-stmt := fork { named-worker-decl+ }</code>
      *
-     * @return named-worker-declarations node array
+     * @return Fork statement
      */
-    private STNode parseMultipleNamedWorkerDeclarations() {
+    private STNode parseForkStatement() {
+        startContext(ParserRuleContext.FORK_STMT);
+        STNode forkKeyword = parseForkKeyword();
+        STNode openBrace = parseOpenBrace();
+
+        // Parse named-worker declarations
         ArrayList<STNode> workers = new ArrayList<>();
         while (!isEndOfStatements()) {
             STNode stmt = parseStatement();
@@ -8349,25 +8356,20 @@ public class BallerinaParser extends AbstractParser {
                     workers.add(stmt);
                     break;
                 default:
-                    this.errorHandler.reportInvalidNode(null, "Only named-workers are allowed here");
-                    break;
+                    // TODO need to check whether we've already added the same diagnostics before
+                    // TODO We need to avoid repetitive diagnostics of same kind
+                    // I think we need a method to check whether a node has a particular diagnostic
+                    if (workers.isEmpty()) {
+                        openBrace = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(openBrace, stmt,
+                                DiagnosticErrorCode.ERROR_ONLY_NAMED_WORKERS_ALLOWED_HERE);
+                    } else {
+                        updateLastNodeInListWithInvalidNode(workers, stmt,
+                                DiagnosticErrorCode.ERROR_ONLY_NAMED_WORKERS_ALLOWED_HERE);
+                    }
             }
         }
 
-        return STNodeFactory.createNodeList(workers);
-    }
-
-    /**
-     * Parse fork statement.
-     * <code>fork-stmt := fork { named-worker-decl+ }</code>
-     *
-     * @return Fork statement
-     */
-    private STNode parseForkStatement() {
-        startContext(ParserRuleContext.FORK_STMT);
-        STNode forkKeyword = parseForkKeyword();
-        STNode openBrace = parseOpenBrace();
-        STNode namedWorkerDeclarations = parseMultipleNamedWorkerDeclarations();
+        STNode namedWorkerDeclarations = STNodeFactory.createNodeList(workers);
         STNode closeBrace = parseCloseBrace();
         endContext();
 
