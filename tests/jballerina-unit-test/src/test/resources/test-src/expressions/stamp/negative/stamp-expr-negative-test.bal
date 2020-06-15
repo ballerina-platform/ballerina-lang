@@ -47,7 +47,7 @@ type EmployeeObject object {
 function seaWithInvalidNoOrParameters() returns json {
 
     json jsonValue = [1, false, null, "foo", { first: "John", last: "Pala" }];
-    json returnValue = jsonValue.cloneWithType(typedesc<json>, 34);
+    json returnValue = jsonValue.cloneWithType(JsonTypedesc, 34);
 
     return returnValue;
 }
@@ -106,3 +106,4 @@ function stampExtendedRecordToAnydata() returns anydata|error {
 }
 
 type AnyMap map<any>;
+type JsonTypedesc typedesc<json>;
