@@ -9528,7 +9528,9 @@ public class BallerinaParser extends AbstractParser {
                 params = getAnonFuncParam((STBracedExpressionNode) params);
                 break;
             default:
-                this.errorHandler.reportInvalidNode(null, "lhs must be an identifier or a param list");
+                // TODO Can insert an empty param list here and attach the invalid param list as minutiae
+                params = SyntaxErrors.addDiagnostics(params,
+                        DiagnosticErrorCode.ERROR_INVALID_PARAM_LIST_IN_INFER_ANONYMOUS_FUNCTION_EXPR);
         }
         STNode rightDoubleArrow = parseDoubleRightArrow();
         STNode expression = parseExpression(OperatorPrecedence.ANON_FUNC_OR_LET, isRhsExpr, false);

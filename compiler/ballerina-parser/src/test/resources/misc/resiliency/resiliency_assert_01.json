@@ -163,6 +163,10 @@
                                   "children": [
                                     {
                                       "kind": "MAPPING_CONSTRUCTOR",
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "ERROR_INVALID_PARAM_LIST_IN_INFER_ANONYMOUS_FUNCTION_EXPR"
+                                      ],
                                       "children": [
                                         {
                                           "kind": "OPEN_BRACE_TOKEN",

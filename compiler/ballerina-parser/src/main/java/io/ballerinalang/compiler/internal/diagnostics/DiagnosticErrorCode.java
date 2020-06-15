@@ -222,6 +222,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_SAME_OBJECT_TYPE_QUALIFIER("BCE208"),
     // Mapping constructor expression cannot be used as a wait expression
     ERROR_MAPPING_CONSTRUCTOR_EXPR_AS_A_WAIT_EXPR("BCE209"),
+    // lhs must be an identifier or a param list
+    ERROR_INVALID_PARAM_LIST_IN_INFER_ANONYMOUS_FUNCTION_EXPR("BCE210"),
 
     ERROR_PARAMETER_AFTER_THE_REST_PARAMETER("BCE300"),
     ERROR_REQUIRED_PARAMETER_AFTER_THE_DEFAULTABLE_PARAMETER("BCE301"),

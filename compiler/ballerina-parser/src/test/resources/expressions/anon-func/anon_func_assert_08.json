@@ -253,6 +253,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -286,9 +287,14 @@
                 },
                 {
                   "kind": "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "BINARY_EXPRESSION",
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_INVALID_PARAM_LIST_IN_INFER_ANONYMOUS_FUNCTION_EXPR"
+                      ],
                       "children": [
                         {
                           "kind": "SIMPLE_NAME_REFERENCE",
