@@ -1330,6 +1330,7 @@ public class BallerinaLexer extends AbstractLexer {
      */
     private STToken processDocumentationLine() {
         // TODO: validate the markdown syntax.
+        reader.advance();
         int nextToken = peek();
         while (!reader.isEOF()) {
             switch (nextToken) {
