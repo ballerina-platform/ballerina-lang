@@ -224,6 +224,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MAPPING_CONSTRUCTOR_EXPR_AS_A_WAIT_EXPR("BCE209"),
     // lhs must be an identifier or a param list
     ERROR_INVALID_PARAM_LIST_IN_INFER_ANONYMOUS_FUNCTION_EXPR("BCE210"),
+    // Cannot have more fields after the rest type descriptor
+    ERROR_MORE_RECORD_FIELDS_AFTER_REST_FIELD("BCE211"),
 
     ERROR_PARAMETER_AFTER_THE_REST_PARAMETER("BCE300"),
     ERROR_REQUIRED_PARAMETER_AFTER_THE_DEFAULTABLE_PARAMETER("BCE301"),

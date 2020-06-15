@@ -3167,9 +3167,9 @@ public class BallerinaParser extends AbstractParser {
         // Following loop will only run if there are more fields after the rest type descriptor.
         // Try to parse them and mark as invalid.
         while (!endOfFields && !isEndOfRecordTypeNode(token.kind)) {
-            parseFieldOrRestDescriptor(isInclusive);
-            // TODO: Mark these nodes as error/invalid nodes.
-            this.errorHandler.reportInvalidNode(token, "cannot have more fields after the rest type descriptor");
+            STNode invalidField = parseFieldOrRestDescriptor(isInclusive);
+            updateLastNodeInListWithInvalidNode(recordFields, invalidField,
+                    DiagnosticErrorCode.ERROR_MORE_RECORD_FIELDS_AFTER_REST_FIELD);
             token = peek();
         }
 
