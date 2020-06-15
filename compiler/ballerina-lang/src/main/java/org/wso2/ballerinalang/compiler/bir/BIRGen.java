@@ -315,6 +315,18 @@ public class BIRGen extends BLangNodeVisitor {
                     //We get the callee and the name and generate 'calleepackage#name'
                     BIRTerminator.Call callTerminator = (BIRTerminator.Call) bbTerminator;
 
+                    String functionKey = callTerminator.calleePkg.toString() + MOCK_ANNOTATION_DELIMITER
+                            + callTerminator.name.toString();
+
+                    // If the generated Key exists in the map, then use the old implementation
+                    if (mockFunctionMap.get(functionKey) != null) {
+                        // Just "get" the reference. If this doesnt work then it doesnt exist
+                        String mockfunctionName = mockFunctionMap.get(functionKey);
+                        callTerminator.name = new Name(mockfunctionName);
+                        callTerminator.calleePkg = function.pos.src.pkgID;
+                    }
+
+
                     // If function in basic block exists in the MockFunctionMap
                     if (mockFunctionMap.containsKey(callTerminator.name.getValue())) {
                         // Replace the function call with the equivalent $MOCK_ substitiute

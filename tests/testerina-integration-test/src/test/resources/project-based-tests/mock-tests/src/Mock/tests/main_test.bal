@@ -5,17 +5,17 @@ import ballerina/io;
 // MOCK FUNCTION OBJECTS
 //
 
-@test:Mock {
+@test:MockFn {
     functionName : "intAdd"
 }
 test:MockFunction mock_intAdd = new();
 
-@test:Mock {
+@test:MockFn {
     functionName : "stringAdd"
 }
 test:MockFunction mock_stringAdd = new();
 
-@test:Mock {
+@test:MockFn {
     functionName: "floatAdd"
 }
 test:MockFunction mock_floatAdd = new();

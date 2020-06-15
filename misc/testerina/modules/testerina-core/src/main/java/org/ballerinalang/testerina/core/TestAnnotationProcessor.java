@@ -68,7 +68,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     private static final String AFTER_SUITE_ANNOTATION_NAME = "AfterSuite";
     private static final String BEFORE_EACH_ANNOTATION_NAME = "BeforeEach";
     private static final String AFTER_EACH_ANNOTATION_NAME = "AfterEach";
-    private static final String MOCK_ANNOTATION_NAME = "Mock";
+    private static final String MOCK_ANNOTATION_NAME = "MockFn";
     private static final String BEFORE_FUNCTION = "before";
     private static final String AFTER_FUNCTION = "after";
     private static final String DEPENDS_ON_FUNCTIONS = "dependsOn";
@@ -78,6 +78,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     private static final String VALUE_SET_ANNOTATION_NAME = "dataProvider";
     private static final String TEST_ENABLE_ANNOTATION_NAME = "enable";
     private static final String MOCK_ANNOTATION_DELIMITER = "#";
+    private static final String MOCK_FN = "Mock";
 
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
     private boolean enabled = true;
@@ -142,7 +143,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 suite.addBeforeEachFunction(functionName);
             } else if (AFTER_EACH_ANNOTATION_NAME.equals(annotationName)) {
                 suite.addAfterEachFunction(functionName);
-            } else if (MOCK_ANNOTATION_NAME.equals(annotationName)) {
+            } else if (MOCK_FN.equals(annotationName)) {
                 String[] vals = new String[2];
                 // TODO: when default values are supported in annotation struct we can remove this
                 vals[0] = packageName;

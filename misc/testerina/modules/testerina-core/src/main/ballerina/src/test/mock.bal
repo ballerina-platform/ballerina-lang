@@ -39,8 +39,8 @@ public const INVALID_MEMBER_FIELD_ERROR = "InvalidMemberFieldError";
 public type InvalidMemberFieldError distinct error<Detail>;
 
 # Represents the reason for function mocking related errors.
-public const FUNCTION_CALL_ERROR = "{ballerina/test}FunctionCallError";
-public type FunctionCallError error<FUNCTION_CALL_ERROR, Detail>;
+public const FUNCTION_CALL_ERROR = "FunctionCallError";
+public type FunctionCallError distinct error<Detail>;
 
 public type Error InvalidObjError | FunctionNotFoundError | FunctionSignatureMismatchError | InvalidMemberFieldError | FunctionCallError;
 
