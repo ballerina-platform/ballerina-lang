@@ -81,9 +81,7 @@
             <!-- No longer valid since new parser handles those -->
             <!-- <package name="org.ballerinalang.test.statements.expressionstmt.*"/> -->
 
-            <!-- has error type usages -->
-            <!-- <package name="org.ballerinalang.test.statements.ifelse.*"/> -->
-
+            <package name="org.ballerinalang.test.statements.ifelse.*"/>
             <package name="org.ballerinalang.test.statements.packageimport.*"/>
             <package name="org.ballerinalang.test.statements.returnstmt.*"/>
             <package name="org.ballerinalang.test.statements.vardeclr.*"/>
