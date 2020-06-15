@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
 /**
  * Test cases for flow validation in Retry Statement.
  */
-@Test(groups = { "disableOnOldParser" })
 public class RetryStmtTest {
 
     private CompileResult programFile, managerNegative, retryStmtNegative;
