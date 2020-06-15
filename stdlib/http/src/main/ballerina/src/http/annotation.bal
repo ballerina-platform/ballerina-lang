@@ -137,9 +137,9 @@ public type WebSocketUpgradeConfig record {|
 # be successfully authorized. An array consisting of arrays is used to indicate that at least one scope from the sub-arrays 
 # should be successfully authorized.
 public type ServiceAuth record {|
-    boolean enabled = true;
-    InboundAuthHandlers authHandlers?;
-    Scopes scopes?;
+    readonly boolean enabled = true;
+    readonly InboundAuthHandlers authHandlers?;
+    readonly Scopes scopes?;
 |};
 
 # Configures the authentication scheme for a resource.
@@ -152,9 +152,9 @@ public type ServiceAuth record {|
 # be successfully authorized. An array consisting of arrays is used to indicate that at least one scope from the sub-arrays
 # should be successfully authorized.
 public type ResourceAuth record {|
-    boolean enabled?;
-    InboundAuthHandlers authHandlers?;
-    Scopes scopes?;
+    readonly boolean enabled?;
+    readonly InboundAuthHandlers authHandlers?;
+    readonly Scopes scopes?;
 |};
 
 # The annotation which is used to configure an HTTP resource.
