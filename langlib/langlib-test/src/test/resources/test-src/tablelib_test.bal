@@ -365,7 +365,7 @@ function testAddInconsistentData2() {
 }
 
 function testAddInconsistentDataWithMapConstrTbl() {
-    EngineerTable engineerTbl = table key(name) [
+    EngineerTable engineerTbl = table [
       { name: "Lisa", age: 22, intern: true },
       { name: "Jonas", age: 21, intern: false }
     ];
@@ -457,7 +457,7 @@ function testPutInconsistentData2() {
 }
 
 function testPutInconsistentDataWithMapConstrTbl() {
-    EngineerTable engineerTbl = table key(name) [
+    EngineerTable engineerTbl = table [
       { name: "Lisa", age: 22, intern: true },
       { name: "Jonas", age: 21, intern: false }
     ];
@@ -591,7 +591,7 @@ function testRemoveThenIterate() returns boolean {
 }
 
 function testAddInconsistentDataToKeylessTbl() {
-    EngineerTable engineerTbl = table key(name) [
+    EngineerTable engineerTbl = table [
       { name: "Lisa", age: 22, intern: true },
       { name: "Jonas", age: 21, intern: false }
     ];
@@ -601,7 +601,7 @@ function testAddInconsistentDataToKeylessTbl() {
 }
 
 function testAddInconsistentDataToKeylessTbl2() {
-    EngineerTable engineerTbl = table key(name) [
+    EngineerTable engineerTbl = table [
       { name: "Lisa", age: 22, intern: true },
       { name: "Jonas", age: 21, intern: false }
     ];
@@ -611,7 +611,7 @@ function testAddInconsistentDataToKeylessTbl2() {
 }
 
 function testPutInconsistentDataToKeylessTbl() {
-    EngineerTable engineerTbl = table key(name) [
+    EngineerTable engineerTbl = table [
       { name: "Lisa", age: 22, intern: true },
       { name: "Jonas", age: 21, intern: false }
     ];
@@ -621,7 +621,7 @@ function testPutInconsistentDataToKeylessTbl() {
 }
 
 function testPutInconsistentDataToKeylessTbl2() {
-    EngineerTable engineerTbl = table key(name) [
+    EngineerTable engineerTbl = table [
       { name: "Lisa", age: 22, intern: true },
       { name: "Jonas", age: 21, intern: false }
     ];
@@ -632,7 +632,7 @@ function testPutInconsistentDataToKeylessTbl2() {
 
 function testAddValidDataToKeylessTbl() returns boolean {
     boolean testPassed = true;
-    EngineerTable engineerTbl = table key(name) [
+    EngineerTable engineerTbl = table [
       { name: "Lisa", age: 22, intern: true },
       { name: "Jonas", age: 21, intern: false }
     ];
@@ -647,7 +647,7 @@ function testAddValidDataToKeylessTbl() returns boolean {
 
 function testPutValidDataToKeylessTbl() returns boolean {
     boolean testPassed = true;
-    EngineerTable engineerTbl = table key(name) [
+    EngineerTable engineerTbl = table [
       { name: "Lisa", age: 22, intern: true },
       { name: "Jonas", age: 21, intern: false }
     ];
