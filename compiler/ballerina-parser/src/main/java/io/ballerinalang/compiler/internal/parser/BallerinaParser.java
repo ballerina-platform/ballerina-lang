@@ -4484,10 +4484,16 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseMemberAccessExpr(STNode lhsExpr, boolean isRhsExpr) {
         startContext(ParserRuleContext.MEMBER_ACCESS_KEY_EXPR);
         STNode openBracket = parseOpenBracket();
-
         STNode keyExpr = parseMemberAccessKeyExprs(isRhsExpr);
         STNode closeBracket = parseCloseBracket();
         endContext();
+
+        // If this is in RHS, then its definitely a member-access.
+        if (isRhsExpr && ((STNodeList) keyExpr).isEmpty()) {
+            keyExpr = STNodeFactory.createNodeList(SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN));
+            closeBracket = SyntaxErrors.addDiagnostics(closeBracket,
+                    DiagnosticErrorCode.ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR);
+        }
         return STNodeFactory.createIndexedExpressionNode(lhsExpr, openBracket, keyExpr, closeBracket);
     }
 
@@ -4515,17 +4521,6 @@ public class BallerinaParser extends AbstractParser {
                 break;
             }
             exprList.add(keyExprEnd);
-        }
-
-        // If this is in RHS, then its definitely a member-access.
-        if (isRhsExpr && exprList.isEmpty()) {
-            exprList.add(STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN));
-            this.errorHandler.reportInvalidNode(null, "missing key expression");
-        }
-
-        // member-access on LHS / array-type-desc can have only a single key expr.
-        if (!isRhsExpr && exprList.size() > 1) {
-            this.errorHandler.reportInvalidNode(null, "cannot have multiple keys");
         }
 
         return STNodeFactory.createNodeList(exprList);
