@@ -979,7 +979,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
         BLangFiniteTypeNode bLangFiniteTypeNode = new BLangFiniteTypeNode();
-        BLangLiteral simpleLiteral = createSimpleLiteral(singletonTypeDescriptorNode.simpleContExprNode(), false);
+        BLangLiteral simpleLiteral = createSimpleLiteral(singletonTypeDescriptorNode.simpleContExprNode());
         bLangFiniteTypeNode.valueSpace.add(simpleLiteral);
         return bLangFiniteTypeNode;
     }
@@ -1582,7 +1582,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (expressionKind == SyntaxKind.DECIMAL_INTEGER_LITERAL ||
                 expressionKind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL) {
             BLangNumericLiteral numericLiteral =
-                    (BLangNumericLiteral) createSimpleLiteral(unaryExprNode.expression(), false);
+                    (BLangNumericLiteral) createSimpleLiteral(unaryExprNode.expression());
             if (operatorKind == SyntaxKind.MINUS_TOKEN) {
                 if (numericLiteral.value instanceof String) {
                     numericLiteral.value = "-" + numericLiteral.value;
@@ -1840,7 +1840,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             case XML_TEXT_CONTENT:
             case TEMPLATE_STRING:
             case CLOSE_BRACE_TOKEN:
-                return createSimpleLiteral(token, false);
+                return createSimpleLiteral(token);
             default:
                 throw new RuntimeException("Syntax kind is not supported: " + kind);
         }
@@ -2675,10 +2675,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         XMLNameNode target = xmlProcessingInstruction.target();
         if (target.kind() == SyntaxKind.XML_SIMPLE_NAME) {
-            xmlProcInsLiteral.target = createSimpleLiteral(((XMLSimpleNameNode) target).name(), false);
+            xmlProcInsLiteral.target = createSimpleLiteral(((XMLSimpleNameNode) target).name());
         } else {
             // this could be a bug in the old parser
-            xmlProcInsLiteral.target = createSimpleLiteral(((XMLQualifiedNameNode) target).prefix(), false);
+            xmlProcInsLiteral.target = createSimpleLiteral(((XMLQualifiedNameNode) target).prefix());
         }
 
         return xmlProcInsLiteral;
@@ -2710,7 +2710,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         for (Node node : xmlElementNode.content()) {
             if (node.kind() == SyntaxKind.XML_TEXT) {
-                xmlElement.children.add(createSimpleLiteral(((XMLTextNode) node).content(), false));
+                xmlElement.children.add(createSimpleLiteral(((XMLTextNode) node).content()));
                 continue;
             }
             xmlElement.children.add(createExpression(node));
@@ -2803,7 +2803,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
         BLangIdentifier prefixIdentifier = createIdentifier(xmlnsDeclNode.namespacePrefix());
 
-        BLangLiteral namespaceUri = createSimpleLiteral(xmlnsDeclNode.namespaceuri(), false);
+        BLangLiteral namespaceUri = createSimpleLiteral(xmlnsDeclNode.namespaceuri());
         // This is done to be consistent with BLangPackageBuilder
         namespaceUri.originalValue = (String) namespaceUri.value;
         xmlns.namespaceURI = namespaceUri;
@@ -2821,7 +2821,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
         BLangIdentifier prefixIdentifier = createIdentifier(xmlnsDeclNode.namespacePrefix());
 
-        BLangLiteral namespaceUri = createSimpleLiteral(xmlnsDeclNode.namespaceuri(), false);
+        BLangLiteral namespaceUri = createSimpleLiteral(xmlnsDeclNode.namespaceuri());
         // This is done to be consistent with BLangPackageBuilder
         namespaceUri.originalValue = (String) namespaceUri.value;
         xmlns.namespaceURI = namespaceUri;
@@ -2986,11 +2986,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangLiteral literal;
         BLangLiteral deepLiteral;
         if (member.constExprNode() != null) {
-            literal = createSimpleLiteral(member.constExprNode(), false);
-            deepLiteral = createSimpleLiteral(member.constExprNode(), false);
+            literal = createSimpleLiteral(member.constExprNode());
+            deepLiteral = createSimpleLiteral(member.constExprNode());
         } else {
-            literal = createSimpleLiteral(member.identifier(), false);
-            deepLiteral = createSimpleLiteral(member.identifier(), false);
+            literal = createSimpleLiteral(member.identifier());
+            deepLiteral = createSimpleLiteral(member.identifier());
         }
         if (literal.originalValue != "") {
             bLangConstant.setInitialExpression(literal);
@@ -3202,7 +3202,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (node.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             return createExpression(node);
         }
-        return createSimpleLiteral(node, false);
+        return createSimpleLiteral(node);
     }
 
     private BLangXMLElementFilter createXMLElementFilter(Node node) {
@@ -3468,7 +3468,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private BLangExpression createExpression(Node expression) {
         if (isSimpleLiteral(expression.kind())) {
-            return createSimpleLiteral(expression, false);
+            return createSimpleLiteral(expression);
         } else if (expression.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
                    expression.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE ||
                    expression.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
@@ -3638,6 +3638,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             bLIdentifer.addWS(ws);
         }
         return bLIdentifer;
+    }
+
+    private BLangLiteral createSimpleLiteral(Node literal) {
+        return createSimpleLiteral(literal, false);
     }
 
     private BLangLiteral createSimpleLiteral(Node literal, boolean isFiniteType) {
