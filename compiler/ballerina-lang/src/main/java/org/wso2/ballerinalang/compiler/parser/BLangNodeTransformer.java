@@ -201,6 +201,7 @@ import io.ballerinalang.compiler.syntax.tree.XMLSimpleNameNode;
 import io.ballerinalang.compiler.syntax.tree.XMLStartTagNode;
 import io.ballerinalang.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.XMLTextNode;
+import io.ballerinalang.compiler.syntax.tree.XmlTypeDescriptorNode;
 import io.ballerinalang.compiler.text.LinePosition;
 import io.ballerinalang.compiler.text.LineRange;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -2296,6 +2297,21 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(VariableDeclarationNode varDeclaration) {
         return (BLangNode) createBLangVarDef(getPosition(varDeclaration), varDeclaration.typedBindingPattern(),
                 varDeclaration.initializer(), varDeclaration.finalKeyword());
+    }
+
+    public BLangNode transform(XmlTypeDescriptorNode xmlTypeDescriptorNode) {
+        BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
+        refType.typeKind = TypeKind.XML;
+
+        Optional<TypeParameterNode> node = xmlTypeDescriptorNode.xmlTypeParamsNode();
+        if (node.isPresent()) {
+            BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
+            constrainedType.type = refType;
+            constrainedType.constraint = createTypeNode(node.get().typeNode());
+            return constrainedType;
+        }
+
+        return refType;
     }
 
     private VariableDefinitionNode createBLangVarDef(DiagnosticPos pos, TypedBindingPatternNode typedBindingPattern,

@@ -2271,6 +2271,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseTypedescTypeDescriptor();
             case ERROR_KEYWORD: // error type descriptor
                 return parseErrorTypeDescriptor();
+            case XML_KEYWORD: // typedesc type desc
+                return parseXmlTypeDescriptor();
             case STREAM_KEYWORD: // stream type desc
                 return parseStreamTypeDescriptor();
             case TABLE_KEYWORD: // table type desc
@@ -8913,6 +8915,24 @@ public class BallerinaParser extends AbstractParser {
             streamTypeParamsNode = STNodeFactory.createEmptyNode();
         }
         return STNodeFactory.createStreamTypeDescriptorNode(streamKeywordToken, streamTypeParamsNode);
+    }
+
+    /**
+     * Parse xml type descriptor.
+     * xml-type-descriptor := xml type-parameter
+     *
+     * @return Parsed typedesc type node
+     */
+    private STNode parseXmlTypeDescriptor() {
+        STNode xmlKeywordToken = parseXMLKeyword();
+        STNode typedescTypeParamsNode;
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.LT_TOKEN) {
+            typedescTypeParamsNode = parseTypeParameter();
+        } else {
+            typedescTypeParamsNode = STNodeFactory.createEmptyNode();
+        }
+        return STNodeFactory.createXmlTypeDescriptorNode(xmlKeywordToken, typedescTypeParamsNode);
     }
 
     /**
