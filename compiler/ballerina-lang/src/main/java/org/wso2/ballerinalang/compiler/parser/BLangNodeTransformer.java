@@ -737,6 +737,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             BLangType detail = createTypeNode(typeParam.get());
             if (detail != null) {
                 errorType.detailType = detail;
+                return deSugarTypeAsUserDefType(errorType);
             } else {
                 errorType.inferErrorType = true;
             }
@@ -3928,6 +3929,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             case NIL_TYPE_DESC:
             case HANDLE_TYPE_DESC:
             case ANYDATA_TYPE_DESC:
+            case READONLY_TYPE_DESC:
                 BLangValueType valueType = (BLangValueType) TreeBuilder.createValueTypeNode();
                 valueType.typeKind = typeKind;
                 valueType.pos = getPosition(type);
