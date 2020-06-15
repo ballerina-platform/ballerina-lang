@@ -1,3 +1,5 @@
+import ballerina/lang.'transaction as transactions;
+
 function testRetry() {
     string|error x = actualCode(2, false, false);
     if(x is string) {
@@ -91,3 +93,64 @@ function assertEquality(any|error expected, any|error actual) {
             message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
 
+function multipleTrxSequence(boolean abort1, boolean abort2, boolean fail1, boolean fail2) returns string {
+    string a = "start";
+    int count = 0;
+    boolean failed1 = false;
+    boolean failed2 = false;
+
+    transactions:Info transInfo;
+
+    retry(2) transaction {
+        var onRollbackFunc = function(transactions:Info? info, error? cause, boolean willTry) {
+            a = a + " trxRollbacked-1";
+         };
+
+        var onCommitFunc = function(transactions:Info? info) {
+            a = a + " trxCommited-1";
+        };
+        a += " in-trx-1";
+        transactions:onRollback(onRollbackFunc);
+        transactions:onCommit(onCommitFunc);
+        if ((fail1 && !failed1) || abort1) {
+            if(abort1) {
+              rollback;
+            }
+            if(fail1 && !failed1) {
+              failed1 = true;
+              error err = error("TransactionError");
+              panic err;
+            }
+        } else {
+            var commitRes = commit;
+        }
+    }
+    a += " end-1";
+
+    retry(2) transaction {
+        var onRollbackFunc = function(transactions:Info? info, error? cause, boolean willTry) {
+            a = a + " trxRollbacked-2";
+        };
+
+        var onCommitFunc = function(transactions:Info? info) {
+            a = a + " trxCommited-2";
+        };
+        a += " in-trx-2";
+        transactions:onRollback(onRollbackFunc);
+        transactions:onCommit(onCommitFunc);
+        if ((fail2 && !failed2) || abort2) {
+           if(abort2) {
+             rollback;
+           }
+           if(fail2 && !failed2) {
+             failed2 = true;
+             error err = error("TransactionError");
+             panic err;
+           }
+        } else {
+            var commitRes = commit;
+        }
+    }
+    a += " end-2";
+    return a;
+}
