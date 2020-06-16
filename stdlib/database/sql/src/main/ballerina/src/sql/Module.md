@@ -322,10 +322,10 @@ parameterizing the SQL query as same as the  above `execute` operations.
 ```ballerina
 // Create the table with the records that need to be inserted.
 var data = [
-             { name: "John", age: 25  },
-             { name: "Peter", age: 24 },
-             { name: "jane", age: 22 }
-           ];
+  { name: "John", age: 25  },
+  { name: "Peter", age: 24 },
+  { name: "jane", age: 22 }
+];
 
 // Do the batch update by passing the batches.
 sql:ParameterizedQuery[] batch = from var row in data
