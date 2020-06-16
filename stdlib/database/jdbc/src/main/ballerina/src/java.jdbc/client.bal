@@ -1,93 +1,171 @@
-## Module overview
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
 
-This module provides the functionality required to access and manipulate data stored in any type of relational database
-that is accessible via Java Database Connectivity (JDBC).
+import ballerina/java;
+import ballerina/sql;
 
-**Prerequisite:** Add the JDBC driver corresponding to the database you are trying to interact with
-as a native library dependency in your Ballerina project. Then, once you build the project with the `ballerina build`
-command, you should be able to run the resultant JAR by executing the `java -jar` command.
+# Represents a JDBC client.
+#
+public type Client client object {
+    *sql:Client;
+    private boolean clientActive = true;
 
-E.g., The `Ballerina.toml` content.
-Change the path to the JDBC driver appropriately.
+    # Initialize JDBC client.
+    #
+    # + url - The JDBC  URL of the database
+    # + user - If the database is secured, the username of the database
+    # + password - The password of provided username of the database
+    # + options - The Database specific JDBC client properties
+    # + connectionPool - The `sql:ConnectionPool` object to be used within the jdbc client.
+    #                   If there is no connectionPool is provided, the global connection pool will be used and it will
+    #                   be shared by other clients which has same properties
+    public function init(public string url, public string? user = (), public string? password = (),
+        public Options? options = (), public sql:ConnectionPool? connectionPool = ()) returns sql:Error? {
+        ClientConfiguration clientConf = {
+            url: url,
+            user: user,
+            password: password,
+            options: options,
+            connectionPool: connectionPool
+        };
+        return createClient(self, clientConf, sql:getGlobalConnectionPool());
+    }
 
-```toml
-[project]
-org-name= "sample"
-version= "0.1.0"
+    # Queries the database with the query provided by the user, and returns the result as stream.
+    #
+    # + sqlQuery - The query which needs to be executed as `string` or `ParameterizedString` when the SQL query has
+    #              params to be passed in
+    # + rowType - The `typedesc` of the record that should be returned as a result. If this is not provided the default
+    #             column names of the query result set be used for the record attributes
+    # + return - Stream of records in the type of `rowType`
+    public remote function query(@untainted string|sql:ParameterizedString sqlQuery, typedesc<record {}>? rowType = ())
+    returns @tainted stream <record {}, sql:Error> {
+        if (self.clientActive) {
+            sql:ParameterizedString sqlParamString;
+            if (sqlQuery is string) {
+                sqlParamString = {
+                    parts: [sqlQuery],
+                    insertions: []
+                };
+            } else {
+                sqlParamString = sqlQuery;
+            }
+            return nativeQuery(self, sqlParamString, rowType);
+        } else {
+            return sql:generateApplicationErrorStream("JDBC Client is already closed, hence "
+                + "further operations are not allowed");
+        }
+    }
 
-[platform]
-target = "java8"
+    # Executes the DDL or DML sql queries provided by the user, and returns summary of the execution.
+    #
+    # + sqlQuery - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `string` or `ParameterizedString`
+    #              when the query has params to be passed in
+    # + return - Summary of the sql update query as `ExecutionResult` or returns `Error`
+    #           if any error occured when executing the query
+    public remote function execute(@untainted string|sql:ParameterizedString sqlQuery) returns sql:ExecutionResult|sql:Error {
+        if (self.clientActive) {
+            sql:ParameterizedString sqlParamString;
+            if (sqlQuery is string) {
+                sqlParamString = {
+                    parts: [sqlQuery],
+                    insertions: []
+                };
+            } else {
+                sqlParamString = sqlQuery;
+            }
+            return nativeExecute(self, sqlParamString);
+        } else {
+            return sql:ApplicationError("JDBC Client is already closed, hence further operations are not allowed");
+        }
+    }
 
-    [[platform.libraries]]
-    artafactId = "h2"
-    version = "1.4.200"
-    path = "/path/to/com.h2database.h2-1.4.200.jar"
-    groupId = "com.h2database"
-    modules = ["samplemodule"]
-```
+    # Executes a batch of parameterised DDL or DML sql query provided by the user,
+    # and returns the summary of the execution.
+    #
+    # + sqlQueries - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `ParameterizedString` with an array
+    #                of values passed in.
+    # + return - Summary of the executed SQL queries as `ExecutionResult[]` which includes details such as
+    #            `affectedRowCount` and `lastInsertId`. If one of the commands in the batch fails, this function
+    #            will return `BatchExecuteError`, however the JDBC driver may or may not continue to process the
+    #            remaining commands in the batch after a failure. The summary of the executed queries in case of error
+    #            can be accessed as `(<sql:BatchExecuteError> result).detail()?.executionResults`.
+    public remote function batchExecute(sql:ParameterizedString[] sqlQueries) returns sql:ExecutionResult[]|sql:Error {
+        if (sqlQueries.length() == 0) {
+            return sql:ApplicationError(" Parameter 'sqlQueries' cannot be empty array");
+        }
+        if (self.clientActive) {
+            return nativeBatchExecute(self, sqlQueries);
+        } else {
+            return sql:ApplicationError("JDBC Client is already closed, hence further operations are not allowed");
+        }
+    }
 
-Else, if you're trying to run a single BAL file, you can copy the JDBC driver into the `${BALLERINA_HOME}/bre/lib` directory and
-run the BAL file by executing the `ballerina run` command.
+    # Close the JDBC client.
+    #
+    # + return - Possible error during closing the client
+    public function close() returns sql:Error? {
+        self.clientActive = false;
+        return close(self);
+    }
+};
 
-### Client
-To access a database, you must first create a
-[jdbc:Client](https://ballerina.io/learn/api-docs/ballerina/api-docs/java.jdbc/clients/Client.html) object.
-The examples for creating a JDBC client can be found below.
+# Provides a set of configuration related to database.
+# + datasourceName - The driver class name to be used to get the connection
+# + properties - the properties of the database which should be applied when getting the connection
+public type Options record {|
+    string? datasourceName = ();
+    map<anydata>? properties = ();
+|};
 
-#### Creating a client
-This example shows the different ways of creating the `jdbc:Client`. The client can be created by passing
-the JDBC URL, which is a mandatory property and all other fields are optional.
+# Provides a set of configurations for the JDBC Client to be passed internally within the module.
+#
+# + url - URL of the database to connect
+# + user - Username for the database connection
+# + password - Password for the database connection
+# + options - A map of DB specific `Options`
+# + connectionPool - Properties for the connection pool configuration. Refer `sql:ConnectionPool` for more details
+type ClientConfiguration record {|
+    string? url;
+    string? user;
+    string? password;
+    Options? options;
+    sql:ConnectionPool? connectionPool;
+|};
 
-The `dbClient1` receives only the database URL and the `dbClient2` receives the username and password in addition to the URL.
-If the properties are passed in the same order as it is defined in the `jdbc:Client`, you can pass it
-without named params.
+function createClient(Client jdbcClient, ClientConfiguration clientConf,
+    sql:ConnectionPool globalConnPool) returns sql:Error? = @java:Method {
+    class: "org.ballerinalang.jdbc.NativeImpl"
+} external;
 
-The `dbClient3` uses the named params to pass all the attributes and provides the `options` property in the type of
-[jdbc:Options](https://ballerina.io/learn/api-docs/ballerina/api-docs/java.jdbc/records/Options.html)
-and also uses the unshared connection pool in the type of
-[sql:ConnectionPool](https://ballerina.io/learn/api-docs/ballerina/api-docs/sql/records/ConnectionPool.html).
-For more information about connection pooling, see [SQL Module](https://ballerina.io/learn/api-docs/ballerina/sql/index.html).
+function nativeQuery(Client sqlClient, sql:ParameterizedString sqlQuery, typedesc<record {}>? rowtype)
+returns stream <record {}, sql:Error> = @java:Method {
+    class: "org.ballerinalang.sql.utils.QueryUtils"
+} external;
 
-The `dbClient4` receives some custom properties within the
-[jdbc:Options](https://ballerina.io/learn/api-docs/ballerina/api-docs/java.jdbc/records/Options.html)
-and those properties will be used by the defined `datasourceName`.
-As per the provided example, the `org.h2.jdbcx.JdbcDataSource` datasource  will be configured with a `loginTimeout`
-of `2000` milli seconds.
+function nativeExecute(Client sqlClient, sql:ParameterizedString sqlQuery)
+returns sql:ExecutionResult|sql:Error = @java:Method {
+    class: "org.ballerinalang.sql.utils.ExecuteUtils"
+} external;
 
-```ballerina
-jdbc:Client|sql:Error dbClient1 = new ("jdbc:h2:~/path/to/database");
-jdbc:Client|sql:Error dbClient2 = new ("jdbc:h2:~/path/to/database",
-                            "root", "root");
-jdbc:Client|sql:Error dbClient3 = new (url =  "jdbc:h2:~/path/to/database",
-                             user = "root", password = "root",
-                             options = {
-                                 datasourceName: "org.h2.jdbcx.JdbcDataSource"
-                             },
-                             connectionPool = {
-                                 maxOpenConnections: 5
-                             });
-jdbc:Client|sql:Error dbClient4 = new (url =  "jdbc:h2:~/path/to/database",
-                             user = "root", password = "root",
-                             options = {
-                                datasourceName: "org.h2.jdbcx.JdbcDataSource",
-                                properties: {"loginTimeout": "2000"}
-                             });
-```
+function nativeBatchExecute(Client sqlClient, sql:ParameterizedString[] sqlQueries)
+returns sql:ExecutionResult[]|sql:Error = @java:Method {
+    class: "org.ballerinalang.sql.utils.ExecuteUtils"
+} external;
 
-You can find more details about each property in the
-[jdbc:Client](https://ballerina.io/learn/api-docs/ballerina/api-docs/java.jdbc/clients/Client.html) constructor.
-
-The [jdbc:Client](https://ballerina.io/learn/api-docs/ballerina/api-docs/java.jdbc/clients/Client.html) references
-[sql:Client](https://ballerina.io/learn/api-docs/ballerina/api-docs/sql/clients/Client.html) and
-all the operations defined by the `sql:Client` will be supported by the `jdbc:Client` as well.
-
-For more information on all the operations supported by the `jdbc:Client`, which include the below, see the
-[SQL Module](https://ballerina.io/learn/api-docs/ballerina/sql/index.html).
-
-1. Connection Pooling
-2. Querying data
-3. Inserting data
-4. Updating data
-5. Deleting data
-6. Batch insert and update data
-7. Closing client
+function close(Client jdbcClient) returns sql:Error? = @java:Method {
+    class: "org.ballerinalang.jdbc.NativeImpl"
+} external;

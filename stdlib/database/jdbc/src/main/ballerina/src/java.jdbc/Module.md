@@ -56,7 +56,8 @@ of `2000` milli seconds.
 
 ```ballerina
 jdbc:Client|sql:Error dbClient1 = new ("jdbc:h2:~/path/to/database");
-jdbc:Client|sql:Error dbClient2 = new ("jdbc:h2:~/path/to/database", "root", "root");
+jdbc:Client|sql:Error dbClient2 = new ("jdbc:h2:~/path/to/database", 
+                            "root", "root");
 jdbc:Client|sql:Error dbClient3 = new (url =  "jdbc:h2:~/path/to/database",
                              user = "root", password = "root",
                              options = {
