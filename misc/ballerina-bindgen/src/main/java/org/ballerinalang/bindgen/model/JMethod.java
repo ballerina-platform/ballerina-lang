@@ -159,6 +159,7 @@ public class JMethod {
                 return "J" + name;
             }
         } catch (ClassNotFoundException ignore) {
+            // Silently ignore if the exception class cannot be found.
         }
         return name;
     }
