@@ -393,6 +393,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(letExpressionNode);
     }
 
+    public T transform(STXmlTypeDescriptorNode xmlTypeDescriptorNode) {
+        return transformSyntaxNode(xmlTypeDescriptorNode);
+    }
+
     public T transform(STLetVariableDeclarationNode letVariableDeclarationNode) {
         return transformSyntaxNode(letVariableDeclarationNode);
     }

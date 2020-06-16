@@ -21,7 +21,7 @@ import ballerina/jwt;
 jwt:InboundJwtAuthProvider jwtAuthProvider14_1 = new({
     issuer: "example1",
     audience: ["ballerina"],
-    signatureConfig: {
+    trustStoreConfig: {
         certificateAlias: "ballerina",
         trustStore: {
            path: config:getAsString("truststore"),
@@ -93,7 +93,7 @@ service passthroughService14 on listener14_1 {
 jwt:InboundJwtAuthProvider jwtAuthProvider14_3 = new({
     issuer: "example2aaaaaaaaaaaaaa",
     audience: ["ballerina"],
-    signatureConfig: {
+    trustStoreConfig: {
         certificateAlias: "ballerina",
         trustStore: {
            path: config:getAsString("truststore"),

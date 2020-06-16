@@ -47,7 +47,7 @@ public class AuthBaseTest extends BaseTest {
         int[] basicAuthRequiredPorts = new int[]{20000, 20001, 20002, 20003, 20004, 20005, 20006, 20007, 20008,
                 20009, 20010};
         int[] jwtAuthRequiredPorts = new int[]{20100, 20101, 20102, 20103, 20104, 20105, 20106, 20107, 20108,
-                20109, 20110, 20111, 20112, 20113, 20114, 20199};
+                20109, 20110, 20111, 20112, 20113, 20114, 20115, 20116, 20117, 20199};
         int[] oauth2RequiredPorts = new int[]{20200, 20201, 20298, 20299};
         int[] ldapAuthRequiredPorts = new int[]{20300};
 
