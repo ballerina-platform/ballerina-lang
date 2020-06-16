@@ -94,7 +94,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
     public static final LSContext.Key<SyntaxTree> UPDATED_SYNTAX_TREE = new LSContext.Key<>();
-    private static final Logger logger = LoggerFactory.getLogger(BallerinaDocumentServiceImpl.class);
+//    private static final Logger logger = LoggerFactory.getLogger(BallerinaDocumentServiceImpl.class);
 
     public BallerinaDocumentServiceImpl(LSGlobalContext globalContext) {
         this.ballerinaLanguageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
@@ -361,7 +361,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             LSContext astContext = BallerinaTreeModifyUtil.modifyTree(request.getAstModifications(),
                     fileUri, compilationPath, documentManager);
             LSModuleCompiler.getBLangPackage(astContext, this.documentManager,
-                    LSCustomErrorStrategy.class, false, false, true);
+                    LSCustomErrorStrategy.class, false, false,
+                    true);
             reply.setSource(astContext.get(UPDATED_SYNTAX_TREE).toString());
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(true);
@@ -397,7 +398,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(true);
         } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
+//            logger.error(e.getMessage(), e);
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/ast' failed!";
             logError(msg, e, request.getDocumentIdentifier(), (Position) null);

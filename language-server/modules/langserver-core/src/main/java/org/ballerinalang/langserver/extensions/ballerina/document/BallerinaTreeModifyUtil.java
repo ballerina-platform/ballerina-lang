@@ -33,6 +33,10 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
+import org.ballerinalang.langserver.compiler.format.FormattingVisitorEntry;
+import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
+import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
+import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.DeleteRange;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.UnusedNodeVisitor;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -59,7 +63,7 @@ import java.util.Map;
  */
 public class BallerinaTreeModifyUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(BallerinaDocumentServiceImpl.class);
+//    private static final Logger logger = LoggerFactory.getLogger(BallerinaDocumentServiceImpl.class);
 
     private static final String DELETE = "delete";
     private static final String IMPORT = "import";
@@ -159,13 +163,13 @@ public class BallerinaTreeModifyUtil {
 
     public static LSContext modifyTree(ASTModification[] astModifications, String fileUri, Path compilationPath,
                                        WorkspaceDocumentManager documentManager)
-            throws CompilationFailedException, WorkspaceDocumentException, IOException {
+            throws CompilationFailedException, WorkspaceDocumentException, IOException, JSONGenerationException {
         LSContext astContext = new DocumentOperationContext
                 .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
                 .withCommonParams(null, fileUri, documentManager)
                 .build();
         LSModuleCompiler.getBLangPackage(astContext, documentManager, LSCustomErrorStrategy.class,
-                false, false);
+                false, false, false);
         BLangPackage oldTree = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         String fileName = compilationPath.toFile().getName();
 
@@ -204,16 +208,26 @@ public class BallerinaTreeModifyUtil {
         TextDocumentChange textDocumentChange = TextDocumentChange.from(edits.toArray(
                 new TextEdit[0]));
         SyntaxTree updatedSyntaxTree = SyntaxTree.from(oldSyntaxTree, textDocumentChange);
-        logger.info("Updated Tree : " + updatedSyntaxTree);
+//        logger.info("Updated Tree : " + updatedSyntaxTree);
         String updatedSyntaxTreeString = updatedSyntaxTree.toString();
         documentManager.updateFile(compilationPath, updatedSyntaxTreeString);
-        astContext.put(BallerinaDocumentServiceImpl.UPDATED_SYNTAX_TREE, updatedSyntaxTree);
 
+        //Format bal file code
+        JsonObject jsonAST = TextDocumentFormatUtil.getAST(compilationPath, documentManager, astContext);
+        JsonObject model = jsonAST.getAsJsonObject("model");
+        FormattingSourceGen.build(model, "CompilationUnit");
+        FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
+        formattingUtil.accept(model);
+
+        updatedSyntaxTreeString = FormattingSourceGen.getSourceOf(model);
+        updatedSyntaxTree = SyntaxTree.from(TextDocuments.from(updatedSyntaxTreeString));
+//        logger.info("Formatted Tree : " + updatedSyntaxTree);
+        documentManager.updateFile(compilationPath, updatedSyntaxTreeString);
+        astContext.put(BallerinaDocumentServiceImpl.UPDATED_SYNTAX_TREE, updatedSyntaxTree);
         File outputFile = compilationPath.toFile();
         try (FileWriter writer = new FileWriter(outputFile)) {
             writer.write(updatedSyntaxTreeString);
         }
-        astContext.put(BallerinaDocumentServiceImpl.UPDATED_SYNTAX_TREE, updatedSyntaxTree);
         return astContext;
     }
 

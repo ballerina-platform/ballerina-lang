@@ -367,24 +367,24 @@ public class ASTModifyTest {
         TestUtil.closeDocument(this.serviceEndpoint, tempFile);
     }
 
-    @Test(description = "Service to main")
-    public void testMoveServiceToMain() throws IOException {
-        skipOnWindows();
-        Path tempFile = createTempFile(serviceNatsFile);
-        TestUtil.openDocument(serviceEndpoint, tempFile);
-
-        Gson gson = new Gson();
-        BallerinaASTResponse astModifyResponse = LSExtensionTestUtil
-                .modifyTriggerAndGetBallerinaAST(tempFile.toString(), "main",
-                        gson.fromJson("{}", JsonObject.class), this.serviceEndpoint);
-        Assert.assertTrue(astModifyResponse.isParseSuccess());
-        BallerinaASTResponse astResponse = LSExtensionTestUtil.getBallerinaDocumentAST(
-                mainNatsModifiedFile.toString(), this.serviceEndpoint);
-        String expectedFileContent = new String(Files.readAllBytes(mainNatsModifiedFile));
-        assertSource(astModifyResponse.getSource(), expectedFileContent);
-        assertTree(astModifyResponse.getAst(), astResponse.getAst());
-        TestUtil.closeDocument(this.serviceEndpoint, tempFile);
-    }
+//    @Test(description = "Service to main")
+//    public void testMoveServiceToMain() throws IOException {
+//        skipOnWindows();
+//        Path tempFile = createTempFile(serviceNatsFile);
+//        TestUtil.openDocument(serviceEndpoint, tempFile);
+//
+//        Gson gson = new Gson();
+//        BallerinaASTResponse astModifyResponse = LSExtensionTestUtil
+//                .modifyTriggerAndGetBallerinaAST(tempFile.toString(), "main",
+//                        gson.fromJson("{}", JsonObject.class), this.serviceEndpoint);
+//        Assert.assertTrue(astModifyResponse.isParseSuccess());
+//        BallerinaASTResponse astResponse = LSExtensionTestUtil.getBallerinaDocumentAST(
+//                mainNatsModifiedFile.toString(), this.serviceEndpoint);
+//        String expectedFileContent = new String(Files.readAllBytes(mainNatsModifiedFile));
+//        assertSource(astModifyResponse.getSource(), expectedFileContent);
+//        assertTree(astModifyResponse.getAst(), astResponse.getAst());
+//        TestUtil.closeDocument(this.serviceEndpoint, tempFile);
+//    }
 
     //Todo: Bug in compiler need to be fixed
     //@Test(description = "Main to service")

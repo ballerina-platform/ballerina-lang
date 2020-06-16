@@ -54,7 +54,7 @@ import java.util.Optional;
  */
 public class BallerinaTriggerModifyUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(BallerinaDocumentServiceImpl.class);
+//    private static final Logger logger = LoggerFactory.getLogger(BallerinaDocumentServiceImpl.class);
 
     private static final String MAIN = "main";
     private static final String SERVICE = "service";
@@ -71,7 +71,7 @@ public class BallerinaTriggerModifyUtil {
                 .withCommonParams(null, fileUri, documentManager)
                 .build();
         LSModuleCompiler.getBLangPackage(astContext, documentManager, LSCustomErrorStrategy.class,
-                false, false);
+                false, false, true);
         BLangPackage oldTree = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         String fileName = compilationPath.toFile().getName();
 
@@ -89,11 +89,11 @@ public class BallerinaTriggerModifyUtil {
         SyntaxTree updatedSyntaxTree = SyntaxTree.from(oldSyntaxTree, textDocumentChange);
         String updatedSyntaxTreeString = updatedSyntaxTree.toString();
         documentManager.updateFile(compilationPath, updatedSyntaxTreeString);
-        logger.info("Updated Tree v1 : " + updatedSyntaxTree);
+//        logger.info("Updated Tree v1 : " + updatedSyntaxTree);
 
         //remove unused imports
         LSModuleCompiler.getBLangPackage(astContext, documentManager, LSCustomErrorStrategy.class,
-                false, false);
+                false, false, true);
         BLangPackage updatedTree = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
 
         UnusedNodeVisitor unusedNodeVisitor = new UnusedNodeVisitor(fileName, new HashMap<>());
@@ -109,7 +109,7 @@ public class BallerinaTriggerModifyUtil {
             documentManager.updateFile(compilationPath, updatedSyntaxTreeString);
         }
         astContext.put(BallerinaDocumentServiceImpl.UPDATED_SYNTAX_TREE, updatedSyntaxTree);
-        logger.info("Updated Tree v2 : " + updatedSyntaxTree);
+//        logger.info("Updated Tree v2 : " + updatedSyntaxTree);
 
         File outputFile = compilationPath.toFile();
         try (FileWriter writer = new FileWriter(outputFile)) {
