@@ -41,11 +41,13 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_AP
  */
 public class CreateDocsTask implements Task {
 
+    private boolean combine;
     private boolean excludeIndex;
     private boolean toJson;
     private Path jsonPath;
 
-    public CreateDocsTask(boolean toJson, Path jsonPath, boolean excludeIndex) {
+    public CreateDocsTask(boolean toJson, Path jsonPath, boolean excludeIndex, boolean combine) {
+        this.combine = combine;
         this.excludeIndex = excludeIndex;
         this.toJson = toJson;
         this.jsonPath = jsonPath;
@@ -61,6 +63,9 @@ public class CreateDocsTask implements Task {
             buildContext.out().println("Generating API Documentation using data in JSON");
             BallerinaDocGenerator.writeAPIDocsForModulesFromJson(jsonPath, outputPath.toString(), excludeIndex);
             buildContext.out().println("\t" + sourceRootPath.relativize(outputPath).toString());
+        } else if (combine) {
+            buildContext.out().println("Combining Docs");
+            BallerinaDocGenerator.mergeApiDocs(sourceRootPath.toString());
         } else {
             buildContext.out().println("Generating API Documentation");
             List<BLangPackage> modules = buildContext.getModules();

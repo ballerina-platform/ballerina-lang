@@ -162,6 +162,7 @@ public class CompilerDriver {
             symbolTable.langBooleanModuleSymbol = pkgLoader.loadPackageSymbol(BOOLEAN, null, null);
             symbolTable.langQueryModuleSymbol = pkgLoader.loadPackageSymbol(QUERY, null, null);
             symbolTable.langTransactionModuleSymbol = pkgLoader.loadPackageSymbol(TRANSACTION, null, null);
+            symbolTable.loadPredeclaredModules();
             symResolver.loadFunctionalConstructors();
             return;
         }

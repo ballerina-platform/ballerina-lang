@@ -63,6 +63,7 @@ public class JMethod {
     private String returnTypeJava;
     private String shortClassName;
     private String javaMethodName;
+    private String exceptionConstName;
     private String returnComponentType;
     private String interopType = METHOD_INTEROP_TYPE;
 
@@ -88,6 +89,7 @@ public class JMethod {
                         .isAssignableFrom(exceptionType)) {
                     JError jError = new JError(exceptionType);
                     exceptionName = jError.getShortExceptionName();
+                    exceptionConstName = jError.getExceptionConstName();
                     setExceptionList(jError);
                     hasException = true;
                     handleException = true;
@@ -134,6 +136,14 @@ public class JMethod {
                 objectReturn = false;
             } else {
                 returnComponentType = returnTypeClass.getComponentType().getSimpleName();
+                // Append the prefix "J" in front of bindings generated for Java exceptions.
+                try {
+                    if (this.getClass().getClassLoader().loadClass(Exception.class.getCanonicalName())
+                            .isAssignableFrom(returnTypeClass)) {
+                        returnComponentType = "J" + returnComponentType;
+                    }
+                } catch (ClassNotFoundException ignore) {
+                }
                 objectReturn = true;
             }
         } else if (returnTypeClass.isPrimitive()) {
@@ -228,5 +238,9 @@ public class JMethod {
 
     public boolean isReturnError() {
         return returnError;
+    }
+
+    public void setShortClassName(String shortClassName) {
+        this.shortClassName = shortClassName;
     }
 }

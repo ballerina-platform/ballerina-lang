@@ -25,12 +25,11 @@ import ballerina/runtime;
 #      password: "123"
 #  });
 #  ```
-# + credential - `auth:Credential` configurations
 public type OutboundBasicAuthProvider object {
 
     *OutboundAuthProvider;
 
-    public Credential? credential;
+    Credential? credential;
 
     # Provides authentication based on the provided Basic Auth configurations.
     #

@@ -38,6 +38,7 @@ public class JConstructor implements Cloneable {
     private String shortClassName;
     private String initObjectName;
     private String constructorName;
+    private String exceptionConstName;
     private String externalFunctionName;
 
     private boolean returnError = false;
@@ -77,6 +78,7 @@ public class JConstructor implements Cloneable {
                         .isAssignableFrom(exceptionType)) {
                     JError jError = new JError(exceptionType);
                     exceptionName = jError.getShortExceptionName();
+                    exceptionConstName = jError.getExceptionConstName();
                     setExceptionList(jError);
                     hasException = true;
                     handleException = true;
@@ -99,11 +101,15 @@ public class JConstructor implements Cloneable {
         return super.clone();
     }
 
-    public String getConstructorName() {
+    String getConstructorName() {
         return constructorName;
     }
 
     String getParamTypes() {
         return paramTypes.toString();
+    }
+
+    void setShortClassName(String shortClassName) {
+        this.shortClassName = shortClassName;
     }
 }

@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 /**
  * This test class will test the byte array value negative test cases.
  */
+@Test(groups = { "brokenOnNewParser" })
 public class BByteArrayValueNegativeTest {
 
     //TODO Transaction -- need to fix the error message due to new keywords introduced with predicates for transaction.

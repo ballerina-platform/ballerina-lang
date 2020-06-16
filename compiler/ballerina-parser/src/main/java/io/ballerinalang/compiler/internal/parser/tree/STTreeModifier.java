@@ -1635,10 +1635,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode queryConstructType = modifyNode(queryExpressionNode.queryConstructType);
         STNode queryPipeline = modifyNode(queryExpressionNode.queryPipeline);
         STNode selectClause = modifyNode(queryExpressionNode.selectClause);
+        STNode onConflictClause = modifyNode(queryExpressionNode.onConflictClause);
+        STNode limitClause = modifyNode(queryExpressionNode.limitClause);
         return queryExpressionNode.modify(
                 queryConstructType,
                 queryPipeline,
-                selectClause);
+                selectClause,
+                onConflictClause,
+                limitClause);
     }
 
     @Override
@@ -1939,10 +1943,12 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode queryPipeline = modifyNode(queryActionNode.queryPipeline);
         STNode doKeyword = modifyNode(queryActionNode.doKeyword);
         STNode blockStatement = modifyNode(queryActionNode.blockStatement);
+        STNode limitClause = modifyNode(queryActionNode.limitClause);
         return queryActionNode.modify(
                 queryPipeline,
                 doKeyword,
-                blockStatement);
+                blockStatement,
+                limitClause);
     }
 
     @Override
@@ -2219,6 +2225,54 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return distinctTypeDescriptorNode.modify(
                 distinctKeyword,
                 typeDescriptor);
+    }
+
+    @Override
+    public STOnConflictClauseNode transform(
+            STOnConflictClauseNode onConflictClauseNode) {
+        STNode onKeyword = modifyNode(onConflictClauseNode.onKeyword);
+        STNode conflictKeyword = modifyNode(onConflictClauseNode.conflictKeyword);
+        STNode expression = modifyNode(onConflictClauseNode.expression);
+        return onConflictClauseNode.modify(
+                onKeyword,
+                conflictKeyword,
+                expression);
+    }
+
+    @Override
+    public STLimitClauseNode transform(
+            STLimitClauseNode limitClauseNode) {
+        STNode limitKeyword = modifyNode(limitClauseNode.limitKeyword);
+        STNode expression = modifyNode(limitClauseNode.expression);
+        return limitClauseNode.modify(
+                limitKeyword,
+                expression);
+    }
+
+    @Override
+    public STJoinClauseNode transform(
+            STJoinClauseNode joinClauseNode) {
+        STNode outerKeyword = modifyNode(joinClauseNode.outerKeyword);
+        STNode joinKeyword = modifyNode(joinClauseNode.joinKeyword);
+        STNode typedBindingPattern = modifyNode(joinClauseNode.typedBindingPattern);
+        STNode inKeyword = modifyNode(joinClauseNode.inKeyword);
+        STNode expression = modifyNode(joinClauseNode.expression);
+        return joinClauseNode.modify(
+                outerKeyword,
+                joinKeyword,
+                typedBindingPattern,
+                inKeyword,
+                expression);
+    }
+
+    @Override
+    public STOnClauseNode transform(
+            STOnClauseNode onClauseNode) {
+        STNode onKeyword = modifyNode(onClauseNode.onKeyword);
+        STNode expression = modifyNode(onClauseNode.expression);
+        return onClauseNode.modify(
+                onKeyword,
+                expression);
     }
 
     // Tokens

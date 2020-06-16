@@ -86,8 +86,6 @@ public class BallerinaErrorReasons {
             getModulePrefixedReason(TABLE_LANG_LIB, "CyclicValueReferenceError");
     public static final String TABLE_HAS_A_VALUE_FOR_KEY_ERROR = getModulePrefixedReason(TABLE_LANG_LIB,
             "KeyConstraintViolation");
-    public static final String VALUE_INCONSISTENT_WITH_TABLE_TYPE_ERROR = getModulePrefixedReason(TABLE_LANG_LIB,
-            "ValueInconsistentError");
     public static final String ILLEGAL_LIST_INSERTION_ERROR = getModulePrefixedReason(ARRAY_LANG_LIB,
                                                                                       "IllegalListInsertion");
     public static final String FUTURE_CANCELLED = getModulePrefixedReason(FUTURE_LANG_LIB, "FutureAlreadyCancelled");

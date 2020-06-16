@@ -55,6 +55,12 @@ jobs:
           name: jballerina-tools
           path: ${{ steps.getdist.outputs.file }}
 
+      - name: Upload build cache
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-cache
+          path: ~/.gradle/caches
+
   run_integration_test:
     name: Run integration tests
     runs-on: ubuntu-latest
@@ -77,19 +83,18 @@ jobs:
         with:
           java-version: 1.8
 
-      - name: Cache Gradle packages
-        uses: actions/cache@v2
+      - name: Download build cache
+        uses: actions/download-artifact@v2
         with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: ${{ runner.os }}-gradle
+          name: build-cache
+          path: .gradle/caches
 
       - name: Run integration test
         run: |
+          export GRADLE_USER_HOME=/home/runner/work/ballerina/ballerina/.gradle
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
           ./gradlew :jballerina-integration-test:test --fail-fast -x createJavadoc --max-workers=1 --scan
-          find ~/.gradle/caches/ -name "*.lock" -type f -delete
 
   run_jballerina_unit_test:
     name: Run jballerina unit tests
@@ -113,19 +118,18 @@ jobs:
         with:
           java-version: 1.8
 
-      - name: Cache Gradle packages
-        uses: actions/cache@v2
+      - name: Download build cache
+        uses: actions/download-artifact@v2
         with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: ${{ runner.os }}-gradle
+          name: build-cache
+          path: .gradle/caches
 
       - name: Run jballerina unit test
         run: |
+          export GRADLE_USER_HOME=/home/runner/work/ballerina/ballerina/.gradle
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
           ./gradlew :jballerina-unit-test:test --fail-fast -x createJavadoc --max-workers=1 --scan
-          find ~/.gradle/caches/ -name "*.lock" -type f -delete
 
   run_testerina_test:
     name: Run testerina tests
@@ -149,19 +153,18 @@ jobs:
         with:
           java-version: 1.8
 
-      - name: Cache Gradle packages
-        uses: actions/cache@v2
+      - name: Download build cache
+        uses: actions/download-artifact@v2
         with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: ${{ runner.os }}-gradle
+          name: build-cache
+          path: .gradle/caches
 
       - name: Run testerina test
         run: |
+          export GRADLE_USER_HOME=/home/runner/work/ballerina/ballerina/.gradle
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
           ./gradlew :testerina-integration-test:test --fail-fast -x createJavadoc --max-workers=1 --scan
-          find ~/.gradle/caches/ -name "*.lock" -type f -delete
 
   run_unit_test:
     name: Run all other unit tests
@@ -185,16 +188,15 @@ jobs:
         with:
           java-version: 1.8
 
-      - name: Cache Gradle packages
-        uses: actions/cache@v2
+      - name: Download build cache
+        uses: actions/download-artifact@v2
         with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: ${{ runner.os }}-gradle
+          name: build-cache
+          path: .gradle/caches
 
       - name: Run all the other unit test
         run: |
+          export GRADLE_USER_HOME=/home/runner/work/ballerina/ballerina/.gradle
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
           ./gradlew build -x createJavadoc -x :jballerina-unit-test:test -x :jballerina-integration-test:test -x :testerina-integration-test:test --max-workers=1 --scan
-          find ~/.gradle/caches/ -name "*.lock" -type f -delete
