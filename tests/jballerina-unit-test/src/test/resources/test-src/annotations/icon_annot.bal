@@ -14,23 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function testInvalidIntersection() {
-    var fn = function () returns int { return 1; };
-    future<int> & readonly x = start fn();
+@icon { path: "/fooIconPath.icon" }
+function foo(int i, string k) returns int {
+    return i;
 }
 
-function testUnsupportedIntersection() {
-    json & int x = 1;
-}
+@icon { path: "/barIconPath.icon" }
+type Bar object {
+    @icon { path: "/kMemberFuncIconPath.icon" }
+    function k() {
 
-type IntersectionWithInvalidRecordTypeAfter Bar & readonly;
-
-type Bar record {
-    future<int> ft;
-};
-
-type IntersectionWithInvalidObjectTypeAfter Baz & readonly;
-
-type Baz abstract object {
-    future<int> ft;
+    }
 };

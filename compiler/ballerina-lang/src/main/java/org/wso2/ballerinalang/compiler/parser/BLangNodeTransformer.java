@@ -645,7 +645,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangFiniteTypeNode bLangFiniteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
         for (TypeDescriptorNode finiteTypeEl : finiteTypeElements) {
             SingletonTypeDescriptorNode singletonTypeNode = (SingletonTypeDescriptorNode) finiteTypeEl;
-            BLangLiteral literal = createSimpleLiteral(singletonTypeNode.simpleContExprNode());
+            BLangLiteral literal = createSimpleLiteral(singletonTypeNode.simpleContExprNode(), true);
             bLangFiniteTypeNode.addValue(literal);
         }
 
@@ -3795,15 +3795,19 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private BLangLiteral createSimpleLiteral(Node literal) {
-        if (literal.kind() == SyntaxKind.UNARY_EXPRESSION) {
-            UnaryExpressionNode unaryExpr = (UnaryExpressionNode) literal;
-            return createSimpleLiteral(unaryExpr.expression(), unaryExpr.unaryOperator().kind());
-        }
-
-        return createSimpleLiteral(literal, SyntaxKind.NONE);
+        return createSimpleLiteral(literal, false);
     }
 
-    private BLangLiteral createSimpleLiteral(Node literal, SyntaxKind sign) {
+    private BLangLiteral createSimpleLiteral(Node literal, boolean isFiniteType) {
+        if (literal.kind() == SyntaxKind.UNARY_EXPRESSION) {
+            UnaryExpressionNode unaryExpr = (UnaryExpressionNode) literal;
+            return createSimpleLiteral(unaryExpr.expression(), unaryExpr.unaryOperator().kind(), isFiniteType);
+        }
+
+        return createSimpleLiteral(literal, SyntaxKind.NONE, isFiniteType);
+    }
+
+    private BLangLiteral createSimpleLiteral(Node literal, SyntaxKind sign, boolean isFiniteType) {
         BLangLiteral bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         SyntaxKind type = literal.kind();
         int typeTag = -1;
@@ -3834,8 +3838,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         } else if (type == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL) {
             //TODO: Check effect of mapping negative(-) numbers as unary-expr
             typeTag = NumericLiteralSupport.isDecimalDiscriminated(textValue) ? TypeTags.DECIMAL : TypeTags.FLOAT;
-            value = textValue;
-            originalValue = textValue;
+            if (isFiniteType) {
+                value = textValue.replaceAll("[fd+]", "");
+                originalValue = textValue.replace("+", "");
+            } else {
+                value = textValue;
+                originalValue = textValue;
+            }
             bLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
         } else if (type == SyntaxKind.HEX_FLOATING_POINT_LITERAL) {
             //TODO: Check effect of mapping negative(-) numbers as unary-expr

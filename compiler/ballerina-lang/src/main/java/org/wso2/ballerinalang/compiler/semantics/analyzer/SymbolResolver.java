@@ -1588,11 +1588,19 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BLangType bLangTypeOne = constituentTypeNodes.get(0);
         BType typeOne = resolveTypeNode(bLangTypeOne, env);
+
+        if (typeOne == symTable.noType) {
+            return symTable.noType;
+        }
         typeBLangTypeMap.put(typeOne, bLangTypeOne);
 
 
         BLangType bLangTypeTwo = constituentTypeNodes.get(1);
         BType typeTwo = resolveTypeNode(bLangTypeTwo, env);
+
+        if (typeTwo == symTable.noType) {
+            return symTable.noType;
+        }
         typeBLangTypeMap.put(typeTwo, bLangTypeTwo);
 
         boolean hasReadOnlyType = typeOne == symTable.readonlyType || typeTwo == symTable.readonlyType;
@@ -1609,6 +1617,10 @@ public class SymbolResolver extends BLangNodeVisitor {
 
                 if (!hasReadOnlyType) {
                     hasReadOnlyType = type == symTable.readonlyType;
+                }
+
+                if (type == symTable.noType) {
+                    return symTable.noType;
                 }
 
                 potentialIntersectionType = getPotentialReadOnlyIntersection(potentialIntersectionType, type);
@@ -1634,7 +1646,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return potentialIntersectionType;
         }
 
-        if (!types.isSelectivelyImmutableType(potentialIntersectionType, true)) {
+        if (!types.isSelectivelyImmutableType(potentialIntersectionType, true, false)) {
             if (types.isSelectivelyImmutableType(potentialIntersectionType)) {
                 // This intersection would have been valid if not for `readonly object`s.
                 dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_READONLY_OBJECT_INTERSECTION_TYPE);
