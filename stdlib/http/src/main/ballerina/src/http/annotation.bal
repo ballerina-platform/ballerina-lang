@@ -34,7 +34,7 @@ public type HttpServiceConfig record {|
     Chunking chunking = CHUNKING_AUTO;
     CorsConfig cors = {};
     Versioning versioning = {};
-    readonly & ServiceAuth auth?;
+    ServiceAuth auth?;
 |};
 
 # Configurations for CORS support.
@@ -115,7 +115,7 @@ public type HttpResourceConfig record {|
     CorsConfig cors = {};
     boolean transactionInfectable = true;
     (readonly & WebSocketUpgradeConfig)? webSocketUpgrade = ();
-    readonly & ResourceAuth auth?;
+    ResourceAuth auth?;
 |};
 
 # Resource configuration to upgrade from HTTP to WebSocket.
@@ -137,9 +137,9 @@ public type WebSocketUpgradeConfig record {|
 # be successfully authorized. An array consisting of arrays is used to indicate that at least one scope from the sub-arrays 
 # should be successfully authorized.
 public type ServiceAuth record {|
-    readonly boolean enabled = true;
+    boolean enabled = true;
     InboundAuthHandlers authHandlers?;
-    readonly Scopes scopes?;
+    Scopes scopes?;
 |};
 
 # Configures the authentication scheme for a resource.
@@ -152,9 +152,9 @@ public type ServiceAuth record {|
 # be successfully authorized. An array consisting of arrays is used to indicate that at least one scope from the sub-arrays
 # should be successfully authorized.
 public type ResourceAuth record {|
-    readonly boolean enabled?;
+    boolean enabled?;
     InboundAuthHandlers authHandlers?;
-    readonly Scopes scopes?;
+    Scopes scopes?;
 |};
 
 # The annotation which is used to configure an HTTP resource.
