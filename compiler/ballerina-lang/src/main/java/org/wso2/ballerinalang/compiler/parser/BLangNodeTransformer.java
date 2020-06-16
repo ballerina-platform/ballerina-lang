@@ -2160,6 +2160,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 .isListenerVar()
                 .build();
         var.pos = getPosition(listenerDeclarationNode);
+        var.name.pos = getPosition(listenerDeclarationNode.variableName());
         var.annAttachments = applyAll(listenerDeclarationNode.metadata().annotations());
         return var;
     }
@@ -2538,6 +2539,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         simpleVar.pos = getPosition(requiredParameter);
+        if (requiredParameter.paramName().isPresent()) {
+            simpleVar.name.pos = getPosition(requiredParameter.paramName().get());
+        }
         trimLeft(simpleVar.pos, getPosition(requiredParameter.typeName()));
         return simpleVar;
     }
@@ -3700,6 +3704,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                                                 NodeList<AnnotationNode> annotations) {
         BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         bLSimpleVar.setName(this.createIdentifier(name));
+        bLSimpleVar.name.pos = getPosition(name);
 
         if (isDeclaredWithVar(typeName)) {
             bLSimpleVar.isDeclaredWithVar = true;

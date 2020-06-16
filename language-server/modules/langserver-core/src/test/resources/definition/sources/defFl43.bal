@@ -21,7 +21,7 @@ function testMultipleLetClausesWithSimpleVariable2() returns Person[] {
     Person p3 = {firstName: "John", lastName: "David", deptAccess: "XYZ"};
 
     Person[] personList = [p1, p2, p3];
-
+    int limitVal = 2;
     Person[] outputPersonList =
             from Person person in personList
             let string depName = "WSO2"
@@ -32,7 +32,8 @@ function testMultipleLetClausesWithSimpleVariable2() returns Person[] {
                    firstName: replaceName,
                    lastName: person.lastName,
                    deptAccess: depName
-            };
+            }
+            limit limitVal;
     return  outputPersonList;
 }
 

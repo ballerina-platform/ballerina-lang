@@ -34,8 +34,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
+import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -57,6 +60,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
@@ -95,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
@@ -109,7 +114,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangP
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangTypeLoad;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -152,7 +160,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetryTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRollback;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -173,6 +183,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -1054,6 +1065,61 @@ public class LSNodeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMarkDownDeprecatedParametersDocumentation bLangMarkDownDeprecatedParametersDocumentation) {
+        // no implementation
+    }
+
+    @Override
+    public void visit(BLangTableKeySpecifier tableKeySpecifierNode) {
+        // no implementation
+    }
+
+    @Override
+    public void visit(BLangTableKeyTypeConstraint tableKeyTypeConstraint) {
+        // no implementation
+    }
+
+    @Override
+    public void visit(BLangRetryTransaction retryTransaction) {
+        // no implementation
+    }
+
+    @Override
+    public void visit(BLangRetrySpec retrySpec) {
+        // no implementation
+    }
+
+    @Override
+    public void visit(BLangRollback rollbackNode) {
+        // no implementation
+    }
+
+    @Override
+    public void visit(BLangTableConstructorExpr tableConstructorExpr) {
+        // no implementation
+    }
+
+    @Override
+    public void visit(BLangRawTemplateLiteral stringTemplateLiteral) {
+        // no implementation
+    }
+
+    @Override
+    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
+        // no implementation
+    }
+
+    @Override
+    public void visit(BLangTransactionalExpr transactionalExpr) {
+        // no implementation
+    }
+
+    @Override
+    public void visit(BLangCommitExpr commitExpr) {
+        // no implementation
+    }
+
+    @Override
+    public void visit(BLangTableTypeNode tableType) {
         // no implementation
     }
 }
