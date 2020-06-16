@@ -28,20 +28,24 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
+import org.ballerinalang.langserver.exception.LSConnectorException;
 import org.ballerinalang.langserver.exception.LSStdlibCacheException;
 import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
 import org.ballerinalang.langserver.util.definition.LSStdLibCacheUtil;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.packaging.Patten;
+import org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -53,14 +57,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
-import static org.wso2.ballerinalang.util.RepoUtils.createAndGetHomeReposPath;
 
 /**
  * Implementation of the BallerinaConnectorService.
@@ -94,11 +99,25 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         return CompletableFuture.supplyAsync(BallerinaConnectorsResponse::new);
     }
 
-    private Path getBaloPath(Path root, String org, String module, String version) {
-        return root.resolve(org).resolve(module).
+    private Path getBaloPath(String org, String module, String version) throws LSConnectorException {
+        Path baloPath = STD_LIB_SOURCE_ROOT.resolve(org).resolve(module).
                 resolve(version.isEmpty() ?
                         ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : version).
                 resolve(module + ProjectDirConstants.BLANG_COMPILED_PKG_EXT);
+        if (!Files.exists(baloPath.toAbsolutePath())) {
+            //check external modules
+            PackageID packageID = new PackageID(new Name(org), new Name(module), new Name(version));
+            HomeBaloRepo homeBaloRepo = new HomeBaloRepo(new HashMap<>());
+            Patten patten = homeBaloRepo.calculate(packageID);
+            Stream<Path> s = patten.convert(new BaloConverter(), packageID);
+            Optional<Path> path = s.reduce(Path::resolve);
+            if (path.isPresent() && Files.exists(path.get().toAbsolutePath())) {
+                baloPath = path.get().toAbsolutePath();
+            } else {
+                throw new LSConnectorException("No file exist in '" + path.get().toAbsolutePath() + "'");
+            }
+        }
+        return baloPath;
     }
 
     @Override
@@ -112,20 +131,24 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
 
         if (ast == null) {
             try {
-                Path baloPath = getBaloPath(STD_LIB_SOURCE_ROOT, request.getOrg(), request.getModule(), request.getVersion());
-                if (!Files.exists(baloPath.toAbsolutePath())) {
-                    baloPath = getBaloPath(createAndGetHomeReposPath().resolve("balo_cache"), request.getOrg(), request.getModule(), request.getVersion());
-                    if (!Files.exists(baloPath.toAbsolutePath())) {
-                        // FIXME throw
+                Path baloPath = getBaloPath(request.getOrg(), request.getModule(), request.getVersion());
+                boolean isExternalModule = baloPath.toString().endsWith(".balo");
+                String moduleName = request.getModule();
+                String projectDir = CommonUtil.LS_CONNECTOR_CACHE_DIR.resolve(cacheableKey).toString();
+                if (isExternalModule) {
+                    LSConnectorUtil.extract(baloPath, cacheableKey);
+                } else {
+                    Path destinationRoot = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(cacheableKey).
+                            resolve(ProjectDirConstants.SOURCE_DIR_NAME);
+                    if (!Files.exists(destinationRoot)) {
+                        LSStdLibCacheUtil.extract(baloPath, destinationRoot, moduleName, cacheableKey);
                     }
+                    projectDir = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(cacheableKey).toString();
+                    moduleName = cacheableKey;
                 }
-                Path destinationRoot = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(cacheableKey).
-                        resolve(ProjectDirConstants.SOURCE_DIR_NAME);
-                LSStdLibCacheUtil.extract(baloPath, destinationRoot, request.getModule(), cacheableKey);
-                String projectDir = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(cacheableKey).toString();
                 CompilerContext compilerContext = createNewCompilerContext(projectDir);
                 Compiler compiler = LSStdLibCacheUtil.getCompiler(compilerContext);
-                BLangPackage bLangPackage = compiler.compile(cacheableKey);
+                BLangPackage bLangPackage = compiler.compile(moduleName);
 
                 ConnectorNodeVisitor visitor = new ConnectorNodeVisitor(request.getName());
                 bLangPackage.accept(visitor);
@@ -149,7 +172,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 });
                 ast = connectorCache.getConnectorConfig(request.getOrg(), request.getModule(),
                         request.getVersion(), request.getName());
-            } catch (UnsupportedEncodingException | LSStdlibCacheException e) {
+            } catch (UnsupportedEncodingException | LSStdlibCacheException | LSConnectorException e) {
                 String msg = "Operation 'ballerinaConnector/connector' for " + cacheableKey + ":" +
                         request.getName() + " failed!";
                 logError(msg, e, null, (Position) null);

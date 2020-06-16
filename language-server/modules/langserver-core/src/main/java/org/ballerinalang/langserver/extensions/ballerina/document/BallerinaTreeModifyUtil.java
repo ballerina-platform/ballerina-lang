@@ -40,8 +40,6 @@ import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.DeleteRange;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.UnusedNodeVisitor;
 import org.ballerinalang.util.diagnostic.Diagnostic;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 

@@ -59,13 +59,21 @@ public class ConnectorTest {
         Assert.assertEquals(connectorsResponse.getConnectors().get(0).getName(), "Producer");
     }
 
-    @Test(description = "Test getting all connectors.")
+    @Test(description = "Test getting HTTP connectors.")
     public void getHTTPConnector() {
         BallerinaConnectorResponse connectorsResponse = LSExtensionTestUtil
                 .getConnector("ballerina", "http", "1.0.0", "Client", this.serviceEndpoint);
         Assert.assertEquals(((JsonObject) ((JsonObject) connectorsResponse.getAst()).get("name")).
                 get("value").getAsString(), "Client");
     }
+
+//    @Test(description = "Test getting twitter connectors.")
+//    public void getTwitterConnector() {
+//        BallerinaConnectorResponse connectorsResponse = LSExtensionTestUtil
+//                .getConnector("wso2", "twitter", "0.9.26", "Client", this.serviceEndpoint);
+//        Assert.assertEquals(((JsonObject) ((JsonObject) connectorsResponse.getAst()).get("name")).
+//                get("value").getAsString(), "Client");
+//    }
 
     @AfterClass
     public void stopLangServer() {

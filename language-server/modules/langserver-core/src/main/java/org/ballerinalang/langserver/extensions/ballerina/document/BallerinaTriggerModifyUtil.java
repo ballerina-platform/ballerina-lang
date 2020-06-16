@@ -35,8 +35,6 @@ import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.UnusedNodeVisitor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
