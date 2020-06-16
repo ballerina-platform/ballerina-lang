@@ -41,12 +41,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -58,6 +60,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
+import static org.wso2.ballerinalang.util.RepoUtils.createAndGetHomeReposPath;
 
 /**
  * Implementation of the BallerinaConnectorService.
@@ -91,8 +94,16 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         return CompletableFuture.supplyAsync(BallerinaConnectorsResponse::new);
     }
 
+    private Path getBaloPath(Path root, String org, String module, String version) {
+        return root.resolve(org).resolve(module).
+                resolve(version.isEmpty() ?
+                        ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : version).
+                resolve(module + ProjectDirConstants.BLANG_COMPILED_PKG_EXT);
+    }
+
     @Override
     public CompletableFuture<BallerinaConnectorResponse> connector(BallerinaConnectorRequest request) {
+
         String cacheableKey = getCacheableKey(request.getOrg(), request.getModule(), request.getVersion());
         LSConnectorCache connectorCache = LSConnectorCache.getInstance(lsContext);
 
@@ -100,13 +111,16 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 request.getVersion(), request.getName());
 
         if (ast == null) {
-            Path baloPath = STD_LIB_SOURCE_ROOT.resolve(request.getOrg()).resolve(request.getModule()).
-                    resolve(request.getVersion().isEmpty() ?
-                            ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : request.getVersion()).
-                    resolve(request.getModule() + ProjectDirConstants.BLANG_COMPILED_PKG_EXT);
-            Path destinationRoot = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(cacheableKey).
-                    resolve(ProjectDirConstants.SOURCE_DIR_NAME);
             try {
+                Path baloPath = getBaloPath(STD_LIB_SOURCE_ROOT, request.getOrg(), request.getModule(), request.getVersion());
+                if (!Files.exists(baloPath.toAbsolutePath())) {
+                    baloPath = getBaloPath(createAndGetHomeReposPath().resolve("balo_cache"), request.getOrg(), request.getModule(), request.getVersion());
+                    if (!Files.exists(baloPath.toAbsolutePath())) {
+                        // FIXME throw
+                    }
+                }
+                Path destinationRoot = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(cacheableKey).
+                        resolve(ProjectDirConstants.SOURCE_DIR_NAME);
                 LSStdLibCacheUtil.extract(baloPath, destinationRoot, request.getModule(), cacheableKey);
                 String projectDir = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(cacheableKey).toString();
                 CompilerContext compilerContext = createNewCompilerContext(projectDir);
