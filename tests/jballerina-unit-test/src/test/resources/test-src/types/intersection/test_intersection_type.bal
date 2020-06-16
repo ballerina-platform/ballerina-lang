@@ -15,8 +15,28 @@
 // under the License.
 
 function testIntersectionTypes() {
+    testIntersectionWithMemberTypeDefinedAfter();
     testIntersectionInUnion();
     testComplexIntersectionsInUnions();
+}
+
+type ReadOnlyFoo readonly & Foo;
+
+function testIntersectionWithMemberTypeDefinedAfter() {
+    ReadOnlyFoo rf = {i: 100, "j": "hello world"};
+    Foo f = rf;
+    assertTrue(f is Foo & readonly);
+    assertTrue(f is ReadOnlyFoo);
+    assertEquality(<Foo> {i: 100, "j": "hello world"}, f);
+
+    var fn = function () {
+        f.i = 200;
+    };
+    error? res = trap fn();
+    assertTrue(res is error);
+
+    error err = <error> res;
+    assertEquality("cannot update 'readonly' field 'i' in record of type '(Foo & readonly)'", err.detail()["message"]);
 }
 
 type Foo record {
