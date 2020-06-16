@@ -27,6 +27,7 @@ import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
+import org.ballerinalang.bindgen.model.JClass;
 import org.ballerinalang.bindgen.model.JField;
 import org.ballerinalang.bindgen.model.JMethod;
 import org.ballerinalang.bindgen.model.JParameter;
@@ -50,14 +51,13 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static org.ballerinalang.bindgen.command.BindingsGenerator.aliases;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BAL_EXTENSION;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BOOLEAN;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BOOLEAN_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BYTE;
@@ -325,7 +325,7 @@ public class BindgenUtils {
                 for (String className : classList) {
                     for (File file : listOfFiles) {
                         String fileName = aliases.get(className);
-                        if (file.getName().equals(fileName)) {
+                        if (file.getName().equals(fileName + BAL_EXTENSION)) {
                             try {
                                 Files.delete(file.toPath());
                                 outStream.println("\nSuccessfully deleted the existing dependency: " + file.getPath());
@@ -348,8 +348,8 @@ public class BindgenUtils {
                 for (String className : classList) {
                     for (File file : listOfFiles) {
                         String fileName = aliases.get(className);
-                        if (file.getName().equals(fileName) && file.getParentFile().getName().equals(className
-                                .substring(0, className.lastIndexOf('.')))) {
+                        if (file.getName().equals(fileName + BAL_EXTENSION) && file.getParentFile().getName()
+                                .equals(className.substring(0, className.lastIndexOf('.')))) {
                             removeList.add(className);
                             break;
                         }
@@ -428,24 +428,14 @@ public class BindgenUtils {
         return Modifier.isAbstract(modifiers) && !javaClass.isInterface();
     }
 
-    public static void handleOverloadedMethods(List<JMethod> methodList) {
-        Map<String, Integer> methodNames = new HashMap<>();
-        for (JMethod method : methodList) {
-            String mName = method.getMethodName();
-            if (methodNames.containsKey(mName)) {
-                methodNames.replace(mName, methodNames.get(mName) + 1);
-            } else {
-                methodNames.put(mName, 1);
-            }
-        }
-        for (Map.Entry<String, Integer> entry : methodNames.entrySet()) {
-            if (entry.getValue() > 1) {
-                int i = 1;
+    public static void handleOverloadedMethods(List<JMethod> methodList, List<JMethod> methods, JClass jClass) {
+        for (JMethod method: methods) {
+            jClass.setMethodCount(method.getMethodName());
+            if (jClass.getMethodCount(method.getMethodName()) > 1) {
                 for (JMethod jMethod : methodList) {
-                    if (jMethod.getMethodName().equals(entry.getKey())) {
-                        jMethod.setMethodName(jMethod.getMethodName() + i);
-                        jMethod.setIsOverloaded(true);
-                        i++;
+                    if (jMethod.getMethod().equals(method.getMethod())) {
+                        jMethod.setMethodName(jMethod.getJavaMethodName() +
+                                jClass.getMethodCount(method.getMethodName()));
                     }
                 }
             }
