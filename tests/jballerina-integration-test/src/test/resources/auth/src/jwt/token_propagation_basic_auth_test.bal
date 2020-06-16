@@ -84,7 +84,7 @@ service passthroughService11 on listener11_1 {
 jwt:InboundJwtAuthProvider jwtAuthProvider11_3 = new({
     issuer: "ballerina",
     audience: ["ballerina"],
-    signatureConfig: {
+    trustStoreConfig: {
         certificateAlias: "ballerina",
         trustStore: {
            path: config:getAsString("truststore"),
