@@ -21,7 +21,7 @@ import ballerina/jwt;
 jwt:InboundJwtAuthProvider jwtAuthProvider22 = new({
     issuer: "https://localhost:9443/oauth2/token",
     audience: "vEwzbcasJVQm1jVYHUHCjhxZ4tYa",
-    signatureConfig: {
+    jwksConfig: {
         url: "https://localhost:20199/oauth2/jwks",
         clientConfig: {
             secureSocket: {

@@ -90,7 +90,7 @@ function testValidateJwt(string jwtToken, string trustStorePath) returns @tainte
         issuer: "wso2",
         audience: ["ballerina", "ballerinaSamples"],
         clockSkewInSeconds: 60,
-        signatureConfig: {
+        trustStoreConfig: {
             trustStore: trustStore,
             certificateAlias: "ballerina"
         }
@@ -110,7 +110,7 @@ function testValidateJwtWithSingleAud(string jwtToken, string trustStorePath) re
         issuer: "wso2",
         audience: "ballerina",
         clockSkewInSeconds: 60,
-        signatureConfig: {
+        trustStoreConfig: {
             trustStore: trustStore,
             certificateAlias: "ballerina"
         }
@@ -131,7 +131,7 @@ function testValidateJwtWithSingleAudAndAudAsArray(string jwtToken, string trust
         issuer: "wso2",
         audience: "ballerina",
         clockSkewInSeconds: 60,
-        signatureConfig: {
+        trustStoreConfig: {
             trustStore: trustStore,
             certificateAlias: "ballerina"
         }
@@ -191,7 +191,7 @@ function testValidateJwtWithNoIssOrSub(string jwtToken, string trustStorePath) r
     jwt:JwtValidatorConfig config = {
         audience: "ballerinaSamples",
         clockSkewInSeconds: 60,
-        signatureConfig: {
+        trustStoreConfig: {
             trustStore: trustStore,
             certificateAlias: "ballerina"
         }
@@ -232,7 +232,7 @@ function testValidateJwtWithInvalidSignature(string jwtToken, string trustStoreP
                                             returns @tainted (boolean|jwt:Error) {
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig config = {
-        signatureConfig: {
+        trustStoreConfig: {
             trustStore: trustStore,
             certificateAlias: "ballerina"
         }
