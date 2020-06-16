@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.toml.model;
 
+import org.ballerinalang.toml.util.PathUtils;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -53,7 +55,10 @@ public class DependencyMetadata {
      * @return location of the dependency
      */
     public Path getPath() {
-        return null == this.path ? null : Paths.get(this.path);
+        if (PathUtils.getPath(this.path) == null) {
+            return null;
+        }
+        return Paths.get(PathUtils.getPath(this.path));
     }
 
     /**
