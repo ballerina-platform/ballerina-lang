@@ -20,6 +20,7 @@ import ballerina/encoding;
 import ballerina/io;
 import ballerina/lang.'int as langint;
 import ballerina/lang.'string as strings;
+import ballerina/log;
 import ballerina/stringutils;
 import ballerina/time;
 
@@ -47,6 +48,8 @@ public type JwtTrustStoreConfig record {|
     string certificateAlias;
 |};
 
+// Deprecated: This record was used for JWT caching and with the new cache API v2.0.0 this record no longer used
+// and will be removed in next major version.
 # Represents an entry of JWT cache.
 #
 # + jwtPayload - Parsed JWT payload
@@ -65,8 +68,48 @@ public type InboundJwtCacheEntry record {|
 # + config - JWT validator config record
 # + return - JWT payload or else a `jwt:Error` if token validation fails
 public function validateJwt(string jwt, JwtValidatorConfig config) returns @tainted (JwtPayload|Error) {
+    if (config.jwtCache.hasKey(jwt)) {
+        JwtPayload? payload = validateFromCache(config.jwtCache, jwt);
+        if (payload is JwtPayload) {
+            return payload;
+        }
+    }
     [JwtHeader, JwtPayload] [header, payload] = check decodeJwt(jwt);
-    return validateJwtRecords(jwt, header, payload, config) ?: payload;
+    _ = check validateJwtRecords(jwt, header, payload, config);
+    addToCache(config.jwtCache, jwt, payload);
+    return payload;
+}
+
+function validateFromCache(cache:Cache jwtCache, string jwt) returns JwtPayload? {
+    JwtPayload payload = <JwtPayload>jwtCache.get(jwt);
+    int? expTime = payload?.exp;
+    // convert to current time and check the expiry time
+    if (expTime is () || expTime > (time:currentTime().time / 1000)) {
+        log:printDebug(function() returns string {
+            return "JWT validated from the cache. JWT payload: " + payload.toString();
+        });
+        return payload;
+    } else {
+        cache:Error? result = jwtCache.invalidate(jwt);
+        if (result is cache:Error) {
+            log:printDebug(function() returns string {
+                return "Failed to invalidate JWT from the cache. JWT payload: " + payload.toString();
+            });
+        }
+    }
+}
+
+function addToCache(cache:Cache jwtCache, string jwt, JwtPayload payload) {
+    cache:Error? result = jwtCache.put(<@untainted> jwt, <@untainted> payload);
+    if (result is cache:Error) {
+        log:printDebug(function() returns string {
+            return "Failed to add JWT to the cache. JWT payload: " + payload.toString();
+        });
+        return;
+    }
+    log:printDebug(function() returns string {
+        return "JWT added to the cache. JWT payload: " + payload.toString();
+    });
 }
 
 # Decodes the given JWT string.
