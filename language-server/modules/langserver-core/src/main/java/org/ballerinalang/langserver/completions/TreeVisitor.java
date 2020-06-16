@@ -86,6 +86,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -912,6 +913,15 @@ public class TreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangDoClause doClause) {
         this.acceptNode(doClause.body, symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangQueryExpr queryExpr) {
+        CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
+        if (cpr.isCursorBeforeNode(queryExpr.getPosition(), this, this.lsContext, queryExpr)) {
+            return;
+        }
+        queryExpr.queryClauseList.forEach(node -> this.acceptNode(node, this.symbolEnv));
     }
 
     ///////////////////////////////////

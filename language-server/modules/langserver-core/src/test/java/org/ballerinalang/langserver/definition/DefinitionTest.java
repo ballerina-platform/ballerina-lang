@@ -449,6 +449,8 @@ public class DefinitionTest {
                 {"defStreams7.json", "streams"},
                 {"defStreams8.json", "streams"},
                 {"defStreams9.json", "streams"},
+                // Covers query actions
+                {"defQuery1.json", "query"},
                 // Covers the negative test cases
                 {"defNegative1.json", "negative"},
         };
