@@ -66,7 +66,7 @@ public type InboundJwtCacheEntry record {|
 # + jwt - JWT that needs to be validated
 # + config - JWT validator config record
 # + return - JWT payload or else a `jwt:Error` if token validation fails
-public function validateJwt(string jwt, @tainted JwtValidatorConfig config) returns @tainted (JwtPayload|Error) {
+public function validateJwt(string jwt, JwtValidatorConfig config) returns @tainted (JwtPayload|Error) {
     if (config.jwtCache.hasKey(jwt)) {
         JwtPayload? payload = validateFromCache(config.jwtCache, jwt);
         if (payload is JwtPayload) {
@@ -99,7 +99,7 @@ function validateFromCache(cache:Cache jwtCache, string jwt) returns JwtPayload?
 }
 
 function addToCache(cache:Cache jwtCache, string jwt, JwtPayload payload) {
-    cache:Error? result = jwtCache.put(jwt, payload);
+    cache:Error? result = jwtCache.put(<@untainted> jwt, <@untainted> payload);
     if (result is cache:Error) {
         log:printDebug(function() returns string {
             return "Failed to add JWT to the cache. JWT payload: " + payload.toString();
