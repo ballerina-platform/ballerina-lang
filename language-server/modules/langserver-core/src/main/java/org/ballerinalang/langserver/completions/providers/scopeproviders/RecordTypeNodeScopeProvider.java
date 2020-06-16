@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
@@ -65,6 +66,7 @@ public class RecordTypeNodeScopeProvider extends AbstractCompletionProvider {
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(new ArrayList<>(filteredTypes), context));
         completionItems.addAll(this.getPackagesCompletionItems(context));
+        completionItems.add(CommonUtil.getErrorTypeCompletionItem(context));
         
         return completionItems;
     }

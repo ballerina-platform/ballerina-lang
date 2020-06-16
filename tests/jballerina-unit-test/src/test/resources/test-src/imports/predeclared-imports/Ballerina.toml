@@ -1,0 +1,5 @@
+[project]
+org-name= "predeclared-imports"
+version= "0.1.0"
+
+[dependencies]

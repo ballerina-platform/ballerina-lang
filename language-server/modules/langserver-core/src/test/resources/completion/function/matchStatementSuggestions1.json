@@ -15,6 +15,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `(string|int|boolean)` i  \n  \n**Returns** `(string|int|boolean)`   \n  \n"
         }
       },
+      "sortText": "120",
       "insertText": "bar(i) {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet",
       "command": {
@@ -23,9 +24,18 @@
       }
     },
     {
+      "label": "lang.xml",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "xml",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "io",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "io",
       "insertTextFormat": "Snippet"
     },
@@ -33,13 +43,31 @@
       "label": "http",
       "kind": "Module",
       "detail": "Package",
+      "sortText": "140",
       "insertText": "http",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.object",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "object",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.error",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "error",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "var5",
       "kind": "Variable",
       "detail": "string",
+      "sortText": "130",
       "insertText": "var5 {\n\t${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -47,6 +75,7 @@
       "label": "var5",
       "kind": "Variable",
       "detail": "string",
+      "sortText": "130",
       "insertText": "var5",
       "insertTextFormat": "Snippet"
     },
@@ -54,6 +83,7 @@
       "label": "var4",
       "kind": "Variable",
       "detail": "int",
+      "sortText": "130",
       "insertText": "var4 {\n\t${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -61,6 +91,7 @@
       "label": "var4",
       "kind": "Variable",
       "detail": "int",
+      "sortText": "130",
       "insertText": "var4",
       "insertTextFormat": "Snippet"
     },
@@ -68,6 +99,7 @@
       "label": "var2",
       "kind": "Variable",
       "detail": "[string,int,boolean]",
+      "sortText": "130",
       "insertText": "var2 {\n\t${1:[\"\", 0, false]} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -75,6 +107,7 @@
       "label": "var2",
       "kind": "Variable",
       "detail": "[string,int,boolean]",
+      "sortText": "130",
       "insertText": "var2",
       "insertTextFormat": "Snippet"
     },
@@ -82,6 +115,7 @@
       "label": "var1",
       "kind": "Variable",
       "detail": "(string|int|boolean)",
+      "sortText": "130",
       "insertText": "var1 {\n\t${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -89,6 +123,7 @@
       "label": "var1",
       "kind": "Variable",
       "detail": "(string|int|boolean)",
+      "sortText": "130",
       "insertText": "var1",
       "insertTextFormat": "Snippet"
     },
@@ -96,6 +131,7 @@
       "label": "i",
       "kind": "Variable",
       "detail": "(string|int|boolean)",
+      "sortText": "130",
       "insertText": "i {\n\t${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -103,6 +139,7 @@
       "label": "i",
       "kind": "Variable",
       "detail": "(string|int|boolean)",
+      "sortText": "130",
       "insertText": "i",
       "insertTextFormat": "Snippet"
     },
@@ -110,6 +147,7 @@
       "label": "p",
       "kind": "Variable",
       "detail": "Person",
+      "sortText": "130",
       "insertText": "p {\n\t${1:{name:\"\", age:0}} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -117,6 +155,7 @@
       "label": "p",
       "kind": "Variable",
       "detail": "Person",
+      "sortText": "130",
       "insertText": "p",
       "insertTextFormat": "Snippet"
     }

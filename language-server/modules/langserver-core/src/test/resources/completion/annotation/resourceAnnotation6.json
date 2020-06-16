@@ -6,29 +6,6 @@
   "source": "annotation/source/resourceAnnotation6.bal",
   "items": [
     {
-      "label": "transactions:Participant",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "130",
-      "insertText": "transactions:Participant {\n\t${1}\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/transactions;\n"
-        }
-      ]
-    },
-    {
       "label": "test:Config",
       "kind": "Property",
       "detail": "Annotation",
@@ -167,6 +144,37 @@
       ]
     },
     {
+      "label": "httpAlias:ResourceConfig",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "130",
+      "insertText": "httpAlias:ResourceConfig {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "transactions:Participant",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "130",
+      "insertText": "transactions:Participant {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/transactions;\n"
+        }
+      ]
+    },
+    {
       "label": "deprecated",
       "kind": "Property",
       "detail": "Annotation",
@@ -175,11 +183,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "httpAlias:ResourceConfig",
+      "label": "icon",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "130",
-      "insertText": "httpAlias:ResourceConfig {\n\t${1}\n}",
+      "insertText": "icon {\n\tpath: \"${1}\"\n}",
       "insertTextFormat": "Snippet"
     }
   ]

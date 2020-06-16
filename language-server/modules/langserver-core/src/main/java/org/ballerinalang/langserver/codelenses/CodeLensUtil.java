@@ -67,7 +67,7 @@ public class CodeLensUtil {
                 .withCommonParams(null, fileUri, documentManager)
                 .build();
         BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(codeLensContext, documentManager,
-                                                               LSCustomErrorStrategy.class, false, false);
+                                                               LSCustomErrorStrategy.class, false, false, true);
         // Source compilation has no errors, continue
         Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
                 .filter(cUnit -> (fileUri.endsWith(cUnit.getName())))
