@@ -31,6 +31,7 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_RESERVE
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.METHOD_INTEROP_TYPE;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaHandleType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaParamType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getJavaType;
@@ -73,7 +74,7 @@ public class JMethod {
     JMethod(Method m) {
         javaMethodName = m.getName();
         methodName = m.getName();
-        shortClassName = m.getDeclaringClass().getSimpleName();
+        shortClassName = getAlias(m.getDeclaringClass());
         isStatic = isStaticMethod(m);
 
         // Set the attributes required to identify different return types.
@@ -132,10 +133,10 @@ public class JMethod {
             isArrayReturn = true;
             if (returnTypeClass.getComponentType().isPrimitive()) {
                 objectReturn = false;
-            } else if (returnTypeClass.getSimpleName().equals(JAVA_STRING_ARRAY)) {
+            } else if (getAlias(returnTypeClass).equals(JAVA_STRING_ARRAY)) {
                 objectReturn = false;
             } else {
-                returnComponentType = returnTypeClass.getComponentType().getSimpleName();
+                returnComponentType = getAlias(returnTypeClass.getComponentType());
                 // Append the prefix "J" in front of bindings generated for Java exceptions.
                 try {
                     if (this.getClass().getClassLoader().loadClass(Exception.class.getCanonicalName())
@@ -148,7 +149,7 @@ public class JMethod {
             }
         } else if (returnTypeClass.isPrimitive()) {
             objectReturn = false;
-        } else if (returnTypeClass.getSimpleName().equals(JAVA_STRING)) {
+        } else if (getAlias(returnTypeClass).equals(JAVA_STRING)) {
             isStringReturn = true;
         } else {
             objectReturn = true;
@@ -157,7 +158,7 @@ public class JMethod {
 
     private void setParameters(Parameter[] paramArr) {
         for (Parameter param : paramArr) {
-            paramTypes.append(param.getType().getSimpleName().toLowerCase(Locale.ENGLISH));
+            paramTypes.append(getAlias(param.getType()).toLowerCase(Locale.ENGLISH));
             JParameter parameter = new JParameter(param);
             parameters.add(parameter);
             if (parameter.getIsPrimitiveArray()) {

@@ -89,6 +89,8 @@ public class BindingsGenerator {
     private static Set<JError> exceptionList = new HashSet<>();
     private static Map<String, String> failedClassGens = new HashMap<>();
 
+    public static Map<String, String> aliases = new HashMap<>();
+
     BindingsGenerator(PrintStream out, PrintStream err) {
         this.outStream = out;
         this.errStream = err;

@@ -30,6 +30,7 @@ import static org.ballerinalang.bindgen.command.BindingsGenerator.isDirectJavaCl
 import static org.ballerinalang.bindgen.command.BindingsGenerator.setAllClasses;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ACCESS_FIELD;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.MUTATE_FIELD;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.handleOverloadedMethods;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isAbstractClass;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isFinalField;
@@ -63,7 +64,7 @@ public class JClass {
     public JClass(Class c) {
         className = c.getName();
         prefix = className.replace(".", "_").replace("$", "_");
-        shortClassName = c.getSimpleName();
+        shortClassName = getAlias(c);
         packageName = c.getPackage().getName();
 
         // Append the prefix "J" in front of bindings generated for Java exceptions.
@@ -77,15 +78,15 @@ public class JClass {
         setAllClasses(shortClassName);
         if (c.isInterface()) {
             isInterface = true;
-            setAllClasses(Object.class.getSimpleName());
-            superClasses.add(Object.class.getSimpleName());
+            setAllClasses(getAlias(Object.class));
+            superClasses.add(getAlias(Object.class));
         }
         populateImplementedInterfaces(c.getInterfaces());
 
         Class sClass = c.getSuperclass();
         while (sClass != null) {
             populateImplementedInterfaces(sClass.getInterfaces());
-            String simpleClassName = sClass.getSimpleName().replace("$", "");
+            String simpleClassName = getAlias(sClass).replace("$", "");
             superClasses.add(simpleClassName);
             setAllClasses(simpleClassName);
             sClass = sClass.getSuperclass();
@@ -182,8 +183,8 @@ public class JClass {
 
     private void populateImplementedInterfaces(Class[] interfaces) {
         for (Class interfaceClass : interfaces) {
-            setAllClasses(interfaceClass.getSimpleName());
-            superClasses.add(interfaceClass.getSimpleName());
+            setAllClasses(getAlias(interfaceClass));
+            superClasses.add(getAlias(interfaceClass));
             if (interfaceClass.getInterfaces() != null) {
                 populateImplementedInterfaces(interfaceClass.getInterfaces());
             }
