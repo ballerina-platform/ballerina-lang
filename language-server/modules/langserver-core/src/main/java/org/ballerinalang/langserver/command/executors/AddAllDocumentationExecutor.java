@@ -79,7 +79,7 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
         try {
             WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
             bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager, LSCustomErrorStrategy.class, false,
-                    false);
+                    false, true);
         } catch (CompilationFailedException e) {
             throw new LSCommandExecutorException("Couldn't compile the source", e);
         }

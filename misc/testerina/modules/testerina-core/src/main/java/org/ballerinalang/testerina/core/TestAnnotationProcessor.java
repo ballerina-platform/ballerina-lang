@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
@@ -38,10 +39,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -65,7 +68,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     private static final String AFTER_SUITE_ANNOTATION_NAME = "AfterSuite";
     private static final String BEFORE_EACH_ANNOTATION_NAME = "BeforeEach";
     private static final String AFTER_EACH_ANNOTATION_NAME = "AfterEach";
-    private static final String MOCK_ANNOTATION_NAME = "Mock";
+    private static final String MOCK_ANNOTATION_NAME = "MockFn";
     private static final String BEFORE_FUNCTION = "before";
     private static final String AFTER_FUNCTION = "after";
     private static final String DEPENDS_ON_FUNCTIONS = "dependsOn";
@@ -75,6 +78,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     private static final String VALUE_SET_ANNOTATION_NAME = "dataProvider";
     private static final String TEST_ENABLE_ANNOTATION_NAME = "enable";
     private static final String MOCK_ANNOTATION_DELIMITER = "#";
+    private static final String MOCK_FN = "Mock";
 
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
     private boolean enabled = true;
@@ -139,7 +143,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 suite.addBeforeEachFunction(functionName);
             } else if (AFTER_EACH_ANNOTATION_NAME.equals(annotationName)) {
                 suite.addAfterEachFunction(functionName);
-            } else if (MOCK_ANNOTATION_NAME.equals(annotationName)) {
+            } else if (MOCK_FN.equals(annotationName)) {
                 String[] vals = new String[2];
                 // TODO: when default values are supported in annotation struct we can remove this
                 vals[0] = packageName;
@@ -305,6 +309,72 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
             }
         }
 
+    }
+
+    // Extract mock function information
+    @Override
+    public void process(SimpleVariableNode simpleVariableNode, List<AnnotationAttachmentNode> annotations) {
+        annotations = annotations.stream().distinct().collect(Collectors.toList());
+
+        for (AnnotationAttachmentNode attachmentNode : annotations) {
+            String annotationName = attachmentNode.getAnnotationName().getValue();
+            // Check if the annotation name is Mock
+            if (MOCK_ANNOTATION_NAME.equals(annotationName)) {
+                String type = ((BLangUserDefinedType) ((BLangSimpleVariable) simpleVariableNode).typeNode)
+                        .typeName.getValue();
+
+                if (type.equals("MockFunction")) {
+                    String[] vals = new String[2];
+                    // Extract function to mock name
+                    if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
+                        // Get list of attributes in the Mock annotation
+                        List<RecordLiteralNode.RecordField> attributes =
+                                ((BLangRecordLiteral) attachmentNode.getExpression()).getFields();
+                        attributes.forEach(field -> {
+                            String name;
+                            BLangExpression valueExpr;
+
+                            if (field.isKeyValueField()) {
+                                BLangRecordLiteral.BLangRecordKeyValueField attributeNode =
+                                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                                name = attributeNode.getKey().toString();
+                                valueExpr = attributeNode.getValue();
+                            } else {
+                                BLangRecordLiteral.BLangRecordVarNameField varNameField =
+                                        (BLangRecordLiteral.BLangRecordVarNameField) field;
+                                name = varNameField.variableName.value;
+                                valueExpr = varNameField;
+                            }
+
+                            String value = valueExpr.toString();
+
+                            if (FUNCTION.equals(name)) {
+                                vals[0] = value;
+                            }
+
+                            // Check if Function name in annotation is empty
+                            if (vals[0].isEmpty()) {
+                                diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
+                                        "Function name cannot be empty");
+                            }
+
+                            // Mock Function object name
+                            String mockFunctionObject = simpleVariableNode.getName().getValue();
+
+                            //Add values to the BLangTestablePackage somehow
+                            BLangTestablePackage bLangTestablePackage =
+                                    (BLangTestablePackage) ((BLangSimpleVariable) simpleVariableNode).parent;
+
+                            bLangTestablePackage.addMockFunction(vals[0], mockFunctionObject);
+                        });
+                    }
+                } else {
+                    // Throw an error saying its not a MockFunction object
+                    diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
+                            "Annotation can only be attached to a test:MockFunction object");
+                }
+            }
+        }
     }
 
     /**

@@ -67,6 +67,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -188,6 +189,7 @@ public class SymbolTable {
 
     private Names names;
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
+    public Map<Name, BPackageSymbol> predeclaredModules = new HashMap<>();
 
     public static SymbolTable getInstance(CompilerContext context) {
         SymbolTable symTable = context.get(SYM_TABLE_KEY);
@@ -346,6 +348,15 @@ public class SymbolTable {
                 return this.xmlTextType;
         }
         throw new IllegalStateException("LangLib Subtype not found: " + name);
+    }
+
+    public void loadPredeclaredModules() {
+        Map<Name, BPackageSymbol> modules = new HashMap<>();
+        modules.put(Names.ERROR, this.langErrorModuleSymbol);
+        modules.put(Names.OBJECT, this.langObjectModuleSymbol);
+        modules.put(Names.XML, this.langXmlModuleSymbol);
+
+        this.predeclaredModules = Collections.unmodifiableMap(modules);
     }
 
     private void initializeType(BType type, String name) {

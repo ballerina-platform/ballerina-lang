@@ -66,6 +66,8 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FORK.get()));
         // Populate Transaction Statement template
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_TRANSACTION.get()));
+        // Populate Retry Transaction Statement template
+        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETRY_TRANSACTION.get()));
         // Populate Match statement template
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_MATCH.get()));
         if ((bLangNode instanceof BLangBlockStmt && bLangNode.parent instanceof BLangForkJoin)
@@ -93,8 +95,7 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETURN.get()));
 
         if (context.get(CompletionKeys.TRANSACTION_COUNT_KEY) > 0) {
-            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_ABORT.get()));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETRY.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_ROLLBACK.get()));
         }
         // Populate Throw Statement template
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_PANIC.get()));

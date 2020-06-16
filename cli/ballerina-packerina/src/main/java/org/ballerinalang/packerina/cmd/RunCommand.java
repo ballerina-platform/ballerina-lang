@@ -112,8 +112,8 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private boolean experimentalFlag;
 
-    @CommandLine.Option(names = "--new-parser", description = "Enable new parser.", hidden = true)
-    private boolean newParserEnabled;
+    @CommandLine.Option(names = "--old-parser", description = "Enable new parser.", hidden = true)
+    private boolean useOldParser;
 
     public RunCommand() {
         this.outStream = System.err;
@@ -266,7 +266,7 @@ public class RunCommand implements BLauncherCmd {
         options.put(SKIP_TESTS, Boolean.toString(true));
         options.put(TEST_ENABLED, Boolean.toString(false));
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
-        options.put(NEW_PARSER_ENABLED, Boolean.toString(this.newParserEnabled));
+        options.put(NEW_PARSER_ENABLED, Boolean.toString(!this.useOldParser));
 
         // create builder context
         BuildContext buildContext = new BuildContext(sourceRootPath, targetPath, sourcePath, compilerContext);

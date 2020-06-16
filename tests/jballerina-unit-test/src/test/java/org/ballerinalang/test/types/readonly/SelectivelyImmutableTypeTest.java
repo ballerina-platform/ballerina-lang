@@ -88,6 +88,9 @@ public class SelectivelyImmutableTypeTest {
         validateError(result, index++, "cannot update 'readonly' value of type '(Config & readonly)'", 194, 5);
         validateError(result, index++, "cannot update 'readonly' value of type 'MyConfig'", 197, 5);
 
+        validateError(result, index++, "invalid intersection type '(DEF & readonly)': no intersection", 201, 5);
+        validateError(result, index++, "invalid intersection type '(JKL & readonly)': no intersection", 209, 5);
+
         assertEquals(result.getErrorCount(), index);
     }
 }

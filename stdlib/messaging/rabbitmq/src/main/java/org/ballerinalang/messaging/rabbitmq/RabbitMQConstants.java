@@ -62,7 +62,7 @@ public class RabbitMQConstants {
     public static final String UNCHECKED = "unchecked";
 
     // Error constant fields
-    static final String RABBITMQ_ERROR = "RabbitmqError";
+    static final String RABBITMQ_ERROR = "RabbitMqError";
     static final String RABBITMQ_ERROR_DETAILS = "Detail";
     static final String RABBITMQ_ERROR_MESSAGE = "message";
 

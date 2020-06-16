@@ -120,7 +120,8 @@ public class MessageUtils {
             if (errorDescription != null) {
                 message =  statusException.getStatus().getDescription();
             } else if (statusException.getStatus().getCause() != null) {
-                message = statusException.getStatus().getCause().getMessage();
+                String causeMessage = statusException.getStatus().getCause().getMessage();
+                message = causeMessage == null ? UNKNOWN_ERROR_DETAIL : causeMessage;
             } else {
                 message = UNKNOWN_ERROR_DETAIL;
             }
@@ -132,13 +133,6 @@ public class MessageUtils {
                 errorIdName = GrpcConstants.INTERNAL_ERROR;
                 message = error.getMessage();
             }
-        }
-
-        if (errorIdName == null) {
-            errorIdName = GrpcConstants.UNKNOWN_ERROR;
-        }
-        if (message == null) {
-            message = UNKNOWN_ERROR_DETAIL;
         }
         return BallerinaErrors.createDistinctError(errorIdName, PROTOCOL_GRPC_PKG_ID, message);
     }
