@@ -776,7 +776,12 @@ public class TypeChecker extends BLangNodeVisitor {
         if (applicableExpType.tag == TypeTags.TABLE) {
             List<BType> memTypes = new ArrayList<>();
             for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
-                BType recordType = checkExpr(recordLiteral, env, ((BTableType) applicableExpType).constraint);
+                BLangRecordLiteral clonedExpr = recordLiteral;
+                if (this.nonErrorLoggingCheck) {
+                    clonedExpr.cloneAttempt++;
+                    clonedExpr = nodeCloner.clone(recordLiteral);
+                }
+                BType recordType = checkExpr(clonedExpr, env, ((BTableType) applicableExpType).constraint);
                 if (recordType == symTable.semanticError) {
                     resultType = symTable.semanticError;
                     return;
