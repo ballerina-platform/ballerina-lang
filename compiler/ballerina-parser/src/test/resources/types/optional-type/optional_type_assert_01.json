@@ -1,6 +1,5 @@
 {
   "kind": "MODULE_VAR_DECL",
-  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -13,7 +12,6 @@
     },
     {
       "kind": "TYPED_BINDING_PATTERN",
-      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPTIONAL_TYPE_DESC",
@@ -39,29 +37,10 @@
         },
         {
           "kind": "CAPTURE_BINDING_PATTERN",
-          "hasDiagnostics": true,
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_INVALID_TOKEN"
-              ],
-              "value": "a",
-              "leadingMinutiae": [
-                {
-                  "kind": "INVALID_NODE_MINUTIAE",
-                  "invalidNode": {
-                    "kind": "PERCENT_TOKEN",
-                    "trailingMinutiae": [
-                      {
-                        "kind": "WHITESPACE_MINUTIAE",
-                        "value": " "
-                      }
-                    ]
-                  }
-                }
-              ]
+              "value": "a"
             }
           ]
         }

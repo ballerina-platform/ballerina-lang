@@ -356,7 +356,7 @@ public class XMLParser extends AbstractParser {
             identifier = STNodeFactory.createXMLSimpleNameNode(identifier);
             return STNodeFactory.createXMLQualifiedNameNode(identifier, colon, varOrFuncName);
         } else {
-            this.errorHandler.removeInvalidToken();
+            invalidNodeStack.push(errorHandler.consumeInvalidToken());
             return parseQualifiedIdentifier(identifier);
         }
     }
