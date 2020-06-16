@@ -13490,6 +13490,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseAsMemberAccessExpr(STNode typeNameOrExpr, STNode openBracket, STNode member) {
+        member = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, member, false, true);
         STNode closeBracket = parseCloseBracket();
         endContext();
         STNode keyExpr = STNodeFactory.createNodeList(member);
