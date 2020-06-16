@@ -598,7 +598,8 @@ public class BindgenUtils {
                     outStream.println("\t" + path);
                 }
             }
-            classLoader = new ChildFirstClassLoader(urls.toArray(new URL[0]), parent);
+            classLoader = (URLClassLoader) AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () ->
+                    new ChildFirstClassLoader(urls.toArray(new URL[0]), parent));
         } catch (RuntimeException e) {
             throw new BindgenException("Error while loading the classpaths.", e);
         } catch (Exception e) {

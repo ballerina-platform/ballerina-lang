@@ -20,9 +20,9 @@ package org.ballerinalang.bindgen.utils;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -32,10 +32,10 @@ import java.util.List;
  */
 public class ChildFirstClassLoader extends URLClassLoader {
 
-    private ClassLoader system;
+    private final ClassLoader system;
 
-    ChildFirstClassLoader(URL[] classpath, ClassLoader parent) {
-        super(classpath, parent);
+    ChildFirstClassLoader(URL[] urls, ClassLoader parent) {
+        super(urls, parent);
         system = getSystemClassLoader();
     }
 
@@ -44,15 +44,18 @@ public class ChildFirstClassLoader extends URLClassLoader {
         Class<?> loadedClass = findLoadedClass(name);
         if (loadedClass == null) {
             try {
-                loadedClass = findClass(name);
-            } catch (ClassNotFoundException e) {
-                try {
-                    loadedClass = super.loadClass(name, resolve);
-                } catch (ClassNotFoundException e2) {
-                    if (system != null) {
-                        loadedClass = system.loadClass(name);
-                    }
+                if (system != null) {
+                    loadedClass = system.loadClass(name);
                 }
+            } catch (ClassNotFoundException ex) {
+                // Silently skipping if the class is not found in the system class loader
+            }
+            try {
+                if (loadedClass == null) {
+                    loadedClass = findClass(name);
+                }
+            } catch (ClassNotFoundException e) {
+                loadedClass = super.loadClass(name, resolve);
             }
         }
         if (resolve) {
@@ -62,55 +65,37 @@ public class ChildFirstClassLoader extends URLClassLoader {
     }
 
     @Override
-    public URL getResource(String name) {
-        URL url = findResource(name);
-        if (url == null) {
-            url = super.getResource(name);
+    public Enumeration<URL> getResources(String name) throws IOException {
+        List<URL> allResources = new LinkedList<>();
+
+        Enumeration<URL> sysResource = system.getResources(name);
+        while (sysResource.hasMoreElements()) {
+            allResources.add(sysResource.nextElement());
         }
-        if (url == null && system != null) {
-            url = system.getResource(name);
+        Enumeration<URL> thisResource = findResources(name);
+        while (thisResource.hasMoreElements()) {
+            allResources.add(thisResource.nextElement());
         }
-        return url;
+        Enumeration<URL> parentResource = super.findResources(name);
+        while (parentResource.hasMoreElements()) {
+            allResources.add(parentResource.nextElement());
+        }
+
+        return Collections.enumeration(allResources);
     }
 
     @Override
-    public Enumeration<URL> getResources(String name) throws IOException {
-        Enumeration<URL> systemUrls = null;
+    public URL getResource(String name) {
+        URL resource = null;
         if (system != null) {
-            systemUrls = system.getResources(name);
+            resource = system.getResource(name);
         }
-        Enumeration<URL> localUrls = findResources(name);
-        Enumeration<URL> parentUrls = null;
-        if (getParent() != null) {
-            parentUrls = getParent().getResources(name);
+        if (resource == null) {
+            resource = findResource(name);
         }
-        final List<URL> urls = new ArrayList<>();
-        if (localUrls != null) {
-            while (localUrls.hasMoreElements()) {
-                URL local = localUrls.nextElement();
-                urls.add(local);
-            }
+        if (resource == null) {
+            resource = super.getResource(name);
         }
-        if (systemUrls != null) {
-            while (systemUrls.hasMoreElements()) {
-                urls.add(systemUrls.nextElement());
-            }
-        }
-        if (parentUrls != null) {
-            while (parentUrls.hasMoreElements()) {
-                urls.add(parentUrls.nextElement());
-            }
-        }
-        return new Enumeration<URL>() {
-            Iterator<URL> iter = urls.iterator();
-
-            public boolean hasMoreElements() {
-                return iter.hasNext();
-            }
-
-            public URL nextElement() {
-                return iter.next();
-            }
-        };
+        return resource;
     }
 }
