@@ -31,7 +31,8 @@ connection pool handling.  For its properties and possible values, see the `sql:
     The JDBC module example below shows how the global connection pool is used. 
 
     ```ballerina
-    jdbc:Client|sql:Error dbClient = new ("jdbc:mysql://localhost:3306/testdb", 
+    jdbc:Client|sql:Error dbClient = 
+                               new ("jdbc:mysql://localhost:3306/testdb", 
                                 "root", "root");
     ```
 
@@ -42,8 +43,9 @@ connection pool handling.  For its properties and possible values, see the `sql:
     connection pool is used.
 
     ```ballerina
-    jdbc:Client|sql:Error dbClient = new (url = "jdbc:mysql://localhost:3306/testdb", 
-                                connectionPool = { maxOpenConnections: 5 });
+    jdbc:Client|sql:Error dbClient = 
+                               new (url = "jdbc:mysql://localhost:3306/testdb", 
+                               connectionPool = { maxOpenConnections: 5 });
     ```
 
 3. Local, shareable connection pool
@@ -55,12 +57,15 @@ connection pool handling.  For its properties and possible values, see the `sql:
     ```ballerina
     sql:ConnectionPool connPool = {maxOpenConnections: 5};
     
-    jdbc:Client|sql:Error dbClient1 = new (url = "jdbc:mysql://localhost:3306/testdb",    
-                                 connectionPool = connPool);
-    jdbc:Client|sql:Error dbClient2 = new (url = "jdbc:mysql://localhost:3306/testdb",       
-                                 connectionPool = connPool);
-    jdbc:Client|sql:Error dbClient3 = new (url = "jdbc:mysql://localhost:3306/testdb",    
-                                 connectionPool = connPool);
+    jdbc:Client|sql:Error dbClient1 =       
+                               new (url = "jdbc:mysql://localhost:3306/testdb",
+                               connectionPool = connPool);
+    jdbc:Client|sql:Error dbClient2 = 
+                               new (url = "jdbc:mysql://localhost:3306/testdb",       
+                               connectionPool = connPool);
+    jdbc:Client|sql:Error dbClient3 = 
+                               new (url = "jdbc:mysql://localhost:3306/testdb",    
+                               connectionPool = connPool);
     ```
     
 #### Closing the client
@@ -204,9 +209,9 @@ type Student record {
     string name;
 };
 
-// Select the data from the database table. The query parameters are passed directly. 
-// Similar to the `execute` examples, parameters can be passed as sub types of 
-// `sql:TypedValue`s as well.
+// Select the data from the database table. The query parameters are passed 
+// directly. Similar to the `execute` examples, parameters can be passed as
+// sub types of `sql:TypedValue` as well.
 int id = 10;
 int age = 12;
 sql:ParameterizedQuery query = `SELECT * FROM students
@@ -231,9 +236,9 @@ the above example can be modified as follows with an open record type as the ret
 type will be the same as how the column is defined in the database. 
 
 ```ballerina
-// Select the data from the database table. The query parameters are passed directly. 
-// Similar to the `execute` examples, parameters can be passed as sub types of 
-// `sql:TypedValue`s as well.
+// Select the data from the database table. The query parameters are passed 
+// directly. Similar to the `execute` examples, parameters can be passed as 
+// sub types of `sql:TypedValue` as well.
 int id = 10;
 int age = 12;
 sql:ParameterizedQuery query = `SELECT * FROM students
@@ -284,7 +289,8 @@ the client.
 
 ```ballerina
 int age = 23;
-sql:ParameterizedQuery query = `UPDATE students SET name = 'John' WHERE age = ${age}`;
+sql:ParameterizedQuery query = `UPDATE students SET name = 'John' 
+                                WHERE age = ${age}`;
 var ret = dbClient->execute(query);
 if (ret is sql:ExecutionResult) {
     io:println("Updated row count in Students table: ", ret.affectedRowCount);
