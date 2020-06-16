@@ -11,12 +11,17 @@
       "hasDiagnostics": true,
       "children": [
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "Foo",
-          "trailingMinutiae": [
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
             {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "Foo",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
         },

@@ -60,8 +60,13 @@
                   "children": []
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "foo"
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "foo"
+                    }
+                  ]
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",

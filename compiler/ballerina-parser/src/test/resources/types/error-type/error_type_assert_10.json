@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_VAR_DECL",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -12,6 +13,7 @@
     },
     {
       "kind": "TYPED_BINDING_PATTERN",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "ERROR_TYPE_DESC",
@@ -26,8 +28,13 @@
                   "kind": "LT_TOKEN"
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "NO_MATCHING_OBJECT"
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "NO_MATCHING_OBJECT"
+                    }
+                  ]
                 },
                 {
                   "kind": "GT_TOKEN"
@@ -38,10 +45,29 @@
         },
         {
           "kind": "CAPTURE_BINDING_PATTERN",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "a"
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_INVALID_TOKEN"
+              ],
+              "value": "a",
+              "leadingMinutiae": [
+                {
+                  "kind": "INVALID_NODE_MINUTIAE",
+                  "invalidNode": {
+                    "kind": "GT_TOKEN",
+                    "trailingMinutiae": [
+                      {
+                        "kind": "WHITESPACE_MINUTIAE",
+                        "value": " "
+                      }
+                    ]
+                  }
+                }
+              ]
             }
           ]
         }

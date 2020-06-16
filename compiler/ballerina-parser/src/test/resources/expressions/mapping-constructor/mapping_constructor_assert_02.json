@@ -19,7 +19,12 @@
             },
             {
               "kind": "DECIMAL_INTEGER_LITERAL",
-              "value": "20"
+              "children": [
+                {
+                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "value": "20"
+                }
+              ]
             }
           ]
         },
@@ -44,7 +49,12 @@
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "Supun"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "Supun"
+                }
+              ]
             }
           ]
         },

@@ -10,12 +10,17 @@
       "kind": "TYPED_BINDING_PATTERN",
       "children": [
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "Foo",
-          "trailingMinutiae": [
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
             {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "Foo",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
         },
@@ -46,7 +51,12 @@
     },
     {
       "kind": "DECIMAL_INTEGER_LITERAL",
-      "value": "5"
+      "children": [
+        {
+          "kind": "DECIMAL_INTEGER_LITERAL",
+          "value": "5"
+        }
+      ]
     },
     {
       "kind": "SEMICOLON_TOKEN"
