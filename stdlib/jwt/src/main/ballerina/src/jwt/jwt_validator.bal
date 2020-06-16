@@ -48,7 +48,8 @@ public type JwtTrustStoreConfig record {|
     string certificateAlias;
 |};
 
-// TODO: Remove since not used anymore.
+// Deprecated: This record was used for JWT caching and with the new cache API v2.0.0 this record no longer used
+// and will be removed in next major version.
 # Represents an entry of JWT cache.
 #
 # + jwtPayload - Parsed JWT payload
