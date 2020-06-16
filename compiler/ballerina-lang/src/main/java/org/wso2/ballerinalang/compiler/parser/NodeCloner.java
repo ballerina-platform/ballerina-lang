@@ -257,7 +257,7 @@ public class NodeCloner extends BLangNodeVisitor {
             // This is already cloned.
             result = sourceNode.cloneRef;
         } else {
-            sourceNode.cloneAttempt = this.currentCloneAttempt;
+            this.currentCloneAttempt = sourceNode.cloneAttempt;
             sourceNode.cloneRef = null;
             sourceNode.accept(this);
             result = sourceNode.cloneRef;

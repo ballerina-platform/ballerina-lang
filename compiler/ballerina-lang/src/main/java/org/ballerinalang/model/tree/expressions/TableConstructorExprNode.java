@@ -35,5 +35,5 @@ public interface TableConstructorExprNode extends ExpressionNode {
 
     void addRecordLiteral(RecordLiteralNode recordLiteralNode);
 
-    List<BLangRecordLiteral> getRecordLiteralList();
+    List<? extends ExpressionNode> getRecordLiteralList();
 }

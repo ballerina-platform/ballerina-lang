@@ -813,25 +813,66 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             resultType = tableType;
         } else if (applicableExpType.tag == TypeTags.UNION) {
+
+            boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
+            this.nonErrorLoggingCheck = true;
+
+            BLangDiagnosticLog prevDLog = this.dlog.getCurrentLog();
+            this.dlog.setNonConsoleDLog();
+
             List<BType> matchingTypes = new ArrayList<>();
             BUnionType expectedType = (BUnionType) applicableExpType;
-            BType actualType = checkExpr(tableConstructorExpr, env, symTable.noType);
             for (BType memType : expectedType.getMemberTypes()) {
-                if (types.isAssignable(actualType, memType)) {
-                    matchingTypes.add(actualType);
+
+                BLangTableConstructorExpr clonedTableExpr = tableConstructorExpr;
+                if (this.nonErrorLoggingCheck) {
+                    tableConstructorExpr.cloneAttempt++;
+                    clonedTableExpr = nodeCloner.clone(tableConstructorExpr);
                 }
+
+                BType resultType = checkExpr(clonedTableExpr, env, memType);
+                if (resultType != symTable.semanticError && dlog.getErrorCount() == 0 &&
+                        isUniqueType(matchingTypes, resultType)) {
+                    matchingTypes.add(resultType);
+                }
+                dlog.resetErrorCount();
             }
 
-            if (matchingTypes.size() == 1) {
-                resultType = matchingTypes.get(0);
+            this.dlog.setCurrentLog(prevDLog);
+            this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+
+            if (matchingTypes.isEmpty()) {
+                BLangTableConstructorExpr exprToLog = tableConstructorExpr;
+                if (this.nonErrorLoggingCheck) {
+                    tableConstructorExpr.cloneAttempt++;
+                    exprToLog = nodeCloner.clone(tableConstructorExpr);
+                }
+
+                dlog.error(tableConstructorExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType,
+                        getInferredTableType(exprToLog));
+
+            } else if (matchingTypes.size() != 1) {
+                dlog.error(tableConstructorExpr.pos, DiagnosticCode.AMBIGUOUS_TYPES,
+                        expType);
+            } else {
+                resultType = checkExpr(tableConstructorExpr, env, matchingTypes.get(0));
                 return;
-            } else if (matchingTypes.size() > 1) {
-                dlog.error(tableConstructorExpr.pos, DiagnosticCode.AMBIGUOUS_TYPES, expectedType);
             }
             resultType = symTable.semanticError;
         } else {
             resultType = symTable.semanticError;
         }
+    }
+
+    private BType getInferredTableType(BLangTableConstructorExpr exprToLog) {
+        List<BType> memTypes = checkExprList(new ArrayList<>(exprToLog.recordLiteralList), env);
+        for (BType memType : memTypes) {
+            if (memType == symTable.semanticError) {
+                return  symTable.semanticError;
+            }
+        }
+
+        return new BTableType(TypeTags.TABLE, inferTableMemberType(memTypes, exprToLog), null);
     }
 
     private boolean checkKeySpecifier(BLangTableConstructorExpr tableConstructorExpr, BTableType tableType) {
