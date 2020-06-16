@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -164,6 +165,7 @@ import static org.ballerinalang.model.elements.PackageID.VALUE;
 import static org.ballerinalang.model.elements.PackageID.XML;
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
 import static org.ballerinalang.util.diagnostic.DiagnosticCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM;
+import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
 /**
  * @since 0.94
@@ -318,7 +320,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 pkgEnv.scope.define(unresolvedPkgAlias, symbol);
             }
         }
-
+        initPredeclaredModules(symTable.predeclaredModules, pkgEnv);
         // Define type definitions.
         this.typePrecedence = 0;
 
@@ -540,6 +542,23 @@ public class SymbolEnter extends BLangNodeVisitor {
         symbol.scope = pkgSymbol.scope;
         importPkgNode.symbol = symbol;
         this.env.scope.define(pkgAlias, symbol);
+    }
+
+    public void initPredeclaredModules(Map<Name, BPackageSymbol> predeclaredModules, SymbolEnv env) {
+        SymbolEnv prevEnv = this.env;
+        this.env = env;
+        for (Name alias : predeclaredModules.keySet()) {
+            ScopeEntry entry = this.env.scope.lookup(alias);
+            if (entry == NOT_FOUND_ENTRY) {
+                this.env.scope.define(alias, predeclaredModules.get(alias));
+            } else {
+                while (entry.next != NOT_FOUND_ENTRY) {
+                    entry = entry.next;
+                }
+                entry.next = new ScopeEntry(predeclaredModules.get(alias), NOT_FOUND_ENTRY);
+            }
+        }
+        this.env = prevEnv;
     }
 
     @Override
