@@ -65,7 +65,7 @@ mysql:Options mysqlOptions = {
 };
 mysql:Client|sql:Error dbClient3 = new (user = "rootUser", password = "rootPass",
                               options = mysqlOptions);
-mysql:Client|sql:Error dbClient3 = new (user = "rootUser", password = "rootPass",
+mysql:Client|sql:Error dbClient4 = new (user = "rootUser", password = "rootPass",
                               connectionPool = {maxOpenConnections: 5});
 ```
 You can find more details about each property in the
