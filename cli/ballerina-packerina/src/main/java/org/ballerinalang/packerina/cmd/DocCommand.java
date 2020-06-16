@@ -285,7 +285,6 @@ public class DocCommand implements BLauncherCmd {
         options.put(NEW_PARSER_ENABLED, Boolean.toString(this.newParserEnabled));
 
         // create builder context
-        // create builder context
         BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
         JarResolver jarResolver = JarResolverImpl.getInstance(buildContext, true);
         buildContext.put(BuildContextField.JAR_RESOLVER, jarResolver);
