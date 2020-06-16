@@ -192,6 +192,7 @@ public class BIRGen extends BLangNodeVisitor {
             new CompilerContext.Key<>();
 
     public static final String DEFAULT_WORKER_NAME = "default";
+    public static final String CLONE_READ_ONLY = "cloneReadOnly";
     private BIRGenEnv env;
     private Names names;
     private final SymbolTable symTable;
@@ -631,7 +632,11 @@ public class BIRGen extends BLangNodeVisitor {
             case NUMERIC_LITERAL:
                 return true;
             case INVOCATION:
-                return isCompileTimeAnnotationValue(((BLangInvocation) expr).expr);
+                BLangInvocation invocation = (BLangInvocation) expr;
+                if (invocation.name.getValue().equals(CLONE_READ_ONLY)) {
+                    return isCompileTimeAnnotationValue(invocation.expr);
+                }
+                return false;
             case RECORD_LITERAL_EXPR:
                 BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expr;
                 for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
@@ -688,7 +693,11 @@ public class BIRGen extends BLangNodeVisitor {
             case STATEMENT_EXPRESSION:
                 return createAnnotationRecordValue((BLangStatementExpression) expr);
             case INVOCATION:
-                return createAnnotationValue(((BLangInvocation) expr).expr);
+                BLangInvocation invocation = (BLangInvocation) expr;
+                if (invocation.name.getValue().equals(CLONE_READ_ONLY)) {
+                    return createAnnotationValue(invocation.expr);
+                }
+                // fall through to default
             default:
                 // This following line will not be executed
                 throw new IllegalStateException("Invalid annotation value expression kind: " + expr.getKind());
