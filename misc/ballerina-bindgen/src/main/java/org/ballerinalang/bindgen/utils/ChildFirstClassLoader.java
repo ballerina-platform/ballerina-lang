@@ -44,18 +44,15 @@ public class ChildFirstClassLoader extends URLClassLoader {
         Class<?> loadedClass = findLoadedClass(name);
         if (loadedClass == null) {
             try {
-                if (system != null) {
-                    loadedClass = system.loadClass(name);
-                }
-            } catch (ClassNotFoundException ex) {
-                // Silently skipping if the class is not found in the system class loader
-            }
-            try {
-                if (loadedClass == null) {
-                    loadedClass = findClass(name);
-                }
+                loadedClass = findClass(name);
             } catch (ClassNotFoundException e) {
-                loadedClass = super.loadClass(name, resolve);
+                try {
+                    loadedClass = super.loadClass(name, resolve);
+                } catch (ClassNotFoundException e2) {
+                    if (system != null) {
+                        loadedClass = system.loadClass(name);
+                    }
+                }
             }
         }
         if (resolve) {
@@ -67,34 +64,35 @@ public class ChildFirstClassLoader extends URLClassLoader {
     @Override
     public Enumeration<URL> getResources(String name) throws IOException {
         List<URL> allResources = new LinkedList<>();
-
-        Enumeration<URL> sysResource = system.getResources(name);
-        while (sysResource.hasMoreElements()) {
-            allResources.add(sysResource.nextElement());
+        Enumeration<URL> sysResource;
+        if (system != null) {
+            sysResource = system.getResources(name);
+            while (sysResource.hasMoreElements()) {
+                allResources.add(sysResource.nextElement());
+            }
         }
         Enumeration<URL> thisResource = findResources(name);
         while (thisResource.hasMoreElements()) {
             allResources.add(thisResource.nextElement());
         }
-        Enumeration<URL> parentResource = super.findResources(name);
-        while (parentResource.hasMoreElements()) {
-            allResources.add(parentResource.nextElement());
+        Enumeration<URL> parentResource;
+        if (getParent() != null) {
+            parentResource = getParent().getResources(name);
+            while (parentResource.hasMoreElements()) {
+                allResources.add(parentResource.nextElement());
+            }
         }
-
         return Collections.enumeration(allResources);
     }
 
     @Override
     public URL getResource(String name) {
-        URL resource = null;
-        if (system != null) {
-            resource = system.getResource(name);
-        }
-        if (resource == null) {
-            resource = findResource(name);
-        }
+        URL resource = findResource(name);
         if (resource == null) {
             resource = super.getResource(name);
+        }
+        if (resource == null && system != null) {
+            resource = system.getResource(name);
         }
         return resource;
     }
