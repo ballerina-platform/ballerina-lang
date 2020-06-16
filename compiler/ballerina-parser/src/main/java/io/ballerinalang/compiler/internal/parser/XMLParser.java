@@ -521,15 +521,6 @@ public class XMLParser extends AbstractParser {
         STToken nextToken = peek();
         while (!isEndOfXMLComment(nextToken.kind)) {
             STNode contentItem = parseXMLCharacterSet();
-            if (contentItem.kind == SyntaxKind.INTERPOLATION) {
-                if (items.isEmpty()) {
-                    commentStart = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(commentStart, contentItem,
-                            DiagnosticErrorCode.ERROR_INTERPOLATION_IS_NOT_ALLOWED_WITHIN_XML_COMMENTS);
-                } else {
-                    updateLastNodeInListWithInvalidNode(items, contentItem,
-                            DiagnosticErrorCode.ERROR_INTERPOLATION_IS_NOT_ALLOWED_WITHIN_XML_COMMENTS);
-                }
-            }
             items.add(contentItem);
             nextToken = peek();
         }
@@ -602,15 +593,6 @@ public class XMLParser extends AbstractParser {
         List<STNode> items = new ArrayList<>();
         while (!isEndOfXMLPI(nextToken.kind)) {
             STNode contentItem = parseXMLCharacterSet();
-            if (contentItem.kind == SyntaxKind.INTERPOLATION) {
-                if (items.isEmpty()) {
-                    target = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(target, contentItem,
-                            DiagnosticErrorCode.ERROR_INTERPOLATION_IS_NOT_ALLOWED_WITHIN_XML_PI);
-                } else {
-                    updateLastNodeInListWithInvalidNode(items, contentItem,
-                            DiagnosticErrorCode.ERROR_INTERPOLATION_IS_NOT_ALLOWED_WITHIN_XML_PI);
-                }
-            }
             items.add(contentItem);
             nextToken = peek();
         }
