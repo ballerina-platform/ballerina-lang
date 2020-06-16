@@ -29,6 +29,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypedescType;
@@ -44,6 +45,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StringValue;
+import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.api.BString;
@@ -269,6 +271,18 @@ public class FromJsonWithType {
                     newArray.add(i, newValue);
                 }
                 return newArray;
+            case TypeTags.TABLE_TAG:
+                BTableType tableType = (BTableType) targetType;
+
+                BTableType newTableType = new BTableType(tableType.getConstrainedType(),
+                        tableType.getFieldNames(), false);
+                TableValueImpl newTable = new TableValueImpl(newTableType);
+                for (int i = 0; i < array.size(); i++) {
+                    MapValueImpl mapValue = (MapValueImpl) convert(array.get(i), tableType.getConstrainedType(),
+                            unresolvedValues, t, strand);
+                    newTable.add(mapValue);
+                }
+                return newTable;
             default:
                 break;
         }
@@ -286,6 +300,7 @@ public class FromJsonWithType {
         if (convertibleTypes.size() == 0) {
             switch (targetTypeTag) {
                 case TypeTags.RECORD_TYPE_TAG:
+                case TypeTags.TABLE_TAG:
                     convertibleTypes.add(targetType);
                     break;
                 case TypeTags.XML_TAG:
