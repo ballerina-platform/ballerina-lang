@@ -55,9 +55,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.ballerinalang.bindgen.command.BindingsGenerator.aliases;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.BAL_EXTENSION;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BOOLEAN;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BOOLEAN_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BYTE;
@@ -324,7 +324,7 @@ public class BindgenUtils {
             if (listOfFiles.size() > 1) {
                 for (String className : classList) {
                     for (File file : listOfFiles) {
-                        String fileName = getDependencyFileName(className);
+                        String fileName = aliases.get(className);
                         if (file.getName().equals(fileName)) {
                             try {
                                 Files.delete(file.toPath());
@@ -347,8 +347,9 @@ public class BindgenUtils {
             if (listOfFiles.size() > 1) {
                 for (String className : classList) {
                     for (File file : listOfFiles) {
-                        String fileName = getDependencyFileName(className);
-                        if (file.getName().equals(fileName)) {
+                        String fileName = aliases.get(className);
+                        if (file.getName().equals(fileName) && file.getParentFile().getName().equals(className
+                                .substring(0, className.lastIndexOf('.')))) {
                             removeList.add(className);
                             break;
                         }
@@ -357,16 +358,6 @@ public class BindgenUtils {
             }
         }
         return removeList;
-    }
-
-    private static String getDependencyFileName(String className) {
-        char prefix;
-        if (className.contains("$")) {
-            prefix = '$';
-        } else {
-            prefix = '.';
-        }
-        return className.substring(className.lastIndexOf(prefix) + 1) + BAL_EXTENSION;
     }
 
     public static Set<String> getUpdatedConstantsList(Path existingPath, Set<String> classList) {
@@ -465,9 +456,9 @@ public class BindgenUtils {
         if (javaType.isArray() && javaType.getComponentType().isPrimitive()) {
             return getPrimitiveArrayBalType(javaType.getComponentType().getSimpleName());
         } else {
-            String returnType = getBalType(javaType.getSimpleName());
+            String returnType = getBalType(getAlias(javaType));
             if (returnType.equals(HANDLE)) {
-                return javaType.getSimpleName();
+                return getAlias(javaType);
             }
             return returnType;
         }
@@ -630,5 +621,32 @@ public class BindgenUtils {
 
     public static void setOutStream(PrintStream outStream) {
         BindgenUtils.outStream = outStream;
+    }
+
+    public static String getAlias(Class className) {
+        if (!aliases.containsKey(className.getName())) {
+            int i = 2;
+            boolean notAdded = true;
+            String simpleName = className.getSimpleName();
+            String alias = simpleName;
+            if (!aliases.containsValue(alias)) {
+                aliases.put(className.getName(), alias);
+            } else {
+                while (notAdded) {
+                    if (className.isArray()) {
+                        int insertInto = simpleName.toCharArray().length - 2;
+                        alias = simpleName.substring(0, insertInto) + i + simpleName.substring(insertInto);
+                    } else {
+                        alias = simpleName + i;
+                    }
+                    if (!aliases.containsValue(alias)) {
+                        aliases.put(className.getName(), alias);
+                        notAdded = false;
+                    }
+                    i++;
+                }
+            }
+        }
+        return aliases.get(className.getName());
     }
 }
