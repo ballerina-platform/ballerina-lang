@@ -89,7 +89,7 @@ public class LangLibValueTest {
         BRunUtil.invokeFunction(compileResult, "testToJsonStringForNonJsonTypes");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testFromJsonString() {
 
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFromJsonString");
@@ -219,7 +219,7 @@ public class LangLibValueTest {
         };
     }
 
-    @Test(dataProvider = "fromJsonWithTypeFunctions")
+    @Test(dataProvider = "fromJsonWithTypeFunctions", enabled = false)
     public void testFromJsonWithType(String function) {
         BRunUtil.invoke(compileResult, function);
     }
@@ -239,7 +239,7 @@ public class LangLibValueTest {
         };
     }
 
-    @Test(dataProvider = "fromJsonStringWithTypeFunctions")
+    @Test(dataProvider = "fromJsonStringWithTypeFunctions", enabled = false)
     public void testFromJsonStringWithType(String function) {
         BRunUtil.invoke(compileResult, function);
     }
@@ -257,7 +257,7 @@ public class LangLibValueTest {
         };
     }
 
-    @Test(dataProvider = "toJsonFunctions")
+    @Test(dataProvider = "toJsonFunctions", enabled = false)
     public void testToJson(String function) {
         BRunUtil.invoke(compileResult, function);
     }
