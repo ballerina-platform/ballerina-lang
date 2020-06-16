@@ -34,7 +34,7 @@ import java.io.IOException;
 /**
  * This class tests the startup functionality of Hub and Subscriber.
  */
-@Test(groups = "websub-test")
+@Test(groups = "websub-test", enabled = false)
 public class WebSubStartupFunctionalityTestCase extends BaseTest {
     private static final int WEBSUB_SUB_PORT = 23386;
     private static final int WEBSUB_HUB_PORT = 23190;
