@@ -17,6 +17,7 @@
 package org.ballerinalang.test.annotations;
 
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -27,6 +28,9 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 
 import java.util.List;
@@ -51,7 +55,8 @@ public class IconAnnotationTest {
     public void testIconOnFunction() {
         BLangFunction fooFunction = (BLangFunction) ((List) ((BLangPackage) result.getAST()).functions).get(0);
         BLangAnnotationAttachment annot = (BLangAnnotationAttachment) ((List) fooFunction.annAttachments).get(0);
-        Assert.assertEquals(annot.expr.toString(), " {path: /fooIconPath.icon}");
+        Assert.assertEquals(getActualExpressionFromAnnotationAttachmentExpr(annot.expr).toString(), " {path: " +
+                "/fooIconPath.icon}");
     }
 
     @Test
@@ -59,11 +64,13 @@ public class IconAnnotationTest {
         TypeDefinition objType = result.getAST().getTypeDefinitions().get(0);
         List<? extends AnnotationAttachmentNode> objAnnot = objType.getAnnotationAttachments();
         Assert.assertEquals(objAnnot.size(), 1);
-        Assert.assertEquals(objAnnot.get(0).getExpression().toString(), " {path: /barIconPath.icon}");
+        Assert.assertEquals(objAnnot.get(0).getExpression().toString(), " {path: /barIconPath.icon}.cloneReadOnly()");
 
         BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) objType.getTypeNode();
         List<BLangAnnotationAttachment> attachedFuncAttachments = objectTypeNode.functions.get(0).annAttachments;
-        String annotAsString = attachedFuncAttachments.get(0).getExpression().toString();
+        String annotAsString =
+                getActualExpressionFromAnnotationAttachmentExpr(attachedFuncAttachments.get(0).getExpression())
+                        .toString();
         Assert.assertEquals(annotAsString, " {path: /kMemberFuncIconPath.icon}");
     }
 
@@ -73,5 +80,18 @@ public class IconAnnotationTest {
         BAssertUtil.validateError(negative, 1,
                 "annotation 'ballerina/lang.annotations:1.0.0:icon' is not allowed on var", 23, 1);
         Assert.assertEquals(negative.getErrorCount(), 2);
+    }
+
+    private BLangExpression getActualExpressionFromAnnotationAttachmentExpr(BLangExpression expression) {
+        if (expression.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
+            BLangTypeConversionExpr expr = (BLangTypeConversionExpr) expression;
+            if (expr.getKind() == NodeKind.INVOCATION) {
+                return ((BLangInvocation) expr.expr).expr;
+            }
+        }
+        if (expression.getKind() == NodeKind.INVOCATION) {
+            return ((BLangInvocation) expression).expr;
+        }
+        return expression;
     }
 }
