@@ -21,6 +21,8 @@ import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
 
+import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
+
 /**
  * Ballerina decimal variable type.
  */
@@ -33,6 +35,6 @@ public class BDecimal extends BPrimitiveVariable {
     @Override
     public String computeValue() {
         // Todo - how to extract value?
-        return "unknown";
+        return UNKNOWN_VALUE;
     }
 }

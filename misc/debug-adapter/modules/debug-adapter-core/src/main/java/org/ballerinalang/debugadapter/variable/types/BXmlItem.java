@@ -25,6 +25,8 @@ import org.eclipse.lsp4j.debug.Variable;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
+
 /**
  * Ballerina xml variable type.
  */
@@ -37,7 +39,7 @@ public class BXmlItem extends BCompoundVariable {
     @Override
     public String computeValue() {
         if (!(jvmValue instanceof ObjectReference)) {
-            return "unknown";
+            return UNKNOWN_VALUE;
         }
         ObjectReference jvmValueRef = (ObjectReference) jvmValue;
         return jvmValueRef.toString();

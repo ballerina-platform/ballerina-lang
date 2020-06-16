@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
+
 /**
  * Ballerina error variable type.
  */
@@ -41,7 +43,7 @@ public class BError extends BCompoundVariable {
     public String computeValue() {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
-                return "unknown";
+                return UNKNOWN_VALUE;
             }
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             List<Field> fields = jvmValueRef.referenceType().allFields();
@@ -50,7 +52,7 @@ public class BError extends BCompoundVariable {
             Value error = jvmValueRef.getValue(valueField);
             return error.toString();
         } catch (Exception e) {
-            return "unknown";
+            return UNKNOWN_VALUE;
         }
     }
 

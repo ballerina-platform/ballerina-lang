@@ -18,11 +18,11 @@ package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Field;
-import com.sun.jdi.IntegerValue;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 
 /**
  * Ballerina tuple variable type.
@@ -45,26 +47,14 @@ public class BTuple extends BCompoundVariable {
     public String computeValue() {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
-                return "unknown";
+                return UNKNOWN_VALUE;
             }
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
-            List<Field> fields = jvmValueRef.referenceType().allFields();
-            Field arrayValueField = jvmValueRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
-                    fieldValueEntry.getValue() != null && fieldValueEntry.getKey().toString().endsWith("Values"))
-                    .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
-
-            String arrayType = arrayValueField.toString();
-            arrayType = arrayType.replaceFirst("org.ballerinalang.jvm.values.TupleValueImpl.", "")
-                    .replaceFirst("Values", "").replaceFirst("ref", "any");
-
-            Field arraySizeField = jvmValueRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
-                    fieldValueEntry.getValue() != null &&
-                            fieldValueEntry.getKey().toString().endsWith("ArrayValue.size"))
-                    .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
-            int arraySize = ((IntegerValue) jvmValueRef.getValue(arraySizeField)).value();
+            String arrayType = VariableUtils.getArrayType(jvmValueRef);
+            int arraySize = VariableUtils.getArraySize(jvmValueRef);
             return String.format("%s[%d]", arrayType, arraySize);
         } catch (Exception ignored) {
-            return "unknown";
+            return UNKNOWN_VALUE;
         }
     }
 
@@ -76,21 +66,13 @@ public class BTuple extends BCompoundVariable {
             }
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             List<Field> fields = jvmValueRef.referenceType().allFields();
-
             Field arrayValueField = jvmValueRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
                     fieldValueEntry.getValue() != null && fieldValueEntry.getKey().toString().endsWith("Values"))
                     .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
-
-            Field arraySizeField = jvmValueRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
-                    fieldValueEntry.getValue() != null &&
-                            fieldValueEntry.getKey().toString().endsWith("ArrayValue.size"))
-                    .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
-
-            int arraySize = ((IntegerValue) jvmValueRef.getValue(arraySizeField)).value();
             List<Value> valueList = ((ArrayReference) jvmValueRef.getValue(arrayValueField)).getValues();
 
-            // List length is 100 by default. Create a sub list with actual array size
-            List<Value> valueSubList = valueList.subList(0, arraySize);
+            // List length is 100 by default. Create a sub list with actual array size.
+            List<Value> valueSubList = valueList.subList(0, VariableUtils.getArraySize(jvmValueRef));
             Map<String, Value> values = new TreeMap<>();
             AtomicInteger nextVarIndex = new AtomicInteger(0);
             valueSubList.forEach(item -> {

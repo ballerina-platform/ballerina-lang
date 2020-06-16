@@ -26,6 +26,8 @@ import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.Optional;
 
+import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
+
 /**
  * Ballerina string variable type.
  */
@@ -39,7 +41,7 @@ public class BString extends BPrimitiveVariable {
     public String computeValue() {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
-                return "unknown";
+                return UNKNOWN_VALUE;
             }
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             if (jvmValueRef.referenceType().name().equals(JVMValueType.BMPSTRING.getString())
@@ -49,12 +51,12 @@ public class BString extends BPrimitiveVariable {
                 if (valueField.isPresent()) {
                     return jvmValueRef.getValue(valueField.get()).toString();
                 }
-                return "unknown";
+                return UNKNOWN_VALUE;
             } else {
                 return jvmValueRef.toString();
             }
         } catch (Exception ignored) {
-            return "unknown";
+            return UNKNOWN_VALUE;
         }
     }
 }

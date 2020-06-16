@@ -27,6 +27,8 @@ import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
+
 /**
  * Ballerina integer type.
  */
@@ -46,7 +48,7 @@ public class BInt extends BPrimitiveVariable {
                     field.name().equals("value")).collect(Collectors.toList()).get(0);
             return valueObjectRef.getValue(valueField).toString();
         } else {
-            return "unknown";
+            return UNKNOWN_VALUE;
         }
     }
 }

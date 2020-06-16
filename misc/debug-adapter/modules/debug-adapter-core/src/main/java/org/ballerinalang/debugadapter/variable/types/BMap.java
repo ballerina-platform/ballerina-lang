@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
+
 /**
  * Ballerina map variable type.
  */
@@ -83,7 +85,7 @@ public class BMap extends BCompoundVariable {
     private String getJsonKeyString(Value key) {
         ObjectReference keyRef = (key instanceof ObjectReference) ? (ObjectReference) key : null;
         if (keyRef == null) {
-            return "unknown";
+            return UNKNOWN_VALUE;
         }
         if (keyRef.referenceType().name().equals(JVMValueType.BMPSTRING.getString())
                 || keyRef.referenceType().name().equals(JVMValueType.NONBMPSTRING.getString())) {
@@ -92,7 +94,7 @@ public class BMap extends BCompoundVariable {
             if (valueField.isPresent()) {
                 return keyRef.getValue(valueField.get()).toString();
             }
-            return "unknown";
+            return UNKNOWN_VALUE;
         } else {
             return keyRef.toString();
         }

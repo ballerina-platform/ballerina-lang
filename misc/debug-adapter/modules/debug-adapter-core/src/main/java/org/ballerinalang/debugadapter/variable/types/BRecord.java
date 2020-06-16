@@ -26,6 +26,8 @@ import org.eclipse.lsp4j.debug.Variable;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
+
 /**
  * Ballerina record variable type.
  */
@@ -39,7 +41,7 @@ public class BRecord extends BCompoundVariable {
     public String computeValue() {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
-                return "unknown";
+                return UNKNOWN_VALUE;
             }
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             // Extracts object type name from the reflected type class.
@@ -49,9 +51,9 @@ public class BRecord extends BCompoundVariable {
                     return element.replaceFirst("\\$value\\$", "");
                 }
             }
-            return "unknown";
+            return UNKNOWN_VALUE;
         } catch (Exception ignored) {
-            return "unknown";
+            return UNKNOWN_VALUE;
         }
     }
 
@@ -64,7 +66,7 @@ public class BRecord extends BCompoundVariable {
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             Map<Field, Value> fieldValueMap = jvmValueRef.getValues(jvmValueRef.referenceType().allFields());
             Map<String, Value> values = new HashMap<>();
-            // Uses the ballerina record type name to extract ballerina record fields from the jvm reference.
+            // Uses ballerina record type name to filter record fields from the jvm reference.
             String balRecordFiledIdentifier = this.computeValue() + ".";
             fieldValueMap.forEach((field, value) -> {
                 if (field.toString().contains(balRecordFiledIdentifier)) {

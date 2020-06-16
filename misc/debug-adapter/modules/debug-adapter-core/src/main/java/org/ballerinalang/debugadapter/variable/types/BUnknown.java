@@ -24,6 +24,8 @@ import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.Optional;
 
+import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
+
 /**
  * Ballerina variable implementation for unknown types.
  */
@@ -36,9 +38,9 @@ public class BUnknown extends BPrimitiveVariable {
     @Override
     public String computeValue() {
         if (!(jvmValue instanceof ObjectReference)) {
-            return "unknown";
+            return UNKNOWN_VALUE;
         }
         ObjectReference jvmValueRef = (ObjectReference) jvmValue;
-        return Optional.of(jvmValueRef).map(ObjectReference::toString).orElse("unknown");
+        return Optional.of(jvmValueRef).map(ObjectReference::toString).orElse(UNKNOWN_VALUE);
     }
 }
