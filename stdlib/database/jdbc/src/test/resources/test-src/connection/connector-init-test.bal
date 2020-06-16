@@ -15,7 +15,6 @@
 
 import ballerina/java.jdbc;
 import ballerina/sql;
-import ballerina/io;
 
 function testConnection1(string jdbcURL, string user, string password) returns error? {
     jdbc:Client testDB = check new (url = jdbcURL, user = user, password = password);
